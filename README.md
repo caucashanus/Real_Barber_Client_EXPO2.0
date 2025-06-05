@@ -19,6 +19,9 @@ nvm use 20
 # Install dependencies
 npm install
 
+# Handle peer dependency issues
+npm install --legacy-peer-deps
+
 # Start the Expo development server with a clean cache
 npx expo start -c
 ```
