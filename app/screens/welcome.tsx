@@ -55,7 +55,7 @@ export default function OnboardingScreen() {
 
                     <Pressable onPress={() => router.push('/(tabs)/(home)')} className='w-full border border-black dark:border-white rounded-2xl flex flex-row items-center justify-center py-4'>
                         <View className='absolute left-4 top-4.5'>
-                            <AntDesign name="apple1" size={22} color={colors.text} />
+                            <AntDesign name="apple" size={22} color={colors.text} />
                         </View>
                         <ThemedText className='text-base font-medium pr-2'>Continue with Apple</ThemedText>
 

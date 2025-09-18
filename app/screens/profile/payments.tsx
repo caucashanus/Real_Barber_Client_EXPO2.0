@@ -167,7 +167,7 @@ export default function PaymentsScreen() {
             className="flex-row items-center border-b border-light-secondary dark:border-dark-secondary py-4"
           >
             <View className="w-12 h-12 rounded-lg bg-light-secondary dark:bg-dark-secondary items-center justify-center mr-4">
-              <AntDesign name="apple1" size={24} color={colors.icon} />
+              <AntDesign name="apple" size={24} color={colors.icon} />
             </View>
             <View className="flex-1">
               <ThemedText className="font-semibold">Apple Pay</ThemedText>

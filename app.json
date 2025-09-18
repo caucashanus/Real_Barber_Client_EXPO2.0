@@ -6,12 +6,11 @@
     "version": "1.0.0",
     "runtimeVersion": "1.0.0",
     "scheme": "propia",
-    "web": {
-      "favicon": "./assets/favicon.png"
-    },
+   
     "experiments": {
       "tsconfigPaths": true
     },
+    "platforms": ["ios", "android"],
     "plugins": [
       "expo-router",
       "expo-font"
@@ -35,7 +34,11 @@
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "softwareKeyboardLayoutMode": "pan"
+      "softwareKeyboardLayoutMode": "pan",
+      "predictiveBackGestureEnabled": false,
+      "config": {
+        "enableOnBackInvokedCallback": false
+      }
     },
     "extra": {
       "router": {
