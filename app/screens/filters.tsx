@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { View, ScrollView } from 'react-native';
 import { useRouter } from 'expo-router';
 import ThemedText from '@/components/ThemedText';
-import Slider from '@/components/forms/Slider';
+import Slider from '@react-native-community/slider';
 import Counter from '@/components/forms/Counter';
 import FormTabs, { FormTab } from '@/components/forms/FormTabs';
 import { Button } from '@/components/Button';
@@ -26,26 +26,21 @@ export default function FiltersScreen() {
         <>
             <Header showBackButton title="Filters" />
             <ThemedScroller className="flex-1 bg-light-primary dark:bg-dark-primary">
-                <Section className='mb-7 pb-7 mt-8 border-b border-light-secondary dark:border-dark-secondary' title="Type of place">
-                    <FormTabs className='mt-4'>
-                        <FormTab title="Any type" />
-                        <FormTab title="Room" />
-                        <FormTab title="Entire place" />
-                    </FormTabs>
-                </Section>
+               
 
-                <Section className='mb-7 pb-7 border-b border-light-secondary dark:border-dark-secondary' title="Price" subtitle={`Up to $${price} USD`}>
-                    <Slider
-                        value={price}
-                        onValueChange={setPrice}
-                        minValue={100}
-                        maxValue={1000}
-                        step={5}
-                        initialValue={500}
-                        size="l"
-                        className='mt-2'
-                    />
-                </Section>
+                <Section className='mb-7 pb-7 border-b border-light-secondary dark:border-dark-secondary' title="Price" subtitle={`Up to $${Math.round(price)} USD`}>
+                   
+                   <Slider
+                       style={{ width: "100%", height: 40 }}
+                       value={price}
+                       minimumValue={100}
+                       maximumValue={1000}
+                       onValueChange={setPrice}
+                       minimumTrackTintColor="#FF2358"
+                       maximumTrackTintColor="rgba(0,0,0,0.2)"
+                       step={10}
+                   />
+               </Section>
 
                 <Section className='mb-7 pb-7 border-b border-light-secondary dark:border-dark-secondary' title="Rooms and beds">
                     <CounterRow label="Bedrooms" />
