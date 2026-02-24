@@ -4,10 +4,20 @@ export interface Employee {
   id: string;
   name: string;
   email?: string;
+  description?: string | null;
   avatarUrl?: string | null;
   isActive?: boolean;
   assignedAt?: string;
-  media?: Array<{ url: string }> | Record<string, { url: string }>;
+  media?: EmployeeMediaItem[] | Record<string, EmployeeMediaItem>;
+  [key: string]: unknown;
+}
+
+export interface EmployeeMediaItem {
+  id?: string;
+  url: string;
+  type?: 'image' | 'video';
+  order?: number;
+  title?: string | null;
   [key: string]: unknown;
 }
 

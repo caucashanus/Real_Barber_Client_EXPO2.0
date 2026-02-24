@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from 'react';
-import { View, Image, ActivityIndicator, Pressable } from 'react-native';
+import { View, Image, ActivityIndicator, Pressable, ScrollView, Modal, useWindowDimensions } from 'react-native';
 import { useLocalSearchParams } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
+import { Video, ResizeMode } from 'expo-av';
 import Header from '@/components/Header';
 import ThemedText from '@/components/ThemedText';
 import ThemedScroller from '@/components/ThemeScroller';
@@ -15,9 +16,11 @@ import Favorite from '@/components/Favorite';
 import { useAuth } from '@/app/contexts/AuthContext';
 import {
   getEmployeeById,
+  getEmployees,
   type EmployeeDetail,
   type EmployeeBranch,
   type EmployeeService,
+  type EmployeeMediaItem,
 } from '@/api/employees';
 import Section from '@/components/layout/Section';
 import Icon from '@/components/Icon';
@@ -49,6 +52,28 @@ function getServicesList(employee: EmployeeDetail): EmployeeService[] {
   return Object.values(s);
 }
 
+function getMediaList(employee: EmployeeDetail): EmployeeMediaItem[] {
+  const m = employee.media;
+  if (!m) return [];
+  const list = Array.isArray(m) ? [...m] : Object.values(m);
+  const withUrl = list.filter((item) => item?.url);
+  withUrl.sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
+  return withUrl;
+}
+
+type CategoryGroup = { categoryId: string; categoryName: string; services: EmployeeService[] };
+
+function groupServicesByCategory(services: EmployeeService[]): CategoryGroup[] {
+  const byId = new Map<string, CategoryGroup>();
+  for (const svc of services) {
+    const id = svc.category?.id ?? 'unknown';
+    const name = svc.category?.name ?? '—';
+    if (!byId.has(id)) byId.set(id, { categoryId: id, categoryName: name, services: [] });
+    byId.get(id)!.services.push(svc);
+  }
+  return Array.from(byId.values());
+}
+
 export default function BarberDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const { apiToken } = useAuth();
@@ -56,6 +81,10 @@ export default function BarberDetailScreen() {
   const [employee, setEmployee] = useState<EmployeeDetail | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [expandedCategoryId, setExpandedCategoryId] = useState<string | null>(null);
+  const [fullscreenMedia, setFullscreenMedia] = useState<EmployeeMediaItem | null>(null);
+  const [description, setDescription] = useState<string | null>(null);
+  const { width: winWidth, height: winHeight } = useWindowDimensions();
 
   useEffect(() => {
     if (!apiToken || !id) {
@@ -64,8 +93,17 @@ export default function BarberDetailScreen() {
     }
     setLoading(true);
     setError(null);
-    getEmployeeById(apiToken, id)
-      .then(setEmployee)
+    setDescription(null);
+    Promise.all([
+      getEmployeeById(apiToken, id),
+      getEmployees(apiToken, { includeReviews: true, reviewsLimit: 1 }).catch(() => [] as EmployeeDetail[]),
+    ])
+      .then(([detail, list]) => {
+        setEmployee(detail);
+        const arr = Array.isArray(list) ? list : Object.values(list);
+        const fromList = arr.find((e) => e.id === id);
+        if (fromList?.description) setDescription(fromList.description);
+      })
       .catch((e) => setError(e instanceof Error ? e.message : 'Failed to load'))
       .finally(() => setLoading(false));
   }, [apiToken, id]);
@@ -119,19 +157,49 @@ export default function BarberDetailScreen() {
             </View>
           </View>
 
-          <View className="flex-row items-center mt-8 mb-8 py-global border-y border-neutral-200 dark:border-dark-secondary">
-            <Avatar size="md" src={employee.avatarUrl ?? undefined} name={employee.name} className="mr-4" />
-            <View className="ml-0">
-              <ThemedText className="font-semibold text-base">Barber</ThemedText>
-              {employee.email ? (
-                <ThemedText className="text-xs text-light-subtext dark:text-dark-subtext" numberOfLines={1}>
-                  {employee.email}
-                </ThemedText>
-              ) : null}
+          <View className="mt-8 mb-8 py-global border-y border-neutral-200 dark:border-dark-secondary">
+            <View className="flex-row items-center mb-3">
+              <Avatar size="md" src={employee.avatarUrl ?? undefined} name={employee.name} className="mr-4" />
+              <ThemedText className="font-semibold text-base">About me</ThemedText>
             </View>
+            {description ? (
+              <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext" style={{ lineHeight: 22 }}>
+                {description}
+              </ThemedText>
+            ) : null}
           </View>
 
-          <ThemedText className="text-base">{employee.name}</ThemedText>
+          {getMediaList(employee).length > 0 ? (
+            <>
+              <Divider className="mb-4 mt-8" />
+              <Section title="Work samples" titleSize="lg" className="mb-6 mt-2">
+                <ScrollView
+                  horizontal
+                  showsHorizontalScrollIndicator={false}
+                  contentContainerStyle={{ gap: 12, paddingVertical: 12 }}
+                  className="-mx-global px-global"
+                >
+                  {getMediaList(employee).map((item, index) => (
+                    <Pressable
+                      key={item.id ?? index}
+                      onPress={() => setFullscreenMedia(item)}
+                      className="rounded-xl overflow-hidden"
+                      style={{ width: 160, height: 160 }}
+                    >
+                      {item.type === 'video' ? (
+                        <View className="w-full h-full bg-light-secondary dark:bg-dark-secondary items-center justify-center">
+                          <Icon name="Play" size={40} className="opacity-70" />
+                          <ThemedText className="text-xs mt-2 text-light-subtext dark:text-dark-subtext">Video</ThemedText>
+                        </View>
+                      ) : (
+                        <Image source={{ uri: item.url }} className="w-full h-full" resizeMode="cover" />
+                      )}
+                    </Pressable>
+                  ))}
+                </ScrollView>
+              </Section>
+            </>
+          ) : null}
 
           {getBranchesList(employee).length > 0 ? (
             <>
@@ -169,26 +237,48 @@ export default function BarberDetailScreen() {
             <>
               <Divider className="mb-4 mt-8" />
               <Section title="Services" titleSize="lg" className="mb-6 mt-2">
-                <View className="mt-3 gap-3">
-                  {getServicesList(employee).map((svc: EmployeeService) => (
-                    <View
-                      key={svc.id}
-                      className="flex-row items-center rounded-xl bg-light-secondary dark:bg-dark-secondary p-3"
-                    >
-                      {svc.imageUrl ? (
-                        <Image source={{ uri: svc.imageUrl }} className="w-16 h-16 rounded-lg" resizeMode="cover" />
-                      ) : (
-                        <View className="w-16 h-16 rounded-lg bg-light-primary dark:bg-dark-primary" />
-                      )}
-                      <View className="flex-1 ml-3">
-                        <ThemedText className="font-medium">{svc.name}</ThemedText>
-                        <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext">
-                          {svc.category?.name ?? '—'} · {svc.duration ?? '—'} min
-                        </ThemedText>
+                <View className="mt-3 gap-2">
+                  {groupServicesByCategory(getServicesList(employee)).map((group) => {
+                    const isExpanded = expandedCategoryId === group.categoryId;
+                    return (
+                      <View key={group.categoryId} className="rounded-xl overflow-hidden bg-light-secondary dark:bg-dark-secondary">
+                        <Pressable
+                          onPress={() => setExpandedCategoryId(isExpanded ? null : group.categoryId)}
+                          className="flex-row items-center justify-between p-3"
+                        >
+                          <ThemedText className="font-medium">{group.categoryName}</ThemedText>
+                          <Icon
+                            name="ChevronDown"
+                            size={20}
+                            className={`opacity-60 ${isExpanded ? 'rotate-180' : ''}`}
+                          />
+                        </Pressable>
+                        {isExpanded ? (
+                          <View className="gap-2 px-3 pb-3 pt-0">
+                            {group.services.map((svc) => (
+                              <View
+                                key={svc.id}
+                                className="flex-row items-center rounded-lg bg-light-primary dark:bg-dark-primary p-3"
+                              >
+                                {svc.imageUrl ? (
+                                  <Image source={{ uri: svc.imageUrl }} className="w-12 h-12 rounded-lg" resizeMode="cover" />
+                                ) : (
+                                  <View className="w-12 h-12 rounded-lg bg-light-secondary dark:bg-dark-secondary" />
+                                )}
+                                <View className="flex-1 ml-3">
+                                  <ThemedText className="font-medium text-sm">{svc.name}</ThemedText>
+                                  <ThemedText className="text-xs text-light-subtext dark:text-dark-subtext">
+                                    {svc.duration ?? '—'} min
+                                  </ThemedText>
+                                </View>
+                                <ThemedText className="font-semibold text-sm">{svc.price != null ? `${svc.price} Kč` : '—'}</ThemedText>
+                              </View>
+                            ))}
+                          </View>
+                        ) : null}
                       </View>
-                      <ThemedText className="font-semibold">{svc.price != null ? `${svc.price} Kč` : '—'}</ThemedText>
-                    </View>
-                  ))}
+                    );
+                  })}
                 </View>
               </Section>
             </>
@@ -217,6 +307,41 @@ export default function BarberDetailScreen() {
           />
         </View>
       </View>
+
+      <Modal
+        visible={!!fullscreenMedia}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setFullscreenMedia(null)}
+      >
+        <View style={{ flex: 1, width: winWidth, height: winHeight, backgroundColor: '#000' }}>
+          <Pressable
+            onPress={() => setFullscreenMedia(null)}
+            style={{ position: 'absolute', top: insets.top + 8, left: 16, zIndex: 10, padding: 8 }}
+            className="rounded-full bg-black/50"
+          >
+            <Icon name="X" size={24} className="text-white" />
+          </Pressable>
+          {fullscreenMedia?.type === 'video' ? (
+            <Video
+              source={{ uri: fullscreenMedia.url }}
+              style={{ width: winWidth, height: winHeight }}
+              resizeMode={ResizeMode.CONTAIN}
+              useNativeControls
+              shouldPlay
+              isLooping={false}
+            />
+          ) : fullscreenMedia ? (
+            <Pressable style={{ flex: 1 }} onPress={() => setFullscreenMedia(null)}>
+              <Image
+                source={{ uri: fullscreenMedia.url }}
+                style={{ width: winWidth, height: winHeight }}
+                resizeMode="contain"
+              />
+            </Pressable>
+          ) : null}
+        </View>
+      </Modal>
     </>
   );
 }
