@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import { View, Image, ActivityIndicator } from 'react-native';
+import { View, Image, ActivityIndicator, Pressable } from 'react-native';
 import { useLocalSearchParams } from 'expo-router';
+import * as WebBrowser from 'expo-web-browser';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
 import Header from '@/components/Header';
@@ -15,13 +16,20 @@ import Avatar from '@/components/Avatar';
 import { Button } from '@/components/Button';
 import Favorite from '@/components/Favorite';
 import { useAuth } from '@/app/contexts/AuthContext';
-import { getBranches, type Branch, type BranchService } from '@/api/branches';
+import { getBranches, type Branch, type BranchService, type BranchEmployee } from '@/api/branches';
 
 function getServicesList(branch: Branch): BranchService[] {
   const s = branch.services;
   if (!s) return [];
   if (Array.isArray(s)) return s;
   return Object.values(s);
+}
+
+function getEmployeesList(branch: Branch): BranchEmployee[] {
+  const e = branch.employees;
+  if (!e) return [];
+  if (Array.isArray(e)) return e;
+  return Object.values(e);
 }
 
 function getMediaUrlsSorted(media: Branch['media']): string[] {
@@ -48,6 +56,20 @@ function branchMinPrice(branch: Branch): number | null {
   const prices = servicesList.map((s) => s.price).filter((p) => p != null);
   if (prices.length === 0) return null;
   return Math.min(...prices);
+}
+
+// 3D VR prohlídka – manuální mapování podle názvu pobočky (data nejsou z API)
+const VR_TOUR_URL_BY_BRANCH_NAME: Record<string, string | null> = {
+  Barrandov: null,
+  Modřany: 'https://my.matterport.com/show/?m=SrYbx9DgJ3n',
+  Kačerov: 'https://my.matterport.com/show/?m=YF7Q1K1ZiAX',
+  Kaceřov: 'https://my.matterport.com/show/?m=YF7Q1K1ZiAX',
+  Hagibor: 'https://my.matterport.com/show/?m=WPQ3ci9vZA1',
+  HAGIBOR: 'https://my.matterport.com/show/?m=WPQ3ci9vZA1',
+};
+
+function getVrTourUrl(branchName: string): string | null {
+  return VR_TOUR_URL_BY_BRANCH_NAME[branchName] ?? null;
 }
 
 export default function BranchDetailScreen() {
@@ -100,7 +122,9 @@ export default function BranchDetailScreen() {
 
   const images = branchImages(branch).map((img) => (typeof img === 'string' ? img : img));
   const minPrice = branchMinPrice(branch);
-  const servicesList = getServicesList(branch);
+  const employeesList = getEmployeesList(branch);
+  const vrTourUrl = getVrTourUrl(branch.name);
+  const webUrl = branch.webUrl ?? null;
   const rightComponents = branch.name ? [<Favorite key="fav" productName={branch.name} size={25} isWhite />] : undefined;
 
   return (
@@ -143,42 +167,52 @@ export default function BranchDetailScreen() {
             {branch.address ? `${branch.name} – ${branch.address}` : branch.name}
           </ThemedText>
 
+          {employeesList.length > 0 ? (
+            <>
+              <Divider className="mb-4 mt-8" />
+              <Section title="Team" titleSize="lg" className="mb-6 mt-2">
+                <View className="mt-3 flex-row flex-wrap gap-6">
+                  {employeesList.map((emp: BranchEmployee) => (
+                    <View key={emp.id} className="items-center">
+                      <Avatar size="lg" src={emp.avatarUrl ?? undefined} name={emp.name} />
+                      <ThemedText className="mt-2 text-sm font-medium" numberOfLines={1}>{emp.name}</ThemedText>
+                    </View>
+                  ))}
+                </View>
+              </Section>
+            </>
+          ) : null}
+
           <Divider className="mb-4 mt-8" />
 
-          <Section title="Services" titleSize="lg" className="mb-6 mt-2">
-            <View className="mt-3">
-              {servicesList.length === 0 ? (
-                <ThemedText className="text-light-subtext dark:text-dark-subtext py-4">No services listed.</ThemedText>
-              ) : (
-                servicesList.map((service: BranchService) => (
-                  <View
-                    key={service.id}
-                    className="flex-row items-center rounded-xl bg-light-secondary dark:bg-dark-secondary p-3 mb-3"
-                  >
-                    {service.imageUrl ? (
-                      <Image source={{ uri: service.imageUrl }} className="w-16 h-16 rounded-lg" resizeMode="cover" />
-                    ) : (
-                      <View className="w-16 h-16 rounded-lg bg-light-primary dark:bg-dark-primary" />
-                    )}
-                    <View className="flex-1 ml-3">
-                      <ThemedText className="font-medium">{service.name}</ThemedText>
-                      <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext">
-                        {service.category?.name ?? '—'} · {service.duration ?? '—'} min
-                      </ThemedText>
-                      {service.employee?.name ? (
-                        <ThemedText className="text-xs text-light-subtext dark:text-dark-subtext mt-0.5">
-                          {service.employee.name}
-                        </ThemedText>
-                      ) : null}
-                    </View>
-                    <ThemedText className="font-semibold">
-                      {service.price != null ? `${service.price} Kč` : '—'}
-                    </ThemedText>
-                  </View>
-                ))
-              )}
-            </View>
-          </Section>
+          <View className="mb-6">
+            {vrTourUrl ? (
+              <Pressable
+                onPress={() => WebBrowser.openBrowserAsync(vrTourUrl)}
+                className="flex-row items-center rounded-xl bg-light-secondary dark:bg-dark-secondary p-4 mb-3"
+              >
+                <Icon name="Box" size={24} className="mr-3" />
+                <View className="flex-1">
+                  <ThemedText className="font-medium">3D VR tour</ThemedText>
+                  <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext">View the branch in 3D</ThemedText>
+                </View>
+                <Icon name="ChevronRight" size={20} className="opacity-60" />
+              </Pressable>
+            ) : null}
+            {webUrl ? (
+              <Pressable
+                onPress={() => WebBrowser.openBrowserAsync(webUrl)}
+                className="flex-row items-center rounded-xl bg-light-secondary dark:bg-dark-secondary p-4 mb-3"
+              >
+                <Icon name="Globe" size={24} className="mr-3" />
+                <View className="flex-1">
+                  <ThemedText className="font-medium">Web</ThemedText>
+                  <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext" numberOfLines={1}>{webUrl}</ThemedText>
+                </View>
+                <Icon name="ChevronRight" size={20} className="opacity-60" />
+              </Pressable>
+            ) : null}
+          </View>
 
           <Divider className="my-4" />
         </View>

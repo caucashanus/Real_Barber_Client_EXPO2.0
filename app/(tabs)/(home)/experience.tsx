@@ -1,30 +1,35 @@
-import Header, { HeaderIcon } from '@/components/Header';
 import ThemeScroller from '@/components/ThemeScroller';
-import React, { useRef, useEffect, useContext } from 'react';
-import { View, Text, Pressable, Image, Animated } from 'react-native';
-import Section from '@/components/layout/Section';  
+import React, { useContext, useEffect, useState } from 'react';
+import { View, Animated } from 'react-native';
+import Section from '@/components/layout/Section';
 import { CardScroller } from '@/components/CardScroller';
 import Card from '@/components/Card';
 import AnimatedView from '@/components/AnimatedView';
+import ThemedText from '@/components/ThemedText';
 import { ScrollContext } from './_layout';
+import { useAuth } from '@/app/contexts/AuthContext';
+import { getEmployees, type Employee } from '@/api/employees';
 
 const ExperienceScreen = () => {
     const scrollY = useContext(ScrollContext);
+    const { apiToken } = useAuth();
+    const [employees, setEmployees] = useState<Employee[]>([]);
+    const [employeesLoading, setEmployeesLoading] = useState(false);
+    const [employeesError, setEmployeesError] = useState<string | null>(null);
 
-    return (
-        
-            
-            <ThemeScroller
-                onScroll={Animated.event(
-                    [{ nativeEvent: { contentOffset: { y: scrollY } } }],
-                    { useNativeDriver: false }
-                )}
-                scrollEventThrottle={16}
-            >
-                <AnimatedView animation="scaleIn" className='flex-1 mt-4'>
-                    {[
+    useEffect(() => {
+        if (!apiToken) return;
+        setEmployeesLoading(true);
+        setEmployeesError(null);
+        getEmployees(apiToken, { includeReviews: true, reviewsLimit: 1 })
+            .then((list) => setEmployees(Array.isArray(list) ? list : Object.values(list)))
+            .catch((e) => setEmployeesError(e instanceof Error ? e.message : 'Failed to load'))
+            .finally(() => setEmployeesLoading(false));
+    }, [apiToken]);
+
+    const sections = [
                         {
-                            title: "Popular Experiences in Manhattan",
+                            title: "New barbers",
                             experiences: [
                                 { 
                                     title: "Rooftop Bar Hopping", 
@@ -55,7 +60,7 @@ const ExperienceScreen = () => {
                             ]
                         },
                         {
-                            title: "Brooklyn Adventures",
+                            title: "Popular barbers available today",
                             experiences: [
                                 { 
                                     title: "Street Art Walking Tour", 
@@ -84,7 +89,7 @@ const ExperienceScreen = () => {
                             ]
                         },
                         {
-                            title: "Harlem Culture & Nightlife",
+                            title: "All barbers",
                             experiences: [
                                 { 
                                     title: "Jazz Club Evening", 
@@ -113,7 +118,7 @@ const ExperienceScreen = () => {
                             ]
                         },
                         {
-                            title: "Queens Diversity Tour",
+                            title: "Best rated barbers",
                             experiences: [
                                 { 
                                     title: "Flushing Food Adventure", 
@@ -142,7 +147,7 @@ const ExperienceScreen = () => {
                             ]
                         },
                         {
-                            title: "Unique NYC Experiences",
+                            title: "My favorite barbers",
                             experiences: [
                                 { 
                                     title: "Sunset Sail Experience", 
@@ -170,30 +175,62 @@ const ExperienceScreen = () => {
                                 }
                             ]
                         }
-                    ].map((section, index) => (
+                    ];
+
+    return (
+            <ThemeScroller
+                onScroll={Animated.event(
+                    [{ nativeEvent: { contentOffset: { y: scrollY } } }],
+                    { useNativeDriver: false }
+                )}
+                scrollEventThrottle={16}
+            >
+                <AnimatedView animation="scaleIn" className='flex-1 mt-4'>
+                    {sections.map((section, index) => (
                         <Section
-                            key={`ny-section-${index}`}
+                            key={`barbers-section-${index}`}
                             title={section.title}
                             titleSize="lg"
-                            link="/screens/map"
-                            linkText="View all"
+                            link={section.title === 'All barbers' ? undefined : '/screens/map'}
+                            linkText={section.title === 'All barbers' ? undefined : 'View all'}
                         >
                             <CardScroller space={15} className='mt-1.5 pb-4'>
-                                {section.experiences.map((experience, propIndex) => (
-                                    <Card
-                                        key={`experience-${index}-${propIndex}`}
-                                        title={experience.title}
-                                        rounded="2xl"
-                                        hasFavorite
-                                        rating={experience.rating}
-                                        href="/screens/experience-detail"
-                                        price={experience.price}
-                                        width={160}
-                                        imageHeight={160}
-                                        image={experience.image}
-                                        badge={experience.badge}
-                                    />
-                                ))}
+                                {section.title === 'All barbers' ? (
+                                    <>
+                                        {employeesLoading && <ThemedText className="py-4 text-light-subtext dark:text-dark-subtext">Loading…</ThemedText>}
+                                        {employeesError && <ThemedText className="py-4 text-red-500 dark:text-red-400">{employeesError}</ThemedText>}
+                                        {!employeesLoading && !employeesError && employees.map((emp) => (
+                                            <Card
+                                                key={emp.id}
+                                                title={emp.name}
+                                                rounded="2xl"
+                                                hasFavorite
+                                                rating={4.5}
+                                                href={`/screens/barber-detail?id=${emp.id}`}
+                                                price=""
+                                                width={160}
+                                                imageHeight={160}
+                                                image={emp.avatarUrl ?? require('@/assets/img/room-1.avif')}
+                                            />
+                                        ))}
+                                    </>
+                                ) : (
+                                    section.experiences.map((experience, propIndex) => (
+                                        <Card
+                                            key={`experience-${index}-${propIndex}`}
+                                            title={experience.title}
+                                            rounded="2xl"
+                                            hasFavorite
+                                            rating={experience.rating}
+                                            href="/screens/experience-detail"
+                                            price={experience.price}
+                                            width={160}
+                                            imageHeight={160}
+                                            image={experience.image}
+                                            badge={experience.badge}
+                                        />
+                                    ))
+                                )}
                             </CardScroller>
                         </Section>
                     ))}

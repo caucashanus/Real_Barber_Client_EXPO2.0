@@ -10,13 +10,23 @@ export interface BranchService {
   category: { id: string; name: string };
 }
 
+export interface BranchEmployee {
+  id: string;
+  name: string;
+  avatarUrl?: string | null;
+  isActive?: boolean;
+  [key: string]: unknown;
+}
+
 export interface Branch {
   id: string;
   name: string;
   imageUrl?: string | null;
   media?: Array<{ url: string; order?: number }>;
   address?: string;
+  webUrl?: string | null;
   services?: BranchService[];
+  employees?: BranchEmployee[] | Record<string, BranchEmployee>;
   [key: string]: unknown;
 }
 
