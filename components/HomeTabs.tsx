@@ -14,14 +14,14 @@ const HomeTabs = (props: any) => {
             <TabItem 
                 href="/" 
                 active={currentPath === '/'} 
-                label="Home" 
+                label="Branches" 
                 icon={require('@/assets/img/house.png')} 
                 scrollY={props.scrollY} 
             />
             <TabItem 
                 href="/experience" 
                 active={currentPath === '/experience'} 
-                label="Experiences" 
+                label="Barbers" 
                 icon={require('@/assets/img/experience.png')} 
                 scrollY={props.scrollY} 
             />

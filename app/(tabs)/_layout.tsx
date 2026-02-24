@@ -1,7 +1,7 @@
 import { useThemeColors } from 'app/contexts/ThemeColors';
 import { TabButton } from 'components/TabButton';
 import { Tabs, TabList, TabTrigger, TabSlot } from 'expo-router/ui';
-import { KeyboardAvoidingView, Platform, SafeAreaView, View } from 'react-native';
+import { KeyboardAvoidingView, Platform, View } from 'react-native';
 import React from 'react';
 import { useBusinessMode } from '@/app/contexts/BusinesModeContext';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';

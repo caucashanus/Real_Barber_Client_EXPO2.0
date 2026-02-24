@@ -1,4 +1,4 @@
-import { View, Text, FlatList, Dimensions, Image, Pressable, SafeAreaView } from 'react-native';
+import { View, Text, FlatList, Dimensions, Image, Pressable } from 'react-native';
 import { useState, useRef } from 'react';
 import ThemedText from '@/components/ThemedText';
 import { StatusBar } from 'expo-status-bar';
@@ -10,7 +10,7 @@ import React from 'react';
 import Icon from '@/components/Icon';
 const { width } = Dimensions.get('window');
 const windowWidth = Dimensions.get('window').width;
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useSafeAreaInsets, SafeAreaView } from 'react-native-safe-area-context';
 
 
 
@@ -36,6 +36,12 @@ export default function OnboardingScreen() {
                             <Icon name="Mail" size={20} color={colors.text} />
                         </View>
                         <ThemedText className='text-base font-medium pr-2'>Continue with Email</ThemedText>
+                    </Pressable>
+                    <Pressable onPress={() => router.push('/screens/login?mode=phone')} className='w-full border border-black dark:border-white rounded-2xl flex flex-row items-center justify-center py-4'>
+                        <View className='absolute left-4 top-4.5'>
+                            <Icon name="Phone" size={20} color={colors.text} />
+                        </View>
+                        <ThemedText className='text-base font-medium pr-2'>Pomocí tel. čísla</ThemedText>
                     </Pressable>
                     <Pressable onPress={() => router.push('/(tabs)/(home)')} className='w-full border border-black dark:border-white rounded-2xl flex flex-row items-center justify-center py-4'>
                         <View className='absolute left-4 top-4.5'>
