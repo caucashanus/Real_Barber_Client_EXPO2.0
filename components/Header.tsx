@@ -300,7 +300,7 @@ const Header: React.FC<HeaderProps> = ({
         </View>
       )}
       {middleComponent && (
-        <View className='flex-row items-center justify-center flex-1 flex-shrink-0 bg-black'>
+        <View className='flex-row items-center justify-center flex-1 flex-shrink-0'>
           {middleComponent}
         </View>
       )}

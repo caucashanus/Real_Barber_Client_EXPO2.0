@@ -14,7 +14,7 @@ import useThemeColors from '@/app/contexts/ThemeColors';
 import { shadowPresets } from '@/utils/useShadow';
 import { useAuth } from '@/app/contexts/AuthContext';
 import { getRbCoinsBalance, getRbCoinsHistory, type RbCoinsHistoryItem } from '@/api/rb-coins';
-import { Link } from 'expo-router';
+import { Link, useRouter } from 'expo-router';
 import TransactionDetailModal from '@/components/TransactionDetailModal';
 
 const MOCK_CURRENCY = 'RBC';
@@ -42,6 +42,7 @@ function transactionAvatarSrc(item: RbCoinsHistoryItem): string | import('react-
 }
 
 const WalletScreen = () => {
+  const router = useRouter();
   const scrollY = useContext(ScrollContext);
   const colors = useThemeColors();
   const { apiToken } = useAuth();
@@ -106,7 +107,7 @@ const WalletScreen = () => {
             </View>
             <ThemedText className="text-xs mt-2 text-light-text dark:text-dark-text">Add money</ThemedText>
           </Pressable>
-          <Pressable className="items-center">
+          <Pressable className="items-center" onPress={() => router.push('/screens/transfer-select-recipient')}>
             <View className="w-14 h-14 rounded-full bg-white dark:bg-dark-primary items-center justify-center">
               <Icon name="ArrowLeftRight" size={22} color={colors.text} />
             </View>

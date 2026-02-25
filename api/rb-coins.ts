@@ -50,9 +50,22 @@ export interface RbCoinsHistoryResponse {
   pagination: { total: number; page: number; limit: number; pages: number };
 }
 
+export interface GetRbCoinsHistoryParams {
+  limit?: number;
+  page?: number;
+}
+
 /** GET /api/rb-coins/history – RBC transaction history. */
-export async function getRbCoinsHistory(apiToken: string): Promise<RbCoinsHistoryResponse> {
-  const res = await fetch(`${CRM_BASE}/api/rb-coins/history`, {
+export async function getRbCoinsHistory(
+  apiToken: string,
+  params?: GetRbCoinsHistoryParams
+): Promise<RbCoinsHistoryResponse> {
+  const search = new URLSearchParams();
+  if (params?.limit != null) search.set('limit', String(params.limit));
+  if (params?.page != null) search.set('page', String(params.page));
+  const qs = search.toString();
+  const url = `${CRM_BASE}/api/rb-coins/history${qs ? `?${qs}` : ''}`;
+  const res = await fetch(url, {
     method: 'GET',
     headers: { Authorization: `Bearer ${apiToken}` },
   });
@@ -61,4 +74,31 @@ export async function getRbCoinsHistory(apiToken: string): Promise<RbCoinsHistor
   if (!res.ok) throw new Error(`Error ${res.status}`);
 
   return res.json() as Promise<RbCoinsHistoryResponse>;
+}
+
+export interface RbCoinsTransferParams {
+  amount: number;
+  receiverType: 'CLIENT' | 'EMPLOYEE';
+  receiverId: string;
+  description?: string;
+}
+
+/** POST /api/rb-coins/transfer – send RBC to another user. */
+export async function rbCoinsTransfer(
+  apiToken: string,
+  params: RbCoinsTransferParams
+): Promise<RbCoinsHistoryItem> {
+  const res = await fetch(`${CRM_BASE}/api/rb-coins/transfer`, {
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${apiToken}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(params),
+  });
+
+  if (res.status === 401) throw new Error('Unauthorized');
+  if (!res.ok) throw new Error(`Error ${res.status}`);
+
+  return res.json() as Promise<RbCoinsHistoryItem>;
 }

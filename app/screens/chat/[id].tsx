@@ -142,21 +142,13 @@ export default function ChatDetailScreen() {
                 //style={{ paddingBottom: insets.bottom }}
                 className="flex-1 bg-light-primary dark:bg-dark-primary">
                 <Header
-                    title={mockUser.name}
                     className='border-b border-light-secondary dark:border-dark-secondary'
                     showBackButton
-                    rightComponents={rightComponents}
-                    leftComponent={
-                        <View className='mr-2'>
-                            <Avatar
-                                size="sm"
-                                src={mockUser.avatar}
-                                name={mockUser.name}
-                                className='mr-1'
-                                link="0"
-                            />
-                        </View>
-                    }
+                    middleComponent={<ThemedText className="text-lg font-semibold">{mockUser.name}</ThemedText>}
+                    rightComponents={[
+                        <Avatar key="avatar" size="sm" src={mockUser.avatar} name={mockUser.name} link="0" />,
+                        ...rightComponents,
+                    ]}
                 />
 
                 <FlatList
