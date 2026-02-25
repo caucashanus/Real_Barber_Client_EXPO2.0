@@ -171,10 +171,10 @@ const MapScreen = () => {
                     ref={mapRef}
                     className="w-full h-[100vh]"
                     initialRegion={{
-                        latitude: PRAGUE_CENTER.lat,
-                        longitude: PRAGUE_CENTER.lng,
-                        latitudeDelta: 0.05,
-                        longitudeDelta: 0.05,
+                        latitude: PRAGUE_CENTER.lat - 0.055,
+                        longitude: PRAGUE_CENTER.lng - 0.015,
+                        latitudeDelta: 0.18,
+                        longitudeDelta: 0.18,
                     }}
                 >
                     {branches.map((branch) => (
@@ -184,7 +184,10 @@ const MapScreen = () => {
                             title={branch.title}
                             imageSource={BRANCH_MARKER_IMAGES[branch.title] ?? null}
                             isSelected={selectedMarkerId === branch.id}
-                            onPress={() => setSelectedMarkerId(branch.id)}
+                            onPress={() => {
+                                setSelectedMarkerId(branch.id);
+                                router.push(`/screens/branch-detail?id=${branch.id}`);
+                            }}
                         />
                     ))}
                 </MapView>

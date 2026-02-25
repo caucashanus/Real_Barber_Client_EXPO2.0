@@ -1,39 +1,29 @@
-import { View, Animated, Image, TouchableOpacity } from 'react-native';
+import { View, Animated, Image, TouchableOpacity, ScrollView } from 'react-native';
 import React, { useRef, useEffect, useState } from 'react';
 import ThemedText from './ThemedText';
 import { Link, router, usePathname } from 'expo-router';
 
 const HomeTabs = (props: any) => {
-    // Get current path to determine active tab
     const currentPath = usePathname();
-    
+
     return (
-        <View 
-        style={{ shadowColor: '#000', shadowOpacity: 0.1, shadowRadius: 3, shadowOffset: { width: 0, height: 4 } }}
-        className='w-full flex-row justify-center  bg-light-primary dark:bg-dark-primary border-b border-gray-200 dark:border-dark-secondary'>
-            <TabItem 
-                href="/" 
-                active={currentPath === '/'} 
-                label="Branches" 
-                icon={require('@/assets/img/house.png')} 
-                scrollY={props.scrollY} 
-            />
-            <TabItem 
-                href="/experience" 
-                active={currentPath === '/experience'} 
-                label="Barbers" 
-                icon={require('@/assets/img/experience.png')} 
-                scrollY={props.scrollY} 
-            />
-            <TabItem 
-                href="/services" 
-                active={currentPath === '/services'} 
-                label="Services" 
-                icon={require('@/assets/img/services.png')} 
-                scrollY={props.scrollY} 
-            />
+        <View
+            style={{ shadowColor: '#000', shadowOpacity: 0.1, shadowRadius: 3, shadowOffset: { width: 0, height: 4 } }}
+            className="w-full bg-light-primary dark:bg-dark-primary border-b border-gray-200 dark:border-dark-secondary"
+        >
+            <ScrollView
+                horizontal
+                showsHorizontalScrollIndicator={false}
+                contentContainerStyle={{ flexGrow: 1, justifyContent: 'center', paddingHorizontal: 8 }}
+            >
+                <TabItem href="/wallet" active={currentPath === '/wallet'} label="Wallet" icon={require('@/assets/img/house.png')} scrollY={props.scrollY} />
+                <TabItem href="/" active={currentPath === '/'} label="Branches" icon={require('@/assets/img/house.png')} scrollY={props.scrollY} />
+                <TabItem href="/experience" active={currentPath === '/experience'} label="Barbers" icon={require('@/assets/img/experience.png')} scrollY={props.scrollY} />
+                <TabItem href="/services" active={currentPath === '/services'} label="Services" icon={require('@/assets/img/services.png')} scrollY={props.scrollY} />
+                <TabItem href="/products" active={currentPath === '/products'} label="Products" icon={require('@/assets/img/experience.png')} scrollY={props.scrollY} />
+            </ScrollView>
         </View>
-    )
+    );
 }
 
 const TabItem = (props: any) => {
@@ -74,7 +64,7 @@ const TabItem = (props: any) => {
     }, [props.scrollY, animatedSize, isExpanded]);
 
     return (
-            <TouchableOpacity onPress={() => router.push(props.href)} activeOpacity={0.5} className={`items-center pb-2 mx-8 border-b-2 ${props.active ? 'border-black dark:border-white' : 'border-transparent'}`}>
+            <TouchableOpacity onPress={() => router.push(props.href)} activeOpacity={0.5} className={`items-center pb-2 px-6 min-w-[72px] border-b-2 ${props.active ? 'border-black dark:border-white' : 'border-transparent'}`}>
                 <Animated.View
                     style={{
                         width: animatedSize,
