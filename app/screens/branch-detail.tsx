@@ -125,7 +125,17 @@ export default function BranchDetailScreen() {
   const employeesList = getEmployeesList(branch);
   const vrTourUrl = getVrTourUrl(branch.name);
   const webUrl = branch.webUrl ?? null;
-  const rightComponents = branch.name ? [<Favorite key="fav" productName={branch.name} size={25} isWhite />] : undefined;
+  const rightComponents = branch.name ? [
+    <Favorite
+      key="fav"
+      productName={branch.name}
+      title={branch.name}
+      entityType="branch"
+      entityId={branch.id}
+      size={25}
+      isWhite
+    />,
+  ] : undefined;
 
   return (
     <>

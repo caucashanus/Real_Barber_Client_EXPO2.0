@@ -73,7 +73,16 @@ export default function ServiceDetailScreen() {
   }
 
   const images = itemImages(item);
-  const rightComponents = item.name ? [<Favorite key="fav" productName={item.name} size={25} />] : undefined;
+  const rightComponents = item.name ? [
+    <Favorite
+      key="fav"
+      productName={item.name}
+      title={item.name}
+      entityType="item"
+      entityId={item.id}
+      size={25}
+    />,
+  ] : undefined;
 
   return (
     <>

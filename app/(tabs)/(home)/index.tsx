@@ -110,6 +110,8 @@ const HomeScreen = () => {
                         title={branch.name}
                         rounded="2xl"
                         hasFavorite
+                        favoriteEntityType="branch"
+                        favoriteEntityId={branch.id}
                         rating={4.5}
                         href={`/screens/branch-detail?id=${branch.id}`}
                         price={branchPrice(branch)}

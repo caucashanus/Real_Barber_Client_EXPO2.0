@@ -132,7 +132,17 @@ export default function BarberDetailScreen() {
   }
 
   const images = employeeImages(employee).map((img) => (typeof img === 'string' ? img : img));
-  const rightComponents = employee.name ? [<Favorite key="fav" productName={employee.name} size={25} isWhite />] : undefined;
+  const rightComponents = employee.name ? [
+    <Favorite
+      key="fav"
+      productName={employee.name}
+      title={employee.name}
+      entityType="employee"
+      entityId={employee.id}
+      size={25}
+      isWhite
+    />,
+  ] : undefined;
 
   return (
     <>

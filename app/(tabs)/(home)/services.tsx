@@ -102,6 +102,8 @@ const ServicesScreen = () => {
                   title={item.name}
                   rounded="2xl"
                   hasFavorite
+                  favoriteEntityType="item"
+                  favoriteEntityId={item.id}
                   width={160}
                   imageHeight={160}
                   image={item.imageUrl || require('@/assets/img/room-1.avif')}
@@ -123,6 +125,8 @@ const ServicesScreen = () => {
                   title={item.name}
                   rounded="2xl"
                   hasFavorite
+                  favoriteEntityType="item"
+                  favoriteEntityId={item.id}
                   width={160}
                   imageHeight={160}
                   image={item.imageUrl || require('@/assets/img/room-1.avif')}
@@ -144,6 +148,8 @@ const ServicesScreen = () => {
                   title={item.name}
                   rounded="2xl"
                   hasFavorite
+                  favoriteEntityType="item"
+                  favoriteEntityId={item.id}
                   width={160}
                   imageHeight={160}
                   image={item.imageUrl || require('@/assets/img/room-1.avif')}
@@ -165,6 +171,8 @@ const ServicesScreen = () => {
                   title={item.name}
                   rounded="2xl"
                   hasFavorite
+                  favoriteEntityType="item"
+                  favoriteEntityId={item.id}
                   width={160}
                   imageHeight={160}
                   image={item.imageUrl || require('@/assets/img/room-1.avif')}

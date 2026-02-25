@@ -1,4 +1,4 @@
-import { View, ImageBackground, Text, TouchableOpacity, Pressable, Image } from 'react-native';
+import { View, ImageBackground, Text, TouchableOpacity, Image, ActivityIndicator } from 'react-native';
 import Header, { HeaderIcon } from '@/components/Header';
 import ThemedText from '@/components/ThemedText';
 import { useBusinessMode } from '@/app/contexts/BusinesModeContext';
@@ -8,11 +8,13 @@ import AnimatedView from '@/components/AnimatedView';
 import ThemedScroller from '@/components/ThemeScroller';
 import {Button} from '@/components/Button';
 import BusinessSwitch from '@/components/BusinessSwitch';
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import ThemeToggle from '@/components/ThemeToggle';
 import { shadowPresets } from '@/utils/useShadow';
 import Divider from '@/components/layout/Divider';
 import { router } from 'expo-router';
+import { useAuth } from '@/app/contexts/AuthContext';
+import { getClientMe, type ClientMe } from '@/api/client';
 
 export default function ProfileScreen() {
     const { isBusinessMode } = useBusinessMode();
@@ -73,15 +75,48 @@ const HostProfile = () => {
 }
 
 const PersonalProfile = () => {
+    const { apiToken } = useAuth();
+    const [client, setClient] = useState<ClientMe | null>(null);
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState<string | null>(null);
+
+    useEffect(() => {
+        if (!apiToken) {
+            setClient(null);
+            return;
+        }
+        setLoading(true);
+        setError(null);
+        getClientMe(apiToken)
+            .then(setClient)
+            .catch((e) => setError(e instanceof Error ? e.message : 'Failed to load'))
+            .finally(() => setLoading(false));
+    }, [apiToken]);
+
+    const displayName = client?.firstName?.trim() || client?.name?.trim() || null;
+    const avatarSrc = client?.avatarUrl ?? require('@/assets/img/thomino.jpg');
+    const addressLine = [client?.address?.trim(), client?.city?.trim()].filter(Boolean).join(', ') || null;
+
     return (
         <AnimatedView className='pt-4' animation='scaleIn'>
             <View style={{ ...shadowPresets.large }} className="flex-row  items-center justify-center mb-4 bg-light-primary dark:bg-dark-secondary rounded-3xl p-10">
                 <View className='flex-col items-center w-1/2'>
-                    <Avatar src={require('@/assets/img/thomino.jpg')} size="xxl" />
+                    {loading ? (
+                        <View className="w-20 h-20 items-center justify-center rounded-full bg-light-secondary dark:bg-dark-primary">
+                            <ActivityIndicator />
+                        </View>
+                    ) : (
+                        <Avatar src={avatarSrc} size="xxl" />
+                    )}
                     <View className="flex-1 items-center justify-center">
-                        <ThemedText className="text-2xl font-bold">Thomino</ThemedText>
+                        <ThemedText className="text-2xl font-bold">{displayName ?? 'Guest'}</ThemedText>
+                        {error && (
+                            <ThemedText className="text-xs text-red-500 dark:text-red-400 mt-1">{error}</ThemedText>
+                        )}
                         <View className='flex flex-row items-center'>
-                            <ThemedText className='text-sm text-light-subtext dark:text-dark-subtext ml-2'>Bratislava, Slovakia</ThemedText>
+                            <ThemedText className='text-sm text-light-subtext dark:text-dark-subtext ml-2'>
+                                {addressLine ?? '—'}
+                            </ThemedText>
                         </View>
                     </View>
                 </View>
@@ -101,17 +136,6 @@ const PersonalProfile = () => {
                 </View>
 
             </View>
-
-            <Pressable onPress={() => router.push('/screens/add-property-start')} style={{ ...shadowPresets.large }} className='p-5 mb-4 flex flex-row items-center rounded-2xl bg-light-primary dark:bg-dark-secondary'>
-                <Image className='w-10 h-10 mr-4' source={require('@/assets/img/house.png')} />
-                <View>
-                    <ThemedText className='text-base font-medium flex-1 pr-2'>
-                        Become a host
-                    </ThemedText>
-                    <ThemedText className="text-xs opacity-60">It's easy to start hosting and earn extra income</ThemedText>
-                </View>
-
-            </Pressable>
 
             <View className='gap-1 px-4'>
                 <ListLink showChevron title="Account settings" icon="Settings" href="/screens/settings" />

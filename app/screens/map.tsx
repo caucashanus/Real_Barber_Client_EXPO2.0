@@ -1,5 +1,5 @@
-import React, { useRef } from 'react';
-import { View, Text, Image, Pressable, Dimensions, TouchableOpacity } from 'react-native';
+import React, { useRef, useEffect, useState } from 'react';
+import { View, Text, Image, Pressable, Dimensions, TouchableOpacity, ActivityIndicator } from 'react-native';
 import MapView, { MapStyleElement, Marker } from 'react-native-maps';
 import useThemeColors from '@/app/contexts/ThemeColors';
 import Header, { HeaderIcon } from '@/components/Header';
@@ -18,82 +18,128 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import SearchBar from '@/components/SearchBar';
 import PriceMarker from '@/components/PriceMarker';
 import { router } from 'expo-router';
+import { useAuth } from '@/app/contexts/AuthContext';
+import { getBranches, type Branch, type BranchService } from '@/api/branches';
+
 type IconName = Exclude<keyof typeof LucideIcons, 'createLucideIcon' | 'default'>;
 
 const { height } = Dimensions.get('window');
 
-const properties = [
-    {
-        id: 1,
-        title: 'Beachfront Villa',
-        price: '$200',
-        rating: '4.9',
-        description: 'Stay with Julia',
-        lat: 40.7589, // Manhattan - Times Square area
-        lng: -73.9851,
-        image: ['https://tinyurl.com/2blrf2sk', 'https://tinyurl.com/2yyfr9rc'] // Multiple images for the first property
-    },
-    {
-        id: 2,
-        title: 'Cozy Surf Shack',
-        price: '$120',
-        rating: '4.6',
-        description: 'Stay with John',
-        lat: 40.6892, // Brooklyn - Park Slope
-        lng: -73.9814,
-        image: 'https://tinyurl.com/2cmu4ns5' // Single image for the second property
-    },
-    {
-        id: 3,
-        title: 'Luxury Penthouse',
-        price: '$350',
-        rating: '4.8',
-        description: 'Stay with Tomas',
-        lat: 40.7505, // Manhattan - Chelsea
-        lng: -73.9934,
-        image: ['https://tinyurl.com/2yyfr9rc', 'https://tinyurl.com/2blrf2sk'] // Multiple images for the last property
-    },
-    {
-        id: 4,
-        title: 'Modern Loft',
-        price: '$180',
-        rating: '4.7',
-        description: 'Stay with Sarah',
-        lat: 40.7282, // Lower East Side
-        lng: -73.9942,
-        image: ['https://tinyurl.com/2blrf2sk']
-    },
-    {
-        id: 5,
-        title: 'Brooklyn Heights Apartment',
-        price: '$160',
-        rating: '4.5',
-        description: 'Stay with Mike',
-        lat: 40.6962, // Brooklyn Heights
-        lng: -73.9969,
-        image: ['https://tinyurl.com/2yyfr9rc']
-    },
-    {
-        id: 6,
-        title: 'Queens Studio',
-        price: '$95',
-        rating: '4.3',
-        description: 'Stay with Anna',
-        lat: 40.7282, // Long Island City, Queens
-        lng: -73.9442,
-        image: ['https://tinyurl.com/2cmu4ns5']
-    }
-];
+const PRAGUE_CENTER = { lat: 50.0755, lng: 14.4378 };
+
+/** Real coordinates per branch name (fallback when API has no lat/lng). */
+const BRANCH_COORDINATES: Record<string, { lat: number; lng: number }> = {
+  Kačerov: { lat: 50.04219531986807, lng: 14.459689653073983 },
+  Hagibor: { lat: 50.07850819920388, lng: 14.48365959725635 },
+  Modřany: { lat: 50.00477408096832, lng: 14.416534741433177 },
+  Barrandov: { lat: 50.030533187365194, lng: 14.361240910745531 },
+};
+
+/** Hardcoded marker logos per branch name (local PNGs). */
+const BRANCH_MARKER_IMAGES: Record<string, import('react-native').ImageSourcePropType> = {
+  Hagibor: require('@/assets/img/markers/hagiborbarrandov.png'),
+  Kačerov: require('@/assets/img/markers/kacerovbarbershop.png'),
+  Modřany: require('@/assets/img/markers/modranybarbershop.png'),
+  Barrandov: require('@/assets/img/markers/barrandovbarbershop.png'),
+};
+
+function getServicesList(branch: Branch): BranchService[] {
+  const s = branch.services;
+  if (!s) return [];
+  if (Array.isArray(s)) return s;
+  return Object.values(s);
+}
+
+function getMediaUrlsSorted(media: Branch['media']): string[] {
+  if (!media) return [];
+  const list = Array.isArray(media) ? [...media] : Object.values(media);
+  const withOrder = list.filter((m): m is { url: string; order?: number } => !!m?.url);
+  withOrder.sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
+  return withOrder.map((m) => m.url);
+}
+
+function branchPrice(branch: Branch): string {
+  const servicesList = getServicesList(branch);
+  const prices = servicesList.map((s) => s.price).filter((p) => p != null);
+  if (prices.length === 0) return '';
+  const min = Math.min(...prices);
+  return `from ${min} Kč`;
+}
+
+function branchImages(branch: Branch): string[] {
+  const urls = getMediaUrlsSorted(branch.media);
+  if (urls.length > 0) return urls;
+  if (branch.imageUrl) return [branch.imageUrl];
+  const firstService = getServicesList(branch)[0];
+  if (firstService?.imageUrl) return [firstService.imageUrl];
+  return [];
+}
+
+type MapBranchItem = {
+  id: string;
+  title: string;
+  price: string;
+  rating: string;
+  description: string;
+  lat: number;
+  lng: number;
+  image: string[];
+};
+
+function branchToMapItem(branch: Branch, index: number): MapBranchItem {
+  const b = branch as { latitude?: number; longitude?: number };
+  const nameKey = branch.name?.trim() ?? '';
+  let lat: number;
+  let lng: number;
+  if (b.latitude != null && b.longitude != null) {
+    lat = b.latitude;
+    lng = b.longitude;
+  } else if (BRANCH_COORDINATES[nameKey]) {
+    lat = BRANCH_COORDINATES[nameKey].lat;
+    lng = BRANCH_COORDINATES[nameKey].lng;
+  } else {
+    lat = PRAGUE_CENTER.lat + index * 0.004;
+    lng = PRAGUE_CENTER.lng + index * 0.006;
+  }
+  const images = branchImages(branch);
+  return {
+    id: branch.id,
+    title: branch.name,
+    price: branchPrice(branch) || '—',
+    rating: '4.5',
+    description: branch.address?.trim() || branch.name,
+    lat,
+    lng,
+    image: images.length > 0 ? images : ['https://images.unsplash.com/photo-1521590832167-7bcbfaa6381f?w=400'],
+  };
+}
 
 
 const MapScreen = () => {
     const colors = useThemeColors();
+    const { apiToken } = useAuth();
     const actionSheetRef = useRef<ActionSheetRef>(null);
     const mapRef = useRef<MapView>(null);
     const insets = useSafeAreaInsets();
-    const [selectedMarkerId, setSelectedMarkerId] = React.useState<number | null>(null);
-    const [currentSnapIndex, setCurrentSnapIndex] = React.useState(0);
-    React.useEffect(() => {
+    const [branches, setBranches] = useState<MapBranchItem[]>([]);
+    const [loading, setLoading] = useState(true);
+    const [selectedMarkerId, setSelectedMarkerId] = useState<string | null>(null);
+    const [currentSnapIndex, setCurrentSnapIndex] = useState(0);
+
+    useEffect(() => {
+        if (!apiToken) {
+            setBranches([]);
+            setLoading(false);
+            return;
+        }
+        setLoading(true);
+        getBranches(apiToken, { includeReviews: true, reviewsLimit: 1 })
+            .then((list) => setBranches(list.map((b, i) => branchToMapItem(b, i))))
+            .catch(() => setBranches([]))
+            .finally(() => setLoading(false));
+    }, [apiToken]);
+
+    useEffect(() => {
         actionSheetRef.current?.show();
     }, []);
 
@@ -125,24 +171,20 @@ const MapScreen = () => {
                     ref={mapRef}
                     className="w-full h-[100vh]"
                     initialRegion={{
-                        latitude: 40.7282, // Center of New York City
-                        longitude: -73.9776,
-                        latitudeDelta: 0.1, // Zoom out to show more of NYC
-                        longitudeDelta: 0.1,
+                        latitude: PRAGUE_CENTER.lat,
+                        longitude: PRAGUE_CENTER.lng,
+                        latitudeDelta: 0.05,
+                        longitudeDelta: 0.05,
                     }}
                 >
-                    {properties.map((property) => (
+                    {branches.map((branch) => (
                         <PriceMarker
-                            key={property.id}
-                            coordinate={{ latitude: property.lat, longitude: property.lng }}
-                            price={property.price}
-                            title={property.title}
-                            isSelected={selectedMarkerId === property.id}
-                            onPress={() => {
-                                setSelectedMarkerId(property.id);
-                                // Optionally scroll to the property in the list
-                                console.log('Selected property:', property.title);
-                            }}
+                            key={branch.id}
+                            coordinate={{ latitude: branch.lat, longitude: branch.lng }}
+                            title={branch.title}
+                            imageSource={BRANCH_MARKER_IMAGES[branch.title] ?? null}
+                            isSelected={selectedMarkerId === branch.id}
+                            onPress={() => setSelectedMarkerId(branch.id)}
                         />
                     ))}
                 </MapView>
@@ -153,7 +195,9 @@ const MapScreen = () => {
                     CustomHeaderComponent={
                         <View className='w-full items-center justify-center mb-2'>
                             <View className="w-14 h-2 mt-2 rounded-full bg-light-secondary dark:bg-dark-secondary" />
-                            <ThemedText className='font-bold mt-3'>345 Properties</ThemedText>
+                            <ThemedText className='font-bold mt-3'>
+                                {loading ? '…' : `${branches.length} Branches`}
+                            </ThemedText>
                         </View>
                     }
                     backgroundInteractionEnabled
@@ -171,29 +215,29 @@ const MapScreen = () => {
                 >
                     <FlatList
                         className='px-2'
-                        data={properties}
+                        data={branches}
                         showsVerticalScrollIndicator={false}
-                        // ListHeaderComponent={
-                        //     <View className='w-full items-center justify-center mb-2'>
-                        //         <ThemedText className='font-bold mt-3'>345 Properties</ThemedText>
-                        //     </View>
-                        // }
-                        keyExtractor={(item) => item.id.toString()}
+                        keyExtractor={(item) => item.id}
+                        ListEmptyComponent={
+                            loading ? (
+                                <View className="py-12 items-center">
+                                    <ActivityIndicator size="large" />
+                                    <ThemedText className="mt-3 text-light-subtext dark:text-dark-subtext">Loading branches…</ThemedText>
+                                </View>
+                            ) : null
+                        }
                         renderItem={({ item }) => (
-
                             <CustomCard
                                 padding="md"
                                 className="my-0 w-full overflow-hidden"
-                                href='/screens/product-detail'
+                                href={`/screens/branch-detail?id=${item.id}`}
                             >
-
                                 <ImageCarousel
                                     rounded='xl'
                                     height={300}
                                     className='w-full'
-                                    images={Array.isArray(item.image) ? item.image : [item.image]}
+                                    images={item.image}
                                 />
-
                                 <View className='pb-global pt-2'>
                                     <View className="flex-row items-center justify-between">
                                         <ThemedText className="text-base font-bold">{item.title}</ThemedText>
@@ -202,11 +246,9 @@ const MapScreen = () => {
                                     <Text className="text-sm text-light-subtext dark:text-dark-subtext">
                                         {item.description}
                                     </Text>
-                                    <ThemedText className='font-bold text-base mt-2'>{item.price} <Text className="font-normal">night</Text></ThemedText>
-
+                                    <ThemedText className='font-bold text-base mt-2'>{item.price}</ThemedText>
                                 </View>
                             </CustomCard>
-
                         )}
                     />
                 </ActionSheet >

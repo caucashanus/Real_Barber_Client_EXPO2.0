@@ -28,7 +28,10 @@ interface CardProps {
     iconColor?: string;
     imageHeight?: number;
     showOverlay?: boolean;
-    hasFavorite?: boolean;  
+    hasFavorite?: boolean;
+    /** When set with hasFavorite, syncs heart with API (branch / employee / item) */
+    favoriteEntityType?: string;
+    favoriteEntityId?: string;
     overlayGradient?: readonly [string, string];
     width?: any;
     rounded?: 'none' | 'sm' | 'md' | 'lg' | 'xl' | '2xl' | 'full';
@@ -51,6 +54,8 @@ const Card: React.FC<CardProps> = ({
     rating,
     badge,
     hasFavorite = false,
+    favoriteEntityType,
+    favoriteEntityId,
     badgeColor = '#000000',
     imageHeight = 200,
     showOverlay = true,
@@ -127,6 +132,9 @@ const Card: React.FC<CardProps> = ({
                                 initialState={false}
                                 isWhite
                                 productName={title}
+                                title={title}
+                                entityType={favoriteEntityType}
+                                entityId={favoriteEntityId}
                                 size={24}
                             />
                         </View>

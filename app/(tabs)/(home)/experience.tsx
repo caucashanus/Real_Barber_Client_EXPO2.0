@@ -205,6 +205,8 @@ const ExperienceScreen = () => {
                                                 title={emp.name}
                                                 rounded="2xl"
                                                 hasFavorite
+                                                favoriteEntityType="employee"
+                                                favoriteEntityId={emp.id}
                                                 rating={4.5}
                                                 href={`/screens/barber-detail?id=${emp.id}`}
                                                 price=""
