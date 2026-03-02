@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { View, TouchableOpacity, Alert, Image } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, TouchableOpacity, Alert, Image, ActivityIndicator } from 'react-native';
 import { router, useLocalSearchParams } from 'expo-router';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import Header from '@/components/Header';
@@ -10,7 +10,8 @@ import Input from '@/components/forms/Input';
 import ThemedScroller from '@/components/ThemeScroller';
 import ThemedFooter from '@/components/ThemeFooter';
 import { useAuth } from '@/app/contexts/AuthContext';
-import { createReview } from '@/api/reviews';
+import { createReview, getEntityReviews, updateReview } from '@/api/reviews';
+import Switch from '@/components/forms/Switch';
 
 const StarRating = ({ rating, setRating }: { rating: number; setRating: (rating: number) => void }) => {
     const colors = useThemeColors();
@@ -42,6 +43,12 @@ const ReviewScreen = () => {
     const [rating, setRating] = useState(0);
     const [review, setReview] = useState('');
     const [submitting, setSubmitting] = useState(false);
+    const [isAnonymous, setIsAnonymous] = useState(false);
+    const [existingReviewId, setExistingReviewId] = useState<string | null>(null);
+    const [initialRating, setInitialRating] = useState(0);
+    const [initialReview, setInitialReview] = useState('');
+    const [initialAnonymous, setInitialAnonymous] = useState(false);
+    const [loadingExisting, setLoadingExisting] = useState(true);
     const colors = useThemeColors();
     const { apiToken } = useAuth();
     const { entityType, entityId, entityName, entityImage } = useLocalSearchParams<{
@@ -54,26 +61,68 @@ const ReviewScreen = () => {
     const displayName = entityName ? decodeURIComponent(entityName) : 'Luxury Beachfront Villa';
     const imageUrl = entityImage ? decodeURIComponent(entityImage) : '';
     const canSubmitToApi = Boolean(apiToken && entityType && entityId);
+    const isEditMode = existingReviewId != null;
+    const isDirty = isEditMode && (
+        rating !== initialRating ||
+        review.trim() !== initialReview ||
+        isAnonymous !== initialAnonymous
+    );
+    const canSubmit = canSubmitToApi && (
+        isEditMode ? (isDirty && rating >= 1 && review.trim().length > 0) : (rating >= 1 && review.trim().length > 0)
+    );
+
+    useEffect(() => {
+        if (!apiToken || !entityType || !entityId) {
+            setLoadingExisting(false);
+            return;
+        }
+        setLoadingExisting(true);
+        const type = entityType as 'branch' | 'reservation' | 'item' | 'sale_log' | 'employee';
+        const id = decodeURIComponent(entityId);
+        getEntityReviews(apiToken, type, id, { limit: 1, includeOwn: true })
+            .then((data) => {
+                if (data.hasReviewed && data.clientReview) {
+                    const cr = data.clientReview;
+                    const desc = cr.description ?? cr.positiveFeedback ?? '';
+                    setExistingReviewId(cr.id);
+                    setRating(cr.rating);
+                    setReview(desc);
+                    setIsAnonymous(cr.isAnonymous ?? false);
+                    setInitialRating(cr.rating);
+                    setInitialReview(desc);
+                    setInitialAnonymous(cr.isAnonymous ?? false);
+                } else {
+                    setExistingReviewId(null);
+                }
+            })
+            .catch(() => setExistingReviewId(null))
+            .finally(() => setLoadingExisting(false));
+    }, [apiToken, entityType, entityId]);
 
     const handleSubmit = async () => {
-        if (canSubmitToApi && apiToken && entityType && entityId) {
-            setSubmitting(true);
-            try {
+        if (!canSubmit || !apiToken) return;
+        setSubmitting(true);
+        try {
+            if (existingReviewId) {
+                await updateReview(apiToken, existingReviewId, {
+                    rating,
+                    description: review.trim(),
+                    isAnonymous,
+                });
+            } else if (entityType && entityId) {
                 await createReview(apiToken, {
                     entityType: entityType as 'branch' | 'reservation' | 'item' | 'sale_log' | 'employee',
                     entityId: decodeURIComponent(entityId),
                     rating,
                     description: review.trim(),
+                    isAnonymous,
                 });
-                router.back();
-            } catch (e) {
-                Alert.alert('Chyba', e instanceof Error ? e.message : 'Nepodařilo se odeslat recenzi.');
-            } finally {
-                setSubmitting(false);
             }
-        } else {
-            console.log({ rating, review });
             router.back();
+        } catch (e) {
+            Alert.alert('Error', e instanceof Error ? e.message : 'Failed to save review.');
+        } finally {
+            setSubmitting(false);
         }
     };
 
@@ -89,6 +138,13 @@ const ReviewScreen = () => {
                 className="flex-1 pt-8"
                 keyboardShouldPersistTaps="handled"
             >
+                {loadingExisting ? (
+                    <View className="py-12 items-center">
+                        <ActivityIndicator size="large" />
+                        <ThemedText className="mt-3 text-sm text-light-subtext dark:text-dark-subtext">Loading…</ThemedText>
+                    </View>
+                ) : (
+                    <>
                 {/* Product image + name */}
                 <View className="flex-col items-center mb-0">
                     {imageUrl ? (
@@ -118,13 +174,25 @@ const ReviewScreen = () => {
                     onChangeText={setReview}
                 />
 
+                {/* Anonymous review */}
+                <View className="mt-6">
+                    <Switch
+                        label="Anonymous review"
+                        description="Your name and profile will not be shown with this review."
+                        value={isAnonymous}
+                        onChange={setIsAnonymous}
+                        className="py-3"
+                    />
+                </View>
 
+                    </>
+                )}
             </ThemedScroller>
             <ThemedFooter>
                 <Button
-                    title="Submit Review"
+                    title={isEditMode ? 'Update review' : 'Submit Review'}
                     onPress={handleSubmit}
-                    disabled={rating === 0 || !review.trim() || submitting}
+                    disabled={!canSubmit || submitting}
                 />
             </ThemedFooter>
         </>

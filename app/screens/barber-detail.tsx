@@ -25,6 +25,8 @@ import {
 import Section from '@/components/layout/Section';
 import Icon from '@/components/Icon';
 import { router } from 'expo-router';
+import { CardScroller } from '@/components/CardScroller';
+import { getEntityReviews, type EntityReviewItem } from '@/api/reviews';
 
 function employeeImages(employee: EmployeeDetail): (string | number)[] {
   const out: (string | number)[] = [];
@@ -74,9 +76,34 @@ function groupServicesByCategory(services: EmployeeService[]): CategoryGroup[] {
   return Array.from(byId.values());
 }
 
+function formatReviewDate(iso: string): string {
+  try {
+    const d = new Date(iso);
+    const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+    return `${months[d.getMonth()]} ${d.getFullYear()}`;
+  } catch {
+    return iso;
+  }
+}
+
+function useReviewStats(reviews: EntityReviewItem[]) {
+  return React.useMemo(() => {
+    const countByRating: Record<number, number> = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 };
+    let sum = 0;
+    for (const r of reviews) {
+      const rating = Math.min(5, Math.max(1, Math.round(r.rating) || 0));
+      countByRating[rating] = (countByRating[rating] ?? 0) + 1;
+      sum += r.rating;
+    }
+    const total = reviews.length;
+    const average = total > 0 ? Math.round((sum / total) * 10) / 10 : 0;
+    return { countByRating, average, total };
+  }, [reviews]);
+}
+
 export default function BarberDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
-  const { apiToken } = useAuth();
+  const { apiToken, client } = useAuth();
   const insets = useSafeAreaInsets();
   const [employee, setEmployee] = useState<EmployeeDetail | null>(null);
   const [loading, setLoading] = useState(true);
@@ -84,6 +111,9 @@ export default function BarberDetailScreen() {
   const [expandedCategoryId, setExpandedCategoryId] = useState<string | null>(null);
   const [fullscreenMedia, setFullscreenMedia] = useState<EmployeeMediaItem | null>(null);
   const [description, setDescription] = useState<string | null>(null);
+  const [reviews, setReviews] = useState<EntityReviewItem[]>([]);
+  const [reviewsTotal, setReviewsTotal] = useState<number | null>(null);
+  const [loadingReviews, setLoadingReviews] = useState(false);
   const { width: winWidth, height: winHeight } = useWindowDimensions();
 
   useEffect(() => {
@@ -107,6 +137,24 @@ export default function BarberDetailScreen() {
       .catch((e) => setError(e instanceof Error ? e.message : 'Failed to load'))
       .finally(() => setLoading(false));
   }, [apiToken, id]);
+
+  useEffect(() => {
+    if (!apiToken || !id) return;
+    setLoadingReviews(true);
+    getEntityReviews(apiToken, 'employee', id, { page: 1, limit: 9999, includeOwn: true })
+      .then((data) => {
+        setReviews(data.reviews);
+        setReviewsTotal(data.pagination.total);
+      })
+      .catch(() => {
+        setReviews([]);
+        setReviewsTotal(null);
+      })
+      .finally(() => setLoadingReviews(false));
+  }, [apiToken, id]);
+
+  const { countByRating, average, total: reviewsComputedTotal } = useReviewStats(reviews);
+  const displayTotal = reviewsTotal ?? reviewsComputedTotal;
 
   if (loading) {
     return (
@@ -132,6 +180,8 @@ export default function BarberDetailScreen() {
   }
 
   const images = employeeImages(employee).map((img) => (typeof img === 'string' ? img : img));
+  const employeeImageUrl = employee.avatarUrl ?? '';
+  const reviewParams = `entityType=employee&entityId=${encodeURIComponent(employee.id)}&entityName=${encodeURIComponent(employee.name)}${employeeImageUrl ? `&entityImage=${encodeURIComponent(employeeImageUrl)}` : ''}`;
   const rightComponents = employee.name ? [
     <Favorite
       key="fav"
@@ -162,8 +212,14 @@ export default function BarberDetailScreen() {
           <View className="">
             <ThemedText className="text-3xl text-center font-semibold">{employee.name}</ThemedText>
             <View className="flex-row items-center justify-center mt-4">
-              <ShowRating rating={4.5} size="lg" className="px-4 py-2 border-r border-neutral-200 dark:border-dark-secondary" />
+              <ShowRating rating={average} size="lg" className="px-4 py-2 border-r border-neutral-200 dark:border-dark-secondary" />
               <ThemedText className="text-base px-4">Reviews</ThemedText>
+              <Pressable
+                onPress={() => router.push(`/screens/review?${reviewParams}`)}
+                className="ml-4 px-3 py-2 rounded-lg bg-light-secondary dark:bg-dark-secondary"
+              >
+                <ThemedText className="text-sm font-medium">Review</ThemedText>
+              </Pressable>
             </View>
           </View>
 
@@ -293,6 +349,83 @@ export default function BarberDetailScreen() {
               </Section>
             </>
           ) : null}
+
+          <Divider className="mb-4 mt-8" />
+
+          <Section
+            title="Reviews"
+            titleSize="lg"
+            subtitle={`${displayTotal} reviews`}
+            className="mb-6"
+          >
+            <View className="mt-4 bg-light-secondary dark:bg-dark-secondary p-4 rounded-lg">
+              <View className="flex-row items-center mb-4">
+                <ShowRating rating={average} size="lg" />
+                <ThemedText className="ml-2 text-light-subtext dark:text-dark-subtext">
+                  ({displayTotal})
+                </ThemedText>
+              </View>
+              <View className="space-y-2">
+                {([5, 4, 3, 2, 1] as const).map((stars) => (
+                  <View key={stars} className="flex-row items-center justify-between py-1.5">
+                    <ShowRating rating={stars} size="sm" displayMode="stars" />
+                    <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext">
+                      {countByRating[stars] ?? 0} reviews
+                    </ThemedText>
+                  </View>
+                ))}
+              </View>
+            </View>
+            <View className="mt-6 flex-row items-center justify-between mb-3">
+              <ThemedText className="font-semibold text-lg">Reviews</ThemedText>
+              <Pressable
+                onPress={() => router.push(`/screens/review?${reviewParams}`)}
+                className="px-3 py-2 rounded-lg bg-light-secondary dark:bg-dark-secondary"
+              >
+                <ThemedText className="text-sm font-medium">Write review</ThemedText>
+              </Pressable>
+            </View>
+            {loadingReviews ? (
+              <View className="py-6 items-center">
+                <ActivityIndicator size="small" />
+                <ThemedText className="mt-2 text-sm text-light-subtext dark:text-dark-subtext">Loading reviews…</ThemedText>
+              </View>
+            ) : (
+              <CardScroller className="mt-1" space={10}>
+                {reviews.map((review) => {
+                  const isOwnReview = client?.id != null && review.client?.id === client.id;
+                  return (
+                    <View key={review.id} className="w-[280px] bg-light-secondary dark:bg-dark-secondary p-4 rounded-lg">
+                      <View className="flex-row items-center justify-between mb-2">
+                        <View className="flex-row items-center flex-1 min-w-0">
+                          {review.client?.avatarUrl ? (
+                            <Image source={{ uri: review.client.avatarUrl }} className="w-10 h-10 rounded-full mr-2" />
+                          ) : (
+                            <Avatar size="sm" name={review.client?.name ?? '?'} className="mr-2" />
+                          )}
+                          <View className="min-w-0">
+                            <ThemedText className="font-medium" numberOfLines={1}>{review.client?.name ?? 'Anonymous'}</ThemedText>
+                            <ThemedText className="text-xs text-light-subtext dark:text-dark-subtext">
+                              {formatReviewDate(review.createdAt)}
+                            </ThemedText>
+                          </View>
+                        </View>
+                        {isOwnReview && (
+                          <View className="ml-2 px-2 py-1 rounded-md bg-highlight">
+                            <ThemedText className="text-xs font-medium text-white">Edit</ThemedText>
+                          </View>
+                        )}
+                      </View>
+                      <ShowRating rating={review.rating} size="sm" className="mb-2" />
+                      <ThemedText className="text-sm">
+                        {review.description || review.positiveFeedback || '—'}
+                      </ThemedText>
+                    </View>
+                  );
+                })}
+              </CardScroller>
+            )}
+          </Section>
 
           <Divider className="my-4" />
         </View>

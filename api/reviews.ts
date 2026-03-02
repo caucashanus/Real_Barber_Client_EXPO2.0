@@ -96,3 +96,40 @@ export async function createReview(
 
   return res.json();
 }
+
+export interface UpdateReviewParams {
+  rating?: number;
+  description?: string;
+  positiveFeedback?: string;
+  negativeFeedback?: string;
+  isAnonymous?: boolean;
+}
+
+/** PATCH /api/client/reviews/[id] – update own review. */
+export async function updateReview(
+  apiToken: string,
+  reviewId: string,
+  params: UpdateReviewParams
+): Promise<{ id: string; rating: number; description: string | null; updatedAt: string; [key: string]: unknown }> {
+  const res = await fetch(`${CRM_BASE}/api/client/reviews/${reviewId}`, {
+    method: 'PATCH',
+    headers: {
+      Authorization: `Bearer ${apiToken}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      rating: params.rating,
+      description: params.description ?? '',
+      positiveFeedback: params.positiveFeedback ?? params.description ?? '',
+      negativeFeedback: params.negativeFeedback ?? '',
+      isAnonymous: params.isAnonymous,
+    }),
+  });
+
+  if (res.status === 401) throw new Error('Unauthorized');
+  if (res.status === 403) throw new Error('Forbidden');
+  if (res.status === 404) throw new Error('Review not found');
+  if (!res.ok) throw new Error(`Error ${res.status}`);
+
+  return res.json();
+}

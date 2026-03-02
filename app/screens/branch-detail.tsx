@@ -216,7 +216,7 @@ export default function BranchDetailScreen() {
           <View className="">
             <ThemedText className="text-3xl text-center font-semibold">{branch.name}</ThemedText>
             <View className="flex-row items-center justify-center mt-4">
-              <ShowRating rating={4.5} size="lg" className="px-4 py-2 border-r border-neutral-200 dark:border-dark-secondary" />
+              <ShowRating rating={average} size="lg" className="px-4 py-2 border-r border-neutral-200 dark:border-dark-secondary" />
               <ThemedText className="text-base px-4">Reviews</ThemedText>
               <Pressable
                 onPress={() => router.push(`/screens/review?${reviewParams}`)}
@@ -281,14 +281,20 @@ export default function BranchDetailScreen() {
             className="mb-6"
           >
             <View className="mt-4 bg-light-secondary dark:bg-dark-secondary p-4 rounded-lg">
-              <ThemedText className="text-base mb-3">
-                ★ {average} ---- {displayTotal} reviews
-              </ThemedText>
-              <View className="space-y-1.5">
+              <View className="flex-row items-center mb-4">
+                <ShowRating rating={average} size="lg" />
+                <ThemedText className="ml-2 text-light-subtext dark:text-dark-subtext">
+                  ({displayTotal})
+                </ThemedText>
+              </View>
+              <View className="space-y-2">
                 {([5, 4, 3, 2, 1] as const).map((stars) => (
-                  <ThemedText key={stars} className="text-sm">
-                    ★ {stars} ---- {countByRating[stars] ?? 0} reviews
-                  </ThemedText>
+                  <View key={stars} className="flex-row items-center justify-between py-1.5">
+                    <ShowRating rating={stars} size="sm" displayMode="stars" />
+                    <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext">
+                      {countByRating[stars] ?? 0} reviews
+                    </ThemedText>
+                  </View>
                 ))}
               </View>
             </View>
