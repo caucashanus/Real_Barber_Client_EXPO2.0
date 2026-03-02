@@ -8,6 +8,7 @@ import useThemedNavigation from './hooks/useThemedNavigation';
 import { Platform } from 'react-native';
 import { BusinessModeProvider } from './contexts/BusinesModeContext';
 import { AuthProvider } from './contexts/AuthContext';
+import { TransferRecipientProvider } from './contexts/TransferRecipientContext';
 
 NativeWindStyleSheet.setOutput({
   default: 'native',
@@ -34,7 +35,9 @@ export default function RootLayout() {
       <BusinessModeProvider>
         <ThemeProvider>
           <AuthProvider>
-            <ThemedLayout />
+            <TransferRecipientProvider>
+              <ThemedLayout />
+            </TransferRecipientProvider>
           </AuthProvider>
         </ThemeProvider>
       </BusinessModeProvider>

@@ -16,6 +16,7 @@ import Avatar from '@/components/Avatar';
 import ThemedText from '@/components/ThemedText';
 import { Button } from '@/components/Button';
 import { useAuth } from '@/app/contexts/AuthContext';
+import { useTransferRecipient, useSetTransferRecipient } from '@/app/contexts/TransferRecipientContext';
 import {
   getRbCoinsBalance,
   getRbCoinsHistory,
@@ -31,9 +32,9 @@ function formatChatDate(dateString: string): string {
   const date = new Date(dateString);
   const now = new Date();
   const diffInHours = (now.getTime() - date.getTime()) / (1000 * 60 * 60);
-  if (diffInHours < 24) return date.toLocaleTimeString('cs-CZ', { hour: '2-digit', minute: '2-digit' });
-  if (diffInHours < 48) return 'Včera';
-  return date.toLocaleDateString('cs-CZ', { day: 'numeric', month: 'short' });
+  if (diffInHours < 24) return date.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
+  if (diffInHours < 48) return 'Yesterday';
+  return date.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' });
 }
 
 function recipientAvatarUrl(tx: RbCoinsHistoryItem): string | undefined {
@@ -44,12 +45,18 @@ export default function TransferChatScreen() {
   const insets = useSafeAreaInsets();
   const router = useRouter();
   const { apiToken } = useAuth();
-  const { id, name = '', type: receiverTypeParam = 'CLIENT', avatarUrl: avatarUrlParam = '' } = useLocalSearchParams<{
+  const recipientFromContext = useTransferRecipient();
+  const setTransferRecipient = useSetTransferRecipient();
+  const params = useLocalSearchParams<{
     id: string;
     name?: string;
     type?: string;
     avatarUrl?: string;
   }>();
+  const id = recipientFromContext?.id ?? params.id ?? '';
+  const name = recipientFromContext?.name ?? params.name ?? '';
+  const receiverTypeParam = recipientFromContext?.type ?? params.type ?? 'CLIENT';
+  const avatarUrlParam = recipientFromContext?.avatarUrl ?? params.avatarUrl ?? '';
 
   const [balance, setBalance] = useState<number>(0);
   const [transactions, setTransactions] = useState<RbCoinsHistoryItem[]>([]);
@@ -78,7 +85,7 @@ export default function TransferChatScreen() {
     };
   }, [scrollToBottom]);
 
-  const receiverType = (receiverTypeParam === 'EMPLOYEE' ? 'EMPLOYEE' : 'CLIENT') as 'CLIENT' | 'EMPLOYEE';
+  const receiverType = (recipientFromContext?.type ?? (String(receiverTypeParam ?? '').toUpperCase() === 'EMPLOYEE' ? 'EMPLOYEE' : 'CLIENT')) as 'CLIENT' | 'EMPLOYEE';
 
   const loadData = useCallback(async () => {
     if (!apiToken || !id) return;
@@ -105,17 +112,21 @@ export default function TransferChatScreen() {
   }, [loadData]);
 
   useEffect(() => {
+    return () => setTransferRecipient(null);
+  }, [setTransferRecipient]);
+
+  useEffect(() => {
     if (transactions.length > 0) scrollToBottom();
   }, [transactions.length, scrollToBottom]);
 
   const handleSend = async () => {
     const amount = parseFloat(sendAmount.replace(/\s/g, '').replace(',', '.'));
     if (!apiToken || !id || isNaN(amount) || amount <= 0) {
-      Alert.alert('Chyba', 'Zadejte platnou částku.');
+      Alert.alert('Error', 'Enter a valid amount.');
       return;
     }
     if (amount > balance) {
-      Alert.alert('Chyba', 'Nemáte dostatek RBC.');
+      Alert.alert('Error', "You don't have enough RBC.");
       return;
     }
     setSending(true);
@@ -130,7 +141,7 @@ export default function TransferChatScreen() {
       setSendNote('');
       await loadData();
     } catch (e) {
-      Alert.alert('Chyba', e instanceof Error ? e.message : 'Převod se nezdařil.');
+      Alert.alert('Error', e instanceof Error ? e.message : 'Transfer failed.');
     } finally {
       setSending(false);
     }
@@ -139,7 +150,7 @@ export default function TransferChatScreen() {
   const amountNum = parseFloat(sendAmount.replace(/\s/g, '').replace(',', '.')) || 0;
   const isValid = amountNum > 0 && amountNum <= balance && !sending;
 
-  const displayName = name || transactions[0]?.otherParty?.name || 'Příjemce';
+  const displayName = name || transactions[0]?.otherParty?.name || 'Recipient';
   const avatarSrc = transactions[0] ? recipientAvatarUrl(transactions[0]) : (avatarUrlParam && avatarUrlParam.trim() ? avatarUrlParam.trim() : undefined);
 
   return (
@@ -165,12 +176,12 @@ export default function TransferChatScreen() {
           {loading ? (
             <View className="py-12 items-center">
               <ActivityIndicator size="small" />
-              <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext mt-2">Načítání…</ThemedText>
+              <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext mt-2">Loading…</ThemedText>
             </View>
           ) : transactions.length === 0 ? (
             <View className="py-8 px-4">
               <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext text-center">
-                Zatím nemáte žádné transakce s tímto příjemcem
+                You have no transactions with this recipient yet
               </ThemedText>
             </View>
           ) : (
@@ -217,7 +228,7 @@ export default function TransferChatScreen() {
         >
           <View className="flex-row items-center gap-2 mb-2">
             <TextInput
-              placeholder="Částka (RBC)"
+              placeholder="Amount (RBC)"
               placeholderTextColor="#888"
               value={sendAmount}
               onChangeText={setSendAmount}
@@ -228,7 +239,7 @@ export default function TransferChatScreen() {
             <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext">RBC</ThemedText>
           </View>
           <TextInput
-            placeholder="Poznámka (volitelné)"
+            placeholder="Note (optional)"
             placeholderTextColor="#888"
             value={sendNote}
             onChangeText={setSendNote}
@@ -237,11 +248,11 @@ export default function TransferChatScreen() {
           />
           <ThemedText className="text-xs text-light-subtext dark:text-dark-subtext mb-2">
             {amountNum > 0
-              ? `Zůstatek: ${formatBalance(balance)} RBC · Zbývá: ${formatBalance(Math.max(0, balance - amountNum))} RBC`
-              : `Zůstatek: ${formatBalance(balance)} RBC`}
+              ? `Balance: ${formatBalance(balance)} RBC · Remaining: ${formatBalance(Math.max(0, balance - amountNum))} RBC`
+              : `Balance: ${formatBalance(balance)} RBC`}
           </ThemedText>
           <Button
-            title={sending ? 'Odesílám…' : 'Odeslat'}
+            title={sending ? 'Sending…' : 'Send'}
             onPress={handleSend}
             disabled={!isValid}
             className="rounded-xl"

@@ -19,6 +19,7 @@ import {
 } from '@/api/rb-coins';
 import { getEmployees } from '@/api/employees';
 import { searchClients } from '@/api/clients';
+import { useSetTransferRecipient } from '@/app/contexts/TransferRecipientContext';
 
 function formatBalance(value: number): string {
   return value.toLocaleString('cs-CZ', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
@@ -42,8 +43,8 @@ function buildRecipientsFromHistory(history: RbCoinsHistoryItem[]): TransferReci
     const lastText =
       tx.type === 'TRANSFER'
         ? tx.direction === 'sent'
-          ? `Poslali jste ${amount} RBC`
-          : `Poslali vám ${amount} RBC`
+          ? `You sent ${amount} RBC`
+          : `They sent you ${amount} RBC`
         : tx.description || undefined;
     if (!byId[op.id]) {
       byId[op.id] = {
@@ -106,6 +107,7 @@ function recipientAvatarSrc(r: TransferRecipient): string | import('react-native
 export default function TransferSelectRecipientScreen() {
   const router = useRouter();
   const { apiToken } = useAuth();
+  const setTransferRecipient = useSetTransferRecipient();
   const [balance, setBalance] = useState<number>(0);
   const [history, setHistory] = useState<RbCoinsHistoryItem[]>([]);
   const [recipientsList, setRecipients] = useState<TransferRecipient[]>([]);
@@ -190,12 +192,18 @@ export default function TransferSelectRecipientScreen() {
   });
 
   const onSelect = (r: TransferRecipient) => {
+    const recType = (r.type && String(r.type).toUpperCase() === 'EMPLOYEE') ? 'EMPLOYEE' : 'CLIENT';
+    setTransferRecipient({
+      id: r.id,
+      name: r.name,
+      type: recType,
+      avatarUrl: r.avatarUrl ?? undefined,
+    });
     router.push({
-      pathname: '/screens/transfer-chat/[id]',
+      pathname: `/screens/transfer-chat/${r.id}`,
       params: {
-        id: r.id,
         name: r.name,
-        type: r.type || 'CLIENT',
+        type: recType,
         avatarUrl: r.avatarUrl ?? '',
       },
     });
@@ -205,7 +213,7 @@ export default function TransferSelectRecipientScreen() {
     <>
       <Header
         showBackButton
-        title="Nová platba"
+        title="New payment"
         onBackPress={() => router.back()}
       />
       <ThemedScroller className="flex-1 p-global">
@@ -214,7 +222,7 @@ export default function TransferSelectRecipientScreen() {
           style={{ ...shadowPresets.large }}
           className="rounded-2xl bg-light-secondary dark:bg-dark-secondary p-4 mb-4"
         >
-          <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext">Dostupné</ThemedText>
+          <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext">Available</ThemedText>
           <ThemedText className="text-xl font-bold text-light-text dark:text-dark-text mt-1">
             {formatBalance(balance)} <ThemedText className="text-base font-semibold">RBC</ThemedText>
           </ThemedText>
@@ -224,7 +232,7 @@ export default function TransferSelectRecipientScreen() {
         <View className="flex-row items-center rounded-xl bg-light-secondary dark:bg-dark-secondary border border-light-secondary dark:border-dark-secondary px-3 py-2 mb-4">
           <Icon name="Search" size={20} className="text-light-subtext dark:text-dark-subtext mr-2" />
           <TextInput
-            placeholder="Jméno zaměstnance nebo telefon klienta"
+            placeholder="Employee name or client phone"
             placeholderTextColor="#888"
             value={searchQuery}
             onChangeText={setSearchQuery}
@@ -237,21 +245,21 @@ export default function TransferSelectRecipientScreen() {
           )}
         </View>
 
-        <Section title="Příjemce" titleSize="lg" />
+        <Section title="Recipient" titleSize="lg" />
 
         {loading ? (
           <View className="py-8 items-center">
             <ActivityIndicator size="small" />
-            <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext mt-2">Načítání…</ThemedText>
+            <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext mt-2">Loading…</ThemedText>
           </View>
         ) : filtered.length === 0 ? (
           <View className="py-8 px-4">
             <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext text-center">
               {searchQuery.trim()
                 ? clientSearchLoading
-                  ? 'Vyhledávám…'
-                  : 'Žádné výsledky. Zadejte jméno nebo telefon (min. 2 znaky).'
-                : 'Žádní zaměstnanci. Pro odeslání klientovi zadejte jeho telefon do vyhledávání (min. 2 znaky).'}
+                  ? 'Searching…'
+                  : 'No results. Enter name or phone (min. 2 characters).'
+                : 'No employees. To send to a client, enter their phone in the search (min. 2 characters).'}
             </ThemedText>
           </View>
         ) : (

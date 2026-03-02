@@ -13,7 +13,7 @@ import { getRbCoinsHistory, type RbCoinsHistoryItem } from '@/api/rb-coins';
 import TransactionDetailModal from '@/components/TransactionDetailModal';
 
 function formatBalance(value: number): string {
-  return value.toLocaleString('cs-CZ', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+  return value.toLocaleString('en-GB', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
 }
 
 function toDateKey(iso: string): string {
@@ -25,7 +25,7 @@ function toDateKey(iso: string): string {
 }
 
 function formatTransactionTime(iso: string): string {
-  return new Date(iso).toLocaleTimeString('cs-CZ', { hour: '2-digit', minute: '2-digit' });
+  return new Date(iso).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
 }
 
 function getSectionTitle(dateKey: string): string {
@@ -37,11 +37,11 @@ function getSectionTitle(dateKey: string): string {
   const dayBefore = new Date(now);
   dayBefore.setDate(dayBefore.getDate() - 2);
   const dayBeforeKey = toDateKey(dayBefore.toISOString());
-  if (dateKey === today) return 'Dnes';
-  if (dateKey === yesterdayKey) return 'Včera';
-  if (dateKey === dayBeforeKey) return 'Předevčírem';
+  if (dateKey === today) return 'Today';
+  if (dateKey === yesterdayKey) return 'Yesterday';
+  if (dateKey === dayBeforeKey) return 'Day before yesterday';
   const d = new Date(dateKey + 'T12:00:00');
-  return d.toLocaleDateString('cs-CZ', { day: 'numeric', month: 'long' });
+  return d.toLocaleDateString('en-GB', { day: 'numeric', month: 'long' });
 }
 
 function groupByDate(history: RbCoinsHistoryItem[]): { dateKey: string; items: RbCoinsHistoryItem[] }[] {
@@ -57,7 +57,7 @@ function groupByDate(history: RbCoinsHistoryItem[]): { dateKey: string; items: R
 
 /** Krátký název pro řádek v seznamu (jako v referenci: label nebo jméno, ne dlouhý popis). */
 function transactionListTitle(item: RbCoinsHistoryItem): string {
-  if (item.description?.startsWith('Created gift card:')) return 'Vytvoření dárkové karty';
+  if (item.description?.startsWith('Created gift card:')) return 'Gift card created';
   if (item.description?.startsWith('Cashback z nákupu')) return 'Cashback';
   if (item.otherParty?.name) return item.otherParty.name;
   return 'RealBarber';
@@ -97,7 +97,7 @@ export default function WalletHistoryScreen() {
         {loading ? (
           <View className="py-12 items-center">
             <ActivityIndicator size="large" />
-            <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext mt-2">Načítání…</ThemedText>
+            <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext mt-2">Loading…</ThemedText>
           </View>
         ) : error ? (
           <View className="py-6 px-4">
@@ -105,7 +105,7 @@ export default function WalletHistoryScreen() {
           </View>
         ) : history.length === 0 ? (
           <View className="py-12 px-4">
-            <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext text-center">Žádné transakce</ThemedText>
+            <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext text-center">No transactions</ThemedText>
           </View>
         ) : (
           groupByDate(history).map(({ dateKey, items }) => (

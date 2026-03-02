@@ -20,16 +20,16 @@ import TransactionDetailModal from '@/components/TransactionDetailModal';
 const MOCK_CURRENCY = 'RBC';
 
 function formatBalance(value: number): string {
-  return value.toLocaleString('cs-CZ', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+  return value.toLocaleString('en-GB', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
 }
 
 function formatTransactionTime(iso: string): string {
-  return new Date(iso).toLocaleTimeString('cs-CZ', { hour: '2-digit', minute: '2-digit' });
+  return new Date(iso).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
 }
 
 /** Krátký název pro řádek v seznamu (jako v referenci: label nebo jméno, ne dlouhý popis). */
 function transactionListTitle(item: RbCoinsHistoryItem): string {
-  if (item.description?.startsWith('Created gift card:')) return 'Vytvoření dárkové karty';
+  if (item.description?.startsWith('Created gift card:')) return 'Gift card created';
   if (item.description?.startsWith('Cashback z nákupu')) return 'Cashback';
   if (item.otherParty?.name) return item.otherParty.name;
   return 'RealBarber';
@@ -65,7 +65,7 @@ const WalletScreen = () => {
     setBalanceError(null);
     getRbCoinsBalance(apiToken)
       .then((r) => setBalance(r.balance))
-      .catch((e) => setBalanceError(e instanceof Error ? e.message : 'Chyba'))
+      .catch((e) => setBalanceError(e instanceof Error ? e.message : 'Error'))
       .finally(() => setBalanceLoading(false));
 
     setHistoryLoading(true);
@@ -86,7 +86,7 @@ const WalletScreen = () => {
       <AnimatedView animation="scaleIn" className="flex-1 mt-4">
         {/* 1. Stav RBC – ve light mode tmavě šedé (ne černé), v dark mode jako dřív */}
         <View className="bg-slate-600 dark:bg-neutral-900 rounded-t-3xl px-6 pt-8 pb-6 mb-0 items-center">
-          <ThemedText className="text-sm text-white/80 text-center">Osobní · RBC</ThemedText>
+          <ThemedText className="text-sm text-white/80 text-center">Personal · RBC</ThemedText>
           {balanceLoading ? (
             <ActivityIndicator color="white" size="small" className="mt-2" />
           ) : balanceError ? (
@@ -95,7 +95,7 @@ const WalletScreen = () => {
             <ThemedText className="text-3xl font-bold text-white mt-1 text-center">{formatBalance(balance ?? 0)} {MOCK_CURRENCY}</ThemedText>
           )}
           <View className="items-center mt-4">
-            <Button title="Více" variant="outline" size="small" className="rounded-full px-6 bg-white/10 border-white/30" textClassName="text-white" />
+            <Button title="More" variant="outline" size="small" className="rounded-full px-6 bg-white/10 border-white/30" textClassName="text-white" />
           </View>
         </View>
 
@@ -143,17 +143,17 @@ const WalletScreen = () => {
         </View>
 
         {/* 4. Transakce – stejný blok se stínem jako na Branches */}
-        <Section title="Transakce" titleSize="lg" className="mt-6">
+        <Section title="Transactions" titleSize="lg" className="mt-6">
           <View style={{ ...shadowPresets.large }} className="mt-2 p-global rounded-2xl bg-light-secondary dark:bg-dark-secondary overflow-hidden">
           <List variant="divided" spacing={12}>
             {historyLoading ? (
               <View className="py-6 items-center">
                 <ActivityIndicator size="small" />
-                <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext mt-2">Načítám…</ThemedText>
+                <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext mt-2">Loading…</ThemedText>
               </View>
             ) : history.length === 0 ? (
               <View className="py-6 px-4">
-                <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext text-center">Žádné transakce</ThemedText>
+                <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext text-center">No transactions</ThemedText>
               </View>
             ) : (
               history.map((tx) => {
