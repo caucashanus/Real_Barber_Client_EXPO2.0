@@ -44,10 +44,11 @@ export default function TransferChatScreen() {
   const insets = useSafeAreaInsets();
   const router = useRouter();
   const { apiToken } = useAuth();
-  const { id, name = '', type: receiverTypeParam = 'CLIENT' } = useLocalSearchParams<{
+  const { id, name = '', type: receiverTypeParam = 'CLIENT', avatarUrl: avatarUrlParam = '' } = useLocalSearchParams<{
     id: string;
     name?: string;
     type?: string;
+    avatarUrl?: string;
   }>();
 
   const [balance, setBalance] = useState<number>(0);
@@ -139,7 +140,7 @@ export default function TransferChatScreen() {
   const isValid = amountNum > 0 && amountNum <= balance && !sending;
 
   const displayName = name || transactions[0]?.otherParty?.name || 'Příjemce';
-  const avatarSrc = transactions[0] ? recipientAvatarUrl(transactions[0]) : undefined;
+  const avatarSrc = transactions[0] ? recipientAvatarUrl(transactions[0]) : (avatarUrlParam && avatarUrlParam.trim() ? avatarUrlParam.trim() : undefined);
 
   return (
     <KeyboardAvoidingView
