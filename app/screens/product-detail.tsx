@@ -18,7 +18,7 @@ import Switch from '@/components/forms/Switch';
 import Avatar from '@/components/Avatar';
 import { StatusBar } from 'expo-status-bar';
 import { useFocusEffect } from '@react-navigation/native';
-import { useLocalSearchParams } from 'expo-router';
+import { useLocalSearchParams, router } from 'expo-router';
 import { useSelectedPurchase, useSetSelectedPurchase } from '@/app/contexts/SelectedPurchaseContext';
 
 const property = {
@@ -142,6 +142,14 @@ const PropertyDetail = () => {
         ? `${purchase.warehouse.name}${purchase.warehouse.location ? ` - ${purchase.warehouse.location}` : ''}`
         : property.host.location;
 
+    const productImageUrl = purchase
+        ? (purchase.product.primaryImage?.url ?? purchase.product.images?.find((i) => i.isPrimary)?.url ?? purchase.product.images?.[0]?.url ?? '')
+        : '';
+
+    const reviewParams = purchase
+        ? `entityType=sale_log&entityId=${encodeURIComponent(purchase.purchaseId)}&entityName=${encodeURIComponent(title)}${productImageUrl ? `&entityImage=${encodeURIComponent(productImageUrl)}` : ''}`
+        : '';
+
     useEffect(() => {
         return () => setSelectedPurchase(null);
     }, [setSelectedPurchase]);
@@ -194,6 +202,14 @@ const PropertyDetail = () => {
                         <View className='flex-row items-center justify-center mt-4'>
                             <ShowRating rating={property.ratings.overall} size="lg" className='px-4 py-2 border-r border-neutral-200 dark:border-dark-secondary' />
                             <ThemedText className="text-base px-4">234 Reviews</ThemedText>
+                            {purchase && (
+                                <Pressable
+                                    onPress={() => router.push(`/screens/review?${reviewParams}`)}
+                                    className="ml-4 px-3 py-2 rounded-lg bg-light-secondary dark:bg-dark-secondary"
+                                >
+                                    <ThemedText className="text-sm font-medium">Recenzovat</ThemedText>
+                                </Pressable>
+                            )}
                         </View>
                     </View>
 
@@ -270,7 +286,17 @@ const PropertyDetail = () => {
                             </View>
                         </View>
 
-                        <ThemedText className="mt-6 mb-3 font-semibold text-lg">Buyer reviews</ThemedText>
+                        <View className="mt-6 flex-row items-center justify-between mb-3">
+                            <ThemedText className="font-semibold text-lg">Buyer reviews</ThemedText>
+                            {purchase && (
+                                <Pressable
+                                    onPress={() => router.push(`/screens/review?${reviewParams}`)}
+                                    className="px-3 py-2 rounded-lg bg-light-secondary dark:bg-dark-secondary"
+                                >
+                                    <ThemedText className="text-sm font-medium">Napsat recenzi</ThemedText>
+                                </Pressable>
+                            )}
+                        </View>
                         <CardScroller className="mt-1" space={10}>
                             {reviewsData.map((review, index) => (
                                 <View key={index} className="w-[280px] bg-light-secondary dark:bg-dark-secondary p-4 rounded-lg">

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { View, TextInput, Image, Pressable, KeyboardAvoidingView, Platform, ScrollView, TouchableOpacity } from 'react-native';
-import { router, Stack } from 'expo-router';
+import { View, TouchableOpacity, Alert, Image } from 'react-native';
+import { router, useLocalSearchParams } from 'expo-router';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import Header from '@/components/Header';
 import ThemedText from '@/components/ThemedText';
@@ -9,15 +9,8 @@ import useThemeColors from '@/app/contexts/ThemeColors';
 import Input from '@/components/forms/Input';
 import ThemedScroller from '@/components/ThemeScroller';
 import ThemedFooter from '@/components/ThemeFooter';
-
-interface ReviewScreenProps {
-    product: {
-        id: number;
-        name: string;
-        price: number;
-        image: string;
-    };
-}
+import { useAuth } from '@/app/contexts/AuthContext';
+import { createReview } from '@/api/reviews';
 
 const StarRating = ({ rating, setRating }: { rating: number; setRating: (rating: number) => void }) => {
     const colors = useThemeColors();
@@ -48,20 +41,40 @@ const StarRating = ({ rating, setRating }: { rating: number; setRating: (rating:
 const ReviewScreen = () => {
     const [rating, setRating] = useState(0);
     const [review, setReview] = useState('');
+    const [submitting, setSubmitting] = useState(false);
     const colors = useThemeColors();
+    const { apiToken } = useAuth();
+    const { entityType, entityId, entityName, entityImage } = useLocalSearchParams<{
+        entityType?: string;
+        entityId?: string;
+        entityName?: string;
+        entityImage?: string;
+    }>();
 
-    // Mock product data (replace with actual data)
-    const product = {
-        id: 1,
-        name: 'Luxury Beachfront Villa',
-        date: `12 - 16 July, 2025`,
-        image: require('@/assets/img/room-1.avif')
-    };
+    const displayName = entityName ? decodeURIComponent(entityName) : 'Luxury Beachfront Villa';
+    const imageUrl = entityImage ? decodeURIComponent(entityImage) : '';
+    const canSubmitToApi = Boolean(apiToken && entityType && entityId);
 
-    const handleSubmit = () => {
-        // Implement review submission logic
-        console.log({ rating, review });
-        router.back();
+    const handleSubmit = async () => {
+        if (canSubmitToApi && apiToken && entityType && entityId) {
+            setSubmitting(true);
+            try {
+                await createReview(apiToken, {
+                    entityType: entityType as 'branch' | 'reservation' | 'item' | 'sale_log' | 'employee',
+                    entityId: decodeURIComponent(entityId),
+                    rating,
+                    description: review.trim(),
+                });
+                router.back();
+            } catch (e) {
+                Alert.alert('Chyba', e instanceof Error ? e.message : 'Nepodařilo se odeslat recenzi.');
+            } finally {
+                setSubmitting(false);
+            }
+        } else {
+            console.log({ rating, review });
+            router.back();
+        }
     };
 
     return (
@@ -76,17 +89,17 @@ const ReviewScreen = () => {
                 className="flex-1 pt-8"
                 keyboardShouldPersistTaps="handled"
             >
-                {/* Product Information */}
+                {/* Product image + name */}
                 <View className="flex-col items-center mb-0">
-                    <Image
-                        source={product.image}
-                        className="w-32 h-32 rounded-lg bg-light-secondary dark:bg-dark-secondary"
-                    />
+                    {imageUrl ? (
+                        <Image
+                            source={{ uri: imageUrl }}
+                            className="w-32 h-32 rounded-lg bg-light-secondary dark:bg-dark-secondary"
+                            resizeMode="cover"
+                        />
+                    ) : null}
                     <View className="flex-1 items-center justify-center">
-                        <ThemedText className="font-bold mt-global text-base">{product.name}</ThemedText>
-                        <ThemedText className="text-light-subtext dark:text-dark-subtext">
-                            {product.date}
-                        </ThemedText>
+                        <ThemedText className="font-bold mt-global text-base">{displayName}</ThemedText>
                     </View>
                 </View>
 
@@ -111,7 +124,7 @@ const ReviewScreen = () => {
                 <Button
                     title="Submit Review"
                     onPress={handleSubmit}
-                    disabled={rating === 0 || !review.trim()}
+                    disabled={rating === 0 || !review.trim() || submitting}
                 />
             </ThemedFooter>
         </>

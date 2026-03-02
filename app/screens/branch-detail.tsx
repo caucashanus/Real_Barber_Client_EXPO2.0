@@ -11,12 +11,14 @@ import ImageCarousel from '@/components/ImageCarousel';
 import Section from '@/components/layout/Section';
 import Divider from '@/components/layout/Divider';
 import ShowRating from '@/components/ShowRating';
+import { CardScroller } from '@/components/CardScroller';
 import Icon from '@/components/Icon';
 import Avatar from '@/components/Avatar';
 import { Button } from '@/components/Button';
 import Favorite from '@/components/Favorite';
 import { useAuth } from '@/app/contexts/AuthContext';
 import { getBranches, type Branch, type BranchService, type BranchEmployee } from '@/api/branches';
+import { getEntityReviews, type EntityReviewItem } from '@/api/reviews';
 
 function getServicesList(branch: Branch): BranchService[] {
   const s = branch.services;
@@ -58,7 +60,17 @@ function branchMinPrice(branch: Branch): number | null {
   return Math.min(...prices);
 }
 
-// 3D VR prohlídka – manuální mapování podle názvu pobočky (data nejsou z API)
+/** Marker logos per branch name (same as map markers). */
+const BRANCH_MARKER_IMAGES: Record<string, import('react-native').ImageSourcePropType> = {
+  Hagibor: require('@/assets/img/markers/hagiborbarrandov.png'),
+  HAGIBOR: require('@/assets/img/markers/hagiborbarrandov.png'),
+  Kačerov: require('@/assets/img/markers/kacerovbarbershop.png'),
+  Kaceřov: require('@/assets/img/markers/kacerovbarbershop.png'),
+  Modřany: require('@/assets/img/markers/modranybarbershop.png'),
+  Barrandov: require('@/assets/img/markers/barrandovbarbershop.png'),
+};
+
+// 3D VR tour – manual mapping by branch name (data not from API)
 const VR_TOUR_URL_BY_BRANCH_NAME: Record<string, string | null> = {
   Barrandov: null,
   Modřany: 'https://my.matterport.com/show/?m=SrYbx9DgJ3n',
@@ -72,14 +84,42 @@ function getVrTourUrl(branchName: string): string | null {
   return VR_TOUR_URL_BY_BRANCH_NAME[branchName] ?? null;
 }
 
+function formatReviewDate(iso: string): string {
+  try {
+    const d = new Date(iso);
+    const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+    return `${months[d.getMonth()]} ${d.getFullYear()}`;
+  } catch {
+    return iso;
+  }
+}
+
+function useReviewStats(reviews: EntityReviewItem[]) {
+  return React.useMemo(() => {
+    const countByRating: Record<number, number> = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 };
+    let sum = 0;
+    for (const r of reviews) {
+      const rating = Math.min(5, Math.max(1, Math.round(r.rating) || 0));
+      countByRating[rating] = (countByRating[rating] ?? 0) + 1;
+      sum += r.rating;
+    }
+    const total = reviews.length;
+    const average = total > 0 ? Math.round((sum / total) * 10) / 10 : 0;
+    return { countByRating, average, total };
+  }, [reviews]);
+}
+
 export default function BranchDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
-  const { apiToken } = useAuth();
+  const { apiToken, client } = useAuth();
   const insets = useSafeAreaInsets();
   const [branch, setBranch] = useState<Branch | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [reviews, setReviews] = useState<EntityReviewItem[]>([]);
+  const [reviewsTotal, setReviewsTotal] = useState<number | null>(null);
+  const [loadingReviews, setLoadingReviews] = useState(false);
 
   useEffect(() => {
     if (!apiToken || !id) {
@@ -97,6 +137,24 @@ export default function BranchDetailScreen() {
       .catch((e) => setError(e instanceof Error ? e.message : 'Failed to load'))
       .finally(() => setLoading(false));
   }, [apiToken, id]);
+
+  useEffect(() => {
+    if (!apiToken || !branch?.id) return;
+    setLoadingReviews(true);
+    getEntityReviews(apiToken, 'branch', branch.id, { page: 1, limit: 9999, includeOwn: true })
+      .then((data) => {
+        setReviews(data.reviews);
+        setReviewsTotal(data.pagination.total);
+      })
+      .catch(() => {
+        setReviews([]);
+        setReviewsTotal(null);
+      })
+      .finally(() => setLoadingReviews(false));
+  }, [apiToken, branch?.id]);
+
+  const { countByRating, average, total: reviewsComputedTotal } = useReviewStats(reviews);
+  const displayTotal = reviewsTotal ?? reviewsComputedTotal;
 
   if (loading) {
     return (
@@ -126,6 +184,8 @@ export default function BranchDetailScreen() {
   const employeesList = getEmployeesList(branch);
   const vrTourUrl = getVrTourUrl(branch.name);
   const webUrl = branch.webUrl ?? null;
+  const branchImageUrl = getMediaUrlsSorted(branch.media)[0] ?? branch.imageUrl ?? '';
+  const reviewParams = `entityType=branch&entityId=${encodeURIComponent(branch.id)}&entityName=${encodeURIComponent(branch.name)}${branchImageUrl ? `&entityImage=${encodeURIComponent(branchImageUrl)}` : ''}`;
   const rightComponents = branch.name ? [
     <Favorite
       key="fav"
@@ -158,11 +218,25 @@ export default function BranchDetailScreen() {
             <View className="flex-row items-center justify-center mt-4">
               <ShowRating rating={4.5} size="lg" className="px-4 py-2 border-r border-neutral-200 dark:border-dark-secondary" />
               <ThemedText className="text-base px-4">Reviews</ThemedText>
+              <Pressable
+                onPress={() => router.push(`/screens/review?${reviewParams}`)}
+                className="ml-4 px-3 py-2 rounded-lg bg-light-secondary dark:bg-dark-secondary"
+              >
+                <ThemedText className="text-sm font-medium">Review</ThemedText>
+              </Pressable>
             </View>
           </View>
 
           <View className="flex-row items-center mt-8 mb-8 py-global border-y border-neutral-200 dark:border-dark-secondary">
-            <Avatar size="md" name={branch.name} className="mr-4" />
+            {BRANCH_MARKER_IMAGES[branch.name] ? (
+              <Image
+                source={BRANCH_MARKER_IMAGES[branch.name]}
+                className="w-12 h-12 rounded-lg mr-4"
+                resizeMode="contain"
+              />
+            ) : (
+              <Avatar size="md" name={branch.name} className="mr-4" />
+            )}
             <View className="ml-0">
               <ThemedText className="font-semibold text-base">Branch</ThemedText>
               <View className="flex-row items-center">
@@ -197,6 +271,77 @@ export default function BranchDetailScreen() {
               </Section>
             </>
           ) : null}
+
+          <Divider className="mb-4 mt-8" />
+
+          <Section
+            title="Reviews"
+            titleSize="lg"
+            subtitle={`${displayTotal} reviews`}
+            className="mb-6"
+          >
+            <View className="mt-4 bg-light-secondary dark:bg-dark-secondary p-4 rounded-lg">
+              <ThemedText className="text-base mb-3">
+                ★ {average} ---- {displayTotal} reviews
+              </ThemedText>
+              <View className="space-y-1.5">
+                {([5, 4, 3, 2, 1] as const).map((stars) => (
+                  <ThemedText key={stars} className="text-sm">
+                    ★ {stars} ---- {countByRating[stars] ?? 0} reviews
+                  </ThemedText>
+                ))}
+              </View>
+            </View>
+            <View className="mt-6 flex-row items-center justify-between mb-3">
+              <ThemedText className="font-semibold text-lg">Reviews</ThemedText>
+              <Pressable
+                onPress={() => router.push(`/screens/review?${reviewParams}`)}
+                className="px-3 py-2 rounded-lg bg-light-secondary dark:bg-dark-secondary"
+              >
+                <ThemedText className="text-sm font-medium">Write review</ThemedText>
+              </Pressable>
+            </View>
+            {loadingReviews ? (
+              <View className="py-6 items-center">
+                <ActivityIndicator size="small" />
+                <ThemedText className="mt-2 text-sm text-light-subtext dark:text-dark-subtext">Loading reviews…</ThemedText>
+              </View>
+            ) : (
+              <CardScroller className="mt-1" space={10}>
+                {reviews.map((review) => {
+                  const isOwnReview = client?.id != null && review.client?.id === client.id;
+                  return (
+                    <View key={review.id} className="w-[280px] bg-light-secondary dark:bg-dark-secondary p-4 rounded-lg">
+                      <View className="flex-row items-center justify-between mb-2">
+                        <View className="flex-row items-center flex-1 min-w-0">
+                          {review.client?.avatarUrl ? (
+                            <Image source={{ uri: review.client.avatarUrl }} className="w-10 h-10 rounded-full mr-2" />
+                          ) : (
+                            <Avatar size="sm" name={review.client?.name ?? '?'} className="mr-2" />
+                          )}
+                          <View className="min-w-0">
+                            <ThemedText className="font-medium" numberOfLines={1}>{review.client?.name ?? 'Anonymous'}</ThemedText>
+                            <ThemedText className="text-xs text-light-subtext dark:text-dark-subtext">
+                              {formatReviewDate(review.createdAt)}
+                            </ThemedText>
+                          </View>
+                        </View>
+                        {isOwnReview && (
+                          <View className="ml-2 px-2 py-1 rounded-md bg-highlight">
+                            <ThemedText className="text-xs font-medium text-white">Edit</ThemedText>
+                          </View>
+                        )}
+                      </View>
+                      <ShowRating rating={review.rating} size="sm" className="mb-2" />
+                      <ThemedText className="text-sm">
+                        {review.description || review.positiveFeedback || '—'}
+                      </ThemedText>
+                    </View>
+                  );
+                })}
+              </CardScroller>
+            )}
+          </Section>
 
           <Divider className="mb-4 mt-8" />
 
