@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
-import { View, Image, ScrollView, TouchableOpacity } from 'react-native';
-import { useRouter } from 'expo-router';
+import React, { useState, useEffect } from 'react';
+import { View, Image, ScrollView, TouchableOpacity, ActivityIndicator, Alert } from 'react-native';
+import { useRouter, useLocalSearchParams } from 'expo-router';
 import ThemedText from '@/components/ThemedText';
 import { Button } from '@/components/Button';
 import Input from '@/components/forms/Input';
@@ -8,17 +8,28 @@ import Icon, { IconName } from '@/components/Icon';
 import MultiStep, { Step } from '@/components/MultiStep';
 import Section from '@/components/layout/Section';
 import Selectable from '@/components/forms/Selectable';
+import Avatar from '@/components/Avatar';
 import useThemeColors from '../contexts/ThemeColors';
 import Toggle from '@/components/Toggle';
 import AntDesign from '@expo/vector-icons/AntDesign';
 import Fontisto from '@expo/vector-icons/Fontisto';
 import ShowRating from '@/components/ShowRating';
+import { useAuth } from '@/app/contexts/AuthContext';
+import { getBranches, type Branch, type BranchEmployee } from '@/api/branches';
+import { getBookingAvailability } from '@/api/bookings';
+
+function getEmployeesList(branch: Branch): BranchEmployee[] {
+  const e = branch.employees;
+  if (!e) return [];
+  if (Array.isArray(e)) return e;
+  return Object.values(e);
+}
 
 // Mock data for UI display
 const PACKAGE_OPTIONS = [
     {
         id: 'basic',
-        name: 'Basic Logo Package',
+        name: 'I want a specific barber',
         price: '$99',
         deliveryTime: '3 days',
         icon: 'Pen',
@@ -27,7 +38,7 @@ const PACKAGE_OPTIONS = [
     },
     {
         id: 'standard',
-        name: 'Standard Logo Package',
+        name: 'I want the earliest available appointment',
         price: '$199',
         icon: 'Star',
         deliveryTime: '5 days',
@@ -36,7 +47,7 @@ const PACKAGE_OPTIONS = [
     },
     {
         id: 'premium',
-        name: 'Premium Logo Package',
+        name: 'Show all options',
         price: '$349',
         icon: 'Gem',
         deliveryTime: '7 days',
@@ -51,7 +62,7 @@ const ProjectDetailsStep = () => {
 
     return (
         <ScrollView className="flex-1 p-4">
-            <Section title="Logo Design Package" titleSize='2xl' subtitle="Choose your package" className='mt-4 mb-8' />
+            <Section title="Choose booking method" titleSize='2xl' subtitle="Select how you want to book" className='mt-4 mb-8' />
             
             {PACKAGE_OPTIONS.map(pkg => (
                 <Selectable
@@ -67,6 +78,99 @@ const ProjectDetailsStep = () => {
         </ScrollView>
     );
 }
+
+const SelectSpecialistStep = () => {
+    const { branchId } = useLocalSearchParams<{ branchId?: string }>();
+    const { apiToken } = useAuth();
+    const [selectedBarber, setSelectedBarber] = useState<string | null>(null);
+    const [employees, setEmployees] = useState<BranchEmployee[]>([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
+
+    useEffect(() => {
+        if (!apiToken || !branchId) {
+            setLoading(false);
+            return;
+        }
+        setLoading(true);
+        setError(null);
+        getBranches(apiToken, { includeReviews: true, reviewsLimit: 1 })
+            .then((list) => {
+                const branch = list.find((b) => b.id === branchId) ?? null;
+                if (!branch) {
+                    setError('Branch not found');
+                    setEmployees([]);
+                } else {
+                    setEmployees(getEmployeesList(branch));
+                }
+            })
+            .catch((e) => {
+                setError(e instanceof Error ? e.message : 'Failed to load');
+                setEmployees([]);
+            })
+            .finally(() => setLoading(false));
+    }, [apiToken, branchId]);
+
+    const descriptionForEmployee = (emp: BranchEmployee): string => {
+        const bio = (emp as { bio?: string }).bio;
+        return bio?.trim() ?? '';
+    };
+
+    const handleSelectSpecialist = async (empId: string) => {
+        setSelectedBarber(empId);
+        if (!apiToken || !branchId) return;
+        const today = new Date();
+        const dateStr = today.toISOString().slice(0, 10); // YYYY-MM-DD
+        try {
+            const response = await getBookingAvailability(apiToken, {
+                employeeId: empId,
+                date: dateStr,
+                branchId,
+            });
+            const fullJson = JSON.stringify(response, null, 2);
+            console.log('[BOOKING AVAILABILITY] Full response:', fullJson);
+            Alert.alert('Availability – full response', fullJson);
+        } catch (e) {
+            console.warn('[BOOKING AVAILABILITY] Error:', e);
+            Alert.alert('Availability error', e instanceof Error ? e.message : 'Request failed');
+        }
+    };
+
+    return (
+        <View className="flex-1 p-4">
+            <Section
+                title="Select specialist"
+                titleSize="2xl"
+                subtitle="Choose the barber whose available times you want to see"
+                className="mt-4 mb-8"
+            />
+            {loading ? (
+                <View className="py-12 items-center">
+                    <ActivityIndicator size="small" />
+                    <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext mt-2">Loading…</ThemedText>
+                </View>
+            ) : error ? (
+                <ThemedText className="text-sm text-red-600 dark:text-red-400 text-center">{error}</ThemedText>
+            ) : employees.length === 0 ? (
+                <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext text-center">No specialists at this branch.</ThemedText>
+            ) : (
+                employees
+                    .filter((emp) => emp.isActive !== false)
+                    .map((emp) => (
+                        <Selectable
+                            key={emp.id}
+                            title={emp.name}
+                            description={descriptionForEmployee(emp)}
+                            customIcon={<Avatar size="sm" src={emp.avatarUrl ?? undefined} name={emp.name} />}
+                            selected={selectedBarber === emp.id}
+                            onPress={() => handleSelectSpecialist(emp.id)}
+                            containerClassName="mb-4"
+                        />
+                    ))
+            )}
+        </View>
+    );
+};
 
 const PaymentStep = () => {
     const [selectedPayment, setSelectedPayment] = useState('1');
@@ -146,7 +250,7 @@ const ReviewStep = () => (
                 <View className="flex-row mb-2">
                     <View className="flex-1">
                         <View className="flex-row items-center justify-between">
-                            <ThemedText className="font-bold text-lg">Standard Logo Package</ThemedText>
+                            <ThemedText className="font-bold text-lg">I want the earliest available appointment</ThemedText>
                             <Icon name="Gem" size={24} className="mr-3" />
                         </View>
                         <ThemedText className="text-light-subtext dark:text-dark-subtext mt-1">
@@ -249,6 +353,10 @@ const CheckoutScreen = () => {
             >
                 <Step title="Project Details">
                     <ProjectDetailsStep />
+                </Step>
+
+                <Step title="Select specialist">
+                    <SelectSpecialistStep />
                 </Step>
 
                 <Step title="Payment">

@@ -9,6 +9,7 @@ import { Platform } from 'react-native';
 import { BusinessModeProvider } from './contexts/BusinesModeContext';
 import { AuthProvider } from './contexts/AuthContext';
 import { TransferRecipientProvider } from './contexts/TransferRecipientContext';
+import { SelectedPurchaseProvider } from './contexts/SelectedPurchaseContext';
 
 NativeWindStyleSheet.setOutput({
   default: 'native',
@@ -36,7 +37,9 @@ export default function RootLayout() {
         <ThemeProvider>
           <AuthProvider>
             <TransferRecipientProvider>
-              <ThemedLayout />
+              <SelectedPurchaseProvider>
+                <ThemedLayout />
+              </SelectedPurchaseProvider>
             </TransferRecipientProvider>
           </AuthProvider>
         </ThemeProvider>

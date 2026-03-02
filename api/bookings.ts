@@ -86,3 +86,57 @@ export async function getBookings(
 
   return res.json() as Promise<BookingsResponse>;
 }
+
+/** Query params for availability. employeeId and date required; branchId and itemId optional. */
+export interface GetBookingAvailabilityParams {
+  employeeId: string;
+  date: string; // YYYY-MM-DD
+  branchId?: string;
+  itemId?: string;
+}
+
+/** Response shape from GET /api/client/bookings/availability (see CRM for actual fields). */
+export interface BookingAvailabilityResponse {
+  date: string;
+  employee: { id: string; name: string };
+  service: { id: string; name: string; duration: number; price: number } | null;
+  workingHours: { start: string; end: string };
+  existingBookings: Array<{ id: string; start: string; end: string; service?: string }>;
+  availability: { totalSlots: number; slots: Array<{ start: string; end: string; duration: number }> };
+  [key: string]: unknown;
+}
+
+/** GET /api/client/bookings/availability – slots for branch + employee. */
+export async function getBookingAvailability(
+  apiToken: string,
+  params: GetBookingAvailabilityParams
+): Promise<BookingAvailabilityResponse> {
+  const q = new URLSearchParams();
+  q.set('employeeId', params.employeeId);
+  q.set('date', params.date);
+  if (params.branchId) q.set('branchId', params.branchId);
+  if (params.itemId) q.set('itemId', params.itemId);
+  const url = `${CRM_BASE}/api/client/bookings/availability?${q.toString()}`;
+
+  const res = await fetch(url, {
+    method: 'GET',
+    headers: { Authorization: `Bearer ${apiToken}` },
+  });
+
+  const text = await res.text();
+  if (res.status === 401) throw new Error('Unauthorized');
+  if (!res.ok) {
+    let msg = `Error ${res.status}`;
+    try {
+      const body = JSON.parse(text) as { message?: string; error?: string };
+      if (body?.message) msg = body.message;
+      else if (body?.error) msg = body.error;
+      else if (text) msg = `${msg}: ${text.slice(0, 200)}`;
+    } catch {
+      if (text) msg = `${msg}: ${text.slice(0, 200)}`;
+    }
+    throw new Error(msg);
+  }
+
+  return JSON.parse(text) as BookingAvailabilityResponse;
+}

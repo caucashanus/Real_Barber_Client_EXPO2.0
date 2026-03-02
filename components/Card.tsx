@@ -23,6 +23,8 @@ interface CardProps {
     price?: string;
     rating?: number;
     badge?: string;
+    /** Second pill (same style as price pill), e.g. payment method */
+    badgeSecondary?: string;
     badgeColor?: string;
     icon?: string;
     iconColor?: string;
@@ -53,6 +55,7 @@ const Card: React.FC<CardProps> = ({
     price,
     rating,
     badge,
+    badgeSecondary,
     hasFavorite = false,
     favoriteEntityType,
     favoriteEntityId,
@@ -189,11 +192,20 @@ const Card: React.FC<CardProps> = ({
                                 {description}
                             </ThemedText>
                         )}
-                        {(price || rating) && (
-                            <View className="flex-row items-center mt-1 bg-light-secondary dark:bg-dark-secondary rounded-full px-2 py-1 mr-auto">
-                                {renderPrice()}
-                                <View className='mx-1' />
-                                {renderRating()}
+                        {(price || rating || badgeSecondary) && (
+                            <View className="flex-row items-center mt-1 flex-wrap gap-1">
+                                {(price || rating) && (
+                                    <View className="flex-row items-center bg-light-secondary dark:bg-dark-secondary rounded-full px-2 py-1">
+                                        {renderPrice()}
+                                        <View className='mx-1' />
+                                        {renderRating()}
+                                    </View>
+                                )}
+                                {badgeSecondary ? (
+                                    <View className="bg-light-secondary dark:bg-dark-secondary rounded-full px-2 py-1">
+                                        <ThemedText className="text-xs text-gray-500 dark:text-gray-300">{badgeSecondary}</ThemedText>
+                                    </View>
+                                ) : null}
                             </View>
                         )}
                         

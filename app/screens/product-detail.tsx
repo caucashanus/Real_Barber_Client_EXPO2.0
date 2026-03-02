@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { View, Text, Image, Pressable } from 'react-native';
 import { Share } from 'react-native';
 import Header, { HeaderIcon } from '@/components/Header';
@@ -18,6 +18,8 @@ import Switch from '@/components/forms/Switch';
 import Avatar from '@/components/Avatar';
 import { StatusBar } from 'expo-status-bar';
 import { useFocusEffect } from '@react-navigation/native';
+import { useLocalSearchParams } from 'expo-router';
+import { useSelectedPurchase, useSetSelectedPurchase } from '@/app/contexts/SelectedPurchaseContext';
 
 const property = {
     id: 1,
@@ -111,12 +113,38 @@ const similarProperties = [
 ];
 
 const PropertyDetail = () => {
+    const { id: productId } = useLocalSearchParams<{ id?: string }>();
+    const selectedPurchase = useSelectedPurchase();
+    const setSelectedPurchase = useSetSelectedPurchase();
     const [instantBook, setInstantBook] = useState(false);
     const [isFocused, setIsFocused] = useState(true);
     const actionSheetRef = useRef<ActionSheetRef>(null);
     const insets = useSafeAreaInsets();
 
-    const totalPrice = property.price;
+    const isFromPurchased = Boolean(productId && selectedPurchase && selectedPurchase.product.id === productId);
+    const purchase = isFromPurchased ? selectedPurchase : null;
+
+    const title = purchase?.product.name ?? property.title;
+    const description = purchase?.product.description ?? property.description;
+    const images = purchase
+        ? (purchase.product.images?.length
+            ? purchase.product.images.map((img) => img.url)
+            : purchase.product.primaryImage
+                ? [purchase.product.primaryImage.url]
+                : [])
+        : property.images;
+    const displayImages = images.length > 0 ? images : [require('@/assets/img/room-2.avif')];
+    const totalPrice = purchase != null ? `${purchase.totalPrice} Kč` : property.price;
+    const priceLabel = purchase != null ? 'per product' : 'night';
+    const sellerName = purchase?.seller.name ?? property.host.name;
+    const sellerAvatar = purchase?.seller.avatarUrl ?? property.host.avatar;
+    const locationText = purchase?.warehouse
+        ? `${purchase.warehouse.name}${purchase.warehouse.location ? ` - ${purchase.warehouse.location}` : ''}`
+        : property.host.location;
+
+    useEffect(() => {
+        return () => setSelectedPurchase(null);
+    }, [setSelectedPurchase]);
 
     // Manage status bar based on screen focus
     useFocusEffect(
@@ -131,16 +159,18 @@ const PropertyDetail = () => {
     const handleShare = async () => {
         try {
             await Share.share({
-                message: `Check out this amazing property: ${property.title}\nPrice: ${property.price} per night`,
-                title: property.title
+                message: purchase
+                    ? `${title}\nPrice: ${totalPrice} per product`
+                    : `Check out this amazing property: ${property.title}\nPrice: ${property.price} per night`,
+                title
             });
         } catch (error) {
             console.error('Error sharing:', error);
         }
     };
     const rightComponents = [
-        <Favorite productName={property.title} size={25} isWhite />,
-        <HeaderIcon icon="Share2" onPress={handleShare} isWhite href="0" />,
+        <Favorite key="fav" productName={title} size={25} isWhite />,
+        <HeaderIcon key="share" icon="Share2" onPress={handleShare} isWhite href="0" />,
     ];
 
     return (
@@ -151,7 +181,7 @@ const PropertyDetail = () => {
 
                 className="px-0 bg-light-primary dark:bg-dark-primary">
                 <ImageCarousel
-                    images={property.images}
+                    images={displayImages}
                     height={500}
                     paginationStyle="dots"
                 />
@@ -160,7 +190,7 @@ const PropertyDetail = () => {
                     style={{ borderTopLeftRadius: 30, borderTopRightRadius: 30 }}
                     className="p-global bg-light-primary dark:bg-dark-primary -mt-[30px]">
                     <View className=''>
-                        <ThemedText className="text-3xl text-center font-semibold">{property.title}</ThemedText>
+                        <ThemedText className="text-3xl text-center font-semibold">{title}</ThemedText>
                         <View className='flex-row items-center justify-center mt-4'>
                             <ShowRating rating={property.ratings.overall} size="lg" className='px-4 py-2 border-r border-neutral-200 dark:border-dark-secondary' />
                             <ThemedText className="text-base px-4">234 Reviews</ThemedText>
@@ -170,29 +200,30 @@ const PropertyDetail = () => {
                     <View className="flex-row items-center mt-8 mb-8 py-global border-y border-neutral-200 dark:border-dark-secondary">
                         <Avatar
                             size="md"
-                            src={property.host.avatar}
+                            src={sellerAvatar}
+                            name={sellerName}
                             className="mr-4"
-                            link={`/screens/user-profile`}
+                            link={purchase ? undefined : `/screens/user-profile`}
                         />
                         <View className="ml-0">
-                            <ThemedText className="font-semibold text-base">Hosted by {property.host.name}</ThemedText>
+                            <ThemedText className="font-semibold text-base">Seller: {sellerName}</ThemedText>
                             <View className="flex-row items-center">
                                 <Icon name="MapPin" size={12} className="mr-1" />
                                 <ThemedText className="text-xs text-light-subtext dark:text-dark-subtext">
-                                    {property.host.location}
+                                    {locationText}
                                 </ThemedText>
                             </View>
                         </View>
                     </View>
 
-                    <ThemedText className="text-base">{property.description}</ThemedText>
+                    <ThemedText className="text-base">{description}</ThemedText>
 
 
 
                     <Divider className="mb-4 mt-8" />
 
-                    {/* Property Features */}
-                    <Section title="Property Details" titleSize="lg" className="mb-6 mt-2">
+                    {/* Property / Product Features */}
+                    <Section title="Product details" titleSize="lg" className="mb-6 mt-2">
                         <View className="mt-3">
                             <FeatureItem icon="Users" label="Guests" value={property.features.guests} />
                             <FeatureItem icon="BedDouble" label="Bedrooms" value={property.features.bedrooms} />
@@ -219,7 +250,7 @@ const PropertyDetail = () => {
 
                     {/* Ratings & Reviews */}
                     <Section
-                        title="Guest Reviews"
+                        title="Buyer reviews"
                         titleSize="lg"
                         subtitle={`${property.ratings.reviews} reviews`}
                         className="mb-6"
@@ -239,7 +270,7 @@ const PropertyDetail = () => {
                             </View>
                         </View>
 
-                        <ThemedText className="mt-6 mb-3 font-semibold text-lg">Guest Reviews</ThemedText>
+                        <ThemedText className="mt-6 mb-3 font-semibold text-lg">Buyer reviews</ThemedText>
                         <CardScroller className="mt-1" space={10}>
                             {reviewsData.map((review, index) => (
                                 <View key={index} className="w-[280px] bg-light-secondary dark:bg-dark-secondary p-4 rounded-lg">
@@ -272,16 +303,16 @@ const PropertyDetail = () => {
                         className=' flex-row items-center justify-start px-global pt-4 border-t border-neutral-200 dark:border-dark-secondary'
                     >
                         <View>
-                            <ThemedText className='text-xl font-bold'>{totalPrice} night</ThemedText>
-                            <ThemedText className='text-xs opacity-60'>5 - 12 June</ThemedText>
+                            <ThemedText className='text-xl font-bold'>{totalPrice} {priceLabel}</ThemedText>
+                            {!purchase && <ThemedText className='text-xs opacity-60'>5 - 12 June</ThemedText>}
                         </View>
                         <View className='flex-row items-center ml-auto'>
                             <Button
-                                title='Reserve'
+                                title={purchase ? 'Buy' : 'Reserve'}
                                 className='bg-highlight ml-6 px-6'
                                 textClassName='text-white'
                                 size='medium'
-                                href='/screens/order-detail?id=1'    
+                                href='/screens/order-detail?id=1'
                                 rounded='lg'
                             />
                         </View>

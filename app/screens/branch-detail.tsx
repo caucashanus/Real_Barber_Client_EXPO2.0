@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { View, Image, ActivityIndicator, Pressable } from 'react-native';
-import { useLocalSearchParams } from 'expo-router';
+import { useLocalSearchParams, useRouter } from 'expo-router';
 import * as WebBrowser from 'expo-web-browser';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
@@ -74,6 +74,7 @@ function getVrTourUrl(branchName: string): string | null {
 
 export default function BranchDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
+  const router = useRouter();
   const { apiToken } = useAuth();
   const insets = useSafeAreaInsets();
   const [branch, setBranch] = useState<Branch | null>(null);
@@ -183,10 +184,14 @@ export default function BranchDetailScreen() {
               <Section title="Team" titleSize="lg" className="mb-6 mt-2">
                 <View className="mt-3 flex-row flex-wrap gap-6">
                   {employeesList.map((emp: BranchEmployee) => (
-                    <View key={emp.id} className="items-center">
+                    <Pressable
+                      key={emp.id}
+                      onPress={() => router.push(`/screens/barber-detail?id=${emp.id}`)}
+                      className="items-center active:opacity-70"
+                    >
                       <Avatar size="lg" src={emp.avatarUrl ?? undefined} name={emp.name} />
                       <ThemedText className="mt-2 text-sm font-medium" numberOfLines={1}>{emp.name}</ThemedText>
-                    </View>
+                    </Pressable>
                   ))}
                 </View>
               </Section>
@@ -237,6 +242,7 @@ export default function BranchDetailScreen() {
             {minPrice != null ? `From ${minPrice} Kč` : '—'}
           </ThemedText>
           <ThemedText className="text-xs opacity-60">Services</ThemedText>
+          <ThemedText className="text-xs opacity-60 mt-1">Review</ThemedText>
         </View>
         <View className="flex-row items-center ml-auto">
           <Button
