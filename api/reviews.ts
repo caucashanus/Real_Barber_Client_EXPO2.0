@@ -133,3 +133,16 @@ export async function updateReview(
 
   return res.json();
 }
+
+/** DELETE /api/client/reviews/[id] – delete own review. */
+export async function deleteReview(apiToken: string, reviewId: string): Promise<void> {
+  const res = await fetch(`${CRM_BASE}/api/client/reviews/${reviewId}`, {
+    method: 'DELETE',
+    headers: { Authorization: `Bearer ${apiToken}` },
+  });
+
+  if (res.status === 401) throw new Error('Unauthorized');
+  if (res.status === 403) throw new Error('Forbidden');
+  if (res.status === 404) throw new Error('Review not found');
+  if (!res.ok) throw new Error(`Error ${res.status}`);
+}

@@ -10,7 +10,7 @@ import Input from '@/components/forms/Input';
 import ThemedScroller from '@/components/ThemeScroller';
 import ThemedFooter from '@/components/ThemeFooter';
 import { useAuth } from '@/app/contexts/AuthContext';
-import { createReview, getEntityReviews, updateReview } from '@/api/reviews';
+import { createReview, getEntityReviews, updateReview, deleteReview } from '@/api/reviews';
 import Switch from '@/components/forms/Switch';
 
 const StarRating = ({ rating, setRating }: { rating: number; setRating: (rating: number) => void }) => {
@@ -43,6 +43,7 @@ const ReviewScreen = () => {
     const [rating, setRating] = useState(0);
     const [review, setReview] = useState('');
     const [submitting, setSubmitting] = useState(false);
+    const [deleting, setDeleting] = useState(false);
     const [isAnonymous, setIsAnonymous] = useState(false);
     const [existingReviewId, setExistingReviewId] = useState<string | null>(null);
     const [initialRating, setInitialRating] = useState(0);
@@ -103,11 +104,12 @@ const ReviewScreen = () => {
         if (!canSubmit || !apiToken) return;
         setSubmitting(true);
         try {
+            const allowAnonymous = entityType !== 'sale_log';
             if (existingReviewId) {
                 await updateReview(apiToken, existingReviewId, {
                     rating,
                     description: review.trim(),
-                    isAnonymous,
+                    isAnonymous: allowAnonymous ? isAnonymous : false,
                 });
             } else if (entityType && entityId) {
                 await createReview(apiToken, {
@@ -115,7 +117,7 @@ const ReviewScreen = () => {
                     entityId: decodeURIComponent(entityId),
                     rating,
                     description: review.trim(),
-                    isAnonymous,
+                    isAnonymous: allowAnonymous ? isAnonymous : false,
                 });
             }
             router.back();
@@ -124,6 +126,32 @@ const ReviewScreen = () => {
         } finally {
             setSubmitting(false);
         }
+    };
+
+    const handleDelete = () => {
+        Alert.alert(
+            'Delete review',
+            'Do you really want to delete this review?',
+            [
+                { text: 'No', style: 'cancel' },
+                {
+                    text: 'Yes',
+                    style: 'destructive',
+                    onPress: async () => {
+                        if (!apiToken || !existingReviewId) return;
+                        setDeleting(true);
+                        try {
+                            await deleteReview(apiToken, existingReviewId);
+                            router.back();
+                        } catch (e) {
+                            Alert.alert('Error', e instanceof Error ? e.message : 'Failed to delete review.');
+                        } finally {
+                            setDeleting(false);
+                        }
+                    },
+                },
+            ]
+        );
     };
 
     return (
@@ -174,16 +202,18 @@ const ReviewScreen = () => {
                     onChangeText={setReview}
                 />
 
-                {/* Anonymous review */}
-                <View className="mt-6">
-                    <Switch
-                        label="Anonymous review"
-                        description="Your name and profile will not be shown with this review."
-                        value={isAnonymous}
-                        onChange={setIsAnonymous}
-                        className="py-3"
-                    />
-                </View>
+                {/* Anonymous review – not allowed for product (sale_log) reviews */}
+                {entityType !== 'sale_log' && (
+                    <View className="mt-6">
+                        <Switch
+                            label="Anonymous review"
+                            description="Your name and profile will not be shown with this review."
+                            value={isAnonymous}
+                            onChange={setIsAnonymous}
+                            className="py-3"
+                        />
+                    </View>
+                )}
 
                     </>
                 )}
@@ -192,8 +222,20 @@ const ReviewScreen = () => {
                 <Button
                     title={isEditMode ? 'Update review' : 'Submit Review'}
                     onPress={handleSubmit}
-                    disabled={!canSubmit || submitting}
+                    disabled={!canSubmit || submitting || deleting}
                 />
+                {isEditMode && (
+                    <TouchableOpacity
+                        onPress={handleDelete}
+                        disabled={submitting || deleting}
+                        className="mt-3 py-2"
+                        activeOpacity={0.7}
+                    >
+                        <ThemedText className="text-center text-sm text-red-500 dark:text-red-400">
+                            {deleting ? 'Deleting…' : 'Delete review'}
+                        </ThemedText>
+                    </TouchableOpacity>
+                )}
             </ThemedFooter>
         </>
     );

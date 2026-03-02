@@ -1,5 +1,5 @@
-import React, { useState, useRef, useEffect } from 'react';
-import { View, Text, Image, Pressable } from 'react-native';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
+import { View, Text, Image, Pressable, ScrollView, ActivityIndicator, type LayoutChangeEvent } from 'react-native';
 import { Share } from 'react-native';
 import Header, { HeaderIcon } from '@/components/Header';
 import ThemedText from '@/components/ThemedText';
@@ -20,6 +20,8 @@ import { StatusBar } from 'expo-status-bar';
 import { useFocusEffect } from '@react-navigation/native';
 import { useLocalSearchParams, router } from 'expo-router';
 import { useSelectedPurchase, useSetSelectedPurchase } from '@/app/contexts/SelectedPurchaseContext';
+import { useAuth } from '@/app/contexts/AuthContext';
+import { getEntityReviews, type EntityReviewItem } from '@/api/reviews';
 
 const property = {
     id: 1,
@@ -85,6 +87,31 @@ const reviewsData = [
     }
 ];
 
+function formatReviewDate(iso: string): string {
+    try {
+        const d = new Date(iso);
+        const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+        return `${months[d.getMonth()]} ${d.getFullYear()}`;
+    } catch {
+        return iso;
+    }
+}
+
+function useReviewStats(reviews: EntityReviewItem[]) {
+    return React.useMemo(() => {
+        const countByRating: Record<number, number> = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 };
+        let sum = 0;
+        for (const r of reviews) {
+            const rating = Math.min(5, Math.max(1, Math.round(r.rating) || 0));
+            countByRating[rating] = (countByRating[rating] ?? 0) + 1;
+            sum += r.rating;
+        }
+        const total = reviews.length;
+        const average = total > 0 ? Math.round((sum / total) * 10) / 10 : 0;
+        return { countByRating, average, total };
+    }, [reviews]);
+}
+
 const similarProperties = [
     {
         id: 2,
@@ -116,8 +143,13 @@ const PropertyDetail = () => {
     const { id: productId } = useLocalSearchParams<{ id?: string }>();
     const selectedPurchase = useSelectedPurchase();
     const setSelectedPurchase = useSetSelectedPurchase();
+    const { apiToken, client } = useAuth();
     const [instantBook, setInstantBook] = useState(false);
     const [isFocused, setIsFocused] = useState(true);
+    const [reviews, setReviews] = useState<EntityReviewItem[]>([]);
+    const [reviewsTotal, setReviewsTotal] = useState<number | null>(null);
+    const [loadingReviews, setLoadingReviews] = useState(false);
+    const [hasReviewed, setHasReviewed] = useState(false);
     const actionSheetRef = useRef<ActionSheetRef>(null);
     const insets = useSafeAreaInsets();
 
@@ -154,15 +186,57 @@ const PropertyDetail = () => {
         return () => setSelectedPurchase(null);
     }, [setSelectedPurchase]);
 
-    // Manage status bar based on screen focus
+    useEffect(() => {
+        if (!apiToken || !purchase?.purchaseId) {
+            setReviews([]);
+            setReviewsTotal(null);
+            setHasReviewed(false);
+            return;
+        }
+        setLoadingReviews(true);
+        getEntityReviews(apiToken, 'sale_log', purchase.purchaseId, { page: 1, limit: 9999, includeOwn: true })
+            .then((data) => {
+                setReviews(data.reviews);
+                setReviewsTotal(data.pagination.total);
+                setHasReviewed(!!data.hasReviewed);
+            })
+            .catch(() => {
+                setReviews([]);
+                setReviewsTotal(null);
+                setHasReviewed(false);
+            })
+            .finally(() => setLoadingReviews(false));
+    }, [apiToken, purchase?.purchaseId]);
+
+    // Status bar and refetch reviews when screen gains focus (e.g. return from Write review)
     useFocusEffect(
         React.useCallback(() => {
             setIsFocused(true);
+            if (apiToken && purchase?.purchaseId) {
+                getEntityReviews(apiToken, 'sale_log', purchase.purchaseId, { page: 1, limit: 9999, includeOwn: true })
+                    .then((data) => {
+                        setReviews(data.reviews);
+                        setReviewsTotal(data.pagination.total);
+                        setHasReviewed(!!data.hasReviewed);
+                    })
+                    .catch(() => {});
+            }
             return () => {
                 setIsFocused(false);
             };
-        }, [])
+        }, [apiToken, purchase?.purchaseId])
     );
+
+    const { countByRating, average, total: reviewsComputedTotal } = useReviewStats(reviews);
+    const displayTotal = reviewsTotal ?? reviewsComputedTotal;
+
+    const scrollRef = useRef<ScrollView>(null);
+    const roundedViewYRef = useRef(0);
+    const reviewsSectionYInRoundedRef = useRef(0);
+    const scrollToReviews = useCallback(() => {
+        const y = roundedViewYRef.current + reviewsSectionYInRoundedRef.current;
+        scrollRef.current?.scrollTo({ y: Math.max(0, y - 16), animated: true });
+    }, []);
 
     const handleShare = async () => {
         try {
@@ -176,8 +250,17 @@ const PropertyDetail = () => {
             console.error('Error sharing:', error);
         }
     };
+    const productIdForFavorite = purchase?.product.id ?? productId ?? '';
     const rightComponents = [
-        <Favorite key="fav" productName={title} size={25} isWhite />,
+        <Favorite
+            key="fav"
+            productName={title}
+            title={title}
+            entityType="product"
+            entityId={productIdForFavorite}
+            size={25}
+            isWhite
+        />,
         <HeaderIcon key="share" icon="Share2" onPress={handleShare} isWhite href="0" />,
     ];
 
@@ -185,9 +268,7 @@ const PropertyDetail = () => {
         <>
             {isFocused && <StatusBar style="light" translucent />}
             <Header variant='transparent' title="" rightComponents={rightComponents} showBackButton />
-            <ThemedScroller
-
-                className="px-0 bg-light-primary dark:bg-dark-primary">
+            <ThemedScroller ref={scrollRef} className="px-0 bg-light-primary dark:bg-dark-primary">
                 <ImageCarousel
                     images={displayImages}
                     height={500}
@@ -196,18 +277,22 @@ const PropertyDetail = () => {
 
                 <View
                     style={{ borderTopLeftRadius: 30, borderTopRightRadius: 30 }}
-                    className="p-global bg-light-primary dark:bg-dark-primary -mt-[30px]">
+                    className="p-global bg-light-primary dark:bg-dark-primary -mt-[30px]"
+                    onLayout={(e: LayoutChangeEvent) => { roundedViewYRef.current = e.nativeEvent.layout.y; }}
+                >
                     <View className=''>
                         <ThemedText className="text-3xl text-center font-semibold">{title}</ThemedText>
                         <View className='flex-row items-center justify-center mt-4'>
-                            <ShowRating rating={property.ratings.overall} size="lg" className='px-4 py-2 border-r border-neutral-200 dark:border-dark-secondary' />
-                            <ThemedText className="text-base px-4">234 Reviews</ThemedText>
+                            <Pressable onPress={scrollToReviews} className="flex-row items-center active:opacity-70">
+                                <ShowRating rating={purchase ? average : property.ratings.overall} size="lg" className='px-4 py-2 border-r border-neutral-200 dark:border-dark-secondary' />
+                                <ThemedText className="text-base px-4">{purchase ? `${displayTotal} Reviews` : '234 Reviews'}</ThemedText>
+                            </Pressable>
                             {purchase && (
                                 <Pressable
                                     onPress={() => router.push(`/screens/review?${reviewParams}`)}
                                     className="ml-4 px-3 py-2 rounded-lg bg-light-secondary dark:bg-dark-secondary"
                                 >
-                                    <ThemedText className="text-sm font-medium">Recenzovat</ThemedText>
+                                    <ThemedText className="text-sm font-medium">{hasReviewed ? 'Update review' : 'Recenzovat'}</ThemedText>
                                 </Pressable>
                             )}
                         </View>
@@ -265,60 +350,126 @@ const PropertyDetail = () => {
                     <Divider className="my-4" />
 
                     {/* Ratings & Reviews */}
-                    <Section
-                        title="Buyer reviews"
-                        titleSize="lg"
-                        subtitle={`${property.ratings.reviews} reviews`}
-                        className="mb-6"
-                    >
-                        <View className="mt-4 bg-light-secondary dark:bg-dark-secondary p-4 rounded-lg">
-                            <View className="flex-row items-center mb-4">
-                                <ShowRating rating={property.ratings.overall} size="lg" />
-                                <ThemedText className="ml-2 text-light-subtext dark:text-dark-subtext">
-                                    ({property.ratings.reviews})
-                                </ThemedText>
-                            </View>
-
-                            <View className="space-y-2">
-                                <RatingItem label="Cleanliness" rating={property.ratings.cleanliness} />
-                                <RatingItem label="Location" rating={property.ratings.location} />
-                                <RatingItem label="Value for Money" rating={property.ratings.value} />
-                            </View>
-                        </View>
-
-                        <View className="mt-6 flex-row items-center justify-between mb-3">
-                            <ThemedText className="font-semibold text-lg">Buyer reviews</ThemedText>
-                            {purchase && (
-                                <Pressable
-                                    onPress={() => router.push(`/screens/review?${reviewParams}`)}
-                                    className="px-3 py-2 rounded-lg bg-light-secondary dark:bg-dark-secondary"
-                                >
-                                    <ThemedText className="text-sm font-medium">Napsat recenzi</ThemedText>
-                                </Pressable>
-                            )}
-                        </View>
-                        <CardScroller className="mt-1" space={10}>
-                            {reviewsData.map((review, index) => (
-                                <View key={index} className="w-[280px] bg-light-secondary dark:bg-dark-secondary p-4 rounded-lg">
-                                    <View className="flex-row items-center mb-2">
-                                        <Image
-                                            source={{ uri: review.avatar }}
-                                            className="w-10 h-10 rounded-full mr-2"
-                                        />
-                                        <View>
-                                            <ThemedText className="font-medium">{review.username}</ThemedText>
-                                            <ThemedText className="text-xs text-light-subtext dark:text-dark-subtext">
-                                                {review.date}
-                                            </ThemedText>
-                                        </View>
+                    <View onLayout={(e: LayoutChangeEvent) => { reviewsSectionYInRoundedRef.current = e.nativeEvent.layout.y; }}>
+                        <Section
+                            title="Buyer reviews"
+                            titleSize="lg"
+                            subtitle={purchase ? `${displayTotal} reviews` : `${property.ratings.reviews} reviews`}
+                            className="mb-6"
+                        >
+                        {purchase ? (
+                            <>
+                                <View className="mt-4 bg-light-secondary dark:bg-dark-secondary p-4 rounded-lg">
+                                    <View className="flex-row items-center mb-4">
+                                        <ShowRating rating={average} size="lg" />
+                                        <ThemedText className="ml-2 text-light-subtext dark:text-dark-subtext">
+                                            ({displayTotal})
+                                        </ThemedText>
                                     </View>
-                                    <ShowRating rating={review.rating} size="sm" className="mb-2" />
-                                    <ThemedText className="text-sm">{review.description}</ThemedText>
+                                    <View className="space-y-2">
+                                        {([5, 4, 3, 2, 1] as const).map((stars) => (
+                                            <View key={stars} className="flex-row items-center justify-between py-1.5">
+                                                <ShowRating rating={stars} size="sm" displayMode="stars" />
+                                                <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext">
+                                                    {countByRating[stars] ?? 0} reviews
+                                                </ThemedText>
+                                            </View>
+                                        ))}
+                                    </View>
                                 </View>
-                            ))}
-                        </CardScroller>
+                                <View className="mt-6 flex-row items-center justify-between mb-3">
+                                    <ThemedText className="font-semibold text-lg">Buyer reviews</ThemedText>
+                                    <Pressable
+                                        onPress={() => router.push(`/screens/review?${reviewParams}`)}
+                                        className="px-3 py-2 rounded-lg bg-light-secondary dark:bg-dark-secondary"
+                                    >
+                                        <ThemedText className="text-sm font-medium">{hasReviewed ? 'Update review' : 'Napsat recenzi'}</ThemedText>
+                                    </Pressable>
+                                </View>
+                                {loadingReviews ? (
+                                    <View className="py-6 items-center">
+                                        <ActivityIndicator size="small" />
+                                        <ThemedText className="mt-2 text-sm text-light-subtext dark:text-dark-subtext">Loading reviews…</ThemedText>
+                                    </View>
+                                ) : (
+                                    <CardScroller className="mt-1" space={10}>
+                                        {reviews.map((review) => {
+                                            const isOwnReview = client?.id != null && review.client?.id === client.id;
+                                            return (
+                                                <View key={review.id} className="w-[280px] bg-light-secondary dark:bg-dark-secondary p-4 rounded-lg">
+                                                    <View className="flex-row items-center justify-between mb-2">
+                                                        <View className="flex-row items-center flex-1 min-w-0">
+                                                            {review.client?.avatarUrl ? (
+                                                                <Image source={{ uri: review.client.avatarUrl }} className="w-10 h-10 rounded-full mr-2" />
+                                                            ) : (
+                                                                <Avatar size="sm" name={review.client?.name ?? '?'} className="mr-2" />
+                                                            )}
+                                                            <View className="min-w-0">
+                                                                <ThemedText className="font-medium" numberOfLines={1}>{review.client?.name ?? 'Anonymous'}</ThemedText>
+                                                                <ThemedText className="text-xs text-light-subtext dark:text-dark-subtext">
+                                                                    {formatReviewDate(review.createdAt)}
+                                                                </ThemedText>
+                                                            </View>
+                                                        </View>
+                                                        {isOwnReview && (
+                                                            <View className="ml-2 px-2 py-1 rounded-md bg-highlight">
+                                                                <ThemedText className="text-xs font-medium text-white">Edit</ThemedText>
+                                                            </View>
+                                                        )}
+                                                    </View>
+                                                    <ShowRating rating={review.rating} size="sm" className="mb-2" />
+                                                    <ThemedText className="text-sm">
+                                                        {review.description || review.positiveFeedback || '—'}
+                                                    </ThemedText>
+                                                </View>
+                                            );
+                                        })}
+                                    </CardScroller>
+                                )}
+                            </>
+                        ) : (
+                            <>
+                                <View className="mt-4 bg-light-secondary dark:bg-dark-secondary p-4 rounded-lg">
+                                    <View className="flex-row items-center mb-4">
+                                        <ShowRating rating={property.ratings.overall} size="lg" />
+                                        <ThemedText className="ml-2 text-light-subtext dark:text-dark-subtext">
+                                            ({property.ratings.reviews})
+                                        </ThemedText>
+                                    </View>
+                                    <View className="space-y-2">
+                                        <RatingItem label="Cleanliness" rating={property.ratings.cleanliness} />
+                                        <RatingItem label="Location" rating={property.ratings.location} />
+                                        <RatingItem label="Value for Money" rating={property.ratings.value} />
+                                    </View>
+                                </View>
+                                <View className="mt-6 flex-row items-center justify-between mb-3">
+                                    <ThemedText className="font-semibold text-lg">Buyer reviews</ThemedText>
+                                </View>
+                                <CardScroller className="mt-1" space={10}>
+                                    {reviewsData.map((review, index) => (
+                                        <View key={index} className="w-[280px] bg-light-secondary dark:bg-dark-secondary p-4 rounded-lg">
+                                            <View className="flex-row items-center mb-2">
+                                                <Image
+                                                    source={{ uri: review.avatar }}
+                                                    className="w-10 h-10 rounded-full mr-2"
+                                                />
+                                                <View>
+                                                    <ThemedText className="font-medium">{review.username}</ThemedText>
+                                                    <ThemedText className="text-xs text-light-subtext dark:text-dark-subtext">
+                                                        {review.date}
+                                                    </ThemedText>
+                                                </View>
+                                            </View>
+                                            <ShowRating rating={review.rating} size="sm" className="mb-2" />
+                                            <ThemedText className="text-sm">{review.description}</ThemedText>
+                                        </View>
+                                    ))}
+                                </CardScroller>
+                            </>
+                        )}
 
-                    </Section>
+                        </Section>
+                    </View>
                 </View>
             </ThemedScroller>
 

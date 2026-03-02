@@ -1,5 +1,6 @@
-import React, { useEffect, useState } from 'react';
-import { View, Image, ActivityIndicator, Pressable } from 'react-native';
+import React, { useEffect, useState, useCallback, useRef } from 'react';
+import { useFocusEffect } from '@react-navigation/native';
+import { View, Image, ActivityIndicator, Pressable, ScrollView, type LayoutChangeEvent } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import * as WebBrowser from 'expo-web-browser';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -120,6 +121,15 @@ export default function BranchDetailScreen() {
   const [reviews, setReviews] = useState<EntityReviewItem[]>([]);
   const [reviewsTotal, setReviewsTotal] = useState<number | null>(null);
   const [loadingReviews, setLoadingReviews] = useState(false);
+  const [hasReviewed, setHasReviewed] = useState(false);
+  const scrollRef = useRef<ScrollView>(null);
+  const roundedViewYRef = useRef(0);
+  const reviewsSectionYInRoundedRef = useRef(0);
+
+  const scrollToReviews = useCallback(() => {
+    const y = roundedViewYRef.current + reviewsSectionYInRoundedRef.current;
+    scrollRef.current?.scrollTo({ y: Math.max(0, y - 16), animated: true });
+  }, []);
 
   useEffect(() => {
     if (!apiToken || !id) {
@@ -145,13 +155,28 @@ export default function BranchDetailScreen() {
       .then((data) => {
         setReviews(data.reviews);
         setReviewsTotal(data.pagination.total);
+        setHasReviewed(!!data.hasReviewed);
       })
       .catch(() => {
         setReviews([]);
         setReviewsTotal(null);
+        setHasReviewed(false);
       })
       .finally(() => setLoadingReviews(false));
   }, [apiToken, branch?.id]);
+
+  useFocusEffect(
+    useCallback(() => {
+      if (!apiToken || !branch?.id) return;
+      getEntityReviews(apiToken, 'branch', branch.id, { page: 1, limit: 9999, includeOwn: true })
+        .then((data) => {
+          setReviews(data.reviews);
+          setReviewsTotal(data.pagination.total);
+          setHasReviewed(!!data.hasReviewed);
+        })
+        .catch(() => {});
+    }, [apiToken, branch?.id])
+  );
 
   const { countByRating, average, total: reviewsComputedTotal } = useReviewStats(reviews);
   const displayTotal = reviewsTotal ?? reviewsComputedTotal;
@@ -202,7 +227,7 @@ export default function BranchDetailScreen() {
     <>
       <StatusBar style="light" translucent />
       <Header variant="transparent" title="" rightComponents={rightComponents} showBackButton />
-      <ThemedScroller className="px-0 bg-light-primary dark:bg-dark-primary">
+      <ThemedScroller ref={scrollRef} className="px-0 bg-light-primary dark:bg-dark-primary">
         <ImageCarousel
           images={images}
           height={500}
@@ -212,17 +237,20 @@ export default function BranchDetailScreen() {
         <View
           style={{ borderTopLeftRadius: 30, borderTopRightRadius: 30 }}
           className="p-global bg-light-primary dark:bg-dark-primary -mt-[30px]"
+          onLayout={(e: LayoutChangeEvent) => { roundedViewYRef.current = e.nativeEvent.layout.y; }}
         >
           <View className="">
             <ThemedText className="text-3xl text-center font-semibold">{branch.name}</ThemedText>
             <View className="flex-row items-center justify-center mt-4">
-              <ShowRating rating={average} size="lg" className="px-4 py-2 border-r border-neutral-200 dark:border-dark-secondary" />
-              <ThemedText className="text-base px-4">Reviews</ThemedText>
+              <Pressable onPress={scrollToReviews} className="flex-row items-center active:opacity-70">
+                <ShowRating rating={average} size="lg" className="px-4 py-2 border-r border-neutral-200 dark:border-dark-secondary" />
+                <ThemedText className="text-base px-4">Reviews</ThemedText>
+              </Pressable>
               <Pressable
                 onPress={() => router.push(`/screens/review?${reviewParams}`)}
                 className="ml-4 px-3 py-2 rounded-lg bg-light-secondary dark:bg-dark-secondary"
               >
-                <ThemedText className="text-sm font-medium">Review</ThemedText>
+                <ThemedText className="text-sm font-medium">{hasReviewed ? 'Update review' : 'Review'}</ThemedText>
               </Pressable>
             </View>
           </View>
@@ -274,12 +302,13 @@ export default function BranchDetailScreen() {
 
           <Divider className="mb-4 mt-8" />
 
-          <Section
-            title="Reviews"
-            titleSize="lg"
-            subtitle={`${displayTotal} reviews`}
-            className="mb-6"
-          >
+          <View onLayout={(e: LayoutChangeEvent) => { reviewsSectionYInRoundedRef.current = e.nativeEvent.layout.y; }}>
+            <Section
+              title="Reviews"
+              titleSize="lg"
+              subtitle={`${displayTotal} reviews`}
+              className="mb-6"
+            >
             <View className="mt-4 bg-light-secondary dark:bg-dark-secondary p-4 rounded-lg">
               <View className="flex-row items-center mb-4">
                 <ShowRating rating={average} size="lg" />
@@ -304,7 +333,7 @@ export default function BranchDetailScreen() {
                 onPress={() => router.push(`/screens/review?${reviewParams}`)}
                 className="px-3 py-2 rounded-lg bg-light-secondary dark:bg-dark-secondary"
               >
-                <ThemedText className="text-sm font-medium">Write review</ThemedText>
+                <ThemedText className="text-sm font-medium">{hasReviewed ? 'Update review' : 'Write review'}</ThemedText>
               </Pressable>
             </View>
             {loadingReviews ? (
@@ -320,13 +349,15 @@ export default function BranchDetailScreen() {
                     <View key={review.id} className="w-[280px] bg-light-secondary dark:bg-dark-secondary p-4 rounded-lg">
                       <View className="flex-row items-center justify-between mb-2">
                         <View className="flex-row items-center flex-1 min-w-0">
-                          {review.client?.avatarUrl ? (
+                          {review.isAnonymous ? (
+                            <Image source={require('@/assets/img/wallet/realbarber.png')} className="w-10 h-10 rounded-full mr-2" resizeMode="cover" />
+                          ) : review.client?.avatarUrl ? (
                             <Image source={{ uri: review.client.avatarUrl }} className="w-10 h-10 rounded-full mr-2" />
                           ) : (
                             <Avatar size="sm" name={review.client?.name ?? '?'} className="mr-2" />
                           )}
                           <View className="min-w-0">
-                            <ThemedText className="font-medium" numberOfLines={1}>{review.client?.name ?? 'Anonymous'}</ThemedText>
+                            <ThemedText className="font-medium" numberOfLines={1}>{review.isAnonymous ? 'Anonymous' : (review.client?.name ?? 'Anonymous')}</ThemedText>
                             <ThemedText className="text-xs text-light-subtext dark:text-dark-subtext">
                               {formatReviewDate(review.createdAt)}
                             </ThemedText>
@@ -347,7 +378,8 @@ export default function BranchDetailScreen() {
                 })}
               </CardScroller>
             )}
-          </Section>
+            </Section>
+          </View>
 
           <Divider className="mb-4 mt-8" />
 

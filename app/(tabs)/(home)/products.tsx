@@ -72,6 +72,9 @@ const ProductsScreen = () => {
                     rounded="2xl"
                     price={`${purchase.totalPrice} Kč`}
                     badgeSecondary={purchase.paymentMethod}
+                    hasFavorite
+                    favoriteEntityType="product"
+                    favoriteEntityId={purchase.product.id}
                     width={160}
                     imageHeight={160}
                     image={imgUrl || require('@/assets/img/room-1.avif')}
@@ -94,6 +97,9 @@ const ProductsScreen = () => {
                 title={item.title}
                 rounded="2xl"
                 price={item.price}
+                hasFavorite
+                favoriteEntityType="product"
+                favoriteEntityId={item.id}
                 width={160}
                 imageHeight={160}
                 image={item.image}

@@ -81,6 +81,9 @@ const ServicesScreen = () => {
                   title={item.name}
                   rounded="2xl"
                   description={`${haircuts.length} available`}
+                  hasFavorite
+                  favoriteEntityType="item"
+                  favoriteEntityId={item.id}
                   width={100}
                   imageHeight={100}
                   image={item.imageUrl || require('@/assets/img/room-1.avif')}

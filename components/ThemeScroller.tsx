@@ -13,7 +13,7 @@ interface ThemeScrollerProps extends ScrollViewProps {
 // Use basic ScrollView instead of styled for better compatibility with Animated
 const StyledScrollView = styled(ScrollView);
 
-export default function ThemedScroller({
+const ThemedScroller = React.forwardRef<ScrollView, ThemeScrollerProps>(function ThemedScroller({
   children,
   className,
   onScroll,
@@ -21,9 +21,10 @@ export default function ThemedScroller({
   scrollEventThrottle = 16,
   headerSpace = false,
   ...props
-}: ThemeScrollerProps) {
+}, ref) {
   return (
     <StyledScrollView
+      ref={ref}
       showsVerticalScrollIndicator={false}
       style={{ width: "100%" }}
       //bounces={false}
@@ -41,7 +42,9 @@ export default function ThemedScroller({
       <View className="h-20 w-full" />
     </StyledScrollView>
   );
-}
+});
+
+export default ThemedScroller;
 
 // Create an Animated version of ScrollView for use with Animated.event
 export const AnimatedScrollView = Animated.createAnimatedComponent(ScrollView);
