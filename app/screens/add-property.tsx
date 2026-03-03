@@ -374,7 +374,7 @@ const SuccessStep: React.FC<StepProps> = ({ data }) => {
     return (
         <View className="p-8 flex-1 items-center justify-center">
             <Image
-                source={require('@/assets/img/bed.png')}
+                source={require('@/assets/img/gratulations.png')}
                 className="w-32 h-32 rounded-lg"
                 resizeMode="cover"
             />

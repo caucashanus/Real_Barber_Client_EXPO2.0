@@ -62,16 +62,16 @@ const MyHaircutsScreen = () => {
         <View className="p-10 items-center rounded-3xl bg-slate-200 mt-6 mb-8 dark:bg-dark-secondary">
           <View className="w-20 h-20 relative">
             <View className="w-full h-full rounded-xl relative z-20 overflow-hidden border-2 border-light-primary dark:border-dark-primary">
-              <Image className="w-full h-full" source={{ uri: 'https://images.unsplash.com/photo-1526318896980-cf78c088247c?q=80&w=400' }} />
+              <Image className="w-full h-full" source={require('@/assets/img/myidea.png')} resizeMode="contain" />
             </View>
             <View className="w-full h-full absolute top-0 left-8 rotate-12 rounded-xl overflow-hidden border-2 border-light-primary dark:border-dark-primary">
-              <Image className="w-full h-full" source={{ uri: 'https://images.pexels.com/photos/69903/pexels-photo-69903.jpeg?auto=compress&cs=tinysrgb&w=1200' }} />
+              <Image className="w-full h-full" source={require('@/assets/img/myrules.png')} resizeMode="contain" />
             </View>
             <View className="w-full h-full absolute top-0 right-8 -rotate-12 rounded-xl overflow-hidden border-2 border-light-primary dark:border-dark-primary">
-              <Image className="w-full h-full" source={{ uri: 'https://images.pexels.com/photos/69903/pexels-photo-69903.jpeg?auto=compress&cs=tinysrgb&w=1200' }} />
+              <Image className="w-full h-full" source={require('@/assets/img/savefinish.png')} resizeMode="contain" />
             </View>
           </View>
-          <ThemedText className="text-2xl font-semibold mt-4">New to hosting?</ThemedText>
+          <ThemedText className="text-2xl font-semibold mt-4">Vytvoř svůj účes</ThemedText>
           <ThemedText className="text-sm font-light text-center px-4">Discover how to start hosting and earn extra income</ThemedText>
           <Button title="Get started" className="mt-4" textClassName="text-white" onPress={() => router.push('/screens/add-property-start')} />
         </View>

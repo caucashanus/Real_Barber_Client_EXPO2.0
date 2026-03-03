@@ -19,11 +19,11 @@ export default function AddPropertyStart() {
                     <ThemedText className='text-4xl font-semibold mb-8'>Je snadné přidat si účes</ThemedText>
                 </View>
 
-                <IntroStep number="1" title="Vytvoř si svůj účes" description="Vymysli název a tvoř." image={require('@/assets/img/bed.png')} />
+                <IntroStep number="1" title="Vytvoř si svůj účes" description="Vymysli název a tvoř." image={require('@/assets/img/myidea.png')} />
                 <Divider className='my-4' />
-                <IntroStep number="2" title="Dej svému účesu pravidla" description="Přidej fotky, popis, tvoje preference, přesně tak jak chceš TY." image={require('@/assets/img/sofa.png')} />
+                <IntroStep number="2" title="Dej svému účesu pravidla" description="Přidej fotky, popis, tvoje preference, přesně tak jak chceš TY." image={require('@/assets/img/myrules.png')} />
                 <Divider className='my-4' />
-                <IntroStep number="3" title="Finishujeme a ukládáme" description="Přijď si pro svůj vysněný fresh cut a nikomu nic nevysvětluj." image={require('@/assets/img/door.png')} />
+                <IntroStep number="3" title="Finishujeme a ukládáme" description="Přijď si pro svůj vysněný fresh cut a nikomu nic nevysvětluj." image={require('@/assets/img/savefinish.png')} />
                 
                 <View className=' pb-2 mt-auto' style={{ paddingBottom: insets.bottom }}>
                     <Button size="large" className='bg-highlight' textClassName='text-white' rounded="full" title="Let's go" href='/screens/add-property' />
