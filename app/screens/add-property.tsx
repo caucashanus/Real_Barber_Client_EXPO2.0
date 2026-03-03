@@ -312,9 +312,12 @@ const TitleDescriptionStep: React.FC<StepProps> = ({ data, updateData }) => (
 );
 
 function stylingDifficultyLabel(value: number): string {
+    if (value <= 16) return 'Velmi lehká';
     if (value <= 33) return 'Lehká';
-    if (value <= 66) return 'Střední';
-    return 'Náročná';
+    if (value <= 50) return 'Střední';
+    if (value <= 66) return 'Náročnější';
+    if (value <= 83) return 'Náročná';
+    return 'Velmi náročná';
 }
 
 // Step 7: Náročnost stylingu + kdo účes dělal
@@ -332,8 +335,8 @@ const CharacteristicsStep: React.FC<StepProps> = ({ data, updateData }) => {
     return (
         <ScrollView className="p-4 px-8">
             <View className='mb-10'>
-                <ThemedText className='text-3xl font-semibold mt-auto'>Náročnost stylingu</ThemedText>
-                <ThemedText className='text-base text-light-subtext dark:text-dark-subtext'>Jak náročné je účes na každodenní úpravu?</ThemedText>
+                <ThemedText className='text-3xl font-semibold mt-auto'>Náročnost stylingu a stylista</ThemedText>
+                <ThemedText className='text-base text-light-subtext dark:text-dark-subtext'>Jak náročné je účes na úpravu a kdo vám ho dělal?</ThemedText>
             </View>
 
             <Section title="Obtížnost" titleSize="md" padding="sm" className="mt-2">
@@ -353,12 +356,14 @@ const CharacteristicsStep: React.FC<StepProps> = ({ data, updateData }) => {
             </Section>
 
             <Section title="Vyberte, kdo vám účes dělal" titleSize="md" padding="sm" className="mt-6">
-                <BarberPicker
-                    employees={employees}
-                    value={data.barber_id}
-                    onChange={(id) => updateData({ barber_id: id })}
-                    label=""
-                />
+                <View className="-mx-8 mt-6" style={{ marginHorizontal: -32 }}>
+                    <BarberPicker
+                        employees={employees}
+                        value={data.barber_id}
+                        onChange={(id) => updateData({ barber_id: id })}
+                        label=""
+                    />
+                </View>
             </Section>
         </ScrollView>
     );
@@ -453,7 +458,7 @@ export default function AddPropertyScreen() {
                 <TitleDescriptionStep data={data} updateData={updateData} />
             </Step>
 
-            <Step title="Characteristics">
+            <Step title="Styling a stylista">
                 <CharacteristicsStep data={data} updateData={updateData} />
             </Step>
 
