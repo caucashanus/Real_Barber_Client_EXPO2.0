@@ -17,6 +17,7 @@ const HomeTabs = (props: any) => {
                 contentContainerStyle={{ flexGrow: 1, justifyContent: 'center', paddingHorizontal: 8 }}
             >
                 <TabItem href="/wallet" active={currentPath === '/wallet'} label="Wallet" icon={require('@/assets/img/house.png')} scrollY={props.scrollY} />
+                <TabItem href="/my-haircuts" active={currentPath === '/my-haircuts'} label="My haircuts" icon={require('@/assets/img/house.png')} scrollY={props.scrollY} />
                 <TabItem href="/" active={currentPath === '/'} label="Branches" icon={require('@/assets/img/house.png')} scrollY={props.scrollY} />
                 <TabItem href="/experience" active={currentPath === '/experience'} label="Barbers" icon={require('@/assets/img/experience.png')} scrollY={props.scrollY} />
                 <TabItem href="/services" active={currentPath === '/services'} label="Services" icon={require('@/assets/img/services.png')} scrollY={props.scrollY} />
