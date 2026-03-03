@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, ScrollView, Image, TouchableOpacity } from 'react-native';
 import { router } from 'expo-router';
+import Slider from '@react-native-community/slider';
 import MultiStep, { Step } from '@/components/MultiStep';
 import Selectable from '@/components/forms/Selectable';
 import ThemedText from '@/components/ThemedText';
@@ -13,6 +14,9 @@ import Section from '@/components/layout/Section';
 import Counter from '@/components/forms/Counter';
 import * as ImagePicker from 'expo-image-picker';
 import Grid from '@/components/layout/Grid';
+import BarberPicker from '@/components/BarberPicker';
+import { useAuth } from '@/app/contexts/AuthContext';
+import { getEmployees, type Employee } from '@/api/employees';
 
 interface PropertyData {
     propertyType: string;
@@ -26,61 +30,40 @@ interface PropertyData {
     title: string;
     description: string;
     characteristics: string[];
+    stylingDifficulty: number; // 0–100, pro note: Lehká / Střední / Náročná
+    barber_id: string; // kdo účes dělal (employee id)
 }
 
 const propertyTypeOptions: Array<{ label: string; icon: IconName; value: string }> = [
-    { label: 'House', icon: 'Home', value: 'house' },
-    { label: 'Apartment', icon: 'Building', value: 'apartment' },
-    { label: 'Barn', icon: 'Warehouse', value: 'barn' },
-    { label: 'Boat', icon: 'Ship', value: 'boat' },
-    { label: 'Cabin', icon: 'TreePine', value: 'cabin' },
-    { label: 'Villa', icon: 'Castle', value: 'villa' },
-    { label: 'Condo', icon: 'Building2', value: 'condo' },
-    { label: 'Tiny House', icon: 'Home', value: 'tiny_house' }
+    { label: 'Kratší', icon: 'CircleDot', value: 'kratsi' },
+    { label: 'Středně dlouhý', icon: 'Ruler', value: 'stredne_dlouhy' },
+    { label: 'Delší', icon: 'Maximize', value: 'delsi' },
+    { label: 'Do kanclu', icon: 'Briefcase', value: 'do_kanclu' },
+    { label: 'Sportovní', icon: 'Dumbbell', value: 'sportovni' },
+    { label: 'Moderní', icon: 'Sparkles', value: 'moderni' },
+    { label: 'Retro', icon: 'Clock', value: 'retro' },
+    { label: 'Podpantoflák', icon: 'Home', value: 'podpantoflak' },
 ];
 
 const guestAccessOptions: Array<{ label: string; description: string; icon: IconName; value: string }> = [
-    {
-        label: 'An entire place',
-        description: 'Guests have the whole place to themselves.',
-        icon: 'Home',
-        value: 'entire_place'
-    },
-    {
-        label: 'A room',
-        description: 'Guests have their own room.',
-        icon: 'Bed',
-        value: 'private_room'
-    },
-    {
-        label: 'A shared room',
-        description: 'Guests sleep in a common area.',
-        icon: 'Users',
-        value: 'shared_room'
-    }
+    { label: 'Letní', description: 'Účes pro teplé měsíce.', icon: 'Sun', value: 'letni' },
+    { label: 'Zimní', description: 'Účes do chladného počasí.', icon: 'Snowflake', value: 'zimni' },
+    { label: 'Celoroční', description: 'Nosíš ho pořád.', icon: 'Calendar', value: 'celorocni' },
 ];
 
 const amenityOptions: Array<{ label: string; icon: IconName }> = [
-    { label: 'Wifi', icon: 'Wifi' },
-    { label: 'TV', icon: 'Tv' },
-    { label: 'Kitchen', icon: 'ChefHat' },
-    { label: 'Washing machine', icon: 'Shirt' },
-    { label: 'Free parking', icon: 'Car' },
-    { label: 'Paid parking', icon: 'ParkingCircle' },
-    { label: 'Air conditioning', icon: 'Wind' },
-    { label: 'Dedicated workspace', icon: 'Laptop' },
-    { label: 'Pool', icon: 'Waves' },
-    { label: 'Hot tub', icon: 'Bath' },
-    { label: 'Patio', icon: 'TreePine' },
-    { label: 'BBQ grill', icon: 'Flame' }
-];
-
-const characteristicOptions: Array<{ label: string; icon: IconName }> = [
-    { label: 'Peaceful', icon: 'Leaf' },
-    { label: 'Unique', icon: 'Star' },
-    { label: 'Family-friendly', icon: 'Users' },
-    { label: 'Stylish', icon: 'Sparkles' },
-    { label: 'Spacious', icon: 'Maximize' }
+    { label: 'Chci zkusit', icon: 'Sparkles' },
+    { label: 'Bez údržby', icon: 'Check' },
+    { label: 'Vyžaduje styling', icon: 'Zap' },
+    { label: 'Nemusím si sušit vlasy', icon: 'Wind' },
+    { label: 'Dlouho vydrží', icon: 'Clock' },
+    { label: 'Účes co mi nejvíc chválí okolí', icon: 'Users' },
+    { label: 'Můj nejoblíbenější účes', icon: 'Star' },
+    { label: 'Sluší mi s vousy', icon: 'CircleUser' },
+    { label: 'Styling', icon: 'Sparkles' },
+    { label: 'Zkouším něco nového', icon: 'Lightbulb' },
+    { label: 'Doporučeno barberem', icon: 'UserCheck' },
+    { label: 'Vrátil jsem se k němu', icon: 'RotateCcw' },
 ];
 
 interface StepProps {
@@ -88,12 +71,12 @@ interface StepProps {
     updateData: (updates: Partial<PropertyData>) => void;
 }
 
-// Step 1: Property Type
+// Step 1: Haircut type (propertyType in data = typ účesu)
 const PropertyTypeStep: React.FC<StepProps> = ({ data, updateData }) => (
     <ScrollView className="p-4 px-8">
         <View className='mb-10'>
-            <ThemedText className='text-3xl font-semibold mt-auto'>Which of these best describes your place?</ThemedText>
-            <ThemedText className='text-base text-light-subtext dark:text-dark-subtext'>Choose the option that best fits your property</ThemedText>
+            <ThemedText className='text-3xl font-semibold mt-auto'>Co nejvíc vystihuje tvůj účes?</ThemedText>
+            <ThemedText className='text-base text-light-subtext dark:text-dark-subtext'>Vyber možnost, která ti sedí nejvíc</ThemedText>
         </View>
         {propertyTypeOptions.map((option) => (
             <Selectable
@@ -107,12 +90,12 @@ const PropertyTypeStep: React.FC<StepProps> = ({ data, updateData }) => (
     </ScrollView>
 );
 
-// Step 2: Guest Access Type
+// Step 2: Roční období (guestAccessType in data = období)
 const GuestAccessStep: React.FC<StepProps> = ({ data, updateData }) => (
     <ScrollView className="p-4 px-8">
         <View className='mb-10'>
-            <ThemedText className='text-3xl font-semibold mt-auto'>What type of place will guests have?</ThemedText>
-            <ThemedText className='text-base text-light-subtext dark:text-dark-subtext'>Choose what guests will have access to</ThemedText>
+            <ThemedText className='text-3xl font-semibold mt-auto'>Pro jaké roční období?</ThemedText>
+            <ThemedText className='text-base text-light-subtext dark:text-dark-subtext'>Vyber, kdy účes nejvíc nosíš</ThemedText>
         </View>
 
         {guestAccessOptions.map((option) => (
@@ -129,53 +112,52 @@ const GuestAccessStep: React.FC<StepProps> = ({ data, updateData }) => (
     </ScrollView>
 );
 
-// Step 3: Property Basics with Counters
+// Step 3: Základní údaje o účesu (guests = cm u uší, bedrooms = cm nahoře, beds = týdnů mezi přestříháním)
 const PropertyBasicsStep: React.FC<StepProps> = ({ data, updateData }) => {
     return (
         <ScrollView className="p-4 px-8">
             <View className='mb-10'>
-                <ThemedText className='text-3xl font-semibold mt-auto'>Share some basics about your place</ThemedText>
-                <ThemedText className='text-base text-light-subtext dark:text-dark-subtext'>You can add more details later</ThemedText>
+                <ThemedText className='text-3xl font-semibold mt-auto'>Základní údaje o účesu</ThemedText>
+                <ThemedText className='text-base text-light-subtext dark:text-dark-subtext'>Doplň délky a jak často účes obnovovat</ThemedText>
             </View>
 
             <View className="mt-4">
                 <View className="flex-row items-center justify-between py-4">
-                    <ThemedText className="text-lg">Guests</ThemedText>
+                    <View className="flex-1 pr-4">
+                        <ThemedText className="text-lg">Délka u uší</ThemedText>
+                        <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext">Jaká délka v cm</ThemedText>
+                    </View>
                     <Counter
                         value={data.guests}
-                        onChange={(value) => updateData({ guests: value || 1 })}
-                        min={1}
-                        max={16}
-                    />
-                </View>
-
-                <View className="flex-row items-center justify-between py-4 border-t border-light-secondary dark:border-dark-secondary">
-                    <ThemedText className="text-lg">Bedrooms</ThemedText>
-                    <Counter
-                        value={data.bedrooms}
-                        onChange={(value) => updateData({ bedrooms: value || 0 })}
+                        onChange={(value) => updateData({ guests: value ?? 0 })}
                         min={0}
-                        max={10}
-                    />
-                </View>
-
-                <View className="flex-row items-center justify-between py-4 border-t border-light-secondary dark:border-dark-secondary">
-                    <ThemedText className="text-lg">Beds</ThemedText>
-                    <Counter
-                        value={data.beds}
-                        onChange={(value) => updateData({ beds: value || 1 })}
-                        min={1}
                         max={20}
                     />
                 </View>
 
                 <View className="flex-row items-center justify-between py-4 border-t border-light-secondary dark:border-dark-secondary">
-                    <ThemedText className="text-lg">Bathrooms</ThemedText>
+                    <View className="flex-1 pr-4">
+                        <ThemedText className="text-lg">Délka nahoře</ThemedText>
+                        <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext">Jaká délka v cm</ThemedText>
+                    </View>
                     <Counter
-                        value={data.bathrooms}
-                        onChange={(value) => updateData({ bathrooms: value || 1 })}
+                        value={data.bedrooms}
+                        onChange={(value) => updateData({ bedrooms: value ?? 0 })}
+                        min={0}
+                        max={20}
+                    />
+                </View>
+
+                <View className="flex-row items-center justify-between py-4 border-t border-light-secondary dark:border-dark-secondary">
+                    <View className="flex-1 pr-4">
+                        <ThemedText className="text-lg">Jak často přestříhat?</ThemedText>
+                        <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext">Každých kolik týdnů je třeba přijít</ThemedText>
+                    </View>
+                    <Counter
+                        value={data.beds}
+                        onChange={(value) => updateData({ beds: value ?? 4 })}
                         min={1}
-                        max={10}
+                        max={24}
                     />
                 </View>
             </View>
@@ -183,12 +165,12 @@ const PropertyBasicsStep: React.FC<StepProps> = ({ data, updateData }) => {
     );
 };
 
-// Step 4: Amenities
+// Step 4: Co k účesu patří (amenities = vybrané chipy → do note)
 const AmenitiesStep: React.FC<StepProps> = ({ data, updateData }) => (
     <ScrollView className="p-4 px-8">
         <View className='mb-10'>
-            <ThemedText className='text-3xl font-semibold mt-auto'>Tell guests what your place has to offer</ThemedText>
-            <ThemedText className='text-base text-light-subtext dark:text-dark-subtext'>You can add more amenities after you publish your listing</ThemedText>
+            <ThemedText className='text-3xl font-semibold mt-auto'>Co k účesu patří?</ThemedText>
+            <ThemedText className='text-base text-light-subtext dark:text-dark-subtext'>Vyber všechno, co k tvému účesu sedí. Můžeš vybrat víc možností.</ThemedText>
         </View>
 
         <View className="flex-row flex-wrap gap-3 mt-4">
@@ -227,6 +209,20 @@ const PhotosStep: React.FC<StepProps> = ({ data, updateData }) => {
         }
     };
 
+    const takePhoto = async () => {
+        const { status } = await ImagePicker.requestCameraPermissionsAsync();
+        if (status !== 'granted') return;
+        const result = await ImagePicker.launchCameraAsync({
+            mediaTypes: ImagePicker.MediaTypeOptions.Images,
+            allowsEditing: true,
+            aspect: [16, 9],
+            quality: 1,
+        });
+        if (!result.canceled && result.assets[0]) {
+            updateData({ photos: [...data.photos, result.assets[0].uri] });
+        }
+    };
+
     const removePhoto = (index: number) => {
         const newPhotos = data.photos.filter((_, i) => i !== index);
         updateData({ photos: newPhotos });
@@ -235,8 +231,8 @@ const PhotosStep: React.FC<StepProps> = ({ data, updateData }) => {
     return (
         <ScrollView className="p-4 px-8">
             <View className='mb-10'>
-                <ThemedText className='text-3xl font-semibold mt-auto'>Add some photos of your place</ThemedText>
-                <ThemedText className='text-base text-light-subtext dark:text-dark-subtext'>You'll need at least one photo to get started. You can add more or make changes later.</ThemedText>
+                <ThemedText className='text-3xl font-semibold mt-auto'>Přidej fotky účesu</ThemedText>
+                <ThemedText className='text-base text-light-subtext dark:text-dark-subtext'>Alespoň jedna fotka pomůže. Můžeš jich přidat víc nebo později upravit.</ThemedText>
             </View>
 
             <Grid columns={2} spacing={10}>
@@ -261,26 +257,34 @@ const PhotosStep: React.FC<StepProps> = ({ data, updateData }) => {
                     className="w-full h-44 rounded-lg border-2 border-dashed border-light-subtext dark:border-dark-subtext items-center justify-center"
                 >
                     <Icon name="Plus" size={24} className="text-light-subtext dark:text-dark-subtext" />
-                    <ThemedText className="text-xs text-light-subtext dark:text-dark-subtext mt-1">Add photo</ThemedText>
+                    <ThemedText className="text-xs text-light-subtext dark:text-dark-subtext mt-1">Přidat fotku</ThemedText>
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                    onPress={takePhoto}
+                    className="w-full h-44 rounded-lg border-2 border-dashed border-light-subtext dark:border-dark-subtext items-center justify-center"
+                >
+                    <Icon name="Plus" size={24} className="text-light-subtext dark:text-dark-subtext" />
+                    <ThemedText className="text-xs text-light-subtext dark:text-dark-subtext mt-1">Vyfotit fotku</ThemedText>
                 </TouchableOpacity>
             </Grid>
         </ScrollView>
     );
 };
 
-// Step 6: Title and Description
+// Step 6: Title and Description (název účesu + popis)
 const TitleDescriptionStep: React.FC<StepProps> = ({ data, updateData }) => (
     <ScrollView className="p-4 px-8">
         <View className='mb-10'>
-            <ThemedText className='text-3xl font-semibold mt-auto'>Now, let's give your place a title</ThemedText>
-            <ThemedText className='text-base text-light-subtext dark:text-dark-subtext'>Short titles work best. Have fun with it—you can always change it later.</ThemedText>
+            <ThemedText className='text-3xl font-semibold mt-auto'>Teď pojmenuj svůj účes</ThemedText>
+            <ThemedText className='text-base text-light-subtext dark:text-dark-subtext'>Krátký název stačí. Můžeš ho kdykoliv změnit.</ThemedText>
         </View>
 
-        <Section title="Title" titleSize="md" padding="sm">
+        <Section title="Název" titleSize="md" padding="sm">
             <Input
                 variant='classic'
                 containerClassName="mt-1 mb-0"
-                placeholder="Enter a catchy title for your place"
+                placeholder="např. Low Fade, Letní úprava"
                 value={data.title}
                 onChangeText={(text) => updateData({ title: text })}
                 maxLength={50}
@@ -290,11 +294,11 @@ const TitleDescriptionStep: React.FC<StepProps> = ({ data, updateData }) => (
             </ThemedText>
         </Section>
 
-        <Section title="Description" titleSize="md" padding="sm" className="mt-6">
+        <Section title="Popis" titleSize="md" padding="sm" className="mt-6">
             <Input
                 variant='classic'
                 containerClassName="mt-1 mb-0"
-                placeholder="Describe your place to guests"
+                placeholder="Volitelná poznámka k účesu"
                 value={data.description}
                 onChangeText={(text) => updateData({ description: text })}
                 isMultiline={true}
@@ -307,41 +311,58 @@ const TitleDescriptionStep: React.FC<StepProps> = ({ data, updateData }) => (
     </ScrollView>
 );
 
-// Step 7: Property Characteristics
-const CharacteristicsStep: React.FC<StepProps> = ({ data, updateData }) => (
-    <ScrollView className="p-4 px-8">
-        <View className='mb-10'>
-            <ThemedText className='text-3xl font-semibold mt-auto'>Describe your place</ThemedText>
-            <ThemedText className='text-base text-light-subtext dark:text-dark-subtext'>Choose up to 2 highlights. We'll use these to get your listing noticed by the right guests.</ThemedText>
-        </View>
+function stylingDifficultyLabel(value: number): string {
+    if (value <= 33) return 'Lehká';
+    if (value <= 66) return 'Střední';
+    return 'Náročná';
+}
 
-        <View className="flex-row flex-wrap gap-3 mt-4">
-            {characteristicOptions.map((characteristic) => (
-                <Chip
-                    size='lg'
-                    key={characteristic.label}
-                    label={characteristic.label}
-                    icon={characteristic.icon}
-                    isSelected={data.characteristics.includes(characteristic.label)}
-                    onPress={() => {
-                        const newCharacteristics = data.characteristics.includes(characteristic.label)
-                            ? data.characteristics.filter(c => c !== characteristic.label)
-                            : data.characteristics.length < 2
-                                ? [...data.characteristics, characteristic.label]
-                                : data.characteristics;
-                        updateData({ characteristics: newCharacteristics });
-                    }}
+// Step 7: Náročnost stylingu + kdo účes dělal
+const CharacteristicsStep: React.FC<StepProps> = ({ data, updateData }) => {
+    const { apiToken } = useAuth();
+    const [employees, setEmployees] = useState<Employee[]>([]);
+
+    useEffect(() => {
+        if (!apiToken) return;
+        getEmployees(apiToken)
+            .then(setEmployees)
+            .catch(() => setEmployees([]));
+    }, [apiToken]);
+
+    return (
+        <ScrollView className="p-4 px-8">
+            <View className='mb-10'>
+                <ThemedText className='text-3xl font-semibold mt-auto'>Náročnost stylingu</ThemedText>
+                <ThemedText className='text-base text-light-subtext dark:text-dark-subtext'>Jak náročné je účes na každodenní úpravu?</ThemedText>
+            </View>
+
+            <Section title="Obtížnost" titleSize="md" padding="sm" className="mt-2">
+                <Slider
+                    style={{ width: '100%', height: 40 }}
+                    value={data.stylingDifficulty}
+                    minimumValue={0}
+                    maximumValue={100}
+                    onValueChange={(v) => updateData({ stylingDifficulty: v })}
+                    minimumTrackTintColor="#FF2358"
+                    maximumTrackTintColor="rgba(0,0,0,0.2)"
+                    step={1}
                 />
-            ))}
-        </View>
+                <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext mt-1">
+                    {stylingDifficultyLabel(data.stylingDifficulty)}
+                </ThemedText>
+            </Section>
 
-        {data.characteristics.length >= 2 && (
-            <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext mt-4 text-center">
-                You can select up to 2 characteristics
-            </ThemedText>
-        )}
-    </ScrollView>
-);
+            <Section title="Vyberte, kdo vám účes dělal" titleSize="md" padding="sm" className="mt-6">
+                <BarberPicker
+                    employees={employees}
+                    value={data.barber_id}
+                    onChange={(id) => updateData({ barber_id: id })}
+                    label=""
+                />
+            </Section>
+        </ScrollView>
+    );
+};
 
 // Success Step
 const SuccessStep: React.FC<StepProps> = ({ data }) => {
@@ -352,9 +373,9 @@ const SuccessStep: React.FC<StepProps> = ({ data }) => {
                 className="w-32 h-32 rounded-lg"
                 resizeMode="cover"
             />
-            <ThemedText className="text-3xl font-bold mt-8 text-center">Congratulations!</ThemedText>
+            <ThemedText className="text-3xl font-bold mt-8 text-center">Gratulujeme!</ThemedText>
             <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext text-center mb-8 mt-1">
-                Your property listing has been created successfully. Let's take a look at how it appears to guests.
+                Váš účes byl úspěšně uložen. Najdete ho v sekci Moje účesy.
             </ThemedText>
 
             {/*<View className="w-full bg-light-secondary dark:bg-dark-secondary rounded-lg p-4 mb-8">
@@ -384,15 +405,16 @@ export default function AddPropertyScreen() {
     const [data, setData] = useState<PropertyData>({
         propertyType: '',
         guestAccessType: '',
-        guests: 1,
-        bedrooms: 1,
-        beds: 1,
+        guests: 0,
+        bedrooms: 0,
+        beds: 4,
         bathrooms: 1,
         amenities: [],
         photos: [],
         title: '',
         description: '',
         characteristics: [],
+        stylingDifficulty: 50,
     });
 
     const updateData = (updates: Partial<PropertyData>) => {
