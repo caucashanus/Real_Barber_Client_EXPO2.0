@@ -35,35 +35,35 @@ interface PropertyData {
 }
 
 const propertyTypeOptions: Array<{ label: string; icon: IconName; value: string }> = [
-    { label: 'Kratší', icon: 'CircleDot', value: 'kratsi' },
-    { label: 'Středně dlouhý', icon: 'Ruler', value: 'stredne_dlouhy' },
-    { label: 'Delší', icon: 'Maximize', value: 'delsi' },
-    { label: 'Do kanclu', icon: 'Briefcase', value: 'do_kanclu' },
-    { label: 'Sportovní', icon: 'Dumbbell', value: 'sportovni' },
-    { label: 'Moderní', icon: 'Sparkles', value: 'moderni' },
+    { label: 'Shorter', icon: 'CircleDot', value: 'kratsi' },
+    { label: 'Medium length', icon: 'Ruler', value: 'stredne_dlouhy' },
+    { label: 'Longer', icon: 'Maximize', value: 'delsi' },
+    { label: 'Office', icon: 'Briefcase', value: 'do_kanclu' },
+    { label: 'Sporty', icon: 'Dumbbell', value: 'sportovni' },
+    { label: 'Modern', icon: 'Sparkles', value: 'moderni' },
     { label: 'Retro', icon: 'Clock', value: 'retro' },
-    { label: 'Podpantoflák', icon: 'Home', value: 'podpantoflak' },
+    { label: 'Casual', icon: 'Home', value: 'podpantoflak' },
 ];
 
 const guestAccessOptions: Array<{ label: string; description: string; icon: IconName; value: string }> = [
-    { label: 'Letní', description: 'Účes pro teplé měsíce.', icon: 'Sun', value: 'letni' },
-    { label: 'Zimní', description: 'Účes do chladného počasí.', icon: 'Snowflake', value: 'zimni' },
-    { label: 'Celoroční', description: 'Nosíš ho pořád.', icon: 'Calendar', value: 'celorocni' },
+    { label: 'Summer', description: 'Haircut for warm months.', icon: 'Sun', value: 'letni' },
+    { label: 'Winter', description: 'Haircut for cold weather.', icon: 'Snowflake', value: 'zimni' },
+    { label: 'All-year', description: 'You wear it all the time.', icon: 'Calendar', value: 'celorocni' },
 ];
 
 const amenityOptions: Array<{ label: string; icon: IconName }> = [
-    { label: 'Chci zkusit', icon: 'Sparkles' },
-    { label: 'Bez údržby', icon: 'Check' },
-    { label: 'Vyžaduje styling', icon: 'Zap' },
-    { label: 'Nemusím si sušit vlasy', icon: 'Wind' },
-    { label: 'Dlouho vydrží', icon: 'Clock' },
-    { label: 'Účes co mi nejvíc chválí okolí', icon: 'Users' },
-    { label: 'Můj nejoblíbenější účes', icon: 'Star' },
-    { label: 'Sluší mi s vousy', icon: 'CircleUser' },
+    { label: 'Want to try', icon: 'Sparkles' },
+    { label: 'Low maintenance', icon: 'Check' },
+    { label: 'Requires styling', icon: 'Zap' },
+    { label: "Don't need to dry hair", icon: 'Wind' },
+    { label: 'Long lasting', icon: 'Clock' },
+    { label: 'Haircut people compliment most', icon: 'Users' },
+    { label: 'My favourite haircut', icon: 'Star' },
+    { label: 'Looks good with beard', icon: 'CircleUser' },
     { label: 'Styling', icon: 'Sparkles' },
-    { label: 'Zkouším něco nového', icon: 'Lightbulb' },
-    { label: 'Doporučeno barberem', icon: 'UserCheck' },
-    { label: 'Vrátil jsem se k němu', icon: 'RotateCcw' },
+    { label: 'Trying something new', icon: 'Lightbulb' },
+    { label: 'Recommended by barber', icon: 'UserCheck' },
+    { label: 'Came back to it', icon: 'RotateCcw' },
 ];
 
 interface StepProps {
@@ -75,8 +75,8 @@ interface StepProps {
 const PropertyTypeStep: React.FC<StepProps> = ({ data, updateData }) => (
     <ScrollView className="p-4 px-8">
         <View className='mb-10'>
-            <ThemedText className='text-3xl font-semibold mt-auto'>Co nejvíc vystihuje tvůj účes?</ThemedText>
-            <ThemedText className='text-base text-light-subtext dark:text-dark-subtext'>Vyber možnost, která ti sedí nejvíc</ThemedText>
+            <ThemedText className='text-3xl font-semibold mt-auto'>What best describes your haircut?</ThemedText>
+            <ThemedText className='text-base text-light-subtext dark:text-dark-subtext'>Choose the option that fits you best</ThemedText>
         </View>
         {propertyTypeOptions.map((option) => (
             <Selectable
@@ -94,8 +94,8 @@ const PropertyTypeStep: React.FC<StepProps> = ({ data, updateData }) => (
 const GuestAccessStep: React.FC<StepProps> = ({ data, updateData }) => (
     <ScrollView className="p-4 px-8">
         <View className='mb-10'>
-            <ThemedText className='text-3xl font-semibold mt-auto'>Pro jaké roční období?</ThemedText>
-            <ThemedText className='text-base text-light-subtext dark:text-dark-subtext'>Vyber, kdy účes nejvíc nosíš</ThemedText>
+            <ThemedText className='text-3xl font-semibold mt-auto'>For which season?</ThemedText>
+            <ThemedText className='text-base text-light-subtext dark:text-dark-subtext'>Choose when you wear this haircut most</ThemedText>
         </View>
 
         {guestAccessOptions.map((option) => (
@@ -117,15 +117,15 @@ const PropertyBasicsStep: React.FC<StepProps> = ({ data, updateData }) => {
     return (
         <ScrollView className="p-4 px-8">
             <View className='mb-10'>
-                <ThemedText className='text-3xl font-semibold mt-auto'>Základní údaje o účesu</ThemedText>
-                <ThemedText className='text-base text-light-subtext dark:text-dark-subtext'>Doplň délky a jak často účes obnovovat</ThemedText>
+                <ThemedText className='text-3xl font-semibold mt-auto'>Basic haircut details</ThemedText>
+                <ThemedText className='text-base text-light-subtext dark:text-dark-subtext'>Fill in lengths and how often to refresh the cut</ThemedText>
             </View>
 
             <View className="mt-4">
                 <View className="flex-row items-center justify-between py-4">
                     <View className="flex-1 pr-4">
-                        <ThemedText className="text-lg">Délka u uší</ThemedText>
-                        <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext">Jaká délka v cm</ThemedText>
+                        <ThemedText className="text-lg">Length at ears</ThemedText>
+                        <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext">Length in cm</ThemedText>
                     </View>
                     <Counter
                         value={data.guests}
@@ -137,8 +137,8 @@ const PropertyBasicsStep: React.FC<StepProps> = ({ data, updateData }) => {
 
                 <View className="flex-row items-center justify-between py-4 border-t border-light-secondary dark:border-dark-secondary">
                     <View className="flex-1 pr-4">
-                        <ThemedText className="text-lg">Délka nahoře</ThemedText>
-                        <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext">Jaká délka v cm</ThemedText>
+                        <ThemedText className="text-lg">Length on top</ThemedText>
+                        <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext">Length in cm</ThemedText>
                     </View>
                     <Counter
                         value={data.bedrooms}
@@ -150,8 +150,8 @@ const PropertyBasicsStep: React.FC<StepProps> = ({ data, updateData }) => {
 
                 <View className="flex-row items-center justify-between py-4 border-t border-light-secondary dark:border-dark-secondary">
                     <View className="flex-1 pr-4">
-                        <ThemedText className="text-lg">Jak často přestříhat?</ThemedText>
-                        <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext">Každých kolik týdnů je třeba přijít</ThemedText>
+                        <ThemedText className="text-lg">How often to trim?</ThemedText>
+                        <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext">Every how many weeks to come in</ThemedText>
                     </View>
                     <Counter
                         value={data.beds}
@@ -169,8 +169,8 @@ const PropertyBasicsStep: React.FC<StepProps> = ({ data, updateData }) => {
 const AmenitiesStep: React.FC<StepProps> = ({ data, updateData }) => (
     <ScrollView className="p-4 px-8">
         <View className='mb-10'>
-            <ThemedText className='text-3xl font-semibold mt-auto'>Co k účesu patří?</ThemedText>
-            <ThemedText className='text-base text-light-subtext dark:text-dark-subtext'>Vyber všechno, co k tvému účesu sedí. Můžeš vybrat víc možností.</ThemedText>
+            <ThemedText className='text-3xl font-semibold mt-auto'>What goes with this haircut?</ThemedText>
+            <ThemedText className='text-base text-light-subtext dark:text-dark-subtext'>Select everything that fits your haircut. You can select multiple options.</ThemedText>
         </View>
 
         <View className="flex-row flex-wrap gap-3 mt-4">
@@ -231,8 +231,8 @@ const PhotosStep: React.FC<StepProps> = ({ data, updateData }) => {
     return (
         <ScrollView className="p-4 px-8">
             <View className='mb-10'>
-                <ThemedText className='text-3xl font-semibold mt-auto'>Přidej fotky účesu</ThemedText>
-                <ThemedText className='text-base text-light-subtext dark:text-dark-subtext'>Alespoň jedna fotka pomůže. Můžeš jich přidat víc nebo později upravit.</ThemedText>
+                <ThemedText className='text-3xl font-semibold mt-auto'>Add haircut photos</ThemedText>
+                <ThemedText className='text-base text-light-subtext dark:text-dark-subtext'>At least one photo helps. You can add more or edit later.</ThemedText>
             </View>
 
             <Grid columns={2} spacing={10}>
@@ -257,7 +257,7 @@ const PhotosStep: React.FC<StepProps> = ({ data, updateData }) => {
                     className="w-full h-44 rounded-lg border-2 border-dashed border-light-subtext dark:border-dark-subtext items-center justify-center"
                 >
                     <Icon name="Plus" size={24} className="text-light-subtext dark:text-dark-subtext" />
-                    <ThemedText className="text-xs text-light-subtext dark:text-dark-subtext mt-1">Přidat fotku</ThemedText>
+                    <ThemedText className="text-xs text-light-subtext dark:text-dark-subtext mt-1">Add photo</ThemedText>
                 </TouchableOpacity>
 
                 <TouchableOpacity
@@ -265,7 +265,7 @@ const PhotosStep: React.FC<StepProps> = ({ data, updateData }) => {
                     className="w-full h-44 rounded-lg border-2 border-dashed border-light-subtext dark:border-dark-subtext items-center justify-center"
                 >
                     <Icon name="Plus" size={24} className="text-light-subtext dark:text-dark-subtext" />
-                    <ThemedText className="text-xs text-light-subtext dark:text-dark-subtext mt-1">Vyfotit fotku</ThemedText>
+                    <ThemedText className="text-xs text-light-subtext dark:text-dark-subtext mt-1">Take photo</ThemedText>
                 </TouchableOpacity>
             </Grid>
         </ScrollView>
@@ -276,15 +276,15 @@ const PhotosStep: React.FC<StepProps> = ({ data, updateData }) => {
 const TitleDescriptionStep: React.FC<StepProps> = ({ data, updateData }) => (
     <ScrollView className="p-4 px-8">
         <View className='mb-10'>
-            <ThemedText className='text-3xl font-semibold mt-auto'>Teď pojmenuj svůj účes</ThemedText>
-            <ThemedText className='text-base text-light-subtext dark:text-dark-subtext'>Krátký název stačí. Můžeš ho kdykoliv změnit.</ThemedText>
+            <ThemedText className='text-3xl font-semibold mt-auto'>Now name your haircut</ThemedText>
+            <ThemedText className='text-base text-light-subtext dark:text-dark-subtext'>A short name is enough. You can change it anytime.</ThemedText>
         </View>
 
-        <Section title="Název" titleSize="md" padding="sm">
+        <Section title="Title" titleSize="md" padding="sm">
             <Input
                 variant='classic'
                 containerClassName="mt-1 mb-0"
-                placeholder="např. Low Fade, Letní úprava"
+                placeholder="e.g. Low Fade, Summer look"
                 value={data.title}
                 onChangeText={(text) => updateData({ title: text })}
                 maxLength={50}
@@ -294,11 +294,11 @@ const TitleDescriptionStep: React.FC<StepProps> = ({ data, updateData }) => (
             </ThemedText>
         </Section>
 
-        <Section title="Popis" titleSize="md" padding="sm" className="mt-6">
+        <Section title="Description" titleSize="md" padding="sm" className="mt-6">
             <Input
                 variant='classic'
                 containerClassName="mt-1 mb-0"
-                placeholder="Volitelná poznámka k účesu"
+                placeholder="Optional note about the haircut"
                 value={data.description}
                 onChangeText={(text) => updateData({ description: text })}
                 isMultiline={true}
@@ -312,12 +312,12 @@ const TitleDescriptionStep: React.FC<StepProps> = ({ data, updateData }) => (
 );
 
 function stylingDifficultyLabel(value: number): string {
-    if (value <= 16) return 'Velmi lehká';
-    if (value <= 33) return 'Lehká';
-    if (value <= 50) return 'Střední';
-    if (value <= 66) return 'Náročnější';
-    if (value <= 83) return 'Náročná';
-    return 'Velmi náročná';
+    if (value <= 16) return 'Very easy';
+    if (value <= 33) return 'Easy';
+    if (value <= 50) return 'Medium';
+    if (value <= 66) return 'Trickier';
+    if (value <= 83) return 'Demanding';
+    return 'Very demanding';
 }
 
 // Step 7: Náročnost stylingu + kdo účes dělal
@@ -335,11 +335,11 @@ const CharacteristicsStep: React.FC<StepProps> = ({ data, updateData }) => {
     return (
         <ScrollView className="p-4 px-8">
             <View className='mb-10'>
-                <ThemedText className='text-3xl font-semibold mt-auto'>Náročnost stylingu a stylista</ThemedText>
-                <ThemedText className='text-base text-light-subtext dark:text-dark-subtext'>Jak náročné je účes na úpravu a kdo vám ho dělal?</ThemedText>
+                <ThemedText className='text-3xl font-semibold mt-auto'>Styling difficulty and stylist</ThemedText>
+                <ThemedText className='text-base text-light-subtext dark:text-dark-subtext'>How demanding is the haircut to style and who did it for you?</ThemedText>
             </View>
 
-            <Section title="Obtížnost" titleSize="md" padding="sm" className="mt-2">
+            <Section title="Difficulty" titleSize="md" padding="sm" className="mt-2">
                 <Slider
                     style={{ width: '100%', height: 40 }}
                     value={data.stylingDifficulty}
@@ -355,7 +355,7 @@ const CharacteristicsStep: React.FC<StepProps> = ({ data, updateData }) => {
                 </ThemedText>
             </Section>
 
-            <Section title="Vyberte, kdo vám účes dělal" titleSize="md" padding="sm" className="mt-6">
+            <Section title="Select who did your haircut" titleSize="md" padding="sm" className="mt-6">
                 <View className="-mx-8 mt-6" style={{ marginHorizontal: -32 }}>
                     <BarberPicker
                         employees={employees}
@@ -378,9 +378,9 @@ const SuccessStep: React.FC<StepProps> = ({ data }) => {
                 className="w-32 h-32 rounded-lg"
                 resizeMode="cover"
             />
-            <ThemedText className="text-3xl font-bold mt-8 text-center">Gratulujeme!</ThemedText>
+            <ThemedText className="text-3xl font-bold mt-8 text-center">Congratulations!</ThemedText>
             <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext text-center mb-8 mt-1">
-                Váš účes byl úspěšně uložen. Najdete ho v sekci Moje účesy.
+                Your haircut was saved successfully. You can find it in the My haircuts section.
             </ThemedText>
 
             {/*<View className="w-full bg-light-secondary dark:bg-dark-secondary rounded-lg p-4 mb-8">
@@ -434,11 +434,11 @@ export default function AddPropertyScreen() {
             onClose={() => router.push('/(drawer)/(tabs)/')}
             showStepIndicator={false}
         >
-            <Step title="Property Type">
+            <Step title="Haircut type">
                 <PropertyTypeStep data={data} updateData={updateData} />
             </Step>
 
-            <Step title="Guest Access">
+            <Step title="Season">
                 <GuestAccessStep data={data} updateData={updateData} />
             </Step>
 
@@ -446,7 +446,7 @@ export default function AddPropertyScreen() {
                 <PropertyBasicsStep data={data} updateData={updateData} />
             </Step>
 
-            <Step title="Amenities">
+            <Step title="Features">
                 <AmenitiesStep data={data} updateData={updateData} />
             </Step>
 
@@ -458,7 +458,7 @@ export default function AddPropertyScreen() {
                 <TitleDescriptionStep data={data} updateData={updateData} />
             </Step>
 
-            <Step title="Styling a stylista">
+            <Step title="Styling & stylist">
                 <CharacteristicsStep data={data} updateData={updateData} />
             </Step>
 

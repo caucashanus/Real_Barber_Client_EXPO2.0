@@ -43,7 +43,7 @@ export default function HaircutDetailScreen() {
         setBarberId(data.barber?.id ?? '');
       })
       .catch((e) => {
-        setError(e instanceof Error ? e.message : 'Nepodařilo se načíst účes.');
+        setError(e instanceof Error ? e.message : 'Failed to load haircut.');
         setCut(null);
       })
       .finally(() => setLoading(false));
@@ -64,7 +64,7 @@ export default function HaircutDetailScreen() {
     if (!apiToken || !id) return;
     const trimmedName = hairstyle.trim();
     if (!trimmedName) {
-      setError('Název je povinný');
+      setError('Name is required');
       return;
     }
     setSaving(true);
@@ -78,7 +78,7 @@ export default function HaircutDetailScreen() {
       setCut(updated);
       setEditing(false);
     } catch (e) {
-      setError(e instanceof Error ? e.message : 'Nepodařilo se uložit');
+      setError(e instanceof Error ? e.message : 'Failed to save');
     } finally {
       setSaving(false);
     }
@@ -87,19 +87,19 @@ export default function HaircutDetailScreen() {
   const handleDelete = () => {
     if (!apiToken || !id) return;
     Alert.alert(
-      'Smazat účes',
-      'Opravdu chceš tento účes smazat? Akci nelze vrátit zpět.',
+      'Delete haircut',
+      'Are you sure you want to delete this haircut? This action cannot be undone.',
       [
-        { text: 'Zrušit', style: 'cancel' },
+        { text: 'Cancel', style: 'cancel' },
         {
-          text: 'Smazat',
+          text: 'Delete',
           style: 'destructive',
           onPress: async () => {
             try {
               await deleteClientCut(apiToken, id);
               router.back();
             } catch (e) {
-              setError(e instanceof Error ? e.message : 'Nepodařilo se smazat');
+              setError(e instanceof Error ? e.message : 'Failed to delete');
             }
           },
         },
@@ -110,10 +110,10 @@ export default function HaircutDetailScreen() {
   if (loading) {
     return (
       <>
-        <Header title="Účes" showBackButton />
+        <Header title="Haircut" showBackButton />
         <View className="flex-1 items-center justify-center bg-light-primary dark:bg-dark-primary">
           <ActivityIndicator size="large" />
-          <ThemedText className="mt-2 text-light-subtext dark:text-dark-subtext">Načítám…</ThemedText>
+          <ThemedText className="mt-2 text-light-subtext dark:text-dark-subtext">Loading…</ThemedText>
         </View>
       </>
     );
@@ -122,7 +122,7 @@ export default function HaircutDetailScreen() {
   if (error && !cut) {
     return (
       <>
-        <Header title="Účes" showBackButton />
+        <Header title="Haircut" showBackButton />
         <View className="flex-1 items-center justify-center bg-light-primary dark:bg-dark-primary p-6">
           <ThemedText className="text-center text-red-500 dark:text-red-400">{error}</ThemedText>
         </View>
@@ -138,7 +138,7 @@ export default function HaircutDetailScreen() {
 
   return (
     <>
-      <Header title={cut.hairstyle || 'Účes'} showBackButton />
+      <Header title={cut.hairstyle || 'Haircut'} showBackButton />
       <ThemedScroller className="flex-1">
         <AnimatedView animation="fadeIn" duration={300}>
           <View className="aspect-[4/3] w-full bg-light-secondary dark:bg-dark-secondary">
@@ -148,23 +148,23 @@ export default function HaircutDetailScreen() {
           {editing ? (
             <Section title="" titleSize="md" className="mt-4">
               <Input
-                label="Název"
+                label="Name"
                 value={hairstyle}
                 onChangeText={setHairstyle}
-                placeholder="např. Low Fade"
+                placeholder="e.g. Low Fade"
                 containerClassName="mb-4"
               />
               <BarberPicker
-                label="Kadeřník"
+                label="Barber"
                 employees={employees}
                 value={barberId}
                 onChange={setBarberId}
               />
               <Input
-                label="Poznámka"
+                label="Note"
                 value={note}
                 onChangeText={setNote}
-                placeholder="Volitelná poznámka"
+                placeholder="Optional note"
                 isMultiline
                 containerClassName="mb-4"
               />
@@ -173,13 +173,13 @@ export default function HaircutDetailScreen() {
               ) : null}
               <View className="flex-row gap-3">
                 <Button
-                  title={saving ? 'Ukládám…' : 'Uložit'}
+                  title={saving ? 'Saving…' : 'Save'}
                   onPress={handleSave}
                   disabled={saving}
                   className="flex-1"
                 />
                 <Button
-                  title="Zrušit"
+                  title="Cancel"
                   variant="outline"
                   onPress={() => {
                     setEditing(false);
@@ -196,7 +196,7 @@ export default function HaircutDetailScreen() {
             <>
               <Section title="" titleSize="md" className="mt-4">
                 <ThemedText className="text-lg font-medium text-light-primary dark:text-dark-primary">
-                  {cut.hairstyle || 'Bez názvu'}
+                  {cut.hairstyle || 'Untitled'}
                 </ThemedText>
                 {cut.barber?.name ? (
                   <ThemedText className="mt-1 text-light-subtext dark:text-dark-subtext">
@@ -210,8 +210,8 @@ export default function HaircutDetailScreen() {
                 ) : null}
               </Section>
               <View className="p-global flex-row gap-3 mt-2">
-                <Button title="Upravit" onPress={() => setEditing(true)} className="flex-1" />
-                <Button title="Smazat" variant="outline" onPress={handleDelete} className="flex-1" />
+                <Button title="Edit" onPress={() => setEditing(true)} className="flex-1" />
+                <Button title="Delete" variant="outline" onPress={handleDelete} className="flex-1" />
               </View>
               {error ? (
                 <ThemedText className="p-global text-red-500 dark:text-red-400">{error}</ThemedText>

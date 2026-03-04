@@ -1,7 +1,27 @@
 import ThemeScroller from '@/components/ThemeScroller';
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useCallback, useContext, useEffect, useRef, useState } from 'react';
+import { useFocusEffect } from '@react-navigation/native';
 import { View, Animated, Pressable, ActivityIndicator } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import AnimatedView from '@/components/AnimatedView';
+
+/** In-memory fallback when AsyncStorage native module is unavailable (e.g. web, some dev builds). */
+let memoryLastSeen: string | null = null;
+async function getLastSeenBalance(key: string): Promise<string | null> {
+  try {
+    return await AsyncStorage.getItem(key);
+  } catch {
+    return memoryLastSeen;
+  }
+}
+async function setLastSeenBalance(key: string, value: string): Promise<void> {
+  memoryLastSeen = value;
+  try {
+    await AsyncStorage.setItem(key, value);
+  } catch {
+    /* ignore when native module unavailable */
+  }
+}
 import ThemedText from '@/components/ThemedText';
 import { ScrollContext } from './_layout';
 import { Button } from '@/components/Button';
@@ -18,6 +38,7 @@ import { Link, useRouter } from 'expo-router';
 import TransactionDetailModal from '@/components/TransactionDetailModal';
 
 const MOCK_CURRENCY = 'RBC';
+const WALLET_LAST_SEEN_BALANCE_KEY = 'wallet_last_seen_rbc_balance';
 
 function formatBalance(value: number): string {
   return value.toLocaleString('en-GB', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
@@ -41,6 +62,8 @@ function transactionAvatarSrc(item: RbCoinsHistoryItem): string | import('react-
   return require('@/assets/img/wallet/realbarber.png');
 }
 
+const ANIM_DURATION_MS = 500;
+
 const WalletScreen = () => {
   const router = useRouter();
   const scrollY = useContext(ScrollContext);
@@ -52,13 +75,24 @@ const WalletScreen = () => {
   const [history, setHistory] = useState<RbCoinsHistoryItem[]>([]);
   const [historyLoading, setHistoryLoading] = useState(true);
   const [selectedTransaction, setSelectedTransaction] = useState<RbCoinsHistoryItem | null>(null);
+  const [displayAmount, setDisplayAmount] = useState(0);
+  const countAnim = useRef(new Animated.Value(0)).current;
+  const lastAnimatedBalanceRef = useRef<number | null>(null);
+
+  useEffect(() => {
+    getLastSeenBalance(WALLET_LAST_SEEN_BALANCE_KEY).then((stored) => {
+      if (stored != null) setDisplayAmount(Number(stored));
+    });
+  }, []);
 
   useEffect(() => {
     if (!apiToken) {
       setBalance(null);
+      setDisplayAmount(0);
       setHistory([]);
       setBalanceLoading(false);
       setHistoryLoading(false);
+      lastAnimatedBalanceRef.current = null;
       return;
     }
     setBalanceLoading(true);
@@ -74,6 +108,44 @@ const WalletScreen = () => {
       .catch(() => setHistory([]))
       .finally(() => setHistoryLoading(false));
   }, [apiToken]);
+
+  useFocusEffect(
+    useCallback(() => {
+      if (!apiToken) return;
+      getRbCoinsBalance(apiToken)
+        .then((r) => setBalance(r.balance))
+        .catch((e) => setBalanceError(e instanceof Error ? e.message : 'Error'));
+      getRbCoinsHistory(apiToken)
+        .then((r) => setHistory(r.data.slice(0, 3)))
+        .catch(() => {});
+    }, [apiToken])
+  );
+
+  useEffect(() => {
+    if (balance === null || balance === lastAnimatedBalanceRef.current) return;
+    lastAnimatedBalanceRef.current = balance;
+
+    getLastSeenBalance(WALLET_LAST_SEEN_BALANCE_KEY).then((stored) => {
+      const start = stored != null ? Number(stored) : 0;
+      setDisplayAmount(start);
+      countAnim.setValue(0);
+
+      const listener = countAnim.addListener(({ value }: { value: number }) => {
+        const current = Math.round(start + (balance - start) * value);
+        setDisplayAmount(current);
+      });
+
+      Animated.timing(countAnim, {
+        toValue: 1,
+        duration: ANIM_DURATION_MS,
+        useNativeDriver: false,
+      }).start(() => {
+        countAnim.removeListener(listener);
+        setDisplayAmount(balance);
+        setLastSeenBalance(WALLET_LAST_SEEN_BALANCE_KEY, String(balance));
+      });
+    });
+  }, [balance]);
 
   return (
     <ThemeScroller
@@ -92,7 +164,7 @@ const WalletScreen = () => {
           ) : balanceError ? (
             <ThemedText className="text-lg text-white/90 mt-1 text-center">{balanceError}</ThemedText>
           ) : (
-            <ThemedText className="text-3xl font-bold text-white mt-1 text-center">{formatBalance(balance ?? 0)} {MOCK_CURRENCY}</ThemedText>
+            <ThemedText className="text-3xl font-bold text-white mt-1 text-center">{formatBalance(displayAmount)} {MOCK_CURRENCY}</ThemedText>
           )}
           <View className="items-center mt-4">
             <Button title="More" variant="outline" size="small" className="rounded-full px-6 bg-white/10 border-white/30" textClassName="text-white" />

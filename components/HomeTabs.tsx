@@ -22,6 +22,7 @@ const HomeTabs = (props: any) => {
                 <TabItem href="/experience" active={currentPath === '/experience'} label="Barbers" icon={require('@/assets/img/experience.png')} scrollY={props.scrollY} />
                 <TabItem href="/services" active={currentPath === '/services'} label="Services" icon={require('@/assets/img/services.png')} scrollY={props.scrollY} />
                 <TabItem href="/products" active={currentPath === '/products'} label="Products" icon={require('@/assets/img/experience.png')} scrollY={props.scrollY} />
+                <TabItem href="/guides" active={currentPath === '/guides'} label="Guides" icon={require('@/assets/img/house.png')} scrollY={props.scrollY} />
             </ScrollView>
         </View>
     );

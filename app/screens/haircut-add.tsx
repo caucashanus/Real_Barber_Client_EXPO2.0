@@ -36,7 +36,7 @@ export default function HaircutAddScreen() {
   const pickFromGallery = async () => {
     const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (status !== 'granted') {
-      Alert.alert('Oprávnění', 'Pro výběr fotek z galerie je potřeba povolit přístup k fotkám.');
+      Alert.alert('Permission', 'To pick photos from the gallery you need to allow access to photos.');
       return;
     }
     const result = await ImagePicker.launchImageLibraryAsync({
@@ -54,7 +54,7 @@ export default function HaircutAddScreen() {
   const takePhoto = async () => {
     const { status } = await ImagePicker.requestCameraPermissionsAsync();
     if (status !== 'granted') {
-      Alert.alert('Oprávnění', 'Pro pořízení fotky je potřeba povolit přístup k foťáku.');
+      Alert.alert('Permission', 'To take a photo you need to allow access to the camera.');
       return;
     }
     const result = await ImagePicker.launchCameraAsync({
@@ -74,7 +74,7 @@ export default function HaircutAddScreen() {
     if (!apiToken) return;
     const trimmedName = hairstyle.trim();
     if (!trimmedName) {
-      setError('Název je povinný');
+      setError('Name is required');
       return;
     }
     setSaving(true);
@@ -89,7 +89,7 @@ export default function HaircutAddScreen() {
       });
       router.back();
     } catch (e) {
-      setError(e instanceof Error ? e.message : 'Nepodařilo se uložit');
+      setError(e instanceof Error ? e.message : 'Failed to save');
     } finally {
       setSaving(false);
     }
@@ -97,11 +97,11 @@ export default function HaircutAddScreen() {
 
   return (
     <>
-      <Header title="Přidat účes" showBackButton />
+      <Header title="Add haircut" showBackButton />
       <ThemedScroller className="flex-1" keyboardShouldPersistTaps="handled">
-        <Section title="Fotky" titleSize="md" className="mt-2">
+        <Section title="Photos" titleSize="md" className="mt-2">
           <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext mb-3">
-            Přidej fotky účesu z galerie nebo foťákem (volitelné). Zatím se ukládá jen název a poznámka.
+            Add haircut photos from gallery or camera (optional). Only name and note are saved for now.
           </ThemedText>
           <View className="flex-row flex-wrap gap-3">
             {photoUris.map((uri, index) => (
@@ -122,14 +122,14 @@ export default function HaircutAddScreen() {
                   className="w-20 h-20 rounded-xl border-2 border-dashed border-light-secondary dark:border-dark-secondary items-center justify-center bg-light-secondary/50 dark:bg-dark-secondary/50"
                 >
                   <Icon name="Image" size={28} className="text-light-subtext dark:text-dark-subtext" />
-                  <ThemedText className="text-xs text-light-subtext dark:text-dark-subtext mt-1">Galerie</ThemedText>
+                  <ThemedText className="text-xs text-light-subtext dark:text-dark-subtext mt-1">Gallery</ThemedText>
                 </Pressable>
                 <Pressable
                   onPress={takePhoto}
                   className="w-20 h-20 rounded-xl border-2 border-dashed border-light-secondary dark:border-dark-secondary items-center justify-center bg-light-secondary/50 dark:bg-dark-secondary/50"
                 >
                   <Icon name="Camera" size={28} className="text-light-subtext dark:text-dark-subtext" />
-                  <ThemedText className="text-xs text-light-subtext dark:text-dark-subtext mt-1">Foťák</ThemedText>
+                  <ThemedText className="text-xs text-light-subtext dark:text-dark-subtext mt-1">Camera</ThemedText>
                 </Pressable>
               </>
             )}
@@ -138,23 +138,23 @@ export default function HaircutAddScreen() {
 
         <Section title="" titleSize="md" className="mt-2">
           <Input
-            label="Název účesu"
+            label="Haircut name"
             value={hairstyle}
             onChangeText={setHairstyle}
-            placeholder="např. Low Fade, Undercut"
+            placeholder="e.g. Low Fade, Undercut"
             containerClassName="mb-4"
           />
           <BarberPicker
-            label="Kadeřník"
+            label="Barber"
             employees={employees}
             value={barberId}
             onChange={setBarberId}
           />
           <Input
-            label="Poznámka"
+            label="Note"
             value={note}
             onChangeText={setNote}
-            placeholder="Volitelná poznámka"
+            placeholder="Optional note"
             isMultiline
             containerClassName="mb-4"
           />
@@ -162,7 +162,7 @@ export default function HaircutAddScreen() {
             <ThemedText className="mb-3 text-red-500 dark:text-red-400">{error}</ThemedText>
           ) : null}
           <Button
-            title={saving ? 'Ukládám…' : 'Uložit'}
+            title={saving ? 'Saving…' : 'Save'}
             onPress={handleSave}
             disabled={saving}
           />
