@@ -133,20 +133,20 @@ const Favorite: React.FC<FavoriteProps> = ({
       >
         <View className="p-4 pb-6">
           <ThemedText className="text-lg font-bold mt-4 mb-1 text-left">
-            {isFavorite ? 'Added to Bookmarks' : 'Removed from Bookmarks'}
+            {isFavorite ? 'Added to Favourites' : 'Removed from Favourites'}
           </ThemedText>
 
           <ThemedText className="text-left mb-6">
             {isFavorite
-              ? `${displayTitle} has been added to your bookmarks.`
-              : `${displayTitle} has been removed from your bookmarks.`
+              ? `${displayTitle} has been added to your favourites.`
+              : `${displayTitle} has been removed from your favourites.`
             }
           </ThemedText>
 
           <View className="flex-row w-full justify-center">
             {isFavorite && (
               <Button
-                title="View Bookmarks"
+                title="View Favourites"
                 className="flex-1"
                 onPress={handleViewFavorites}
               />

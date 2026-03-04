@@ -48,3 +48,26 @@ export async function loginWithPhone(
 
   return res.json() as Promise<LoginResponse>;
 }
+
+/** POST /api/client/change-password – change authenticated client password. */
+export async function changePassword(
+  apiToken: string,
+  currentPassword: string,
+  newPassword: string
+): Promise<void> {
+  const res = await fetch(`${CRM_BASE}/api/client/change-password`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${apiToken}`,
+    },
+    body: JSON.stringify({
+      currentPassword,
+      newPassword,
+    }),
+  });
+  if (!res.ok) {
+    const errBody = await res.text();
+    throw new Error(errBody || `Chyba ${res.status}`);
+  }
+}

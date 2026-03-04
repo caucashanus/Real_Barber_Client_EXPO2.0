@@ -48,6 +48,11 @@ export function getCachedGuide(id: string): ClientGuide | null {
   return guidesCache.find((g) => g.id === id) ?? null;
 }
 
+/** Get the full cached list (order preserved) for prev/next navigation. */
+export function getCachedGuidesList(): ClientGuide[] {
+  return guidesCache;
+}
+
 /** GET /api/client/guides – list active customer guides (no auth). */
 export async function getClientGuides(): Promise<ClientGuide[]> {
   const res = await fetch(`${CRM_BASE}/api/client/guides`);

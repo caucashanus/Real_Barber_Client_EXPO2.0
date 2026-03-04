@@ -8,6 +8,7 @@ import { router } from 'expo-router';
 import { shadowPresets } from '@/utils/useShadow';
 import { getClientGuides, type ClientGuide } from '@/api/guides';
 import { useFocusEffect } from '@react-navigation/native';
+import Favorite from '@/components/Favorite';
 
 function formatAddedAt(iso: string): string {
   const d = new Date(iso);
@@ -42,7 +43,7 @@ function GuideCard({ guide }: { guide: ClientGuide }) {
           {formatAddedAt(guide.createdAt)}
         </ThemedText>
       </View>
-      <View className="w-20 h-20">
+      <View className="w-20 h-20 relative">
         {imageUrl ? (
           <View className="w-full h-full rounded-xl overflow-hidden border-2 border-light-primary dark:border-dark-primary">
             <Image className="w-full h-full" source={{ uri: imageUrl }} resizeMode="cover" />
@@ -52,6 +53,15 @@ function GuideCard({ guide }: { guide: ClientGuide }) {
             <ThemedText className="text-xs text-light-subtext dark:text-dark-subtext">—</ThemedText>
           </View>
         )}
+        <View className="absolute top-1 right-1 z-10">
+          <Favorite
+            entityType="guide"
+            entityId={guide.id}
+            title={guide.title}
+            size={20}
+            isWhite
+          />
+        </View>
       </View>
     </Pressable>
   );

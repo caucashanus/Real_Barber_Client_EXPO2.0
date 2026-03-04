@@ -12,8 +12,9 @@ import { useLocalSearchParams, router } from 'expo-router';
 import Header from '@/components/Header';
 import ThemedScroller from '@/components/ThemeScroller';
 import ThemedText from '@/components/ThemedText';
-import { getCachedGuide, type ClientGuide, type GuideMedia } from '@/api/guides';
+import { getCachedGuide, getCachedGuidesList, type ClientGuide, type GuideMedia } from '@/api/guides';
 import Icon from '@/components/Icon';
+import Favorite from '@/components/Favorite';
 
 const screenWidth = Dimensions.get('window').width;
 
@@ -130,13 +131,52 @@ export default function GuideDetailScreen() {
   }
 
   const hasMedia = guide.media && guide.media.length > 0;
+  const list = getCachedGuidesList();
+  const currentIndex = list.findIndex((g) => g.id === guide.id);
+  const prevGuide = currentIndex > 0 ? list[currentIndex - 1] : null;
+  const nextGuide = currentIndex >= 0 && currentIndex < list.length - 1 ? list[currentIndex + 1] : null;
+
+  const goToPrev = () => prevGuide && router.replace({ pathname: '/screens/guide-detail', params: { id: prevGuide.id } });
+  const goToNext = () => nextGuide && router.replace({ pathname: '/screens/guide-detail', params: { id: nextGuide.id } });
 
   return (
     <>
-      <Header title="" showBackButton />
+      <Header
+        title=""
+        showBackButton
+        rightComponents={[
+          <Favorite
+            key="fav"
+            entityType="guide"
+            entityId={guide.id}
+            title={guide.title}
+            size={25}
+          />,
+        ]}
+      />
       <ThemedScroller className="flex-1 px-0" keyboardShouldPersistTaps="handled">
-        <View className="mt-14 mb-6 px-global">
-          <ThemedText className="text-4xl font-semibold" numberOfLines={3}>
+        <View className="mt-0 mb-6 px-global">
+          <View className="flex-row justify-end mb-4">
+            <Pressable
+              onPress={goToPrev}
+              className={`w-10 h-10 items-center justify-center mr-2 rounded-full border border-neutral-300 dark:border-neutral-600 ${
+                prevGuide ? 'opacity-100' : 'opacity-30'
+              }`}
+              disabled={!prevGuide}
+            >
+              <Icon name="ChevronLeft" size={24} className="-translate-x-px" />
+            </Pressable>
+            <Pressable
+              onPress={goToNext}
+              className={`w-10 h-10 items-center justify-center rounded-full border border-neutral-300 dark:border-neutral-600 ${
+                nextGuide ? 'opacity-100' : 'opacity-30'
+              }`}
+              disabled={!nextGuide}
+            >
+              <Icon name="ChevronRight" size={24} className="translate-x-px" />
+            </Pressable>
+          </View>
+          <ThemedText className="text-4xl font-semibold" numberOfLines={5}>
             {guide.title}
           </ThemedText>
           <ThemedText className="text-lg text-light-subtext dark:text-dark-subtext mt-2">
@@ -169,6 +209,26 @@ export default function GuideDetailScreen() {
           <View className="flex-row items-center justify-between mt-6 py-3 border-t border-light-secondary dark:border-dark-secondary">
             <ThemedText className="text-base opacity-50">Aktualizováno</ThemedText>
             <ThemedText className="text-lg">{formatUpdatedAt(guide.updatedAt)}</ThemedText>
+          </View>
+          <View className="flex-row justify-center items-center py-6">
+            <Pressable
+              onPress={goToPrev}
+              className={`w-10 h-10 items-center justify-center mr-2 rounded-full border border-neutral-300 dark:border-neutral-600 ${
+                prevGuide ? 'opacity-100' : 'opacity-30'
+              }`}
+              disabled={!prevGuide}
+            >
+              <Icon name="ChevronLeft" size={24} className="-translate-x-px" />
+            </Pressable>
+            <Pressable
+              onPress={goToNext}
+              className={`w-10 h-10 items-center justify-center rounded-full border border-neutral-300 dark:border-neutral-600 ${
+                nextGuide ? 'opacity-100' : 'opacity-30'
+              }`}
+              disabled={!nextGuide}
+            >
+              <Icon name="ChevronRight" size={24} className="translate-x-px" />
+            </Pressable>
           </View>
         </View>
       </ThemedScroller>

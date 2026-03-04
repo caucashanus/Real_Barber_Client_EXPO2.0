@@ -18,6 +18,7 @@ export default function ProfileScreen() {
                     <ListLink title="Payments" description="Manage payment methods" icon="CreditCard" href="/screens/profile/payments" />
                     <ListLink title="Notifications" description="Push notifications, email notifications" icon="Bell" href="/screens/profile/notifications" />
                     <ListLink title="Currency" description="USD - United states dollar" icon="DollarSign" href="/screens/profile/currency" />
+                    <ListLink title="Change password" description="Change your password" icon="KeyRound" href="/screens/change-password" />
                     <ListLink title="Help" description="Contact support" icon="HelpCircle" href="/screens/help" />
                 </View>
             </ThemedScroller>
