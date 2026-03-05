@@ -47,6 +47,7 @@ const defaultFilter: BranchFilterState = {
 type BranchFilterContextValue = {
   filter: BranchFilterState;
   setFilter: (f: BranchFilterState) => void;
+  resetFilter: () => void;
   hasActiveFilter: boolean;
 };
 
@@ -59,6 +60,10 @@ export function BranchFilterProvider({ children }: { children: ReactNode }) {
     setFilterState(f);
   }, []);
 
+  const resetFilter = useCallback(() => {
+    setFilterState(defaultFilter);
+  }, []);
+
   const hasActiveFilter =
     filter.minSizeM2 > defaultFilter.minSizeM2 ||
     filter.minChairs != null ||
@@ -69,6 +74,7 @@ export function BranchFilterProvider({ children }: { children: ReactNode }) {
   const value: BranchFilterContextValue = {
     filter,
     setFilter,
+    resetFilter,
     hasActiveFilter,
   };
 

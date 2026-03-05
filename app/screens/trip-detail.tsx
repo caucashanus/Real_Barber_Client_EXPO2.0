@@ -15,6 +15,7 @@ import { Button } from '@/components/Button';
 import AnimatedView from '@/components/AnimatedView';
 import { useAuth } from '@/app/contexts/AuthContext';
 import { getBookings, type Booking } from '../../api/bookings';
+import { getBranches, type Branch, type BranchService } from '@/api/branches';
 
 const BRANCH_IMAGES: Record<string, number> = {
   'Modřany': require('@/assets/img/branches/Modrany.jpg'),
@@ -23,7 +24,35 @@ const BRANCH_IMAGES: Record<string, number> = {
   'Barrandov': require('@/assets/img/branches/Barrandov.jpg'),
 };
 
-const PLACEHOLDER_IMAGES = ['https://tinyurl.com/2yyfr9rc', 'https://tinyurl.com/2cmu4ns5'];
+function getServicesList(branch: Branch): BranchService[] {
+  const s = branch.services;
+  if (!s) return [];
+  if (Array.isArray(s)) return s;
+  return Object.values(s);
+}
+
+function getMediaUrlsSorted(media: Branch['media']): string[] {
+  if (!media) return [];
+  const list = Array.isArray(media) ? [...media] : Object.values(media);
+  const withOrder = list.filter((m): m is { url: string; order?: number } => !!m?.url);
+  withOrder.sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
+  return withOrder.map((m) => m.url);
+}
+
+/** Same image list as branch-detail: media, imageUrl, service images; fallback to local BRANCH_IMAGES. */
+function branchImages(branch: Branch): (string | number)[] {
+  const out: (string | number)[] = [];
+  const mediaUrls = getMediaUrlsSorted(branch.media);
+  mediaUrls.forEach((url) => out.push(url));
+  if (branch.imageUrl) out.push(branch.imageUrl);
+  const servicesList = getServicesList(branch);
+  servicesList.forEach((svc) => { if (svc.imageUrl) out.push(svc.imageUrl); });
+  if (out.length === 0 && branch.name && BRANCH_IMAGES[branch.name] != null) {
+    out.push(BRANCH_IMAGES[branch.name]);
+  }
+  if (out.length === 0) out.push(require('@/assets/img/branches/Modrany.jpg'));
+  return out;
+}
 
 // Mock data for Earnings breakdown & Payment method sections (copied from booking-detail)
 const mockPriceBreakdown = {
@@ -43,13 +72,6 @@ function formatPaymentMethodLabel(method: string | null | undefined): string {
     .join(' ');
 }
 
-function getBookingCarouselImages(branchName: string | undefined): (string | number)[] {
-  const first = branchName && BRANCH_IMAGES[branchName] != null
-    ? BRANCH_IMAGES[branchName]
-    : require('@/assets/img/branches/Modrany.jpg');
-  return [first, ...PLACEHOLDER_IMAGES];
-}
-
 function formatAppointment(b: Booking): { dateStr: string; fromTime: string; toTime: string } {
   const d = new Date(b.date);
   const dateStr = `${d.getDate()} ${d.toLocaleString('en-GB', { month: 'short' })} ${d.getFullYear()}`;
@@ -64,6 +86,7 @@ const BookingDetailScreen = () => {
   const { id } = useLocalSearchParams<{ id: string }>();
   const { apiToken } = useAuth();
   const [booking, setBooking] = useState<Booking | null>(null);
+  const [branch, setBranch] = useState<Branch | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -83,6 +106,19 @@ const BookingDetailScreen = () => {
       .catch((e) => setError(e instanceof Error ? e.message : 'Failed to load'))
       .finally(() => setLoading(false));
   }, [apiToken, id]);
+
+  useEffect(() => {
+    if (!apiToken || !booking?.branchId) {
+      setBranch(null);
+      return;
+    }
+    getBranches(apiToken, { includeReviews: false })
+      .then((list) => {
+        const found = list.find((b) => b.id === booking.branchId) ?? null;
+        setBranch(found);
+      })
+      .catch(() => setBranch(null));
+  }, [apiToken, booking?.branchId]);
 
   if (loading) {
     return (
@@ -109,7 +145,18 @@ const BookingDetailScreen = () => {
 
   const appointment = formatAppointment(booking);
   const location = booking.branch?.address ?? booking.branch?.name ?? '—';
-  const carouselImages = getBookingCarouselImages(booking.branch?.name);
+  const todayStart = new Date();
+  todayStart.setHours(0, 0, 0, 0);
+  const status = (booking.status ?? '').toLowerCase();
+  const isCancelled = status === 'cancelled' || status === 'canceled';
+  const isUpcoming =
+    !isCancelled && new Date(booking.date).getTime() >= todayStart.getTime();
+  const carouselImages =
+    branch != null
+      ? branchImages(branch)
+      : booking.branch?.name && BRANCH_IMAGES[booking.branch.name] != null
+        ? [BRANCH_IMAGES[booking.branch.name]]
+        : [require('@/assets/img/branches/Modrany.jpg')];
 
   return (
     <>
@@ -269,16 +316,30 @@ const BookingDetailScreen = () => {
 
           <Divider className="mt-6 h-2 bg-light-secondary dark:bg-dark-darker" />
 
-          <Section title="Location" titleSize="lg" className="px-global pt-4 pb-6">
+          <Section
+            title="Location"
+            titleSize="lg"
+            className="px-global pt-4 pb-6"
+            header={
+              <View className="flex-row items-center justify-between w-full">
+                <ThemedText className="text-lg font-semibold">Location</ThemedText>
+                <Button
+                  title="Celá mapa"
+                  iconStart="Map"
+                  variant="secondary"
+                  size="small"
+                  rounded="full"
+                  href="/screens/map"
+                  className="bg-light-secondary dark:bg-dark-secondary"
+                />
+              </View>
+            }
+          >
             <View className="mt-4">
               <ThemedText className="text-light-subtext dark:text-dark-subtext mb-4">{location}</ThemedText>
               {booking.branch?.phone ? (
                 <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext">{booking.branch.phone}</ThemedText>
               ) : null}
-              <View className="w-full h-48 bg-light-secondary dark:bg-dark-secondary rounded-xl items-center justify-center mt-4">
-                <Icon name="Map" size={48} className="text-light-subtext dark:text-dark-subtext mb-2" />
-                <ThemedText className="text-light-subtext dark:text-dark-subtext">Map</ThemedText>
-              </View>
             </View>
           </Section>
         </AnimatedView>
@@ -286,20 +347,24 @@ const BookingDetailScreen = () => {
 
       <ThemedFooter>
         <View className="flex-row space-x-3">
-          <Button
-            title="Review"
-            variant="outline"
-            iconStart="Star"
-            className="flex-1"
-            href="/screens/review"
-          />
-          <Button
-            title="Cancel booking"
-            variant="outline"
-            iconStart="X"
-            className="flex-1"
-            onPress={() => {}}
-          />
+          {!isUpcoming && !isCancelled && (
+            <Button
+              title="Review"
+              variant="outline"
+              iconStart="Star"
+              className="flex-1"
+              href="/screens/review"
+            />
+          )}
+          {isUpcoming && (
+            <Button
+              title="Cancel booking"
+              variant="outline"
+              iconStart="X"
+              className="flex-1"
+              onPress={() => {}}
+            />
+          )}
         </View>
       </ThemedFooter>
     </>

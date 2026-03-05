@@ -148,7 +148,13 @@ function applyBranchFilter(items: MapBranchItem[], filter: BranchFilterState): M
 const MapScreen = () => {
     const colors = useThemeColors();
     const { apiToken } = useAuth();
-    const { filter } = useBranchFilter();
+    const { filter, resetFilter } = useBranchFilter();
+
+    useEffect(() => {
+        return () => {
+            resetFilter();
+        };
+    }, [resetFilter]);
     const actionSheetRef = useRef<ActionSheetRef>(null);
     const mapRef = useRef<MapView>(null);
     const insets = useSafeAreaInsets();

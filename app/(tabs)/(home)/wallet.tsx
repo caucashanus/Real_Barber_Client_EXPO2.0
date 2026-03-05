@@ -164,7 +164,7 @@ const WalletScreen = () => {
           ) : balanceError ? (
             <ThemedText className="text-lg text-white/90 mt-1 text-center">{balanceError}</ThemedText>
           ) : (
-            <ThemedText className="text-3xl font-bold text-white mt-1 text-center">{formatBalance(displayAmount)} {MOCK_CURRENCY}</ThemedText>
+            <ThemedText className="text-5xl font-bold text-white mt-1 text-center">{formatBalance(displayAmount)} {MOCK_CURRENCY}</ThemedText>
           )}
           <View className="items-center mt-4">
             <Button title="More" variant="outline" size="small" className="rounded-full px-6 bg-white/10 border-white/30" textClassName="text-white" href="/screens/rbc" />

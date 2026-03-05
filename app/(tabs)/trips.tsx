@@ -9,6 +9,10 @@ import Header from '@/components/Header';
 import { useCollapsibleTitle } from '@/app/hooks/useCollapsibleTitle';
 import { useAuth } from '@/app/contexts/AuthContext';
 import { getBookings, type Booking } from '@/api/bookings';
+import { Chip } from '@/components/Chip';
+import { CardScroller } from '@/components/CardScroller';
+
+type BookingFilter = 'all' | 'upcoming' | 'past' | 'cancelled' | 'rated' | 'pending_review';
 
 function formatBookingDate(b: Booking): string {
   const d = new Date(b.date);
@@ -29,12 +33,79 @@ function groupBookingsByYear(bookings: Booking[]): Record<string, Booking[]> {
   return byYear;
 }
 
+const todayStart = (): Date => {
+  const d = new Date();
+  d.setHours(0, 0, 0, 0);
+  return d;
+};
+
+function countByFilter(bookings: Booking[]): { upcoming: number; past: number; cancelled: number; rated: number; pendingReview: number } {
+  const now = todayStart().getTime();
+  let upcoming = 0;
+  let past = 0;
+  let cancelled = 0;
+  let rated = 0;
+  let pendingReview = 0;
+  for (const b of bookings) {
+    const status = (b.status ?? '').toLowerCase();
+    if (status === 'cancelled' || status === 'canceled') {
+      cancelled += 1;
+    } else if (new Date(b.date).getTime() >= now) {
+      upcoming += 1;
+    } else {
+      past += 1;
+      // TODO: when API provides "hasReview" or review id, use it for rated vs pendingReview
+      pendingReview += 1;
+    }
+  }
+  return { upcoming, past, cancelled, rated, pendingReview };
+}
+
 const TripsScreen = () => {
   const { scrollY, scrollHandler, scrollEventThrottle } = useCollapsibleTitle();
   const { apiToken } = useAuth();
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [selectedFilter, setSelectedFilter] = useState<BookingFilter>('all');
+
+  const counts = countByFilter(bookings);
+
+  const filteredBookings =
+    selectedFilter === 'all'
+      ? bookings
+      : selectedFilter === 'upcoming'
+        ? bookings.filter((b) => {
+            const status = (b.status ?? '').toLowerCase();
+            if (status === 'cancelled' || status === 'canceled') return false;
+            return new Date(b.date).getTime() >= todayStart().getTime();
+          })
+        : selectedFilter === 'past'
+          ? bookings.filter((b) => {
+              const status = (b.status ?? '').toLowerCase();
+              if (status === 'cancelled' || status === 'canceled') return false;
+              return new Date(b.date).getTime() < todayStart().getTime();
+            })
+          : selectedFilter === 'cancelled'
+            ? bookings.filter((b) => {
+                const status = (b.status ?? '').toLowerCase();
+                return status === 'cancelled' || status === 'canceled';
+              })
+            : selectedFilter === 'rated'
+              ? bookings.filter((b) => {
+                  const status = (b.status ?? '').toLowerCase();
+                  if (status === 'cancelled' || status === 'canceled') return false;
+                  if (new Date(b.date).getTime() >= todayStart().getTime()) return false;
+                  // TODO: when API has review flag, filter (b as Booking & { hasReview?: boolean }).hasReview
+                  return false;
+                })
+              : selectedFilter === 'pending_review'
+                ? bookings.filter((b) => {
+                    const status = (b.status ?? '').toLowerCase();
+                    if (status === 'cancelled' || status === 'canceled') return false;
+                    return new Date(b.date).getTime() < todayStart().getTime();
+                  })
+                : bookings;
 
   useEffect(() => {
     if (!apiToken) {
@@ -49,7 +120,7 @@ const TripsScreen = () => {
       .finally(() => setLoading(false));
   }, [apiToken]);
 
-  const byYear = groupBookingsByYear(bookings);
+  const byYear = groupBookingsByYear(filteredBookings);
   const years = Object.keys(byYear).sort((a, b) => Number(b) - Number(a));
 
   return (
@@ -75,6 +146,50 @@ const TripsScreen = () => {
             onScroll={scrollHandler}
             scrollEventThrottle={scrollEventThrottle}
           >
+            <CardScroller className="mb-4">
+              <Chip
+                size="lg"
+                label="All"
+                selectable
+                isSelected={selectedFilter === 'all'}
+                onPress={() => setSelectedFilter('all')}
+              />
+              <Chip
+                size="lg"
+                label={`Upcoming (${counts.upcoming})`}
+                selectable
+                isSelected={selectedFilter === 'upcoming'}
+                onPress={() => setSelectedFilter('upcoming')}
+              />
+              <Chip
+                size="lg"
+                label="Past"
+                selectable
+                isSelected={selectedFilter === 'past'}
+                onPress={() => setSelectedFilter('past')}
+              />
+              <Chip
+                size="lg"
+                label={`Cancelled (${counts.cancelled})`}
+                selectable
+                isSelected={selectedFilter === 'cancelled'}
+                onPress={() => setSelectedFilter('cancelled')}
+              />
+              <Chip
+                size="lg"
+                label={`Ohodnoceno (${counts.rated})`}
+                selectable
+                isSelected={selectedFilter === 'rated'}
+                onPress={() => setSelectedFilter('rated')}
+              />
+              <Chip
+                size="lg"
+                label={`Čeká na hodnocení (${counts.pendingReview})`}
+                selectable
+                isSelected={selectedFilter === 'pending_review'}
+                onPress={() => setSelectedFilter('pending_review')}
+              />
+            </CardScroller>
             {years.length === 0 ? (
               <ThemedText className="text-center text-light-subtext dark:text-dark-subtext py-8">No bookings yet.</ThemedText>
             ) : (
