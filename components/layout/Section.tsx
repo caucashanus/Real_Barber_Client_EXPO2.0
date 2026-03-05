@@ -20,6 +20,8 @@ interface SectionProps {
     link?: string;
     linkText?: string;
     linkClassName?: string;
+    /** Renders next to the title on the same row (e.g. info icon). */
+    titleTrailing?: React.ReactNode;
 }
 
 export const Section: React.FC<SectionProps> = ({
@@ -36,6 +38,7 @@ export const Section: React.FC<SectionProps> = ({
     link,
     linkText,
     linkClassName = '',
+    titleTrailing,
 }) => {
     const getPaddingClass = () => {
         switch (padding) {
@@ -81,10 +84,11 @@ export const Section: React.FC<SectionProps> = ({
                         {header || (
                             <>
                                 {title && (
-                                    <View className='flex-row items-center w-full justify-start'>
+                                    <View className={`flex-row items-center w-full justify-start${titleTrailing ? ' gap-2' : ''}`}>
                                         <ThemedText className={`${getTitleClass()} font-semibold`}>
                                             {title}
                                         </ThemedText>
+                                        {titleTrailing}
                                         {link && (
                                             <Link href={link} className={`${linkClassName} text-black dark:text-white underline ml-2`}>
                                                 <Icon name="ChevronRight" size={20} />

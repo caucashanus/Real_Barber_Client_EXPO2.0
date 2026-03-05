@@ -1,6 +1,10 @@
 import ThemeScroller from '@/components/ThemeScroller';
-import React, { useContext, useEffect, useMemo, useState } from 'react';
-import { View, Animated } from 'react-native';
+import React, { useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
+import { View, Animated, Pressable } from 'react-native';
+import { ActionSheetRef } from 'react-native-actions-sheet';
+import Icon from '@/components/Icon';
+import ActionSheetThemed from '@/components/ActionSheetThemed';
+import { useFocusEffect } from '@react-navigation/native';
 import Section from '@/components/layout/Section';
 import { CardScroller } from '@/components/CardScroller';
 import Card from '@/components/Card';
@@ -9,6 +13,7 @@ import ThemedText from '@/components/ThemedText';
 import { ScrollContext } from './_layout';
 import { useAuth } from '@/app/contexts/AuthContext';
 import { getEmployees, type Employee } from '@/api/employees';
+import { getFavorites } from '@/api/favorites';
 import LiveIndicator from '@/components/LiveIndicator';
 
 const NEW_BARBERS_DAYS = 30;
@@ -86,6 +91,7 @@ const ExperienceScreen = () => {
     const [employees, setEmployees] = useState<Employee[]>([]);
     const [employeesLoading, setEmployeesLoading] = useState(false);
     const [employeesError, setEmployeesError] = useState<string | null>(null);
+    const [favoriteEmployeeIds, setFavoriteEmployeeIds] = useState<string[]>([]);
 
     useEffect(() => {
         if (!apiToken) return;
@@ -96,6 +102,19 @@ const ExperienceScreen = () => {
             .catch((e) => setEmployeesError(e instanceof Error ? e.message : 'Failed to load'))
             .finally(() => setEmployeesLoading(false));
     }, [apiToken]);
+
+    const loadFavoriteEmployees = useCallback(() => {
+        if (!apiToken) return;
+        getFavorites(apiToken, { entityType: 'employee' })
+            .then((list) => setFavoriteEmployeeIds(list.map((f) => f.entityId)))
+            .catch(() => setFavoriteEmployeeIds([]));
+    }, [apiToken]);
+
+    useFocusEffect(
+        useCallback(() => {
+            loadFavoriteEmployees();
+        }, [loadFavoriteEmployees])
+    );
 
     const newBarbers = employees
         .filter(isEmployeeNew)
@@ -111,6 +130,13 @@ const ExperienceScreen = () => {
         () => shuffleArray(employees),
         [employees]
     );
+
+    const favoriteBarbers = useMemo(
+        () => employees.filter((emp) => favoriteEmployeeIds.includes(emp.id)),
+        [employees, favoriteEmployeeIds]
+    );
+
+    const newBarbersInfoSheetRef = useRef<ActionSheetRef>(null);
 
     const sections = [
                         {
@@ -263,6 +289,7 @@ const ExperienceScreen = () => {
                     ];
 
     return (
+            <>
             <ThemeScroller
                 onScroll={Animated.event(
                     [{ nativeEvent: { contentOffset: { y: scrollY } } }],
@@ -275,6 +302,7 @@ const ExperienceScreen = () => {
                         .filter((section) => {
                             if (section.title === 'New barbers') return newBarbers.length > 0 || employeesLoading;
                             if (section.title === 'Popular barbers available today') return barbersAvailableToday.length > 0 || employeesLoading;
+                            if (section.title === 'My favorite barbers') return favoriteBarbers.length > 0 || employeesLoading;
                             return true;
                         })
                         .map((section, index) => (
@@ -282,6 +310,11 @@ const ExperienceScreen = () => {
                             key={`barbers-section-${index}`}
                             title={section.title}
                             titleSize="lg"
+                            titleTrailing={section.title === 'New barbers' ? (
+                                <Pressable onPress={() => newBarbersInfoSheetRef.current?.show()} hitSlop={8} className="p-1">
+                                    <Icon name="Info" size={18} className="text-light-subtext dark:text-dark-subtext" />
+                                </Pressable>
+                            ) : undefined}
                             link={section.title === 'All barbers' || section.title === 'New barbers' || section.title === 'Popular barbers available today' ? undefined : '/screens/map'}
                             linkText={section.title === 'All barbers' || section.title === 'New barbers' || section.title === 'Popular barbers available today' ? undefined : 'View all'}
                         >
@@ -346,7 +379,26 @@ const ExperienceScreen = () => {
                                                 hasFavorite
                                                 favoriteEntityType="employee"
                                                 favoriteEntityId={emp.id}
-                                                rating={4.5}
+                                                href={`/screens/barber-detail?id=${emp.id}`}
+                                                price=""
+                                                width={160}
+                                                imageHeight={160}
+                                                image={emp.avatarUrl ?? require('@/assets/img/room-1.avif')}
+                                            />
+                                        ))}
+                                    </>
+                                ) : section.title === 'My favorite barbers' ? (
+                                    <>
+                                        {employeesLoading && <ThemedText className="py-4 text-light-subtext dark:text-dark-subtext">Loading…</ThemedText>}
+                                        {employeesError && <ThemedText className="py-4 text-red-500 dark:text-red-400">{employeesError}</ThemedText>}
+                                        {!employeesLoading && !employeesError && favoriteBarbers.map((emp) => (
+                                            <Card
+                                                key={emp.id}
+                                                title={emp.name}
+                                                rounded="2xl"
+                                                hasFavorite
+                                                favoriteEntityType="employee"
+                                                favoriteEntityId={emp.id}
                                                 href={`/screens/barber-detail?id=${emp.id}`}
                                                 price=""
                                                 width={160}
@@ -379,6 +431,18 @@ const ExperienceScreen = () => {
                 </AnimatedView>
             </ThemeScroller>
 
+            <ActionSheetThemed ref={newBarbersInfoSheetRef} gestureEnabled>
+                <View className="p-4 pb-8">
+                    <ThemedText className="text-lg font-semibold mb-3">New barbers</ThemedText>
+                    <ThemedText className="text-base text-light-subtext dark:text-dark-subtext leading-6">
+                        Here you’ll find colleagues who have recently joined our team. They appear in this section for 30 days after their profile is added, so you can get to know the newest members.
+                    </ThemedText>
+                    <ThemedText className="text-base text-light-subtext dark:text-dark-subtext leading-6 mt-3">
+                        “New” simply means they’re new with us—not necessarily new to the profession. Many are experienced barbers who have just joined our company.
+                    </ThemedText>
+                </View>
+            </ActionSheetThemed>
+            </>
     );
 }
 

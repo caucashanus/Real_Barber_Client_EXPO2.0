@@ -80,7 +80,6 @@ const ServicesScreen = () => {
                   key={item.id}
                   title={item.name}
                   rounded="2xl"
-                  description={`${haircuts.length} available`}
                   hasFavorite
                   favoriteEntityType="item"
                   favoriteEntityId={item.id}
