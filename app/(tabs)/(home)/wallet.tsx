@@ -167,7 +167,7 @@ const WalletScreen = () => {
             <ThemedText className="text-3xl font-bold text-white mt-1 text-center">{formatBalance(displayAmount)} {MOCK_CURRENCY}</ThemedText>
           )}
           <View className="items-center mt-4">
-            <Button title="More" variant="outline" size="small" className="rounded-full px-6 bg-white/10 border-white/30" textClassName="text-white" />
+            <Button title="More" variant="outline" size="small" className="rounded-full px-6 bg-white/10 border-white/30" textClassName="text-white" href="/screens/rbc" />
           </View>
         </View>
 
@@ -191,7 +191,7 @@ const WalletScreen = () => {
             </View>
             <ThemedText className="text-xs mt-2 text-light-text dark:text-dark-text">Details</ThemedText>
           </Pressable>
-          <Pressable className="items-center">
+          <Pressable className="items-center" onPress={() => router.push('/screens/rbc')}>
             <View className="w-14 h-14 rounded-full bg-white dark:bg-dark-primary items-center justify-center">
               <Icon name="MoreVertical" size={22} color={colors.text} />
             </View>
