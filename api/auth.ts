@@ -49,6 +49,21 @@ export async function loginWithPhone(
   return res.json() as Promise<LoginResponse>;
 }
 
+/** POST /api/client/auth/forgot-password – request password reset (identifier = email or phone). */
+export async function forgotPassword(identifier: string): Promise<void> {
+  const res = await fetch(`${CRM_BASE}/api/client/auth/forgot-password`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ identifier: identifier.trim() }),
+  });
+  if (!res.ok) {
+    const errBody = await res.text();
+    if (res.status === 400) throw new Error('Zadejte email nebo telefonní číslo');
+    if (res.status === 429) throw new Error('Příliš mnoho požadavků. Zkuste to později.');
+    throw new Error(errBody || `Chyba ${res.status}`);
+  }
+}
+
 /** POST /api/client/change-password – change authenticated client password. */
 export async function changePassword(
   apiToken: string,

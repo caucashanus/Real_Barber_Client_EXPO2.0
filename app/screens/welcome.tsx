@@ -31,24 +31,11 @@ export default function OnboardingScreen() {
                         <ThemedText className='text-4xl font-bold'>Welcome back</ThemedText>
                         <ThemedText className='text-base text-light-subtext dark:text-dark-subtext'>Sign in to your account to continue</ThemedText>
                     </View>
-                    <Pressable onPress={() => router.push('/screens/signup')} className='w-full  border border-black dark:border-white rounded-2xl flex flex-row items-center justify-center py-4'>
-                        <View className='absolute left-4 top-4.5'>
-                            <Icon name="Mail" size={20} color={colors.text} />
-                        </View>
-                        <ThemedText className='text-base font-medium pr-2'>Continue with Email</ThemedText>
-                    </Pressable>
-                    <Pressable onPress={() => router.push('/screens/login?mode=phone')} className='w-full border border-black dark:border-white rounded-2xl flex flex-row items-center justify-center py-4'>
+                    <Pressable onPress={() => router.push('/screens/login')} className='w-full border border-black dark:border-white rounded-2xl flex flex-row items-center justify-center py-4'>
                         <View className='absolute left-4 top-4.5'>
                             <Icon name="Phone" size={20} color={colors.text} />
                         </View>
                         <ThemedText className='text-base font-medium pr-2'>Pomocí tel. čísla</ThemedText>
-                    </Pressable>
-                    <Pressable onPress={() => router.push('/(tabs)/(home)')} className='w-full border border-black dark:border-white rounded-2xl flex flex-row items-center justify-center py-4'>
-                        <View className='absolute left-4 top-4.5'>
-                            <Icon name="Facebook" size={22} color={colors.text} />
-                        </View>
-                        <ThemedText className='text-base font-medium pr-2'>Continue with Facebook</ThemedText>
-
                     </Pressable>
                     <Pressable onPress={() => router.push('/(tabs)/(home)')} className='w-full border border-black dark:border-white rounded-2xl flex flex-row items-center justify-center py-4'>
                         <View className='absolute left-4 top-4.5'>

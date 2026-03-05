@@ -1,0 +1,58 @@
+/** Country code options for phone inputs (login, forgot password, etc.) */
+export const COUNTRY_CODE_OPTIONS = [
+  { value: '+420', label: '🇨🇿 +420' },
+  { value: '+421', label: '🇸🇰 +421' },
+  { value: '+48', label: '🇵🇱 +48' },
+  { value: '+49', label: '🇩🇪 +49' },
+  { value: '+43', label: '🇦🇹 +43' },
+  { value: '+33', label: '🇫🇷 +33' },
+  { value: '+39', label: '🇮🇹 +39' },
+  { value: '+34', label: '🇪🇸 +34' },
+  { value: '+31', label: '🇳🇱 +31' },
+  { value: '+32', label: '🇧🇪 +32' },
+  { value: '+41', label: '🇨🇭 +41' },
+  { value: '+44', label: '🇬🇧 +44' },
+  { value: '+36', label: '🇭🇺 +36' },
+  { value: '+30', label: '🇬🇷 +30' },
+  { value: '+351', label: '🇵🇹 +351' },
+  { value: '+353', label: '🇮🇪 +353' },
+  { value: '+45', label: '🇩🇰 +45' },
+  { value: '+46', label: '🇸🇪 +46' },
+  { value: '+47', label: '🇳🇴 +47' },
+  { value: '+358', label: '🇫🇮 +358' },
+  { value: '+7', label: '🇷🇺 +7' },
+  { value: '+380', label: '🇺🇦 +380' },
+  { value: '+1', label: '🇺🇸 +1' },
+  { value: '+52', label: '🇲🇽 +52' },
+  { value: '+55', label: '🇧🇷 +55' },
+  { value: '+54', label: '🇦🇷 +54' },
+  { value: '+56', label: '🇨🇱 +56' },
+  { value: '+57', label: '🇨🇴 +57' },
+  { value: '+58', label: '🇻🇪 +58' },
+  { value: '+51', label: '🇵🇪 +51' },
+  { value: '+90', label: '🇹🇷 +90' },
+  { value: '+972', label: '🇮🇱 +972' },
+  { value: '+971', label: '🇦🇪 +971' },
+  { value: '+20', label: '🇪🇬 +20' },
+  { value: '+27', label: '🇿🇦 +27' },
+  { value: '+91', label: '🇮🇳 +91' },
+  { value: '+86', label: '🇨🇳 +86' },
+  { value: '+81', label: '🇯🇵 +81' },
+  { value: '+82', label: '🇰🇷 +82' },
+  { value: '+60', label: '🇲🇾 +60' },
+  { value: '+65', label: '🇸🇬 +65' },
+  { value: '+66', label: '🇹🇭 +66' },
+  { value: '+84', label: '🇻🇳 +84' },
+  { value: '+61', label: '🇦🇺 +61' },
+  { value: '+64', label: '🇳🇿 +64' },
+  { value: '+234', label: '🇳🇬 +234' },
+  { value: '+254', label: '🇰🇪 +254' },
+  { value: '+212', label: '🇲🇦 +212' },
+];
+
+export function formatPhoneDisplay(text: string): string {
+  const cleaned = text.replace(/\D/g, '');
+  const match = cleaned.match(/^(\d{0,3})(\d{0,3})(\d{0,3})$/);
+  if (match) return [match[1], match[2], match[3]].filter(Boolean).join(' ');
+  return text;
+}
