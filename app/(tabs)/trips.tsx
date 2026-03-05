@@ -14,9 +14,10 @@ import { getClientOverview, type ClientOverviewReservation } from '@/api/reviews
 import { Chip } from '@/components/Chip';
 import { CardScroller } from '@/components/CardScroller';
 import ShowRating from '@/components/ShowRating';
+import LiveIndicator from '@/components/LiveIndicator';
 import { useRouter } from 'expo-router';
 
-type BookingFilter = 'all' | 'upcoming' | 'past' | 'cancelled' | 'rated' | 'pending_review';
+type BookingFilter = 'all' | 'current' | 'upcoming' | 'past' | 'cancelled' | 'rated' | 'pending_review';
 
 function formatBookingDate(b: Booking): string {
   const d = new Date(b.date);
@@ -54,40 +55,6 @@ function getBookingEndDate(booking: Booking): Date {
   );
 }
 
-function isBookingPast(booking: Booking): boolean {
-  const status = (booking.status ?? '').toLowerCase();
-  if (status === 'cancelled' || status === 'canceled') return false;
-  return getBookingEndDate(booking).getTime() < Date.now();
-}
-
-function countByFilter(
-  bookings: Booking[],
-  bookingReviewMap: Record<string, number>
-): { upcoming: number; past: number; cancelled: number; rated: number; pendingReview: number } {
-  const now = Date.now();
-  let upcoming = 0;
-  let past = 0;
-  let cancelled = 0;
-  let rated = 0;
-  let pendingReview = 0;
-  for (const b of bookings) {
-    const status = (b.status ?? '').toLowerCase();
-    if (status === 'cancelled' || status === 'canceled') {
-      cancelled += 1;
-    } else if (getBookingEndDate(b).getTime() > now) {
-      upcoming += 1;
-    } else {
-      past += 1;
-      if (bookingReviewMap[b.id] != null) {
-        rated += 1;
-      } else {
-        pendingReview += 1;
-      }
-    }
-  }
-  return { upcoming, past, cancelled, rated, pendingReview };
-}
-
 function getTargetDate(booking: Booking): Date {
   const dateStr = (booking.date || '').slice(0, 10);
   const [y, m, d] = dateStr.split('-').map(Number);
@@ -103,6 +70,62 @@ function getTargetDate(booking: Booking): Date {
     0,
     0
   );
+}
+
+function isBookingPast(booking: Booking): boolean {
+  const status = (booking.status ?? '').toLowerCase();
+  if (status === 'cancelled' || status === 'canceled') return false;
+  return getBookingEndDate(booking).getTime() < Date.now();
+}
+
+function isBookingCurrent(booking: Booking): boolean {
+  const status = (booking.status ?? '').toLowerCase();
+  if (status === 'cancelled' || status === 'canceled') return false;
+  const now = Date.now();
+  const start = getTargetDate(booking).getTime();
+  const end = getBookingEndDate(booking).getTime();
+  return start <= now && end >= now;
+}
+
+function isBookingUpcoming(booking: Booking): boolean {
+  const status = (booking.status ?? '').toLowerCase();
+  if (status === 'cancelled' || status === 'canceled') return false;
+  return getTargetDate(booking).getTime() > Date.now();
+}
+
+function countByFilter(
+  bookings: Booking[],
+  bookingReviewMap: Record<string, number>
+): { current: number; upcoming: number; past: number; cancelled: number; rated: number; pendingReview: number } {
+  const now = Date.now();
+  let current = 0;
+  let upcoming = 0;
+  let past = 0;
+  let cancelled = 0;
+  let rated = 0;
+  let pendingReview = 0;
+  for (const b of bookings) {
+    const status = (b.status ?? '').toLowerCase();
+    if (status === 'cancelled' || status === 'canceled') {
+      cancelled += 1;
+    } else {
+      const start = getTargetDate(b).getTime();
+      const end = getBookingEndDate(b).getTime();
+      if (start <= now && end >= now) {
+        current += 1;
+      } else if (start > now) {
+        upcoming += 1;
+      } else {
+        past += 1;
+        if (bookingReviewMap[b.id] != null) {
+          rated += 1;
+        } else {
+          pendingReview += 1;
+        }
+      }
+    }
+  }
+  return { current, upcoming, past, cancelled, rated, pendingReview };
 }
 
 type CountdownParts =
@@ -206,9 +229,11 @@ const TripsScreen = () => {
   const filteredBookings =
     selectedFilter === 'all'
       ? bookings
-      : selectedFilter === 'upcoming'
-        ? bookings.filter((b) => !isBookingPast(b))
-        : selectedFilter === 'past'
+      : selectedFilter === 'current'
+        ? bookings.filter((b) => isBookingCurrent(b))
+        : selectedFilter === 'upcoming'
+          ? bookings.filter((b) => isBookingUpcoming(b))
+          : selectedFilter === 'past'
           ? bookings.filter((b) => isBookingPast(b))
           : selectedFilter === 'cancelled'
             ? bookings.filter((b) => {
@@ -302,6 +327,15 @@ const TripsScreen = () => {
             scrollEventThrottle={scrollEventThrottle}
           >
             <CardScroller className="mb-4">
+              {counts.current > 0 && (
+                <Chip
+                  size="lg"
+                  label={`Current (${counts.current})`}
+                  selectable
+                  isSelected={selectedFilter === 'current'}
+                  onPress={() => setSelectedFilter('current')}
+                />
+              )}
               <Chip
                 size="lg"
                 label="All"
@@ -309,13 +343,15 @@ const TripsScreen = () => {
                 isSelected={selectedFilter === 'all'}
                 onPress={() => setSelectedFilter('all')}
               />
-              <Chip
-                size="lg"
-                label={`Upcoming (${counts.upcoming})`}
-                selectable
-                isSelected={selectedFilter === 'upcoming'}
-                onPress={() => setSelectedFilter('upcoming')}
-              />
+              {counts.upcoming > 0 && (
+                <Chip
+                  size="lg"
+                  label={`Upcoming (${counts.upcoming})`}
+                  selectable
+                  isSelected={selectedFilter === 'upcoming'}
+                  onPress={() => setSelectedFilter('upcoming')}
+                />
+              )}
               <Chip
                 size="lg"
                 label="Past"
@@ -401,6 +437,7 @@ const BookingCard = (props: {
     : require('@/assets/img/room-1.avif');
   const title = booking.item?.name ?? 'Booking';
   const isPast = isPastAndNotCancelled(booking);
+  const isCurrent = isBookingCurrent(booking);
   const hasReview = reviewRating != null && reviewRating >= 1;
 
   return (
@@ -436,6 +473,10 @@ const BookingCard = (props: {
               className="bg-light-secondary dark:bg-dark-secondary"
             />
           )}
+        </View>
+      ) : isCurrent ? (
+        <View className="pr-2 justify-center items-center">
+          <LiveIndicator />
         </View>
       ) : (
         <View className="pr-2">

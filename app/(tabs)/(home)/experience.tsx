@@ -1,5 +1,5 @@
 import ThemeScroller from '@/components/ThemeScroller';
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useContext, useEffect, useMemo, useState } from 'react';
 import { View, Animated } from 'react-native';
 import Section from '@/components/layout/Section';
 import { CardScroller } from '@/components/CardScroller';
@@ -9,6 +9,76 @@ import ThemedText from '@/components/ThemedText';
 import { ScrollContext } from './_layout';
 import { useAuth } from '@/app/contexts/AuthContext';
 import { getEmployees, type Employee } from '@/api/employees';
+import LiveIndicator from '@/components/LiveIndicator';
+
+const NEW_BARBERS_DAYS = 30;
+
+/** API uses Cyrillic day names: Sun, Mon, Tue, Wed, Thu, Fri, Sat */
+const WEEKDAY_API_KEYS = [
+    'Воскресенье',  // 0 Sunday
+    'Понедельник',  // 1 Monday
+    'Вторник',      // 2 Tuesday
+    'Среда',        // 3 Wednesday
+    'Четверг',     // 4 Thursday
+    'Пятница',     // 5 Friday
+    'Суббота',      // 6 Saturday
+];
+
+function isEmployeeNew(emp: Employee): boolean {
+    const createdAt = emp.createdAt;
+    if (!createdAt || typeof createdAt !== 'string') return false;
+    const created = new Date(createdAt).getTime();
+    if (!Number.isFinite(created)) return false;
+    const now = Date.now();
+    const limitMs = NEW_BARBERS_DAYS * 24 * 60 * 60 * 1000;
+    return now - created <= limitMs;
+}
+
+function hasShiftToday(emp: Employee): boolean {
+    const ws = emp.workSchedule as { weeklySchedule?: Record<string, Array<{ validFrom?: string; validUntil?: string }>> } | undefined;
+    const weekly = ws?.weeklySchedule;
+    if (!weekly || typeof weekly !== 'object') return false;
+    const dayIndex = new Date().getDay();
+    const dayKey = WEEKDAY_API_KEYS[dayIndex];
+    const slots = weekly[dayKey];
+    if (!Array.isArray(slots) || slots.length === 0) return false;
+    const today = new Date();
+    const todayStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+    for (const slot of slots) {
+        const from = slot.validFrom ? slot.validFrom.slice(0, 10) : '';
+        const until = slot.validUntil ? slot.validUntil.slice(0, 10) : '';
+        if (from && until && todayStr >= from && todayStr <= until) return true;
+    }
+    return false;
+}
+
+function shuffleArray<T>(arr: T[]): T[] {
+    const out = [...arr];
+    for (let i = out.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [out[i], out[j]] = [out[j], out[i]];
+    }
+    return out;
+}
+
+function hasShiftTomorrow(emp: Employee): boolean {
+    const ws = emp.workSchedule as { weeklySchedule?: Record<string, Array<{ validFrom?: string; validUntil?: string }>> } | undefined;
+    const weekly = ws?.weeklySchedule;
+    if (!weekly || typeof weekly !== 'object') return false;
+    const tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    const dayIndex = tomorrow.getDay();
+    const dayKey = WEEKDAY_API_KEYS[dayIndex];
+    const slots = weekly[dayKey];
+    if (!Array.isArray(slots) || slots.length === 0) return false;
+    const tomorrowStr = `${tomorrow.getFullYear()}-${String(tomorrow.getMonth() + 1).padStart(2, '0')}-${String(tomorrow.getDate()).padStart(2, '0')}`;
+    for (const slot of slots) {
+        const from = slot.validFrom ? slot.validFrom.slice(0, 10) : '';
+        const until = slot.validUntil ? slot.validUntil.slice(0, 10) : '';
+        if (from && until && tomorrowStr >= from && tomorrowStr <= until) return true;
+    }
+    return false;
+}
 
 const ExperienceScreen = () => {
     const scrollY = useContext(ScrollContext);
@@ -26,6 +96,21 @@ const ExperienceScreen = () => {
             .catch((e) => setEmployeesError(e instanceof Error ? e.message : 'Failed to load'))
             .finally(() => setEmployeesLoading(false));
     }, [apiToken]);
+
+    const newBarbers = employees
+        .filter(isEmployeeNew)
+        .sort((a, b) => {
+            const ta = a.createdAt ? new Date(a.createdAt as string).getTime() : 0;
+            const tb = b.createdAt ? new Date(b.createdAt as string).getTime() : 0;
+            return tb - ta;
+        });
+
+    const barbersAvailableToday = employees.filter(hasShiftToday);
+
+    const allBarbersShuffled = useMemo(
+        () => shuffleArray(employees),
+        [employees]
+    );
 
     const sections = [
                         {
@@ -186,20 +271,74 @@ const ExperienceScreen = () => {
                 scrollEventThrottle={16}
             >
                 <AnimatedView animation="scaleIn" className='flex-1 mt-4'>
-                    {sections.map((section, index) => (
+                    {sections
+                        .filter((section) => {
+                            if (section.title === 'New barbers') return newBarbers.length > 0 || employeesLoading;
+                            if (section.title === 'Popular barbers available today') return barbersAvailableToday.length > 0 || employeesLoading;
+                            return true;
+                        })
+                        .map((section, index) => (
                         <Section
                             key={`barbers-section-${index}`}
                             title={section.title}
                             titleSize="lg"
-                            link={section.title === 'All barbers' ? undefined : '/screens/map'}
-                            linkText={section.title === 'All barbers' ? undefined : 'View all'}
+                            link={section.title === 'All barbers' || section.title === 'New barbers' || section.title === 'Popular barbers available today' ? undefined : '/screens/map'}
+                            linkText={section.title === 'All barbers' || section.title === 'New barbers' || section.title === 'Popular barbers available today' ? undefined : 'View all'}
                         >
                             <CardScroller space={15} className='mt-1.5 pb-4'>
-                                {section.title === 'All barbers' ? (
+                                {section.title === 'New barbers' ? (
                                     <>
                                         {employeesLoading && <ThemedText className="py-4 text-light-subtext dark:text-dark-subtext">Loading…</ThemedText>}
                                         {employeesError && <ThemedText className="py-4 text-red-500 dark:text-red-400">{employeesError}</ThemedText>}
-                                        {!employeesLoading && !employeesError && employees.map((emp) => (
+                                        {!employeesLoading && !employeesError && newBarbers.map((emp) => (
+                                            <Card
+                                                key={emp.id}
+                                                title={emp.name}
+                                                rounded="2xl"
+                                                hasFavorite
+                                                favoriteEntityType="employee"
+                                                favoriteEntityId={emp.id}
+                                                href={`/screens/barber-detail?id=${emp.id}`}
+                                                price=""
+                                                width={160}
+                                                imageHeight={160}
+                                                image={emp.avatarUrl ?? require('@/assets/img/room-1.avif')}
+                                                badge="New"
+                                            />
+                                        ))}
+                                    </>
+                                ) : section.title === 'Popular barbers available today' ? (
+                                    <>
+                                        {employeesLoading && <ThemedText className="py-4 text-light-subtext dark:text-dark-subtext">Loading…</ThemedText>}
+                                        {employeesError && <ThemedText className="py-4 text-red-500 dark:text-red-400">{employeesError}</ThemedText>}
+                                        {!employeesLoading && !employeesError && barbersAvailableToday.map((emp) => (
+                                            <Card
+                                                key={emp.id}
+                                                title={emp.name}
+                                                topLeftBadge={<LiveIndicator />}
+                                                titleTrailing={
+                                                    <View className="flex-row items-center justify-center gap-2 bg-light-secondary dark:bg-dark-secondary rounded-full px-1.5 py-0.5 min-h-[20px]">
+                                                        <ThemedText className="text-[10px] leading-none text-gray-500 dark:text-gray-300">Tomorrow</ThemedText>
+                                                        <LiveIndicator variant={hasShiftTomorrow(emp) ? 'green' : 'red'} size="sm" animated={false} />
+                                                    </View>
+                                                }
+                                                rounded="2xl"
+                                                hasFavorite
+                                                favoriteEntityType="employee"
+                                                favoriteEntityId={emp.id}
+                                                href={`/screens/barber-detail?id=${emp.id}`}
+                                                price=""
+                                                width={160}
+                                                imageHeight={160}
+                                                image={emp.avatarUrl ?? require('@/assets/img/room-1.avif')}
+                                            />
+                                        ))}
+                                    </>
+                                ) : section.title === 'All barbers' ? (
+                                    <>
+                                        {employeesLoading && <ThemedText className="py-4 text-light-subtext dark:text-dark-subtext">Loading…</ThemedText>}
+                                        {employeesError && <ThemedText className="py-4 text-red-500 dark:text-red-400">{employeesError}</ThemedText>}
+                                        {!employeesLoading && !employeesError && allBarbersShuffled.map((emp) => (
                                             <Card
                                                 key={emp.id}
                                                 title={emp.name}

@@ -443,7 +443,7 @@ export default function BarberDetailScreen() {
                         </View>
                         {isOwnReview && (
                           <View className="ml-2 px-2 py-1 rounded-md bg-highlight">
-                            <ThemedText className="text-xs font-medium text-white">Edit</ThemedText>
+                            <ThemedText className="text-xs font-medium text-white">Mine</ThemedText>
                           </View>
                         )}
                       </View>

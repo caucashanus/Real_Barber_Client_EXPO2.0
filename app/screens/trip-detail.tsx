@@ -82,6 +82,29 @@ function formatAppointment(b: Booking): { dateStr: string; fromTime: string; toT
   };
 }
 
+function getBookingEndDate(booking: Booking): Date {
+  const dateStr = (booking.date || '').slice(0, 10);
+  const [y, m, d] = dateStr.split('-').map(Number);
+  const parts = (booking.slotEnd || booking.slotStart || '00:00').trim().split(':');
+  const hh = Number(parts[0]);
+  const mm = Number(parts[1]);
+  return new Date(
+    Number.isFinite(y) ? y : 0,
+    Number.isFinite(m) ? m - 1 : 0,
+    Number.isFinite(d) ? d : 1,
+    Number.isFinite(hh) ? hh : 0,
+    Number.isFinite(mm) ? mm : 0,
+    0,
+    0
+  );
+}
+
+function isBookingPast(booking: Booking): boolean {
+  const status = (booking.status ?? '').toLowerCase();
+  if (status === 'cancelled' || status === 'canceled') return false;
+  return getBookingEndDate(booking).getTime() < Date.now();
+}
+
 const BookingDetailScreen = () => {
   const { id } = useLocalSearchParams<{ id: string }>();
   const { apiToken } = useAuth();
@@ -145,12 +168,10 @@ const BookingDetailScreen = () => {
 
   const appointment = formatAppointment(booking);
   const location = booking.branch?.address ?? booking.branch?.name ?? '—';
-  const todayStart = new Date();
-  todayStart.setHours(0, 0, 0, 0);
   const status = (booking.status ?? '').toLowerCase();
   const isCancelled = status === 'cancelled' || status === 'canceled';
-  const isUpcoming =
-    !isCancelled && new Date(booking.date).getTime() >= todayStart.getTime();
+  const isPast = isBookingPast(booking);
+  const isUpcoming = !isCancelled && !isPast;
   const carouselImages =
     branch != null
       ? branchImages(branch)
@@ -346,8 +367,8 @@ const BookingDetailScreen = () => {
       </ThemedScroller>
 
       <ThemedFooter>
-        <View className="flex-row space-x-3">
-          {!isUpcoming && !isCancelled && (
+        <View className="flex-row gap-3">
+          {isPast && (
             <Button
               title="Review"
               variant="outline"

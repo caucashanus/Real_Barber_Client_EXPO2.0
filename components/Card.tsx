@@ -37,6 +37,12 @@ interface CardProps {
     overlayGradient?: readonly [string, string];
     width?: any;
     rounded?: 'none' | 'sm' | 'md' | 'lg' | 'xl' | '2xl' | 'full';
+    /** Renders to the right of the title (e.g. live indicator) */
+    titleTrailing?: React.ReactNode;
+    /** Renders in top-left corner over image (same position as badge "New") */
+    topLeftBadge?: React.ReactNode;
+    /** Custom content for the pill under title (replaces price/rating/badgeSecondary when set) */
+    pillContent?: React.ReactNode;
     children?: React.ReactNode;
     style?: ViewStyle;
 }
@@ -65,6 +71,9 @@ const Card: React.FC<CardProps> = ({
     overlayGradient = ['transparent', 'rgba(0,0,0,0.3)'] as readonly [string, string],
     rounded = 'lg',
     width = '100%',
+    titleTrailing,
+    topLeftBadge,
+    pillContent,
     children,
     style,
     ...props
@@ -179,33 +188,47 @@ const Card: React.FC<CardProps> = ({
                         </View>
                     )}
                     {renderBadge()}
+                    {topLeftBadge != null ? (
+                        <View className="absolute top-2 left-2 z-10">
+                            {topLeftBadge}
+                        </View>
+                    ) : null}
                 </View>
 
                 {variant !== 'overlay' && (
                     <View className="py-2 w-full flex-1 ">
-
-
-                        <ThemedText className="text-sm font-medium">{title}</ThemedText>
+                        <View className="flex-row items-center justify-between gap-2">
+                            <ThemedText className="text-sm font-medium flex-1" numberOfLines={1}>{title}</ThemedText>
+                            {titleTrailing}
+                        </View>
 
                         {description && (
                             <ThemedText numberOfLines={1} className="text-xs mb-px text-gray-500 dark:text-gray-300">
                                 {description}
                             </ThemedText>
                         )}
-                        {(price || rating || badgeSecondary) && (
+                        {(price || rating || badgeSecondary || pillContent) && (
                             <View className="flex-row items-center mt-1 flex-wrap gap-1">
-                                {(price || rating) && (
-                                    <View className="flex-row items-center bg-light-secondary dark:bg-dark-secondary rounded-full px-2 py-1">
-                                        {renderPrice()}
-                                        <View className='mx-1' />
-                                        {renderRating()}
+                                {pillContent ? (
+                                    <View className="flex-row items-center bg-light-secondary dark:bg-dark-secondary rounded-full px-1.5 py-0.5 gap-1">
+                                        {pillContent}
                                     </View>
+                                ) : (
+                                    <>
+                                        {(price || rating) && (
+                                            <View className="flex-row items-center bg-light-secondary dark:bg-dark-secondary rounded-full px-2 py-1">
+                                                {renderPrice()}
+                                                <View className='mx-1' />
+                                                {renderRating()}
+                                            </View>
+                                        )}
+                                        {badgeSecondary ? (
+                                            <View className="bg-light-secondary dark:bg-dark-secondary rounded-full px-2 py-1">
+                                                <ThemedText className="text-xs text-gray-500 dark:text-gray-300">{badgeSecondary}</ThemedText>
+                                            </View>
+                                        ) : null}
+                                    </>
                                 )}
-                                {badgeSecondary ? (
-                                    <View className="bg-light-secondary dark:bg-dark-secondary rounded-full px-2 py-1">
-                                        <ThemedText className="text-xs text-gray-500 dark:text-gray-300">{badgeSecondary}</ThemedText>
-                                    </View>
-                                ) : null}
                             </View>
                         )}
                         
