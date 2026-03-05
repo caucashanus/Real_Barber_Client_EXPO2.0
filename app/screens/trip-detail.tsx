@@ -353,7 +353,7 @@ const BookingDetailScreen = () => {
               variant="outline"
               iconStart="Star"
               className="flex-1"
-              href="/screens/review"
+              href={`/screens/review?entityType=reservation&entityId=${encodeURIComponent(booking.id)}&entityName=${encodeURIComponent(booking.item?.name ?? booking.branch?.name ?? 'Booking')}`}
             />
           )}
           {isUpcoming && (

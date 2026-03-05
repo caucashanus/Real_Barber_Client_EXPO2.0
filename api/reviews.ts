@@ -1,5 +1,36 @@
 const CRM_BASE = 'https://crm.xrb.cz';
 
+/** Reservation/product from client overview with optional reviews. */
+export interface ClientOverviewReservation {
+  id: string;
+  reviews?: Array<{ id: string; rating: number; [key: string]: unknown }>;
+  [key: string]: unknown;
+}
+
+export interface ClientOverviewResponse {
+  data?: {
+    reservations?: {
+      withReviews?: ClientOverviewReservation[];
+      withoutReviews?: ClientOverviewReservation[];
+    };
+    products?: {
+      withReviews?: unknown[];
+      withoutReviews?: unknown[];
+    };
+  };
+}
+
+/** GET /api/client/overview – reservations/products with and without reviews (for Rated / Pending review). */
+export async function getClientOverview(apiToken: string): Promise<ClientOverviewResponse> {
+  const res = await fetch(`${CRM_BASE}/api/client/overview`, {
+    method: 'GET',
+    headers: { Authorization: `Bearer ${apiToken}` },
+  });
+  if (res.status === 401) throw new Error('Unauthorized');
+  if (!res.ok) throw new Error(`Error ${res.status}`);
+  return res.json() as Promise<ClientOverviewResponse>;
+}
+
 export interface EntityReviewClient {
   id: string;
   name: string;

@@ -4,6 +4,7 @@ import { Link } from 'expo-router';
 import Icon, { IconName } from './Icon';
 import useThemeColors from '@/app/contexts/ThemeColors';
 type ChipSize = 'xs' | 'sm' | 'md' | 'lg' | 'xl' | 'xxl';
+type ChipRounded = 'full' | 'xl' | 'lg' | 'md';
 
 interface ChipProps {
   label: string;
@@ -11,6 +12,7 @@ interface ChipProps {
   className?: string;
   style?: ViewStyle;
   size?: ChipSize;
+  rounded?: ChipRounded;
   href?: string;
   onPress?: () => void;
   icon?: IconName; // Correct icon type
@@ -22,12 +24,20 @@ interface ChipProps {
   selectable?: boolean; // New property for selectable chips
 }
 
+const roundedClasses: Record<ChipRounded, string> = {
+  full: 'rounded-full',
+  xl: 'rounded-xl',
+  lg: 'rounded-lg',
+  md: 'rounded-md',
+};
+
 export const Chip = ({
   label,
   isSelected,
   className,
   style,
   size = 'md',
+  rounded = 'full',
   href,
   onPress,
   icon,
@@ -128,7 +138,7 @@ export const Chip = ({
       style={style}
     >
       <View
-        className={`${paddingClasses} rounded-full ${isChipSelected ? 'bg-highlight' : 'bg-light-secondary dark:bg-dark-secondary'} flex-row items-center justify-center`}
+        className={`${paddingClasses} ${roundedClasses[rounded]} ${isChipSelected ? 'bg-highlight' : 'bg-light-secondary dark:bg-dark-secondary'} flex-row items-center justify-center`}
       >
         {children}
       </View>
