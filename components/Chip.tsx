@@ -59,18 +59,18 @@ export const Chip = ({
     return imageSize || sizes[size];
   };
 
-  // Handle selectable chips - if selectable is true and no onPress is provided, create a toggle handler
-  const [selected, setSelected] = React.useState(isSelected || false);
+  // Handle selectable chips - support controlled (isSelected provided) or uncontrolled
+  const [selected, setSelected] = React.useState(isSelected ?? false);
+  const isControlled = selectable && isSelected !== undefined;
 
   const handlePress = () => {
-    if (selectable) {
+    if (selectable && !isControlled) {
       setSelected(!selected);
     }
-    onPress && onPress();
+    onPress?.();
   };
 
-  // Use either the controlled isSelected prop or internal selected state
-  const isChipSelected = selectable ? selected : isSelected;
+  const isChipSelected = selectable ? (isControlled ? isSelected : selected) : isSelected;
   const colors = useThemeColors();
   // Render left content (icon, image, or custom content)
   const renderLeftContent = () => {

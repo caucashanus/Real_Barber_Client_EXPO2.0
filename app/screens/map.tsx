@@ -1,4 +1,4 @@
-import React, { useRef, useEffect, useState } from 'react';
+import React, { useRef, useEffect, useState, useMemo } from 'react';
 import { View, Text, Image, Pressable, Dimensions, TouchableOpacity, ActivityIndicator } from 'react-native';
 import MapView, { MapStyleElement, Marker } from 'react-native-maps';
 import useThemeColors from '@/app/contexts/ThemeColors';
@@ -19,7 +19,10 @@ import SearchBar from '@/components/SearchBar';
 import PriceMarker from '@/components/PriceMarker';
 import { router } from 'expo-router';
 import { useAuth } from '@/app/contexts/AuthContext';
+import { useBranchFilter } from '@/app/contexts/BranchFilterContext';
 import { getBranches, type Branch, type BranchService } from '@/api/branches';
+import { BRANCH_FILTER_DATA } from '@/constants/branch-filter-data';
+import type { BranchFilterState } from '@/app/contexts/BranchFilterContext';
 
 type IconName = Exclude<keyof typeof LucideIcons, 'createLucideIcon' | 'default'>;
 
@@ -114,28 +117,58 @@ function branchToMapItem(branch: Branch, index: number): MapBranchItem {
   };
 }
 
+function passesFilter(branchTitle: string, filter: BranchFilterState): boolean {
+  const data = BRANCH_FILTER_DATA[branchTitle];
+  if (!data) return true;
+  if (data.sizeM2 < filter.minSizeM2) return false;
+  if (filter.minChairs != null && data.chairs < filter.minChairs) return false;
+  if (filter.minWashBasins != null && data.washBasins < filter.minWashBasins) return false;
+  const a = filter.amenities;
+  if (a.cardPayment && !data.amenities.cardPayment) return false;
+  if (a.coffeeMachine && !data.amenities.coffeeMachine) return false;
+  if (a.selfServiceCheckout && !data.amenities.selfServiceCheckout) return false;
+  if (a.within100mMetro && !data.amenities.within100mMetro) return false;
+  if (a.within100mTram && !data.amenities.within100mTram) return false;
+  if (a.within100mBus && !data.amenities.within100mBus) return false;
+  if (a.airConditioning && !data.amenities.airConditioning) return false;
+  if (a.wifi && !data.amenities.wifi) return false;
+  if (a.parking && !data.amenities.parking) return false;
+  const o = filter.options;
+  if (o.wheelchairAccessible && !data.options.wheelchairAccessible) return false;
+  if (o.airCompressors && !data.options.airCompressors) return false;
+  if (o.electricallyAdjustableChairs && !data.options.electricallyAdjustableChairs) return false;
+  return true;
+}
+
+function applyBranchFilter(items: MapBranchItem[], filter: BranchFilterState): MapBranchItem[] {
+  return items.filter((item) => passesFilter(item.title, filter));
+}
+
 
 const MapScreen = () => {
     const colors = useThemeColors();
     const { apiToken } = useAuth();
+    const { filter } = useBranchFilter();
     const actionSheetRef = useRef<ActionSheetRef>(null);
     const mapRef = useRef<MapView>(null);
     const insets = useSafeAreaInsets();
-    const [branches, setBranches] = useState<MapBranchItem[]>([]);
+    const [allBranches, setAllBranches] = useState<MapBranchItem[]>([]);
     const [loading, setLoading] = useState(true);
     const [selectedMarkerId, setSelectedMarkerId] = useState<string | null>(null);
     const [currentSnapIndex, setCurrentSnapIndex] = useState(0);
 
+    const branches = useMemo(() => applyBranchFilter(allBranches, filter), [allBranches, filter]);
+
     useEffect(() => {
         if (!apiToken) {
-            setBranches([]);
+            setAllBranches([]);
             setLoading(false);
             return;
         }
         setLoading(true);
         getBranches(apiToken, { includeReviews: true, reviewsLimit: 1 })
-            .then((list) => setBranches(list.map((b, i) => branchToMapItem(b, i))))
-            .catch(() => setBranches([]))
+            .then((list) => setAllBranches(list.map((b, i) => branchToMapItem(b, i))))
+            .catch(() => setAllBranches([]))
             .finally(() => setLoading(false));
     }, [apiToken]);
 

@@ -10,6 +10,7 @@ import { BusinessModeProvider } from './contexts/BusinesModeContext';
 import { AuthProvider } from './contexts/AuthContext';
 import { TransferRecipientProvider } from './contexts/TransferRecipientContext';
 import { SelectedPurchaseProvider } from './contexts/SelectedPurchaseContext';
+import { BranchFilterProvider } from './contexts/BranchFilterContext';
 
 NativeWindStyleSheet.setOutput({
   default: 'native',
@@ -38,7 +39,9 @@ export default function RootLayout() {
           <AuthProvider>
             <TransferRecipientProvider>
               <SelectedPurchaseProvider>
-                <ThemedLayout />
+                <BranchFilterProvider>
+                  <ThemedLayout />
+                </BranchFilterProvider>
               </SelectedPurchaseProvider>
             </TransferRecipientProvider>
           </AuthProvider>
