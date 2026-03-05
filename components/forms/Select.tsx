@@ -1,5 +1,5 @@
 import React, { useRef, useState } from 'react';
-import { View, Text, TouchableOpacity, Pressable, Animated, Platform, ViewStyle } from 'react-native';
+import { View, Text, TouchableOpacity, Pressable, Animated, Platform, ViewStyle, ScrollView, Dimensions } from 'react-native';
 import ActionSheet, { ActionSheetRef } from 'react-native-actions-sheet';
 import useThemeColors from '@/app/contexts/ThemeColors';
 import Icon from '@/components/Icon';
@@ -150,7 +150,12 @@ const Select: React.FC<SelectProps> = ({
                 restSpeedThreshold: 0.01
             }}
         >
-            <View className="p-4">
+            <ScrollView
+                style={{ maxHeight: Dimensions.get('window').height * 0.6 }}
+                contentContainerStyle={{ padding: 16, paddingBottom: 24 }}
+                showsVerticalScrollIndicator={true}
+                keyboardShouldPersistTaps="handled"
+            >
                 {options.map((option) => (
                     <Pressable
                         key={option.value}
@@ -162,7 +167,7 @@ const Select: React.FC<SelectProps> = ({
                         </ThemedText>
                     </Pressable>
                 ))}
-            </View>
+            </ScrollView>
         </ActionSheet>
     );
 

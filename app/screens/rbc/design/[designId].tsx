@@ -1,5 +1,5 @@
-import React from 'react';
-import { View, StyleSheet, Dimensions, Alert } from 'react-native';
+import React, { useEffect, useRef } from 'react';
+import { View, StyleSheet, Dimensions, Alert, Animated } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { Image } from 'expo-image';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -13,16 +13,18 @@ import { cardDesigns, RBC_SELECTED_CARD_KEY, type CardDesign } from '@/constants
 import { useAuth } from '@/app/contexts/AuthContext';
 import RBLogo from '@/components/RBLogo';
 
-const CARD_WIDTH = 160;
-const CARD_HEIGHT = 260;
-const DETAIL_CARD_SCALE = 1.2;
-const DETAIL_CARD_W = CARD_WIDTH * DETAIL_CARD_SCALE;
-const DETAIL_CARD_H = CARD_HEIGHT * DETAIL_CARD_SCALE;
+const { width: SCREEN_WIDTH } = Dimensions.get('window');
+const CARD_ASPECT_RATIO = 1.625;
+const CARD_PADDING = 24;
+const CARD_WIDTH = SCREEN_WIDTH - CARD_PADDING * 2;
+const CARD_HEIGHT = CARD_WIDTH / CARD_ASPECT_RATIO;
 
 export default function CardDesignDetailScreen() {
   const router = useRouter();
   const { designId } = useLocalSearchParams<{ designId: string }>();
   const { client } = useAuth();
+  const cardScale = useRef(new Animated.Value(0)).current;
+  const cardOpacity = useRef(new Animated.Value(0)).current;
 
   const design = React.useMemo(
     () => (designId ? cardDesigns.find((d) => d.id === designId) : undefined),
@@ -32,6 +34,25 @@ export default function CardDesignDetailScreen() {
   const displayName = (client?.name?.trim() || 'CARDHOLDER').toUpperCase();
   const clientId = client?.id ?? '';
   const cardNumber = `${clientId.substring(0, 4) || '0000'} **** **** ${clientId.substring(Math.max(0, clientId.length - 4)) || '0000'}`;
+
+  useEffect(() => {
+    if (!design) return;
+    cardScale.setValue(0);
+    cardOpacity.setValue(0);
+    Animated.parallel([
+      Animated.timing(cardOpacity, {
+        toValue: 1,
+        duration: 280,
+        useNativeDriver: true,
+      }),
+      Animated.spring(cardScale, {
+        toValue: 1,
+        friction: 6,
+        tension: 80,
+        useNativeDriver: true,
+      }),
+    ]).start();
+  }, [design?.id]);
 
   const handleUseDesign = async () => {
     if (!design) return;
@@ -58,20 +79,13 @@ export default function CardDesignDetailScreen() {
   }
 
   const textColor = design.textColor;
-  const cardContainerStyle = {
-    width: DETAIL_CARD_W,
-    height: DETAIL_CARD_H,
-    borderRadius: 16,
-    overflow: 'hidden' as const,
-  };
-  const imageWrapperStyle = {
-    position: 'absolute' as const,
-    width: DETAIL_CARD_H,
-    height: DETAIL_CARD_W,
-    left: (DETAIL_CARD_W - DETAIL_CARD_H) / 2,
-    top: (DETAIL_CARD_H - DETAIL_CARD_W) / 2,
-    transform: [{ rotate: '90deg' }],
-    overflow: 'hidden' as const,
+  const cardSize = { width: CARD_WIDTH, height: CARD_HEIGHT };
+  const cardAnimatedStyle = {
+    opacity: cardOpacity,
+    transform: [
+      { translateY: cardScale.interpolate({ inputRange: [0, 1], outputRange: [50, 0] }) },
+      { scale: cardScale },
+    ],
   };
   const cardContentEl = (
     <View style={styles.cardContent}>
@@ -114,30 +128,30 @@ export default function CardDesignDetailScreen() {
           </View>
 
           <View style={styles.cardWrapper}>
-            {design.type === 'image' && typeof design.frontImage === 'number' ? (
-              <View style={[styles.card, cardContainerStyle]}>
-                <View style={imageWrapperStyle}>
+            <Animated.View style={cardAnimatedStyle}>
+              {design.type === 'image' && typeof design.frontImage === 'number' ? (
+                <View style={[styles.card, cardSize]}>
                   <Image
                     source={design.frontImage}
                     style={StyleSheet.absoluteFillObject}
                     contentFit="cover"
                   />
+                  <View style={styles.cardImageOverlay} />
+                  <View style={[StyleSheet.absoluteFillObject, styles.cardImageContentWrap]}>
+                    {cardContentEl}
+                  </View>
                 </View>
-                <View style={styles.cardImageOverlay} />
-                <View style={[StyleSheet.absoluteFillObject, styles.cardImageContentWrap]}>
+              ) : (
+                <LinearGradient
+                  colors={design.gradientColors ?? ['#667eea', '#764ba2']}
+                  start={design.gradientStart ?? { x: 0, y: 0 }}
+                  end={design.gradientEnd ?? { x: 1, y: 1 }}
+                  style={[styles.card, cardSize]}
+                >
                   {cardContentEl}
-                </View>
-              </View>
-            ) : (
-              <LinearGradient
-                colors={design.gradientColors ?? ['#667eea', '#764ba2']}
-                start={design.gradientStart ?? { x: 0, y: 0 }}
-                end={design.gradientEnd ?? { x: 1, y: 1 }}
-                style={[styles.card, cardContainerStyle]}
-              >
-                {cardContentEl}
-              </LinearGradient>
-            )}
+                </LinearGradient>
+              )}
+            </Animated.View>
           </View>
 
           <Button

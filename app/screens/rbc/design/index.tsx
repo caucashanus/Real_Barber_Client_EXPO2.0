@@ -17,8 +17,8 @@ import {
 import { useAuth } from '@/app/contexts/AuthContext';
 import RBLogo from '@/components/RBLogo';
 
-const CARD_WIDTH = 160;
-const CARD_HEIGHT = 260;
+const CARD_WIDTH = 152; // 160 - 5%
+const CARD_HEIGHT = 247; // 260 - 5%
 
 export default function CardDesignGalleryScreen() {
   const router = useRouter();
@@ -148,14 +148,16 @@ export default function CardDesignGalleryScreen() {
                   {title}
                 </ThemedText>
               </View>
-              <ScrollView
-                horizontal
-                showsHorizontalScrollIndicator={false}
-                contentContainerStyle={styles.cardsScrollContent}
-                style={styles.cardsScrollView}
-              >
-                {designs.map((d) => renderCardPreview(d))}
-              </ScrollView>
+              <View className="-mx-global">
+                <ScrollView
+                  horizontal
+                  showsHorizontalScrollIndicator={false}
+                  contentContainerStyle={styles.cardsScrollContent}
+                  style={styles.cardsScrollView}
+                >
+                  {designs.map((d) => renderCardPreview(d))}
+                </ScrollView>
+              </View>
             </View>
           ))}
         </View>
@@ -172,7 +174,8 @@ const styles = StyleSheet.create({
     marginVertical: 4,
   },
   cardsScrollContent: {
-    paddingHorizontal: 16,
+    paddingLeft: 12,
+    paddingRight: 24,
   },
   cardPreviewContainer: {
     width: CARD_WIDTH,
@@ -181,7 +184,7 @@ const styles = StyleSheet.create({
   cardPreview: {
     width: CARD_WIDTH,
     height: CARD_HEIGHT,
-    borderRadius: 16,
+    borderRadius: 12,
     overflow: 'hidden',
     borderWidth: 2,
     borderColor: 'transparent',

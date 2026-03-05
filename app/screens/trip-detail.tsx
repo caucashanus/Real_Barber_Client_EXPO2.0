@@ -25,6 +25,24 @@ const BRANCH_IMAGES: Record<string, number> = {
 
 const PLACEHOLDER_IMAGES = ['https://tinyurl.com/2yyfr9rc', 'https://tinyurl.com/2cmu4ns5'];
 
+// Mock data for Earnings breakdown & Payment method sections (copied from booking-detail)
+const mockPriceBreakdown = {
+  nightlyRate: '$300',
+  nights: 5,
+  subtotal: '$1,500',
+  cleaningFee: '$75',
+  serviceFee: '$125',
+  taxes: '$50',
+  total: '$1,750',
+};
+function formatPaymentMethodLabel(method: string | null | undefined): string {
+  if (!method) return '—';
+  return method
+    .split('_')
+    .map((part) => (part.toLowerCase() === 'rbc' ? 'RBC' : part.charAt(0).toUpperCase() + part.slice(1).toLowerCase()))
+    .join(' ');
+}
+
 function getBookingCarouselImages(branchName: string | undefined): (string | number)[] {
   const first = branchName && BRANCH_IMAGES[branchName] != null
     ? BRANCH_IMAGES[branchName]
@@ -197,22 +215,59 @@ const BookingDetailScreen = () => {
 
           <Divider className="mt-6 h-2 bg-light-secondary dark:bg-dark-darker" />
 
-          {booking.paymentMethod ? (
-            <>
-              <Section title="Payment information" titleSize="lg" className="px-global pt-4">
-                <View className="flex-row items-center mt-4">
-                  <Icon name="CreditCard" size={20} className="mr-3" />
-                  <View>
-                    <ThemedText className="font-medium capitalize">{booking.paymentMethod.replace(/_/g, ' ')}</ThemedText>
-                    <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext">
-                      {booking.price} Kč
-                    </ThemedText>
-                  </View>
-                </View>
-              </Section>
-              <Divider className="mt-6 h-2 bg-light-secondary dark:bg-dark-darker" />
-            </>
-          ) : null}
+          <Section title="Earnings breakdown" titleSize="lg" className="px-global pt-4">
+            <View className="mt-4 space-y-3">
+              <View className="flex-row justify-between">
+                <ThemedText className="text-light-subtext dark:text-dark-subtext">
+                  {mockPriceBreakdown.nightlyRate} x {mockPriceBreakdown.nights} nights
+                </ThemedText>
+                <ThemedText>{mockPriceBreakdown.subtotal}</ThemedText>
+              </View>
+
+              <View className="flex-row justify-between">
+                <ThemedText className="text-light-subtext dark:text-dark-subtext">Cleaning fee</ThemedText>
+                <ThemedText>{mockPriceBreakdown.cleaningFee}</ThemedText>
+              </View>
+
+              <View className="flex-row justify-between">
+                <ThemedText className="text-light-subtext dark:text-dark-subtext">Service fee (deducted)</ThemedText>
+                <ThemedText className="text-red-600 dark:text-red-400">-{mockPriceBreakdown.serviceFee}</ThemedText>
+              </View>
+
+              <View className="flex-row justify-between">
+                <ThemedText className="text-light-subtext dark:text-dark-subtext">Taxes</ThemedText>
+                <ThemedText>{mockPriceBreakdown.taxes}</ThemedText>
+              </View>
+
+              <Divider className="my-3" />
+
+              <View className="flex-row justify-between">
+                <ThemedText className="font-bold text-lg">Your earnings</ThemedText>
+                <ThemedText className="font-bold text-lg text-green-600 dark:text-green-400">
+                  ${(parseInt(mockPriceBreakdown.total.replace('$', '').replace(',', '')) -
+                    parseInt(mockPriceBreakdown.serviceFee.replace('$', ''))).toLocaleString()}
+                </ThemedText>
+              </View>
+            </View>
+          </Section>
+
+          <Divider className="mt-6 h-2 bg-light-secondary dark:bg-dark-darker" />
+
+          <Section title="Payment method" titleSize="lg" className="px-global pt-4">
+            <View className="flex-row items-center mt-4">
+              <Icon name="CreditCard" size={20} className="mr-3" />
+              <View>
+                <ThemedText className="font-medium">
+                  {formatPaymentMethodLabel(booking.paymentMethod)}
+                </ThemedText>
+                <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext">
+                  {booking.price} Kč
+                </ThemedText>
+              </View>
+            </View>
+          </Section>
+
+          <Divider className="mt-6 h-2 bg-light-secondary dark:bg-dark-darker" />
 
           <Section title="Location" titleSize="lg" className="px-global pt-4 pb-6">
             <View className="mt-4">

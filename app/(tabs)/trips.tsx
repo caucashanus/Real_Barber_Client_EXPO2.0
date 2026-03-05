@@ -20,7 +20,7 @@ function formatBookingDate(b: Booking): string {
 
 function groupBookingsByYear(bookings: Booking[]): Record<string, Booking[]> {
   const byYear: Record<string, Booking[]> = {};
-  const sorted = [...bookings].sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+  const sorted = [...bookings].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
   for (const b of sorted) {
     const year = String(new Date(b.date).getFullYear());
     if (!byYear[year]) byYear[year] = [];
@@ -43,7 +43,7 @@ const TripsScreen = () => {
     }
     setLoading(true);
     setError(null);
-    getBookings(apiToken, { limit: 50, upcoming: false })
+    getBookings(apiToken)
       .then((res) => setBookings(res.bookings))
       .catch((e) => setError(e instanceof Error ? e.message : 'Failed to load'))
       .finally(() => setLoading(false));
