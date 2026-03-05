@@ -1,6 +1,6 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState, useRef } from 'react';
 import { useFocusEffect } from '@react-navigation/native';
-import { View, Image, TouchableOpacity, ActivityIndicator } from 'react-native';
+import { View, Image, TouchableOpacity, ActivityIndicator, Animated } from 'react-native';
 import ThemedText from '@/components/ThemedText';
 import { Link } from 'expo-router';
 import { shadowPresets } from '@/utils/useShadow';
@@ -37,17 +37,34 @@ function groupBookingsByYear(bookings: Booking[]): Record<string, Booking[]> {
   return byYear;
 }
 
-const todayStart = (): Date => {
-  const d = new Date();
-  d.setHours(0, 0, 0, 0);
-  return d;
-};
+function getBookingEndDate(booking: Booking): Date {
+  const dateStr = (booking.date || '').slice(0, 10);
+  const [y, m, d] = dateStr.split('-').map(Number);
+  const parts = (booking.slotEnd || booking.slotStart || '00:00').trim().split(':');
+  const hh = Number(parts[0]);
+  const mm = Number(parts[1]);
+  return new Date(
+    Number.isFinite(y) ? y : 0,
+    Number.isFinite(m) ? m - 1 : 0,
+    Number.isFinite(d) ? d : 1,
+    Number.isFinite(hh) ? hh : 0,
+    Number.isFinite(mm) ? mm : 0,
+    0,
+    0
+  );
+}
+
+function isBookingPast(booking: Booking): boolean {
+  const status = (booking.status ?? '').toLowerCase();
+  if (status === 'cancelled' || status === 'canceled') return false;
+  return getBookingEndDate(booking).getTime() < Date.now();
+}
 
 function countByFilter(
   bookings: Booking[],
   bookingReviewMap: Record<string, number>
 ): { upcoming: number; past: number; cancelled: number; rated: number; pendingReview: number } {
-  const now = todayStart().getTime();
+  const now = Date.now();
   let upcoming = 0;
   let past = 0;
   let cancelled = 0;
@@ -57,7 +74,7 @@ function countByFilter(
     const status = (b.status ?? '').toLowerCase();
     if (status === 'cancelled' || status === 'canceled') {
       cancelled += 1;
-    } else if (new Date(b.date).getTime() >= now) {
+    } else if (getBookingEndDate(b).getTime() > now) {
       upcoming += 1;
     } else {
       past += 1;
@@ -70,6 +87,109 @@ function countByFilter(
   }
   return { upcoming, past, cancelled, rated, pendingReview };
 }
+
+function getTargetDate(booking: Booking): Date {
+  const dateStr = (booking.date || '').slice(0, 10);
+  const [y, m, d] = dateStr.split('-').map(Number);
+  const parts = (booking.slotStart || '00:00').trim().split(':');
+  const hh = Number(parts[0]);
+  const mm = Number(parts[1]);
+  return new Date(
+    Number.isFinite(y) ? y : 0,
+    Number.isFinite(m) ? m - 1 : 0,
+    Number.isFinite(d) ? d : 1,
+    Number.isFinite(hh) ? hh : 0,
+    Number.isFinite(mm) ? mm : 0,
+    0,
+    0
+  );
+}
+
+type CountdownParts =
+  | { type: 'days'; days: number }
+  | { type: 'hours'; hours: number; minutes: number }
+  | { type: 'minutes'; minutes: number; seconds: number };
+
+function getCountdownParts(target: Date): CountdownParts | null {
+  const now = Date.now();
+  const ms = target.getTime() - now;
+  if (!Number.isFinite(ms) || ms <= 0) return null;
+  const totalMinutes = Math.floor(ms / 60_000);
+  const totalHours = Math.floor(totalMinutes / 60);
+  const days = Math.floor(totalHours / 24);
+  if (!Number.isFinite(totalMinutes)) return null;
+  if (days >= 3) return { type: 'days', days };
+  if (totalHours >= 1) return { type: 'hours', hours: totalHours, minutes: totalMinutes % 60 };
+  const totalSeconds = Math.floor(ms / 1000);
+  return { type: 'minutes', minutes: Math.floor(totalSeconds / 60), seconds: totalSeconds % 60 };
+}
+
+const AnimatedNumber = ({ value, className }: { value: number; className?: string }) => {
+  const [displayValue, setDisplayValue] = useState(value);
+  const prevValue = useRef(value);
+  const countAnim = useRef(new Animated.Value(0)).current;
+
+  useEffect(() => {
+    if (value === prevValue.current) return;
+    const startValue = prevValue.current;
+    prevValue.current = value;
+    countAnim.setValue(0);
+    const listener = countAnim.addListener(({ value: v }) => {
+      setDisplayValue(Math.round(startValue + (value - startValue) * v));
+    });
+    Animated.timing(countAnim, { toValue: 1, duration: 400, useNativeDriver: false }).start();
+    return () => {
+      countAnim.removeListener(listener);
+    };
+  }, [value]);
+
+  const safe = Number.isFinite(displayValue) ? displayValue : 0;
+  return <ThemedText className={className}>{safe}</ThemedText>;
+};
+
+const CountdownDisplay = ({ target }: { target: Date }) => {
+  const [parts, setParts] = useState<CountdownParts | null>(() => getCountdownParts(target));
+
+  useEffect(() => {
+    const tick = () => setParts(getCountdownParts(target));
+    tick();
+    const id = setInterval(tick, 1000);
+    return () => clearInterval(id);
+  }, [target.getTime()]);
+
+  if (!parts) return null;
+
+  const textClass = 'text-sm text-light-subtext dark:text-dark-subtext';
+
+  if (parts.type === 'days') {
+    return (
+      <View className="flex-row items-center">
+        <ThemedText className={textClass}>Za </ThemedText>
+        <AnimatedNumber value={parts.days} className={textClass} />
+        <ThemedText className={textClass}> dní</ThemedText>
+      </View>
+    );
+  }
+  if (parts.type === 'hours') {
+    return (
+      <View className="flex-row items-center">
+        <ThemedText className={textClass}>Za </ThemedText>
+        <AnimatedNumber value={parts.hours} className={textClass} />
+        <ThemedText className={textClass}> h </ThemedText>
+        <AnimatedNumber value={parts.minutes} className={textClass} />
+        <ThemedText className={textClass}> min</ThemedText>
+      </View>
+    );
+  }
+  return (
+    <View className="flex-row items-center">
+      <AnimatedNumber value={parts.minutes} className={textClass} />
+      <ThemedText className={textClass}> min </ThemedText>
+      <AnimatedNumber value={parts.seconds} className={textClass} />
+      <ThemedText className={textClass}> s</ThemedText>
+    </View>
+  );
+};
 
 const TripsScreen = () => {
   const router = useRouter();
@@ -87,36 +207,18 @@ const TripsScreen = () => {
     selectedFilter === 'all'
       ? bookings
       : selectedFilter === 'upcoming'
-        ? bookings.filter((b) => {
-            const status = (b.status ?? '').toLowerCase();
-            if (status === 'cancelled' || status === 'canceled') return false;
-            return new Date(b.date).getTime() >= todayStart().getTime();
-          })
+        ? bookings.filter((b) => !isBookingPast(b))
         : selectedFilter === 'past'
-          ? bookings.filter((b) => {
-              const status = (b.status ?? '').toLowerCase();
-              if (status === 'cancelled' || status === 'canceled') return false;
-              return new Date(b.date).getTime() < todayStart().getTime();
-            })
+          ? bookings.filter((b) => isBookingPast(b))
           : selectedFilter === 'cancelled'
             ? bookings.filter((b) => {
                 const status = (b.status ?? '').toLowerCase();
                 return status === 'cancelled' || status === 'canceled';
               })
             : selectedFilter === 'rated'
-              ? bookings.filter((b) => {
-                  const status = (b.status ?? '').toLowerCase();
-                  if (status === 'cancelled' || status === 'canceled') return false;
-                  if (new Date(b.date).getTime() >= todayStart().getTime()) return false;
-                  return bookingReviewMap[b.id] != null;
-                })
+              ? bookings.filter((b) => isBookingPast(b) && bookingReviewMap[b.id] != null)
               : selectedFilter === 'pending_review'
-                ? bookings.filter((b) => {
-                    const status = (b.status ?? '').toLowerCase();
-                    if (status === 'cancelled' || status === 'canceled') return false;
-                    if (new Date(b.date).getTime() >= todayStart().getTime()) return false;
-                    return bookingReviewMap[b.id] == null;
-                  })
+                ? bookings.filter((b) => isBookingPast(b) && bookingReviewMap[b.id] == null)
                 : bookings;
 
   useEffect(() => {
@@ -152,7 +254,11 @@ const TripsScreen = () => {
   useFocusEffect(
     useCallback(() => {
       if (!apiToken) return;
-      getClientOverview(apiToken)
+      getBookings(apiToken)
+        .then((res) => {
+          setBookings(res.bookings);
+          return getClientOverview(apiToken);
+        })
         .then((overview) => {
           const map: Record<string, number> = {};
           const withReviews = overview?.data?.reservations?.withReviews as ClientOverviewReservation[] | undefined;
@@ -252,8 +358,11 @@ const TripsScreen = () => {
                       dateText={formatBookingDate(booking)}
                       reviewRating={bookingReviewMap[booking.id]}
                       onOpenReview={() => {
+                        const imageParam = booking.item?.imageUrl
+                          ? `&entityImage=${encodeURIComponent(booking.item.imageUrl)}`
+                          : '';
                         router.push(
-                          `/screens/review?entityType=reservation&entityId=${encodeURIComponent(booking.id)}&entityName=${encodeURIComponent(booking.item?.name ?? 'Booking')}`
+                          `/screens/review?entityType=reservation&entityId=${encodeURIComponent(booking.id)}&entityName=${encodeURIComponent(booking.item?.name ?? 'Booking')}${imageParam}`
                         );
                       }}
                     />
@@ -277,9 +386,7 @@ const YearDivider = (props: { year: string }) => (
 );
 
 function isPastAndNotCancelled(booking: Booking): boolean {
-  const status = (booking.status ?? '').toLowerCase();
-  if (status === 'cancelled' || status === 'canceled') return false;
-  return new Date(booking.date).getTime() < todayStart().getTime();
+  return isBookingPast(booking);
 }
 
 const BookingCard = (props: {
@@ -313,10 +420,12 @@ const BookingCard = (props: {
           </View>
         </TouchableOpacity>
       </Link>
-      {isPast && (
+      {isPast ? (
         <View className="pr-2">
           {hasReview ? (
-            <ShowRating rating={reviewRating!} size="sm" displayMode="stars" />
+            <TouchableOpacity onPress={onOpenReview} activeOpacity={0.7}>
+              <ShowRating rating={reviewRating!} size="sm" displayMode="stars" />
+            </TouchableOpacity>
           ) : (
             <Chip
               label="Add review"
@@ -327,6 +436,10 @@ const BookingCard = (props: {
               className="bg-light-secondary dark:bg-dark-secondary"
             />
           )}
+        </View>
+      ) : (
+        <View className="pr-2">
+          <CountdownDisplay target={getTargetDate(booking)} />
         </View>
       )}
     </View>
