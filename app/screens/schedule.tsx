@@ -25,8 +25,16 @@ const WEEKDAY_API_KEYS = [
   'Суббота',
 ];
 
+/** Slot směny z API – obsahuje branch této konkrétní směny (pobočka daného dne). */
+type WorkScheduleSlot = {
+  validFrom?: string;
+  validUntil?: string;
+  branch?: { id: string; name: string };
+  [key: string]: unknown;
+};
+
 function hasShiftOnDate(emp: Employee, date: Date): boolean {
-  const ws = emp.workSchedule as { weeklySchedule?: Record<string, Array<{ validFrom?: string; validUntil?: string }>> } | undefined;
+  const ws = emp.workSchedule as { weeklySchedule?: Record<string, WorkScheduleSlot[]> } | undefined;
   const weekly = ws?.weeklySchedule;
   if (!weekly || typeof weekly !== 'object') return false;
   const dayIndex = date.getDay();
@@ -42,11 +50,50 @@ function hasShiftOnDate(emp: Employee, date: Date): boolean {
   return false;
 }
 
+/** Pro dané datum vrací názvy poboček z těch slotů (směn), které padnou na tento den – z slot.branch.name. */
+function getBranchNamesFromShiftsOnDate(emp: Employee, date: Date): string[] {
+  const ws = emp.workSchedule as { weeklySchedule?: Record<string, WorkScheduleSlot[]> } | undefined;
+  const weekly = ws?.weeklySchedule;
+  if (!weekly || typeof weekly !== 'object') return [];
+  const dayIndex = date.getDay();
+  const dayKey = WEEKDAY_API_KEYS[dayIndex];
+  const slots = weekly[dayKey];
+  if (!Array.isArray(slots) || slots.length === 0) return [];
+  const dateStr = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+  const names: string[] = [];
+  const seen = new Set<string>();
+  for (const slot of slots) {
+    const from = slot.validFrom ? slot.validFrom.slice(0, 10) : '';
+    const until = slot.validUntil ? slot.validUntil.slice(0, 10) : '';
+    if (!from || !until || dateStr < from || dateStr > until) continue;
+    const name = slot.branch?.name?.trim();
+    if (name && !seen.has(name)) {
+      seen.add(name);
+      names.push(name);
+    }
+  }
+  return names;
+}
+
 function getEmployeeBranchIds(emp: Employee): string[] {
   const b = emp.branches as EmployeeBranch[] | Record<string, EmployeeBranch> | undefined;
   if (!b) return [];
   if (Array.isArray(b)) return b.map((x) => x.id);
   return Object.values(b).map((x) => x.id);
+}
+
+/** Názvy poboček pro indikátor na kartě: pouze pobočky konkrétních směn v daný den (ze slot.branch.name). Fallback: při filtru pobočky její název, jinak všechny pobočky zaměstnance. */
+function getBranchNamesForDate(emp: Employee, date: Date, branches: Branch[], selectedBranchId: string | null): string[] {
+  const namesFromSlots = getBranchNamesFromShiftsOnDate(emp, date);
+  if (namesFromSlots.length > 0) return namesFromSlots;
+  if (selectedBranchId !== null) {
+    const name = branches.find((b) => b.id === selectedBranchId)?.name;
+    return name ? [name] : [];
+  }
+  const b = emp.branches as EmployeeBranch[] | Record<string, EmployeeBranch> | undefined;
+  if (!b) return [];
+  const list = Array.isArray(b) ? b : Object.values(b);
+  return list.map((x) => x.name).filter(Boolean);
 }
 
 const ScheduleScreen = () => {
@@ -124,13 +171,17 @@ const ScheduleScreen = () => {
           </ThemedText>
         ) : (
           <Grid columns={2} spacing={10}>
-            {filteredEmployees.map((emp) => (
-              <ScheduleCard
-                key={emp.id}
-                name={emp.name}
-                image={emp.avatarUrl ?? require('@/assets/img/room-1.avif')}
-              />
-            ))}
+            {filteredEmployees.map((emp) => {
+              const branchNames = getBranchNamesForDate(emp, selectedDate, branches, selectedBranchId);
+              return (
+                <ScheduleCard
+                  key={emp.id}
+                  name={emp.name}
+                  image={emp.avatarUrl ?? require('@/assets/img/room-1.avif')}
+                  branchNames={branchNames}
+                />
+              );
+            })}
           </Grid>
         )}
       </ThemedScroller>
@@ -141,24 +192,42 @@ const ScheduleScreen = () => {
 interface ScheduleCardProps {
   name: string;
   image: string | number;
+  /** Pobočka/pobočky, na kterých má zaměstnanec směnu – zobrazíme jako indikátor na kartě. */
+  branchNames: string[];
 }
 
-const ScheduleCard = ({ name, image }: ScheduleCardProps) => {
+const ScheduleCard = ({ name, image, branchNames }: ScheduleCardProps) => {
   return (
-    <View style={{ ...shadowPresets.large }} className="bg-light-primary dark:bg-dark-secondary rounded-3xl p-4">
-      <View className="w-12 h-12 rounded-full mb-20 overflow-hidden bg-neutral-200 dark:bg-neutral-800">
+    <View style={{ ...shadowPresets.large }} className="bg-light-primary dark:bg-dark-secondary rounded-3xl overflow-hidden">
+      <View className="w-full aspect-[3/4] bg-neutral-200 dark:bg-neutral-800">
         <Image
           source={typeof image === 'string' ? { uri: image } : image}
           className="w-full h-full"
           resizeMode="cover"
         />
+        {branchNames.length > 0 && (
+          <View className="absolute top-2 left-2 right-2 flex-row flex-wrap gap-1">
+            {branchNames.map((branchName) => (
+              <View
+                key={branchName}
+                className="bg-black/50 dark:bg-white/20 rounded-full px-2 py-1"
+              >
+                <ThemedText className="text-[10px] text-white font-medium" numberOfLines={1}>
+                  {branchName}
+                </ThemedText>
+              </View>
+            ))}
+          </View>
+        )}
       </View>
-      <ThemedText className="text-xl font-semibold mb-1" numberOfLines={1}>{name}</ThemedText>
-      <View className="flex-row items-center w-full">
-        <View className="h-2 rounded-full bg-neutral-200 dark:bg-neutral-800 flex-1 mr-3">
-          <View className="h-full bg-highlight rounded-full" style={{ width: '50%' }} />
+      <View className="p-3">
+        <ThemedText className="text-base font-semibold mb-2" numberOfLines={1}>{name}</ThemedText>
+        <View className="flex-row items-center w-full">
+          <View className="h-1.5 rounded-full bg-neutral-200 dark:bg-neutral-800 flex-1 mr-2">
+            <View className="h-full bg-highlight rounded-full" style={{ width: '50%' }} />
+          </View>
+          <ThemedText className="text-xs text-light-subtext dark:text-dark-subtext">2/4</ThemedText>
         </View>
-        <ThemedText className="text-sm opacity-50">2/4</ThemedText>
       </View>
     </View>
   );

@@ -14,6 +14,7 @@ import { ScrollContext } from './_layout';
 import { useAuth } from '@/app/contexts/AuthContext';
 import { getEmployees, type Employee } from '@/api/employees';
 import { getFavorites } from '@/api/favorites';
+import { getClientReviewsList, type ClientReviewListItem } from '@/api/reviews';
 import LiveIndicator from '@/components/LiveIndicator';
 import { Button } from '@/components/Button';
 
@@ -67,29 +68,11 @@ function shuffleArray<T>(arr: T[]): T[] {
     return out;
 }
 
-function hasShiftTomorrow(emp: Employee): boolean {
-    const ws = emp.workSchedule as { weeklySchedule?: Record<string, Array<{ validFrom?: string; validUntil?: string }>> } | undefined;
-    const weekly = ws?.weeklySchedule;
-    if (!weekly || typeof weekly !== 'object') return false;
-    const tomorrow = new Date();
-    tomorrow.setDate(tomorrow.getDate() + 1);
-    const dayIndex = tomorrow.getDay();
-    const dayKey = WEEKDAY_API_KEYS[dayIndex];
-    const slots = weekly[dayKey];
-    if (!Array.isArray(slots) || slots.length === 0) return false;
-    const tomorrowStr = `${tomorrow.getFullYear()}-${String(tomorrow.getMonth() + 1).padStart(2, '0')}-${String(tomorrow.getDate()).padStart(2, '0')}`;
-    for (const slot of slots) {
-        const from = slot.validFrom ? slot.validFrom.slice(0, 10) : '';
-        const until = slot.validUntil ? slot.validUntil.slice(0, 10) : '';
-        if (from && until && tomorrowStr >= from && tomorrowStr <= until) return true;
-    }
-    return false;
-}
-
 const ExperienceScreen = () => {
     const scrollY = useContext(ScrollContext);
     const { apiToken } = useAuth();
     const [employees, setEmployees] = useState<Employee[]>([]);
+    const [employeeReviewsList, setEmployeeReviewsList] = useState<ClientReviewListItem[]>([]);
     const [employeesLoading, setEmployeesLoading] = useState(false);
     const [employeesError, setEmployeesError] = useState<string | null>(null);
     const [favoriteEmployeeIds, setFavoriteEmployeeIds] = useState<string[]>([]);
@@ -98,9 +81,18 @@ const ExperienceScreen = () => {
         if (!apiToken) return;
         setEmployeesLoading(true);
         setEmployeesError(null);
-        getEmployees(apiToken, { includeReviews: true, reviewsLimit: 1 })
-            .then((list) => setEmployees(Array.isArray(list) ? list : Object.values(list)))
-            .catch((e) => setEmployeesError(e instanceof Error ? e.message : 'Failed to load'))
+        Promise.all([
+            getEmployees(apiToken, { includeReviews: true, reviewsLimit: 1 }),
+            getClientReviewsList(apiToken, { entityType: 'employee', limit: 500 }),
+        ])
+            .then(([empList, reviewsData]) => {
+                setEmployees(Array.isArray(empList) ? empList : Object.values(empList));
+                setEmployeeReviewsList(reviewsData.reviews || []);
+            })
+            .catch((e) => {
+                setEmployeesError(e instanceof Error ? e.message : 'Failed to load');
+                setEmployeeReviewsList([]);
+            })
             .finally(() => setEmployeesLoading(false));
     }, [apiToken]);
 
@@ -137,9 +129,61 @@ const ExperienceScreen = () => {
         [employees, favoriteEmployeeIds]
     );
 
+    const { bestRatedBarbers, employeeAverageRating } = useMemo(() => {
+        const byId: Record<string, { sum: number; count: number }> = {};
+        for (const r of employeeReviewsList) {
+            const id = r.entityId;
+            if (!id) continue;
+            if (!byId[id]) byId[id] = { sum: 0, count: 0 };
+            byId[id].sum += r.rating;
+            byId[id].count += 1;
+        }
+        const employeesWithReviews = employees.filter((emp) => (byId[emp.id]?.count ?? 0) >= 1);
+        employeesWithReviews.sort((a, b) => {
+            const avgA = byId[a.id] ? byId[a.id].sum / byId[a.id].count : 0;
+            const avgB = byId[b.id] ? byId[b.id].sum / byId[b.id].count : 0;
+            return avgB - avgA;
+        });
+        const ratingMap: Record<string, number> = {};
+        for (const id of Object.keys(byId)) {
+            const x = byId[id];
+            ratingMap[id] = x.count > 0 ? Math.round((x.sum / x.count) * 10) / 10 : 0;
+        }
+        return { bestRatedBarbers: employeesWithReviews, employeeAverageRating: ratingMap };
+    }, [employees, employeeReviewsList]);
+
     const newBarbersInfoSheetRef = useRef<ActionSheetRef>(null);
 
     const sections = [
+                        {
+                            title: "Popular barbers available today",
+                            experiences: [
+                                { 
+                                    title: "Street Art Walking Tour", 
+                                    image: "https://images.unsplash.com/photo-1503410781609-75b1d892dd28?q=80&w=400",
+                                    price: "$35",
+                                    rating: 4.9
+                                },
+                                { 
+                                    title: "Craft Beer Experience", 
+                                    image: "https://images.unsplash.com/photo-1584225064785-c62a8b43d148?q=80&w=400",
+                                    price: "$55",
+                                    rating: 4.7
+                                },
+                                { 
+                                    title: "DUMBO Photo Tour", 
+                                    image: "https://images.unsplash.com/photo-1520190282873-afe1285c9a2a?q=80&w=400",
+                                    price: "$40",
+                                    rating: 4.8
+                                },
+                                { 
+                                    title: "Williamsburg Food Scene", 
+                                    image: "https://images.unsplash.com/photo-1565958011703-44f9829ba187?q=80&w=400",
+                                    price: "$70",
+                                    rating: 4.6
+                                }
+                            ]
+                        },
                         {
                             title: "New barbers",
                             experiences: [
@@ -172,31 +216,31 @@ const ExperienceScreen = () => {
                             ]
                         },
                         {
-                            title: "Popular barbers available today",
+                            title: "Best rated barbers",
                             experiences: [
                                 { 
-                                    title: "Street Art Walking Tour", 
-                                    image: "https://images.unsplash.com/photo-1503410781609-75b1d892dd28?q=80&w=400",
-                                    price: "$35",
-                                    rating: 4.9
-                                },
-                                { 
-                                    title: "Craft Beer Experience", 
-                                    image: "https://images.unsplash.com/photo-1584225064785-c62a8b43d148?q=80&w=400",
+                                    title: "Flushing Food Adventure", 
+                                    image: "https://images.unsplash.com/photo-1526318896980-cf78c088247c?q=80&w=400",
                                     price: "$55",
-                                    rating: 4.7
-                                },
-                                { 
-                                    title: "DUMBO Photo Tour", 
-                                    image: "https://images.unsplash.com/photo-1520190282873-afe1285c9a2a?q=80&w=400",
-                                    price: "$40",
                                     rating: 4.8
                                 },
                                 { 
-                                    title: "Williamsburg Food Scene", 
-                                    image: "https://images.unsplash.com/photo-1565958011703-44f9829ba187?q=80&w=400",
-                                    price: "$70",
+                                    title: "Art District Gallery Hop", 
+                                    image: "https://images.pexels.com/photos/161154/stained-glass-spiral-circle-pattern-161154.jpeg?auto=compress&cs=tinysrgb&w=1200",
+                                    price: "$35",
                                     rating: 4.6
+                                },
+                                { 
+                                    title: "Night Market Experience", 
+                                    image: "https://images.unsplash.com/photo-1536392706976-e486e2ba97af?q=80&w=400",
+                                    price: "$45",
+                                    rating: 4.7
+                                },
+                                { 
+                                    title: "Cultural Dance Workshop", 
+                                    image: "https://images.unsplash.com/photo-1504609773096-104ff2c73ba4?q=80&w=400",
+                                    price: "$40",
+                                    rating: 4.8
                                 }
                             ]
                         },
@@ -226,35 +270,6 @@ const ExperienceScreen = () => {
                                     image: "https://images.pexels.com/photos/9471914/pexels-photo-9471914.jpeg?auto=compress&cs=tinysrgb&w=1200",
                                     price: "$40",
                                     rating: 4.7
-                                }
-                            ]
-                        },
-                        {
-                            title: "Best rated barbers",
-                            experiences: [
-                                { 
-                                    title: "Flushing Food Adventure", 
-                                    image: "https://images.unsplash.com/photo-1526318896980-cf78c088247c?q=80&w=400",
-                                    price: "$55",
-                                    rating: 4.8
-                                },
-                                { 
-                                    title: "Art District Gallery Hop", 
-                                    image: "https://images.pexels.com/photos/161154/stained-glass-spiral-circle-pattern-161154.jpeg?auto=compress&cs=tinysrgb&w=1200",
-                                    price: "$35",
-                                    rating: 4.6
-                                },
-                                { 
-                                    title: "Night Market Experience", 
-                                    image: "https://images.unsplash.com/photo-1536392706976-e486e2ba97af?q=80&w=400",
-                                    price: "$45",
-                                    rating: 4.7
-                                },
-                                { 
-                                    title: "Cultural Dance Workshop", 
-                                    image: "https://images.unsplash.com/photo-1504609773096-104ff2c73ba4?q=80&w=400",
-                                    price: "$40",
-                                    rating: 4.8
                                 }
                             ]
                         },
@@ -304,6 +319,7 @@ const ExperienceScreen = () => {
                             if (section.title === 'New barbers') return newBarbers.length > 0 || employeesLoading;
                             if (section.title === 'Popular barbers available today') return barbersAvailableToday.length > 0 || employeesLoading;
                             if (section.title === 'My favorite barbers') return favoriteBarbers.length > 0 || employeesLoading;
+                            if (section.title === 'Best rated barbers') return bestRatedBarbers.length > 0 || employeesLoading;
                             return true;
                         })
                         .map((section, index) => (
@@ -318,8 +334,8 @@ const ExperienceScreen = () => {
                             ) : section.title === 'Popular barbers available today' ? (
                                 <Button title="Schedule" size="small" variant="outline" rounded="lg" className="ml-auto py-1.5 px-3" textClassName="text-xs" href="/screens/schedule" />
                             ) : undefined}
-                            link={section.title === 'All barbers' || section.title === 'New barbers' || section.title === 'Popular barbers available today' ? undefined : '/screens/map'}
-                            linkText={section.title === 'All barbers' || section.title === 'New barbers' || section.title === 'Popular barbers available today' ? undefined : 'View all'}
+                            link={section.title === 'All barbers' || section.title === 'New barbers' || section.title === 'Popular barbers available today' || section.title === 'Best rated barbers' ? undefined : '/screens/map'}
+                            linkText={section.title === 'All barbers' || section.title === 'New barbers' || section.title === 'Popular barbers available today' || section.title === 'Best rated barbers' ? undefined : 'View all'}
                         >
                             <CardScroller space={15} className='mt-1.5 pb-4'>
                                 {section.title === 'New barbers' ? (
@@ -352,12 +368,6 @@ const ExperienceScreen = () => {
                                                 key={emp.id}
                                                 title={emp.name}
                                                 topLeftBadge={<LiveIndicator />}
-                                                titleTrailing={
-                                                    <View className="flex-row items-center justify-center gap-2 bg-light-secondary dark:bg-dark-secondary rounded-full px-1.5 py-0.5 min-h-[20px]">
-                                                        <ThemedText className="text-[10px] leading-none text-gray-500 dark:text-gray-300">Tomorrow</ThemedText>
-                                                        <LiveIndicator variant={hasShiftTomorrow(emp) ? 'green' : 'red'} size="sm" animated={false} />
-                                                    </View>
-                                                }
                                                 rounded="2xl"
                                                 hasFavorite
                                                 favoriteEntityType="employee"
@@ -404,6 +414,27 @@ const ExperienceScreen = () => {
                                                 favoriteEntityId={emp.id}
                                                 href={`/screens/barber-detail?id=${emp.id}`}
                                                 price=""
+                                                width={160}
+                                                imageHeight={160}
+                                                image={emp.avatarUrl ?? require('@/assets/img/room-1.avif')}
+                                            />
+                                        ))}
+                                    </>
+                                ) : section.title === 'Best rated barbers' ? (
+                                    <>
+                                        {employeesLoading && <ThemedText className="py-4 text-light-subtext dark:text-dark-subtext">Loading…</ThemedText>}
+                                        {employeesError && <ThemedText className="py-4 text-red-500 dark:text-red-400">{employeesError}</ThemedText>}
+                                        {!employeesLoading && !employeesError && bestRatedBarbers.map((emp) => (
+                                            <Card
+                                                key={emp.id}
+                                                title={emp.name}
+                                                rounded="2xl"
+                                                hasFavorite
+                                                favoriteEntityType="employee"
+                                                favoriteEntityId={emp.id}
+                                                href={`/screens/barber-detail?id=${emp.id}`}
+                                                price=""
+                                                rating={employeeAverageRating[emp.id]}
                                                 width={160}
                                                 imageHeight={160}
                                                 image={emp.avatarUrl ?? require('@/assets/img/room-1.avif')}

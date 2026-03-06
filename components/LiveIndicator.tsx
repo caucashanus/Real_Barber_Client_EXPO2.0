@@ -25,8 +25,8 @@ const LiveIndicator = ({ variant = 'green', size = 'default', animated = true }:
     return () => blink.stop();
   }, [opacity, animated]);
   const colorClass = variant === 'red'
-    ? 'bg-red-500 dark:bg-red-400'
-    : 'bg-green-500 dark:bg-green-400';
+    ? 'bg-gray-400 dark:bg-gray-500'
+    : 'bg-emerald-500 dark:bg-emerald-400';
   const sizeClass = size === 'sm' ? 'w-2 h-2' : 'w-3 h-3';
   const className = `rounded-full ${sizeClass} ${colorClass}`;
   if (!animated) {

@@ -66,6 +66,39 @@ export interface GetEntityReviewsResponse {
   pagination: { page: number; limit: number; total: number; pages: number };
 }
 
+export interface ClientReviewListItem {
+  id: string;
+  rating: number;
+  entityType: string;
+  entityId: string;
+  [key: string]: unknown;
+}
+
+export interface GetClientReviewsListResponse {
+  reviews: ClientReviewListItem[];
+  pagination: { page: number; limit: number; total: number; pages: number };
+}
+
+/** GET /api/client/reviews – list all reviews with optional entityType filter (e.g. employee). */
+export async function getClientReviewsList(
+  apiToken: string,
+  options: { entityType?: string; limit?: number; page?: number } = {}
+): Promise<GetClientReviewsListResponse> {
+  const params = new URLSearchParams();
+  if (options.entityType) params.set('entityType', options.entityType);
+  if (options.limit != null) params.set('limit', String(options.limit));
+  if (options.page != null) params.set('page', String(options.page));
+  const qs = params.toString();
+  const url = `${CRM_BASE}/api/client/reviews${qs ? `?${qs}` : ''}`;
+  const res = await fetch(url, {
+    method: 'GET',
+    headers: { Authorization: `Bearer ${apiToken}` },
+  });
+  if (res.status === 401) throw new Error('Unauthorized');
+  if (!res.ok) throw new Error(`Error ${res.status}`);
+  return res.json() as Promise<GetClientReviewsListResponse>;
+}
+
 /** GET /api/client/reviews/entity/[entityType]/[entityId] – list reviews for one entity (e.g. branch). */
 export async function getEntityReviews(
   apiToken: string,
