@@ -141,6 +141,7 @@ const PersonalProfile = () => {
                 <ListLink showChevron title="Account settings" icon="Settings" href="/screens/settings" />
                 <ListLink showChevron title="Edit profile" icon="UserRoundPen" href="/screens/edit-profile" />
                 <ListLink showChevron title="Get help" icon="HelpCircle" href="/screens/help" />
+                <ListLink showChevron title="Referrals" icon="Gift" href="/screens/referrals" />
                 <Divider />
                 <ListLink showChevron title="Logout" icon="LogOut" href="/screens/welcome" />
             </View>
