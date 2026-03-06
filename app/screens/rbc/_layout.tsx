@@ -9,7 +9,7 @@ export default function RBCLayout() {
     >
       <Stack.Screen name="index" options={{ title: 'RBC Card' }} />
       <Stack.Screen name="historie" options={{ title: 'Transaction history' }} />
-      <Stack.Screen name="design" options={{ title: 'Card designs' }} />
+      <Stack.Screen name="design/index" options={{ title: 'Card designs' }} />
       <Stack.Screen name="design/[designId]" options={{ title: 'Card design' }} />
     </Stack>
   );

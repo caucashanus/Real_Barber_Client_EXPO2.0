@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, ActivityIndicator } from 'react-native';
+import { View, ActivityIndicator, Image } from 'react-native';
 import { useLocalSearchParams } from 'expo-router';
 import Header from '@/components/Header';
 import ThemedScroller from '@/components/ThemeScroller';
@@ -16,6 +16,7 @@ import AnimatedView from '@/components/AnimatedView';
 import { useAuth } from '@/app/contexts/AuthContext';
 import { getBookings, type Booking } from '../../api/bookings';
 import { getBranches, type Branch, type BranchService } from '@/api/branches';
+import { getClientOverview, type ClientOverviewReservation } from '@/api/reviews';
 
 const BRANCH_IMAGES: Record<string, number> = {
   'Modřany': require('@/assets/img/branches/Modrany.jpg'),
@@ -110,6 +111,7 @@ const BookingDetailScreen = () => {
   const { apiToken } = useAuth();
   const [booking, setBooking] = useState<Booking | null>(null);
   const [branch, setBranch] = useState<Branch | null>(null);
+  const [hasReview, setHasReview] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -142,6 +144,20 @@ const BookingDetailScreen = () => {
       })
       .catch(() => setBranch(null));
   }, [apiToken, booking?.branchId]);
+
+  useEffect(() => {
+    if (!apiToken || !id) {
+      setHasReview(false);
+      return;
+    }
+    getClientOverview(apiToken)
+      .then((overview) => {
+        const withReviews = overview?.data?.reservations?.withReviews as ClientOverviewReservation[] | undefined;
+        const has = Array.isArray(withReviews) && withReviews.some((r) => r.id === id);
+        setHasReview(!!has);
+      })
+      .catch(() => setHasReview(false));
+  }, [apiToken, id]);
 
   if (loading) {
     return (
@@ -254,6 +270,11 @@ const BookingDetailScreen = () => {
 
           <Section title="Reservation details" titleSize="lg" className="px-global pt-4">
             <View className="mt-4 space-y-3">
+              <Image
+                source={booking.item?.imageUrl ? { uri: booking.item.imageUrl } : require('@/assets/img/room-1.avif')}
+                className="w-32 h-32 rounded-xl mb-3"
+                resizeMode="cover"
+              />
               <View className="flex-row justify-between">
                 <ThemedText className="text-light-subtext dark:text-dark-subtext">Reservation number</ThemedText>
                 <ThemedText className="font-medium">#{booking.id.slice(0, 8)}</ThemedText>
@@ -370,11 +391,11 @@ const BookingDetailScreen = () => {
         <View className="flex-row gap-3">
           {isPast && (
             <Button
-              title="Review"
+              title={hasReview ? 'Update review' : 'Review'}
               variant="outline"
               iconStart="Star"
               className="flex-1"
-              href={`/screens/review?entityType=reservation&entityId=${encodeURIComponent(booking.id)}&entityName=${encodeURIComponent(booking.item?.name ?? booking.branch?.name ?? 'Booking')}${booking.item?.imageUrl ? `&entityImage=${encodeURIComponent(booking.item.imageUrl)}` : ''}`}
+              href={`/screens/review?entityType=reservation&entityId=${encodeURIComponent(booking.id)}&entityName=${encodeURIComponent(booking.item?.name ?? booking.branch?.name ?? 'Booking')}${booking.item?.imageUrl ? `&entityImage=${encodeURIComponent(booking.item.imageUrl)}` : ''}${booking.employee?.name ? `&entityEmployeeName=${encodeURIComponent(booking.employee.name)}` : ''}${booking.employee?.avatarUrl ? `&entityEmployeeAvatar=${encodeURIComponent(booking.employee.avatarUrl)}` : ''}`}
             />
           )}
           {isUpcoming && (

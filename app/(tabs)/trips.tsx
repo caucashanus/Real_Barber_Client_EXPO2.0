@@ -1,8 +1,7 @@
 import React, { useCallback, useEffect, useState, useRef } from 'react';
 import { useFocusEffect } from '@react-navigation/native';
-import { View, Image, TouchableOpacity, ActivityIndicator, Animated } from 'react-native';
+import { View, TouchableOpacity, ActivityIndicator, Animated, Pressable } from 'react-native';
 import ThemedText from '@/components/ThemedText';
-import { Link } from 'expo-router';
 import { shadowPresets } from '@/utils/useShadow';
 import ThemeScroller from '@/components/ThemeScroller';
 import AnimatedView from '@/components/AnimatedView';
@@ -15,6 +14,7 @@ import { Chip } from '@/components/Chip';
 import { CardScroller } from '@/components/CardScroller';
 import ShowRating from '@/components/ShowRating';
 import LiveIndicator from '@/components/LiveIndicator';
+import Avatar from '@/components/Avatar';
 import { useRouter } from 'expo-router';
 
 type BookingFilter = 'all' | 'current' | 'upcoming' | 'past' | 'cancelled' | 'rated' | 'pending_review';
@@ -397,8 +397,14 @@ const TripsScreen = () => {
                         const imageParam = booking.item?.imageUrl
                           ? `&entityImage=${encodeURIComponent(booking.item.imageUrl)}`
                           : '';
+                        const employeeNameParam = booking.employee?.name
+                          ? `&entityEmployeeName=${encodeURIComponent(booking.employee.name)}`
+                          : '';
+                        const employeeAvatarParam = booking.employee?.avatarUrl
+                          ? `&entityEmployeeAvatar=${encodeURIComponent(booking.employee.avatarUrl)}`
+                          : '';
                         router.push(
-                          `/screens/review?entityType=reservation&entityId=${encodeURIComponent(booking.id)}&entityName=${encodeURIComponent(booking.item?.name ?? 'Booking')}${imageParam}`
+                          `/screens/review?entityType=reservation&entityId=${encodeURIComponent(booking.id)}&entityName=${encodeURIComponent(booking.item?.name ?? 'Booking')}${imageParam}${employeeNameParam}${employeeAvatarParam}`
                         );
                       }}
                     />
@@ -431,56 +437,83 @@ const BookingCard = (props: {
   reviewRating?: number;
   onOpenReview?: () => void;
 }) => {
+  const router = useRouter();
   const { booking, dateText, reviewRating, onOpenReview } = props;
-  const imageSource = booking.item?.imageUrl
-    ? { uri: booking.item.imageUrl }
-    : require('@/assets/img/room-1.avif');
   const title = booking.item?.name ?? 'Booking';
   const isPast = isPastAndNotCancelled(booking);
   const isCurrent = isBookingCurrent(booking);
   const hasReview = reviewRating != null && reviewRating >= 1;
+  const isCancelled = (booking.status ?? '').toLowerCase() === 'cancelled' || (booking.status ?? '').toLowerCase() === 'canceled';
+
+  const getStatusText = () => {
+    if (isCancelled) return 'Cancelled';
+    if (isCurrent) return 'In progress';
+    if (isPast) return 'Past';
+    return 'Upcoming';
+  };
+
+  const getStatusColor = () => {
+    if (isCancelled) return 'text-red-600 dark:text-red-400';
+    if (isCurrent) return 'text-green-600 dark:text-green-400';
+    if (isPast) return 'text-gray-600 dark:text-gray-400';
+    return 'text-black dark:text-white';
+  };
+
+  const cardOpacity = isCancelled ? 'opacity-60' : 'opacity-100';
+
+  const goToDetail = () => router.push(`/screens/trip-detail?id=${booking.id}`);
 
   return (
     <View
       style={shadowPresets.large}
-      className="w-full p-2 mb-4 flex flex-row items-center rounded-2xl bg-light-primary dark:bg-dark-secondary"
+      className={`w-full rounded-xl mt-4 border border-neutral-300 dark:border-neutral-700 bg-light-primary dark:bg-dark-primary ${cardOpacity}`}
     >
-      <Link asChild href={`/screens/trip-detail?id=${booking.id}`}>
-        <TouchableOpacity className="flex-1 flex-row items-center" activeOpacity={0.8}>
-          <Image source={imageSource} className="w-20 h-20 rounded-xl" resizeMode="cover" />
-          <View className="px-4 flex-1">
-            <ThemedText className="text-base font-bold">{title}</ThemedText>
-            <ThemedText className="text-xs text-gray-500">{dateText}</ThemedText>
+      <Pressable onPress={goToDetail} className="p-4">
+        <View className="flex-row items-center mb-4">
+          <ThemedText className={`text-base font-semibold ${getStatusColor()}`}>
+            {getStatusText()}
+          </ThemedText>
+          {isCurrent && (
+            <View className="ml-2">
+              <LiveIndicator />
+            </View>
+          )}
+        </View>
+        <View className="flex-row items-center justify-between">
+          <View className="flex-1 mr-3">
+            <ThemedText className="text-xl font-semibold">{title}</ThemedText>
+            <ThemedText className="text-base text-light-subtext dark:text-dark-subtext">{dateText}</ThemedText>
             {booking.branch?.name ? (
-              <ThemedText className="text-xs text-light-subtext dark:text-dark-subtext mt-1">{booking.branch.name}</ThemedText>
+              <ThemedText className="text-sm text-gray-500 dark:text-gray-400 mt-1">{booking.branch.name}</ThemedText>
             ) : null}
           </View>
-        </TouchableOpacity>
-      </Link>
-      {isPast ? (
-        <View className="pr-2">
-          {hasReview ? (
-            <TouchableOpacity onPress={onOpenReview} activeOpacity={0.7}>
+          <Avatar src={booking.employee?.avatarUrl ?? undefined} name={booking.employee?.name} size="sm" />
+        </View>
+      </Pressable>
+      {!isCancelled && (
+        <View className="w-full flex-row border-t border-neutral-300 dark:border-neutral-700">
+          <Pressable
+            onPress={goToDetail}
+            className="flex-1 py-5 items-center border-r border-neutral-300 dark:border-neutral-700"
+          >
+            <ThemedText className="font-semibold">View booking</ThemedText>
+          </Pressable>
+          {isPast && !hasReview ? (
+            <Pressable onPress={onOpenReview} className="flex-1 py-5 items-center">
+              <ThemedText className="font-semibold">Add review</ThemedText>
+            </Pressable>
+          ) : isPast && hasReview ? (
+            <TouchableOpacity onPress={onOpenReview} activeOpacity={0.7} className="flex-1 py-5 items-center justify-center">
               <ShowRating rating={reviewRating!} size="sm" displayMode="stars" />
             </TouchableOpacity>
           ) : (
-            <Chip
-              label="Add review"
-              size="sm"
-              rounded="xl"
-              icon="Star"
-              onPress={onOpenReview}
-              className="bg-light-secondary dark:bg-dark-secondary"
-            />
+            <Pressable
+              onPress={() => router.push('/screens/chat/user')}
+              className="flex-1 py-5 items-center"
+            >
+              <ThemedText className="font-semibold">Message</ThemedText>
+            </Pressable>
           )}
-        </View>
-      ) : isCurrent ? (
-        <View className="pr-2 justify-center items-center">
-          <LiveIndicator />
-        </View>
-      ) : (
-        <View className="pr-2">
-          <CountdownDisplay target={getTargetDate(booking)} />
         </View>
       )}
     </View>

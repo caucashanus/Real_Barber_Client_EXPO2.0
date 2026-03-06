@@ -120,13 +120,11 @@ const HomeScreen = () => {
                         image={branchCardImage(branch)}
                       />
                     ))}
-                    {!apiToken && !popularBranches && (
-                      <>
-                        {[require('@/assets/img/room-1.avif'), require('@/assets/img/room-2.avif'), require('@/assets/img/room-3.avif'), require('@/assets/img/room-4.avif')].map((img, i) => (
-                          <Card key={i} title={`Barbershop ${i + 1}`} rounded="2xl" hasFavorite rating={4.5} href="/screens/login" price="from 0 Kč" width={160} imageHeight={160} image={img} />
-                        ))}
-                      </>
-                    )}
+                    {!apiToken && !popularBranches &&
+                      [require('@/assets/img/room-1.avif'), require('@/assets/img/room-2.avif'), require('@/assets/img/room-3.avif'), require('@/assets/img/room-4.avif')].map((img, i) => (
+                        <Card key={i} title={`Barbershop ${i + 1}`} rounded="2xl" hasFavorite rating={4.5} href="/screens/login" price="from 0 Kč" width={160} imageHeight={160} image={img} />
+                      ))
+                    }
                   </CardScroller>
                 </Section>
 

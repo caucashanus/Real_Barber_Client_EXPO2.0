@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { View, TouchableOpacity, Alert, Image, ActivityIndicator } from 'react-native';
+import Avatar from '@/components/Avatar';
 import { router, useLocalSearchParams } from 'expo-router';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import Header from '@/components/Header';
@@ -52,15 +53,19 @@ const ReviewScreen = () => {
     const [loadingExisting, setLoadingExisting] = useState(true);
     const colors = useThemeColors();
     const { apiToken } = useAuth();
-    const { entityType, entityId, entityName, entityImage } = useLocalSearchParams<{
+    const { entityType, entityId, entityName, entityImage, entityEmployeeName, entityEmployeeAvatar } = useLocalSearchParams<{
         entityType?: string;
         entityId?: string;
         entityName?: string;
         entityImage?: string;
+        entityEmployeeName?: string;
+        entityEmployeeAvatar?: string;
     }>();
 
     const displayName = entityName ? decodeURIComponent(entityName) : 'Luxury Beachfront Villa';
     const imageUrl = entityImage ? decodeURIComponent(entityImage) : '';
+    const employeeName = entityEmployeeName ? decodeURIComponent(entityEmployeeName) : '';
+    const employeeAvatarUrl = entityEmployeeAvatar ? decodeURIComponent(entityEmployeeAvatar) : '';
     const canSubmitToApi = Boolean(apiToken && entityType && entityId);
     const isEditMode = existingReviewId != null;
     const isDirty = isEditMode && (
@@ -173,18 +178,26 @@ const ReviewScreen = () => {
                     </View>
                 ) : (
                     <>
-                {/* Product image + name */}
-                <View className="flex-col items-center mb-0">
-                    {imageUrl ? (
-                        <Image
-                            source={{ uri: imageUrl }}
-                            className="w-32 h-32 rounded-lg bg-light-secondary dark:bg-dark-secondary"
-                            resizeMode="cover"
-                        />
-                    ) : null}
-                    <View className="flex-1 items-center justify-center">
-                        <ThemedText className="font-bold mt-global text-base">{displayName}</ThemedText>
+                {/* Product + employee row */}
+                <View className="flex-row justify-center items-stretch gap-4 mb-2 px-2">
+                    {/* Service: image + name */}
+                    <View className="flex-col items-center flex-1 min-w-0">
+                        {imageUrl ? (
+                            <Image
+                                source={{ uri: imageUrl }}
+                                className="w-24 h-24 rounded-lg bg-light-secondary dark:bg-dark-secondary"
+                                resizeMode="cover"
+                            />
+                        ) : null}
+                        <ThemedText className="font-bold mt-2 text-sm text-center" numberOfLines={2}>{displayName}</ThemedText>
                     </View>
+                    {/* Employee: avatar + name (only when present) */}
+                    {(employeeName || employeeAvatarUrl) ? (
+                        <View className="flex-col items-center justify-center flex-1 min-w-0 border-l border-light-border dark:border-dark-border pl-4">
+                            <Avatar src={employeeAvatarUrl || undefined} name={employeeName} size="md" />
+                            <ThemedText className="font-medium text-sm mt-2 text-center" numberOfLines={2}>{employeeName || '—'}</ThemedText>
+                        </View>
+                    ) : null}
                 </View>
 
                 {/* Star Rating */}
