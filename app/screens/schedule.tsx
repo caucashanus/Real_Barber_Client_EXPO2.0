@@ -13,6 +13,7 @@ import { useAuth } from '@/app/contexts/AuthContext';
 import { getEmployees, type Employee } from '@/api/employees';
 import type { EmployeeBranch } from '@/api/employees';
 import { getBranches, type Branch } from '@/api/branches';
+import LiveIndicator from '@/components/LiveIndicator';
 
 /** API uses Cyrillic day names: Sun .. Sat */
 const WEEKDAY_API_KEYS = [
@@ -130,9 +131,28 @@ const ScheduleScreen = () => {
     });
   }, [employees, selectedDate, selectedBranchId]);
 
+  const isToday = useMemo(() => {
+    const d = new Date();
+    return selectedDate.getDate() === d.getDate() && selectedDate.getMonth() === d.getMonth() && selectedDate.getFullYear() === d.getFullYear();
+  }, [selectedDate]);
+
+  const isTomorrow = useMemo(() => {
+    const d = new Date();
+    d.setDate(d.getDate() + 1);
+    return selectedDate.getDate() === d.getDate() && selectedDate.getMonth() === d.getMonth() && selectedDate.getFullYear() === d.getFullYear();
+  }, [selectedDate]);
+
+  const dateVariant = isToday ? 'today' : isTomorrow ? 'tomorrow' : null;
+  const headerIndicator =
+    dateVariant === 'today'
+      ? [<LiveIndicator key="live" size="lg" />]
+      : dateVariant === 'tomorrow'
+        ? [<LiveIndicator key="live" variant="orange" size="lg" />]
+        : [];
+
   return (
     <>
-      <Header title=" " showBackButton />
+      <Header title=" " showBackButton rightComponents={headerIndicator} />
       <ThemedScroller className="flex-1" keyboardShouldPersistTaps="handled">
         <Section title="Schedule" titleSize="3xl" className="py-10" />
 
@@ -179,6 +199,7 @@ const ScheduleScreen = () => {
                   name={emp.name}
                   image={emp.avatarUrl ?? require('@/assets/img/room-1.avif')}
                   branchNames={branchNames}
+                  dateVariant={dateVariant}
                 />
               );
             })}
@@ -194,9 +215,11 @@ interface ScheduleCardProps {
   image: string | number;
   /** Pobočka/pobočky, na kterých má zaměstnanec směnu – zobrazíme jako indikátor na kartě. */
   branchNames: string[];
+  /** Zelený (dnes) / oranžový (zítra) indikátor v rohu karty; null = nezobrazovat. */
+  dateVariant: 'today' | 'tomorrow' | null;
 }
 
-const ScheduleCard = ({ name, image, branchNames }: ScheduleCardProps) => {
+const ScheduleCard = ({ name, image, branchNames, dateVariant }: ScheduleCardProps) => {
   return (
     <View style={{ ...shadowPresets.large }} className="bg-light-primary dark:bg-dark-secondary rounded-3xl overflow-hidden">
       <View className="w-full aspect-[3/4] bg-neutral-200 dark:bg-neutral-800">
@@ -205,6 +228,11 @@ const ScheduleCard = ({ name, image, branchNames }: ScheduleCardProps) => {
           className="w-full h-full"
           resizeMode="cover"
         />
+        {dateVariant !== null && (
+          <View className="absolute top-2 right-3">
+            <LiveIndicator variant={dateVariant === 'tomorrow' ? 'orange' : 'green'} />
+          </View>
+        )}
         {branchNames.length > 0 && (
           <View className="absolute top-2 left-2 right-2 flex-row flex-wrap gap-1">
             {branchNames.map((branchName) => (

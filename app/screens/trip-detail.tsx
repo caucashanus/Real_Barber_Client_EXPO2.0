@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { View, ActivityIndicator, Image } from 'react-native';
-import { useLocalSearchParams } from 'expo-router';
+import { useLocalSearchParams, router } from 'expo-router';
 import Header from '@/components/Header';
 import ThemedScroller from '@/components/ThemeScroller';
 import ThemedFooter from '@/components/ThemeFooter';
@@ -14,6 +14,7 @@ import Icon from '@/components/Icon';
 import { Button } from '@/components/Button';
 import AnimatedView from '@/components/AnimatedView';
 import { useAuth } from '@/app/contexts/AuthContext';
+import { useSetTransferRecipient } from '@/app/contexts/TransferRecipientContext';
 import { getBookings, type Booking } from '../../api/bookings';
 import { getBranches, type Branch, type BranchService } from '@/api/branches';
 import { getClientOverview, type ClientOverviewReservation } from '@/api/reviews';
@@ -109,6 +110,7 @@ function isBookingPast(booking: Booking): boolean {
 const BookingDetailScreen = () => {
   const { id } = useLocalSearchParams<{ id: string }>();
   const { apiToken } = useAuth();
+  const setTransferRecipient = useSetTransferRecipient();
   const [booking, setBooking] = useState<Booking | null>(null);
   const [branch, setBranch] = useState<Branch | null>(null);
   const [hasReview, setHasReview] = useState(false);
@@ -239,6 +241,24 @@ const BookingDetailScreen = () => {
               href="/screens/chat/user"
               showChevron
               className="px-4 py-3 bg-light-secondary dark:bg-dark-secondary rounded-xl"
+            />
+            <ListLink
+              icon="Gift"
+              title="Send RBC as tip"
+              description="Transfer RBC to this specialist"
+              showChevron
+              className="px-4 py-3 bg-light-secondary dark:bg-dark-secondary rounded-xl mt-2"
+              onPress={() => {
+                const emp = booking.employee;
+                if (!emp?.id) return;
+                setTransferRecipient({
+                  id: emp.id,
+                  name: emp.name ?? '—',
+                  type: 'EMPLOYEE',
+                  avatarUrl: emp.avatarUrl ?? undefined,
+                });
+                router.push(`/screens/transfer-chat/${emp.id}`);
+              }}
             />
           </Section>
 
