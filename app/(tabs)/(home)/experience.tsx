@@ -15,6 +15,7 @@ import { useAuth } from '@/app/contexts/AuthContext';
 import { getEmployees, type Employee } from '@/api/employees';
 import { getFavorites } from '@/api/favorites';
 import LiveIndicator from '@/components/LiveIndicator';
+import { Button } from '@/components/Button';
 
 const NEW_BARBERS_DAYS = 30;
 
@@ -314,6 +315,8 @@ const ExperienceScreen = () => {
                                 <Pressable onPress={() => newBarbersInfoSheetRef.current?.show()} hitSlop={8} className="p-1">
                                     <Icon name="Info" size={18} className="text-light-subtext dark:text-dark-subtext" />
                                 </Pressable>
+                            ) : section.title === 'Popular barbers available today' ? (
+                                <Button title="Schedule" size="small" variant="outline" rounded="lg" className="ml-auto py-1.5 px-3" textClassName="text-xs" href="/screens/schedule" />
                             ) : undefined}
                             link={section.title === 'All barbers' || section.title === 'New barbers' || section.title === 'Popular barbers available today' ? undefined : '/screens/map'}
                             linkText={section.title === 'All barbers' || section.title === 'New barbers' || section.title === 'Popular barbers available today' ? undefined : 'View all'}

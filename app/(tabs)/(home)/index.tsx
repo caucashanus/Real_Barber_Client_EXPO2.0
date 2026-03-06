@@ -130,39 +130,41 @@ const HomeScreen = () => {
                   </CardScroller>
                 </Section>
 
-                <Section title="Kudy k nám?" titleSize="lg">
+                <Section title="How to get to us?" titleSize="lg">
                   <CardScroller space={15} className="mt-1.5 pb-4">
-                    {KUDY_K_NAM_VIDEOS.length === 0 ? (
-                      <ThemedText className="py-4 text-light-subtext dark:text-dark-subtext">
-                        Videa přidáte do složky assets/videos a do constants/kudy-k-nam-videos.ts
-                      </ThemedText>
-                    ) : (
-                      KUDY_K_NAM_VIDEOS.map((item) => (
-                        <Pressable
-                          key={item.id}
-                          onPress={() => router.push(`/screens/kudy-k-nam-detail?id=${encodeURIComponent(item.id)}`)}
-                          style={{ width: 160 }}
-                          className="active:opacity-80"
-                        >
-                          <View className="relative rounded-2xl overflow-hidden bg-black">
-                            <Video
-                              source={typeof item.source === 'number' ? item.source : { uri: item.source.uri }}
-                              style={{ width: 160, height: 160 }}
-                              resizeMode={ResizeMode.COVER}
-                              useNativeControls
-                              isLooping
-                              shouldPlay={false}
-                            />
+                    {KUDY_K_NAM_VIDEOS.map((item) => (
+                      <Pressable
+                        key={item.id}
+                        onPress={() => router.push(`/screens/kudy-k-nam-detail?id=${encodeURIComponent(item.id)}`)}
+                        style={{ width: 160 }}
+                        className="active:opacity-80"
+                      >
+                        <View className="relative rounded-2xl overflow-hidden bg-light-secondary dark:bg-dark-secondary" style={{ width: 160, height: 160 }}>
+                          {item.source != null ? (
+                            <>
+                              <Video
+                                source={typeof item.source === 'number' ? item.source : { uri: item.source.uri }}
+                                style={{ width: 160, height: 160 }}
+                                resizeMode={ResizeMode.COVER}
+                                useNativeControls
+                                isLooping
+                                shouldPlay={false}
+                              />
+                              <View className="absolute top-3 right-3 z-50">
+                                <Icon name="Play" size={24} className="text-white" />
+                              </View>
+                            </>
+                          ) : (
                             <View className="absolute top-3 right-3 z-50">
-                              <Icon name="Play" size={24} className="text-white" />
+                              <Icon name="Play" size={24} className="text-light-subtext dark:text-dark-subtext" />
                             </View>
-                          </View>
-                          <View className="py-2 w-full">
-                            <ThemedText className="text-sm font-medium" numberOfLines={1}>{item.title}</ThemedText>
-                          </View>
-                        </Pressable>
-                      ))
-                    )}
+                          )}
+                        </View>
+                        <View className="py-2 w-full">
+                          <ThemedText className="text-sm font-medium" numberOfLines={1}>{item.title}</ThemedText>
+                        </View>
+                      </Pressable>
+                    ))}
                   </CardScroller>
                 </Section>
 

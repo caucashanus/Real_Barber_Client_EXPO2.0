@@ -1,5 +1,5 @@
 import React, { useRef } from 'react';
-import { View } from 'react-native';
+import { View, Pressable, Linking } from 'react-native';
 import Header from '@/components/Header';
 import ThemedText from '@/components/ThemedText';
 import ThemedScroller from '@/components/ThemeScroller';
@@ -10,13 +10,14 @@ import { useLocalSearchParams } from 'expo-router';
 import { KUDY_K_NAM_VIDEOS } from '@/constants/kudy-k-nam-videos';
 import Section from '@/components/layout/Section';
 import { Button } from '@/components/Button';
+import Icon from '@/components/Icon';
 
 const KudyKNamDetail = () => {
   const insets = useSafeAreaInsets();
   const videoRef = useRef<Video>(null);
   const { id } = useLocalSearchParams<{ id?: string }>();
   const item = id ? KUDY_K_NAM_VIDEOS.find((v) => v.id === id) : null;
-  const title = item ? `Kudy na ${item.title}?` : 'Kudy k nám?';
+  const title = item ? `How to get to ${item.title}?` : 'How to get to us?';
   const source = item?.source ?? null;
 
   const handleShowFullscreenVideo = async () => {
@@ -27,47 +28,78 @@ const KudyKNamDetail = () => {
     } catch (_) {}
   };
 
-  if (!item || !source) {
+  if (!item) {
     return (
       <>
         <StatusBar style="dark" />
-        <Header title="Kudy k nám?" showBackButton />
+        <Header title="How to get to us?" showBackButton />
         <View className="flex-1 p-global justify-center items-center">
-          <ThemedText className="text-light-subtext dark:text-dark-subtext">Pobočka nenalezena.</ThemedText>
+          <ThemedText className="text-light-subtext dark:text-dark-subtext">Branch not found.</ThemedText>
         </View>
       </>
     );
   }
 
+  const hasVideo = source != null;
+
   return (
     <>
-      <StatusBar style="light" translucent />
-      <Header variant="transparent" title="" showBackButton />
+      <StatusBar style={hasVideo ? 'light' : 'dark'} translucent={hasVideo} />
+      <Header variant={hasVideo ? 'transparent' : 'default'} title={hasVideo ? '' : title} showBackButton />
       <ThemedScroller className="px-0 bg-light-primary dark:bg-dark-primary">
-        <View className="bg-black" style={{ height: 500 }}>
-          <Video
-            ref={videoRef}
-            pointerEvents="none"
-            source={typeof source === 'number' ? source : { uri: source.uri }}
-            style={{ width: '100%', height: 500 }}
-            resizeMode={ResizeMode.COVER}
-            useNativeControls
-            shouldPlay
-            isLooping
-            isMuted={true}
-          />
-        </View>
+        {hasVideo && (
+          <View className="bg-black" style={{ height: 500 }}>
+            <Video
+              ref={videoRef}
+              pointerEvents="none"
+              source={typeof source === 'number' ? source : { uri: (source as { uri: string }).uri }}
+              style={{ width: '100%', height: 500 }}
+              resizeMode={ResizeMode.COVER}
+              useNativeControls
+              shouldPlay
+              isLooping
+              isMuted={true}
+            />
+          </View>
+        )}
 
         <View
           style={{ borderTopLeftRadius: 30, borderTopRightRadius: 30 }}
-          className="p-global bg-light-primary dark:bg-dark-primary -mt-[30px]"
+          className={`p-global bg-light-primary dark:bg-dark-primary ${hasVideo ? '-mt-[30px]' : ''}`}
         >
           <ThemedText className="text-3xl text-center font-semibold">{title}</ThemedText>
 
-          <Section title="Doprava a parkování" titleSize="lg" className="mb-6 mt-8">
-            <ThemedText className="text-base text-light-subtext dark:text-dark-subtext">
-              Zde později doplníte statický text – dopravní spoje, kde zaparkovat, atd.
+          <Section title="Transport and parking" titleSize="lg" className="mb-6 mt-8">
+            <ThemedText className="text-base text-light-subtext dark:text-dark-subtext mb-4">
+              {item.description ?? 'Add static text here later – transport, parking, etc.'}
             </ThemedText>
+            {item.mapsUrl ? (
+              <Pressable
+                onPress={() => Linking.openURL(item.mapsUrl!)}
+                className="flex-row items-center py-3 px-4 rounded-xl bg-light-secondary dark:bg-dark-secondary active:opacity-80 mb-3"
+              >
+                <Icon name="MapPin" size={22} className="text-highlight mr-3" />
+                <ThemedText className="text-base font-medium">Open in Google Maps</ThemedText>
+              </Pressable>
+            ) : null}
+            {item.wazeUrl ? (
+              <Pressable
+                onPress={() => Linking.openURL(item.wazeUrl!)}
+                className="flex-row items-center py-3 px-4 rounded-xl bg-light-secondary dark:bg-dark-secondary active:opacity-80 mb-3"
+              >
+                <Icon name="Car" size={22} className="text-highlight mr-3" />
+                <ThemedText className="text-base font-medium">Open in Waze</ThemedText>
+              </Pressable>
+            ) : null}
+            {item.uberUrl ? (
+              <Pressable
+                onPress={() => Linking.openURL(item.uberUrl!)}
+                className="flex-row items-center py-3 px-4 rounded-xl bg-light-secondary dark:bg-dark-secondary active:opacity-80"
+              >
+                <Icon name="Car" size={22} className="text-highlight mr-3" />
+                <ThemedText className="text-base font-medium">Ride with Uber</ThemedText>
+              </Pressable>
+            ) : null}
           </Section>
         </View>
       </ThemedScroller>
@@ -77,20 +109,22 @@ const KudyKNamDetail = () => {
         className="flex-row items-center justify-start px-global pt-4 pb-2 bg-light-primary dark:bg-dark-primary border-t border-neutral-200 dark:border-dark-secondary"
       >
         <View>
-          <ThemedText className="text-xl font-bold">Pobočka {item.title}</ThemedText>
-          <ThemedText className="text-xs opacity-60">Kudy k nám</ThemedText>
+          <ThemedText className="text-xl font-bold">Branch {item.title}</ThemedText>
+          <ThemedText className="text-xs opacity-60">How to get to us</ThemedText>
         </View>
-        <View className="flex-row items-center ml-auto">
-          <Button
-            title="Zobrazit video"
-            iconStart="Play"
-            className="bg-highlight ml-6 px-6"
-            textClassName="text-white"
-            size="medium"
-            onPress={handleShowFullscreenVideo}
-            rounded="lg"
-          />
-        </View>
+        {hasVideo && (
+          <View className="flex-row items-center ml-auto">
+            <Button
+              title="Show video"
+              iconStart="Play"
+              className="bg-highlight ml-6 px-6"
+              textClassName="text-white"
+              size="medium"
+              onPress={handleShowFullscreenVideo}
+              rounded="lg"
+            />
+          </View>
+        )}
       </View>
     </>
   );
