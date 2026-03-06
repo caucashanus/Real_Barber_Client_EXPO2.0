@@ -11,6 +11,9 @@ import useShadow, { shadowPresets } from '@/utils/useShadow';
 import { router } from 'expo-router';
 import { useAuth } from '@/app/contexts/AuthContext';
 import { getBranches, type Branch, type BranchService } from '@/api/branches';
+import { Video, ResizeMode } from 'expo-av';
+import { KUDY_K_NAM_VIDEOS } from '@/constants/kudy-k-nam-videos';
+import Icon from '@/components/Icon';
 
 function getServicesList(branch: Branch): BranchService[] {
   const s = branch.services;
@@ -20,7 +23,6 @@ function getServicesList(branch: Branch): BranchService[] {
 }
 
 const MOCK_SECTIONS = [
-  { title: "Trending in Prague", properties: [{ title: "Modern Cuts Vinohrady", image: require('@/assets/img/room-5.avif'), price: "from $18" }, { title: "Studio Barbershop Prague", image: require('@/assets/img/room-6.avif'), price: "from $16" }, { title: "Forest Hill Barbers", image: require('@/assets/img/room-7.avif'), price: "from $20" }, { title: "Flushing Style Prague", image: require('@/assets/img/room-1.avif'), price: "from $15" }] },
   { title: "Best rated in Prague", properties: [{ title: "Cozy Barbershop Riverdale", image: require('@/assets/img/room-2.avif'), price: "from $14" }, { title: "Riverdale Cuts", image: require('@/assets/img/room-3.avif'), price: "from $16" }, { title: "Mott Haven Barbers", image: require('@/assets/img/room-4.avif'), price: "from $18" }, { title: "Fordham Gentleman", image: require('@/assets/img/room-5.avif'), price: "from $17" }] },
   { title: "Top picks in Prague", properties: [{ title: "St. George Barbershop", image: require('@/assets/img/room-6.avif'), price: "from $22" }, { title: "George Street Cuts", image: require('@/assets/img/room-7.avif'), price: "from $18" }, { title: "Great Kills Barbers", image: require('@/assets/img/room-1.avif'), price: "from $20" }, { title: "Todt Hill Barbershop", image: require('@/assets/img/room-2.avif'), price: "from $24" }] },
   { title: "New listings in Prague", properties: [{ title: "Hamilton Barbershop", image: require('@/assets/img/room-3.avif'), price: "from $23" }, { title: "East Prague Studio", image: require('@/assets/img/room-4.avif'), price: "from $16" }, { title: "Sugar Hill Cuts", image: require('@/assets/img/room-5.avif'), price: "from $19" }, { title: "Manhattanville Barbers", image: require('@/assets/img/room-6.avif'), price: "from $21" }] },
@@ -125,6 +127,42 @@ const HomeScreen = () => {
                         <Card key={i} title={`Barbershop ${i + 1}`} rounded="2xl" hasFavorite rating={4.5} href="/screens/login" price="from 0 Kč" width={160} imageHeight={160} image={img} />
                       ))
                     }
+                  </CardScroller>
+                </Section>
+
+                <Section title="Kudy k nám?" titleSize="lg">
+                  <CardScroller space={15} className="mt-1.5 pb-4">
+                    {KUDY_K_NAM_VIDEOS.length === 0 ? (
+                      <ThemedText className="py-4 text-light-subtext dark:text-dark-subtext">
+                        Videa přidáte do složky assets/videos a do constants/kudy-k-nam-videos.ts
+                      </ThemedText>
+                    ) : (
+                      KUDY_K_NAM_VIDEOS.map((item) => (
+                        <Pressable
+                          key={item.id}
+                          onPress={() => router.push(`/screens/kudy-k-nam-detail?id=${encodeURIComponent(item.id)}`)}
+                          style={{ width: 160 }}
+                          className="active:opacity-80"
+                        >
+                          <View className="relative rounded-2xl overflow-hidden bg-black">
+                            <Video
+                              source={typeof item.source === 'number' ? item.source : { uri: item.source.uri }}
+                              style={{ width: 160, height: 160 }}
+                              resizeMode={ResizeMode.COVER}
+                              useNativeControls
+                              isLooping
+                              shouldPlay={false}
+                            />
+                            <View className="absolute top-3 right-3 z-50">
+                              <Icon name="Play" size={24} className="text-white" />
+                            </View>
+                          </View>
+                          <View className="py-2 w-full">
+                            <ThemedText className="text-sm font-medium" numberOfLines={1}>{item.title}</ThemedText>
+                          </View>
+                        </Pressable>
+                      ))
+                    )}
                   </CardScroller>
                 </Section>
 
