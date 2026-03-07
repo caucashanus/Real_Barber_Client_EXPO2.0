@@ -1,7 +1,12 @@
-import React, { useEffect, useState, useMemo } from 'react';
-import { View, Image } from 'react-native';
+import React, { useEffect, useState, useMemo, useRef } from 'react';
+import { View, Image, Pressable } from 'react-native';
+import { router } from 'expo-router';
 import Header from '@/components/Header';
+import Icon from '@/components/Icon';
 import ThemedScroller from '@/components/ThemeScroller';
+import ActionSheetThemed from '@/components/ActionSheetThemed';
+import { Button } from '@/components/Button';
+import { ActionSheetRef } from 'react-native-actions-sheet';
 import Section from '@/components/layout/Section';
 import ThemedText from '@/components/ThemedText';
 import { shadowPresets } from '@/utils/useShadow';
@@ -104,6 +109,8 @@ const ScheduleScreen = () => {
   const [loading, setLoading] = useState(false);
   const [selectedDate, setSelectedDate] = useState(() => new Date());
   const [selectedBranchId, setSelectedBranchId] = useState<string | null>(null);
+  const [selectedEmployee, setSelectedEmployee] = useState<Employee | null>(null);
+  const employeeSheetRef = useRef<ActionSheetRef>(null);
 
   useEffect(() => {
     if (!apiToken) return;
@@ -150,11 +157,42 @@ const ScheduleScreen = () => {
         ? [<LiveIndicator key="live" variant="orange" size="lg" />]
         : [];
 
+  const goToPrevDay = () => {
+    const d = new Date(selectedDate);
+    d.setDate(d.getDate() - 1);
+    setSelectedDate(d);
+  };
+  const goToNextDay = () => {
+    const d = new Date(selectedDate);
+    d.setDate(d.getDate() + 1);
+    setSelectedDate(d);
+  };
+
+  const scheduleArrows = (
+    <View className="flex-row items-center ml-auto">
+      <Pressable
+        onPress={goToPrevDay}
+        disabled={isToday}
+        className={`w-10 h-10 items-center justify-center mr-2 rounded-full border border-neutral-300 dark:border-neutral-600 ${
+          isToday ? 'opacity-30' : 'opacity-100'
+        }`}
+      >
+        <Icon name="ChevronLeft" size={24} className="-translate-x-px" />
+      </Pressable>
+      <Pressable
+        onPress={goToNextDay}
+        className="w-10 h-10 items-center justify-center rounded-full border border-neutral-300 dark:border-neutral-600"
+      >
+        <Icon name="ChevronRight" size={24} className="translate-x-px" />
+      </Pressable>
+    </View>
+  );
+
   return (
     <>
       <Header title=" " showBackButton rightComponents={headerIndicator} />
       <ThemedScroller className="flex-1" keyboardShouldPersistTaps="handled">
-        <Section title="Schedule" titleSize="3xl" className="py-10" />
+        <Section title="Schedule" titleSize="3xl" className="py-10" titleTrailing={scheduleArrows} />
 
         <DatePicker
           label="Date"
@@ -194,18 +232,48 @@ const ScheduleScreen = () => {
             {filteredEmployees.map((emp) => {
               const branchNames = getBranchNamesForDate(emp, selectedDate, branches, selectedBranchId);
               return (
-                <ScheduleCard
+                <Pressable
                   key={emp.id}
-                  name={emp.name}
-                  image={emp.avatarUrl ?? require('@/assets/img/room-1.avif')}
-                  branchNames={branchNames}
-                  dateVariant={dateVariant}
-                />
+                  onPress={() => {
+                    setSelectedEmployee(emp);
+                    employeeSheetRef.current?.show();
+                  }}
+                  className="active:opacity-90"
+                >
+                  <ScheduleCard
+                    name={emp.name}
+                    image={emp.avatarUrl ?? require('@/assets/img/room-1.avif')}
+                    branchNames={branchNames}
+                    dateVariant={dateVariant}
+                  />
+                </Pressable>
               );
             })}
           </Grid>
         )}
       </ThemedScroller>
+
+      <ActionSheetThemed ref={employeeSheetRef} gestureEnabled>
+        <View className="p-4 pb-8">
+          <View className="gap-3">
+            <Button
+              title="Rezervovat"
+              onPress={() => {}}
+              variant="primary"
+              className="w-full"
+            />
+            <Button
+              title="Profil"
+              onPress={() => {
+                employeeSheetRef.current?.hide();
+                if (selectedEmployee) router.push(`/screens/barber-detail?id=${selectedEmployee.id}`);
+              }}
+              variant="outline"
+              className="w-full"
+            />
+          </View>
+        </View>
+      </ActionSheetThemed>
     </>
   );
 };

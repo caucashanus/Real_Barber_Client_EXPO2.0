@@ -113,7 +113,7 @@ const Card: React.FC<CardProps> = ({
         return (
             <View className="flex-row items-center ">
                 <MaterialIcons name="star" size={10} color={colors.text} />
-                <ThemedText className="text-xs ml-0 text-gray-500 dark:text-gray-300">{rating}</ThemedText>
+                <ThemedText className="text-xs ml-0 text-gray-500 dark:text-gray-300">{Number(rating).toFixed(1)}</ThemedText>
             </View>
         );
     };
@@ -197,8 +197,13 @@ const Card: React.FC<CardProps> = ({
 
                 {variant !== 'overlay' && (
                     <View className="py-2 w-full flex-1 ">
-                        <View className="flex-row items-center justify-between gap-2">
-                            <ThemedText className="text-sm font-medium flex-1" numberOfLines={1}>{title}</ThemedText>
+                        <View className="flex-row items-center gap-1">
+                            <ThemedText className="text-sm font-medium flex-1 min-w-0" numberOfLines={1}>{title}</ThemedText>
+                            {rating ? (
+                                <View className="flex-row items-center bg-light-secondary dark:bg-dark-secondary rounded-full px-1.5 py-0.5">
+                                    {renderRating()}
+                                </View>
+                            ) : null}
                             {titleTrailing}
                         </View>
 
@@ -207,7 +212,7 @@ const Card: React.FC<CardProps> = ({
                                 {description}
                             </ThemedText>
                         )}
-                        {(price || rating || badgeSecondary || pillContent) && (
+                        {(price || badgeSecondary || pillContent) && (
                             <View className="flex-row items-center mt-1 flex-wrap gap-1">
                                 {pillContent ? (
                                     <View className="flex-row items-center bg-light-secondary dark:bg-dark-secondary rounded-full px-1.5 py-0.5 gap-1">
@@ -215,13 +220,11 @@ const Card: React.FC<CardProps> = ({
                                     </View>
                                 ) : (
                                     <>
-                                        {(price || rating) && (
+                                        {price ? (
                                             <View className="flex-row items-center bg-light-secondary dark:bg-dark-secondary rounded-full px-2 py-1">
                                                 {renderPrice()}
-                                                <View className='mx-1' />
-                                                {renderRating()}
                                             </View>
-                                        )}
+                                        ) : null}
                                         {badgeSecondary ? (
                                             <View className="bg-light-secondary dark:bg-dark-secondary rounded-full px-2 py-1">
                                                 <ThemedText className="text-xs text-gray-500 dark:text-gray-300">{badgeSecondary}</ThemedText>

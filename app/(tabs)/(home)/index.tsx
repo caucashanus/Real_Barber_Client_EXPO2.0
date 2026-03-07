@@ -1,5 +1,5 @@
 import ThemeScroller from '@/components/ThemeScroller';
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useContext, useEffect, useMemo, useState } from 'react';
 import { View, Pressable, Image, Animated } from 'react-native';
 import Section from '@/components/layout/Section';
 import { CardScroller } from '@/components/CardScroller';
@@ -11,6 +11,7 @@ import useShadow, { shadowPresets } from '@/utils/useShadow';
 import { router } from 'expo-router';
 import { useAuth } from '@/app/contexts/AuthContext';
 import { getBranches, type Branch, type BranchService } from '@/api/branches';
+import { getClientReviewsList, type ClientReviewListItem } from '@/api/reviews';
 import { Video, ResizeMode } from 'expo-av';
 import { KUDY_K_NAM_VIDEOS } from '@/constants/kudy-k-nam-videos';
 import Icon from '@/components/Icon';
@@ -22,12 +23,6 @@ function getServicesList(branch: Branch): BranchService[] {
   return Object.values(s);
 }
 
-const MOCK_SECTIONS = [
-  { title: "Best rated in Prague", properties: [{ title: "Cozy Barbershop Riverdale", image: require('@/assets/img/room-2.avif'), price: "from $14" }, { title: "Riverdale Cuts", image: require('@/assets/img/room-3.avif'), price: "from $16" }, { title: "Mott Haven Barbers", image: require('@/assets/img/room-4.avif'), price: "from $18" }, { title: "Fordham Gentleman", image: require('@/assets/img/room-5.avif'), price: "from $17" }] },
-  { title: "Top picks in Prague", properties: [{ title: "St. George Barbershop", image: require('@/assets/img/room-6.avif'), price: "from $22" }, { title: "George Street Cuts", image: require('@/assets/img/room-7.avif'), price: "from $18" }, { title: "Great Kills Barbers", image: require('@/assets/img/room-1.avif'), price: "from $20" }, { title: "Todt Hill Barbershop", image: require('@/assets/img/room-2.avif'), price: "from $24" }] },
-  { title: "New listings in Prague", properties: [{ title: "Hamilton Barbershop", image: require('@/assets/img/room-3.avif'), price: "from $23" }, { title: "East Prague Studio", image: require('@/assets/img/room-4.avif'), price: "from $16" }, { title: "Sugar Hill Cuts", image: require('@/assets/img/room-5.avif'), price: "from $19" }, { title: "Manhattanville Barbers", image: require('@/assets/img/room-6.avif'), price: "from $21" }] },
-  { title: "Featured in Prague", properties: [{ title: "Industrial Barbershop", image: require('@/assets/img/room-7.avif'), price: "from $26" }, { title: "Rooftop Cuts", image: require('@/assets/img/room-1.avif'), price: "from $23" }, { title: "Modern Studio Barbers", image: require('@/assets/img/room-2.avif'), price: "from $20" }, { title: "Warehouse Barbershop", image: require('@/assets/img/room-3.avif'), price: "from $24" }] },
-];
 
 function getMediaUrlsSorted(media: Branch['media']): string[] {
   if (!media) return [];
@@ -55,10 +50,28 @@ function branchPrice(branch: Branch): string {
   return `from ${min} Kč`;
 }
 
+function computeBranchRatingsMap(reviews: ClientReviewListItem[]): Map<string, number> {
+  const byBranch = new Map<string, number[]>();
+  for (const r of reviews) {
+    if (r.entityType !== 'branch' || !r.entityId) continue;
+    const id = r.entityId;
+    if (!byBranch.has(id)) byBranch.set(id, []);
+    byBranch.get(id)!.push(Number(r.rating) || 0);
+  }
+  const out = new Map<string, number>();
+  byBranch.forEach((ratings, branchId) => {
+    if (ratings.length === 0) return;
+    const avg = ratings.reduce((a, b) => a + b, 0) / ratings.length;
+    out.set(branchId, Math.round(avg * 10) / 10);
+  });
+  return out;
+}
+
 const HomeScreen = () => {
     const scrollY = useContext(ScrollContext);
     const { apiToken } = useAuth();
     const [branches, setBranches] = useState<Branch[]>([]);
+    const [branchReviewsList, setBranchReviewsList] = useState<ClientReviewListItem[]>([]);
     const [branchesLoading, setBranchesLoading] = useState(false);
     const [branchesError, setBranchesError] = useState<string | null>(null);
 
@@ -66,12 +79,22 @@ const HomeScreen = () => {
       if (!apiToken) return;
       setBranchesLoading(true);
       setBranchesError(null);
-      getBranches(apiToken, { includeReviews: true, reviewsLimit: 1 })
-        .then(setBranches)
-        .catch((e) => setBranchesError(e instanceof Error ? e.message : 'Failed to load'))
+      Promise.all([
+        getBranches(apiToken),
+        getClientReviewsList(apiToken, { entityType: 'branch', limit: 500 }),
+      ])
+        .then(([branchList, reviewsData]) => {
+          setBranches(Array.isArray(branchList) ? branchList : []);
+          setBranchReviewsList(reviewsData.reviews || []);
+        })
+        .catch((e) => {
+          setBranchesError(e instanceof Error ? e.message : 'Failed to load');
+          setBranchReviewsList([]);
+        })
         .finally(() => setBranchesLoading(false));
     }, [apiToken]);
 
+    const branchRatingsMap = useMemo(() => computeBranchRatingsMap(branchReviewsList), [branchReviewsList]);
     const popularBranches = branches.length > 0 ? branches : null;
 
     return (
@@ -114,7 +137,7 @@ const HomeScreen = () => {
                         hasFavorite
                         favoriteEntityType="branch"
                         favoriteEntityId={branch.id}
-                        rating={4.5}
+                        rating={branchRatingsMap.get(branch.id)}
                         href={`/screens/branch-detail?id=${branch.id}`}
                         price={branchPrice(branch)}
                         width={160}
@@ -168,32 +191,32 @@ const HomeScreen = () => {
                   </CardScroller>
                 </Section>
 
-                {MOCK_SECTIONS.map((section, index) => (
-                    <Section
-                        key={`branches-section-${index}`}
-                        title={section.title}
-                        titleSize="lg"
-                        link="/screens/map"
-                        linkText="View all"
-                    >
-                        <CardScroller space={15} className='mt-1.5 pb-4'>
-                            {section.properties.map((property, propIndex) => (
-                                <Card
-                                    key={`property-${index}-${propIndex}`}
-                                    title={property.title}
-                                    rounded="2xl"
-                                    hasFavorite
-                                    rating={4.5}
-                                    href="/screens/product-detail"
-                                    price={property.price}
-                                    width={160}
-                                    imageHeight={160}
-                                    image={property.image}
-                                />
-                            ))}
-                        </CardScroller>
-                    </Section>
-                ))}
+                <Section title="Top picks" titleSize="lg" link="/screens/map" linkText="View all">
+                  <CardScroller space={15} className="mt-1.5 pb-4">
+                    {branchesLoading && (
+                      <ThemedText className="py-4 text-light-subtext dark:text-dark-subtext">Loading…</ThemedText>
+                    )}
+                    {!branchesLoading && !branchesError && popularBranches?.map((branch) => (
+                      <Card
+                        key={branch.id}
+                        title={branch.name}
+                        rounded="2xl"
+                        hasFavorite
+                        favoriteEntityType="branch"
+                        favoriteEntityId={branch.id}
+                        href={`/screens/branch-detail?id=${branch.id}`}
+                        width={160}
+                        imageHeight={160}
+                        image={branchCardImage(branch)}
+                      />
+                    ))}
+                    {!apiToken && !popularBranches && !branchesLoading && (
+                      [require('@/assets/img/room-1.avif'), require('@/assets/img/room-2.avif'), require('@/assets/img/room-3.avif')].map((img, i) => (
+                        <Card key={i} title="" rounded="2xl" width={160} imageHeight={160} image={img} />
+                      ))
+                    )}
+                  </CardScroller>
+                </Section>
 
             </AnimatedView>
         </ThemeScroller>

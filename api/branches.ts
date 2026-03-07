@@ -18,6 +18,12 @@ export interface BranchEmployee {
   [key: string]: unknown;
 }
 
+export interface BranchReview {
+  id: string;
+  rating: number;
+  [key: string]: unknown;
+}
+
 export interface Branch {
   id: string;
   name: string;
@@ -27,6 +33,7 @@ export interface Branch {
   webUrl?: string | null;
   services?: BranchService[];
   employees?: BranchEmployee[] | Record<string, BranchEmployee>;
+  reviews?: BranchReview[];
   [key: string]: unknown;
 }
 

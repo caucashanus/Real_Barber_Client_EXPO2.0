@@ -79,7 +79,7 @@ export default function Layout() {
           asChild
           style={{ display: isBusinessMode ? 'none' : 'flex' }}
         >
-          <TabButton labelAnimated={false} icon="Plane">Trips</TabButton>
+          <TabButton labelAnimated={false} icon="CalendarPlus">Bookings</TabButton>
         </TabTrigger>
 
         <TabTrigger
