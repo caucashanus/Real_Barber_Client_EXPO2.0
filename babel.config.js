@@ -5,8 +5,7 @@ module.exports = function (api) {
     presets: ["babel-preset-expo"],
     plugins: [
       "nativewind/babel",
-      "react-native-worklets/plugin",
-      "react-native-reanimated/plugin", // must be last
+      "react-native-worklets/plugin", // includes Reanimated; do not add react-native-reanimated/plugin
     ],
   };
 };
