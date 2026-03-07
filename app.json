@@ -38,15 +38,13 @@
       }
     },
     "android": {
+      "package": "com.realbarber.client",
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
       "softwareKeyboardLayoutMode": "pan",
-      "predictiveBackGestureEnabled": false,
-      "config": {
-        "enableOnBackInvokedCallback": false
-      }
+      "predictiveBackGestureEnabled": false
     },
     "extra": {
       "router": {
