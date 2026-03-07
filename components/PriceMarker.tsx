@@ -1,7 +1,10 @@
-import React from 'react';
-import { View, Image, ImageSourcePropType } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, Image, ImageSourcePropType, Platform, StyleSheet } from 'react-native';
 import { Marker } from 'react-native-maps';
 import ThemedText from './ThemedText';
+
+const MARKER_SIZE = 40;
+const MARKER_IMAGE_SIZE = 40;
 
 interface PriceMarkerProps {
   coordinate: {
@@ -30,32 +33,49 @@ const PriceMarker: React.FC<PriceMarkerProps> = ({
   const showLocalLogo = Boolean(imageSource);
   const showRemoteLogo = Boolean(imageUrl?.trim()) && !showLocalLogo;
 
+  const [tracksViewChanges, setTracksViewChanges] = useState(Platform.OS === 'android');
+  useEffect(() => {
+    if (Platform.OS !== 'android') return;
+    const t = setTimeout(() => setTracksViewChanges(false), 1000);
+    return () => clearTimeout(t);
+  }, []);
+
+  const handleImageLoad = () => {
+    if (Platform.OS === 'android') setTracksViewChanges(false);
+  };
+
   return (
     <Marker
       coordinate={coordinate}
       title={title}
       onPress={onPress}
       anchor={{ x: 0.5, y: 0.5 }}
-      tracksViewChanges={false}
+      tracksViewChanges={tracksViewChanges}
     >
       <View
-        className={`
-          rounded-xl overflow-hidden items-center justify-center
-          ${isSelected ? 'border-2 border-white' : ''}
-        `}
+        style={[
+          styles.markerWrap,
+          { width: MARKER_SIZE, height: MARKER_SIZE },
+          isSelected && styles.markerSelected
+        ]}
+        className={`rounded-xl overflow-hidden ${isSelected ? 'border-2 border-white' : ''}`}
       >
         {showLocalLogo ? (
           <Image
             source={imageSource!}
-            className="w-10 h-10 rounded-lg bg-white"
+            style={{ width: MARKER_IMAGE_SIZE, height: MARKER_IMAGE_SIZE }}
+            className="rounded-lg bg-white"
             resizeMode="contain"
+            onLoadEnd={handleImageLoad}
           />
         ) : showRemoteLogo ? (
           <>
             <Image
               source={{ uri: imageUrl! }}
-              className="w-12 h-12 rounded-t-xl bg-light-secondary dark:bg-dark-secondary"
+              style={{ width: 48, height: 48 }}
+              className="rounded-t-xl bg-light-secondary dark:bg-dark-secondary"
               resizeMode="cover"
+              onLoadEnd={handleImageLoad}
             />
             <View className="px-2 py-1 min-w-0 max-w-[100px] bg-black">
               <ThemedText
@@ -67,7 +87,7 @@ const PriceMarker: React.FC<PriceMarkerProps> = ({
             </View>
           </>
         ) : (
-          <View className="rounded-lg px-3 py-2 min-w-[60px] items-center justify-center bg-black">
+          <View style={styles.priceWrap} className="rounded-lg px-3 py-2 min-w-[60px] bg-black">
             <ThemedText
               className="text-white text-sm font-bold"
               numberOfLines={1}
@@ -80,5 +100,20 @@ const PriceMarker: React.FC<PriceMarkerProps> = ({
     </Marker>
   );
 };
+
+const styles = StyleSheet.create({
+  markerWrap: {
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  markerSelected: {
+    borderWidth: 2,
+    borderColor: 'white',
+  },
+  priceWrap: {
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+});
 
 export default PriceMarker; 

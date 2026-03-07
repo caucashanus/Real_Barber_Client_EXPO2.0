@@ -212,8 +212,8 @@ const MapScreen = () => {
                     initialRegion={{
                         latitude: PRAGUE_CENTER.lat - 0.055,
                         longitude: PRAGUE_CENTER.lng - 0.015,
-                        latitudeDelta: 0.18,
-                        longitudeDelta: 0.18,
+                        latitudeDelta: 0.28,
+                        longitudeDelta: 0.28,
                     }}
                 >
                     {branches.map((branch) => (
