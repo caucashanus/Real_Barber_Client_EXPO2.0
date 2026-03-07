@@ -1,11 +1,11 @@
 {
   "expo": {
     "newArchEnabled": true,
-    "name": "Propia",
-    "slug": "propia",
+    "name": "Real Barber",
+    "slug": "realbarber",
     "version": "1.0.0",
     "runtimeVersion": "1.0.0",
-    "scheme": "propia",
+    "scheme": "realbarber",
     "experiments": {
       "tsconfigPaths": true
     },
@@ -30,7 +30,12 @@
       "**/*"
     ],
     "ios": {
-      "supportsTablet": true
+      "bundleIdentifier": "com.realbarber.client",
+      "buildNumber": "1",
+      "supportsTablet": true,
+      "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false
+      }
     },
     "android": {
       "adaptiveIcon": {
@@ -48,12 +53,8 @@
         "origin": false
       },
       "eas": {
-        "projectId": "11853cd2-a6e3-4b02-8a81-29938150b8a1"
+        "projectId": "344f73c8-de32-4770-8c07-62154df9af0c"
       }
-    },
-    "owner": "thomino",
-    "updates": {
-      "url": "https://u.expo.dev/11853cd2-a6e3-4b02-8a81-29938150b8a1"
     }
   }
 }

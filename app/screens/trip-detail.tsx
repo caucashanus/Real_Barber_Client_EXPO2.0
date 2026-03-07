@@ -21,7 +21,7 @@ import { getClientOverview, type ClientOverviewReservation } from '@/api/reviews
 
 const BRANCH_IMAGES: Record<string, number> = {
   'Modřany': require('@/assets/img/branches/Modrany.jpg'),
-  'Kačerov': require('@/assets/img/branches/Kačerov.jpg'),
+  'Kačerov': require('@/assets/img/branches/Kacerov.jpg'),
   'Hagibor': require('@/assets/img/branches/Hagibor.jpg'),
   'Barrandov': require('@/assets/img/branches/Barrandov.jpg'),
 };
