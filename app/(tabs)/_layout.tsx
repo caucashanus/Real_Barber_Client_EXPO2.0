@@ -1,35 +1,20 @@
 import { useThemeColors } from 'app/contexts/ThemeColors';
 import { TabButton } from 'components/TabButton';
 import { Tabs, TabList, TabTrigger, TabSlot } from 'expo-router/ui';
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { useBusinessMode } from '@/app/contexts/BusinesModeContext';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { useAuth } from '@/app/contexts/AuthContext';
-import { getBookings } from '@/api/bookings';
-import { isBookingUpcoming } from '@/utils/bookingHelpers';
+import { useBookingsBadge } from '@/app/contexts/BookingsBadgeContext';
+import { BookingsBadgeProvider } from '@/app/contexts/BookingsBadgeContext';
 
-export default function Layout() {
+function TabsContent() {
   const colors = useThemeColors();
   const { isBusinessMode } = useBusinessMode();
   const insets = useSafeAreaInsets();
-  const { apiToken } = useAuth();
-  const [hasUpcomingBookings, setHasUpcomingBookings] = useState(false);
+  const { hasUpcomingBookings } = useBookingsBadge();
 
-  useEffect(() => {
-    if (isBusinessMode || !apiToken) {
-      setHasUpcomingBookings(false);
-      return;
-    }
-    getBookings(apiToken)
-      .then((res) => setHasUpcomingBookings(res.bookings.some(isBookingUpcoming)))
-      .catch(() => setHasUpcomingBookings(false));
-  }, [apiToken, isBusinessMode]);
   return (
-
-
-    <Tabs
-
-    >
+    <Tabs>
       <TabSlot />
       <TabList
         style={{
@@ -119,6 +104,13 @@ export default function Layout() {
 
       </TabList>
     </Tabs>
+  );
+}
 
+export default function Layout() {
+  return (
+    <BookingsBadgeProvider>
+      <TabsContent />
+    </BookingsBadgeProvider>
   );
 }

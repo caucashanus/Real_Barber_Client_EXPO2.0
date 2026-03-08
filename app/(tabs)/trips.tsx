@@ -5,9 +5,10 @@ import ThemedText from '@/components/ThemedText';
 import { shadowPresets } from '@/utils/useShadow';
 import ThemeScroller from '@/components/ThemeScroller';
 import AnimatedView from '@/components/AnimatedView';
-import Header from '@/components/Header';
+import Header, { HeaderIcon } from '@/components/Header';
 import { useCollapsibleTitle } from '@/app/hooks/useCollapsibleTitle';
 import { useAuth } from '@/app/contexts/AuthContext';
+import { useBookingsBadge } from '@/app/contexts/BookingsBadgeContext';
 import { getBookings, type Booking } from '@/api/bookings';
 import { getClientOverview, type ClientOverviewReservation } from '@/api/reviews';
 import { Chip } from '@/components/Chip';
@@ -218,6 +219,7 @@ const TripsScreen = () => {
   const router = useRouter();
   const { scrollY, scrollHandler, scrollEventThrottle } = useCollapsibleTitle();
   const { apiToken } = useAuth();
+  const { refresh: refreshBookingsBadge } = useBookingsBadge();
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [bookingReviewMap, setBookingReviewMap] = useState<Record<string, number>>({});
   const [loading, setLoading] = useState(true);
@@ -257,6 +259,7 @@ const TripsScreen = () => {
     getBookings(apiToken)
       .then((res) => {
         setBookings(res.bookings);
+        refreshBookingsBadge();
         getClientOverview(apiToken)
           .then((overview) => {
             const map: Record<string, number> = {};
@@ -274,7 +277,7 @@ const TripsScreen = () => {
       })
       .catch((e) => setError(e instanceof Error ? e.message : 'Failed to load'))
       .finally(() => setLoading(false));
-  }, [apiToken]);
+  }, [apiToken, refreshBookingsBadge]);
 
   useFocusEffect(
     useCallback(() => {
@@ -282,6 +285,7 @@ const TripsScreen = () => {
       getBookings(apiToken)
         .then((res) => {
           setBookings(res.bookings);
+          refreshBookingsBadge();
           return getClientOverview(apiToken);
         })
         .then((overview) => {
@@ -297,7 +301,7 @@ const TripsScreen = () => {
           setBookingReviewMap(map);
         })
         .catch(() => {});
-    }, [apiToken])
+    }, [apiToken, refreshBookingsBadge])
   );
 
   const byYear = groupBookingsByYear(filteredBookings);
@@ -309,6 +313,7 @@ const TripsScreen = () => {
         title="Your Bookings"
         variant="collapsibleTitle"
         scrollY={scrollY}
+        rightComponents={[<HeaderIcon icon="PlusCircle" href="#" onPress={() => {}} />]}
       />
       <AnimatedView animation="scaleIn" className="flex-1">
         {loading ? (

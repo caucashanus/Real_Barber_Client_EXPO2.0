@@ -7,7 +7,6 @@ import ListLink from '@/components/ListLink';
 import AnimatedView from '@/components/AnimatedView';
 import ThemedScroller from '@/components/ThemeScroller';
 import {Button} from '@/components/Button';
-import BusinessSwitch from '@/components/BusinessSwitch';
 import React, { useEffect, useState } from 'react';
 import ThemeToggle from '@/components/ThemeToggle';
 import { shadowPresets } from '@/utils/useShadow';
@@ -38,8 +37,6 @@ export default function ProfileScreen() {
                     )}
 
                 </ThemedScroller>
-                <BusinessSwitch />
-
             </View>
         </View>
     );
