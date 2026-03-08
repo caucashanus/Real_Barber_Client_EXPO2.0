@@ -7,7 +7,8 @@ import ListLink from '@/components/ListLink';
 import AnimatedView from '@/components/AnimatedView';
 import ThemedScroller from '@/components/ThemeScroller';
 import {Button} from '@/components/Button';
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
+import { useFocusEffect } from '@react-navigation/native';
 import ThemeToggle from '@/components/ThemeToggle';
 import { shadowPresets } from '@/utils/useShadow';
 import Divider from '@/components/layout/Divider';
@@ -111,6 +112,15 @@ const PersonalProfile = () => {
             .then((res) => setReviewsCount(res.pagination?.total ?? res.reviews?.length ?? 0))
             .catch(() => setReviewsCount(0));
     }, [apiToken]);
+
+    useFocusEffect(
+        useCallback(() => {
+            if (!apiToken) return;
+            getClientMe(apiToken)
+                .then(setClient)
+                .catch(() => {});
+        }, [apiToken])
+    );
 
     const displayName = client?.firstName?.trim() || client?.name?.trim() || null;
     const avatarSrc = client?.avatarUrl ?? require('@/assets/img/thomino.jpg');

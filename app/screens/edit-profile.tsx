@@ -7,6 +7,8 @@ import ThemedScroller from '@/components/ThemeScroller';
 import ThemedText from '@/components/ThemedText';
 import Input from '@/components/forms/Input';
 import Select from '@/components/forms/Select';
+import { DatePicker } from '@/components/forms/DatePicker';
+import { formatToYYYYMMDD } from '@/utils/date';
 import Section from '@/components/layout/Section';
 import { COUNTRY_OPTIONS } from '@/utils/phone';
 import { Button } from '@/components/Button';
@@ -59,6 +61,7 @@ export default function EditProfileScreen() {
         setBio(data.bio ?? '');
         setDisplayName(data.displayName ?? '');
         setBirthday(data.birthday ? data.birthday.slice(0, 10) : '');
+        setStreet(data.address ?? '');
         setCity(data.city ?? '');
         setZip(data.zip ?? '');
         setCountry(data.country ? String(data.country).trim().toUpperCase().slice(0, 3) : '');
@@ -87,9 +90,12 @@ export default function EditProfileScreen() {
         lastName: lastName.trim() || undefined,
         email: email.trim() || undefined,
         birthday: birthday.trim() || undefined,
-        address: { street: street.trim() || undefined, city: city.trim() || undefined, zip: zip.trim() || undefined, country: country.trim() || undefined },
+        address: street.trim() || undefined,
+        city: city.trim() || undefined,
+        zip: zip.trim() || undefined,
+        country: country.trim() || undefined,
       });
-      setClient((prev) => (prev ? { ...prev, firstName: firstName.trim(), lastName: lastName.trim(), email: email.trim(), birthday: birthday.trim() || null, city: city.trim() || null, zip: zip.trim() || null, country: country.trim() || null } : null));
+      setClient((prev) => (prev ? { ...prev, firstName: firstName.trim(), lastName: lastName.trim(), email: email.trim(), birthday: birthday.trim() || null, address: street.trim() || null, city: city.trim() || null, zip: zip.trim() || null, country: country.trim() || null } : null));
       router.back();
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Failed to save');
@@ -180,12 +186,14 @@ export default function EditProfileScreen() {
                   autoCapitalize="words"
                   editable={!saving}
                 />
-                <Input
+                <DatePicker
                   label="Birthday"
-                  value={birthday}
-                  onChangeText={setBirthday}
-                  placeholder="YYYY-MM-DD"
-                  editable={!saving}
+                  value={birthday ? new Date(birthday + 'T12:00:00') : undefined}
+                  onChange={(date) => setBirthday(formatToYYYYMMDD(date))}
+                  placeholder="Select date"
+                  variant="classic"
+                  minDate={(() => { const d = new Date(); d.setFullYear(d.getFullYear() - 100); return d; })()}
+                  maxDate={(() => { const d = new Date(); d.setFullYear(d.getFullYear() - 5); return d; })()}
                 />
               </View>
             </View>

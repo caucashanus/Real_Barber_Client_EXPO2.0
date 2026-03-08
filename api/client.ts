@@ -44,7 +44,11 @@ export interface UpdateClientMeBody {
   displayName?: string;
   language?: string;
   birthday?: string;
-  address?: { street?: string; city?: string; zip?: string; country?: string };
+  /** Street / address line (API uses flat shape: address, city, zip, country) */
+  address?: string;
+  city?: string;
+  zip?: string;
+  country?: string;
 }
 
 /** PATCH /api/client/me – update current client profile (partial). */
