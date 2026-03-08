@@ -11,6 +11,7 @@ import { AuthProvider } from './contexts/AuthContext';
 import { TransferRecipientProvider } from './contexts/TransferRecipientContext';
 import { SelectedPurchaseProvider } from './contexts/SelectedPurchaseContext';
 import { BranchFilterProvider } from './contexts/BranchFilterContext';
+import { LanguageProvider } from './contexts/LanguageContext';
 
 NativeWindStyleSheet.setOutput({
   default: 'native',
@@ -35,6 +36,7 @@ export default function RootLayout() {
   return (
     <GestureHandlerRootView className={`bg-light-primary dark:bg-dark-primary ${Platform.OS === 'ios' ? 'pb-0 ' : ''}`} style={{ flex: 1 }}>
       <BusinessModeProvider>
+        <LanguageProvider>
         <ThemeProvider>
           <AuthProvider>
             <TransferRecipientProvider>
@@ -46,6 +48,7 @@ export default function RootLayout() {
             </TransferRecipientProvider>
           </AuthProvider>
         </ThemeProvider>
+        </LanguageProvider>
       </BusinessModeProvider>
     </GestureHandlerRootView>
   );

@@ -15,6 +15,8 @@ import Divider from '@/components/layout/Divider';
 import { router } from 'expo-router';
 import { useAuth } from '@/app/contexts/AuthContext';
 import { getClientMe, type ClientMe } from '@/api/client';
+import { getBookings } from '@/api/bookings';
+import { getClientReviewsList } from '@/api/reviews';
 
 export default function ProfileScreen() {
     const { isBusinessMode } = useBusinessMode();
@@ -74,15 +76,27 @@ const HostProfile = () => {
     );
 }
 
+function daysSinceCreatedAt(createdAt: string | null | undefined): number | null {
+    if (!createdAt) return null;
+    const created = new Date(createdAt).getTime();
+    if (!Number.isFinite(created)) return null;
+    const now = Date.now();
+    return Math.max(0, Math.floor((now - created) / (24 * 60 * 60 * 1000)));
+}
+
 const PersonalProfile = () => {
     const { apiToken } = useAuth();
     const [client, setClient] = useState<ClientMe | null>(null);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
+    const [reservationsCount, setReservationsCount] = useState<number>(0);
+    const [reviewsCount, setReviewsCount] = useState<number>(0);
 
     useEffect(() => {
         if (!apiToken) {
             setClient(null);
+            setReservationsCount(0);
+            setReviewsCount(0);
             return;
         }
         setLoading(true);
@@ -91,11 +105,20 @@ const PersonalProfile = () => {
             .then(setClient)
             .catch((e) => setError(e instanceof Error ? e.message : 'Failed to load'))
             .finally(() => setLoading(false));
+
+        getBookings(apiToken, { limit: 1 })
+            .then((res) => setReservationsCount(res.pagination?.total ?? res.bookings?.length ?? 0))
+            .catch(() => setReservationsCount(0));
+
+        getClientReviewsList(apiToken, { limit: 1, page: 1 })
+            .then((res) => setReviewsCount(res.pagination?.total ?? res.reviews?.length ?? 0))
+            .catch(() => setReviewsCount(0));
     }, [apiToken]);
 
     const displayName = client?.firstName?.trim() || client?.name?.trim() || null;
     const avatarSrc = client?.avatarUrl ?? require('@/assets/img/thomino.jpg');
     const addressLine = [client?.address?.trim(), client?.city?.trim()].filter(Boolean).join(', ') || null;
+    const daysMember = daysSinceCreatedAt(client?.createdAt);
 
     return (
         <AnimatedView className='pt-4' animation='scaleIn'>
@@ -122,16 +145,16 @@ const PersonalProfile = () => {
                 </View>
                 <View className='flex-col items-start justify-center w-1/2 pl-12'>
                     <View className='w-full'>
-                        <ThemedText className="text-xl font-bold">16</ThemedText>
-                        <ThemedText className="text-xs">Trips</ThemedText>
+                        <ThemedText className="text-xl font-bold">{reservationsCount}</ThemedText>
+                        <ThemedText className="text-xs">Reservations</ThemedText>
                     </View>
                     <View className='w-full py-3 my-3 border-y border-neutral-300 dark:border-dark-primary'>
-                        <ThemedText className="text-xl font-bold">10</ThemedText>
+                        <ThemedText className="text-xl font-bold">{reviewsCount}</ThemedText>
                         <ThemedText className="text-xs">Reviews</ThemedText>
                     </View>
                     <View className='w-full'>
-                        <ThemedText className="text-xl font-bold">11</ThemedText>
-                        <ThemedText className="text-xs">Years</ThemedText>
+                        <ThemedText className="text-xl font-bold">{daysMember ?? '—'}</ThemedText>
+                        <ThemedText className="text-xs">Member for (days)</ThemedText>
                     </View>
                 </View>
 

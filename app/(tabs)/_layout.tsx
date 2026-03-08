@@ -1,15 +1,29 @@
 import { useThemeColors } from 'app/contexts/ThemeColors';
 import { TabButton } from 'components/TabButton';
 import { Tabs, TabList, TabTrigger, TabSlot } from 'expo-router/ui';
-import { KeyboardAvoidingView, Platform, View } from 'react-native';
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useBusinessMode } from '@/app/contexts/BusinesModeContext';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useAuth } from '@/app/contexts/AuthContext';
+import { getBookings } from '@/api/bookings';
+import { isBookingUpcoming } from '@/utils/bookingHelpers';
 
 export default function Layout() {
   const colors = useThemeColors();
   const { isBusinessMode } = useBusinessMode();
   const insets = useSafeAreaInsets();
+  const { apiToken } = useAuth();
+  const [hasUpcomingBookings, setHasUpcomingBookings] = useState(false);
+
+  useEffect(() => {
+    if (isBusinessMode || !apiToken) {
+      setHasUpcomingBookings(false);
+      return;
+    }
+    getBookings(apiToken)
+      .then((res) => setHasUpcomingBookings(res.bookings.some(isBookingUpcoming)))
+      .catch(() => setHasUpcomingBookings(false));
+  }, [apiToken, isBusinessMode]);
   return (
 
 
@@ -79,7 +93,7 @@ export default function Layout() {
           asChild
           style={{ display: isBusinessMode ? 'none' : 'flex' }}
         >
-          <TabButton labelAnimated={false} icon="CalendarPlus">Bookings</TabButton>
+          <TabButton labelAnimated={false} hasBadge={hasUpcomingBookings} icon="CalendarPlus">Bookings</TabButton>
         </TabTrigger>
 
         <TabTrigger
