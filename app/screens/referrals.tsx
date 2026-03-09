@@ -6,10 +6,12 @@ import ThemedText from '@/components/ThemedText';
 import Icon from '@/components/Icon';
 import Divider from '@/components/layout/Divider';
 import { useAuth } from '@/app/contexts/AuthContext';
+import { useTranslation } from '@/app/hooks/useTranslation';
 import { getReferrals, type ClientReferralsResponse } from '@/api/referrals';
 
 const ReferralsScreen = () => {
   const { apiToken } = useAuth();
+  const { t } = useTranslation();
   const [referrals, setReferrals] = useState<ClientReferralsResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -47,11 +49,11 @@ const ReferralsScreen = () => {
       <ThemedScroller className="flex-1 px-0" keyboardShouldPersistTaps="handled">
         {/* Hero block – same layout as Earnings */}
         <View className="mt-14 mb-20 px-global">
-          <ThemedText className="text-5xl font-semibold">You've invited</ThemedText>
+          <ThemedText className="text-5xl font-semibold">{t('referralsInvited')}</ThemedText>
           <ThemedText className="text-5xl text-highlight font-semibold">
             {loading ? '…' : invited}
           </ThemedText>
-          <ThemedText className="text-5xl font-semibold">friends</ThemedText>
+          <ThemedText className="text-5xl font-semibold">{t('referralsFriends')}</ThemedText>
           <ThemedText className="text-lg mt-2">
             Rewards earned <ThemedText className="text-lg font-semibold">{rewardsRbc} RBC</ThemedText>
           </ThemedText>
@@ -62,7 +64,7 @@ const ReferralsScreen = () => {
 
         {/* Content block – same border/section style as Earnings */}
         <View className="px-global border-t-8 pt-global border-light-secondary dark:border-dark-secondary">
-          <ThemedText className="text-2xl font-semibold mb-2">Invite friends</ThemedText>
+          <ThemedText className="text-2xl font-semibold mb-2">{t('referralsInviteFriends')}</ThemedText>
           <ThemedText className="text-base text-light-subtext dark:text-dark-subtext mb-4">
             Share your link — you both earn RBC when they join and book.
           </ThemedText>
@@ -71,12 +73,12 @@ const ReferralsScreen = () => {
             className="flex-row items-center justify-center py-4 px-6 rounded-xl bg-light-secondary dark:bg-dark-secondary"
           >
             <Icon name="Share2" size={22} />
-            <ThemedText className="text-base font-semibold ml-3">Share invite link</ThemedText>
+            <ThemedText className="text-base font-semibold ml-3">{t('referralsShareLink')}</ThemedText>
           </Pressable>
 
           {referrals && referrals.referralsMade.length > 0 && (
             <>
-              <ThemedText className="text-2xl font-semibold mt-8 mb-4">Invited</ThemedText>
+              <ThemedText className="text-2xl font-semibold mt-8 mb-4">{t('referralsInvitedList')}</ThemedText>
               {referrals.referralsMade.map((r: { id?: string; referee?: { name?: string }; status?: string }) => (
                 <View key={r.id ?? String(r)} className="flex-row items-center justify-between my-3">
                   <ThemedText className="text-lg">{r.referee?.name ?? '—'}</ThemedText>

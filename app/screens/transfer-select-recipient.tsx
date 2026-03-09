@@ -20,6 +20,7 @@ import {
 import { getEmployees } from '@/api/employees';
 import { searchClients } from '@/api/clients';
 import { useSetTransferRecipient } from '@/app/contexts/TransferRecipientContext';
+import { useTranslation } from '@/app/hooks/useTranslation';
 
 function formatBalance(value: number): string {
   return value.toLocaleString('cs-CZ', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
@@ -34,7 +35,7 @@ export interface TransferRecipient {
   lastTransactionDate?: string;
 }
 
-function buildRecipientsFromHistory(history: RbCoinsHistoryItem[]): TransferRecipient[] {
+function buildRecipientsFromHistory(history: RbCoinsHistoryItem[], t: (key: string) => string): TransferRecipient[] {
   const byId: Record<string, TransferRecipient> = {};
   history.forEach((tx) => {
     const op = tx.otherParty as RbCoinsHistoryItemOtherParty | null;
@@ -43,8 +44,8 @@ function buildRecipientsFromHistory(history: RbCoinsHistoryItem[]): TransferReci
     const lastText =
       tx.type === 'TRANSFER'
         ? tx.direction === 'sent'
-          ? `You sent ${amount} RBC`
-          : `They sent you ${amount} RBC`
+          ? `${t('transferYouSentRbc')} ${amount} RBC`
+          : `${t('transferTheySentYouRbc')} ${amount} RBC`
         : tx.description || undefined;
     if (!byId[op.id]) {
       byId[op.id] = {
@@ -106,6 +107,7 @@ function recipientAvatarSrc(r: TransferRecipient): string | import('react-native
 
 export default function TransferSelectRecipientScreen() {
   const router = useRouter();
+  const { t } = useTranslation();
   const { apiToken } = useAuth();
   const setTransferRecipient = useSetTransferRecipient();
   const [balance, setBalance] = useState<number>(0);
@@ -131,7 +133,7 @@ export default function TransferSelectRecipientScreen() {
       .then(([bal, historyData, employeesList]) => {
         setBalance(bal);
         setHistory(historyData);
-        const fromHistory = buildRecipientsFromHistory(historyData);
+        const fromHistory = buildRecipientsFromHistory(historyData, t);
         const employees = Array.isArray(employeesList) ? employeesList : [];
         setRecipients(mergeEmployeesWithHistory(employees, fromHistory));
       })
@@ -141,7 +143,7 @@ export default function TransferSelectRecipientScreen() {
         setRecipients([]);
       })
       .finally(() => setLoading(false));
-  }, [apiToken]);
+  }, [apiToken, t]);
 
   useEffect(() => {
     const q = searchQuery.trim();
@@ -213,7 +215,7 @@ export default function TransferSelectRecipientScreen() {
     <>
       <Header
         showBackButton
-        title="New payment"
+        title={t('transferNewPayment')}
         onBackPress={() => router.back()}
       />
       <ThemedScroller className="flex-1 p-global">
@@ -222,7 +224,7 @@ export default function TransferSelectRecipientScreen() {
           style={{ ...shadowPresets.large }}
           className="rounded-2xl bg-light-secondary dark:bg-dark-secondary p-4 mb-4"
         >
-          <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext">Available</ThemedText>
+          <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext">{t('transferAvailable')}</ThemedText>
           <ThemedText className="text-xl font-bold text-light-text dark:text-dark-text mt-1">
             {formatBalance(balance)} <ThemedText className="text-base font-semibold">RBC</ThemedText>
           </ThemedText>
@@ -232,7 +234,7 @@ export default function TransferSelectRecipientScreen() {
         <View className="flex-row items-center rounded-xl bg-light-secondary dark:bg-dark-secondary border border-light-secondary dark:border-dark-secondary px-3 py-2 mb-4">
           <Icon name="Search" size={20} className="text-light-subtext dark:text-dark-subtext mr-2" />
           <TextInput
-            placeholder="Employee name or client phone"
+            placeholder={t('transferSearchPlaceholder')}
             placeholderTextColor="#888"
             value={searchQuery}
             onChangeText={setSearchQuery}
@@ -245,21 +247,21 @@ export default function TransferSelectRecipientScreen() {
           )}
         </View>
 
-        <Section title="Recipient" titleSize="lg" />
+        <Section title={t('transferRecipient')} titleSize="lg" />
 
         {loading ? (
           <View className="py-8 items-center">
             <ActivityIndicator size="small" />
-            <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext mt-2">Loading…</ThemedText>
+            <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext mt-2">{t('commonLoading')}</ThemedText>
           </View>
         ) : filtered.length === 0 ? (
           <View className="py-8 px-4">
             <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext text-center">
               {searchQuery.trim()
                 ? clientSearchLoading
-                  ? 'Searching…'
-                  : 'No results. Enter name or phone (min. 2 characters).'
-                : 'No employees. To send to a client, enter their phone in the search (min. 2 characters).'}
+                  ? t('transferSearching')
+                  : t('transferNoResults')
+                : t('transferNoEmployeesHint')}
             </ThemedText>
           </View>
         ) : (

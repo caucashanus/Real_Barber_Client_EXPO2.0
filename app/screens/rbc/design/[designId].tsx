@@ -11,6 +11,7 @@ import ThemedText from '@/components/ThemedText';
 import { Button } from '@/components/Button';
 import { cardDesigns, RBC_SELECTED_CARD_KEY, type CardDesign } from '@/constants/card-designs';
 import { useAuth } from '@/app/contexts/AuthContext';
+import { useTranslation } from '@/app/hooks/useTranslation';
 import RBLogo from '@/components/RBLogo';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
@@ -21,6 +22,7 @@ const CARD_HEIGHT = CARD_WIDTH / CARD_ASPECT_RATIO;
 
 export default function CardDesignDetailScreen() {
   const router = useRouter();
+  const { t } = useTranslation();
   const { designId } = useLocalSearchParams<{ designId: string }>();
   const { client } = useAuth();
   const cardScale = useRef(new Animated.Value(0)).current;
@@ -72,7 +74,7 @@ export default function CardDesignDetailScreen() {
         <Header showBackButton />
         <View className="flex-1 items-center justify-center px-6 bg-light-primary dark:bg-dark-primary">
           <ThemedText className="text-base text-light-subtext dark:text-dark-subtext text-center">Design not found.</ThemedText>
-          <Button title="Back" onPress={() => router.back()} className="mt-4" variant="outline" />
+          <Button title={t('rbcBack')} onPress={() => router.back()} className="mt-4" variant="outline" />
         </View>
       </>
     );
@@ -155,7 +157,7 @@ export default function CardDesignDetailScreen() {
           </View>
 
           <Button
-            title="Use this design"
+            title={t('rbcUseThisDesign')}
             onPress={handleUseDesign}
             className="mt-6"
           />

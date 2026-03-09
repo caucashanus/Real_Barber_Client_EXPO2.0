@@ -9,6 +9,7 @@ import { CardScroller } from '@/components/CardScroller';
 import AnimatedView from '@/components/AnimatedView';
 import Header from '@/components/Header';
 import useThemeColors from '@/app/contexts/ThemeColors';
+import { useTranslation } from '@/app/hooks/useTranslation';
 
 type OrderStatus = 'all' | 'pending' | 'completed' | 'canceled';
 
@@ -27,6 +28,7 @@ const CalendarScreen = () => {
     const [selectedStatus, setSelectedStatus] = useState<OrderStatus>('all');
     const { width } = useWindowDimensions();
     const colors = useThemeColors();
+    const { t } = useTranslation();
 
     // Mock booking data
     const bookings: Booking[] = [
@@ -193,7 +195,7 @@ const CalendarScreen = () => {
     return (
         <View className="flex-1 bg-light-primary dark:bg-dark-primary">
             <AnimatedView animation="scaleIn" className='flex-1'>
-                <Header title="Calendar" />
+                <Header title={t('calendarTitle')} />
                 <ThemedScroller className="px-0">
                     <Section className="mb-4">
                         <View className=" rounded-xl overflow-hidden h-[420px]">
@@ -299,11 +301,11 @@ const CalendarScreen = () => {
                         </View>
                     </Section>
 
-                    <Section title="Upcoming Bookings" titleSize="lg" className="mt-0 px-4">
+                    <Section title={t('calendarUpcomingBookings')} titleSize="lg" className="mt-0 px-4">
                         <CardScroller className="mt-2">
-                            <Chip label="This week (3)" size="lg" />
-                            <Chip label="Next week (2)" size="lg" />
-                            <Chip label="This month (12)" size="lg" />
+                            <Chip label={`${t('calendarThisWeek')} (3)`} size="lg" />
+                            <Chip label={`${t('calendarNextWeek')} (2)`} size="lg" />
+                            <Chip label={`${t('calendarThisMonth')} (12)`} size="lg" />
                         </CardScroller>
                         
                         <View className="mt-4 space-y-3">

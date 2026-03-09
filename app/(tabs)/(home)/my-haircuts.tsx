@@ -6,9 +6,11 @@ import { ScrollContext } from './_layout';
 import ThemedText from '@/components/ThemedText';
 import { router } from 'expo-router';
 import { Button } from '@/components/Button';
+import { useTranslation } from '@/app/hooks/useTranslation';
 
 const MyHaircutsScreen = () => {
   const scrollY = useContext(ScrollContext);
+  const { t } = useTranslation();
 
   return (
     <ThemeScroller
@@ -24,7 +26,7 @@ const MyHaircutsScreen = () => {
           className="mb-4 py-2"
           accessibilityLabel="What's it for?"
         >
-          <ThemedText className="text-base text-highlight font-medium">What's it for?</ThemedText>
+          <ThemedText className="text-base text-highlight font-medium">{t('myHaircutsWhatsFor')}</ThemedText>
         </Pressable>
         <View className="p-10 items-center rounded-3xl bg-slate-200 mt-6 mb-8 dark:bg-dark-secondary">
           <View className="w-20 h-20 relative">
@@ -38,9 +40,9 @@ const MyHaircutsScreen = () => {
               <Image className="w-full h-full" source={require('@/assets/img/savefinish.png')} resizeMode="contain" />
             </View>
           </View>
-          <ThemedText className="text-2xl font-semibold mt-4">Create your haircut</ThemedText>
-          <ThemedText className="text-sm font-light text-center px-4">Discover how to add your style and get the cut you want</ThemedText>
-          <Button title="Get started" className="mt-4" textClassName="text-white" onPress={() => router.push('/screens/add-property-start')} />
+          <ThemedText className="text-2xl font-semibold mt-4">{t('myHaircutsCreate')}</ThemedText>
+          <ThemedText className="text-sm font-light text-center px-4">{t('myHaircutsCreateDesc')}</ThemedText>
+          <Button title={t('profileGetStarted')} className="mt-4" textClassName="text-white" onPress={() => router.push('/screens/add-property-start')} />
         </View>
       </AnimatedView>
     </ThemeScroller>

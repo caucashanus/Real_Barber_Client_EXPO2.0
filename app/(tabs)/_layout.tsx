@@ -6,9 +6,11 @@ import { useBusinessMode } from '@/app/contexts/BusinesModeContext';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useBookingsBadge } from '@/app/contexts/BookingsBadgeContext';
 import { BookingsBadgeProvider } from '@/app/contexts/BookingsBadgeContext';
+import { useTranslation } from '@/app/hooks/useTranslation';
 
 function TabsContent() {
   const colors = useThemeColors();
+  const { t } = useTranslation();
   const { isBusinessMode } = useBusinessMode();
   const insets = useSafeAreaInsets();
   const { hasUpcomingBookings } = useBookingsBadge();
@@ -33,7 +35,7 @@ function TabsContent() {
           asChild
           style={{ display: isBusinessMode ? 'flex' : 'none' }}
         >
-          <TabButton labelAnimated={false} icon="Home">Home</TabButton>
+          <TabButton labelAnimated={false} icon="Home">{t('navHome')}</TabButton>
         </TabTrigger>
         <TabTrigger
           name="calendar"
@@ -41,7 +43,7 @@ function TabsContent() {
           asChild
           style={{ display: isBusinessMode ? 'flex' : 'none' }}
         >
-          <TabButton labelAnimated={false} icon="CalendarFold">Calendar</TabButton>
+          <TabButton labelAnimated={false} icon="CalendarFold">{t('navCalendar')}</TabButton>
         </TabTrigger>
         <TabTrigger
           name="analytics"
@@ -49,7 +51,7 @@ function TabsContent() {
           asChild
           style={{ display: isBusinessMode ? 'flex' : 'none' }}
         >
-          <TabButton labelAnimated={false} icon="File">Listings</TabButton>
+          <TabButton labelAnimated={false} icon="File">{t('navListings')}</TabButton>
         </TabTrigger>
 
 
@@ -60,7 +62,7 @@ function TabsContent() {
           asChild
           style={{ display: isBusinessMode ? 'none' : 'flex' }}
         >
-          <TabButton labelAnimated={false} icon="Search">Home</TabButton>
+          <TabButton labelAnimated={false} icon="Search">{t('navHome')}</TabButton>
         </TabTrigger>
 
         <TabTrigger
@@ -69,7 +71,7 @@ function TabsContent() {
           asChild
           style={{ display: isBusinessMode ? 'none' : 'flex' }}
         >
-          <TabButton labelAnimated={false} icon="Heart">Favorites</TabButton>
+          <TabButton labelAnimated={false} icon="Heart">{t('navFavorites')}</TabButton>
         </TabTrigger>
 
         <TabTrigger
@@ -78,7 +80,7 @@ function TabsContent() {
           asChild
           style={{ display: isBusinessMode ? 'none' : 'flex' }}
         >
-          <TabButton labelAnimated={false} hasBadge={hasUpcomingBookings} icon="CalendarPlus">Bookings</TabButton>
+          <TabButton labelAnimated={false} hasBadge={hasUpcomingBookings} icon="CalendarPlus">{t('navBookings')}</TabButton>
         </TabTrigger>
 
         <TabTrigger
@@ -87,7 +89,7 @@ function TabsContent() {
           asChild
           style={{ display: isBusinessMode ? 'flex' : 'flex' }}
         >
-          <TabButton labelAnimated={false} hasBadge icon="MessageSquare">Messages</TabButton>
+          <TabButton labelAnimated={false} hasBadge icon="MessageSquare">{t('navMessages')}</TabButton>
         </TabTrigger>
 
 
@@ -98,7 +100,7 @@ function TabsContent() {
           asChild
           style={{ display: isBusinessMode ? 'flex' : 'flex' }}
         >
-          <TabButton labelAnimated={false} icon="CircleUser">Profile</TabButton>
+          <TabButton labelAnimated={false} icon="CircleUser">{t('navProfile')}</TabButton>
         </TabTrigger>
 
 

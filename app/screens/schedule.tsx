@@ -8,6 +8,7 @@ import ActionSheetThemed from '@/components/ActionSheetThemed';
 import { Button } from '@/components/Button';
 import { ActionSheetRef } from 'react-native-actions-sheet';
 import Section from '@/components/layout/Section';
+import { useTranslation } from '@/app/hooks/useTranslation';
 import ThemedText from '@/components/ThemedText';
 import { shadowPresets } from '@/utils/useShadow';
 import Grid from '@/components/layout/Grid';
@@ -104,6 +105,7 @@ function getBranchNamesForDate(emp: Employee, date: Date, branches: Branch[], se
 
 const ScheduleScreen = () => {
   const { apiToken } = useAuth();
+  const { t } = useTranslation();
   const [employees, setEmployees] = useState<Employee[]>([]);
   const [branches, setBranches] = useState<Branch[]>([]);
   const [loading, setLoading] = useState(false);
@@ -192,10 +194,10 @@ const ScheduleScreen = () => {
     <>
       <Header title=" " showBackButton rightComponents={headerIndicator} />
       <ThemedScroller className="flex-1" keyboardShouldPersistTaps="handled">
-        <Section title="Schedule" titleSize="3xl" className="py-10" titleTrailing={scheduleArrows} />
+        <Section title={t('scheduleTitle')} titleSize="3xl" className="py-10" titleTrailing={scheduleArrows} />
 
         <DatePicker
-          label="Date"
+          label={t('scheduleDate')}
           value={selectedDate}
           onChange={setSelectedDate}
           containerClassName="mb-4"
@@ -204,7 +206,7 @@ const ScheduleScreen = () => {
         <CardScroller className="mb-4">
           <Chip
             size="lg"
-            label="All"
+            label={t('scheduleAll')}
             selectable
             isSelected={selectedBranchId === null}
             onPress={() => setSelectedBranchId(null)}
@@ -222,7 +224,7 @@ const ScheduleScreen = () => {
         </CardScroller>
 
         {loading ? (
-          <ThemedText className="py-4 text-light-subtext dark:text-dark-subtext">Loading…</ThemedText>
+          <ThemedText className="py-4 text-light-subtext dark:text-dark-subtext">{t('commonLoading')}</ThemedText>
         ) : filteredEmployees.length === 0 ? (
           <ThemedText className="py-4 text-light-subtext dark:text-dark-subtext">
             No employees with a shift on this date{selectedBranchId ? ' at this branch' : ''}.
@@ -257,13 +259,13 @@ const ScheduleScreen = () => {
         <View className="p-4 pb-8">
           <View className="gap-3">
             <Button
-              title="Rezervovat"
+              title={t('scheduleRezervovat')}
               onPress={() => {}}
               variant="primary"
               className="w-full"
             />
             <Button
-              title="Profil"
+              title={t('scheduleProfil')}
               onPress={() => {
                 employeeSheetRef.current?.hide();
                 if (selectedEmployee) router.push(`/screens/barber-detail?id=${selectedEmployee.id}`);

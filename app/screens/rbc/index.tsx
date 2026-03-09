@@ -24,6 +24,7 @@ import {
   type CardDesign,
 } from '@/constants/card-designs';
 import RBLogo from '@/components/RBLogo';
+import { useTranslation } from '@/app/hooks/useTranslation';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 const CARD_ASPECT_RATIO = 1.625;
@@ -37,6 +38,7 @@ function formatBalance(value: number): string {
 
 export default function RBCScreen() {
   const router = useRouter();
+  const { t } = useTranslation();
   const { apiToken, client } = useAuth();
   const [balance, setBalance] = useState<number | null>(null);
   const [loading, setLoading] = useState(true);
@@ -216,7 +218,7 @@ export default function RBCScreen() {
         <View className="px-6 pt-4 pb-6">
           {/* Balance */}
           <View className="mb-6">
-            <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext">Your balance</ThemedText>
+            <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext">{t('rbcYourBalance')}</ThemedText>
             {loading ? (
               <ActivityIndicator size="small" className="mt-2" />
             ) : error ? (
@@ -242,7 +244,7 @@ export default function RBCScreen() {
             <Pressable onPress={toggleShowDetails} className="mt-3 flex-row items-center justify-center gap-2">
               <Icon name={showDetails ? 'EyeOff' : 'Eye'} size={18} />
               <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext">
-                {showDetails ? 'Hide details' : 'Show details'}
+                {showDetails ? t('rbcHideDetails') : t('rbcShowDetails')}
               </ThemedText>
             </Pressable>
           </View>
@@ -256,7 +258,7 @@ export default function RBCScreen() {
               <View className="w-14 h-14 rounded-full bg-light-secondary dark:bg-dark-secondary items-center justify-center">
                 <Icon name="Send" size={22} color="#0EA5E9" />
               </View>
-              <ThemedText className="text-xs mt-2 text-light-text dark:text-dark-text">Send</ThemedText>
+              <ThemedText className="text-xs mt-2 text-light-text dark:text-dark-text">{t('rbcSend')}</ThemedText>
             </Pressable>
             <Pressable
               onPress={() => router.push('/screens/rbc/historie')}
@@ -265,7 +267,7 @@ export default function RBCScreen() {
               <View className="w-14 h-14 rounded-full bg-light-secondary dark:bg-dark-secondary items-center justify-center">
                 <Icon name="Clock" size={22} />
               </View>
-              <ThemedText className="text-xs mt-2 text-light-text dark:text-dark-text">History</ThemedText>
+              <ThemedText className="text-xs mt-2 text-light-text dark:text-dark-text">{t('rbcHistory')}</ThemedText>
             </Pressable>
             <Pressable
               onPress={() => router.push('/screens/rbc/design')}
@@ -274,7 +276,7 @@ export default function RBCScreen() {
               <View className="w-14 h-14 rounded-full bg-light-secondary dark:bg-dark-secondary items-center justify-center">
                 <Icon name="Palette" size={22} />
               </View>
-              <ThemedText className="text-xs mt-2 text-light-text dark:text-dark-text">Design</ThemedText>
+              <ThemedText className="text-xs mt-2 text-light-text dark:text-dark-text">{t('rbcDesign')}</ThemedText>
             </Pressable>
           </View>
         </View>

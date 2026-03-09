@@ -17,6 +17,8 @@ import { getFavorites } from '@/api/favorites';
 import { getClientReviewsList, type ClientReviewListItem } from '@/api/reviews';
 import LiveIndicator from '@/components/LiveIndicator';
 import { Button } from '@/components/Button';
+import { useTranslation } from '@/app/hooks/useTranslation';
+import type { TranslationKey } from '@/locales';
 
 const NEW_BARBERS_DAYS = 30;
 
@@ -68,9 +70,18 @@ function shuffleArray<T>(arr: T[]): T[] {
     return out;
 }
 
+const SECTION_TITLE_KEYS: Record<string, string> = {
+    'New barbers': 'experienceNewBarbers',
+    'Popular barbers available today': 'experiencePopularToday',
+    'All barbers': 'experienceAllBarbers',
+    'My favorite barbers': 'experienceMyFavorites',
+    'Best rated barbers': 'experienceBestRated',
+};
+
 const ExperienceScreen = () => {
     const scrollY = useContext(ScrollContext);
     const { apiToken } = useAuth();
+    const { t } = useTranslation();
     const [employees, setEmployees] = useState<Employee[]>([]);
     const [employeeReviewsList, setEmployeeReviewsList] = useState<ClientReviewListItem[]>([]);
     const [employeesLoading, setEmployeesLoading] = useState(false);
@@ -325,22 +336,22 @@ const ExperienceScreen = () => {
                         .map((section, index) => (
                         <Section
                             key={`barbers-section-${index}`}
-                            title={section.title}
+                            title={SECTION_TITLE_KEYS[section.title] ? t(SECTION_TITLE_KEYS[section.title] as TranslationKey) : section.title}
                             titleSize="lg"
                             titleTrailing={section.title === 'New barbers' ? (
                                 <Pressable onPress={() => newBarbersInfoSheetRef.current?.show()} hitSlop={8} className="p-1">
                                     <Icon name="Info" size={18} className="text-light-subtext dark:text-dark-subtext" />
                                 </Pressable>
                             ) : section.title === 'Popular barbers available today' ? (
-                                <Button title="Schedule" size="small" variant="outline" rounded="lg" className="ml-auto py-1.5 px-3" textClassName="text-xs" href="/screens/schedule" />
+                                <Button title={t('experienceSchedule')} size="small" variant="outline" rounded="lg" className="ml-auto py-1.5 px-3" textClassName="text-xs" href="/screens/schedule" />
                             ) : undefined}
                             link={section.title === 'All barbers' || section.title === 'New barbers' || section.title === 'Popular barbers available today' || section.title === 'Best rated barbers' ? undefined : '/screens/map'}
-                            linkText={section.title === 'All barbers' || section.title === 'New barbers' || section.title === 'Popular barbers available today' || section.title === 'Best rated barbers' ? undefined : 'View all'}
+                            linkText={section.title === 'All barbers' || section.title === 'New barbers' || section.title === 'Popular barbers available today' || section.title === 'Best rated barbers' ? undefined : t('commonViewAll')}
                         >
                             <CardScroller space={15} className='mt-1.5 pb-4'>
                                 {section.title === 'New barbers' ? (
                                     <>
-                                        {employeesLoading && <ThemedText className="py-4 text-light-subtext dark:text-dark-subtext">Loading…</ThemedText>}
+                                        {employeesLoading && <ThemedText className="py-4 text-light-subtext dark:text-dark-subtext">{t('commonLoading')}</ThemedText>}
                                         {employeesError && <ThemedText className="py-4 text-red-500 dark:text-red-400">{employeesError}</ThemedText>}
                                         {!employeesLoading && !employeesError && newBarbers.map((emp) => (
                                             <Card
@@ -361,7 +372,7 @@ const ExperienceScreen = () => {
                                     </>
                                 ) : section.title === 'Popular barbers available today' ? (
                                     <>
-                                        {employeesLoading && <ThemedText className="py-4 text-light-subtext dark:text-dark-subtext">Loading…</ThemedText>}
+                                        {employeesLoading && <ThemedText className="py-4 text-light-subtext dark:text-dark-subtext">{t('commonLoading')}</ThemedText>}
                                         {employeesError && <ThemedText className="py-4 text-red-500 dark:text-red-400">{employeesError}</ThemedText>}
                                         {!employeesLoading && !employeesError && barbersAvailableToday.map((emp) => (
                                             <Card
@@ -382,7 +393,7 @@ const ExperienceScreen = () => {
                                     </>
                                 ) : section.title === 'All barbers' ? (
                                     <>
-                                        {employeesLoading && <ThemedText className="py-4 text-light-subtext dark:text-dark-subtext">Loading…</ThemedText>}
+                                        {employeesLoading && <ThemedText className="py-4 text-light-subtext dark:text-dark-subtext">{t('commonLoading')}</ThemedText>}
                                         {employeesError && <ThemedText className="py-4 text-red-500 dark:text-red-400">{employeesError}</ThemedText>}
                                         {!employeesLoading && !employeesError && allBarbersShuffled.map((emp) => (
                                             <Card
@@ -402,7 +413,7 @@ const ExperienceScreen = () => {
                                     </>
                                 ) : section.title === 'My favorite barbers' ? (
                                     <>
-                                        {employeesLoading && <ThemedText className="py-4 text-light-subtext dark:text-dark-subtext">Loading…</ThemedText>}
+                                        {employeesLoading && <ThemedText className="py-4 text-light-subtext dark:text-dark-subtext">{t('commonLoading')}</ThemedText>}
                                         {employeesError && <ThemedText className="py-4 text-red-500 dark:text-red-400">{employeesError}</ThemedText>}
                                         {!employeesLoading && !employeesError && favoriteBarbers.map((emp) => (
                                             <Card
@@ -422,7 +433,7 @@ const ExperienceScreen = () => {
                                     </>
                                 ) : section.title === 'Best rated barbers' ? (
                                     <>
-                                        {employeesLoading && <ThemedText className="py-4 text-light-subtext dark:text-dark-subtext">Loading…</ThemedText>}
+                                        {employeesLoading && <ThemedText className="py-4 text-light-subtext dark:text-dark-subtext">{t('commonLoading')}</ThemedText>}
                                         {employeesError && <ThemedText className="py-4 text-red-500 dark:text-red-400">{employeesError}</ThemedText>}
                                         {!employeesLoading && !employeesError && bestRatedBarbers.map((emp) => (
                                             <Card
@@ -467,7 +478,7 @@ const ExperienceScreen = () => {
 
             <ActionSheetThemed ref={newBarbersInfoSheetRef} gestureEnabled>
                 <View className="p-4 pb-8">
-                    <ThemedText className="text-lg font-semibold mb-3">New barbers</ThemedText>
+                    <ThemedText className="text-lg font-semibold mb-3">{t('experienceNewBarbers')}</ThemedText>
                     <ThemedText className="text-base text-light-subtext dark:text-dark-subtext leading-6">
                         Here you’ll find colleagues who have recently joined our team. They appear in this section for 30 days after their profile is added, so you can get to know the newest members.
                     </ThemedText>

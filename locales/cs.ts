@@ -1,0 +1,645 @@
+import type { TranslationKey } from './en';
+
+export const cs: Record<TranslationKey, string> = {
+  // Search
+  searchPlaceholder: 'Hledat',
+  searchBranches: 'Pobočky',
+  searchBranchesSubtitle: 'Prohlédnout pobočky',
+  searchMyBookings: 'Mé rezervace',
+  searchMyBookingsSubtitle: 'Vaše rezervace a návštěvy',
+  searchBarbers: 'Barbeři',
+  searchBarbersSubtitle: 'Prohlédnout barbery a jejich profily',
+  searchServices: 'Služby',
+  searchServicesSubtitle: 'Služby a ceník',
+  searchSchedule: 'Rozvrh',
+  searchScheduleSubtitle: 'Rezervovat termín',
+  searchFavorites: 'Oblíbené',
+  searchFavoritesSubtitle: 'Uložené pobočky a barbeři',
+
+  // Settings
+  settingsTitle: 'Nastavení',
+  settingsSubtitle: 'Správa nastavení účtu',
+  settingsPayments: 'Platby',
+  settingsPaymentsDesc: 'Správa platebních metod',
+  settingsNotifications: 'Oznámení',
+  settingsNotificationsDesc: 'Push notifikace, e-mailová oznámení',
+  settingsCurrency: 'Měna',
+  settingsCurrencyDesc: 'USD - Americký dolar',
+  settingsChangePassword: 'Změnit heslo',
+  settingsChangePasswordDesc: 'Změňte své heslo',
+  settingsHelp: 'Nápověda',
+  settingsHelpDesc: 'Kontaktovat podporu',
+  settingsSwitchToCzech: 'Přepnout do češtiny',
+  settingsSwitchToEnglish: 'Přepnout do angličtiny',
+
+  // Profile
+  profileReservations: 'Rezervace',
+  profileReviews: 'Recenze',
+  profileMemberDays: 'Členem (dní)',
+  profileAccountSettings: 'Nastavení účtu',
+  profileEditProfile: 'Upravit profil',
+  profileGetHelp: 'Nápověda',
+  profileReferrals: 'Doporučení',
+  profileLogout: 'Odhlásit se',
+  profileGuest: 'Host',
+  profileNewToHosting: 'Nový v hostování?',
+  profileNewToHostingDesc: 'Zjistěte, jak začít hostit a vydělat si navíc',
+  profileGetStarted: 'Začít',
+  profileEarnings: 'Výdělky',
+  profileInsights: 'Přehledy',
+  profileCreateListing: 'Vytvořit nový inzerát',
+
+  // Bottom navigation (tab bar)
+  navHome: 'Úvod',
+  navCalendar: 'Kalendář',
+  navListings: 'Inzeráty',
+  navFavorites: 'Oblíbené',
+  navBookings: 'Rezervace',
+  navMessages: 'Zprávy',
+  navProfile: 'Profil',
+
+  // Home tabs (horizontal scroll under home)
+  tabWallet: 'Peněženka',
+  tabMyHaircuts: 'Moje střihy',
+  tabBranches: 'Pobočky',
+  tabBarbers: 'Barbeři',
+  tabServices: 'Služby',
+  tabProducts: 'Produkty',
+  tabGuides: 'Průvodci',
+
+  // Trips / Bookings
+  tripsTitle: 'Vaše rezervace',
+  tripsLoading: 'Načítání…',
+  tripsNoBookings: 'Zatím žádné rezervace.',
+  tripsFilterAll: 'Vše',
+  tripsFilterCurrent: 'Aktuální',
+  tripsFilterUpcoming: 'Nadcházející',
+  tripsFilterPast: 'Minulé',
+  tripsFilterCancelled: 'Zrušené',
+  tripsFilterRated: 'Ohodnocené',
+  tripsFilterPendingReview: 'Čeká na recenzi',
+  tripsDays: 'dní',
+  tripsHours: 'h',
+  tripsMinutes: 'min',
+  tripsSeconds: 's',
+  tripsIn: 'Za',
+
+  // Review
+  reviewWriteTo: 'Napsat recenzi pro',
+  reviewWriteFallback: 'Napsat recenzi',
+  reviewWriteYourReview: 'Napište svou recenzi',
+  reviewAnonymous: 'Anonymní recenze',
+  reviewAnonymousDesc: 'Vaše jméno a profil se u této recenze nezobrazí.',
+  reviewSubmit: 'Odeslat recenzi',
+  reviewUpdate: 'Upravit recenzi',
+  reviewDelete: 'Smazat recenzi',
+  reviewDeleting: 'Mažu…',
+  reviewDeleteConfirmTitle: 'Smazat recenzi',
+  reviewDeleteConfirmMessage: 'Opravdu chcete smazat tuto recenzi?',
+
+  // Branch detail
+  branchReview: 'Recenze',
+  branchWriteReview: 'Napsat recenzi',
+  branchUpdateReview: 'Upravit recenzi',
+  branchReviews: 'recenze',
+  branchLoadingReviews: 'Načítání recenzí…',
+
+  // Barber detail
+  barberReview: 'Recenze',
+  barberWriteReview: 'Napsat recenzi',
+  barberUpdateReview: 'Upravit recenzi',
+
+  // Service detail
+  serviceReview: 'Recenze',
+  serviceWriteReview: 'Napsat recenzi',
+  serviceUpdateReview: 'Upravit recenzi',
+
+  // Product detail
+  productRecenzovat: 'Recenzovat',
+  productNapsatRecenzi: 'Napsat recenzi',
+  productBuyerReviews: 'Recenze kupujících',
+
+  // Schedule
+  scheduleTitle: 'Rozvrh',
+  scheduleDate: 'Datum',
+  scheduleAll: 'Vše',
+  scheduleRezervovat: 'Rezervovat',
+  scheduleProfil: 'Profil',
+
+  // Help
+  helpTitle: 'Nápověda a podpora',
+  helpFaq: 'Časté dotazy',
+  helpContactUs: 'Kontaktujte nás',
+  helpContactSubtitle: 'Jsme tu, abychom pomohli s rezervacemi a cestováním',
+  helpContactSupport: 'Kontaktovat podporu',
+
+  // Common
+  commonLoading: 'Načítání…',
+  commonError: 'Chyba',
+  commonCancel: 'Zrušit',
+  commonSave: 'Uložit',
+  commonYes: 'Ano',
+  commonNo: 'Ne',
+  commonViewAll: 'Zobrazit vše',
+  popularBarbershops: 'Oblíbené holičství v Praze',
+  howToGetToUs: 'Kudy k nám?',
+  topPicks: 'Top výběr',
+
+  // Services
+  servicesHaircuts: 'Střihy',
+  servicesBasic: 'Základní',
+  servicesPackages: 'Balíčky',
+  servicesColoring: 'Barvení',
+  servicesHomeServices: 'Služby u vás',
+  servicesNoItems: 'Žádné položky',
+
+  // Experience
+  experienceNewBarbers: 'Noví barbeři',
+  experienceNewBarbersDesc: 'Barbeři, kteří se nedávno přidali a jsou připraveni se o vás postarat.',
+  experienceSchedule: 'Rozvrh',
+  experiencePopularToday: 'Dnes dostupní oblíbení barbeři',
+  experienceAllBarbers: 'Všichni barbeři',
+  experienceMyFavorites: 'Moji oblíbení barbeři',
+  experienceBestRated: 'Nejlépe hodnocení barbeři',
+
+  // My haircuts
+  myHaircutsWhatsFor: 'K čemu to je?',
+  myHaircutsCreate: 'Vytvořte si svůj střih',
+  myHaircutsCreateDesc: 'Objevte, jak přidat svůj styl a získat střih, který chcete',
+
+  // Products (home)
+  productsMyPurchased: 'Moje zakoupené produkty',
+  productsTitle: 'Produkty',
+  productsNoPurchased: 'Žádné zakoupené produkty.',
+  walletTransactions: 'Transakce',
+  walletNoTransactions: 'Žádné transakce',
+
+  // Trips card
+  tripsViewBooking: 'Zobrazit rezervaci',
+  tripsAddReview: 'Napsat recenzi',
+  tripsMessage: 'Zpráva',
+  bookingStatusCancelled: 'Zrušené',
+  bookingStatusInProgress: 'Probíhá',
+  bookingStatusPast: 'Minulé',
+  bookingStatusUpcoming: 'Nadcházející',
+
+  // Listings (business)
+  listingsYourListings: 'Vaše inzeráty',
+  listingsHomes: 'Domovy',
+  listingsExperiences: 'Zážítky',
+
+  // Calendar
+  calendarTitle: 'Kalendář',
+  calendarUpcomingBookings: 'Nadcházející rezervace',
+
+  // Edit profile
+  editProfileSaveChanges: 'Uložit změny',
+  editProfileTitle: 'Nastavení profilu',
+  editProfileSubtitle: 'Správa nastavení účtu',
+  editProfileLoading: 'Načítání profilu…',
+  editProfilePhoto: 'Fotka',
+  editProfileRemovePhoto: 'Odstranit fotku',
+  editProfilePersonalInfo: 'Osobní údaje',
+  editProfileFirstName: 'Jméno',
+  editProfileLastName: 'Příjmení',
+  editProfileBirthday: 'Datum narození',
+  editProfileContact: 'Kontakt',
+  editProfileEmail: 'E-mail',
+  editProfilePhone: 'Telefon',
+  editProfileAddress: 'Adresa',
+  editProfileStreet: 'Ulice',
+  editProfileCity: 'Město',
+  editProfileZip: 'PSČ',
+  editProfileCountry: 'Země',
+  editProfilePhoneNumber: 'Telefonní číslo',
+  editProfileSendSms: 'Odeslat SMS žádost',
+  editProfileWhatsApp: 'WhatsApp žádost',
+
+  // Currency
+  currencyTitle: 'Měna',
+
+  // Notifications
+  notificationsTitle: 'Oznámení',
+  notificationsSubtitle: 'Mějte přehled o rezervacích a cestách',
+  notificationsAll: 'Vše',
+  notificationsBookings: 'Rezervace',
+  notificationsMessages: 'Zprávy',
+  notificationsPayments: 'Platby',
+  notificationsReviews: 'Recenze',
+  notificationsInquiries: 'Dotazy',
+  notificationsNoFound: 'Žádná oznámení',
+
+  // Payments
+  paymentsTitle: 'Platební metody',
+  paymentsYourCards: 'Vaše karty',
+  paymentsAddCard: 'Přidat novou kartu',
+  paymentsDigitalWallets: 'Digitální peněženky',
+  paymentsSetDefault: 'Nastavit jako výchozí platební metodu',
+  paymentsCardNumber: 'Číslo karty',
+  paymentsCardholder: 'Jméno držitele',
+  paymentsExpiry: 'Datum expirace',
+
+  // Change password
+  changePasswordTitle: 'Změnit heslo',
+
+  // Trip detail / Booking detail
+  bookingDetailTitle: 'Detail rezervace',
+  bookingInCareOf: 'U koho',
+  bookingMessage: 'Zpráva',
+  bookingSendRbcTip: 'Poslat RBC jako spropitné',
+  bookingYourAppointment: 'Vaše návštěva',
+  bookingFrom: 'Od',
+  bookingTo: 'Do',
+  bookingDuration: 'Délka',
+  bookingReservationDetails: 'Detaily rezervace',
+  bookingReservationNumber: 'Číslo rezervace',
+  bookingStatus: 'Stav',
+  bookingPriceDetails: 'Cenové detaily',
+  bookingTotal: 'Celkem',
+  bookingEarningsBreakdown: 'Rozpis výdělku',
+  bookingCleaningFee: 'Poplatek za úklid',
+  bookingPaymentMethod: 'Platební metoda',
+  paymentMethodCash: 'Hotovost',
+  paymentMethodCard: 'Kartou',
+  paymentMethodRbc: 'RB coiny',
+  bookingGuestInfo: 'Informace o hostu',
+  bookingDetails: 'Detaily rezervace',
+  bookingMessageFromGuest: 'Zpráva od hosta',
+  bookingRequestDetails: 'Detaily žádosti',
+
+  // Reservations
+  reservationsTitle: 'Rezervace',
+  reservationsUpcoming: 'Nadcházející',
+  reservationsPast: 'Minulé',
+  reservationsCancelled: 'Zrušené',
+  reservationsViewBooking: 'Zobrazit rezervaci',
+
+  // Branch detail
+  branchTitle: 'Pobočka',
+  branchTeam: 'Tým',
+  branchMine: 'Moje',
+  branchView3d: 'Prohlédnout pobočku ve 3D',
+  branchWeb: 'Web',
+  branchServices: 'Služby',
+  branchReserve: 'Rezervovat',
+
+  // Barber detail
+  barberWorkSamples: 'Ukázky práce',
+  barberBranches: 'Pobočky',
+  barberServices: 'Služby',
+
+  // Service detail
+  serviceAbout: 'O této službě',
+
+  // Map
+  mapLoadingBranches: 'Načítání poboček…',
+
+  // Product detail
+  productSeller: 'Prodejce',
+  productDetails: 'Detaily produktu',
+  productGuests: 'Hosté',
+  productBedrooms: 'Ložnice',
+  productBathrooms: 'Koupelny',
+  productSize: 'Velikost',
+  productInstantBook: 'Okamžitá rezervace',
+  productInstantBookDescription: 'Rezervujte ihned bez čekání na schválení',
+  productEdit: 'Upravit',
+  productCleanliness: 'Čistota',
+  productLocation: 'Poloha',
+  productValueForMoney: 'Poměr cena/výkon',
+
+  // Checkout
+  checkoutChooseMethod: 'Vybrat způsob rezervace',
+  checkoutSelectMethodSubtitle: 'Vyberte, jak chcete rezervovat',
+  checkoutSelectSpecialist: 'Vybrat specialistu',
+  checkoutSelectSpecialistSubtitle: 'Vyberte barbera, jehož volné časy chcete vidět',
+  checkoutNoSpecialists: 'V této pobočce nejsou žádní specialisté.',
+  checkoutPaymentMethod: 'Platební metoda',
+  checkoutPaymentSubtitle: 'Vyberte platební metodu pro vaši objednávku',
+  checkoutApplePay: 'Apple Pay',
+  checkoutApplePayDescription: 'Platba přes Apple Pay',
+  checkoutGooglePay: 'Google Pay',
+  checkoutGooglePayDescription: 'Platba přes Google Pay',
+  checkoutAddNewCard: 'Přidat novou kartu',
+  checkoutOrderReview: 'Shrnutí objednávky',
+  checkoutOrderReviewSubtitle: 'Zkontrolujte svou objednávku',
+  checkoutProjectDetails: 'Detaily projektu',
+  checkoutPayment: 'Platba',
+  checkoutReview: 'Recenze',
+
+  // Order detail
+  orderYourTrip: 'Vaše cesta',
+  orderCancellationPolicy: 'Storno podmínky',
+  orderChooseHowToPay: 'Vyberte způsob platby',
+  orderPriceDetails: 'Cenové detaily',
+  orderConfirmAndPay: 'Potvrdit a zaplatit',
+  orderChange: 'Změnit',
+
+  // Favorites
+  favoritesTitle: 'Oblíbené',
+  favoritesShare: 'Sdílet',
+  favoritesShowMap: 'Zobrazit mapu',
+
+  // Referrals
+  referralsInvited: 'Pozvali jste',
+  referralsFriends: 'přátel',
+  referralsInviteFriends: 'Pozvat přátele',
+  referralsShareLink: 'Sdílet odkaz na pozvánku',
+  referralsInvitedList: 'Pozvaní',
+
+  // Filters
+  filtersTitle: 'Filtry',
+  filtersBranchSize: 'Velikost pobočky (m²)',
+  filtersAtLeast: 'Alespoň',
+  filtersAmenitiesLayout: 'Vybavení a uspořádání',
+  filtersAmenities: 'Vybavení',
+  filtersAdditionalOptions: 'Další možnosti',
+  filtersApply: 'Použít filtry',
+  filtersNumberChairs: 'Počet křesel',
+  filtersNumberWashBasins: 'Počet umyvadel',
+  filtersCardPayment: 'Platba kartou',
+  filtersCoffeeMachine: 'Kávovar',
+  filtersWheelchairAccessible: 'Bezbariérový přístup',
+
+  // Kudy k nám
+  kudyTransportParking: 'Doprava a parkování',
+
+  // Haircut
+  haircutTitle: 'Střih',
+  haircutAdd: 'Přidat střih',
+  haircutPhotos: 'Fotky',
+
+  // Add property / haircut
+  addPropertyTitle: 'Název',
+  addPropertyDescription: 'Popis',
+  addPropertyDifficulty: 'Obtížnost',
+  addPropertySelectBarber: 'Vyberte, kdo vám stříhal',
+
+  // Transfer
+  transferNewPayment: 'Nová platba',
+  transferAvailable: 'K dispozici',
+  transferRecipient: 'Příjemce',
+  transferSearchPlaceholder: 'Jméno zaměstnance nebo telefon klienta',
+  transferYouSentRbc: 'Odeslali jste',
+  transferTheySentYouRbc: 'Odeslali vám',
+  transferSearching: 'Vyhledávám…',
+  transferNoResults: 'Žádné výsledky. Zadejte jméno nebo telefon (min. 2 znaky).',
+  transferNoEmployeesHint: 'Žádní zaměstnanci. Pro odeslání klientovi zadejte do vyhledávání jeho telefon (min. 2 znaky).',
+  transferChatAmountPlaceholder: 'Částka (RBC)',
+  transferChatNoteOptional: 'Poznámka (nepovinná)',
+  transferChatBalance: 'Zůstatek',
+  transferChatRemaining: 'Zbývá',
+  transferChatNoTransactions: 'S tímto příjemcem zatím nemáte žádné transakce',
+  transferChatSend: 'Odeslat',
+  transferChatSending: 'Odesílám…',
+  transferChatEnterValidAmount: 'Zadejte platnou částku.',
+  transferChatNotEnoughRbc: 'Nemáte dostatek RBC.',
+  transferChatFailed: 'Převod se nezdařil.',
+  transferChatYesterday: 'Včera',
+  commonRecipient: 'Příjemce',
+
+  // Insights
+  insightsTitle: 'Přehledy',
+  insightsLongerStays: 'Dlouhodobé pobyty',
+  insightsAmenities: 'Vybavení',
+  insightsFlexibleStays: 'Flexibilní pobyty',
+  insightsFamilyTravel: 'Rodinná dovolená',
+  insightsBeachfront: 'U pláže',
+  insightsPetFriendly: 'S mazlíčky',
+  insightsStar: 'Hvězda',
+
+  // Auth
+  loginWelcomeBack: 'Vítejte zpět',
+  loginSubtitle: 'Přihlaste se ke svému účtu',
+  loginPassword: 'Heslo',
+  loginTitle: 'Přihlásit se',
+  loginForgotPassword: 'Zapomenuté heslo?',
+  loginNoAccount: 'Nemáte účet? ',
+  loginSignUp: 'Registrovat se',
+  signupCreateAccount: 'Vytvořit nový účet',
+  signupCreateAccountDesc: 'Vytvořte si účet pro pokračování',
+  signupEmail: 'E-mail',
+  signupPassword: 'Heslo',
+  signupConfirmPassword: 'Potvrdit heslo',
+  signupTitle: 'Registrace',
+  signupAlreadyHave: 'Už máte účet? ',
+  signupLogIn: 'Přihlásit se',
+  forgotPasswordBackToLogin: 'Zpět na přihlášení',
+  forgotPasswordEmail: 'E-mail',
+  forgotPasswordSendRequest: 'Odeslat žádost',
+  changePasswordCurrent: 'Aktuální heslo',
+  changePasswordNew: 'Nové heslo',
+  changePasswordConfirmNew: 'Potvrdit nové heslo',
+
+  // Profile notifications settings
+  notifSettingsBookingTravel: 'Rezervace a cesty',
+  notifSettingsBookingUpdates: 'Aktualizace rezervací',
+  notifSettingsHostMessages: 'Zprávy od hostitele',
+  notifSettingsPaymentConfirmations: 'Potvrzení platby',
+  notifSettingsReviewRequests: 'Žádosti o recenzi',
+  notifSettingsCheckinReminders: 'Připomínky check-inu',
+  notifSettingsPromotionsMarketing: 'Akce a marketing',
+  notifSettingsSpecialOffers: 'Speciální nabídky',
+  notifSettingsHostPromotions: 'Akce hostitele',
+  notifSettingsTravelTips: 'Cestovní tipy',
+  notifSettingsMarketingEmails: 'Marketingové e-maily',
+
+  // Payments (extra)
+  paymentsCvv: 'CVC',
+  paymentsCancel: 'Zrušit',
+  paymentsSaveCard: 'Uložit kartu',
+  paymentsSetAsDefault: 'Nastavit jako výchozí platební metodu',
+  paymentsApplePay: 'Apple Pay',
+  paymentsGooglePay: 'Google Pay',
+  paymentsApplePaySetup: 'Nastavte Apple Pay pro rychlejší platby',
+  paymentsGooglePaySetup: 'Nastavte Google Pay pro rychlejší platby',
+
+  // Trip detail
+  tripDetailLocation: 'Poloha',
+  tripDetailFullMap: 'Celá mapa',
+  tripDetailCancelBooking: 'Zrušit rezervaci',
+  tripDetailServiceFee: 'Poplatek za službu (odečteno)',
+  tripDetailTaxes: 'Daně',
+  tripDetailYourEarnings: 'Vaše výdělky',
+
+  // Service / Barber detail
+  commonReserve: 'Rezervovat',
+  commonEdit: 'Upravit',
+  serviceBookThisService: 'Rezervovat službu',
+  serviceChooseBranchBarber: 'Vyberte pobočku a holiče',
+  barberAboutMe: 'O mně',
+  barberVideo: 'Video',
+  barberMine: 'Moje',
+  barberBook: 'Rezervovat',
+  barberReserveWith: 'Rezervovat u tohoto holiče',
+
+  // Booking detail
+  bookingMessageGuest: 'Napsat hostovi',
+  bookingReject: 'Odmítnout',
+  bookingApprove: 'Schválit',
+
+  // Haircut form
+  haircutName: 'Název',
+  haircutNameLabel: 'Název účesu',
+  haircutBarber: 'Holič',
+  haircutNote: 'Poznámka',
+  commonCancel: 'Zrušit',
+  commonDelete: 'Smazat',
+
+  // Filters (extra)
+  filtersSelfServiceCheckout: 'Samoobslužná pokladna',
+  filtersWithin100mMetro: 'Do 100 m od metra',
+  filtersWithin100mTram: 'Do 100 m od tramvaje',
+  filtersWithin100mBus: 'Do 100 m od autobusu',
+  filtersAirConditioning: 'Klimatizace',
+  filtersWifi: 'Wifi',
+  filtersParking: 'Parkoviště',
+  filtersAirCompressors: 'Kompresory',
+  filtersElectricallyAdjustableChairs: 'Elektricky nastavitelné křesla',
+
+  // Favorites tab
+  favoritesTabTitle: 'Oblíbené',
+  favoritesNoFavoritesYet: 'Zatím nemáte oblíbené',
+  favoritesBrowseSubtitle: 'Prohlížejte pobočky, holiče a služby a ukládejte si oblíbené',
+
+  // Dashboard
+  dashboardRecentReservations: 'Nedávné rezervace',
+  dashboardArrivingSoon: 'Brzy přijede',
+  dashboardUpcoming: 'Nadcházející',
+  dashboardRecentNotifications: 'Nedávná upozornění',
+
+  // Calendar chips
+  calendarThisWeek: 'Tento týden',
+  calendarNextWeek: 'Příští týden',
+  calendarThisMonth: 'Tento měsíc',
+
+  // Chat
+  chatTitle: 'Chat',
+  chatMessages: 'Zprávy',
+
+  // Wallet
+  walletAddMoney: 'Přidat peníze',
+  walletTransfer: 'Převod',
+  walletDetails: 'Detail',
+  walletMore: 'Více',
+  walletShowAll: 'Zobrazit vše',
+  walletFlexiFondy: 'FlexiFondy',
+  walletMoreButton: 'Více',
+
+  // Add property steps & texts
+  addPropertyStepHaircutType: 'Typ účesu',
+  addPropertyStepSeason: 'Období',
+  addPropertyStepBasics: 'Základní údaje',
+  addPropertyStepFeatures: 'Vlastnosti',
+  addPropertyStepPhotos: 'Fotky',
+  addPropertyStepTitleDesc: 'Název a popis',
+  addPropertyStepStyling: 'Styling a holič',
+  addPropertyStepSuccess: 'Hotovo',
+  addPropertyWhatDescribes: 'Co nejlépe vystihuje váš účes?',
+  addPropertyChooseOption: 'Vyberte možnost, která vám nejvíc sedí',
+  addPropertyForWhichSeason: 'Pro jaké období?',
+  addPropertyChooseSeason: 'Vyberte, kdy tento účes nosíte nejvíc',
+  addPropertyBasicDetails: 'Základní údaje o účesu',
+  addPropertyFillLengths: 'Vyplňte délky a jak často chodíte na úpravu',
+  addPropertyLengthAtEars: 'Délka u uší',
+  addPropertyLengthOnTop: 'Délka nahoře',
+  addPropertyLengthCm: 'Délka v cm',
+  addPropertyHowOftenTrim: 'Jak často na úpravu?',
+  addPropertyWeeksToComeIn: 'Každých kolik týdnů přijít',
+  addPropertyWhatGoesWith: 'Co k účesu patří?',
+  addPropertySelectMultiple: 'Vyberte vše, co k vašemu účesu sedí. Můžete vybrat více možností.',
+  addPropertyAddPhotos: 'Přidat fotky účesu',
+  addPropertyAtLeastOnePhoto: 'Aspoň jedna fotka pomůže. Další můžete doplnit později.',
+  addPropertyAddPhoto: 'Přidat fotku',
+  addPropertyTakePhoto: 'Vyfotit',
+  addPropertyNowName: 'Pojmenujte svůj účes',
+  addPropertyShortName: 'Stačí krátký název. Můžete ho kdykoli změnit.',
+  addPropertyStylingDifficulty: 'Náročnost stylingu a holič',
+  addPropertyHowDemanding: 'Jak náročný je účes na styling a kdo vám ho dělal?',
+  addPropertyCongratulations: 'Gratulujeme!',
+  addPropertySuccessMessage: 'Váš účes byl úspěšně uložen. Najdete ho v sekci Moje střihy.',
+  addPropertyEasyTitle: 'Přidat účes je snadné',
+  addPropertyStep1Title: 'Vytvořte si účes',
+  addPropertyStep1Desc: 'Vymyslete název a vytvořte.',
+  addPropertyStep2Title: 'Nastavte pravidla pro váš účes',
+  addPropertyStep2Desc: 'Přidejte fotky, popis, preference—přesně jak to chcete vy.',
+  addPropertyStep3Title: 'Dokončete a uložte',
+  addPropertyStep3Desc: 'Získejte vysněný střih a nemusíte nikomu nic vysvětlovat.',
+  addPropertyLetsGo: 'Jdeme na to',
+
+  // Add property – typy účesu (krok 1)
+  addPropertyTypeShorter: 'Kratší',
+  addPropertyTypeMediumLength: 'Střední délka',
+  addPropertyTypeLonger: 'Delší',
+  addPropertyTypeOffice: 'Do kanceláře',
+  addPropertyTypeSporty: 'Sportovní',
+  addPropertyTypeModern: 'Moderní',
+  addPropertyTypeRetro: 'Retro',
+  addPropertyTypeCasual: 'Casual',
+
+  // Add property – období (krok 2)
+  addPropertySeasonSummer: 'Letní',
+  addPropertySeasonSummerDesc: 'Účes pro teplé měsíce.',
+  addPropertySeasonWinter: 'Zimní',
+  addPropertySeasonWinterDesc: 'Účes pro chladné počasí.',
+  addPropertySeasonAllYear: 'Celoroční',
+  addPropertySeasonAllYearDesc: 'Nosíte ho pořád.',
+
+  // Add property – vlastnosti (krok 4)
+  addPropertyAmenityWantToTry: 'Chci vyzkoušet',
+  addPropertyAmenityLowMaintenance: 'Nízká údržba',
+  addPropertyAmenityRequiresStyling: 'Vyžaduje styling',
+  addPropertyAmenityNoDryHair: 'Nemusím sušit vlasy',
+  addPropertyAmenityLongLasting: 'Dlouho vydrží',
+  addPropertyAmenityPeopleCompliment: 'Účes, za který se chválí',
+  addPropertyAmenityMyFavourite: 'Můj oblíbený účes',
+  addPropertyAmenityWithBeard: 'Sluší s vousy',
+  addPropertyAmenityStyling: 'Styling',
+  addPropertyAmenitySomethingNew: 'Zkouším něco nového',
+  addPropertyAmenityRecommendedByBarber: 'Doporučil holič',
+  addPropertyAmenityCameBack: 'Vrátil jsem se k němu',
+
+  // Kudy
+  kudyShowVideo: 'Přehrát video',
+  kudyBranchNotFound: 'Pobočka nenalezena.',
+  kudyOpenGoogleMaps: 'Otevřít v Google Maps',
+  kudyOpenWaze: 'Otevřít ve Waze',
+  kudyRideUber: 'Jízda s Uberem',
+  kudyHowToGetToUs: 'Kudy k nám',
+
+  // Permissions
+  permissionAllowNotifications: 'Povolit upozornění',
+  permissionSkipForNow: 'Teď ne',
+  permissionAllowLocation: 'Povolit přístup k poloze',
+
+  // 404
+  notFoundBackToHome: 'Zpět na úvod',
+
+  // RBC
+  rbcBack: 'Zpět',
+  rbcUseThisDesign: 'Použít tento design',
+  rbcCardTitle: 'RBC karta',
+  rbcTransactionHistory: 'Historie transakcí',
+  rbcCardDesigns: 'Designy karet',
+  rbcCardDesign: 'Design karty',
+  rbcYourBalance: 'Váš zůstatek',
+  rbcHideDetails: 'Skrýt údaje',
+  rbcShowDetails: 'Zobrazit údaje',
+  rbcSend: 'Odeslat',
+  rbcHistory: 'Historie',
+  rbcDesign: 'Design',
+  rbcNoTransactions: 'Žádné transakce',
+  rbcToday: 'Dnes',
+  rbcYesterday: 'Včera',
+  rbcDayBeforeYesterday: 'Předevčírem',
+  rbcGiftCardCreated: 'Dárková karta vytvořena',
+  rbcCashback: 'Cashback',
+
+  // Guides
+  guidesLoading: 'Načítání průvodců…',
+  guidesNoGuides: 'Zatím žádní průvodci.',
+
+  // Earnings
+  earningsUpcoming: 'Nadcházející',
+  earningsYouveMade: 'Vydělali jste',
+};

@@ -10,10 +10,11 @@ import { View } from 'react-native';
 import { shadowPresets } from '@/utils/useShadow';
 import Icon from '@/components/Icon';
 import Grid from '@/components/layout/Grid';
-
+import { useTranslation } from '@/app/hooks/useTranslation';
 
 const InsightsScreen = () => {
     const colors = useThemeColors();
+    const { t } = useTranslation();
 
 
     return (
@@ -23,15 +24,15 @@ const InsightsScreen = () => {
                 showBackButton
             />
             <ThemedScroller className="flex-1" keyboardShouldPersistTaps="handled">
-                <Section title="Insights" titleSize='3xl' className='py-10' />
+                <Section title={t('insightsTitle')} titleSize='3xl' className='py-10' />
                 <Grid columns={2} spacing={10}>
-                    <InsightCard icon="Calendar" title="Longer Stays" percentage={25} amount="1/4" />
-                    <InsightCard icon="WashingMachine" title="Amenities" percentage={50} amount="2/4" />
-                    <InsightCard icon="SlidersHorizontal" title="Flexible Stays" percentage={75} amount="3/4" />
-                    <InsightCard icon="Users" title="Family Travel" percentage={50} amount="2/4" />
-                    <InsightCard icon="Waves" title="Beachfront" percentage={25} amount="1/4" />
-                    <InsightCard icon="Dog" title="Pet Friendly" percentage={50} amount="2/4" />
-                    <InsightCard icon="Home" title="Star" percentage={75} amount="3/4" />
+                    <InsightCard icon="Calendar" title={t('insightsLongerStays')} percentage={25} amount="1/4" />
+                    <InsightCard icon="WashingMachine" title={t('insightsAmenities')} percentage={50} amount="2/4" />
+                    <InsightCard icon="SlidersHorizontal" title={t('insightsFlexibleStays')} percentage={75} amount="3/4" />
+                    <InsightCard icon="Users" title={t('insightsFamilyTravel')} percentage={50} amount="2/4" />
+                    <InsightCard icon="Waves" title={t('insightsBeachfront')} percentage={25} amount="1/4" />
+                    <InsightCard icon="Dog" title={t('insightsPetFriendly')} percentage={50} amount="2/4" />
+                    <InsightCard icon="Home" title={t('insightsStar')} percentage={75} amount="3/4" />
                 </Grid>
             </ThemedScroller>
         </>

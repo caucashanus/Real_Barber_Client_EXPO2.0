@@ -5,9 +5,11 @@ import { Stack } from 'expo-router';
 import Header from '@/components/Header';
 import React from 'react';
 import Icon from '@/components/Icon';
+import { useTranslation } from '@/app/hooks/useTranslation';
+
 const windowWidth = Dimensions.get('window').width;
 export default function NotFoundScreen() {
-
+    const { t } = useTranslation();
     return (
         <>
             <Stack.Screen />
@@ -22,7 +24,7 @@ export default function NotFoundScreen() {
                 </ThemedText>
                 <View className='flex-row items-center justify-center'>
                     <Button
-                        title="Back to Home"
+                        title={t('notFoundBackToHome')}
                         href="/"
                         size="medium"
                         className="px-6"

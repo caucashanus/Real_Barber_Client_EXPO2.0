@@ -15,6 +15,7 @@ import AntDesign from '@expo/vector-icons/AntDesign';
 import Fontisto from '@expo/vector-icons/Fontisto';
 import ShowRating from '@/components/ShowRating';
 import { useAuth } from '@/app/contexts/AuthContext';
+import { useTranslation } from '@/app/hooks/useTranslation';
 import { getBranches, type Branch, type BranchEmployee } from '@/api/branches';
 import { getBookingAvailability } from '@/api/bookings';
 
@@ -59,10 +60,10 @@ const PACKAGE_OPTIONS = [
 // Step Components
 const ProjectDetailsStep = () => {
     const [selectedPackage, setSelectedPackage] = useState('standard');
-
+    const { t } = useTranslation();
     return (
         <ScrollView className="flex-1 p-4">
-            <Section title="Choose booking method" titleSize='2xl' subtitle="Select how you want to book" className='mt-4 mb-8' />
+            <Section title={t('checkoutChooseMethod')} titleSize='2xl' subtitle={t('checkoutSelectMethodSubtitle')} className='mt-4 mb-8' />
             
             {PACKAGE_OPTIONS.map(pkg => (
                 <Selectable
@@ -81,6 +82,7 @@ const ProjectDetailsStep = () => {
 
 const SelectSpecialistStep = () => {
     const { branchId } = useLocalSearchParams<{ branchId?: string }>();
+    const { t } = useTranslation();
     const { apiToken } = useAuth();
     const [selectedBarber, setSelectedBarber] = useState<string | null>(null);
     const [employees, setEmployees] = useState<BranchEmployee[]>([]);
@@ -139,20 +141,20 @@ const SelectSpecialistStep = () => {
     return (
         <View className="flex-1 p-4">
             <Section
-                title="Select specialist"
+                title={t('checkoutSelectSpecialist')}
                 titleSize="2xl"
-                subtitle="Choose the barber whose available times you want to see"
+                subtitle={t('checkoutSelectSpecialistSubtitle')}
                 className="mt-4 mb-8"
             />
             {loading ? (
                 <View className="py-12 items-center">
                     <ActivityIndicator size="small" />
-                    <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext mt-2">Loading…</ThemedText>
+                    <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext mt-2">{t('commonLoading')}</ThemedText>
                 </View>
             ) : error ? (
                 <ThemedText className="text-sm text-red-600 dark:text-red-400 text-center">{error}</ThemedText>
             ) : employees.length === 0 ? (
-                <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext text-center">No specialists at this branch.</ThemedText>
+                <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext text-center">{t('checkoutNoSpecialists')}</ThemedText>
             ) : (
                 employees
                     .filter((emp) => emp.isActive !== false)
@@ -175,7 +177,7 @@ const SelectSpecialistStep = () => {
 const PaymentStep = () => {
     const [selectedPayment, setSelectedPayment] = useState('1');
     const colors = useThemeColors();
-    
+    const { t } = useTranslation();
     // Simple mock payment methods
     const paymentMethods = [
         { id: '1', type: 'visa', label: 'Visa', lastFour: '4242', expiryDate: '05/25' },
@@ -184,7 +186,7 @@ const PaymentStep = () => {
 
     return (
         <View className="flex-1 p-4">
-            <Section title="Payment method" titleSize='2xl' subtitle="Choose a payment method for your design service" className='mt-4 mb-8' />
+            <Section title={t('checkoutPaymentMethod')} titleSize='2xl' subtitle={t('checkoutPaymentSubtitle')} className='mt-4 mb-8' />
             
             {paymentMethods.map(method => (
                 <Selectable
@@ -199,25 +201,25 @@ const PaymentStep = () => {
             ))}
             
             <Selectable
-                title="Apple Pay"
+                title={t('checkoutApplePay')}
                 customIcon={<AntDesign name="apple-o" size={24} color={colors.text} />}
-                description="Pay using Apple Pay"
+                description={t('checkoutApplePayDescription')}
                 selected={selectedPayment === 'apple'}
                 onPress={() => setSelectedPayment('apple')}
                 containerClassName="mb-4"
             />
             
             <Selectable
-                title="Google Pay"
+                title={t('checkoutGooglePay')}
                 customIcon={<AntDesign name="google" size={24} color={colors.text} />}
-                description="Pay using Google Pay"
+                description={t('checkoutGooglePayDescription')}
                 selected={selectedPayment === 'google'}
                 onPress={() => setSelectedPayment('google')}
                 containerClassName='mb-4'
             />
             
             <Button
-                title="Add New Card"
+                title={t('checkoutAddNewCard')}
                 iconStart="Plus"
                 variant="ghost"
                 className="mb-8"
@@ -227,9 +229,11 @@ const PaymentStep = () => {
     );
 };
 
-const ReviewStep = () => (
+const ReviewStep = () => {
+    const { t } = useTranslation();
+    return (
     <ScrollView className="flex-1">
-        <Section title="Order review" titleSize='2xl' subtitle="Review your logo design order" className='mt-4 mb-4 px-global' />
+        <Section title={t('checkoutOrderReview')} titleSize='2xl' subtitle={t('checkoutOrderReviewSubtitle')} className='mt-4 mb-4 px-global' />
         {/* Service Provider */}
         <View className="px-global py-7 border-b-8 mb-4 border-light-secondary dark:border-dark-darker">
             <View className="rounded-lg flex-row items-center">
@@ -333,10 +337,12 @@ const ReviewStep = () => (
             </View>
         </View>
     </ScrollView>
-);
+    );
+};
 
 const CheckoutScreen = () => {
     const router = useRouter();
+    const { t } = useTranslation();
     const [currentStep, setCurrentStep] = useState(0);
 
     return (
@@ -351,19 +357,19 @@ const CheckoutScreen = () => {
                     return true;
                 }}
             >
-                <Step title="Project Details">
+                <Step title={t('checkoutProjectDetails')}>
                     <ProjectDetailsStep />
                 </Step>
 
-                <Step title="Select specialist">
+                <Step title={t('checkoutSelectSpecialist')}>
                     <SelectSpecialistStep />
                 </Step>
 
-                <Step title="Payment">
+                <Step title={t('checkoutPayment')}>
                     <PaymentStep />
                 </Step>
 
-                <Step title="Review">
+                <Step title={t('checkoutReview')}>
                     <ReviewStep />
                 </Step>
             </MultiStep>

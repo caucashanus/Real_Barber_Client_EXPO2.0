@@ -10,9 +10,11 @@ import { Button } from '@/components/Button';
 import Icon from '@/components/Icon';
 import { useAuth } from '@/app/contexts/AuthContext';
 import { changePassword } from '@/api/auth';
+import { useTranslation } from '@/app/hooks/useTranslation';
 
 export default function ChangePasswordScreen() {
   const { apiToken } = useAuth();
+  const { t } = useTranslation();
   const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -88,9 +90,9 @@ export default function ChangePasswordScreen() {
         className="flex-1 bg-light-primary dark:bg-dark-primary"
       >
         <ThemedScroller keyboardShouldPersistTaps="handled" className="flex-1">
-          <Section title="Change password" titleSize="lg" className="mt-2 px-global">
+          <Section title={t('changePasswordTitle')} titleSize="lg" className="mt-2 px-global">
             <Input
-              label="Current password"
+              label={t('changePasswordCurrent')}
               value={currentPassword}
               onChangeText={setCurrentPassword}
               placeholder="Enter current password"
@@ -100,7 +102,7 @@ export default function ChangePasswordScreen() {
               editable={!isLoading}
             />
             <Input
-              label="New password"
+              label={t('changePasswordNew')}
               value={newPassword}
               onChangeText={setNewPassword}
               placeholder="Enter new password (min. 6 characters)"
@@ -113,7 +115,7 @@ export default function ChangePasswordScreen() {
               Password must be at least 6 characters.
             </ThemedText>
             <Input
-              label="Confirm new password"
+              label={t('changePasswordConfirmNew')}
               value={confirmPassword}
               onChangeText={setConfirmPassword}
               placeholder="Enter new password again"
@@ -126,7 +128,7 @@ export default function ChangePasswordScreen() {
               <ThemedText className="text-red-500 dark:text-red-400 text-sm mb-4 text-center">{error}</ThemedText>
             ) : null}
             <Button
-              title="Change password"
+              title={t('changePasswordTitle')}
               onPress={handleSubmit}
               loading={isLoading}
               disabled={isLoading}

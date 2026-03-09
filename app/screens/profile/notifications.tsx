@@ -7,9 +7,11 @@ import Switch from '@/components/forms/Switch';
 import { Button } from '@/components/Button';
 import ThemedScroller from '@/components/ThemeScroller';
 import Section from '@/components/layout/Section';
+import { useTranslation } from '@/app/hooks/useTranslation';
 
 const NotificationsScreen = () => {
   const navigation = useNavigation();
+  const { t } = useTranslation();
   
   const [notifications, setNotifications] = useState({
     pushEnabled: true,
@@ -39,17 +41,17 @@ const NotificationsScreen = () => {
     <View className="flex-1 bg-light-bg dark:bg-dark-bg">
         <Header showBackButton 
         rightComponents={[
-            <Button title="Save changes" onPress={saveSettings} />
+            <Button title={t('editProfileSaveChanges')} onPress={saveSettings} />
         ]}
         />
       <ThemedScroller >
-      <Section titleSize='3xl' className='mt-10 pb-10' title="Notifications" subtitle="Stay updated on your bookings and travel plans" />  
+      <Section titleSize='3xl' className='mt-10 pb-10' title={t('notificationsTitle')} subtitle={t('notificationsSubtitle')} />  
 
         <View className="mb-8">
-          <ThemedText className="text-lg font-bold mb-4">Booking & Travel</ThemedText>
+          <ThemedText className="text-lg font-bold mb-4">{t('notifSettingsBookingTravel')}</ThemedText>
           
           <Switch 
-            label="Booking Updates"
+            label={t('notifSettingsBookingUpdates')}
             description="Confirmations, changes, and cancellations"
             value={notifications.bookingUpdates}
             onChange={(value) => handleToggle('bookingUpdates', value)}
@@ -58,7 +60,7 @@ const NotificationsScreen = () => {
           />
           
           <Switch 
-            label="Host Messages"
+            label={t('notifSettingsHostMessages')}
             description="Messages from your hosts and property owners"
             value={notifications.hostMessages}
             onChange={(value) => handleToggle('hostMessages', value)}
@@ -67,7 +69,7 @@ const NotificationsScreen = () => {
           />
           
           <Switch 
-            label="Payment Confirmations"
+            label={t('notifSettingsPaymentConfirmations')}
             description="Receipts and payment processing updates"
             value={notifications.paymentConfirmations}
             onChange={(value) => handleToggle('paymentConfirmations', value)}
@@ -76,7 +78,7 @@ const NotificationsScreen = () => {
           />
           
           <Switch 
-            label="Review Requests"
+            label={t('notifSettingsReviewRequests')}
             description="Reminders to review your stays and experiences"
             value={notifications.reviewRequests}
             onChange={(value) => handleToggle('reviewRequests', value)}
@@ -85,7 +87,7 @@ const NotificationsScreen = () => {
           />
           
           <Switch 
-            label="Check-in Reminders"
+            label={t('notifSettingsCheckinReminders')}
             description="Important information before your arrival"
             value={notifications.checkInReminders}
             onChange={(value) => handleToggle('checkInReminders', value)}
@@ -95,10 +97,10 @@ const NotificationsScreen = () => {
         </View>
 
         <View className="mt-8">
-          <ThemedText className="text-lg font-bold mb-4">Promotions & Marketing</ThemedText>
+          <ThemedText className="text-lg font-bold mb-4">{t('notifSettingsPromotionsMarketing')}</ThemedText>
           
           <Switch 
-            label="Special Offers"
+            label={t('notifSettingsSpecialOffers')}
             description="Discounts and deals on accommodations"
             value={notifications.specialOffers}
             onChange={(value) => handleToggle('specialOffers', value)}
@@ -106,7 +108,7 @@ const NotificationsScreen = () => {
           />
           
           <Switch 
-            label="Host Promotions"
+            label={t('notifSettingsHostPromotions')}
             description="Exclusive offers from your favorite hosts"
             value={notifications.hostPromotions}
             onChange={(value) => handleToggle('hostPromotions', value)}
@@ -114,7 +116,7 @@ const NotificationsScreen = () => {
           />
           
           <Switch 
-            label="Travel Tips"
+            label={t('notifSettingsTravelTips')}
             description="Destination guides and travel recommendations"
             value={notifications.travelTips}
             onChange={(value) => handleToggle('travelTips', value)}
@@ -122,7 +124,7 @@ const NotificationsScreen = () => {
           />
           
           <Switch 
-            label="Marketing Emails"
+            label={t('notifSettingsMarketingEmails')}
             description="Newsletters and destination inspiration"
             value={notifications.marketingEmails}
             onChange={(value) => handleToggle('marketingEmails', value)}

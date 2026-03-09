@@ -17,6 +17,7 @@ import { Chip } from '@/components/Chip';
 import { useAuth } from '@/app/contexts/AuthContext';
 import { getItemsAll, type Item } from '@/api/items';
 import { getEntityReviews, type EntityReviewItem } from '@/api/reviews';
+import { useTranslation } from '@/app/hooks/useTranslation';
 
 function formatReviewDate(iso: string): string {
   try {
@@ -57,6 +58,7 @@ function itemImages(item: Item): (string | number)[] {
 export default function ServiceDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const { apiToken, client } = useAuth();
+  const { t } = useTranslation();
   const insets = useSafeAreaInsets();
   const [item, setItem] = useState<Item | null>(null);
   const [loading, setLoading] = useState(true);
@@ -130,7 +132,7 @@ export default function ServiceDetailScreen() {
         <Header showBackButton />
         <View className="flex-1 items-center justify-center bg-light-primary dark:bg-dark-primary">
           <ActivityIndicator size="large" />
-          <ThemedText className="mt-4 text-light-subtext dark:text-dark-subtext">Loading…</ThemedText>
+          <ThemedText className="mt-4 text-light-subtext dark:text-dark-subtext">{t('commonLoading')}</ThemedText>
         </View>
       </>
     );
@@ -182,13 +184,13 @@ export default function ServiceDetailScreen() {
           <View className="flex-row items-center justify-center mt-4">
             <Pressable onPress={scrollToReviews} className="flex-row items-center active:opacity-70">
               <ShowRating rating={average} size="lg" className="px-4 py-2 border-r border-neutral-200 dark:border-dark-secondary" />
-              <ThemedText className="text-base px-4">Reviews</ThemedText>
+              <ThemedText className="text-base px-4">{t('profileReviews')}</ThemedText>
             </Pressable>
             <Pressable
               onPress={() => router.push(`/screens/review?${reviewParams}`)}
               className="ml-4 px-3 py-2 rounded-lg bg-light-secondary dark:bg-dark-secondary"
             >
-              <ThemedText className="text-sm font-medium">{hasReviewed ? 'Update review' : 'Review'}</ThemedText>
+              <ThemedText className="text-sm font-medium">{hasReviewed ? t('serviceUpdateReview') : t('serviceReview')}</ThemedText>
             </Pressable>
           </View>
 
@@ -201,13 +203,13 @@ export default function ServiceDetailScreen() {
           <Divider className="my-6" />
 
           {item.description ? (
-            <Section title="About this service" titleSize="lg" className="mb-6">
+            <Section title={t('serviceAbout')} titleSize="lg" className="mb-6">
               <ThemedText className="text-light-subtext dark:text-dark-subtext leading-6 mt-2">
                 {item.description}
               </ThemedText>
             </Section>
           ) : (
-            <Section title="About this service" titleSize="lg" className="mb-6">
+            <Section title={t('serviceAbout')} titleSize="lg" className="mb-6">
               <ThemedText className="text-light-subtext dark:text-dark-subtext italic mt-2">
                 No description available.
               </ThemedText>
@@ -218,9 +220,9 @@ export default function ServiceDetailScreen() {
 
           <View onLayout={(e: LayoutChangeEvent) => { reviewsSectionYInContentRef.current = e.nativeEvent.layout.y; }}>
             <Section
-              title="Reviews"
+              title={t('profileReviews')}
               titleSize="lg"
-              subtitle={`${displayTotal} reviews`}
+              subtitle={`${displayTotal} ${t('branchReviews')}`}
               className="mb-6"
             >
               <View className="mt-4 bg-light-secondary dark:bg-dark-secondary p-4 rounded-lg">
@@ -235,25 +237,25 @@ export default function ServiceDetailScreen() {
                     <View key={stars} className="flex-row items-center justify-between py-1.5">
                       <ShowRating rating={stars} size="sm" displayMode="stars" />
                       <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext">
-                        {countByRating[stars] ?? 0} reviews
+                        {countByRating[stars] ?? 0} {t('branchReviews')}
                       </ThemedText>
                     </View>
                   ))}
                 </View>
               </View>
               <View className="mt-6 flex-row items-center justify-between mb-3">
-                <ThemedText className="font-semibold text-lg">Reviews</ThemedText>
+                <ThemedText className="font-semibold text-lg">{t('profileReviews')}</ThemedText>
                 <Pressable
                   onPress={() => router.push(`/screens/review?${reviewParams}`)}
                   className="px-3 py-2 rounded-lg bg-light-secondary dark:bg-dark-secondary"
                 >
-                  <ThemedText className="text-sm font-medium">{hasReviewed ? 'Update review' : 'Write review'}</ThemedText>
+                  <ThemedText className="text-sm font-medium">{hasReviewed ? t('serviceUpdateReview') : t('serviceWriteReview')}</ThemedText>
                 </Pressable>
               </View>
               {loadingReviews ? (
                 <View className="py-6 items-center">
                   <ActivityIndicator size="small" />
-                  <ThemedText className="mt-2 text-sm text-light-subtext dark:text-dark-subtext">Loading reviews…</ThemedText>
+                  <ThemedText className="mt-2 text-sm text-light-subtext dark:text-dark-subtext">{t('branchLoadingReviews')}</ThemedText>
                 </View>
               ) : (
                 <CardScroller className="mt-1" space={10}>
@@ -279,7 +281,7 @@ export default function ServiceDetailScreen() {
                           </View>
                           {isOwnReview && (
                             <View className="ml-2 px-2 py-1 rounded-md bg-highlight">
-                              <ThemedText className="text-xs font-medium text-white">Edit</ThemedText>
+                              <ThemedText className="text-xs font-medium text-white">{t('commonEdit')}</ThemedText>
                             </View>
                           )}
                         </View>
@@ -304,12 +306,12 @@ export default function ServiceDetailScreen() {
         className="flex-row items-center justify-start px-global pt-4 border-t border-neutral-200 dark:border-dark-secondary bg-light-primary dark:bg-dark-primary"
       >
         <View>
-          <ThemedText className="text-xl font-bold">Book this service</ThemedText>
-          <ThemedText className="text-xs opacity-60">Choose branch and barber</ThemedText>
+          <ThemedText className="text-xl font-bold">{t('serviceBookThisService')}</ThemedText>
+          <ThemedText className="text-xs opacity-60">{t('serviceChooseBranchBarber')}</ThemedText>
         </View>
         <View className="flex-row items-center ml-auto">
           <Button
-            title="Reserve"
+            title={t('commonReserve')}
             className="bg-highlight ml-6 px-6"
             textClassName="text-white"
             size="medium"

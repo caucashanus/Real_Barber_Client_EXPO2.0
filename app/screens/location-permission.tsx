@@ -5,8 +5,10 @@ import * as Location from 'expo-location';
 import ThemedText from '@/components/ThemedText';
 import { Button } from '@/components/Button';
 import Icon from '@/components/Icon';
+import { useTranslation } from '@/app/hooks/useTranslation';
 
 export default function LocationPermissionScreen() {
+  const { t } = useTranslation();
   const handleAllowLocation = async () => {
     const { status } = await Location.requestForegroundPermissionsAsync();
     if (status === 'granted') {
@@ -23,7 +25,7 @@ export default function LocationPermissionScreen() {
       <View className="flex-1 items-center justify-center">
       <Icon name="MapPinned" size={80} strokeWidth={0.7} />
         <ThemedText className="text-3xl font-bold text-center mb-4 mt-8">
-          Enable Location
+          {t('permissionAllowLocation')}
         </ThemedText>
         <ThemedText className="text-light-subtext dark:text-dark-subtext text-center mb-12">
           Allow access to your location to find nearby properties and get accurate recommendations
@@ -32,12 +34,12 @@ export default function LocationPermissionScreen() {
       
       <View className="gap-4">
         <Button
-          title="Allow Location Access"
+          title={t('permissionAllowLocation')}
           onPress={handleAllowLocation}
           size="large"
         />
         <Button
-          title="Skip for Now"
+          title={t('permissionSkipForNow')}
           onPress={handleSkip}
           variant="ghost"
           size="large"

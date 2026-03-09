@@ -12,6 +12,7 @@ import useThemeColors from '@/app/contexts/ThemeColors';
 import Section from '@/components/layout/Section';
 import { CardScroller } from '@/components/CardScroller';
 import { LinearGradient } from 'expo-linear-gradient';
+import { useTranslation } from '@/app/hooks/useTranslation';
 
 const { width } = Dimensions.get('window');
 // Sample payment methods
@@ -37,7 +38,7 @@ const initialPaymentMethods = [
 ];
 
 export default function PaymentsScreen() {
-
+  const { t } = useTranslation();
   const colors = useThemeColors();
   const [paymentMethods, setPaymentMethods] = useState(initialPaymentMethods);
   const [isModalVisible, setIsModalVisible] = useState(false);
@@ -121,7 +122,7 @@ export default function PaymentsScreen() {
 
   return (
     <View className="flex-1 bg-light-primary dark:bg-dark-primary">
-      <Header title="Payment Methods" showBackButton />
+      <Header title={t('paymentsTitle')} showBackButton />
 
       <ScrollView className="flex-1">
         {/*<Section
@@ -170,9 +171,9 @@ export default function PaymentsScreen() {
               <AntDesign name="apple" size={24} color={colors.icon} />
             </View>
             <View className="flex-1">
-              <ThemedText className="font-semibold">Apple Pay</ThemedText>
+              <ThemedText className="font-semibold">{t('paymentsApplePay')}</ThemedText>
               <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext">
-                Set up Apple Pay for faster checkout
+                {t('paymentsApplePaySetup')}
               </ThemedText>
             </View>
             <Icon name="ChevronRight" size={20} />
@@ -187,9 +188,9 @@ export default function PaymentsScreen() {
               <AntDesign name="google" size={24} color={colors.icon} />
             </View>
             <View className="flex-1">
-              <ThemedText className="font-semibold">Google Pay</ThemedText>
+              <ThemedText className="font-semibold">{t('paymentsGooglePay')}</ThemedText>
               <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext">
-                Set up Google Pay for faster checkout
+                {t('paymentsGooglePaySetup')}
               </ThemedText>
             </View>
             <Icon name="ChevronRight" size={20} />
@@ -207,7 +208,7 @@ export default function PaymentsScreen() {
         <View className="flex-1 bg-black/50 justify-center h-screen p-global">
           <View className="bg-light-primary dark:bg-dark-primary rounded-xl p-4">
             <View className="flex-row justify-between items-center mb-6">
-              <ThemedText className="text-xl font-semibold">Add New Card</ThemedText>
+              <ThemedText className="text-xl font-semibold">{t('paymentsAddCard')}</ThemedText>
               <TouchableOpacity onPress={() => setIsModalVisible(false)}>
                 <Icon name="X" size={24} />
               </TouchableOpacity>
@@ -215,7 +216,7 @@ export default function PaymentsScreen() {
 
             <ScrollView className=" pt-4">
               <Input
-                label="Card Number"
+                label={t('paymentsCardNumber')}
                 value={cardNumber}
                 onChangeText={setCardNumber}
                 placeholder="1234 5678 9012 3456"
@@ -223,7 +224,7 @@ export default function PaymentsScreen() {
               />
 
               <Input
-                label="Cardholder Name"
+                label={t('paymentsCardholder')}
                 value={cardHolder}
                 onChangeText={setCardHolder}
                 placeholder="John Doe"
@@ -232,7 +233,7 @@ export default function PaymentsScreen() {
               {/* Inputs in a row with the fixed input component */}
 
               <Input
-                label="Expiry Date"
+                label={t('paymentsExpiry')}
                 containerClassName="flex-1"
                 value={expiryDate}
                 onChangeText={setExpiryDate}
@@ -241,7 +242,7 @@ export default function PaymentsScreen() {
               />
 
               <Input
-                label="CVV"
+                label={t('paymentsCvv')}
                 containerClassName="flex-1"
                 value={cvv}
                 onChangeText={setCvv}
@@ -253,7 +254,7 @@ export default function PaymentsScreen() {
 
 
               <View className="flex-row items-center justify-between py-4 mb-4">
-                <ThemedText>Set as default payment method</ThemedText>
+                <ThemedText>{t('paymentsSetAsDefault')}</ThemedText>
                 <Toggle
                   value={isDefault}
                   onChange={setIsDefault}
@@ -263,13 +264,13 @@ export default function PaymentsScreen() {
 
             <View className="flex-row mt-4 gap-4 pt-2 border-t border-light-secondary dark:border-dark-secondary">
               <Button
-                title="Cancel"
+                title={t('paymentsCancel')}
                 variant="ghost"
                 className="flex-1"
                 onPress={() => setIsModalVisible(false)}
               />
               <Button
-                title="Save Card"
+                title={t('paymentsSaveCard')}
                 className="flex-1"
                 onPress={handleSaveCard}
               />

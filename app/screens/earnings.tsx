@@ -9,9 +9,11 @@ import ThemedText from '@/components/ThemedText';
 import { BarChart } from 'react-native-chart-kit';
 import Divider from '@/components/layout/Divider';
 import Icon from '@/components/Icon';
+import { useTranslation } from '@/app/hooks/useTranslation';
 
 const EarningsScreen = () => {
     const colors = useThemeColors();
+    const { t } = useTranslation();
     const screenWidth = Dimensions.get('window').width;
 
     // Sample earnings data for 12 months
@@ -101,7 +103,7 @@ const EarningsScreen = () => {
                     </ScrollView>
                 </View>
                 <View className='px-global border-t-8 pt-global border-light-secondary dark:border-dark-secondary'>
-                    <ThemedText className='text-2xl font-semibold mb-4'>Upcoming</ThemedText>
+                    <ThemedText className='text-2xl font-semibold mb-4'>{t('earningsUpcoming')}</ThemedText>
                     <UpcomingList status="Scheduled" date="June 12" amount="$1,200.00" />
                     <UpcomingList status="Scheduled" date="June 16" amount="$4,200.00" />
                     <UpcomingList status="Scheduled" date="June 20" amount="$2,200.00" />
@@ -128,6 +130,7 @@ const UpcomingList = (props: any) => {
 }
 
 const Counter = (props: any) => {
+    const { t } = useTranslation();
     const [currentMonthIndex, setCurrentMonthIndex] = useState(0);
     const fadeAnim = useRef(new Animated.Value(1)).current;
     const countAnim = useRef(new Animated.Value(0)).current;
@@ -202,7 +205,7 @@ const Counter = (props: any) => {
 
     return (
         <View className='mt-14 mb-20 px-global'>
-            <ThemedText className='text-5xl font-semibold'>You've made</ThemedText>
+            <ThemedText className='text-5xl font-semibold'>{t('earningsYouveMade')}</ThemedText>
             <ThemedText className='text-5xl text-highlight font-semibold'>
                 ${displayAmount.toLocaleString()}
             </ThemedText>

@@ -10,11 +10,13 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Header from '@/components/Header';
 import { COUNTRY_CODE_OPTIONS, formatPhoneDisplay } from '@/utils/phone';
 import { forgotPassword } from '@/api/auth';
+import { useTranslation } from '@/app/hooks/useTranslation';
 
 type ResetMode = 'email' | 'phone';
 
 export default function ForgotPasswordScreen() {
   const insets = useSafeAreaInsets();
+  const { t } = useTranslation();
   const { mode } = useLocalSearchParams<{ mode?: string }>();
   const [resetMode, setResetMode] = useState<ResetMode>(mode === 'phone' ? 'phone' : 'email');
   const [email, setEmail] = useState('');
@@ -98,7 +100,7 @@ export default function ForgotPasswordScreen() {
               Zkontrolujte svou emailovou schránku nebo SMS. Pokud zpráva nedorazí do několika minut,
               zkontrolujte složku se spamem.
             </ThemedText>
-            <Button title="Zpět na přihlášení" onPress={() => router.back()} size="large" className="mt-4" />
+            <Button title={t('forgotPasswordBackToLogin')} onPress={() => router.back()} size="large" className="mt-4" />
           </View>
         </View>
       </>
@@ -145,7 +147,7 @@ export default function ForgotPasswordScreen() {
 
           {resetMode === 'email' ? (
             <Input
-              label="Email"
+              label={t('forgotPasswordEmail')}
               value={email}
               onChangeText={(text) => {
                 setEmail(text);
@@ -196,7 +198,7 @@ export default function ForgotPasswordScreen() {
           ) : null}
 
           <Button
-            title="Odeslat žádost"
+            title={t('forgotPasswordSendRequest')}
             onPress={handleResetPassword}
             loading={isLoading}
             size="large"

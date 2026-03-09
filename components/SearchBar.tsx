@@ -9,9 +9,15 @@ import AnimatedView from "./AnimatedView";
 import ThemedScroller from "./ThemeScroller";
 import { shadowPresets } from '@/utils/useShadow';
 import { BlurView } from "expo-blur";
+import { useTranslation } from '@/app/hooks/useTranslation';
+
+const NAV_ITEM_IDS = ['branches', 'bookings', 'barbers', 'services', 'schedule', 'favorites'] as const;
+const NAV_ICONS: IconName[] = ['MapPin', 'Calendar', 'UserCircle', 'Scissors', 'CalendarDays', 'Heart'];
+const NAV_HREFS = ['/screens/map', '/trips', '/experience', '/services', '/screens/schedule', '/favorites'];
 
 const SearchBar = () => {
   const [showModal, setShowModal] = useState(false);
+  const { t } = useTranslation();
   return (
     <>
       <View className='px-global  bg-light-primary dark:bg-dark-primary w-full relative z-50'>
@@ -21,7 +27,7 @@ const SearchBar = () => {
             style={{ elevation: 10, height: 50, shadowColor: '#000', shadowOpacity: 0.3, shadowRadius: 8.84, shadowOffset: { width: 0, height: 0 } }}
             className='bg-light-primary flex-row justify-center relative z-50 py-4 px-10 mt-3 mb-4  dark:bg-white/20 rounded-full'>
             <Icon name="Search" size={16} strokeWidth={3} />
-            <ThemedText className='text-black dark:text-white font-medium ml-2 mr-4'>Search here</ThemedText>
+            <ThemedText className='text-black dark:text-white font-medium ml-2 mr-4'>{t('searchPlaceholder')}</ThemedText>
           </Animated.View>
         </Pressable>
       </View>
@@ -35,24 +41,11 @@ interface SearchModalProps {
   setShowModal: (show: boolean) => void;
 }
 
-interface NavItem {
-  id: string;
-  title: string;
-  subtitle?: string;
-  icon: IconName;
-  href: string;
-}
-
-const NAV_ITEMS: NavItem[] = [
-  { id: 'branches', title: 'Branches', subtitle: 'Browse branches', icon: 'MapPin', href: '/screens/map' },
-  { id: 'bookings', title: 'My bookings', subtitle: 'Your bookings and visits', icon: 'Calendar', href: '/trips' },
-  { id: 'barbers', title: 'Barbers', subtitle: 'Browse barbers and their profiles', icon: 'UserCircle', href: '/experience' },
-  { id: 'services', title: 'Services', subtitle: 'Services and pricing', icon: 'Scissors', href: '/services' },
-  { id: 'schedule', title: 'Schedule', subtitle: 'Book an appointment', icon: 'CalendarDays', href: '/screens/schedule' },
-  { id: 'favorites', title: 'Favorites', subtitle: 'Saved branches and barbers', icon: 'Heart', href: '/favorites' },
-];
+const TITLE_KEYS = ['searchBranches', 'searchMyBookings', 'searchBarbers', 'searchServices', 'searchSchedule', 'searchFavorites'] as const;
+const SUBTITLE_KEYS = ['searchBranchesSubtitle', 'searchMyBookingsSubtitle', 'searchBarbersSubtitle', 'searchServicesSubtitle', 'searchScheduleSubtitle', 'searchFavoritesSubtitle'] as const;
 
 const SearchModal = ({ showModal, setShowModal }: SearchModalProps) => {
+  const { t } = useTranslation();
   const insets = useSafeAreaInsets();
 
   const handleNav = (href: string) => {
@@ -73,18 +66,18 @@ const SearchModal = ({ showModal, setShowModal }: SearchModalProps) => {
                 <Icon name="X" size={24} strokeWidth={2} />
               </Pressable>
 
-              {NAV_ITEMS.map((item) => (
+              {NAV_ITEM_IDS.map((id, i) => (
                 <Pressable
-                  key={item.id}
-                  onPress={() => handleNav(item.href)}
+                  key={id}
+                  onPress={() => handleNav(NAV_HREFS[i])}
                   style={{ ...shadowPresets.large }}
                   className="flex-row items-center w-full p-global mb-4 bg-light-primary dark:bg-dark-secondary rounded-2xl">
                   <View className="w-12 h-12 rounded-xl bg-light-secondary dark:bg-dark-primary items-center justify-center mr-4">
-                    <Icon name={item.icon} size={24} />
+                    <Icon name={NAV_ICONS[i]} size={24} />
                   </View>
                   <View className="flex-1">
-                    <ThemedText className="text-lg font-semibold">{item.title}</ThemedText>
-                    {item.subtitle ? <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext">{item.subtitle}</ThemedText> : null}
+                    <ThemedText className="text-lg font-semibold">{t(TITLE_KEYS[i])}</ThemedText>
+                    <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext">{t(SUBTITLE_KEYS[i])}</ThemedText>
                   </View>
                   <Icon name="ChevronRight" size={20} className="text-light-subtext dark:text-dark-subtext" />
                 </Pressable>

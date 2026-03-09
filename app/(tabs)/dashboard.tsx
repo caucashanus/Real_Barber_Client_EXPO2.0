@@ -10,6 +10,7 @@ import { shadowPresets } from '@/utils/useShadow';
 import ThemedText from '@/components/ThemedText';
 import { CardScroller } from '@/components/CardScroller';
 import { Chip } from '@/components/Chip';
+import { useTranslation } from '@/app/hooks/useTranslation';
 
 // Order interfaces
 interface MarketplaceOrder {
@@ -41,6 +42,7 @@ interface Notification {
 }
 
 const DashboardScreen = () => {
+    const { t } = useTranslation();
     const rightComponents = [
         <HeaderIcon key="notifications-icon" hasBadge icon="Bell" href="/screens/notifications" />
     ];
@@ -138,12 +140,12 @@ const DashboardScreen = () => {
                     <Section
                         titleSize='xl'
                         className='mb-2'
-                        title="Recent reservations"
+                        title={t('dashboardRecentReservations')}
                     >
 
                         <CardScroller className='mt-1'>
-                            <Chip label="Arriving soon (1)" size="lg" />
-                            <Chip label="Upcoming (23)" size="lg" />
+                            <Chip label={`${t('dashboardArrivingSoon')} (1)`} size="lg" />
+                            <Chip label={`${t('dashboardUpcoming')} (23)`} size="lg" />
                         </CardScroller>
 
                         <ReservationCard />
@@ -154,7 +156,7 @@ const DashboardScreen = () => {
                     <Section
                         titleSize='xl'
                         className='mt-10 mb-2'
-                        title="Recent notifications"
+                        title={t('dashboardRecentNotifications')}
                     />
                     <View className="overflow-hidden">
                         {recentNotifications.map(notification => (

@@ -11,12 +11,14 @@ import Section from '@/components/layout/Section';
 import { Button } from '@/components/Button';
 import Icon from '@/components/Icon';
 import { useAuth } from '@/app/contexts/AuthContext';
+import { useTranslation } from '@/app/hooks/useTranslation';
 import { createClientCut } from '@/api/cuts';
 import { getEmployees, type Employee } from '@/api/employees';
 
 const MAX_PHOTOS = 5;
 
 export default function HaircutAddScreen() {
+  const { t } = useTranslation();
   const { apiToken } = useAuth();
   const [photoUris, setPhotoUris] = useState<string[]>([]);
   const [hairstyle, setHairstyle] = useState('');
@@ -97,9 +99,9 @@ export default function HaircutAddScreen() {
 
   return (
     <>
-      <Header title="Add haircut" showBackButton />
+      <Header title={t('haircutAdd')} showBackButton />
       <ThemedScroller className="flex-1" keyboardShouldPersistTaps="handled">
-        <Section title="Photos" titleSize="md" className="mt-2">
+        <Section title={t('haircutPhotos')} titleSize="md" className="mt-2">
           <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext mb-3">
             Add haircut photos from gallery or camera (optional). Only name and note are saved for now.
           </ThemedText>
@@ -138,20 +140,20 @@ export default function HaircutAddScreen() {
 
         <Section title="" titleSize="md" className="mt-2">
           <Input
-            label="Haircut name"
+            label={t('haircutNameLabel')}
             value={hairstyle}
             onChangeText={setHairstyle}
             placeholder="e.g. Low Fade, Undercut"
             containerClassName="mb-4"
           />
           <BarberPicker
-            label="Barber"
+            label={t('haircutBarber')}
             employees={employees}
             value={barberId}
             onChange={setBarberId}
           />
           <Input
-            label="Note"
+            label={t('haircutNote')}
             value={note}
             onChangeText={setNote}
             placeholder="Optional note"

@@ -15,6 +15,7 @@ import { getClientReviewsList, type ClientReviewListItem } from '@/api/reviews';
 import { Video, ResizeMode } from 'expo-av';
 import { KUDY_K_NAM_VIDEOS } from '@/constants/kudy-k-nam-videos';
 import Icon from '@/components/Icon';
+import { useTranslation } from '@/app/hooks/useTranslation';
 
 function getServicesList(branch: Branch): BranchService[] {
   const s = branch.services;
@@ -70,6 +71,7 @@ function computeBranchRatingsMap(reviews: ClientReviewListItem[]): Map<string, n
 const HomeScreen = () => {
     const scrollY = useContext(ScrollContext);
     const { apiToken } = useAuth();
+    const { t } = useTranslation();
     const [branches, setBranches] = useState<Branch[]>([]);
     const [branchReviewsList, setBranchReviewsList] = useState<ClientReviewListItem[]>([]);
     const [branchesLoading, setBranchesLoading] = useState(false);
@@ -121,10 +123,10 @@ const HomeScreen = () => {
                         </View>
                     </View>
                 </Pressable>
-                <Section title="Popular barbershops in Prague" titleSize="lg" link="/screens/map" linkText="View all">
+                <Section title={t('popularBarbershops')} titleSize="lg" link="/screens/map" linkText={t('commonViewAll')}>
                   <CardScroller space={15} className='mt-1.5 pb-4'>
                     {branchesLoading && (
-                      <ThemedText className="py-4 text-light-subtext dark:text-dark-subtext">Loading branches…</ThemedText>
+                      <ThemedText className="py-4 text-light-subtext dark:text-dark-subtext">{t('commonLoading')}</ThemedText>
                     )}
                     {branchesError && (
                       <ThemedText className="py-4 text-red-500 dark:text-red-400">{branchesError}</ThemedText>
@@ -153,7 +155,7 @@ const HomeScreen = () => {
                   </CardScroller>
                 </Section>
 
-                <Section title="How to get to us?" titleSize="lg">
+                <Section title={t('howToGetToUs')} titleSize="lg">
                   <CardScroller space={15} className="mt-1.5 pb-4">
                     {KUDY_K_NAM_VIDEOS.map((item) => (
                       <Pressable
@@ -191,10 +193,10 @@ const HomeScreen = () => {
                   </CardScroller>
                 </Section>
 
-                <Section title="Top picks" titleSize="lg" link="/screens/map" linkText="View all">
+                <Section title={t('topPicks')} titleSize="lg" link="/screens/map" linkText={t('commonViewAll')}>
                   <CardScroller space={15} className="mt-1.5 pb-4">
                     {branchesLoading && (
-                      <ThemedText className="py-4 text-light-subtext dark:text-dark-subtext">Loading…</ThemedText>
+                      <ThemedText className="py-4 text-light-subtext dark:text-dark-subtext">{t('commonLoading')}</ThemedText>
                     )}
                     {!branchesLoading && !branchesError && popularBranches?.map((branch) => (
                       <Card

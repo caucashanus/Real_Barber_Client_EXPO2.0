@@ -10,6 +10,7 @@ import { ScrollContext } from './_layout';
 import { useAuth } from '@/app/contexts/AuthContext';
 import { getItemsAll, type Item } from '@/api/items';
 import ThemedText from '@/components/ThemedText';
+import { useTranslation } from '@/app/hooks/useTranslation';
 
 const CATEGORY_HAIRCUTS = 'Účesy';
 const CATEGORY_BASIC = 'Základní';
@@ -21,6 +22,7 @@ const CATEGORY_SLUZBY_DOMU = 'Služby domů';
 const ServicesScreen = () => {
   const scrollY = useContext(ScrollContext);
   const { apiToken } = useAuth();
+  const { t } = useTranslation();
   const [items, setItems] = useState<Item[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -48,7 +50,7 @@ const ServicesScreen = () => {
     return (
       <View className="flex-1 items-center justify-center bg-light-primary dark:bg-dark-primary">
         <ActivityIndicator size="large" />
-        <ThemedText className="mt-2 text-light-subtext dark:text-dark-subtext">Loading…</ThemedText>
+        <ThemedText className="mt-2 text-light-subtext dark:text-dark-subtext">{t('commonLoading')}</ThemedText>
       </View>
     );
   }
@@ -70,10 +72,10 @@ const ServicesScreen = () => {
       scrollEventThrottle={16}
     >
       <AnimatedView animation="scaleIn" className="flex-1 mt-4">
-        <Section title="Haircuts" titleSize="lg">
+        <Section title={t('servicesHaircuts')} titleSize="lg">
           <CardScroller space={15} className="mt-1.5 pb-4">
             {haircuts.length === 0 ? (
-              <ThemedText className="text-light-subtext dark:text-dark-subtext py-4">No items</ThemedText>
+              <ThemedText className="text-light-subtext dark:text-dark-subtext py-4">{t('servicesNoItems')}</ThemedText>
             ) : (
               haircuts.map((item) => (
                 <Card
@@ -93,10 +95,10 @@ const ServicesScreen = () => {
           </CardScroller>
         </Section>
 
-        <Section title="Basic" titleSize="lg" link="/screens/map" linkText="View all">
+        <Section title={t('servicesBasic')} titleSize="lg" link="/screens/map" linkText={t('commonViewAll')}>
           <CardScroller space={15} className="mt-1.5 pb-4">
             {basic.length === 0 ? (
-              <ThemedText className="text-light-subtext dark:text-dark-subtext py-4">No items</ThemedText>
+              <ThemedText className="text-light-subtext dark:text-dark-subtext py-4">{t('servicesNoItems')}</ThemedText>
             ) : (
               basic.map((item) => (
                 <Card
@@ -116,10 +118,10 @@ const ServicesScreen = () => {
           </CardScroller>
         </Section>
 
-        <Section title="Packages" titleSize="lg" link="/screens/map" linkText="View all">
+        <Section title={t('servicesPackages')} titleSize="lg" link="/screens/map" linkText={t('commonViewAll')}>
           <CardScroller space={15} className="mt-1.5 pb-4">
             {packages.length === 0 ? (
-              <ThemedText className="text-light-subtext dark:text-dark-subtext py-4">No items</ThemedText>
+              <ThemedText className="text-light-subtext dark:text-dark-subtext py-4">{t('servicesNoItems')}</ThemedText>
             ) : (
               packages.map((item) => (
                 <Card
@@ -139,10 +141,10 @@ const ServicesScreen = () => {
           </CardScroller>
         </Section>
 
-        <Section title="Coloring" titleSize="lg" link="/screens/map" linkText="View all">
+        <Section title={t('servicesColoring')} titleSize="lg" link="/screens/map" linkText={t('commonViewAll')}>
           <CardScroller space={15} className="mt-1.5 pb-4">
             {coloring.length === 0 ? (
-              <ThemedText className="text-light-subtext dark:text-dark-subtext py-4">No items</ThemedText>
+              <ThemedText className="text-light-subtext dark:text-dark-subtext py-4">{t('servicesNoItems')}</ThemedText>
             ) : (
               coloring.map((item) => (
                 <Card
@@ -162,10 +164,10 @@ const ServicesScreen = () => {
           </CardScroller>
         </Section>
 
-        <Section title="Home services" titleSize="lg" link="/screens/map" linkText="View all">
+        <Section title={t('servicesHomeServices')} titleSize="lg" link="/screens/map" linkText={t('commonViewAll')}>
           <CardScroller space={15} className="mt-1.5 pb-4">
             {homeServices.length === 0 ? (
-              <ThemedText className="text-light-subtext dark:text-dark-subtext py-4">No items</ThemedText>
+              <ThemedText className="text-light-subtext dark:text-dark-subtext py-4">{t('servicesNoItems')}</ThemedText>
             ) : (
               homeServices.map((item) => (
                 <Card

@@ -16,6 +16,7 @@ import * as ImagePicker from 'expo-image-picker';
 import Grid from '@/components/layout/Grid';
 import BarberPicker from '@/components/BarberPicker';
 import { useAuth } from '@/app/contexts/AuthContext';
+import { useTranslation } from '@/app/hooks/useTranslation';
 import { getEmployees, type Employee } from '@/api/employees';
 
 interface PropertyData {
@@ -34,36 +35,36 @@ interface PropertyData {
     barber_id: string; // kdo účes dělal (employee id)
 }
 
-const propertyTypeOptions: Array<{ label: string; icon?: IconName; iconImage?: number; value: string }> = [
-    { label: 'Shorter', iconImage: require('@/assets/img/type-shorter.png'), value: 'kratsi' },
-    { label: 'Medium length', iconImage: require('@/assets/img/type-medium-length.png'), value: 'stredne_dlouhy' },
-    { label: 'Longer', iconImage: require('@/assets/img/type-longer.png'), value: 'delsi' },
-    { label: 'Office', iconImage: require('@/assets/img/type-office.png'), value: 'do_kanclu' },
-    { label: 'Sporty', iconImage: require('@/assets/img/type-sporty.png'), value: 'sportovni' },
-    { label: 'Modern', iconImage: require('@/assets/img/type-modern.png'), value: 'moderni' },
-    { label: 'Retro', iconImage: require('@/assets/img/type-retro.png'), value: 'retro' },
-    { label: 'Casual', iconImage: require('@/assets/img/type-casual.png'), value: 'podpantoflak' },
+const propertyTypeOptions: Array<{ labelKey: string; icon?: IconName; iconImage?: number; value: string }> = [
+    { labelKey: 'addPropertyTypeShorter', iconImage: require('@/assets/img/type-shorter.png'), value: 'kratsi' },
+    { labelKey: 'addPropertyTypeMediumLength', iconImage: require('@/assets/img/type-medium-length.png'), value: 'stredne_dlouhy' },
+    { labelKey: 'addPropertyTypeLonger', iconImage: require('@/assets/img/type-longer.png'), value: 'delsi' },
+    { labelKey: 'addPropertyTypeOffice', iconImage: require('@/assets/img/type-office.png'), value: 'do_kanclu' },
+    { labelKey: 'addPropertyTypeSporty', iconImage: require('@/assets/img/type-sporty.png'), value: 'sportovni' },
+    { labelKey: 'addPropertyTypeModern', iconImage: require('@/assets/img/type-modern.png'), value: 'moderni' },
+    { labelKey: 'addPropertyTypeRetro', iconImage: require('@/assets/img/type-retro.png'), value: 'retro' },
+    { labelKey: 'addPropertyTypeCasual', iconImage: require('@/assets/img/type-casual.png'), value: 'podpantoflak' },
 ];
 
-const guestAccessOptions: Array<{ label: string; description: string; icon?: IconName; iconImage?: number; value: string }> = [
-    { label: 'Summer', description: 'Haircut for warm months.', iconImage: require('@/assets/img/season-summer.png'), value: 'letni' },
-    { label: 'Winter', description: 'Haircut for cold weather.', iconImage: require('@/assets/img/season-winter.png'), value: 'zimni' },
-    { label: 'All-year', description: 'You wear it all the time.', iconImage: require('@/assets/img/season-all-year.png'), value: 'celorocni' },
+const guestAccessOptions: Array<{ labelKey: string; descKey: string; icon?: IconName; iconImage?: number; value: string }> = [
+    { labelKey: 'addPropertySeasonSummer', descKey: 'addPropertySeasonSummerDesc', iconImage: require('@/assets/img/season-summer.png'), value: 'letni' },
+    { labelKey: 'addPropertySeasonWinter', descKey: 'addPropertySeasonWinterDesc', iconImage: require('@/assets/img/season-winter.png'), value: 'zimni' },
+    { labelKey: 'addPropertySeasonAllYear', descKey: 'addPropertySeasonAllYearDesc', iconImage: require('@/assets/img/season-all-year.png'), value: 'celorocni' },
 ];
 
-const amenityOptions: Array<{ label: string; icon: IconName }> = [
-    { label: 'Want to try', icon: 'Sparkles' },
-    { label: 'Low maintenance', icon: 'Check' },
-    { label: 'Requires styling', icon: 'Zap' },
-    { label: "Don't need to dry hair", icon: 'Wind' },
-    { label: 'Long lasting', icon: 'Clock' },
-    { label: 'Haircut people compliment most', icon: 'Users' },
-    { label: 'My favourite haircut', icon: 'Star' },
-    { label: 'Looks good with beard', icon: 'CircleUser' },
-    { label: 'Styling', icon: 'Sparkles' },
-    { label: 'Trying something new', icon: 'Lightbulb' },
-    { label: 'Recommended by barber', icon: 'UserCheck' },
-    { label: 'Came back to it', icon: 'RotateCcw' },
+const amenityOptions: Array<{ label: string; labelKey: string; icon: IconName }> = [
+    { label: 'Want to try', labelKey: 'addPropertyAmenityWantToTry', icon: 'Sparkles' },
+    { label: 'Low maintenance', labelKey: 'addPropertyAmenityLowMaintenance', icon: 'Check' },
+    { label: 'Requires styling', labelKey: 'addPropertyAmenityRequiresStyling', icon: 'Zap' },
+    { label: "Don't need to dry hair", labelKey: 'addPropertyAmenityNoDryHair', icon: 'Wind' },
+    { label: 'Long lasting', labelKey: 'addPropertyAmenityLongLasting', icon: 'Clock' },
+    { label: 'Haircut people compliment most', labelKey: 'addPropertyAmenityPeopleCompliment', icon: 'Users' },
+    { label: 'My favourite haircut', labelKey: 'addPropertyAmenityMyFavourite', icon: 'Star' },
+    { label: 'Looks good with beard', labelKey: 'addPropertyAmenityWithBeard', icon: 'CircleUser' },
+    { label: 'Styling', labelKey: 'addPropertyAmenityStyling', icon: 'Sparkles' },
+    { label: 'Trying something new', labelKey: 'addPropertyAmenitySomethingNew', icon: 'Lightbulb' },
+    { label: 'Recommended by barber', labelKey: 'addPropertyAmenityRecommendedByBarber', icon: 'UserCheck' },
+    { label: 'Came back to it', labelKey: 'addPropertyAmenityCameBack', icon: 'RotateCcw' },
 ];
 
 interface StepProps {
@@ -72,16 +73,18 @@ interface StepProps {
 }
 
 // Step 1: Haircut type (propertyType in data = typ účesu)
-const PropertyTypeStep: React.FC<StepProps> = ({ data, updateData }) => (
+const PropertyTypeStep: React.FC<StepProps> = ({ data, updateData }) => {
+    const { t } = useTranslation();
+    return (
     <ScrollView className="p-4 px-8">
         <View className='mb-10'>
-            <ThemedText className='text-3xl font-semibold mt-auto'>What best describes your haircut?</ThemedText>
-            <ThemedText className='text-base text-light-subtext dark:text-dark-subtext'>Choose the option that fits you best</ThemedText>
+            <ThemedText className='text-3xl font-semibold mt-auto'>{t('addPropertyWhatDescribes')}</ThemedText>
+            <ThemedText className='text-base text-light-subtext dark:text-dark-subtext'>{t('addPropertyChooseOption')}</ThemedText>
         </View>
         {propertyTypeOptions.map((option) => (
             <Selectable
                 key={option.value}
-                title={option.label}
+                title={t(option.labelKey)}
                 icon={option.icon}
                 customIcon={option.iconImage != null ? <Image source={option.iconImage} className={option.value === 'delsi' ? 'w-14 h-14' : 'w-12 h-12'} resizeMode="contain" /> : undefined}
                 selected={data.propertyType === option.value}
@@ -89,21 +92,24 @@ const PropertyTypeStep: React.FC<StepProps> = ({ data, updateData }) => (
             />
         ))}
     </ScrollView>
-);
+    );
+};
 
 // Step 2: Roční období (guestAccessType in data = období)
-const GuestAccessStep: React.FC<StepProps> = ({ data, updateData }) => (
+const GuestAccessStep: React.FC<StepProps> = ({ data, updateData }) => {
+    const { t } = useTranslation();
+    return (
     <ScrollView className="p-4 px-8">
         <View className='mb-10'>
-            <ThemedText className='text-3xl font-semibold mt-auto'>For which season?</ThemedText>
-            <ThemedText className='text-base text-light-subtext dark:text-dark-subtext'>Choose when you wear this haircut most</ThemedText>
+            <ThemedText className='text-3xl font-semibold mt-auto'>{t('addPropertyForWhichSeason')}</ThemedText>
+            <ThemedText className='text-base text-light-subtext dark:text-dark-subtext'>{t('addPropertyChooseSeason')}</ThemedText>
         </View>
 
         {guestAccessOptions.map((option) => (
             <View key={option.value} className="mb-1">
                 <Selectable
-                    title={option.label}
-                    description={option.description}
+                    title={t(option.labelKey)}
+                    description={t(option.descKey)}
                     icon={option.icon}
                     customIcon={option.iconImage != null ? <Image source={option.iconImage} className="w-12 h-12" resizeMode="contain" /> : undefined}
                     selected={data.guestAccessType === option.value}
@@ -112,22 +118,24 @@ const GuestAccessStep: React.FC<StepProps> = ({ data, updateData }) => (
             </View>
         ))}
     </ScrollView>
-);
+    );
+};
 
 // Step 3: Základní údaje o účesu (guests = cm u uší, bedrooms = cm nahoře, beds = týdnů mezi přestříháním)
 const PropertyBasicsStep: React.FC<StepProps> = ({ data, updateData }) => {
+    const { t } = useTranslation();
     return (
         <ScrollView className="p-4 px-8">
             <View className='mb-10'>
-                <ThemedText className='text-3xl font-semibold mt-auto'>Basic haircut details</ThemedText>
-                <ThemedText className='text-base text-light-subtext dark:text-dark-subtext'>Fill in lengths and how often to refresh the cut</ThemedText>
+                <ThemedText className='text-3xl font-semibold mt-auto'>{t('addPropertyBasicDetails')}</ThemedText>
+                <ThemedText className='text-base text-light-subtext dark:text-dark-subtext'>{t('addPropertyFillLengths')}</ThemedText>
             </View>
 
             <View className="mt-4">
                 <View className="flex-row items-center justify-between py-4">
                     <View className="flex-1 pr-4">
-                        <ThemedText className="text-lg">Length at ears</ThemedText>
-                        <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext">Length in cm</ThemedText>
+                        <ThemedText className="text-lg">{t('addPropertyLengthAtEars')}</ThemedText>
+                        <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext">{t('addPropertyLengthCm')}</ThemedText>
                     </View>
                     <Counter
                         value={data.guests}
@@ -139,8 +147,8 @@ const PropertyBasicsStep: React.FC<StepProps> = ({ data, updateData }) => {
 
                 <View className="flex-row items-center justify-between py-4 border-t border-light-secondary dark:border-dark-secondary">
                     <View className="flex-1 pr-4">
-                        <ThemedText className="text-lg">Length on top</ThemedText>
-                        <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext">Length in cm</ThemedText>
+                        <ThemedText className="text-lg">{t('addPropertyLengthOnTop')}</ThemedText>
+                        <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext">{t('addPropertyLengthCm')}</ThemedText>
                     </View>
                     <Counter
                         value={data.bedrooms}
@@ -152,8 +160,8 @@ const PropertyBasicsStep: React.FC<StepProps> = ({ data, updateData }) => {
 
                 <View className="flex-row items-center justify-between py-4 border-t border-light-secondary dark:border-dark-secondary">
                     <View className="flex-1 pr-4">
-                        <ThemedText className="text-lg">How often to trim?</ThemedText>
-                        <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext">Every how many weeks to come in</ThemedText>
+                        <ThemedText className="text-lg">{t('addPropertyHowOftenTrim')}</ThemedText>
+                        <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext">{t('addPropertyWeeksToComeIn')}</ThemedText>
                     </View>
                     <Counter
                         value={data.beds}
@@ -168,11 +176,13 @@ const PropertyBasicsStep: React.FC<StepProps> = ({ data, updateData }) => {
 };
 
 // Step 4: Co k účesu patří (amenities = vybrané chipy → do note)
-const AmenitiesStep: React.FC<StepProps> = ({ data, updateData }) => (
+const AmenitiesStep: React.FC<StepProps> = ({ data, updateData }) => {
+    const { t } = useTranslation();
+    return (
     <ScrollView className="p-4 px-8">
         <View className='mb-10'>
-            <ThemedText className='text-3xl font-semibold mt-auto'>What goes with this haircut?</ThemedText>
-            <ThemedText className='text-base text-light-subtext dark:text-dark-subtext'>Select everything that fits your haircut. You can select multiple options.</ThemedText>
+            <ThemedText className='text-3xl font-semibold mt-auto'>{t('addPropertyWhatGoesWith')}</ThemedText>
+            <ThemedText className='text-base text-light-subtext dark:text-dark-subtext'>{t('addPropertySelectMultiple')}</ThemedText>
         </View>
 
         <View className="flex-row flex-wrap gap-3 mt-4">
@@ -180,7 +190,7 @@ const AmenitiesStep: React.FC<StepProps> = ({ data, updateData }) => (
                 <Chip
                     size='lg'
                     key={amenity.label}
-                    label={amenity.label}
+                    label={t(amenity.labelKey)}
                     icon={amenity.icon}
                     isSelected={data.amenities.includes(amenity.label)}
                     onPress={() => {
@@ -193,7 +203,8 @@ const AmenitiesStep: React.FC<StepProps> = ({ data, updateData }) => (
             ))}
         </View>
     </ScrollView>
-);
+    );
+};
 
 // Step 5: Photos
 const PhotosStep: React.FC<StepProps> = ({ data, updateData }) => {
@@ -230,11 +241,12 @@ const PhotosStep: React.FC<StepProps> = ({ data, updateData }) => {
         updateData({ photos: newPhotos });
     };
 
+    const { t } = useTranslation();
     return (
         <ScrollView className="p-4 px-8">
             <View className='mb-10'>
-                <ThemedText className='text-3xl font-semibold mt-auto'>Add haircut photos</ThemedText>
-                <ThemedText className='text-base text-light-subtext dark:text-dark-subtext'>At least one photo helps. You can add more or edit later.</ThemedText>
+                <ThemedText className='text-3xl font-semibold mt-auto'>{t('addPropertyAddPhotos')}</ThemedText>
+                <ThemedText className='text-base text-light-subtext dark:text-dark-subtext'>{t('addPropertyAtLeastOnePhoto')}</ThemedText>
             </View>
 
             <Grid columns={2} spacing={10}>
@@ -259,7 +271,7 @@ const PhotosStep: React.FC<StepProps> = ({ data, updateData }) => {
                     className="w-full h-44 rounded-lg border-2 border-dashed border-light-subtext dark:border-dark-subtext items-center justify-center"
                 >
                     <Icon name="Plus" size={24} className="text-light-subtext dark:text-dark-subtext" />
-                    <ThemedText className="text-xs text-light-subtext dark:text-dark-subtext mt-1">Add photo</ThemedText>
+                    <ThemedText className="text-xs text-light-subtext dark:text-dark-subtext mt-1">{t('addPropertyAddPhoto')}</ThemedText>
                 </TouchableOpacity>
 
                 <TouchableOpacity
@@ -267,7 +279,7 @@ const PhotosStep: React.FC<StepProps> = ({ data, updateData }) => {
                     className="w-full h-44 rounded-lg border-2 border-dashed border-light-subtext dark:border-dark-subtext items-center justify-center"
                 >
                     <Icon name="Plus" size={24} className="text-light-subtext dark:text-dark-subtext" />
-                    <ThemedText className="text-xs text-light-subtext dark:text-dark-subtext mt-1">Take photo</ThemedText>
+                    <ThemedText className="text-xs text-light-subtext dark:text-dark-subtext mt-1">{t('addPropertyTakePhoto')}</ThemedText>
                 </TouchableOpacity>
             </Grid>
         </ScrollView>
@@ -275,14 +287,16 @@ const PhotosStep: React.FC<StepProps> = ({ data, updateData }) => {
 };
 
 // Step 6: Title and Description (název účesu + popis)
-const TitleDescriptionStep: React.FC<StepProps> = ({ data, updateData }) => (
+const TitleDescriptionStep: React.FC<StepProps> = ({ data, updateData }) => {
+    const { t } = useTranslation();
+    return (
     <ScrollView className="p-4 px-8">
         <View className='mb-10'>
-            <ThemedText className='text-3xl font-semibold mt-auto'>Now name your haircut</ThemedText>
-            <ThemedText className='text-base text-light-subtext dark:text-dark-subtext'>A short name is enough. You can change it anytime.</ThemedText>
+            <ThemedText className='text-3xl font-semibold mt-auto'>{t('addPropertyNowName')}</ThemedText>
+            <ThemedText className='text-base text-light-subtext dark:text-dark-subtext'>{t('addPropertyShortName')}</ThemedText>
         </View>
 
-        <Section title="Title" titleSize="md" padding="sm">
+        <Section title={t('addPropertyTitle')} titleSize="md" padding="sm">
             <Input
                 variant='classic'
                 containerClassName="mt-1 mb-0"
@@ -296,7 +310,7 @@ const TitleDescriptionStep: React.FC<StepProps> = ({ data, updateData }) => (
             </ThemedText>
         </Section>
 
-        <Section title="Description" titleSize="md" padding="sm" className="mt-6">
+        <Section title={t('addPropertyDescription')} titleSize="md" padding="sm" className="mt-6">
             <Input
                 variant='classic'
                 containerClassName="mt-1 mb-0"
@@ -311,7 +325,8 @@ const TitleDescriptionStep: React.FC<StepProps> = ({ data, updateData }) => (
             </ThemedText>
         </Section>
     </ScrollView>
-);
+    );
+};
 
 function stylingDifficultyLabel(value: number): string {
     if (value <= 16) return 'Very easy';
@@ -324,6 +339,7 @@ function stylingDifficultyLabel(value: number): string {
 
 // Step 7: Náročnost stylingu + kdo účes dělal
 const CharacteristicsStep: React.FC<StepProps> = ({ data, updateData }) => {
+    const { t } = useTranslation();
     const { apiToken } = useAuth();
     const [employees, setEmployees] = useState<Employee[]>([]);
 
@@ -337,11 +353,11 @@ const CharacteristicsStep: React.FC<StepProps> = ({ data, updateData }) => {
     return (
         <ScrollView className="p-4 px-8">
             <View className='mb-10'>
-                <ThemedText className='text-3xl font-semibold mt-auto'>Styling difficulty and stylist</ThemedText>
-                <ThemedText className='text-base text-light-subtext dark:text-dark-subtext'>How demanding is the haircut to style and who did it for you?</ThemedText>
+                <ThemedText className='text-3xl font-semibold mt-auto'>{t('addPropertyStylingDifficulty')}</ThemedText>
+                <ThemedText className='text-base text-light-subtext dark:text-dark-subtext'>{t('addPropertyHowDemanding')}</ThemedText>
             </View>
 
-            <Section title="Difficulty" titleSize="md" padding="sm" className="mt-2">
+            <Section title={t('addPropertyDifficulty')} titleSize="md" padding="sm" className="mt-2">
                 <Slider
                     style={{ width: '100%', height: 40 }}
                     value={data.stylingDifficulty}
@@ -357,7 +373,7 @@ const CharacteristicsStep: React.FC<StepProps> = ({ data, updateData }) => {
                 </ThemedText>
             </Section>
 
-            <Section title="Select who did your haircut" titleSize="md" padding="sm" className="mt-6">
+            <Section title={t('addPropertySelectBarber')} titleSize="md" padding="sm" className="mt-6">
                 <View className="-mx-8 mt-6" style={{ marginHorizontal: -32 }}>
                     <BarberPicker
                         employees={employees}
@@ -373,6 +389,7 @@ const CharacteristicsStep: React.FC<StepProps> = ({ data, updateData }) => {
 
 // Success Step
 const SuccessStep: React.FC<StepProps> = ({ data }) => {
+    const { t } = useTranslation();
     return (
         <View className="p-8 flex-1 items-center justify-center">
             <Image
@@ -380,9 +397,9 @@ const SuccessStep: React.FC<StepProps> = ({ data }) => {
                 className="w-32 h-32 rounded-lg"
                 resizeMode="cover"
             />
-            <ThemedText className="text-3xl font-bold mt-8 text-center">Congratulations!</ThemedText>
+            <ThemedText className="text-3xl font-bold mt-8 text-center">{t('addPropertyCongratulations')}</ThemedText>
             <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext text-center mb-8 mt-1">
-                Your haircut was saved successfully. You can find it in the My haircuts section.
+                {t('addPropertySuccessMessage')}
             </ThemedText>
 
             {/*<View className="w-full bg-light-secondary dark:bg-dark-secondary rounded-lg p-4 mb-8">
@@ -409,6 +426,7 @@ const SuccessStep: React.FC<StepProps> = ({ data }) => {
 };
 
 export default function AddPropertyScreen() {
+    const { t } = useTranslation();
     const [data, setData] = useState<PropertyData>({
         propertyType: '',
         guestAccessType: '',
@@ -436,35 +454,35 @@ export default function AddPropertyScreen() {
             onClose={() => router.push('/(drawer)/(tabs)/')}
             showStepIndicator={false}
         >
-            <Step title="Haircut type">
+            <Step title={t('addPropertyStepHaircutType')}>
                 <PropertyTypeStep data={data} updateData={updateData} />
             </Step>
 
-            <Step title="Season">
+            <Step title={t('addPropertyStepSeason')}>
                 <GuestAccessStep data={data} updateData={updateData} />
             </Step>
 
-            <Step title="Basics">
+            <Step title={t('addPropertyStepBasics')}>
                 <PropertyBasicsStep data={data} updateData={updateData} />
             </Step>
 
-            <Step title="Features">
+            <Step title={t('addPropertyStepFeatures')}>
                 <AmenitiesStep data={data} updateData={updateData} />
             </Step>
 
-            <Step title="Photos">
+            <Step title={t('addPropertyStepPhotos')}>
                 <PhotosStep data={data} updateData={updateData} />
             </Step>
 
-            <Step title="Title & Description">
+            <Step title={t('addPropertyStepTitleDesc')}>
                 <TitleDescriptionStep data={data} updateData={updateData} />
             </Step>
 
-            <Step title="Styling & stylist">
+            <Step title={t('addPropertyStepStyling')}>
                 <CharacteristicsStep data={data} updateData={updateData} />
             </Step>
 
-            <Step title="Success">
+            <Step title={t('addPropertyStepSuccess')}>
                 <SuccessStep data={data} updateData={updateData} />
             </Step>
         </MultiStep>

@@ -7,10 +7,12 @@ import { Button } from '@/components/Button';
 import useThemeColors from '@/app/contexts/ThemeColors';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Header from '@/components/Header';
+import { useTranslation } from '@/app/hooks/useTranslation';
 
 export default function SignupScreen() {
   const insets = useSafeAreaInsets();
   const colors = useThemeColors();
+  const { t } = useTranslation();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -129,11 +131,11 @@ export default function SignupScreen() {
 
 
         <View className="mt-8">
-          <ThemedText className="text-3xl font-bold mb-1">Create new account</ThemedText>
-          <ThemedText className="text-light-subtext dark:text-dark-subtext mb-14">Create an account to continue</ThemedText>
+          <ThemedText className="text-3xl font-bold mb-1">{t('signupCreateAccount')}</ThemedText>
+          <ThemedText className="text-light-subtext dark:text-dark-subtext mb-14">{t('signupCreateAccountDesc')}</ThemedText>
 
           <Input
-            label="Email"
+            label={t('signupEmail')}
             //leftIcon="mail"
             value={email}
             onChangeText={(text) => {
@@ -148,7 +150,7 @@ export default function SignupScreen() {
           />
 
           <Input
-            label="Password"
+            label={t('signupPassword')}
             //leftIcon="lock"
             value={password}
             onChangeText={(text) => {
@@ -163,7 +165,7 @@ export default function SignupScreen() {
           />
 
           <Input
-            label="Confirm password"
+            label={t('signupConfirmPassword')}
             //leftIcon="lock"
             value={confirmPassword}
             onChangeText={(text) => {
@@ -191,7 +193,7 @@ export default function SignupScreen() {
 
 
           <Button
-            title="Sign up"
+            title={t('signupTitle')}
             onPress={handleSignup}
             loading={isLoading}
             size="large"
@@ -201,10 +203,10 @@ export default function SignupScreen() {
 
 
           <View className="flex-row justify-center">
-            <ThemedText className="text-light-subtext dark:text-dark-subtext">Already have an account? </ThemedText>
+            <ThemedText className="text-light-subtext dark:text-dark-subtext">{t('signupAlreadyHave')}</ThemedText>
             <Link href="/screens/login" asChild>
               <Pressable>
-                <ThemedText className="underline">Log in</ThemedText>
+                <ThemedText className="underline">{t('signupLogIn')}</ThemedText>
               </Pressable>
             </Link>
           </View>

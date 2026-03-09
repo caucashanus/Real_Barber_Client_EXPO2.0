@@ -8,10 +8,11 @@ import ThemedText from '@/components/ThemedText';
 import { Image, Pressable, View } from 'react-native';
 import { Chip } from '@/components/Chip';
 import { router } from 'expo-router';
-
+import { useTranslation } from '@/app/hooks/useTranslation';
 
 const EmptyScreen = () => {
     const colors = useThemeColors();
+    const { t } = useTranslation();
 
 
     return (
@@ -25,11 +26,11 @@ const EmptyScreen = () => {
                 className="flex-1 pt-8"
                 keyboardShouldPersistTaps="handled"
             >
-                <ThemedText className='text-3xl font-semibold'>Your listings</ThemedText>
+                <ThemedText className='text-3xl font-semibold'>{t('listingsYourListings')}</ThemedText>
                 <View className="flex-row gap-2 mt-2 mb-10">
-                    <Chip isSelected size="lg" label="All" />
-                    <Chip size="lg" label="Homes" />
-                    <Chip size="lg" label="Experiences" />
+                    <Chip isSelected size="lg" label={t('tripsFilterAll')} />
+                    <Chip size="lg" label={t('listingsHomes')} />
+                    <Chip size="lg" label={t('listingsExperiences')} />
                 </View>
                 <ListingCard title="Apartment in New York" description="Brooklyn, NY" image={require('@/assets/img/room-2.avif')} />
                 <ListingCard title="House in Barcelona" description="Barcelona, Spain" image={require('@/assets/img/room-1.avif')} />

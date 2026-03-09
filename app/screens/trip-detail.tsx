@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, ActivityIndicator, Image } from 'react-native';
+import { View, ActivityIndicator, Image, Pressable, Linking } from 'react-native';
 import { useLocalSearchParams, router } from 'expo-router';
 import Header from '@/components/Header';
 import ThemedScroller from '@/components/ThemeScroller';
@@ -18,6 +18,7 @@ import { useSetTransferRecipient } from '@/app/contexts/TransferRecipientContext
 import { getBookings, type Booking } from '../../api/bookings';
 import { getBranches, type Branch, type BranchService } from '@/api/branches';
 import { getClientOverview, type ClientOverviewReservation } from '@/api/reviews';
+import { useTranslation } from '@/app/hooks/useTranslation';
 
 const BRANCH_IMAGES: Record<string, number> = {
   'Modřany': require('@/assets/img/branches/Modrany.jpg'),
@@ -56,18 +57,12 @@ function branchImages(branch: Branch): (string | number)[] {
   return out;
 }
 
-// Mock data for Earnings breakdown & Payment method sections (copied from booking-detail)
-const mockPriceBreakdown = {
-  nightlyRate: '$300',
-  nights: 5,
-  subtotal: '$1,500',
-  cleaningFee: '$75',
-  serviceFee: '$125',
-  taxes: '$50',
-  total: '$1,750',
-};
-function formatPaymentMethodLabel(method: string | null | undefined): string {
+function getPaymentMethodLabel(method: string | null | undefined, t: (key: string) => string): string {
   if (!method) return '—';
+  const normalized = method.trim().toUpperCase().replace(/\s+/g, '_');
+  if (normalized === 'CASH') return t('paymentMethodCash');
+  if (normalized === 'CARD' || normalized === 'CREDIT_CARD' || normalized === 'DEBIT_CARD') return t('paymentMethodCard');
+  if (normalized === 'RBC' || normalized === 'RB_COINS' || normalized === 'RBCOINS') return t('paymentMethodRbc');
   return method
     .split('_')
     .map((part) => (part.toLowerCase() === 'rbc' ? 'RBC' : part.charAt(0).toUpperCase() + part.slice(1).toLowerCase()))
@@ -110,6 +105,7 @@ function isBookingPast(booking: Booking): boolean {
 const BookingDetailScreen = () => {
   const { id } = useLocalSearchParams<{ id: string }>();
   const { apiToken } = useAuth();
+  const { t } = useTranslation();
   const setTransferRecipient = useSetTransferRecipient();
   const [booking, setBooking] = useState<Booking | null>(null);
   const [branch, setBranch] = useState<Branch | null>(null);
@@ -164,10 +160,10 @@ const BookingDetailScreen = () => {
   if (loading) {
     return (
       <>
-        <Header title="Booking Detail" showBackButton />
+        <Header title={t('bookingDetailTitle')} showBackButton />
         <View className="flex-1 items-center justify-center bg-light-primary dark:bg-dark-primary">
           <ActivityIndicator size="large" />
-          <ThemedText className="mt-2 text-light-subtext dark:text-dark-subtext">Loading…</ThemedText>
+          <ThemedText className="mt-2 text-light-subtext dark:text-dark-subtext">{t('commonLoading')}</ThemedText>
         </View>
       </>
     );
@@ -176,7 +172,7 @@ const BookingDetailScreen = () => {
   if (error || !booking) {
     return (
       <>
-        <Header title="Booking Detail" showBackButton />
+        <Header title={t('bookingDetailTitle')} showBackButton />
         <View className="flex-1 items-center justify-center bg-light-primary dark:bg-dark-primary p-6">
           <ThemedText className="text-center text-red-500 dark:text-red-400">{error ?? 'Booking not found'}</ThemedText>
         </View>
@@ -199,7 +195,7 @@ const BookingDetailScreen = () => {
 
   return (
     <>
-      <Header title="Booking Detail" showBackButton />
+      <Header title={t('bookingDetailTitle')} showBackButton />
       <ThemedScroller className="flex-1 px-0" keyboardShouldPersistTaps="handled">
         <AnimatedView animation="fadeIn" duration={400} delay={100}>
           <View className="px-global">
@@ -220,7 +216,7 @@ const BookingDetailScreen = () => {
 
           <Divider className="h-2 bg-light-secondary dark:bg-dark-darker" />
 
-          <Section title="In care of" titleSize="lg" className="px-global pt-4">
+          <Section title={t('bookingInCareOf')} titleSize="lg" className="px-global pt-4">
             <View className="flex-row items-center justify-between mt-4 mb-4">
               <View className="flex-row items-center flex-1">
                 <Avatar src={booking.employee?.avatarUrl ?? undefined} name={booking.employee?.name} size="lg" />
@@ -236,16 +232,16 @@ const BookingDetailScreen = () => {
             </View>
             <ListLink
               icon="MessageCircle"
-              title="Message"
-              description="Get help with your booking"
+              title={t('bookingMessage')}
+              description={t('bookingMessage')}
               href="/screens/chat/user"
               showChevron
               className="px-4 py-3 bg-light-secondary dark:bg-dark-secondary rounded-xl"
             />
             <ListLink
               icon="Gift"
-              title="Send RBC as tip"
-              description="Transfer RBC to this specialist"
+              title={t('bookingSendRbcTip')}
+              description={t('bookingSendRbcTip')}
               showChevron
               className="px-4 py-3 bg-light-secondary dark:bg-dark-secondary rounded-xl mt-2"
               onPress={() => {
@@ -264,22 +260,22 @@ const BookingDetailScreen = () => {
 
           <Divider className="mt-6 h-2 bg-light-secondary dark:bg-dark-darker" />
 
-          <Section title="Your appointment" titleSize="lg" className="px-global pt-4">
+          <Section title={t('bookingYourAppointment')} titleSize="lg" className="px-global pt-4">
             <View className="mt-4 space-y-4">
               <ThemedText className="text-lg font-semibold">{appointment.dateStr}</ThemedText>
               <View className="flex-row items-center justify-between bg-light-secondary dark:bg-dark-secondary rounded-xl p-4">
                 <View>
-                  <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext">From</ThemedText>
+                  <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext">{t('bookingFrom')}</ThemedText>
                   <ThemedText className="text-lg font-semibold">{appointment.fromTime}</ThemedText>
                 </View>
                 <View className="items-end">
-                  <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext">To</ThemedText>
+                  <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext">{t('bookingTo')}</ThemedText>
                   <ThemedText className="text-lg font-semibold">{appointment.toTime}</ThemedText>
                 </View>
               </View>
               <View className="flex-row items-center justify-between pt-2">
                 <View>
-                  <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext">Duration</ThemedText>
+                  <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext">{t('bookingDuration')}</ThemedText>
                   <ThemedText className="text-lg font-semibold">{booking.duration} min</ThemedText>
                 </View>
               </View>
@@ -288,7 +284,7 @@ const BookingDetailScreen = () => {
 
           <Divider className="mt-6 h-2 bg-light-secondary dark:bg-dark-darker" />
 
-          <Section title="Reservation details" titleSize="lg" className="px-global pt-4">
+          <Section title={t('bookingReservationDetails')} titleSize="lg" className="px-global pt-4">
             <View className="mt-4 space-y-3">
               <Image
                 source={booking.item?.imageUrl ? { uri: booking.item.imageUrl } : require('@/assets/img/room-1.avif')}
@@ -296,11 +292,11 @@ const BookingDetailScreen = () => {
                 resizeMode="cover"
               />
               <View className="flex-row justify-between">
-                <ThemedText className="text-light-subtext dark:text-dark-subtext">Reservation number</ThemedText>
+                <ThemedText className="text-light-subtext dark:text-dark-subtext">{t('bookingReservationNumber')}</ThemedText>
                 <ThemedText className="font-medium">#{booking.id.slice(0, 8)}</ThemedText>
               </View>
               <View className="flex-row justify-between">
-                <ThemedText className="text-light-subtext dark:text-dark-subtext">Status</ThemedText>
+                <ThemedText className="text-light-subtext dark:text-dark-subtext">{t('bookingStatus')}</ThemedText>
                 <ThemedText className="font-medium capitalize">{booking.status}</ThemedText>
               </View>
             </View>
@@ -308,7 +304,7 @@ const BookingDetailScreen = () => {
 
           <Divider className="mt-6 h-2 bg-light-secondary dark:bg-dark-darker" />
 
-          <Section title="Price details" titleSize="lg" className="px-global pt-4">
+          <Section title={t('bookingPriceDetails')} titleSize="lg" className="px-global pt-4">
             <View className="mt-4 space-y-3">
               <View className="flex-row justify-between">
                 <ThemedText className="text-light-subtext dark:text-dark-subtext">{booking.item?.name ?? 'Service'}</ThemedText>
@@ -316,7 +312,7 @@ const BookingDetailScreen = () => {
               </View>
               <Divider className="my-3" />
               <View className="flex-row justify-between">
-                <ThemedText className="font-bold text-lg">Total</ThemedText>
+                <ThemedText className="font-bold text-lg">{t('bookingTotal')}</ThemedText>
                 <ThemedText className="font-bold text-lg">{booking.price} Kč</ThemedText>
               </View>
             </View>
@@ -324,50 +320,12 @@ const BookingDetailScreen = () => {
 
           <Divider className="mt-6 h-2 bg-light-secondary dark:bg-dark-darker" />
 
-          <Section title="Earnings breakdown" titleSize="lg" className="px-global pt-4">
-            <View className="mt-4 space-y-3">
-              <View className="flex-row justify-between">
-                <ThemedText className="text-light-subtext dark:text-dark-subtext">
-                  {mockPriceBreakdown.nightlyRate} x {mockPriceBreakdown.nights} nights
-                </ThemedText>
-                <ThemedText>{mockPriceBreakdown.subtotal}</ThemedText>
-              </View>
-
-              <View className="flex-row justify-between">
-                <ThemedText className="text-light-subtext dark:text-dark-subtext">Cleaning fee</ThemedText>
-                <ThemedText>{mockPriceBreakdown.cleaningFee}</ThemedText>
-              </View>
-
-              <View className="flex-row justify-between">
-                <ThemedText className="text-light-subtext dark:text-dark-subtext">Service fee (deducted)</ThemedText>
-                <ThemedText className="text-red-600 dark:text-red-400">-{mockPriceBreakdown.serviceFee}</ThemedText>
-              </View>
-
-              <View className="flex-row justify-between">
-                <ThemedText className="text-light-subtext dark:text-dark-subtext">Taxes</ThemedText>
-                <ThemedText>{mockPriceBreakdown.taxes}</ThemedText>
-              </View>
-
-              <Divider className="my-3" />
-
-              <View className="flex-row justify-between">
-                <ThemedText className="font-bold text-lg">Your earnings</ThemedText>
-                <ThemedText className="font-bold text-lg text-green-600 dark:text-green-400">
-                  ${(parseInt(mockPriceBreakdown.total.replace('$', '').replace(',', '')) -
-                    parseInt(mockPriceBreakdown.serviceFee.replace('$', ''))).toLocaleString()}
-                </ThemedText>
-              </View>
-            </View>
-          </Section>
-
-          <Divider className="mt-6 h-2 bg-light-secondary dark:bg-dark-darker" />
-
-          <Section title="Payment method" titleSize="lg" className="px-global pt-4">
+          <Section title={t('bookingPaymentMethod')} titleSize="lg" className="px-global pt-4">
             <View className="flex-row items-center mt-4">
               <Icon name="CreditCard" size={20} className="mr-3" />
               <View>
                 <ThemedText className="font-medium">
-                  {formatPaymentMethodLabel(booking.paymentMethod)}
+                  {getPaymentMethodLabel(booking.paymentMethod, t)}
                 </ThemedText>
                 <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext">
                   {booking.price} Kč
@@ -379,14 +337,14 @@ const BookingDetailScreen = () => {
           <Divider className="mt-6 h-2 bg-light-secondary dark:bg-dark-darker" />
 
           <Section
-            title="Location"
+            title={t('tripDetailLocation')}
             titleSize="lg"
             className="px-global pt-4 pb-6"
             header={
               <View className="flex-row items-center justify-between w-full">
-                <ThemedText className="text-lg font-semibold">Location</ThemedText>
+                <ThemedText className="text-lg font-semibold">{t('tripDetailLocation')}</ThemedText>
                 <Button
-                  title="Celá mapa"
+                  title={t('tripDetailFullMap')}
                   iconStart="Map"
                   variant="secondary"
                   size="small"
@@ -398,9 +356,20 @@ const BookingDetailScreen = () => {
             }
           >
             <View className="mt-4">
-              <ThemedText className="text-light-subtext dark:text-dark-subtext mb-4">{location}</ThemedText>
+              <Pressable
+                onPress={() => {
+                  if (location && location !== '—') {
+                    Linking.openURL(`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(location)}`);
+                  }
+                }}
+                className="mb-4"
+              >
+                <ThemedText className="text-light-subtext dark:text-dark-subtext underline">{location}</ThemedText>
+              </Pressable>
               {booking.branch?.phone ? (
-                <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext">{booking.branch.phone}</ThemedText>
+                <Pressable onPress={() => Linking.openURL(`tel:${booking.branch!.phone!.replace(/\s/g, '')}`)}>
+                  <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext underline">{booking.branch.phone}</ThemedText>
+                </Pressable>
               ) : null}
             </View>
           </Section>
@@ -411,7 +380,7 @@ const BookingDetailScreen = () => {
         <View className="flex-row gap-3">
           {isPast && (
             <Button
-              title={hasReview ? 'Update review' : 'Review'}
+              title={hasReview ? t('reviewUpdate') : t('branchReview')}
               variant="outline"
               iconStart="Star"
               className="flex-1"
@@ -420,7 +389,7 @@ const BookingDetailScreen = () => {
           )}
           {isUpcoming && (
             <Button
-              title="Cancel booking"
+              title={t('tripDetailCancelBooking')}
               variant="outline"
               iconStart="X"
               className="flex-1"

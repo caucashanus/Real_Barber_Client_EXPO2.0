@@ -11,6 +11,7 @@ import { useRouter } from 'expo-router';
 import { useAuth } from '@/app/contexts/AuthContext';
 import { useSetSelectedPurchase } from '@/app/contexts/SelectedPurchaseContext';
 import { getClientProducts, type ClientProductPurchase } from '@/api/products';
+import { useTranslation } from '@/app/hooks/useTranslation';
 
 const MOCK_PRODUCTS = [
   { id: '1', title: 'Hair wax', price: '199 Kč', image: require('@/assets/img/room-1.avif') },
@@ -28,6 +29,7 @@ const ProductsScreen = () => {
   const scrollY = useContext(ScrollContext);
   const router = useRouter();
   const { apiToken } = useAuth();
+  const { t } = useTranslation();
   const setSelectedPurchase = useSetSelectedPurchase();
   const [purchasedLoading, setPurchasedLoading] = useState(true);
   const [purchasedProducts, setPurchasedProducts] = useState<ClientProductPurchase[]>([]);
@@ -53,15 +55,15 @@ const ProductsScreen = () => {
       scrollEventThrottle={16}
     >
       <AnimatedView animation="scaleIn" className="flex-1 mt-4">
-        <Section title="My purchased products" titleSize="lg" className="mb-6">
+        <Section title={t('productsMyPurchased')} titleSize="lg" className="mb-6">
           <CardScroller space={15} className="mt-1.5 pb-4">
             {purchasedLoading ? (
               <View className="py-8 items-center">
                 <ActivityIndicator size="small" />
-                <ThemedText className="py-2 text-light-subtext dark:text-dark-subtext">Loading…</ThemedText>
+                <ThemedText className="py-2 text-light-subtext dark:text-dark-subtext">{t('commonLoading')}</ThemedText>
               </View>
             ) : purchasedProducts.length === 0 ? (
-              <ThemedText className="py-4 text-light-subtext dark:text-dark-subtext">No purchased products.</ThemedText>
+              <ThemedText className="py-4 text-light-subtext dark:text-dark-subtext">{t('productsNoPurchased')}</ThemedText>
             ) : (
               purchasedProducts.map((purchase) => {
                 const imgUrl = productImageUrl(purchase);
@@ -89,7 +91,7 @@ const ProductsScreen = () => {
           </CardScroller>
         </Section>
 
-        <Section title="Products" titleSize="lg" link="/screens/map" linkText="View all">
+        <Section title={t('productsTitle')} titleSize="lg" link="/screens/map" linkText={t('commonViewAll')}>
           <CardScroller space={15} className="mt-1.5 pb-4">
             {MOCK_PRODUCTS.map((item) => (
               <Card

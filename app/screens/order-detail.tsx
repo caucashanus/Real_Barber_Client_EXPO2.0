@@ -10,6 +10,7 @@ import Divider from '@/components/layout/Divider';
 import Section from '@/components/layout/Section';
 import ShowRating from '@/components/ShowRating';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useTranslation } from '@/app/hooks/useTranslation';
 
 // Property interface
 interface Property {
@@ -103,6 +104,7 @@ const priceBreakdown: PriceBreakdown = {
 
 export default function OrderDetailScreen() {
   const insets = useSafeAreaInsets();
+  const { t } = useTranslation();
   const { id } = useLocalSearchParams<{ id: string }>();
   const [selectedPaymentMethod, setSelectedPaymentMethod] = useState('1');
 
@@ -111,7 +113,7 @@ export default function OrderDetailScreen() {
     <View className="flex-1 bg-light-primary dark:bg-dark-primary">
       <Header 
         showBackButton 
-        title="Confirm and pay"
+        title={t('orderConfirmAndPay')}
       />
 
       <ScrollView
@@ -148,7 +150,7 @@ export default function OrderDetailScreen() {
           <Divider className="my-6" />
 
           {/* Trip Details */}
-          <Section title="Your trip" titleSize="lg" className="px-global">
+          <Section title={t('orderYourTrip')} titleSize="lg" className="px-global">
             <View className="mt-4">
               {/* Dates */}
               <View className="flex-row items-center justify-between py-4">
@@ -159,7 +161,7 @@ export default function OrderDetailScreen() {
                   </ThemedText>
                 </View>
                 <Button
-                  title="Change"
+                  title={t('orderChange')}
                   variant='outline'
                   size="small"
                   rounded="lg"
@@ -177,7 +179,7 @@ export default function OrderDetailScreen() {
                   </ThemedText>
                 </View>
                 <Button
-                  title="Change"
+                  title={t('orderChange')}
                   variant='outline'
                   size="small"
                   rounded="lg"
@@ -189,7 +191,7 @@ export default function OrderDetailScreen() {
           <Divider className="my-6" />
 
           {/* Cancellation Policy */}
-          <Section title="Cancellation policy" titleSize="lg" className="px-global">
+          <Section title={t('orderCancellationPolicy')} titleSize="lg" className="px-global">
             <View className="mt-4 flex-row items-start">
               <Icon name="Shield" size={20} className="mr-3 mt-1 text-green-500" />
               <View className="flex-1">
@@ -206,7 +208,7 @@ export default function OrderDetailScreen() {
           <Divider className="my-6" />
 
           {/* Payment Method */}
-          <Section title="Choose how to pay" titleSize="lg" className="px-global">
+          <Section title={t('orderChooseHowToPay')} titleSize="lg" className="px-global">
             <View className="mt-4 space-y-3">
               {paymentMethods.map((method) => (
                 <Pressable
@@ -242,7 +244,7 @@ export default function OrderDetailScreen() {
             <Pressable className="flex-row items-center p-4 mt-3 border border-dashed border-light-subtext dark:border-dark-subtext rounded-lg">
               <Icon name="Plus" size={24} className="mr-4 text-light-subtext dark:text-dark-subtext" />
               <ThemedText className="text-light-subtext dark:text-dark-subtext">
-                Add payment method
+                {t('checkoutAddNewCard')}
               </ThemedText>
             </Pressable>
           </Section>
@@ -250,7 +252,7 @@ export default function OrderDetailScreen() {
           <Divider className="my-6" />
 
           {/* Price Details */}
-          <Section title="Price details" titleSize="lg" className="px-global">
+          <Section title={t('orderPriceDetails')} titleSize="lg" className="px-global">
             <View className="mt-4 space-y-3">
               <View className="flex-row justify-between">
                 <ThemedText>${priceBreakdown.basePrice} x {priceBreakdown.nights} nights</ThemedText>
@@ -297,7 +299,7 @@ export default function OrderDetailScreen() {
         style={{ paddingBottom: insets.bottom + 16 }}
       >
         <Button
-          title="Confirm and pay"
+          title={t('orderConfirmAndPay')}
           className="w-full bg-highlight"
           textClassName="text-white font-semibold"
           size="large"

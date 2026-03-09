@@ -17,6 +17,7 @@ import { useAuth } from '@/app/contexts/AuthContext';
 import { getClientMe, type ClientMe } from '@/api/client';
 import { getBookings } from '@/api/bookings';
 import { getClientReviewsList } from '@/api/reviews';
+import { useTranslation } from '@/app/hooks/useTranslation';
 
 export default function ProfileScreen() {
     const { isBusinessMode } = useBusinessMode();
@@ -44,6 +45,7 @@ export default function ProfileScreen() {
 }
 
 const HostProfile = () => {
+    const { t } = useTranslation();
     return (
         <>
             <AnimatedView className='' animation='scaleIn'>
@@ -59,15 +61,15 @@ const HostProfile = () => {
                             <Image className='w-full h-full' source={{ uri: 'https://images.pexels.com/photos/69903/pexels-photo-69903.jpeg?auto=compress&cs=tinysrgb&w=1200' }} />
                         </View>
                     </View>
-                    <ThemedText className='text-2xl font-semibold mt-4'>New to hosting?</ThemedText>
-                    <ThemedText className="text-sm font-light text-center px-4 ">Discover how to start hosting and earn extra income</ThemedText>
-                    <Button title="Get started" className='mt-4' textClassName='text-white' />
+                    <ThemedText className='text-2xl font-semibold mt-4'>{t('profileNewToHosting')}</ThemedText>
+                    <ThemedText className="text-sm font-light text-center px-4 ">{t('profileNewToHostingDesc')}</ThemedText>
+                    <Button title={t('profileGetStarted')} className='mt-4' textClassName='text-white' />
                 </View>
                 <View className='px-4'>
-                    <ListLink showChevron title="Reservations" icon="Briefcase" href="/screens/reservations" />
-                    <ListLink showChevron title="Earnings" icon="Banknote" href="/screens/earnings" />
-                    <ListLink showChevron title="Insights" icon="BarChart" href="/screens/insights" />
-                    <ListLink showChevron title="Create new listing" icon="PlusCircle" href="/screens/add-property-start" />
+                    <ListLink showChevron title={t('profileReservations')} icon="Briefcase" href="/screens/reservations" />
+                    <ListLink showChevron title={t('profileEarnings')} icon="Banknote" href="/screens/earnings" />
+                    <ListLink showChevron title={t('profileInsights')} icon="BarChart" href="/screens/insights" />
+                    <ListLink showChevron title={t('profileCreateListing')} icon="PlusCircle" href="/screens/add-property-start" />
                 </View>
             </AnimatedView>
         </>
@@ -84,6 +86,7 @@ function daysSinceCreatedAt(createdAt: string | null | undefined): number | null
 
 const PersonalProfile = () => {
     const { apiToken } = useAuth();
+    const { t } = useTranslation();
     const [client, setClient] = useState<ClientMe | null>(null);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
@@ -139,7 +142,7 @@ const PersonalProfile = () => {
                         <Avatar src={avatarSrc} size="xxl" />
                     )}
                     <View className="flex-1 items-center justify-center">
-                        <ThemedText className="text-2xl font-bold">{displayName ?? 'Guest'}</ThemedText>
+                        <ThemedText className="text-2xl font-bold">{displayName ?? t('profileGuest')}</ThemedText>
                         {error && (
                             <ThemedText className="text-xs text-red-500 dark:text-red-400 mt-1">{error}</ThemedText>
                         )}
@@ -153,27 +156,27 @@ const PersonalProfile = () => {
                 <View className='flex-col items-start justify-center w-1/2 pl-12'>
                     <View className='w-full'>
                         <ThemedText className="text-xl font-bold">{reservationsCount}</ThemedText>
-                        <ThemedText className="text-xs">Reservations</ThemedText>
+                        <ThemedText className="text-xs">{t('profileReservations')}</ThemedText>
                     </View>
                     <View className='w-full py-3 my-3 border-y border-neutral-300 dark:border-dark-primary'>
                         <ThemedText className="text-xl font-bold">{reviewsCount}</ThemedText>
-                        <ThemedText className="text-xs">Reviews</ThemedText>
+                        <ThemedText className="text-xs">{t('profileReviews')}</ThemedText>
                     </View>
                     <View className='w-full'>
                         <ThemedText className="text-xl font-bold">{daysMember ?? '—'}</ThemedText>
-                        <ThemedText className="text-xs">Member for (days)</ThemedText>
+                        <ThemedText className="text-xs">{t('profileMemberDays')}</ThemedText>
                     </View>
                 </View>
 
             </View>
 
             <View className='gap-1 px-4'>
-                <ListLink showChevron title="Account settings" icon="Settings" href="/screens/settings" />
-                <ListLink showChevron title="Edit profile" icon="UserRoundPen" href="/screens/edit-profile" />
-                <ListLink showChevron title="Get help" icon="HelpCircle" href="/screens/help" />
-                <ListLink showChevron title="Referrals" icon="Gift" href="/screens/referrals" />
+                <ListLink showChevron title={t('profileAccountSettings')} icon="Settings" href="/screens/settings" />
+                <ListLink showChevron title={t('profileEditProfile')} icon="UserRoundPen" href="/screens/edit-profile" />
+                <ListLink showChevron title={t('profileGetHelp')} icon="HelpCircle" href="/screens/help" />
+                <ListLink showChevron title={t('profileReferrals')} icon="Gift" href="/screens/referrals" />
                 <Divider />
-                <ListLink showChevron title="Logout" icon="LogOut" href="/screens/welcome" />
+                <ListLink showChevron title={t('profileLogout')} icon="LogOut" href="/screens/welcome" />
             </View>
         </AnimatedView>
 

@@ -16,6 +16,7 @@ import Icon from '@/components/Icon';
 import * as LucideIcons from 'lucide-react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import SearchBar from '@/components/SearchBar';
+import { useTranslation } from '@/app/hooks/useTranslation';
 import PriceMarker from '@/components/PriceMarker';
 import Section from '@/components/layout/Section';
 import { Chip } from '@/components/Chip';
@@ -88,6 +89,7 @@ const properties = [
 
 
 const FavoriteListScreen = () => {
+    const { t } = useTranslation();
     const colors = useThemeColors();
     const actionSheetRef = useRef<ActionSheetRef>(null);
     const mapRef = useRef<MapView>(null);
@@ -173,10 +175,10 @@ const FavoriteListScreen = () => {
                         showsVerticalScrollIndicator={false}
                         ListHeaderComponent={
                             <>
-                                <Section title="Favorite List" titleSize='3xl' className='p-global'>
+                                <Section title={t('favoritesTitle')} titleSize='3xl' className='p-global'>
                                     <View className='flex-row pt-3 gap-1'>
                                         <Chip label="2 guests" size='lg' />
-                                        <Chip icon="Share2" label="Share" size='lg' />
+                                        <Chip icon="Share2" label={t('favoritesShare')} size='lg' />
                                     </View>
                                 </Section>
                             </>
@@ -212,7 +214,7 @@ const FavoriteListScreen = () => {
                 {/* <View style={{ paddingBottom: insets.bottom }} className='w-full items-center justify-center z-[9999] absolute bottom-0 left-0 right-0'>
                     <Button iconStart="Map" iconColor='white'
 
-                        className={`bg-black`} rounded='full' title="Show map" onPress={() => {
+                        className={`bg-black`} rounded='full' title={t('favoritesShowMap')} onPress={() => {
                             if (!actionSheetRef.current) return;
                             const nextIndex = actionSheetRef.current.currentSnapIndex() === 0 ? 1 : 0;
                             actionSheetRef.current.snapToIndex(nextIndex);

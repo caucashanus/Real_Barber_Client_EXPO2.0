@@ -15,6 +15,7 @@ import Icon from '@/components/Icon';
 import { Button } from '@/components/Button';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import AnimatedView from '@/components/AnimatedView';
+import { useTranslation } from '@/app/hooks/useTranslation';
 
 // Sample booking request data from host's perspective
 const bookingData = {
@@ -64,6 +65,7 @@ const bookingData = {
 const BookingDetailScreen = () => {
     const colors = useThemeColors();
     const insets = useSafeAreaInsets();
+    const { t } = useTranslation();
 
     const handleApprove = () => {
         console.log('Booking approved');
@@ -78,7 +80,7 @@ const BookingDetailScreen = () => {
     return (
         <>
             <Header
-                title="Booking Request"
+                title={t('bookingDetailTitle')}
                 showBackButton
             />
             <ThemedScroller
@@ -107,7 +109,7 @@ const BookingDetailScreen = () => {
                     <Divider className="h-2 bg-light-secondary dark:bg-dark-darker" />
 
                     {/* Guest Information */}
-                    <Section title="Guest Information" titleSize="lg" className="px-global pt-4">
+                    <Section title={t('bookingGuestInfo')} titleSize="lg" className="px-global pt-4">
                         <View className="flex-row items-center justify-between mt-4 mb-4">
                             <View className="flex-row items-center flex-1">
                                 <Avatar src={bookingData.guest.avatar} size="lg" />
@@ -128,7 +130,7 @@ const BookingDetailScreen = () => {
 
                         <ListLink
                             icon="MessageCircle"
-                            title="Message guest"
+                            title={t('bookingMessageGuest')}
                             description="Communicate with your guest"
                             href="/screens/chat/user"
                             showChevron
@@ -139,7 +141,7 @@ const BookingDetailScreen = () => {
                     <Divider className="mt-6 h-2 bg-light-secondary dark:bg-dark-darker" />
 
                     {/* Booking Details */}
-                    <Section title="Booking details" titleSize="lg" className="px-global pt-4">
+                    <Section title={t('bookingDetails')} titleSize="lg" className="px-global pt-4">
                         <View className="mt-4 space-y-4">
                             <View className="flex-row items-center justify-between bg-light-secondary dark:bg-dark-secondary rounded-xl p-4">
                                 <View>
@@ -192,7 +194,7 @@ const BookingDetailScreen = () => {
                     <Divider className="mt-6 h-2 bg-light-secondary dark:bg-dark-darker" />
 
                     {/* Guest Message */}
-                    <Section title="Message from guest" titleSize="lg" className="px-global pt-4">
+                    <Section title={t('bookingMessageFromGuest')} titleSize="lg" className="px-global pt-4">
                         <View className="mt-4 bg-light-secondary dark:bg-dark-secondary rounded-xl p-4">
                             <ThemedText className="text-sm leading-6">
                                 {bookingData.guestMessage}
@@ -217,7 +219,7 @@ const BookingDetailScreen = () => {
                     <Divider className="mt-6 h-2 bg-light-secondary dark:bg-dark-darker" />
 
                     {/* Price Breakdown */}
-                    <Section title="Earnings breakdown" titleSize="lg" className="px-global pt-4">
+                    <Section title={t('bookingEarningsBreakdown')} titleSize="lg" className="px-global pt-4">
                         <View className="mt-4 space-y-3">
                             <View className="flex-row justify-between">
                                 <ThemedText className="text-light-subtext dark:text-dark-subtext">
@@ -256,7 +258,7 @@ const BookingDetailScreen = () => {
                     <Divider className="mt-6 h-2 bg-light-secondary dark:bg-dark-darker" />
 
                     {/* Payment Information */}
-                    <Section title="Payment method" titleSize="lg" className="px-global pt-4">
+                    <Section title={t('bookingPaymentMethod')} titleSize="lg" className="px-global pt-4">
                         <View className="flex-row items-center mt-4">
                             <Icon name="CreditCard" size={20} className="mr-3" />
                             <View>
@@ -273,7 +275,7 @@ const BookingDetailScreen = () => {
                     <Divider className="mt-6 h-2 bg-light-secondary dark:bg-dark-darker" />
 
                     {/* Request Details */}
-                    <Section title="Request details" titleSize="lg" className="px-global pt-4 pb-6">
+                    <Section title={t('bookingRequestDetails')} titleSize="lg" className="px-global pt-4 pb-6">
                         <View className="mt-4 space-y-3">
                             <View className="flex-row justify-between">
                                 <ThemedText className="text-light-subtext dark:text-dark-subtext">Request date</ThemedText>
@@ -310,14 +312,14 @@ const BookingDetailScreen = () => {
             <ThemedFooter>
                 <View className="flex-row space-x-3">
                     <Button
-                        title="Reject"
+                        title={t('bookingReject')}
                         variant="outline"
                         iconStart="X"
                         className="flex-1"
                         onPress={handleReject}
                     />
                     <Button
-                        title="Approve"
+                        title={t('bookingApprove')}
                         variant="primary"
                         textClassName='text-white'
                         iconStart="Check"

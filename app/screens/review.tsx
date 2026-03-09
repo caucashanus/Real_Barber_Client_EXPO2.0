@@ -13,6 +13,7 @@ import ThemedFooter from '@/components/ThemeFooter';
 import { useAuth } from '@/app/contexts/AuthContext';
 import { createReview, getEntityReviews, updateReview, deleteReview } from '@/api/reviews';
 import Switch from '@/components/forms/Switch';
+import { useTranslation } from '@/app/hooks/useTranslation';
 
 const StarRating = ({ rating, setRating }: { rating: number; setRating: (rating: number) => void }) => {
     const colors = useThemeColors();
@@ -53,6 +54,7 @@ const ReviewScreen = () => {
     const [loadingExisting, setLoadingExisting] = useState(true);
     const colors = useThemeColors();
     const { apiToken } = useAuth();
+    const { t } = useTranslation();
     const { entityType, entityId, entityName, entityImage, entityEmployeeName, entityEmployeeAvatar } = useLocalSearchParams<{
         entityType?: string;
         entityId?: string;
@@ -135,12 +137,12 @@ const ReviewScreen = () => {
 
     const handleDelete = () => {
         Alert.alert(
-            'Delete review',
-            'Do you really want to delete this review?',
+            t('reviewDeleteConfirmTitle'),
+            t('reviewDeleteConfirmMessage'),
             [
-                { text: 'No', style: 'cancel' },
+                { text: t('commonNo'), style: 'cancel' },
                 {
-                    text: 'Yes',
+                    text: t('commonYes'),
                     style: 'destructive',
                     onPress: async () => {
                         if (!apiToken || !existingReviewId) return;
@@ -164,7 +166,7 @@ const ReviewScreen = () => {
 
 
             <Header
-                title={entityName ? `Write review to ${displayName}` : 'Write a Review'}
+                title={entityName ? `${t('reviewWriteTo')} ${displayName}` : t('reviewWriteFallback')}
                 showBackButton
             />
             <ThemedScroller
@@ -174,7 +176,7 @@ const ReviewScreen = () => {
                 {loadingExisting ? (
                     <View className="py-12 items-center">
                         <ActivityIndicator size="large" />
-                        <ThemedText className="mt-3 text-sm text-light-subtext dark:text-dark-subtext">Loading…</ThemedText>
+                        <ThemedText className="mt-3 text-sm text-light-subtext dark:text-dark-subtext">{t('commonLoading')}</ThemedText>
                     </View>
                 ) : (
                     <>
@@ -205,7 +207,7 @@ const ReviewScreen = () => {
 
                 {/* Review Input */}
                 <Input
-                    label='Write your review'
+                    label={t('reviewWriteYourReview')}
                     isMultiline
                     style={{
                         textAlignVertical: 'top',
@@ -219,8 +221,8 @@ const ReviewScreen = () => {
                 {entityType !== 'sale_log' && (
                     <View className="mt-6">
                         <Switch
-                            label="Anonymous review"
-                            description="Your name and profile will not be shown with this review."
+                            label={t('reviewAnonymous')}
+                            description={t('reviewAnonymousDesc')}
                             value={isAnonymous}
                             onChange={setIsAnonymous}
                             className="py-3"
@@ -233,7 +235,7 @@ const ReviewScreen = () => {
             </ThemedScroller>
             <ThemedFooter>
                 <Button
-                    title={isEditMode ? 'Update review' : 'Submit Review'}
+                    title={isEditMode ? t('reviewUpdate') : t('reviewSubmit')}
                     onPress={handleSubmit}
                     disabled={!canSubmit || submitting || deleting}
                 />
@@ -245,7 +247,7 @@ const ReviewScreen = () => {
                         activeOpacity={0.7}
                     >
                         <ThemedText className="text-center text-sm text-red-500 dark:text-red-400">
-                            {deleting ? 'Deleting…' : 'Delete review'}
+                            {deleting ? t('reviewDeleting') : t('reviewDelete')}
                         </ThemedText>
                     </TouchableOpacity>
                 )}

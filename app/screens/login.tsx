@@ -8,9 +8,11 @@ import { Button } from '@/components/Button';
 import Header from '@/components/Header';
 import { loginWithPhone } from '@/api/auth';
 import { useAuth } from '@/app/contexts/AuthContext';
+import { useTranslation } from '@/app/hooks/useTranslation';
 import { COUNTRY_CODE_OPTIONS, formatPhoneDisplay } from '@/utils/phone';
 
 export default function LoginScreen() {
+  const { t } = useTranslation();
   const { setAuth } = useAuth();
   const [countryCode, setCountryCode] = useState('+420');
   const [phone, setPhone] = useState('');
@@ -71,9 +73,9 @@ export default function LoginScreen() {
       <Header showBackButton />
       <View className="flex-1 bg-light-primary dark:bg-dark-primary p-6">
         <View className="mt-8">
-          <ThemedText className="text-3xl font-bold mb-1">Welcome back</ThemedText>
+          <ThemedText className="text-3xl font-bold mb-1">{t('loginWelcomeBack')}</ThemedText>
           <ThemedText className="text-light-subtext dark:text-dark-subtext mb-6">
-            Sign in to your account
+            {t('loginSubtitle')}
           </ThemedText>
 
           <View className="mb-4">
@@ -126,11 +128,11 @@ export default function LoginScreen() {
           ) : null}
 
           <Link className="underline text-black dark:text-white text-sm mb-4" href="/screens/forgot-password">
-            Forgot Password?
+            {t('loginForgotPassword')}
           </Link>
 
           <Button
-            title="Login"
+            title={t('loginTitle')}
             onPress={handleLogin}
             loading={isLoading}
             size="large"
@@ -138,10 +140,10 @@ export default function LoginScreen() {
           />
 
           <View className="flex-row justify-center">
-            <ThemedText className="text-light-subtext dark:text-dark-subtext">Don't have an account? </ThemedText>
+            <ThemedText className="text-light-subtext dark:text-dark-subtext">{t('loginNoAccount')}</ThemedText>
             <Link href="/screens/signup" asChild>
               <Pressable>
-                <ThemedText className="underline">Sign up</ThemedText>
+                <ThemedText className="underline">{t('loginSignUp')}</ThemedText>
               </Pressable>
             </Link>
           </View>

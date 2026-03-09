@@ -9,6 +9,7 @@ import ThemedText from '@/components/ThemedText';
 import { View } from 'react-native';
 import { shadowPresets } from '@/utils/useShadow';
 import Section from '@/components/layout/Section';
+import { useTranslation } from '@/app/hooks/useTranslation';
 import { CardScroller } from '@/components/CardScroller';
 import { Chip } from '@/components/Chip';
 import { router } from 'expo-router';
@@ -27,6 +28,7 @@ interface Reservation {
 
 const ReservationsScreen = () => {
     const colors = useThemeColors();
+    const { t } = useTranslation();
 
     // Map of 6 reservations (5 upcoming + 1 cancelled)
     const reservations: Reservation[] = [
@@ -109,12 +111,12 @@ const ReservationsScreen = () => {
                 className="flex-1 pt-8"
                 keyboardShouldPersistTaps="handled"
             >
-                <Section title="Reservations" titleSize="3xl" className="mt-4" />
+                <Section title={t('reservationsTitle')} titleSize="3xl" className="mt-4" />
                 <CardScroller className='mt-1 mb-4'>
-                    <Chip size="lg" label="All" />
-                    <Chip size="lg" label="Upcoming (5)" />
-                    <Chip size="lg" label="Past" />
-                    <Chip size="lg" label="Cancelled (1)" />
+                    <Chip size="lg" label={t('tripsFilterAll')} />
+                    <Chip size="lg" label={`${t('reservationsUpcoming')} (5)`} />
+                    <Chip size="lg" label={t('reservationsPast')} />
+                    <Chip size="lg" label={`${t('reservationsCancelled')} (1)`} />
                 </CardScroller>
                 
                 {reservations.map((reservation) => (
@@ -173,10 +175,10 @@ const ReservationCard: React.FC<ReservationCardProps> = ({ reservation }) => {
             {reservation.status !== 'cancelled' && (
                 <View className='w-full flex-row border-t border-neutral-300 dark:border-neutral-700'>
                     <Pressable onPress={() => router.push('/screens/booking-detail')} className='w-1/2 py-5 items-center border-r border-neutral-300 dark:border-neutral-700'>
-                        <ThemedText className="font-semibold">View booking</ThemedText>
+                        <ThemedText className="font-semibold">{t('reservationsViewBooking')}</ThemedText>
                     </Pressable>
                     <Pressable onPress={() => router.push('/screens/chat/user')} className='w-1/2 py-5 items-center'>
-                        <ThemedText className='font-semibold'>Message</ThemedText>
+                        <ThemedText className='font-semibold'>{t('tripsMessage')}</ThemedText>
                     </Pressable>
                 </View>
             )}

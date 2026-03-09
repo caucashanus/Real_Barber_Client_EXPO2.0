@@ -4,6 +4,7 @@ import { Link } from 'expo-router';
 import Avatar from '@/components/Avatar';
 import Header from '@/components/Header';
 import ThemedText from '@/components/ThemedText';
+import { useTranslation } from '@/app/hooks/useTranslation';
 
 interface ChatUser {
   id: string;
@@ -44,6 +45,7 @@ const mockChats: ChatUser[] = [
 ];
 
 export default function ChatListScreen() {
+  const { t } = useTranslation();
   const renderChatItem = ({ item }: { item: ChatUser }) => (
     <Link href={`/screens/chat/${item.id}`} asChild>
       <TouchableOpacity 
@@ -82,7 +84,7 @@ export default function ChatListScreen() {
   return (
     <View className="flex-1 bg-light-primary dark:bg-dark-primary">
       <Header
-        title="Messages"
+        title={t('chatMessages')}
         showBackButton
       />
       <FlatList

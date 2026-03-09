@@ -8,6 +8,7 @@ import Icon from '@/components/Icon';
 import { Button } from '@/components/Button';
 import AnimatedView from '@/components/AnimatedView';
 import Divider from '@/components/layout/Divider';
+import { useTranslation } from '@/app/hooks/useTranslation';
 
 // FAQ data
 const faqData = [
@@ -79,15 +80,16 @@ const contactInfo = [
 ];
 
 export default function HelpScreen() {
+  const { t } = useTranslation();
   return (
     <View className="flex-1 bg-light-primary dark:bg-dark-primary">
-      <Header title="Help & Support" showBackButton />
+      <Header title={t('helpTitle')} showBackButton />
       
       <ScrollView showsVerticalScrollIndicator={false}>
         <AnimatedView animation="fadeIn" duration={400}>
           {/* FAQ Section */}
           <Section 
-            title="Frequently Asked Questions" 
+            title={t('helpFaq')} 
             titleSize="xl" 
             className="px-global pt-6 pb-2"
           />
@@ -108,10 +110,10 @@ export default function HelpScreen() {
           
           {/* Contact Section */}
           <Section 
-            title="Contact Us" 
+            title={t('helpContactUs')} 
             titleSize="xl" 
             className="px-global pb-2 mt-14"
-            subtitle="We're here to help with your booking and travel needs"
+            subtitle={t('helpContactSubtitle')}
           />
           
           <View className="px-global pb-8">
@@ -140,7 +142,7 @@ export default function HelpScreen() {
             ))}
             
             <Button 
-              title="Contact Support" 
+              title={t('helpContactSupport')} 
               iconStart="MessageCircle"
               className="mt-8"
               onPress={() => Linking.openURL('mailto:support@propia.com')}

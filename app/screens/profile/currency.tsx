@@ -7,6 +7,7 @@ import { Button } from '@/components/Button';
 import ThemedScroller from '@/components/ThemeScroller';
 import Icon from '@/components/Icon';
 import AnimatedView from '@/components/AnimatedView';
+import { useTranslation } from '@/app/hooks/useTranslation';
 
 interface Currency {
     code: string;
@@ -15,6 +16,7 @@ interface Currency {
 
 const CurrencyScreen = () => {
     const navigation = useNavigation();
+    const { t } = useTranslation();
     const [selectedCurrency, setSelectedCurrency] = useState("USD");
 
     const currencies: Currency[] = [
@@ -40,9 +42,9 @@ const CurrencyScreen = () => {
     return (
         <View className="flex-1 bg-light-bg dark:bg-dark-bg">
             <Header showBackButton
-                title="Currency"
+                title={t('currencyTitle')}
                 rightComponents={[
-                    <Button title="Save" onPress={saveSettings} />
+                    <Button title={t('commonSave')} onPress={saveSettings} />
                 ]}
             />
             <ThemedScroller>

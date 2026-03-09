@@ -10,6 +10,7 @@ import { Link } from 'expo-router';
 import ThemedText from '@/components/ThemedText';
 import TabScreenWrapper from '@/components/TabScreenWrapper';
 import Icon, { IconName } from '@/components/Icon';
+import { useTranslation } from '@/app/hooks/useTranslation';
 
 type NotificationType = 'purchase' | 'message' | 'review' | 'offer' | 'seller' | 'all' | 'booking' | 'payment' | 'inquiry' | 'cancellation';
 
@@ -31,6 +32,7 @@ interface Notification {
 }
 
 export default function NotificationsScreen() {
+  const { t } = useTranslation();
   const [selectedType, setSelectedType] = useState<NotificationType>('all');
   const [isLoading, setIsLoading] = useState(true);
   const [notificationsData, setNotificationsData] = useState<Notification[]>([]);
@@ -223,37 +225,37 @@ export default function NotificationsScreen() {
     <>
       <Header 
         showBackButton 
-        title="Notifications" 
+        title={t('notificationsTitle')} 
       />
       <View className="flex-1 bg-light-primary dark:bg-dark-primary">
         <View className="p-4 flex-row gap-1">
           <Chip
-            label="All"
+            label={t('notificationsAll')}
             isSelected={selectedType === 'all'}
             onPress={() => setSelectedType('all')}
           />
           <Chip
-            label="Bookings"
+            label={t('notificationsBookings')}
             isSelected={selectedType === 'booking'}
             onPress={() => setSelectedType('booking')}
           />
           <Chip
-            label="Messages"
+            label={t('notificationsMessages')}
             isSelected={selectedType === 'message'}
             onPress={() => setSelectedType('message')}
           />
           <Chip
-            label="Payments"
+            label={t('notificationsPayments')}
             isSelected={selectedType === 'payment'}
             onPress={() => setSelectedType('payment')}
           />
           <Chip
-            label="Reviews"
+            label={t('notificationsReviews')}
             isSelected={selectedType === 'review'}
             onPress={() => setSelectedType('review')}
           />
           <Chip
-            label="Inquiries"
+            label={t('notificationsInquiries')}
             isSelected={selectedType === 'inquiry'}
             onPress={() => setSelectedType('inquiry')}
           />
@@ -274,7 +276,7 @@ export default function NotificationsScreen() {
                 ))
               ) : (
                 <View className="p-8 items-center">
-                  <ThemedText>No notifications found</ThemedText>
+                  <ThemedText>{t('notificationsNoFound')}</ThemedText>
                 </View>
               )}
             </List>

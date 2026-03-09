@@ -5,24 +5,26 @@ import AnimatedView from '@/components/AnimatedView';
 import ThemedScroller from '@/components/ThemeScroller';
 import Section from '@/components/layout/Section';
 import { useLanguage } from '@/app/contexts/LanguageContext';
+import { useTranslation } from '@/app/hooks/useTranslation';
 
 export default function SettingsScreen() {
     const { locale, toggleLocale } = useLanguage();
+    const { t } = useTranslation();
 
-    const buttonLabel = locale === 'en' ? 'Přepnout do češtiny' : 'Přepnout do angličtiny';
+    const buttonLabel = locale === 'en' ? t('settingsSwitchToCzech') : t('settingsSwitchToEnglish');
 
     return (
         <AnimatedView className='flex-1 bg-light-primary dark:bg-dark-primary' animation='fadeIn' duration={350} playOnlyOnce={false}>
             <Header showBackButton />
             <ThemedScroller>
-                <Section titleSize='3xl' className='pt-4 pb-10 px-4' title="Settings" subtitle="Manage your account settings" />
+                <Section titleSize='3xl' className='pt-4 pb-10 px-4' title={t('settingsTitle')} subtitle={t('settingsSubtitle')} />
 
                 <View className='px-4'>
-                    <ListLink title="Payments" description="Manage payment methods" icon="CreditCard" href="/screens/profile/payments" />
-                    <ListLink title="Notifications" description="Push notifications, email notifications" icon="Bell" href="/screens/profile/notifications" />
-                    <ListLink title="Currency" description="USD - United states dollar" icon="DollarSign" href="/screens/profile/currency" />
-                    <ListLink title="Change password" description="Change your password" icon="KeyRound" href="/screens/change-password" />
-                    <ListLink title="Help" description="Contact support" icon="HelpCircle" href="/screens/help" />
+                    <ListLink title={t('settingsPayments')} description={t('settingsPaymentsDesc')} icon="CreditCard" href="/screens/profile/payments" />
+                    <ListLink title={t('settingsNotifications')} description={t('settingsNotificationsDesc')} icon="Bell" href="/screens/profile/notifications" />
+                    <ListLink title={t('settingsCurrency')} description={t('settingsCurrencyDesc')} icon="DollarSign" href="/screens/profile/currency" />
+                    <ListLink title={t('settingsChangePassword')} description={t('settingsChangePasswordDesc')} icon="KeyRound" href="/screens/change-password" />
+                    <ListLink title={t('settingsHelp')} description={t('settingsHelpDesc')} icon="HelpCircle" href="/screens/help" />
                 </View>
 
                 <View className='items-center justify-center pb-8 pt-6'>

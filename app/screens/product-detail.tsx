@@ -22,6 +22,7 @@ import { useLocalSearchParams, router } from 'expo-router';
 import { useSelectedPurchase, useSetSelectedPurchase } from '@/app/contexts/SelectedPurchaseContext';
 import { useAuth } from '@/app/contexts/AuthContext';
 import { getEntityReviews, type EntityReviewItem } from '@/api/reviews';
+import { useTranslation } from '@/app/hooks/useTranslation';
 
 const property = {
     id: 1,
@@ -144,6 +145,7 @@ const PropertyDetail = () => {
     const selectedPurchase = useSelectedPurchase();
     const setSelectedPurchase = useSetSelectedPurchase();
     const { apiToken, client } = useAuth();
+    const { t } = useTranslation();
     const [instantBook, setInstantBook] = useState(false);
     const [isFocused, setIsFocused] = useState(true);
     const [reviews, setReviews] = useState<EntityReviewItem[]>([]);
@@ -292,7 +294,7 @@ const PropertyDetail = () => {
                                     onPress={() => router.push(`/screens/review?${reviewParams}`)}
                                     className="ml-4 px-3 py-2 rounded-lg bg-light-secondary dark:bg-dark-secondary"
                                 >
-                                    <ThemedText className="text-sm font-medium">{hasReviewed ? 'Update review' : 'Recenzovat'}</ThemedText>
+                                    <ThemedText className="text-sm font-medium">{hasReviewed ? t('reviewUpdate') : t('productRecenzovat')}</ThemedText>
                                 </Pressable>
                             )}
                         </View>
@@ -307,7 +309,7 @@ const PropertyDetail = () => {
                             link={purchase ? undefined : `/screens/user-profile`}
                         />
                         <View className="ml-0">
-                            <ThemedText className="font-semibold text-base">Seller: {sellerName}</ThemedText>
+                            <ThemedText className="font-semibold text-base">{t('productSeller')}: {sellerName}</ThemedText>
                             <View className="flex-row items-center">
                                 <Icon name="MapPin" size={12} className="mr-1" />
                                 <ThemedText className="text-xs text-light-subtext dark:text-dark-subtext">
@@ -324,12 +326,12 @@ const PropertyDetail = () => {
                     <Divider className="mb-4 mt-8" />
 
                     {/* Property / Product Features */}
-                    <Section title="Product details" titleSize="lg" className="mb-6 mt-2">
+                    <Section title={t('productDetails')} titleSize="lg" className="mb-6 mt-2">
                         <View className="mt-3">
-                            <FeatureItem icon="Users" label="Guests" value={property.features.guests} />
-                            <FeatureItem icon="BedDouble" label="Bedrooms" value={property.features.bedrooms} />
-                            <FeatureItem icon="Bath" label="Bathrooms" value={property.features.bathrooms} />
-                            <FeatureItem icon="PencilRuler" label="Size" value={property.features.size} />
+                            <FeatureItem icon="Users" label={t('productGuests')} value={property.features.guests} />
+                            <FeatureItem icon="BedDouble" label={t('productBedrooms')} value={property.features.bedrooms} />
+                            <FeatureItem icon="Bath" label={t('productBathrooms')} value={property.features.bathrooms} />
+                            <FeatureItem icon="PencilRuler" label={t('productSize')} value={property.features.size} />
                         </View>
                     </Section>
 
@@ -339,8 +341,8 @@ const PropertyDetail = () => {
                     <View className="flex-row items-center justify-between">
                         <Switch
                             icon="Zap"
-                            label="Instant Book Available"
-                            description="Book immediately without waiting for host approval"
+                            label={t('productInstantBook')}
+                            description={t('productInstantBookDescription')}
                             value={instantBook}
                             onChange={setInstantBook}
                             className="flex-1 py-3"
@@ -352,7 +354,7 @@ const PropertyDetail = () => {
                     {/* Ratings & Reviews */}
                     <View onLayout={(e: LayoutChangeEvent) => { reviewsSectionYInRoundedRef.current = e.nativeEvent.layout.y; }}>
                         <Section
-                            title="Buyer reviews"
+                            title={t('productBuyerReviews')}
                             titleSize="lg"
                             subtitle={purchase ? `${displayTotal} reviews` : `${property.ratings.reviews} reviews`}
                             className="mb-6"
@@ -378,18 +380,18 @@ const PropertyDetail = () => {
                                     </View>
                                 </View>
                                 <View className="mt-6 flex-row items-center justify-between mb-3">
-                                    <ThemedText className="font-semibold text-lg">Buyer reviews</ThemedText>
+                                    <ThemedText className="font-semibold text-lg">{t('productBuyerReviews')}</ThemedText>
                                     <Pressable
                                         onPress={() => router.push(`/screens/review?${reviewParams}`)}
                                         className="px-3 py-2 rounded-lg bg-light-secondary dark:bg-dark-secondary"
                                     >
-                                        <ThemedText className="text-sm font-medium">{hasReviewed ? 'Update review' : 'Napsat recenzi'}</ThemedText>
+                                        <ThemedText className="text-sm font-medium">{hasReviewed ? t('reviewUpdate') : t('productNapsatRecenzi')}</ThemedText>
                                     </Pressable>
                                 </View>
                                 {loadingReviews ? (
                                     <View className="py-6 items-center">
                                         <ActivityIndicator size="small" />
-                                        <ThemedText className="mt-2 text-sm text-light-subtext dark:text-dark-subtext">Loading reviews…</ThemedText>
+                                        <ThemedText className="mt-2 text-sm text-light-subtext dark:text-dark-subtext">{t('branchLoadingReviews')}</ThemedText>
                                     </View>
                                 ) : (
                                     <CardScroller className="mt-1" space={10}>
@@ -413,7 +415,7 @@ const PropertyDetail = () => {
                                                         </View>
                                                         {isOwnReview && (
                                                             <View className="ml-2 px-2 py-1 rounded-md bg-highlight">
-                                                                <ThemedText className="text-xs font-medium text-white">Edit</ThemedText>
+                                                                <ThemedText className="text-xs font-medium text-white">{t('productEdit')}</ThemedText>
                                                             </View>
                                                         )}
                                                     </View>
@@ -437,13 +439,13 @@ const PropertyDetail = () => {
                                         </ThemedText>
                                     </View>
                                     <View className="space-y-2">
-                                        <RatingItem label="Cleanliness" rating={property.ratings.cleanliness} />
-                                        <RatingItem label="Location" rating={property.ratings.location} />
-                                        <RatingItem label="Value for Money" rating={property.ratings.value} />
+                                        <RatingItem label={t('productCleanliness')} rating={property.ratings.cleanliness} />
+                                        <RatingItem label={t('productLocation')} rating={property.ratings.location} />
+                                        <RatingItem label={t('productValueForMoney')} rating={property.ratings.value} />
                                     </View>
                                 </View>
                                 <View className="mt-6 flex-row items-center justify-between mb-3">
-                                    <ThemedText className="font-semibold text-lg">Buyer reviews</ThemedText>
+                                    <ThemedText className="font-semibold text-lg">{t('productBuyerReviews')}</ThemedText>
                                 </View>
                                 <CardScroller className="mt-1" space={10}>
                                     {reviewsData.map((review, index) => (

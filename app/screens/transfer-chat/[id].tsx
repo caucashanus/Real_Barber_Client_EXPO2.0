@@ -17,6 +17,7 @@ import ThemedText from '@/components/ThemedText';
 import { Button } from '@/components/Button';
 import { useAuth } from '@/app/contexts/AuthContext';
 import { useTransferRecipient, useSetTransferRecipient } from '@/app/contexts/TransferRecipientContext';
+import { useTranslation } from '@/app/hooks/useTranslation';
 import {
   getRbCoinsBalance,
   getRbCoinsHistory,
@@ -28,12 +29,12 @@ function formatBalance(value: number): string {
   return value.toLocaleString('cs-CZ', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
 }
 
-function formatChatDate(dateString: string): string {
+function formatChatDate(dateString: string, t: (key: string) => string): string {
   const date = new Date(dateString);
   const now = new Date();
   const diffInHours = (now.getTime() - date.getTime()) / (1000 * 60 * 60);
   if (diffInHours < 24) return date.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
-  if (diffInHours < 48) return 'Yesterday';
+  if (diffInHours < 48) return t('transferChatYesterday');
   return date.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' });
 }
 
@@ -44,6 +45,7 @@ function recipientAvatarUrl(tx: RbCoinsHistoryItem): string | undefined {
 export default function TransferChatScreen() {
   const insets = useSafeAreaInsets();
   const router = useRouter();
+  const { t } = useTranslation();
   const { apiToken } = useAuth();
   const recipientFromContext = useTransferRecipient();
   const setTransferRecipient = useSetTransferRecipient();
@@ -122,11 +124,11 @@ export default function TransferChatScreen() {
   const handleSend = async () => {
     const amount = parseFloat(sendAmount.replace(/\s/g, '').replace(',', '.'));
     if (!apiToken || !id || isNaN(amount) || amount <= 0) {
-      Alert.alert('Error', 'Enter a valid amount.');
+      Alert.alert(t('commonError') || 'Error', t('transferChatEnterValidAmount'));
       return;
     }
     if (amount > balance) {
-      Alert.alert('Error', "You don't have enough RBC.");
+      Alert.alert(t('commonError') || 'Error', t('transferChatNotEnoughRbc'));
       return;
     }
     setSending(true);
@@ -141,7 +143,7 @@ export default function TransferChatScreen() {
       setSendNote('');
       await loadData();
     } catch (e) {
-      Alert.alert('Error', e instanceof Error ? e.message : 'Transfer failed.');
+      Alert.alert(t('commonError') || 'Error', e instanceof Error ? e.message : t('transferChatFailed'));
     } finally {
       setSending(false);
     }
@@ -150,7 +152,7 @@ export default function TransferChatScreen() {
   const amountNum = parseFloat(sendAmount.replace(/\s/g, '').replace(',', '.')) || 0;
   const isValid = amountNum > 0 && amountNum <= balance && !sending;
 
-  const displayName = name || transactions[0]?.otherParty?.name || 'Recipient';
+  const displayName = name || transactions[0]?.otherParty?.name || t('commonRecipient');
   const avatarSrc = transactions[0] ? recipientAvatarUrl(transactions[0]) : (avatarUrlParam && avatarUrlParam.trim() ? avatarUrlParam.trim() : undefined);
 
   return (
@@ -176,19 +178,19 @@ export default function TransferChatScreen() {
           {loading ? (
             <View className="py-12 items-center">
               <ActivityIndicator size="small" />
-              <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext mt-2">Loading…</ThemedText>
+              <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext mt-2">{t('commonLoading')}</ThemedText>
             </View>
           ) : transactions.length === 0 ? (
             <View className="py-8 px-4">
               <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext text-center">
-                You have no transactions with this recipient yet
+                {t('transferChatNoTransactions')}
               </ThemedText>
             </View>
           ) : (
             transactions.map((tx) => {
               const isSent = tx.direction === 'sent';
               const amount = Math.abs(tx.amount);
-              const date = formatChatDate(tx.createdAt);
+              const date = formatChatDate(tx.createdAt, t);
               return (
                 <View
                   key={tx.id}
@@ -228,7 +230,7 @@ export default function TransferChatScreen() {
         >
           <View className="flex-row items-center gap-2 mb-2">
             <TextInput
-              placeholder="Amount (RBC)"
+              placeholder={t('transferChatAmountPlaceholder')}
               placeholderTextColor="#888"
               value={sendAmount}
               onChangeText={setSendAmount}
@@ -239,7 +241,7 @@ export default function TransferChatScreen() {
             <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext">RBC</ThemedText>
           </View>
           <TextInput
-            placeholder="Note (optional)"
+            placeholder={t('transferChatNoteOptional')}
             placeholderTextColor="#888"
             value={sendNote}
             onChangeText={setSendNote}
@@ -248,11 +250,11 @@ export default function TransferChatScreen() {
           />
           <ThemedText className="text-xs text-light-subtext dark:text-dark-subtext mb-2">
             {amountNum > 0
-              ? `Balance: ${formatBalance(balance)} RBC · Remaining: ${formatBalance(Math.max(0, balance - amountNum))} RBC`
-              : `Balance: ${formatBalance(balance)} RBC`}
+              ? `${t('transferChatBalance')}: ${formatBalance(balance)} RBC · ${t('transferChatRemaining')}: ${formatBalance(Math.max(0, balance - amountNum))} RBC`
+              : `${t('transferChatBalance')}: ${formatBalance(balance)} RBC`}
           </ThemedText>
           <Button
-            title={sending ? 'Sending…' : 'Send'}
+            title={sending ? t('transferChatSending') : t('transferChatSend')}
             onPress={handleSend}
             disabled={!isValid}
             className="rounded-xl"

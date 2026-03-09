@@ -20,6 +20,7 @@ import Favorite from '@/components/Favorite';
 import { useAuth } from '@/app/contexts/AuthContext';
 import { getBranches, type Branch, type BranchService, type BranchEmployee } from '@/api/branches';
 import { getEntityReviews, type EntityReviewItem } from '@/api/reviews';
+import { useTranslation } from '@/app/hooks/useTranslation';
 
 function getServicesList(branch: Branch): BranchService[] {
   const s = branch.services;
@@ -114,6 +115,7 @@ export default function BranchDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
   const { apiToken, client } = useAuth();
+  const { t } = useTranslation();
   const insets = useSafeAreaInsets();
   const [branch, setBranch] = useState<Branch | null>(null);
   const [loading, setLoading] = useState(true);
@@ -187,7 +189,7 @@ export default function BranchDetailScreen() {
         <Header showBackButton />
         <View className="flex-1 items-center justify-center bg-light-primary dark:bg-dark-primary">
           <ActivityIndicator size="large" />
-          <ThemedText className="mt-4 text-light-subtext dark:text-dark-subtext">Loading…</ThemedText>
+          <ThemedText className="mt-4 text-light-subtext dark:text-dark-subtext">{t('commonLoading')}</ThemedText>
         </View>
       </>
     );
@@ -244,13 +246,13 @@ export default function BranchDetailScreen() {
             <View className="flex-row items-center justify-center mt-4">
               <Pressable onPress={scrollToReviews} className="flex-row items-center active:opacity-70">
                 <ShowRating rating={average} size="lg" className="px-4 py-2 border-r border-neutral-200 dark:border-dark-secondary" />
-                <ThemedText className="text-base px-4">Reviews</ThemedText>
+                <ThemedText className="text-base px-4">{t('profileReviews')}</ThemedText>
               </Pressable>
               <Pressable
                 onPress={() => router.push(`/screens/review?${reviewParams}`)}
                 className="ml-4 px-3 py-2 rounded-lg bg-light-secondary dark:bg-dark-secondary"
               >
-                <ThemedText className="text-sm font-medium">{hasReviewed ? 'Update review' : 'Review'}</ThemedText>
+                <ThemedText className="text-sm font-medium">{hasReviewed ? t('branchUpdateReview') : t('branchReview')}</ThemedText>
               </Pressable>
             </View>
           </View>
@@ -266,7 +268,7 @@ export default function BranchDetailScreen() {
               <Avatar size="md" name={branch.name} className="mr-4" />
             )}
             <View className="ml-0">
-              <ThemedText className="font-semibold text-base">Branch</ThemedText>
+              <ThemedText className="font-semibold text-base">{t('branchTitle')}</ThemedText>
               <View className="flex-row items-center">
                 <Icon name="MapPin" size={12} className="mr-1" />
                 <ThemedText className="text-xs text-light-subtext dark:text-dark-subtext" numberOfLines={1}>
@@ -283,7 +285,7 @@ export default function BranchDetailScreen() {
           {employeesList.length > 0 ? (
             <>
               <Divider className="mb-4 mt-8" />
-              <Section title="Team" titleSize="lg" className="mb-6 mt-2">
+              <Section title={t('branchTeam')} titleSize="lg" className="mb-6 mt-2">
                 <View className="mt-3 flex-row flex-wrap gap-6">
                   {employeesList.map((emp: BranchEmployee) => (
                     <Pressable
@@ -304,9 +306,9 @@ export default function BranchDetailScreen() {
 
           <View onLayout={(e: LayoutChangeEvent) => { reviewsSectionYInRoundedRef.current = e.nativeEvent.layout.y; }}>
             <Section
-              title="Reviews"
+              title={t('profileReviews')}
               titleSize="lg"
-              subtitle={`${displayTotal} reviews`}
+              subtitle={`${displayTotal} ${t('branchReviews')}`}
               className="mb-6"
             >
             <View className="mt-4 bg-light-secondary dark:bg-dark-secondary p-4 rounded-lg">
@@ -321,25 +323,25 @@ export default function BranchDetailScreen() {
                   <View key={stars} className="flex-row items-center justify-between py-1.5">
                     <ShowRating rating={stars} size="sm" displayMode="stars" />
                     <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext">
-                      {countByRating[stars] ?? 0} reviews
+                      {countByRating[stars] ?? 0} {t('branchReviews')}
                     </ThemedText>
                   </View>
                 ))}
               </View>
             </View>
             <View className="mt-6 flex-row items-center justify-between mb-3">
-              <ThemedText className="font-semibold text-lg">Reviews</ThemedText>
+              <ThemedText className="font-semibold text-lg">{t('profileReviews')}</ThemedText>
               <Pressable
                 onPress={() => router.push(`/screens/review?${reviewParams}`)}
                 className="px-3 py-2 rounded-lg bg-light-secondary dark:bg-dark-secondary"
               >
-                <ThemedText className="text-sm font-medium">{hasReviewed ? 'Update review' : 'Write review'}</ThemedText>
+                <ThemedText className="text-sm font-medium">{hasReviewed ? t('branchUpdateReview') : t('branchWriteReview')}</ThemedText>
               </Pressable>
             </View>
             {loadingReviews ? (
               <View className="py-6 items-center">
                 <ActivityIndicator size="small" />
-                <ThemedText className="mt-2 text-sm text-light-subtext dark:text-dark-subtext">Loading reviews…</ThemedText>
+                <ThemedText className="mt-2 text-sm text-light-subtext dark:text-dark-subtext">{t('branchLoadingReviews')}</ThemedText>
               </View>
             ) : (
               <CardScroller className="mt-1" space={10}>
@@ -365,7 +367,7 @@ export default function BranchDetailScreen() {
                         </View>
                         {isOwnReview && (
                           <View className="ml-2 px-2 py-1 rounded-md bg-highlight">
-                            <ThemedText className="text-xs font-medium text-white">Mine</ThemedText>
+                            <ThemedText className="text-xs font-medium text-white">{t('branchMine')}</ThemedText>
                           </View>
                         )}
                       </View>
@@ -392,7 +394,7 @@ export default function BranchDetailScreen() {
                 <Icon name="Box" size={24} className="mr-3" />
                 <View className="flex-1">
                   <ThemedText className="font-medium">3D VR tour</ThemedText>
-                  <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext">View the branch in 3D</ThemedText>
+                  <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext">{t('branchView3d')}</ThemedText>
                 </View>
                 <Icon name="ChevronRight" size={20} className="opacity-60" />
               </Pressable>
@@ -404,7 +406,7 @@ export default function BranchDetailScreen() {
               >
                 <Icon name="Globe" size={24} className="mr-3" />
                 <View className="flex-1">
-                  <ThemedText className="font-medium">Web</ThemedText>
+                  <ThemedText className="font-medium">{t('branchWeb')}</ThemedText>
                   <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext" numberOfLines={1}>{webUrl}</ThemedText>
                 </View>
                 <Icon name="ChevronRight" size={20} className="opacity-60" />
@@ -424,12 +426,12 @@ export default function BranchDetailScreen() {
           <ThemedText className="text-xl font-bold">
             {minPrice != null ? `From ${minPrice} Kč` : '—'}
           </ThemedText>
-          <ThemedText className="text-xs opacity-60">Services</ThemedText>
-          <ThemedText className="text-xs opacity-60 mt-1">Review</ThemedText>
+          <ThemedText className="text-xs opacity-60">{t('branchServices')}</ThemedText>
+          <ThemedText className="text-xs opacity-60 mt-1">{t('branchReview')}</ThemedText>
         </View>
         <View className="flex-row items-center ml-auto">
           <Button
-            title="Reserve"
+            title={t('branchReserve')}
             className="bg-highlight ml-6 px-6"
             textClassName="text-white"
             size="medium"

@@ -9,6 +9,7 @@ import { Chip } from '@/components/Chip';
 import { CardScroller } from '@/components/CardScroller';
 import Section from '@/components/layout/Section';
 import { useCollapsibleTitle } from '@/app/hooks/useCollapsibleTitle';
+import { useTranslation } from '@/app/hooks/useTranslation';
 
 interface ChatUser {
   id: string;
@@ -120,6 +121,7 @@ type FilterType = 'all' | 'read' | 'unread';
 
 export default function ChatListScreen() {
   const [selectedFilter, setSelectedFilter] = useState<FilterType>('all');
+  const { t } = useTranslation();
   const { scrollY, onScroll, scrollEventThrottle } = useCollapsibleTitle();
   // Filter chats based on selection
   const filteredChats = mockChats.filter(chat => {
@@ -201,7 +203,7 @@ export default function ChatListScreen() {
     <>
       <Header
 
-        title="Chat"
+        title={t('chatTitle')}
         variant="collapsibleTitle"
         scrollY={scrollY}
       />
@@ -212,7 +214,7 @@ export default function ChatListScreen() {
           <View className="px-4 py-0">
             <CardScroller className='mb-2' space={5}>
               <Chip
-                label="All"
+                label={t('notificationsAll')}
                 size='lg'
                 isSelected={selectedFilter === 'all'}
                 onPress={() => setSelectedFilter('all')}

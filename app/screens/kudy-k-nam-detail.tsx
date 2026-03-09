@@ -11,9 +11,11 @@ import { KUDY_K_NAM_VIDEOS } from '@/constants/kudy-k-nam-videos';
 import Section from '@/components/layout/Section';
 import { Button } from '@/components/Button';
 import Icon from '@/components/Icon';
+import { useTranslation } from '@/app/hooks/useTranslation';
 
 const KudyKNamDetail = () => {
   const insets = useSafeAreaInsets();
+  const { t } = useTranslation();
   const videoRef = useRef<Video>(null);
   const { id } = useLocalSearchParams<{ id?: string }>();
   const item = id ? KUDY_K_NAM_VIDEOS.find((v) => v.id === id) : null;
@@ -32,9 +34,9 @@ const KudyKNamDetail = () => {
     return (
       <>
         <StatusBar style="dark" />
-        <Header title="How to get to us?" showBackButton />
+        <Header title={t('howToGetToUs')} showBackButton />
         <View className="flex-1 p-global justify-center items-center">
-          <ThemedText className="text-light-subtext dark:text-dark-subtext">Branch not found.</ThemedText>
+          <ThemedText className="text-light-subtext dark:text-dark-subtext">{t('kudyBranchNotFound')}</ThemedText>
         </View>
       </>
     );
@@ -69,7 +71,7 @@ const KudyKNamDetail = () => {
         >
           <ThemedText className="text-3xl text-center font-semibold">{title}</ThemedText>
 
-          <Section title="Transport and parking" titleSize="lg" className="mb-6 mt-8">
+          <Section title={t('kudyTransportParking')} titleSize="lg" className="mb-6 mt-8">
             <ThemedText className="text-base text-light-subtext dark:text-dark-subtext mb-4">
               {item.description ?? 'Add static text here later – transport, parking, etc.'}
             </ThemedText>
@@ -79,7 +81,7 @@ const KudyKNamDetail = () => {
                 className="flex-row items-center py-3 px-4 rounded-xl bg-light-secondary dark:bg-dark-secondary active:opacity-80 mb-3"
               >
                 <Icon name="MapPin" size={22} className="text-highlight mr-3" />
-                <ThemedText className="text-base font-medium">Open in Google Maps</ThemedText>
+                <ThemedText className="text-base font-medium">{t('kudyOpenGoogleMaps')}</ThemedText>
               </Pressable>
             ) : null}
             {item.wazeUrl ? (
@@ -88,7 +90,7 @@ const KudyKNamDetail = () => {
                 className="flex-row items-center py-3 px-4 rounded-xl bg-light-secondary dark:bg-dark-secondary active:opacity-80 mb-3"
               >
                 <Icon name="Car" size={22} className="text-highlight mr-3" />
-                <ThemedText className="text-base font-medium">Open in Waze</ThemedText>
+                <ThemedText className="text-base font-medium">{t('kudyOpenWaze')}</ThemedText>
               </Pressable>
             ) : null}
             {item.uberUrl ? (
@@ -97,7 +99,7 @@ const KudyKNamDetail = () => {
                 className="flex-row items-center py-3 px-4 rounded-xl bg-light-secondary dark:bg-dark-secondary active:opacity-80"
               >
                 <Icon name="Car" size={22} className="text-highlight mr-3" />
-                <ThemedText className="text-base font-medium">Ride with Uber</ThemedText>
+                <ThemedText className="text-base font-medium">{t('kudyRideUber')}</ThemedText>
               </Pressable>
             ) : null}
           </Section>
@@ -109,13 +111,13 @@ const KudyKNamDetail = () => {
         className="flex-row items-center justify-start px-global pt-4 pb-2 bg-light-primary dark:bg-dark-primary border-t border-neutral-200 dark:border-dark-secondary"
       >
         <View>
-          <ThemedText className="text-xl font-bold">Branch {item.title}</ThemedText>
-          <ThemedText className="text-xs opacity-60">How to get to us</ThemedText>
+          <ThemedText className="text-xl font-bold">{t('branchTitle')} {item.title}</ThemedText>
+          <ThemedText className="text-xs opacity-60">{t('kudyHowToGetToUs')}</ThemedText>
         </View>
         {hasVideo && (
           <View className="flex-row items-center ml-auto">
             <Button
-              title="Show video"
+              title={t('kudyShowVideo')}
               iconStart="Play"
               className="bg-highlight ml-6 px-6"
               textClassName="text-white"

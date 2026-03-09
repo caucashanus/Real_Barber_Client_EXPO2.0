@@ -17,6 +17,7 @@ import ShowRating from '@/components/ShowRating';
 import LiveIndicator from '@/components/LiveIndicator';
 import Avatar from '@/components/Avatar';
 import { useRouter } from 'expo-router';
+import { useTranslation } from '@/app/hooks/useTranslation';
 
 type BookingFilter = 'all' | 'current' | 'upcoming' | 'past' | 'cancelled' | 'rated' | 'pending_review';
 
@@ -172,6 +173,7 @@ const AnimatedNumber = ({ value, className }: { value: number; className?: strin
 };
 
 const CountdownDisplay = ({ target }: { target: Date }) => {
+  const { t } = useTranslation();
   const [parts, setParts] = useState<CountdownParts | null>(() => getCountdownParts(target));
 
   useEffect(() => {
@@ -188,35 +190,36 @@ const CountdownDisplay = ({ target }: { target: Date }) => {
   if (parts.type === 'days') {
     return (
       <View className="flex-row items-center">
-        <ThemedText className={textClass}>Za </ThemedText>
+        <ThemedText className={textClass}>{t('tripsIn')} </ThemedText>
         <AnimatedNumber value={parts.days} className={textClass} />
-        <ThemedText className={textClass}> dní</ThemedText>
+        <ThemedText className={textClass}> {t('tripsDays')}</ThemedText>
       </View>
     );
   }
   if (parts.type === 'hours') {
     return (
       <View className="flex-row items-center">
-        <ThemedText className={textClass}>Za </ThemedText>
+        <ThemedText className={textClass}>{t('tripsIn')} </ThemedText>
         <AnimatedNumber value={parts.hours} className={textClass} />
-        <ThemedText className={textClass}> h </ThemedText>
+        <ThemedText className={textClass}> {t('tripsHours')} </ThemedText>
         <AnimatedNumber value={parts.minutes} className={textClass} />
-        <ThemedText className={textClass}> min</ThemedText>
+        <ThemedText className={textClass}> {t('tripsMinutes')}</ThemedText>
       </View>
     );
   }
   return (
     <View className="flex-row items-center">
       <AnimatedNumber value={parts.minutes} className={textClass} />
-      <ThemedText className={textClass}> min </ThemedText>
+      <ThemedText className={textClass}> {t('tripsMinutes')} </ThemedText>
       <AnimatedNumber value={parts.seconds} className={textClass} />
-      <ThemedText className={textClass}> s</ThemedText>
+      <ThemedText className={textClass}> {t('tripsSeconds')}</ThemedText>
     </View>
   );
 };
 
 const TripsScreen = () => {
   const router = useRouter();
+  const { t } = useTranslation();
   const { scrollY, scrollHandler, scrollEventThrottle } = useCollapsibleTitle();
   const { apiToken } = useAuth();
   const { refresh: refreshBookingsBadge } = useBookingsBadge();
@@ -310,7 +313,7 @@ const TripsScreen = () => {
   return (
     <View className="flex-1 bg-light-primary dark:bg-dark-primary">
       <Header
-        title="Your Bookings"
+        title={t('tripsTitle')}
         variant="collapsibleTitle"
         scrollY={scrollY}
         rightComponents={[<HeaderIcon icon="PlusCircle" href="#" onPress={() => {}} />]}
@@ -319,7 +322,7 @@ const TripsScreen = () => {
         {loading ? (
           <View className="flex-1 items-center justify-center py-12">
             <ActivityIndicator size="large" />
-            <ThemedText className="mt-2 text-light-subtext dark:text-dark-subtext">Loading…</ThemedText>
+            <ThemedText className="mt-2 text-light-subtext dark:text-dark-subtext">{t('tripsLoading')}</ThemedText>
           </View>
         ) : error ? (
           <View className="flex-1 items-center justify-center p-6">
@@ -335,7 +338,7 @@ const TripsScreen = () => {
               {counts.current > 0 && (
                 <Chip
                   size="lg"
-                  label={`Current (${counts.current})`}
+                  label={`${t('tripsFilterCurrent')} (${counts.current})`}
                   selectable
                   isSelected={selectedFilter === 'current'}
                   onPress={() => setSelectedFilter('current')}
@@ -343,7 +346,7 @@ const TripsScreen = () => {
               )}
               <Chip
                 size="lg"
-                label="All"
+                label={t('tripsFilterAll')}
                 selectable
                 isSelected={selectedFilter === 'all'}
                 onPress={() => setSelectedFilter('all')}
@@ -351,7 +354,7 @@ const TripsScreen = () => {
               {counts.upcoming > 0 && (
                 <Chip
                   size="lg"
-                  label={`Upcoming (${counts.upcoming})`}
+                  label={`${t('tripsFilterUpcoming')} (${counts.upcoming})`}
                   selectable
                   isSelected={selectedFilter === 'upcoming'}
                   onPress={() => setSelectedFilter('upcoming')}
@@ -359,35 +362,35 @@ const TripsScreen = () => {
               )}
               <Chip
                 size="lg"
-                label="Past"
+                label={t('tripsFilterPast')}
                 selectable
                 isSelected={selectedFilter === 'past'}
                 onPress={() => setSelectedFilter('past')}
               />
               <Chip
                 size="lg"
-                label={`Cancelled (${counts.cancelled})`}
+                label={`${t('tripsFilterCancelled')} (${counts.cancelled})`}
                 selectable
                 isSelected={selectedFilter === 'cancelled'}
                 onPress={() => setSelectedFilter('cancelled')}
               />
               <Chip
                 size="lg"
-                label={`Rated (${counts.rated})`}
+                label={`${t('tripsFilterRated')} (${counts.rated})`}
                 selectable
                 isSelected={selectedFilter === 'rated'}
                 onPress={() => setSelectedFilter('rated')}
               />
               <Chip
                 size="lg"
-                label={`Pending review (${counts.pendingReview})`}
+                label={`${t('tripsFilterPendingReview')} (${counts.pendingReview})`}
                 selectable
                 isSelected={selectedFilter === 'pending_review'}
                 onPress={() => setSelectedFilter('pending_review')}
               />
             </CardScroller>
             {years.length === 0 ? (
-              <ThemedText className="text-center text-light-subtext dark:text-dark-subtext py-8">No bookings yet.</ThemedText>
+              <ThemedText className="text-center text-light-subtext dark:text-dark-subtext py-8">{t('tripsNoBookings')}</ThemedText>
             ) : (
               years.map((year, index) => (
                 <View key={year}>
@@ -443,6 +446,7 @@ const BookingCard = (props: {
   onOpenReview?: () => void;
 }) => {
   const router = useRouter();
+  const { t } = useTranslation();
   const { booking, dateText, reviewRating, onOpenReview } = props;
   const title = booking.item?.name ?? 'Booking';
   const isPast = isPastAndNotCancelled(booking);
@@ -451,10 +455,10 @@ const BookingCard = (props: {
   const isCancelled = (booking.status ?? '').toLowerCase() === 'cancelled' || (booking.status ?? '').toLowerCase() === 'canceled';
 
   const getStatusText = () => {
-    if (isCancelled) return 'Cancelled';
-    if (isCurrent) return 'In progress';
-    if (isPast) return 'Past';
-    return 'Upcoming';
+    if (isCancelled) return t('bookingStatusCancelled');
+    if (isCurrent) return t('bookingStatusInProgress');
+    if (isPast) return t('bookingStatusPast');
+    return t('bookingStatusUpcoming');
   };
 
   const getStatusColor = () => {
@@ -501,11 +505,11 @@ const BookingCard = (props: {
             onPress={goToDetail}
             className="flex-1 py-5 items-center border-r border-neutral-300 dark:border-neutral-700"
           >
-            <ThemedText className="font-semibold">View booking</ThemedText>
+            <ThemedText className="font-semibold">{t('tripsViewBooking')}</ThemedText>
           </Pressable>
           {isPast && !hasReview ? (
             <Pressable onPress={onOpenReview} className="flex-1 py-5 items-center">
-              <ThemedText className="font-semibold">Add review</ThemedText>
+              <ThemedText className="font-semibold">{t('tripsAddReview')}</ThemedText>
             </Pressable>
           ) : isPast && hasReview ? (
             <TouchableOpacity onPress={onOpenReview} activeOpacity={0.7} className="flex-1 py-5 items-center justify-center">
@@ -516,7 +520,7 @@ const BookingCard = (props: {
               onPress={() => router.push('/screens/chat/user')}
               className="flex-1 py-5 items-center"
             >
-              <ThemedText className="font-semibold">Message</ThemedText>
+              <ThemedText className="font-semibold">{t('tripsMessage')}</ThemedText>
             </Pressable>
           )}
         </View>

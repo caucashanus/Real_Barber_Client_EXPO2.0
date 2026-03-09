@@ -9,6 +9,7 @@ import { shadowPresets } from '@/utils/useShadow';
 import { getClientGuides, type ClientGuide } from '@/api/guides';
 import { useFocusEffect } from '@react-navigation/native';
 import Favorite from '@/components/Favorite';
+import { useTranslation } from '@/app/hooks/useTranslation';
 
 function formatAddedAt(iso: string): string {
   const d = new Date(iso);
@@ -68,6 +69,7 @@ function GuideCard({ guide }: { guide: ClientGuide }) {
 }
 
 const GuidesScreen = () => {
+  const { t } = useTranslation();
   const scrollY = useContext(ScrollContext);
   const [guides, setGuides] = useState<ClientGuide[]>([]);
   const [loading, setLoading] = useState(true);
@@ -96,7 +98,7 @@ const GuidesScreen = () => {
         {loading ? (
           <View className="py-12 items-center">
             <ActivityIndicator size="large" />
-            <ThemedText className="mt-2 text-light-subtext dark:text-dark-subtext">Loading guides…</ThemedText>
+            <ThemedText className="mt-2 text-light-subtext dark:text-dark-subtext">{t('guidesLoading')}</ThemedText>
           </View>
         ) : error ? (
           <View className="py-12 px-4 items-center">
@@ -104,7 +106,7 @@ const GuidesScreen = () => {
           </View>
         ) : guides.length === 0 ? (
           <View className="py-12 px-4 items-center">
-            <ThemedText className="text-center text-light-subtext dark:text-dark-subtext">No guides yet.</ThemedText>
+            <ThemedText className="text-center text-light-subtext dark:text-dark-subtext">{t('guidesNoGuides')}</ThemedText>
           </View>
         ) : (
           guides.map((guide) => <GuideCard key={guide.id} guide={guide} />)

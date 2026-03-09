@@ -17,9 +17,11 @@ import ActionSheetThemed from '@/components/ActionSheetThemed';
 import { router } from 'expo-router';
 import { useAuth } from '@/app/contexts/AuthContext';
 import { getClientMe, patchClientMe, type ClientMe } from '@/api/client';
+import { useTranslation } from '@/app/hooks/useTranslation';
 
 export default function EditProfileScreen() {
   const { apiToken } = useAuth();
+  const { t } = useTranslation();
   const [client, setClient] = useState<ClientMe | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -112,7 +114,7 @@ export default function EditProfileScreen() {
         showBackButton
         rightComponents={[
           <Button
-            title="Save changes"
+            title={t('editProfileSaveChanges')}
             textClassName="text-white"
             onPress={saveChanges}
             disabled={loading || saving}
@@ -123,14 +125,14 @@ export default function EditProfileScreen() {
         <Section
           titleSize="3xl"
           className="pt-4 pb-10"
-          title="Profile Settings"
-          subtitle="Manage your account settings"
+          title={t('editProfileTitle')}
+          subtitle={t('editProfileSubtitle')}
         />
 
         {loading ? (
           <View className="items-center py-12">
             <ActivityIndicator size="large" />
-            <ThemedText className="mt-3 text-light-subtext dark:text-dark-subtext">Loading profile…</ThemedText>
+            <ThemedText className="mt-3 text-light-subtext dark:text-dark-subtext">{t('editProfileLoading')}</ThemedText>
           </View>
         ) : (
           <>
@@ -141,7 +143,7 @@ export default function EditProfileScreen() {
             )}
 
             <View className="mb-8">
-              <ThemedText className="mb-4 text-lg font-bold text-light-primary dark:text-dark-primary">Photo</ThemedText>
+              <ThemedText className="mb-4 text-lg font-bold text-light-primary dark:text-dark-primary">{t('editProfilePhoto')}</ThemedText>
               <View className="flex-row items-center gap-4">
                 <TouchableOpacity onPress={pickImage} activeOpacity={0.8} className="relative">
                   {avatarSrc ? (
@@ -160,7 +162,7 @@ export default function EditProfileScreen() {
                   {avatarSrc && (
                     <Button
                       className="mt-2"
-                      title="Remove photo"
+                      title={t('editProfileRemovePhoto')}
                       variant="ghost"
                       onPress={() => setAvatarLocalUri(null)}
                     />
@@ -170,24 +172,24 @@ export default function EditProfileScreen() {
             </View>
 
             <View className="mb-8">
-              <ThemedText className="mb-4 text-lg font-bold text-light-primary dark:text-dark-primary">Personal information</ThemedText>
+              <ThemedText className="mb-4 text-lg font-bold text-light-primary dark:text-dark-primary">{t('editProfilePersonalInfo')}</ThemedText>
               <View className="gap-3">
                 <Input
-                  label="First name"
+                  label={t('editProfileFirstName')}
                   value={firstName}
                   onChangeText={setFirstName}
                   autoCapitalize="words"
                   editable={!saving}
                 />
                 <Input
-                  label="Last name"
+                  label={t('editProfileLastName')}
                   value={lastName}
                   onChangeText={setLastName}
                   autoCapitalize="words"
                   editable={!saving}
                 />
                 <DatePicker
-                  label="Birthday"
+                  label={t('editProfileBirthday')}
                   value={birthday ? new Date(birthday + 'T12:00:00') : undefined}
                   onChange={(date) => setBirthday(formatToYYYYMMDD(date))}
                   placeholder="Select date"
@@ -199,10 +201,10 @@ export default function EditProfileScreen() {
             </View>
 
             <View className="mb-8">
-              <ThemedText className="mb-4 text-lg font-bold text-light-primary dark:text-dark-primary">Contact</ThemedText>
+              <ThemedText className="mb-4 text-lg font-bold text-light-primary dark:text-dark-primary">{t('editProfileContact')}</ThemedText>
               <View className="gap-3">
                 <Input
-                  label="Email"
+                  label={t('editProfileEmail')}
                   value={email}
                   onChangeText={setEmail}
                   keyboardType="email-address"
@@ -211,7 +213,7 @@ export default function EditProfileScreen() {
                 />
                 <View>
                   <View className="mb-2 flex-row items-center justify-between">
-                    <ThemedText className="text-base font-medium text-light-primary dark:text-dark-primary">Phone</ThemedText>
+                    <ThemedText className="text-base font-medium text-light-primary dark:text-dark-primary">{t('editProfilePhone')}</ThemedText>
                     <Pressable onPress={() => phoneInfoSheetRef.current?.show()} hitSlop={8} className="p-1">
                       <Icon name="Info" size={18} className="text-light-subtext dark:text-dark-subtext" />
                     </Pressable>
@@ -228,18 +230,18 @@ export default function EditProfileScreen() {
             </View>
 
             <View className="mb-8">
-              <ThemedText className="mb-4 text-lg font-bold text-light-primary dark:text-dark-primary">Address</ThemedText>
+              <ThemedText className="mb-4 text-lg font-bold text-light-primary dark:text-dark-primary">{t('editProfileAddress')}</ThemedText>
               <View className="gap-3">
                 <Input
-                  label="Street"
+                  label={t('editProfileStreet')}
                   value={street}
                   onChangeText={setStreet}
                   editable={!saving}
                 />
-                <Input label="City" value={city} onChangeText={setCity} editable={!saving} />
-                <Input label="ZIP" value={zip} onChangeText={setZip} keyboardType="numeric" editable={!saving} />
+                <Input label={t('editProfileCity')} value={city} onChangeText={setCity} editable={!saving} />
+                <Input label={t('editProfileZip')} value={zip} onChangeText={setZip} keyboardType="numeric" editable={!saving} />
                 <Select
-                label="Country"
+                label={t('editProfileCountry')}
                 options={COUNTRY_OPTIONS}
                 value={country}
                 onChange={(v) => setCountry(String(v))}
@@ -255,7 +257,7 @@ export default function EditProfileScreen() {
 
       <ActionSheetThemed ref={phoneInfoSheetRef} gestureEnabled>
         <View className="p-4 pb-6">
-          <ThemedText className="mb-3 text-lg font-semibold text-light-primary dark:text-dark-primary">Phone number</ThemedText>
+          <ThemedText className="mb-3 text-lg font-semibold text-light-primary dark:text-dark-primary">{t('editProfilePhoneNumber')}</ThemedText>
           <ThemedText className="mb-6 text-base leading-6 text-light-subtext dark:text-dark-subtext">
             The phone number is the only contact detail that cannot be changed by you in the app. If you need to change it, please call{' '}
             <ThemedText className="text-base font-semibold text-highlight underline" onPress={() => Linking.openURL('tel:+420608332881')}>
@@ -266,12 +268,12 @@ export default function EditProfileScreen() {
 
           <View className="flex-row w-full justify-center">
             <Button
-              title="Send SMS request"
+              title={t('editProfileSendSms')}
               className="flex-1"
               onPress={openSmsRequest}
             />
             <Button
-              title="WhatsApp request"
+              title={t('editProfileWhatsApp')}
               variant="outline"
               className="ml-3 px-6"
               onPress={openWhatsAppRequest}

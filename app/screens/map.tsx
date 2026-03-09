@@ -23,6 +23,7 @@ import { useBranchFilter } from '@/app/contexts/BranchFilterContext';
 import { getBranches, type Branch, type BranchService } from '@/api/branches';
 import { BRANCH_FILTER_DATA } from '@/constants/branch-filter-data';
 import type { BranchFilterState } from '@/app/contexts/BranchFilterContext';
+import { useTranslation } from '@/app/hooks/useTranslation';
 
 type IconName = Exclude<keyof typeof LucideIcons, 'createLucideIcon' | 'default'>;
 
@@ -148,6 +149,7 @@ function applyBranchFilter(items: MapBranchItem[], filter: BranchFilterState): M
 const MapScreen = () => {
     const colors = useThemeColors();
     const { apiToken } = useAuth();
+    const { t } = useTranslation();
     const { filter, resetFilter } = useBranchFilter();
 
     useEffect(() => {
@@ -264,7 +266,7 @@ const MapScreen = () => {
                             loading ? (
                                 <View className="py-12 items-center">
                                     <ActivityIndicator size="large" />
-                                    <ThemedText className="mt-3 text-light-subtext dark:text-dark-subtext">Loading branches…</ThemedText>
+                                    <ThemedText className="mt-3 text-light-subtext dark:text-dark-subtext">{t('mapLoadingBranches')}</ThemedText>
                                 </View>
                             ) : null
                         }

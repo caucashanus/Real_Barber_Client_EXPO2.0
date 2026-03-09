@@ -11,6 +11,7 @@ import Card from '@/components/Card';
 import Icon from '@/components/Icon';
 import { useCollapsibleTitle } from '@/app/hooks/useCollapsibleTitle';
 import { useAuth } from '@/app/contexts/AuthContext';
+import { useTranslation } from '@/app/hooks/useTranslation';
 import { getFavorites, deleteFavorite, type Favorite } from '@/api/favorites';
 
 function favoriteHref(fav: Favorite): string {
@@ -36,6 +37,7 @@ function favoriteTypeLabel(entityType: string): string {
 }
 
 const FavoritesScreen = () => {
+  const { t } = useTranslation();
   const [isEditMode, setIsEditMode] = useState(false);
   const { scrollY, scrollHandler, scrollEventThrottle } = useCollapsibleTitle();
   const { apiToken } = useAuth();
@@ -81,7 +83,7 @@ const FavoritesScreen = () => {
               href="0"
             />,
           ]}
-          title="Favorites"
+          title={t('favoritesTabTitle')}
           variant="collapsibleTitle"
           scrollY={scrollY}
         />
@@ -124,8 +126,8 @@ const FavoritesScreen = () => {
             </Grid>
           ) : (
             <Placeholder
-              title="No favorites yet"
-              subtitle="Browse branches, barbers and services and save your favorites"
+              title={t('favoritesNoFavoritesYet')}
+              subtitle={t('favoritesBrowseSubtitle')}
             />
           )}
         </ThemeScroller>

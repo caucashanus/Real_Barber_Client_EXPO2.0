@@ -1,0 +1,645 @@
+export const en = {
+  // Search
+  searchPlaceholder: 'Search here',
+  searchBranches: 'Branches',
+  searchBranchesSubtitle: 'Browse branches',
+  searchMyBookings: 'My bookings',
+  searchMyBookingsSubtitle: 'Your bookings and visits',
+  searchBarbers: 'Barbers',
+  searchBarbersSubtitle: 'Browse barbers and their profiles',
+  searchServices: 'Services',
+  searchServicesSubtitle: 'Services and pricing',
+  searchSchedule: 'Schedule',
+  searchScheduleSubtitle: 'Book an appointment',
+  searchFavorites: 'Favorites',
+  searchFavoritesSubtitle: 'Saved branches and barbers',
+
+  // Settings
+  settingsTitle: 'Settings',
+  settingsSubtitle: 'Manage your account settings',
+  settingsPayments: 'Payments',
+  settingsPaymentsDesc: 'Manage payment methods',
+  settingsNotifications: 'Notifications',
+  settingsNotificationsDesc: 'Push notifications, email notifications',
+  settingsCurrency: 'Currency',
+  settingsCurrencyDesc: 'USD - United states dollar',
+  settingsChangePassword: 'Change password',
+  settingsChangePasswordDesc: 'Change your password',
+  settingsHelp: 'Help',
+  settingsHelpDesc: 'Contact support',
+  settingsSwitchToCzech: 'Switch to Czech',
+  settingsSwitchToEnglish: 'Switch to English',
+
+  // Profile
+  profileReservations: 'Reservations',
+  profileReviews: 'Reviews',
+  profileMemberDays: 'Member for (days)',
+  profileAccountSettings: 'Account settings',
+  profileEditProfile: 'Edit profile',
+  profileGetHelp: 'Get help',
+  profileReferrals: 'Referrals',
+  profileLogout: 'Logout',
+  profileGuest: 'Guest',
+  profileNewToHosting: 'New to hosting?',
+  profileNewToHostingDesc: 'Discover how to start hosting and earn extra income',
+  profileGetStarted: 'Get started',
+  profileEarnings: 'Earnings',
+  profileInsights: 'Insights',
+  profileCreateListing: 'Create new listing',
+
+  // Bottom navigation (tab bar)
+  navHome: 'Home',
+  navCalendar: 'Calendar',
+  navListings: 'Listings',
+  navFavorites: 'Favorites',
+  navBookings: 'Bookings',
+  navMessages: 'Messages',
+  navProfile: 'Profile',
+
+  // Home tabs (horizontal scroll under home)
+  tabWallet: 'Wallet',
+  tabMyHaircuts: 'My haircuts',
+  tabBranches: 'Branches',
+  tabBarbers: 'Barbers',
+  tabServices: 'Services',
+  tabProducts: 'Products',
+  tabGuides: 'Guides',
+
+  // Trips / Bookings
+  tripsTitle: 'Your Bookings',
+  tripsLoading: 'Loading…',
+  tripsNoBookings: 'No bookings yet.',
+  tripsFilterAll: 'All',
+  tripsFilterCurrent: 'Current',
+  tripsFilterUpcoming: 'Upcoming',
+  tripsFilterPast: 'Past',
+  tripsFilterCancelled: 'Cancelled',
+  tripsFilterRated: 'Rated',
+  tripsFilterPendingReview: 'Pending review',
+  tripsDays: 'days',
+  tripsHours: 'h',
+  tripsMinutes: 'min',
+  tripsSeconds: 's',
+  tripsIn: 'In',
+
+  // Review
+  reviewWriteTo: 'Write review to',
+  reviewWriteFallback: 'Write a Review',
+  reviewWriteYourReview: 'Write your review',
+  reviewAnonymous: 'Anonymous review',
+  reviewAnonymousDesc: 'Your name and profile will not be shown with this review.',
+  reviewSubmit: 'Submit Review',
+  reviewUpdate: 'Update review',
+  reviewDelete: 'Delete review',
+  reviewDeleting: 'Deleting…',
+  reviewDeleteConfirmTitle: 'Delete review',
+  reviewDeleteConfirmMessage: 'Do you really want to delete this review?',
+
+  // Branch detail
+  branchReview: 'Review',
+  branchWriteReview: 'Write review',
+  branchUpdateReview: 'Update review',
+  branchReviews: 'reviews',
+  branchLoadingReviews: 'Loading reviews…',
+
+  // Barber detail
+  barberReview: 'Review',
+  barberWriteReview: 'Write review',
+  barberUpdateReview: 'Update review',
+
+  // Service detail
+  serviceReview: 'Review',
+  serviceWriteReview: 'Write review',
+  serviceUpdateReview: 'Update review',
+
+  // Product detail
+  productRecenzovat: 'Recenzovat',
+  productNapsatRecenzi: 'Napsat recenzi',
+  productBuyerReviews: 'Buyer reviews',
+
+  // Schedule
+  scheduleTitle: 'Schedule',
+  scheduleDate: 'Date',
+  scheduleAll: 'All',
+  scheduleRezervovat: 'Book',
+  scheduleProfil: 'Profile',
+
+  // Help
+  helpTitle: 'Help & Support',
+  helpFaq: 'Frequently Asked Questions',
+  helpContactUs: 'Contact Us',
+  helpContactSubtitle: "We're here to help with your booking and travel needs",
+  helpContactSupport: 'Contact Support',
+
+  // Common
+  commonLoading: 'Loading…',
+  commonError: 'Error',
+  commonCancel: 'Cancel',
+  commonSave: 'Save',
+  commonYes: 'Yes',
+  commonNo: 'No',
+  commonViewAll: 'View all',
+  popularBarbershops: 'Popular barbershops in Prague',
+  howToGetToUs: 'How to get to us?',
+  topPicks: 'Top picks',
+
+  // Services
+  servicesHaircuts: 'Haircuts',
+  servicesBasic: 'Basic',
+  servicesPackages: 'Packages',
+  servicesColoring: 'Coloring',
+  servicesHomeServices: 'Home services',
+  servicesNoItems: 'No items',
+
+  // Experience
+  experienceNewBarbers: 'New barbers',
+  experienceNewBarbersDesc: 'Barbers who have recently joined and are ready to take care of you.',
+  experienceSchedule: 'Schedule',
+  experiencePopularToday: 'Popular barbers available today',
+  experienceAllBarbers: 'All barbers',
+  experienceMyFavorites: 'My favorite barbers',
+  experienceBestRated: 'Best rated barbers',
+
+  // My haircuts
+  myHaircutsWhatsFor: "What's it for?",
+  myHaircutsCreate: 'Create your haircut',
+  myHaircutsCreateDesc: 'Discover how to add your style and get the cut you want',
+
+  // Products (home)
+  productsMyPurchased: 'My purchased products',
+  productsTitle: 'Products',
+  productsNoPurchased: 'No purchased products.',
+  walletTransactions: 'Transactions',
+  walletNoTransactions: 'No transactions',
+
+  // Trips card
+  tripsViewBooking: 'View booking',
+  tripsAddReview: 'Add review',
+  tripsMessage: 'Message',
+  bookingStatusCancelled: 'Cancelled',
+  bookingStatusInProgress: 'In progress',
+  bookingStatusPast: 'Past',
+  bookingStatusUpcoming: 'Upcoming',
+
+  // Listings (business)
+  listingsYourListings: 'Your listings',
+  listingsHomes: 'Homes',
+  listingsExperiences: 'Experiences',
+
+  // Calendar
+  calendarTitle: 'Calendar',
+  calendarUpcomingBookings: 'Upcoming Bookings',
+
+  // Edit profile
+  editProfileSaveChanges: 'Save changes',
+  editProfileTitle: 'Profile Settings',
+  editProfileSubtitle: 'Manage your account settings',
+  editProfileLoading: 'Loading profile…',
+  editProfilePhoto: 'Photo',
+  editProfileRemovePhoto: 'Remove photo',
+  editProfilePersonalInfo: 'Personal information',
+  editProfileFirstName: 'First name',
+  editProfileLastName: 'Last name',
+  editProfileBirthday: 'Birthday',
+  editProfileContact: 'Contact',
+  editProfileEmail: 'Email',
+  editProfilePhone: 'Phone',
+  editProfileAddress: 'Address',
+  editProfileStreet: 'Street',
+  editProfileCity: 'City',
+  editProfileZip: 'ZIP',
+  editProfileCountry: 'Country',
+  editProfilePhoneNumber: 'Phone number',
+  editProfileSendSms: 'Send SMS request',
+  editProfileWhatsApp: 'WhatsApp request',
+
+  // Currency
+  currencyTitle: 'Currency',
+
+  // Notifications
+  notificationsTitle: 'Notifications',
+  notificationsSubtitle: 'Stay updated on your bookings and travel plans',
+  notificationsAll: 'All',
+  notificationsBookings: 'Bookings',
+  notificationsMessages: 'Messages',
+  notificationsPayments: 'Payments',
+  notificationsReviews: 'Reviews',
+  notificationsInquiries: 'Inquiries',
+  notificationsNoFound: 'No notifications found',
+
+  // Payments
+  paymentsTitle: 'Payment Methods',
+  paymentsYourCards: 'Your cards',
+  paymentsAddCard: 'Add New Card',
+  paymentsDigitalWallets: 'Digital Wallets',
+  paymentsSetDefault: 'Set as default payment method',
+  paymentsCardNumber: 'Card Number',
+  paymentsCardholder: 'Cardholder Name',
+  paymentsExpiry: 'Expiry Date',
+
+  // Change password
+  changePasswordTitle: 'Change password',
+
+  // Trip detail / Booking detail
+  bookingDetailTitle: 'Booking Detail',
+  bookingInCareOf: 'In care of',
+  bookingMessage: 'Message',
+  bookingSendRbcTip: 'Send RBC as tip',
+  bookingYourAppointment: 'Your appointment',
+  bookingFrom: 'From',
+  bookingTo: 'To',
+  bookingDuration: 'Duration',
+  bookingReservationDetails: 'Reservation details',
+  bookingReservationNumber: 'Reservation number',
+  bookingStatus: 'Status',
+  bookingPriceDetails: 'Price details',
+  bookingTotal: 'Total',
+  bookingEarningsBreakdown: 'Earnings breakdown',
+  bookingCleaningFee: 'Cleaning fee',
+  bookingPaymentMethod: 'Payment method',
+  paymentMethodCash: 'Cash',
+  paymentMethodCard: 'Card',
+  paymentMethodRbc: 'RB coins',
+  bookingGuestInfo: 'Guest Information',
+  bookingDetails: 'Booking details',
+  bookingMessageFromGuest: 'Message from guest',
+  bookingRequestDetails: 'Request details',
+
+  // Reservations
+  reservationsTitle: 'Reservations',
+  reservationsUpcoming: 'Upcoming',
+  reservationsPast: 'Past',
+  reservationsCancelled: 'Cancelled',
+  reservationsViewBooking: 'View booking',
+
+  // Branch detail
+  branchTitle: 'Branch',
+  branchTeam: 'Team',
+  branchMine: 'Mine',
+  branchView3d: 'View the branch in 3D',
+  branchWeb: 'Web',
+  branchServices: 'Services',
+  branchReserve: 'Reserve',
+
+  // Barber detail
+  barberWorkSamples: 'Work samples',
+  barberBranches: 'Branches',
+  barberServices: 'Services',
+
+  // Service detail
+  serviceAbout: 'About this service',
+
+  // Map
+  mapLoadingBranches: 'Loading branches…',
+
+  // Product detail
+  productSeller: 'Seller',
+  productDetails: 'Product details',
+  productGuests: 'Guests',
+  productBedrooms: 'Bedrooms',
+  productBathrooms: 'Bathrooms',
+  productSize: 'Size',
+  productInstantBook: 'Instant Book Available',
+  productInstantBookDescription: 'Book immediately without waiting for host approval',
+  productEdit: 'Edit',
+  productCleanliness: 'Cleanliness',
+  productLocation: 'Location',
+  productValueForMoney: 'Value for Money',
+
+  // Checkout
+  checkoutChooseMethod: 'Choose booking method',
+  checkoutSelectMethodSubtitle: 'Select how you want to book',
+  checkoutSelectSpecialist: 'Select specialist',
+  checkoutSelectSpecialistSubtitle: 'Choose the barber whose available times you want to see',
+  checkoutNoSpecialists: 'No specialists at this branch.',
+  checkoutPaymentMethod: 'Payment method',
+  checkoutPaymentSubtitle: 'Choose a payment method for your design service',
+  checkoutApplePay: 'Apple Pay',
+  checkoutApplePayDescription: 'Pay using Apple Pay',
+  checkoutGooglePay: 'Google Pay',
+  checkoutGooglePayDescription: 'Pay using Google Pay',
+  checkoutAddNewCard: 'Add New Card',
+  checkoutOrderReview: 'Order review',
+  checkoutOrderReviewSubtitle: 'Review your logo design order',
+  checkoutProjectDetails: 'Project Details',
+  checkoutPayment: 'Payment',
+  checkoutReview: 'Review',
+
+  // Order detail
+  orderYourTrip: 'Your trip',
+  orderCancellationPolicy: 'Cancellation policy',
+  orderChooseHowToPay: 'Choose how to pay',
+  orderPriceDetails: 'Price details',
+  orderConfirmAndPay: 'Confirm and pay',
+  orderChange: 'Change',
+
+  // Favorites
+  favoritesTitle: 'Favorite List',
+  favoritesShare: 'Share',
+  favoritesShowMap: 'Show map',
+
+  // Referrals
+  referralsInvited: "You've invited",
+  referralsFriends: 'friends',
+  referralsInviteFriends: 'Invite friends',
+  referralsShareLink: 'Share invite link',
+  referralsInvitedList: 'Invited',
+
+  // Filters
+  filtersTitle: 'Filters',
+  filtersBranchSize: 'Branch size (m²)',
+  filtersAtLeast: 'At least',
+  filtersAmenitiesLayout: 'Amenities and layout',
+  filtersAmenities: 'Amenities',
+  filtersAdditionalOptions: 'Additional Options',
+  filtersApply: 'Apply Filters',
+  filtersNumberChairs: 'Number of chairs',
+  filtersNumberWashBasins: 'Number of wash basins',
+  filtersCardPayment: 'Card payment',
+  filtersCoffeeMachine: 'Coffee machine',
+  filtersWheelchairAccessible: 'Wheelchair accessible',
+
+  // Kudy k nám
+  kudyTransportParking: 'Transport and parking',
+
+  // Haircut
+  haircutTitle: 'Haircut',
+  haircutAdd: 'Add haircut',
+  haircutPhotos: 'Photos',
+
+  // Add property / haircut
+  addPropertyTitle: 'Title',
+  addPropertyDescription: 'Description',
+  addPropertyDifficulty: 'Difficulty',
+  addPropertySelectBarber: 'Select who did your haircut',
+
+  // Transfer
+  transferNewPayment: 'New payment',
+  transferAvailable: 'Available',
+  transferRecipient: 'Recipient',
+  transferSearchPlaceholder: 'Employee name or client phone',
+  transferYouSentRbc: 'You sent',
+  transferTheySentYouRbc: 'They sent you',
+  transferSearching: 'Searching…',
+  transferNoResults: 'No results. Enter name or phone (min. 2 characters).',
+  transferNoEmployeesHint: 'No employees. To send to a client, enter their phone in the search (min. 2 characters).',
+  transferChatAmountPlaceholder: 'Amount (RBC)',
+  transferChatNoteOptional: 'Note (optional)',
+  transferChatBalance: 'Balance',
+  transferChatRemaining: 'Remaining',
+  transferChatNoTransactions: 'You have no transactions with this recipient yet',
+  transferChatSend: 'Send',
+  transferChatSending: 'Sending…',
+  transferChatEnterValidAmount: 'Enter a valid amount.',
+  transferChatNotEnoughRbc: "You don't have enough RBC.",
+  transferChatFailed: 'Transfer failed.',
+  transferChatYesterday: 'Yesterday',
+  commonRecipient: 'Recipient',
+
+  // Insights
+  insightsTitle: 'Insights',
+  insightsLongerStays: 'Longer Stays',
+  insightsAmenities: 'Amenities',
+  insightsFlexibleStays: 'Flexible Stays',
+  insightsFamilyTravel: 'Family Travel',
+  insightsBeachfront: 'Beachfront',
+  insightsPetFriendly: 'Pet Friendly',
+  insightsStar: 'Star',
+
+  // Auth
+  loginWelcomeBack: 'Welcome back',
+  loginSubtitle: 'Sign in to your account',
+  loginPassword: 'Password',
+  loginTitle: 'Login',
+  loginForgotPassword: 'Forgot Password?',
+  loginNoAccount: "Don't have an account? ",
+  loginSignUp: 'Sign up',
+  signupCreateAccount: 'Create new account',
+  signupCreateAccountDesc: 'Create an account to continue',
+  signupEmail: 'Email',
+  signupPassword: 'Password',
+  signupConfirmPassword: 'Confirm password',
+  signupTitle: 'Sign up',
+  signupAlreadyHave: 'Already have an account? ',
+  signupLogIn: 'Log in',
+  forgotPasswordBackToLogin: 'Back to login',
+  forgotPasswordEmail: 'Email',
+  forgotPasswordSendRequest: 'Send request',
+  changePasswordCurrent: 'Current password',
+  changePasswordNew: 'New password',
+  changePasswordConfirmNew: 'Confirm new password',
+
+  // Profile notifications settings
+  notifSettingsBookingTravel: 'Booking & Travel',
+  notifSettingsBookingUpdates: 'Booking Updates',
+  notifSettingsHostMessages: 'Host Messages',
+  notifSettingsPaymentConfirmations: 'Payment Confirmations',
+  notifSettingsReviewRequests: 'Review Requests',
+  notifSettingsCheckinReminders: 'Check-in Reminders',
+  notifSettingsPromotionsMarketing: 'Promotions & Marketing',
+  notifSettingsSpecialOffers: 'Special Offers',
+  notifSettingsHostPromotions: 'Host Promotions',
+  notifSettingsTravelTips: 'Travel Tips',
+  notifSettingsMarketingEmails: 'Marketing Emails',
+
+  // Payments (extra)
+  paymentsCvv: 'CVV',
+  paymentsCancel: 'Cancel',
+  paymentsSaveCard: 'Save Card',
+  paymentsSetAsDefault: 'Set as default payment method',
+  paymentsApplePay: 'Apple Pay',
+  paymentsGooglePay: 'Google Pay',
+  paymentsApplePaySetup: 'Set up Apple Pay for faster checkout',
+  paymentsGooglePaySetup: 'Set up Google Pay for faster checkout',
+
+  // Trip detail
+  tripDetailLocation: 'Location',
+  tripDetailFullMap: 'Full map',
+  tripDetailCancelBooking: 'Cancel booking',
+  tripDetailServiceFee: 'Service fee (deducted)',
+  tripDetailTaxes: 'Taxes',
+  tripDetailYourEarnings: 'Your earnings',
+
+  // Service / Barber detail
+  commonReserve: 'Reserve',
+  commonEdit: 'Edit',
+  serviceBookThisService: 'Book this service',
+  serviceChooseBranchBarber: 'Choose branch and barber',
+  barberAboutMe: 'About me',
+  barberVideo: 'Video',
+  barberMine: 'Mine',
+  barberBook: 'Book',
+  barberReserveWith: 'Reserve with this barber',
+
+  // Booking detail
+  bookingMessageGuest: 'Message guest',
+  bookingReject: 'Reject',
+  bookingApprove: 'Approve',
+
+  // Haircut form
+  haircutName: 'Name',
+  haircutNameLabel: 'Haircut name',
+  haircutBarber: 'Barber',
+  haircutNote: 'Note',
+  commonCancel: 'Cancel',
+  commonDelete: 'Delete',
+
+  // Filters (extra)
+  filtersSelfServiceCheckout: 'Self-service checkout',
+  filtersWithin100mMetro: 'Within 100m of metro',
+  filtersWithin100mTram: 'Within 100m of tram stop',
+  filtersWithin100mBus: 'Within 100m of bus stop',
+  filtersAirConditioning: 'Air conditioning',
+  filtersWifi: 'Wifi',
+  filtersParking: 'Parking',
+  filtersAirCompressors: 'Air compressors',
+  filtersElectricallyAdjustableChairs: 'Electrically adjustable chairs',
+
+  // Favorites tab
+  favoritesTabTitle: 'Favorites',
+  favoritesNoFavoritesYet: 'No favorites yet',
+  favoritesBrowseSubtitle: 'Browse branches, barbers and services and save your favorites',
+
+  // Dashboard
+  dashboardRecentReservations: 'Recent reservations',
+  dashboardArrivingSoon: 'Arriving soon',
+  dashboardUpcoming: 'Upcoming',
+  dashboardRecentNotifications: 'Recent notifications',
+
+  // Calendar chips
+  calendarThisWeek: 'This week',
+  calendarNextWeek: 'Next week',
+  calendarThisMonth: 'This month',
+
+  // Chat
+  chatTitle: 'Chat',
+  chatMessages: 'Messages',
+
+  // Wallet
+  walletAddMoney: 'Add money',
+  walletTransfer: 'Transfer',
+  walletDetails: 'Details',
+  walletMore: 'More',
+  walletShowAll: 'Show all',
+  walletFlexiFondy: 'FlexiFondy',
+  walletMoreButton: 'More',
+
+  // Add property steps & texts
+  addPropertyStepHaircutType: 'Haircut type',
+  addPropertyStepSeason: 'Season',
+  addPropertyStepBasics: 'Basics',
+  addPropertyStepFeatures: 'Features',
+  addPropertyStepPhotos: 'Photos',
+  addPropertyStepTitleDesc: 'Title & Description',
+  addPropertyStepStyling: 'Styling & stylist',
+  addPropertyStepSuccess: 'Success',
+  addPropertyWhatDescribes: 'What best describes your haircut?',
+  addPropertyChooseOption: 'Choose the option that fits you best',
+  addPropertyForWhichSeason: 'For which season?',
+  addPropertyChooseSeason: 'Choose when you wear this haircut most',
+  addPropertyBasicDetails: 'Basic haircut details',
+  addPropertyFillLengths: 'Fill in lengths and how often to refresh the cut',
+  addPropertyLengthAtEars: 'Length at ears',
+  addPropertyLengthOnTop: 'Length on top',
+  addPropertyLengthCm: 'Length in cm',
+  addPropertyHowOftenTrim: 'How often to trim?',
+  addPropertyWeeksToComeIn: 'Every how many weeks to come in',
+  addPropertyWhatGoesWith: 'What goes with this haircut?',
+  addPropertySelectMultiple: 'Select everything that fits your haircut. You can select multiple options.',
+  addPropertyAddPhotos: 'Add haircut photos',
+  addPropertyAtLeastOnePhoto: 'At least one photo helps. You can add more or edit later.',
+  addPropertyAddPhoto: 'Add photo',
+  addPropertyTakePhoto: 'Take photo',
+  addPropertyNowName: 'Now name your haircut',
+  addPropertyShortName: 'A short name is enough. You can change it anytime.',
+  addPropertyStylingDifficulty: 'Styling difficulty and stylist',
+  addPropertyHowDemanding: 'How demanding is the haircut to style and who did it for you?',
+  addPropertyCongratulations: 'Congratulations!',
+  addPropertySuccessMessage: 'Your haircut was saved successfully. You can find it in the My haircuts section.',
+  addPropertyEasyTitle: "It's easy to add your haircut",
+  addPropertyStep1Title: 'Create your haircut',
+  addPropertyStep1Desc: 'Come up with a name and create.',
+  addPropertyStep2Title: 'Set the rules for your haircut',
+  addPropertyStep2Desc: 'Add photos, description, your preferences—exactly how YOU want it.',
+  addPropertyStep3Title: 'Finish and save',
+  addPropertyStep3Desc: "Get your dream fresh cut and don't explain a thing to anyone.",
+  addPropertyLetsGo: "Let's go",
+
+  // Add property – haircut types (step 1)
+  addPropertyTypeShorter: 'Shorter',
+  addPropertyTypeMediumLength: 'Medium length',
+  addPropertyTypeLonger: 'Longer',
+  addPropertyTypeOffice: 'Office',
+  addPropertyTypeSporty: 'Sporty',
+  addPropertyTypeModern: 'Modern',
+  addPropertyTypeRetro: 'Retro',
+  addPropertyTypeCasual: 'Casual',
+
+  // Add property – seasons (step 2)
+  addPropertySeasonSummer: 'Summer',
+  addPropertySeasonSummerDesc: 'Haircut for warm months.',
+  addPropertySeasonWinter: 'Winter',
+  addPropertySeasonWinterDesc: 'Haircut for cold weather.',
+  addPropertySeasonAllYear: 'All-year',
+  addPropertySeasonAllYearDesc: 'You wear it all the time.',
+
+  // Add property – features/amenities (step 4)
+  addPropertyAmenityWantToTry: 'Want to try',
+  addPropertyAmenityLowMaintenance: 'Low maintenance',
+  addPropertyAmenityRequiresStyling: 'Requires styling',
+  addPropertyAmenityNoDryHair: "Don't need to dry hair",
+  addPropertyAmenityLongLasting: 'Long lasting',
+  addPropertyAmenityPeopleCompliment: 'Haircut people compliment most',
+  addPropertyAmenityMyFavourite: 'My favourite haircut',
+  addPropertyAmenityWithBeard: 'Looks good with beard',
+  addPropertyAmenityStyling: 'Styling',
+  addPropertyAmenitySomethingNew: 'Trying something new',
+  addPropertyAmenityRecommendedByBarber: 'Recommended by barber',
+  addPropertyAmenityCameBack: 'Came back to it',
+
+  // Kudy
+  kudyShowVideo: 'Show video',
+  kudyBranchNotFound: 'Branch not found.',
+  kudyOpenGoogleMaps: 'Open in Google Maps',
+  kudyOpenWaze: 'Open in Waze',
+  kudyRideUber: 'Ride with Uber',
+  kudyHowToGetToUs: 'How to get to us',
+
+  // Permissions
+  permissionAllowNotifications: 'Allow Notifications',
+  permissionSkipForNow: 'Skip for Now',
+  permissionAllowLocation: 'Allow Location Access',
+
+  // 404
+  notFoundBackToHome: 'Back to Home',
+
+  // RBC
+  rbcBack: 'Back',
+  rbcUseThisDesign: 'Use this design',
+  rbcCardTitle: 'RBC Card',
+  rbcTransactionHistory: 'Transaction history',
+  rbcCardDesigns: 'Card designs',
+  rbcCardDesign: 'Card design',
+  rbcYourBalance: 'Your balance',
+  rbcHideDetails: 'Hide details',
+  rbcShowDetails: 'Show details',
+  rbcSend: 'Send',
+  rbcHistory: 'History',
+  rbcDesign: 'Design',
+  rbcNoTransactions: 'No transactions',
+  rbcToday: 'Today',
+  rbcYesterday: 'Yesterday',
+  rbcDayBeforeYesterday: 'Day before yesterday',
+  rbcGiftCardCreated: 'Gift card created',
+  rbcCashback: 'Cashback',
+
+  // Guides
+  guidesLoading: 'Loading guides…',
+  guidesNoGuides: 'No guides yet.',
+
+  // Earnings
+  earningsUpcoming: 'Upcoming',
+  earningsYouveMade: "You've made",
+} as const;
+
+export type TranslationKey = keyof typeof en;

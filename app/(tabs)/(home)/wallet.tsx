@@ -34,6 +34,7 @@ import useThemeColors from '@/app/contexts/ThemeColors';
 import { shadowPresets } from '@/utils/useShadow';
 import { useAuth } from '@/app/contexts/AuthContext';
 import { getRbCoinsBalance, getRbCoinsHistory, type RbCoinsHistoryItem } from '@/api/rb-coins';
+import { useTranslation } from '@/app/hooks/useTranslation';
 import { Link, useRouter } from 'expo-router';
 import TransactionDetailModal from '@/components/TransactionDetailModal';
 
@@ -69,6 +70,7 @@ const WalletScreen = () => {
   const scrollY = useContext(ScrollContext);
   const colors = useThemeColors();
   const { apiToken } = useAuth();
+  const { t } = useTranslation();
   const [balance, setBalance] = useState<number | null>(null);
   const [balanceLoading, setBalanceLoading] = useState(true);
   const [balanceError, setBalanceError] = useState<string | null>(null);
@@ -167,7 +169,7 @@ const WalletScreen = () => {
             <ThemedText className="text-5xl font-bold text-white mt-1 text-center">{formatBalance(displayAmount)} {MOCK_CURRENCY}</ThemedText>
           )}
           <View className="items-center mt-4">
-            <Button title="More" variant="outline" size="small" className="rounded-full px-6 bg-white/10 border-white/30" textClassName="text-white" href="/screens/rbc" />
+            <Button title={t('walletMoreButton')} variant="outline" size="small" className="rounded-full px-6 bg-white/10 border-white/30" textClassName="text-white" href="/screens/rbc" />
           </View>
         </View>
 
@@ -177,25 +179,25 @@ const WalletScreen = () => {
             <View className="w-14 h-14 rounded-full bg-white dark:bg-dark-primary items-center justify-center">
               <Icon name="Plus" size={24} color={colors.text} />
             </View>
-            <ThemedText className="text-xs mt-2 text-light-text dark:text-dark-text">Add money</ThemedText>
+            <ThemedText className="text-xs mt-2 text-light-text dark:text-dark-text">{t('walletAddMoney')}</ThemedText>
           </Pressable>
           <Pressable className="items-center" onPress={() => router.push('/screens/transfer-select-recipient')}>
             <View className="w-14 h-14 rounded-full bg-white dark:bg-dark-primary items-center justify-center">
               <Icon name="ArrowLeftRight" size={22} color={colors.text} />
             </View>
-            <ThemedText className="text-xs mt-2 text-light-text dark:text-dark-text">Transfer</ThemedText>
+            <ThemedText className="text-xs mt-2 text-light-text dark:text-dark-text">{t('walletTransfer')}</ThemedText>
           </Pressable>
           <Pressable className="items-center">
             <View className="w-14 h-14 rounded-full bg-white dark:bg-dark-primary items-center justify-center">
               <Icon name="Building2" size={22} color={colors.text} />
             </View>
-            <ThemedText className="text-xs mt-2 text-light-text dark:text-dark-text">Details</ThemedText>
+            <ThemedText className="text-xs mt-2 text-light-text dark:text-dark-text">{t('walletDetails')}</ThemedText>
           </Pressable>
           <Pressable className="items-center" onPress={() => router.push('/screens/rbc')}>
             <View className="w-14 h-14 rounded-full bg-white dark:bg-dark-primary items-center justify-center">
               <Icon name="MoreVertical" size={22} color={colors.text} />
             </View>
-            <ThemedText className="text-xs mt-2 text-light-text dark:text-dark-text">More</ThemedText>
+            <ThemedText className="text-xs mt-2 text-light-text dark:text-dark-text">{t('walletMore')}</ThemedText>
           </Pressable>
         </View>
 
@@ -203,7 +205,7 @@ const WalletScreen = () => {
         <View style={{ ...shadowPresets.large }} className="mt-4 p-5 rounded-2xl bg-light-secondary dark:bg-dark-secondary">
           <View className="flex-row justify-between items-start">
             <View className="flex-1 pr-2">
-              <ThemedText className="text-lg font-bold text-light-text dark:text-dark-text">FlexiFondy</ThemedText>
+              <ThemedText className="text-lg font-bold text-light-text dark:text-dark-text">{t('walletFlexiFondy')}</ThemedText>
               <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext mt-1">
                 S variabilním úrokem v EUR, GBP nebo USD. Investiční riziko.
               </ThemedText>
@@ -215,17 +217,17 @@ const WalletScreen = () => {
         </View>
 
         {/* 4. Transakce – stejný blok se stínem jako na Branches */}
-        <Section title="Transactions" titleSize="lg" className="mt-6">
+        <Section title={t('walletTransactions')} titleSize="lg" className="mt-6">
           <View style={{ ...shadowPresets.large }} className="mt-2 p-global rounded-2xl bg-light-secondary dark:bg-dark-secondary overflow-hidden">
           <List variant="divided" spacing={12}>
             {historyLoading ? (
               <View className="py-6 items-center">
                 <ActivityIndicator size="small" />
-                <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext mt-2">Loading…</ThemedText>
+                <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext mt-2">{t('commonLoading')}</ThemedText>
               </View>
             ) : history.length === 0 ? (
               <View className="py-6 px-4">
-                <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext text-center">No transactions</ThemedText>
+                <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext text-center">{t('walletNoTransactions')}</ThemedText>
               </View>
             ) : (
               history.map((tx) => {
@@ -252,7 +254,7 @@ const WalletScreen = () => {
           </View>
           <Link href="/screens/wallet-history" asChild>
             <Pressable className="mt-3 py-3 items-center">
-              <ThemedText className="text-base font-medium text-light-text dark:text-dark-text">Show all</ThemedText>
+              <ThemedText className="text-base font-medium text-light-text dark:text-dark-text">{t('walletShowAll')}</ThemedText>
             </Pressable>
           </Link>
         </Section>

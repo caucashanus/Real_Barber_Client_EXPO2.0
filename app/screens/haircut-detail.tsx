@@ -10,6 +10,7 @@ import Section from '@/components/layout/Section';
 import { Button } from '@/components/Button';
 import AnimatedView from '@/components/AnimatedView';
 import { useAuth } from '@/app/contexts/AuthContext';
+import { useTranslation } from '@/app/hooks/useTranslation';
 import { getClientCut, patchClientCut, deleteClientCut, type ClientCut } from '@/api/cuts';
 import { getEmployees, type Employee } from '@/api/employees';
 
@@ -17,6 +18,7 @@ const PLACEHOLDER_IMAGE = require('@/assets/img/room-1.avif');
 
 export default function HaircutDetailScreen() {
   const { id } = useLocalSearchParams<{ id?: string }>();
+  const { t } = useTranslation();
   const { apiToken } = useAuth();
   const [cut, setCut] = useState<ClientCut | null>(null);
   const [loading, setLoading] = useState(true);
@@ -110,10 +112,10 @@ export default function HaircutDetailScreen() {
   if (loading) {
     return (
       <>
-        <Header title="Haircut" showBackButton />
+        <Header title={t('haircutTitle')} showBackButton />
         <View className="flex-1 items-center justify-center bg-light-primary dark:bg-dark-primary">
           <ActivityIndicator size="large" />
-          <ThemedText className="mt-2 text-light-subtext dark:text-dark-subtext">Loading…</ThemedText>
+          <ThemedText className="mt-2 text-light-subtext dark:text-dark-subtext">{t('commonLoading')}</ThemedText>
         </View>
       </>
     );
@@ -122,7 +124,7 @@ export default function HaircutDetailScreen() {
   if (error && !cut) {
     return (
       <>
-        <Header title="Haircut" showBackButton />
+        <Header title={t('haircutTitle')} showBackButton />
         <View className="flex-1 items-center justify-center bg-light-primary dark:bg-dark-primary p-6">
           <ThemedText className="text-center text-red-500 dark:text-red-400">{error}</ThemedText>
         </View>
@@ -138,7 +140,7 @@ export default function HaircutDetailScreen() {
 
   return (
     <>
-      <Header title={cut.hairstyle || 'Haircut'} showBackButton />
+      <Header title={cut.hairstyle || t('haircutTitle')} showBackButton />
       <ThemedScroller className="flex-1">
         <AnimatedView animation="fadeIn" duration={300}>
           <View className="aspect-[4/3] w-full bg-light-secondary dark:bg-dark-secondary">
@@ -148,20 +150,20 @@ export default function HaircutDetailScreen() {
           {editing ? (
             <Section title="" titleSize="md" className="mt-4">
               <Input
-                label="Name"
+                label={t('haircutName')}
                 value={hairstyle}
                 onChangeText={setHairstyle}
                 placeholder="e.g. Low Fade"
                 containerClassName="mb-4"
               />
               <BarberPicker
-                label="Barber"
+                label={t('haircutBarber')}
                 employees={employees}
                 value={barberId}
                 onChange={setBarberId}
               />
               <Input
-                label="Note"
+                label={t('haircutNote')}
                 value={note}
                 onChangeText={setNote}
                 placeholder="Optional note"
@@ -179,7 +181,7 @@ export default function HaircutDetailScreen() {
                   className="flex-1"
                 />
                 <Button
-                  title="Cancel"
+                  title={t('commonCancel')}
                   variant="outline"
                   onPress={() => {
                     setEditing(false);
@@ -210,8 +212,8 @@ export default function HaircutDetailScreen() {
                 ) : null}
               </Section>
               <View className="p-global flex-row gap-3 mt-2">
-                <Button title="Edit" onPress={() => setEditing(true)} className="flex-1" />
-                <Button title="Delete" variant="outline" onPress={handleDelete} className="flex-1" />
+                <Button title={t('commonEdit')} onPress={() => setEditing(true)} className="flex-1" />
+                <Button title={t('commonDelete')} variant="outline" onPress={handleDelete} className="flex-1" />
               </View>
               {error ? (
                 <ThemedText className="p-global text-red-500 dark:text-red-400">{error}</ThemedText>
