@@ -334,7 +334,7 @@ export default function BranchDetailScreen() {
           {branch.description ? (() => {
             const descriptionClean = stripDescriptionPrefix(branch.description);
             return descriptionClean ? (
-              <Section title={t('branchDescription')} titleSize="lg" className="mb-6 mt-2">
+              <Section title={t('branchDescription')} titleSize="lg" className="mb-2 mt-2">
                 <ThemedText className="text-base text-light-subtext dark:text-dark-subtext">
                   {descriptionClean.length > 50
                     ? `${descriptionClean.slice(0, 50).trim()}… `
@@ -354,7 +354,7 @@ export default function BranchDetailScreen() {
 
           {employeesList.length > 0 ? (
             <>
-              <Divider className="mb-4 mt-8" />
+              <Divider className="mb-4 mt-4" />
               <Section title={t('branchTeam')} titleSize="lg" className="mb-6 mt-2">
                 <View className="mt-3 flex-row flex-wrap gap-6">
                   {employeesList.map((emp: BranchEmployee) => (
