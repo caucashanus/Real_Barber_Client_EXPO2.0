@@ -44,8 +44,12 @@ interface NavItem {
 }
 
 const NAV_ITEMS: NavItem[] = [
-  { id: 'branches', title: 'Pobočky', subtitle: 'Prohlédnout pobočky', icon: 'MapPin', href: '/screens/map' },
-  { id: 'bookings', title: 'Mé rezervace', subtitle: 'Your bookings', icon: 'Calendar', href: '/trips' },
+  { id: 'branches', title: 'Branches', subtitle: 'Browse branches', icon: 'MapPin', href: '/screens/map' },
+  { id: 'bookings', title: 'My bookings', subtitle: 'Your bookings and visits', icon: 'Calendar', href: '/trips' },
+  { id: 'barbers', title: 'Barbers', subtitle: 'Browse barbers and their profiles', icon: 'UserCircle', href: '/experience' },
+  { id: 'services', title: 'Services', subtitle: 'Services and pricing', icon: 'Scissors', href: '/services' },
+  { id: 'schedule', title: 'Schedule', subtitle: 'Book an appointment', icon: 'CalendarDays', href: '/screens/schedule' },
+  { id: 'favorites', title: 'Favorites', subtitle: 'Saved branches and barbers', icon: 'Heart', href: '/favorites' },
 ];
 
 const SearchModal = ({ showModal, setShowModal }: SearchModalProps) => {

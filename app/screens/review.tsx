@@ -164,7 +164,7 @@ const ReviewScreen = () => {
 
 
             <Header
-                title="Write a Review"
+                title={entityName ? `Write review to ${displayName}` : 'Write a Review'}
                 showBackButton
             />
             <ThemedScroller
