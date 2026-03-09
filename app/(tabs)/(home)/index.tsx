@@ -13,7 +13,6 @@ import { useAuth } from '@/app/contexts/AuthContext';
 import { getBranches, type Branch, type BranchService } from '@/api/branches';
 import { getClientReviewsList, type ClientReviewListItem } from '@/api/reviews';
 import { Video, ResizeMode } from 'expo-av';
-import { KUDY_K_NAM_VIDEOS } from '@/constants/kudy-k-nam-videos';
 import Icon from '@/components/Icon';
 import { useTranslation } from '@/app/hooks/useTranslation';
 
@@ -31,6 +30,17 @@ function getMediaUrlsSorted(media: Branch['media']): string[] {
   const withOrder = list.filter((m): m is { url: string; order?: number } => !!m?.url);
   withOrder.sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
   return withOrder.map((m) => m.url);
+}
+
+/** First video URL from branch.media for "Kudy k nám" (type === 'video'). */
+function getKudyVideoUrl(branch: Branch): string | null {
+  const media = branch.media;
+  if (!media) return null;
+  const list = Array.isArray(media) ? [...media] : Object.values(media);
+  const videos = list.filter((m): m is { url: string; order?: number; type?: string } => !!m?.url && (m as { type?: string }).type === 'video');
+  if (videos.length === 0) return null;
+  videos.sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
+  return videos[0].url;
 }
 
 function branchCardImage(branch: Branch): string | number {
@@ -157,39 +167,55 @@ const HomeScreen = () => {
 
                 <Section title={t('howToGetToUs')} titleSize="lg">
                   <CardScroller space={15} className="mt-1.5 pb-4">
-                    {KUDY_K_NAM_VIDEOS.map((item) => (
-                      <Pressable
-                        key={item.id}
-                        onPress={() => router.push(`/screens/kudy-k-nam-detail?id=${encodeURIComponent(item.id)}`)}
-                        style={{ width: 160 }}
-                        className="active:opacity-80"
-                      >
-                        <View className="relative rounded-2xl overflow-hidden bg-light-secondary dark:bg-dark-secondary" style={{ width: 160, height: 160 }}>
-                          {item.source != null ? (
-                            <>
-                              <Video
-                                source={typeof item.source === 'number' ? item.source : { uri: item.source.uri }}
-                                style={{ width: 160, height: 160 }}
-                                resizeMode={ResizeMode.COVER}
-                                useNativeControls
-                                isLooping
-                                shouldPlay={false}
-                              />
-                              <View className="absolute top-3 right-3 z-50">
-                                <Icon name="Play" size={24} className="text-white" />
-                              </View>
-                            </>
-                          ) : (
-                            <View className="absolute top-3 right-3 z-50">
-                              <Icon name="Play" size={24} className="text-light-subtext dark:text-dark-subtext" />
-                            </View>
-                          )}
-                        </View>
-                        <View className="py-2 w-full">
-                          <ThemedText className="text-sm font-medium" numberOfLines={1}>{item.title}</ThemedText>
-                        </View>
-                      </Pressable>
-                    ))}
+                    {branchesLoading && (
+                      <ThemedText className="py-4 text-light-subtext dark:text-dark-subtext">{t('commonLoading')}</ThemedText>
+                    )}
+                    {!branchesLoading && popularBranches?.map((branch) => {
+                      const kudyVideoUrl = getKudyVideoUrl(branch);
+                      const cardImage = branchCardImage(branch);
+                      return (
+                        <Pressable
+                          key={branch.id}
+                          onPress={() => router.push(`/screens/kudy-k-nam-detail?id=${encodeURIComponent(branch.id)}`)}
+                          style={{ width: 160 }}
+                          className="active:opacity-80"
+                        >
+                          <View className="relative rounded-2xl overflow-hidden bg-light-secondary dark:bg-dark-secondary" style={{ width: 160, height: 160 }}>
+                            {kudyVideoUrl != null ? (
+                              <>
+                                <Video
+                                  pointerEvents="none"
+                                  source={{ uri: kudyVideoUrl }}
+                                  style={{ width: 160, height: 160 }}
+                                  resizeMode={ResizeMode.COVER}
+                                  useNativeControls
+                                  isLooping
+                                  shouldPlay={false}
+                                />
+                                <View pointerEvents="none" className="absolute top-3 right-3 z-50">
+                                  <Icon name="Play" size={24} className="text-white" />
+                                </View>
+                              </>
+                            ) : (
+                              <>
+                                <Image
+                                  pointerEvents="none"
+                                  source={typeof cardImage === 'number' ? cardImage : { uri: cardImage }}
+                                  style={{ width: 160, height: 160 }}
+                                  resizeMode="cover"
+                                />
+                                <View pointerEvents="none" className="absolute top-3 right-3 z-50">
+                                  <Icon name="Play" size={24} className="text-white" />
+                                </View>
+                              </>
+                            )}
+                          </View>
+                          <View className="py-2 w-full">
+                            <ThemedText className="text-sm font-medium" numberOfLines={1}>{branch.name}</ThemedText>
+                          </View>
+                        </Pressable>
+                      );
+                    })}
                   </CardScroller>
                 </Section>
 

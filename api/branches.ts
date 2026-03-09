@@ -27,8 +27,9 @@ export interface BranchReview {
 export interface Branch {
   id: string;
   name: string;
+  description?: string | null;
   imageUrl?: string | null;
-  media?: Array<{ url: string; order?: number }>;
+  media?: Array<{ url: string; order?: number; type?: string }>;
   address?: string;
   webUrl?: string | null;
   services?: BranchService[];

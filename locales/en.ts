@@ -275,6 +275,8 @@ export const en = {
 
   // Branch detail
   branchTitle: 'Branch',
+  branchDescription: 'Branch description',
+  branchAddressNotSet: 'Address not set',
   branchTeam: 'Team',
   branchMine: 'Mine',
   branchView3d: 'View the branch in 3D',

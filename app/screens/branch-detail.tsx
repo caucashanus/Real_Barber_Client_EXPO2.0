@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useCallback, useRef } from 'react';
 import { useFocusEffect } from '@react-navigation/native';
 import { View, Image, ActivityIndicator, Pressable, ScrollView, type LayoutChangeEvent } from 'react-native';
+import { Video, ResizeMode } from 'expo-av';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import * as WebBrowser from 'expo-web-browser';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -42,6 +43,17 @@ function getMediaUrlsSorted(media: Branch['media']): string[] {
   const withOrder = list.filter((m): m is { url: string; order?: number } => !!m?.url);
   withOrder.sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
   return withOrder.map((m) => m.url);
+}
+
+/** First video URL from branch.media (for "Kudy k nám" section). */
+function getKudyVideoUrl(branch: Branch): string | null {
+  const media = branch.media;
+  if (!media) return null;
+  const list = Array.isArray(media) ? [...media] : Object.values(media);
+  const videos = list.filter((m): m is { url: string; order?: number; type?: string } => !!m?.url && (m as { type?: string }).type === 'video');
+  if (videos.length === 0) return null;
+  videos.sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
+  return videos[0].url;
 }
 
 function branchImages(branch: Branch): (string | number)[] {
@@ -211,6 +223,7 @@ export default function BranchDetailScreen() {
   const employeesList = getEmployeesList(branch);
   const vrTourUrl = getVrTourUrl(branch.name);
   const webUrl = branch.webUrl ?? null;
+  const kudyVideoUrl = getKudyVideoUrl(branch);
   const branchImageUrl = getMediaUrlsSorted(branch.media)[0] ?? branch.imageUrl ?? '';
   const reviewParams = `entityType=branch&entityId=${encodeURIComponent(branch.id)}&entityName=${encodeURIComponent(branch.name)}${branchImageUrl ? `&entityImage=${encodeURIComponent(branchImageUrl)}` : ''}`;
   const rightComponents = branch.name ? [
@@ -272,7 +285,7 @@ export default function BranchDetailScreen() {
               <View className="flex-row items-center">
                 <Icon name="MapPin" size={12} className="mr-1" />
                 <ThemedText className="text-xs text-light-subtext dark:text-dark-subtext" numberOfLines={1}>
-                  {branch.address ?? 'Address not set'}
+                  {branch.address ?? t('branchAddressNotSet')}
                 </ThemedText>
               </View>
             </View>
@@ -281,6 +294,17 @@ export default function BranchDetailScreen() {
           <ThemedText className="text-base">
             {branch.address ? `${branch.name} – ${branch.address}` : branch.name}
           </ThemedText>
+
+          {branch.description ? (
+            <>
+              <Divider className="mb-4 mt-8" />
+              <Section title={t('branchDescription')} titleSize="lg" className="mb-6 mt-2">
+                <ThemedText className="text-base text-light-subtext dark:text-dark-subtext whitespace-pre-line">
+                  {branch.description}
+                </ThemedText>
+              </Section>
+            </>
+          ) : null}
 
           {employeesList.length > 0 ? (
             <>
@@ -413,6 +437,26 @@ export default function BranchDetailScreen() {
               </Pressable>
             ) : null}
           </View>
+
+          {kudyVideoUrl ? (
+            <>
+              <Divider className="my-4" />
+              <Section title={t('howToGetToUs')} titleSize="lg" className="mb-6">
+                <View className="rounded-xl overflow-hidden bg-black mt-3" style={{ height: 280 }}>
+                  <Video
+                    pointerEvents="none"
+                    source={{ uri: kudyVideoUrl }}
+                    style={{ width: '100%', height: 280 }}
+                    resizeMode={ResizeMode.COVER}
+                    useNativeControls
+                    shouldPlay={false}
+                    isLooping
+                    isMuted
+                  />
+                </View>
+              </Section>
+            </>
+          ) : null}
 
           <Divider className="my-4" />
         </View>

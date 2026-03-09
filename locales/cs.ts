@@ -277,6 +277,8 @@ export const cs: Record<TranslationKey, string> = {
 
   // Branch detail
   branchTitle: 'Pobočka',
+  branchDescription: 'Popis pobočky',
+  branchAddressNotSet: 'Adresa není zadána',
   branchTeam: 'Tým',
   branchMine: 'Moje',
   branchView3d: 'Prohlédnout pobočku ve 3D',
