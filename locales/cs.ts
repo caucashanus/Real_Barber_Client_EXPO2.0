@@ -142,6 +142,7 @@ export const cs: Record<TranslationKey, string> = {
   commonNo: 'Ne',
   commonViewAll: 'Zobrazit vše',
   popularBarbershops: 'Oblíbené holičství v Praze',
+  homeContinueSearchBarbershops: 'Pokračovat v hledání holičství v Praze',
   howToGetToUs: 'Kudy k nám?',
   topPicks: 'Top výběr',
 
@@ -285,7 +286,7 @@ export const cs: Record<TranslationKey, string> = {
 
   // Barber detail
   barberWorkSamples: 'Ukázky práce',
-  barberBranches: 'Pobočky',
+  barberBranches: 'Pobočky kde působím',
   barberServices: 'Služby',
 
   // Service detail

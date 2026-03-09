@@ -7,11 +7,19 @@ import Section from '@/components/layout/Section';
 import { useLanguage } from '@/app/contexts/LanguageContext';
 import { useTranslation } from '@/app/hooks/useTranslation';
 
+/** Text v cílovém jazyce: v EN verzi zobrazit česky, v ČJ verzi anglicky. */
+const SWITCH_LABEL_CZ = 'Přepnout do češtiny';
+const SWITCH_LABEL_EN = 'Switch to English';
+const FLAG_CZ = '🇨🇿';
+const FLAG_EN = '🇬🇧';
+
 export default function SettingsScreen() {
     const { locale, toggleLocale } = useLanguage();
     const { t } = useTranslation();
 
-    const buttonLabel = locale === 'en' ? t('settingsSwitchToCzech') : t('settingsSwitchToEnglish');
+    const isEnglish = locale === 'en';
+    const switchLabel = isEnglish ? SWITCH_LABEL_CZ : SWITCH_LABEL_EN;
+    const switchFlag = isEnglish ? FLAG_CZ : FLAG_EN;
 
     return (
         <AnimatedView className='flex-1 bg-light-primary dark:bg-dark-primary' animation='fadeIn' duration={350} playOnlyOnce={false}>
@@ -36,11 +44,15 @@ export default function SettingsScreen() {
                             shadowOpacity: 0.5,
                             shadowRadius: 3.84,
                             elevation: 8,
+                            flexDirection: 'row',
+                            alignItems: 'center',
+                            justifyContent: 'center',
                         }}
-                        className='bg-neutral-900 dark:bg-neutral-100 rounded-full py-3 w-[220px] items-center justify-center'
+                        className='bg-neutral-900 dark:bg-neutral-100 rounded-full py-3 px-6 min-w-[220px]'
                     >
-                        <Text className='text-white text-base font-medium dark:text-neutral-900'>
-                            {buttonLabel}
+                        <Text style={{ fontSize: 16 }}>{switchFlag}</Text>
+                        <Text className='text-white text-base font-medium dark:text-neutral-900 ml-2'>
+                            {switchLabel}
                         </Text>
                     </Pressable>
                 </View>

@@ -1,6 +1,6 @@
-import React, { useEffect, useState, useCallback, useRef } from 'react';
+import React, { useEffect, useState, useCallback, useRef, useMemo } from 'react';
 import { useFocusEffect } from '@react-navigation/native';
-import { View, Image, ActivityIndicator, Pressable, ScrollView, Modal, useWindowDimensions, type LayoutChangeEvent } from 'react-native';
+import { View, Image, ActivityIndicator, Pressable, ScrollView, Modal, useWindowDimensions, FlatList, type LayoutChangeEvent } from 'react-native';
 import { useLocalSearchParams } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
@@ -8,7 +8,6 @@ import { Video, ResizeMode } from 'expo-av';
 import Header from '@/components/Header';
 import ThemedText from '@/components/ThemedText';
 import ThemedScroller from '@/components/ThemeScroller';
-import ImageCarousel from '@/components/ImageCarousel';
 import Divider from '@/components/layout/Divider';
 import ShowRating from '@/components/ShowRating';
 import Avatar from '@/components/Avatar';
@@ -30,15 +29,14 @@ import { CardScroller } from '@/components/CardScroller';
 import { getEntityReviews, type EntityReviewItem } from '@/api/reviews';
 import { useTranslation } from '@/app/hooks/useTranslation';
 
-function employeeImages(employee: EmployeeDetail): (string | number)[] {
-  const out: (string | number)[] = [];
-  if (employee.avatarUrl) out.push(employee.avatarUrl);
-  const media = employee.media;
-  if (media) {
-    const list = Array.isArray(media) ? media : Object.values(media);
-    list.forEach((m: { url?: string }) => { if (m?.url) out.push(m.url); });
-  }
-  if (out.length === 0) out.push(require('@/assets/img/room-1.avif'));
+type TopSlide = { type: 'image' | 'video'; uri: string };
+
+function employeeTopSlides(employee: EmployeeDetail): TopSlide[] {
+  const out: TopSlide[] = [];
+  if (employee.avatarUrl) out.push({ type: 'image', uri: employee.avatarUrl });
+  const mediaList = getMediaList(employee);
+  mediaList.forEach((m) => out.push({ type: (m.type === 'video' ? 'video' : 'image'), uri: m.url }));
+  if (out.length === 0) out.push({ type: 'image', uri: '' });
   return out;
 }
 
@@ -119,6 +117,11 @@ export default function BarberDetailScreen() {
   const [loadingReviews, setLoadingReviews] = useState(false);
   const [hasReviewed, setHasReviewed] = useState(false);
   const { width: winWidth, height: winHeight } = useWindowDimensions();
+  const [activeCarouselIndex, setActiveCarouselIndex] = useState(0);
+  const topCarouselRef = useRef<FlatList>(null);
+  const carouselWidth = winWidth;
+
+  const topSlides = useMemo(() => (employee ? employeeTopSlides(employee) : []), [employee]);
 
   useEffect(() => {
     if (!apiToken || !id) {
@@ -206,8 +209,8 @@ export default function BarberDetailScreen() {
     );
   }
 
-  const images = employeeImages(employee).map((img) => (typeof img === 'string' ? img : img));
   const employeeImageUrl = employee.avatarUrl ?? '';
+  const CAROUSEL_HEIGHT = 500;
   const reviewParams = `entityType=employee&entityId=${encodeURIComponent(employee.id)}&entityName=${encodeURIComponent(employee.name)}${employeeImageUrl ? `&entityImage=${encodeURIComponent(employeeImageUrl)}` : ''}`;
   const rightComponents = employee.name ? [
     <Favorite
@@ -226,11 +229,51 @@ export default function BarberDetailScreen() {
       <StatusBar style="light" translucent />
       <Header variant="transparent" title="" rightComponents={rightComponents} showBackButton />
       <ThemedScroller ref={scrollRef} className="px-0 bg-light-primary dark:bg-dark-primary">
-        <ImageCarousel
-          images={images}
-          height={500}
-          paginationStyle="dots"
-        />
+        <View style={{ height: CAROUSEL_HEIGHT, width: carouselWidth }}>
+          <FlatList
+            ref={topCarouselRef}
+            data={topSlides}
+            horizontal
+            pagingEnabled
+            showsHorizontalScrollIndicator={false}
+            keyExtractor={(_, i) => String(i)}
+            onMomentumScrollEnd={(e) => {
+              const idx = Math.round(e.nativeEvent.contentOffset.x / carouselWidth);
+              setActiveCarouselIndex(idx);
+            }}
+            renderItem={({ item, index }) => (
+              <View style={{ width: carouselWidth, height: CAROUSEL_HEIGHT }}>
+                {item.type === 'video' ? (
+                  <Video
+                    source={{ uri: item.uri }}
+                    style={{ width: carouselWidth, height: CAROUSEL_HEIGHT }}
+                    resizeMode={ResizeMode.COVER}
+                    shouldPlay={activeCarouselIndex === index}
+                    isMuted
+                    isLooping
+                    useNativeControls={false}
+                  />
+                ) : (
+                  <Image
+                    source={item.uri ? { uri: item.uri } : require('@/assets/img/room-1.avif')}
+                    style={{ width: carouselWidth, height: CAROUSEL_HEIGHT }}
+                    resizeMode="cover"
+                  />
+                )}
+              </View>
+            )}
+          />
+          {topSlides.length > 1 ? (
+            <View className="flex-row justify-center absolute bottom-4 w-full">
+              {topSlides.map((_, index) => (
+                <View
+                  key={index}
+                  className={`h-2 w-2 rounded-full mx-1 ${index === activeCarouselIndex ? 'bg-white' : 'bg-white/40'}`}
+                />
+              ))}
+            </View>
+          ) : null}
+        </View>
 
         <View
           style={{ borderTopLeftRadius: 30, borderTopRightRadius: 30 }}
@@ -267,8 +310,7 @@ export default function BarberDetailScreen() {
 
           {getMediaList(employee).length > 0 ? (
             <>
-              <Divider className="mb-4 mt-8" />
-              <Section title={t('barberWorkSamples')} titleSize="lg" className="mb-6 mt-2">
+              <Section title={t('barberWorkSamples')} titleSize="lg" className="mb-6 mt-8">
                 <ScrollView
                   horizontal
                   showsHorizontalScrollIndicator={false}
@@ -283,10 +325,15 @@ export default function BarberDetailScreen() {
                       style={{ width: 160, height: 160 }}
                     >
                       {item.type === 'video' ? (
-                        <View className="w-full h-full bg-light-secondary dark:bg-dark-secondary items-center justify-center">
-                          <Icon name="Play" size={40} className="opacity-70" />
-                          <ThemedText className="text-xs mt-2 text-light-subtext dark:text-dark-subtext">{t('barberVideo')}</ThemedText>
-                        </View>
+                        <Video
+                          source={{ uri: item.url }}
+                          style={{ width: 160, height: 160 }}
+                          resizeMode={ResizeMode.COVER}
+                          shouldPlay
+                          isMuted
+                          isLooping
+                          useNativeControls={false}
+                        />
                       ) : (
                         <Image source={{ uri: item.url }} className="w-full h-full" resizeMode="cover" />
                       )}
@@ -379,8 +426,6 @@ export default function BarberDetailScreen() {
               </Section>
             </>
           ) : null}
-
-          <Divider className="mb-4 mt-8" />
 
           <View onLayout={(e: LayoutChangeEvent) => { reviewsSectionYInRoundedRef.current = e.nativeEvent.layout.y; }}>
             <Section

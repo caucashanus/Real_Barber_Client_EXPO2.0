@@ -112,7 +112,7 @@ const HomeScreen = () => {
             <AnimatedView animation="scaleIn" className='flex-1 mt-4'>
                 <Pressable onPress={() => router.push('/screens/map')} style={{ ...shadowPresets.large }} className='p-5 mb-8 flex flex-row items-center rounded-2xl bg-light-primary dark:bg-dark-secondary'>
                     <ThemedText className='text-base font-medium flex-1 pr-2'>
-                        Continue searching for barbershops in Prague
+                        {t('homeContinueSearchBarbershops')}
                     </ThemedText>
                     <View className='w-20 h-20 relative'>
                         <View className='w-full h-full rounded-xl relative z-20 overflow-hidden border-2 border-light-primary dark:border-dark-primary'>

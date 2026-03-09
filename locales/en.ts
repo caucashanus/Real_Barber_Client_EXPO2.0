@@ -140,6 +140,7 @@ export const en = {
   commonNo: 'No',
   commonViewAll: 'View all',
   popularBarbershops: 'Popular barbershops in Prague',
+  homeContinueSearchBarbershops: 'Continue searching for barbershops in Prague',
   howToGetToUs: 'How to get to us?',
   topPicks: 'Top picks',
 
@@ -283,7 +284,7 @@ export const en = {
 
   // Barber detail
   barberWorkSamples: 'Work samples',
-  barberBranches: 'Branches',
+  barberBranches: 'Branches where I work',
   barberServices: 'Services',
 
   // Service detail
