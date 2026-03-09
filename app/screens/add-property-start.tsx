@@ -41,7 +41,7 @@ const IntroStep = (props: { number: string, title: string, description: string, 
                 <ThemedText className='text-lg font-semibold'>{props.title}</ThemedText>
                 <ThemedText className='text-sm text-light-subtext dark:text-dark-subtext'>{props.description}</ThemedText>
             </View>
-            <Image source={props.image} className='w-16 h-16 ml-auto' />
+            <Image source={props.image} className='w-24 h-24 ml-auto' />
         </View>
     )
 }
