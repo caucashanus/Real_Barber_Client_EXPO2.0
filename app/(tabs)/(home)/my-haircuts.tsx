@@ -1,6 +1,6 @@
 import ThemeScroller from '@/components/ThemeScroller';
 import React, { useContext } from 'react';
-import { View, Image, Animated } from 'react-native';
+import { View, Image, Animated, Pressable } from 'react-native';
 import AnimatedView from '@/components/AnimatedView';
 import { ScrollContext } from './_layout';
 import ThemedText from '@/components/ThemedText';
@@ -19,6 +19,13 @@ const MyHaircutsScreen = () => {
       scrollEventThrottle={16}
     >
       <AnimatedView animation="scaleIn" className="flex-1 mt-4">
+        <Pressable
+          onPress={() => router.push('/screens/guide-my-haircuts')}
+          className="mb-4 py-2"
+          accessibilityLabel="What's it for?"
+        >
+          <ThemedText className="text-base text-highlight font-medium">What's it for?</ThemedText>
+        </Pressable>
         <View className="p-10 items-center rounded-3xl bg-slate-200 mt-6 mb-8 dark:bg-dark-secondary">
           <View className="w-20 h-20 relative">
             <View className="w-full h-full rounded-xl relative z-20 overflow-hidden border-2 border-light-primary dark:border-dark-primary">

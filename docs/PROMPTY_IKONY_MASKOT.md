@@ -435,6 +435,79 @@ Format: square 1:1. Style: modern, semi-realistic look – not cartoon or drawn.
 
 ---
 
+## Fullscreen obrázky pro návod „Na co mi to je?“ (My haircuts)
+
+Na obrazovce **My haircuts** bude tlačítko typu „Na co mi to je?“ – po kliknutí se zobrazí **3 fullscreen obrázky** (kroky návodu). Uživatel na každém kroku klikne na tlačítko dole a přejde na další; na třetím kroku návod končí.
+
+**Specifikace obrázků:**  
+- **Rozměr:** 1080×1920 px (poměr 9:16, portrét).  
+- **Formát:** JPG (fotka/ilustrace) nebo PNG (hodně textu v obrázku).  
+- **Důležitý obsah** v horních cca 70–80 %; spodních 15–20 % může být rezerva pro tlačítko v aplikaci.  
+- **Styl:** Stejný jako ostatní prompty – maskot, moderní semi-realistický vzhled, konzistentní s firemním maskotem. Pozadí může být ilustrované (ne průhledné – jde o fullscreen scénu).
+
+---
+
+### Fullscreen 1: Nápad na účes (krok 1)
+
+**Soubor:** `guide-step-1.jpg` (nebo `.png`)  
+**Obsah:** Uživatel má nápad na účes → vytvoří si ho, pojmenuje, uloží.
+
+**Prompt (CZ):**
+
+```
+Fullscreen ilustrace pro mobilní aplikaci kadeřnictví, poměr 9:16 (portrét), 1080×1920 px. Firemní maskot [JMÉNO / POPIS MASKOTA] v centru scény představuje „nápad na účes“: vymýšlí si účes, má bublinu s nápadem nebo náčrtem, případně si prohlíží v zrcadle představu. Výraz kreativní, soustředěný. Kolem něj může být naznačený mobil nebo zápisník s názvem účesu. Styl: moderní, semi-realistický vzhled – ne kreslený ani cartoon. Čisté linie, profesionální dojem, konzistentní s firemním maskotem. Pozadí jednoduché, nepřetěžující – jemný gradient nebo minimální prostředí. Důležitý obsah v horních 75 % obrázku; dole ponechat volnější prostor. Formát 1080×1920 px, 9:16.
+```
+
+**Prompt (EN):**
+
+```
+Fullscreen illustration for a barbershop mobile app, 9:16 portrait aspect ratio, 1080×1920 px. Brand mascot [MASCOT NAME] in the center representing “haircut idea”: imagining a haircut, with a thought bubble or sketch, or looking in a mirror at an idea. Creative, focused expression. Optional: phone or notepad with haircut name nearby. Style: modern, semi-realistic look – not cartoon or drawn. Clean lines, professional feel, consistent with the brand mascot. Simple, uncluttered background – soft gradient or minimal setting. Keep important content in the top 75% of the image; leave space at the bottom. Output 1080×1920 px, 9:16.
+```
+
+---
+
+### Fullscreen 2: Uložení a ukázka holici (krok 2)
+
+**Soubor:** `guide-step-2.jpg` (nebo `.png`)  
+**Obsah:** Uložený účes si uživatel ukáže na pobočce holici – holic přesně ví, co chce.
+
+**Před generováním:** Nahrajte jako referenční obrázek **vlastní reálnou fotku interiéru vašeho kadeřnictví/barbershopu**. Prostředí (pozadí, křeslo, výzdoba) má vycházet z této fotky, aby scéna vypadala jako váš skutečný barbershop.
+
+**Prompt (CZ):**
+
+```
+Fullscreen ilustrace pro mobilní aplikaci kadeřnictví, poměr 9:16 (portrét), 1080×1920 px. Prostředí a interiér kadeřnictví: použij přiloženou referenční fotku našeho reálného interiéru barbershopu – pozadí, křeslo, výzdoba a atmosféra mají odpovídat této fotce (náš skutečný barbershop). V scéně je JEN firemní maskot [JMÉNO / POPIS MASKOTA] – žádný holic ani jiná postava. Maskot představuje klienta na pobočce: ukazuje do kamery/mě směrem displej mobilu s uloženým účesem (název, fotka nebo karta účesu), jako by chtěl někomu ukázat svůj účes. Výraz spokojený, jasný. Pouze maskot v interiéru z referenční fotky. Styl: moderní, semi-realistický vzhled – ne kreslený ani cartoon. Čisté linie, konzistentní s firemním maskotem. Důležitý obsah v horních 75 %; dole volnější prostor. Formát 1080×1920 px, 9:16.
+```
+
+**Prompt (EN):**
+
+```
+Fullscreen illustration for a barbershop mobile app, 9:16 portrait, 1080×1920 px. Environment and interior: use the attached reference photo of our real barbershop interior – background, chair, décor and atmosphere must match this photo (our actual barbershop). In the scene there is ONLY the brand mascot [MASCOT NAME] – no barber, no other character. The mascot as the client at the branch: showing toward camera/us the phone screen with a saved haircut (name, photo or haircut card), as if showing someone their haircut. Satisfied, clear expression. Only the mascot in the interior from the reference photo. Style: modern, semi-realistic look – not cartoon or drawn. Clean lines, consistent with the brand mascot. Important content in top 75%; leave space at bottom. Output 1080×1920 px, 9:16.
+```
+
+---
+
+### Fullscreen 3: Hotovo – přehled účesů (krok 3)
+
+**Soubor:** `guide-step-3.jpg` (nebo `.png`)  
+**Obsah:** Přehled uložených účesů; klient má vše na jednom místě a může kdykoli přidat nebo ukázat.
+
+**Důležité:** Na obrázku má být **pouze mobil nebo tablet reálných velikostí** (smartphone v ruce, nebo malý tablet) – ne velká tabule, ne obří displej, ne plakát. Zařízení v měřítku odpovídající držení v ruce.
+
+**Prompt (CZ):**
+
+```
+Fullscreen ilustrace pro mobilní aplikaci kadeřnictví, poměr 9:16 (portrét), 1080×1920 px. Firemní maskot [JMÉNO / POPIS MASKOTA] spokojeně představuje „přehled svých účesů“: drží v ruce mobil nebo tablet REÁLNÉ VELIKOSTI (smartphone cca 15 cm, nebo malý tablet) – ne tabuli, ne velký displej, ne plakát. Na obrazovce zařízení je vidět několik karet/účesů (název, fotka). Zařízení v realistickém měřítku vzhledem k postavě. Výraz „mám to pod kontrolou“, spokojený. Volitelně ikona zaškrtnutí nebo palec nahoru. Styl: moderní, semi-realistický vzhled – ne kreslený ani cartoon. Čisté linie, konzistentní s firemním maskotem. Pozadí jednoduché. Důležitý obsah v horních 75 %; dole volnější prostor. Formát 1080×1920 px, 9:16.
+```
+
+**Prompt (EN):**
+
+```
+Fullscreen illustration for a barbershop mobile app, 9:16 portrait, 1080×1920 px. Brand mascot [MASCOT NAME] happily presenting “overview of my haircuts”: holding in hand a phone or tablet of REALISTIC SIZE (smartphone ~6 inches, or small tablet) – not a large board, not a big display, not a poster. On the device screen show several haircut cards (name, photo). Device in realistic scale relative to the character. Expression “I have it under control”, satisfied. Optional checkmark or thumbs up. Style: modern, semi-realistic look – not cartoon or drawn. Clean lines, consistent with the brand mascot. Simple background. Important content in top 75%; leave space at bottom. Output 1080×1920 px, 9:16.
+```
+
+---
+
 ## Volitelně: další kroky wizardu (bez promptů)
 
 Pro úplnost – další kroky v wizardu, kde by šly doplnit ikony později (návrh činnosti pro maskota):
