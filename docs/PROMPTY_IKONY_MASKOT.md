@@ -163,6 +163,8 @@ Format: square or 1:1, suitable for a UI icon (e.g. 512×512 or 1024×1024 px). 
 
 V wizardu „Přidat účes“ (`app/screens/add-property.tsx`) jsou u kroků **What best describes your haircut?** a **For which season?** volby s Lucide ikonami. Níže jsou prompty pro **vlastní PNG ikony** ve stejném stylu jako myidea / myrules / savefinish (maskot, průhledné pozadí, čtverec). Po vygenerování je v kódu nahradíte místo ikon.
 
+**Důležité:** Tyto ikony jsou **obecné (koncept / situace)** – maskot je v daném kontextu (kancelář, sport, léto…), **ne** doslovné „typ účesu“ ani barber/střih. Cíl: srozumitelný symbol pro volbu v UI bez toho, aby každá ikona vypadala jako „něco o stříhání“.
+
 **Použití v kódu:** `propertyTypeOptions` (8 ikon), `guestAccessOptions` (3 ikony). Doporučený export: čtverec PNG 512×512 px (nebo 80×80 px), průhledné pozadí.
 
 | # | Volba (label) | Navrhovaný soubor | Aktuální Lucide ikona |
@@ -184,34 +186,13 @@ V wizardu „Přidat účes“ (`app/screens/add-property.tsx`) jsou u kroků **
 ### 8. Ikona: Shorter (Kratší)
 
 **Soubor:** `type-shorter.png`  
-**Velikost:** čtverec PNG, průhledné pozadí (např. 512×512 px nebo 80×80 px).
+**Velikost:** čtverec PNG, průhledné pozadí (např. 512×512 px nebo 80×80 px).  
+**Koncept:** Obecný symbol „krátké / malé“ – bez vázání na účes nebo stříhání.
 
 **Prompt (CZ):**
 
 ```
-Ilustrace pro mobilní aplikaci kadeřnictví. Firemní maskot [JMÉNO / POPIS MASKOTA] představuje „kratší účes“: ukazuje na krátké vlasy, gesto „krátké“, nebo má u sebe nůžky s vizualizací krátkého střihu. Výraz spokojený, jasný.
-
-Formát: čtverec 1:1. Styl: moderní, semi-realistický vzhled – ne kreslený ani cartoon. Čisté linie, profesionální dojem, konzistentní s firemním maskotem. Pozadí: průhledné (transparent), export PNG s alfa kanálem, aby ikona vypadala dobře na jakémkoli pozadí v aplikaci.
-```
-
-**Prompt (EN):**
-
-```
-Mobile app illustration for a barbershop. Brand mascot [MASCOT NAME] representing “shorter haircut”: pointing at short hair, “short” gesture, or with scissors and a short-cut visual. Clear, satisfied expression.
-
-Format: square 1:1. Style: modern, semi-realistic look – not cartoon or drawn. Clean lines, professional feel, consistent with the brand mascot. Background: transparent, export PNG with alpha channel so the icon looks good on any app background.
-```
-
----
-
-### 9. Ikona: Medium length (Střední délka)
-
-**Soubor:** `type-medium-length.png`
-
-**Prompt (CZ):**
-
-```
-Ilustrace pro mobilní aplikaci kadeřnictví. Firemní maskot [JMÉNO / POPIS MASKOTA] představuje „střední délku vlasů“: ukazuje pravítkem nebo rukou na střední délku, nebo má vlasy vizuálně „na půl cesty“. Výraz vyrovnaný, profesionální.
+Ilustrace pro mobilní aplikaci. Firemní maskot [JMÉNO / POPIS MASKOTA] představuje koncept „krátké / malé“: např. gesto rukou (krátká vzdálenost), ukazuje na něco malého, nebo drží malý předmět. Žádné nůžky, vlasy ani barber kontext. Výraz jasný, srozumitelný. Obecná ikona pro volbu „Shorter“.
 
 Formát: čtverec 1:1. Styl: moderní, semi-realistický vzhled – ne kreslený ani cartoon. Čisté linie, konzistentní s firemním maskotem. Pozadí: průhledné (transparent), export PNG s alfa kanálem.
 ```
@@ -219,21 +200,22 @@ Formát: čtverec 1:1. Styl: moderní, semi-realistický vzhled – ne kreslený
 **Prompt (EN):**
 
 ```
-Mobile app illustration for a barbershop. Brand mascot [MASCOT NAME] representing “medium length hair”: showing medium length with a ruler or hand gesture, or hair visually “in between”. Balanced, professional expression.
+Mobile app illustration. Brand mascot [MASCOT NAME] representing the concept “short / small”: e.g. hand gesture (short distance), pointing at something small, or holding a small object. No scissors, hair or barber context. Clear, understandable expression. Generic icon for “Shorter” option.
 
 Format: square 1:1. Style: modern, semi-realistic look – not cartoon or drawn. Clean lines, consistent with the brand mascot. Background: transparent, export PNG with alpha channel.
 ```
 
 ---
 
-### 10. Ikona: Longer (Delší)
+### 9. Ikona: Medium length (Střední délka)
 
-**Soubor:** `type-longer.png`
+**Soubor:** `type-medium-length.png`  
+**Koncept:** Obecný symbol „střední / vyvážené“ – bez vázání na vlasy nebo stříhání.
 
 **Prompt (CZ):**
 
 ```
-Ilustrace pro mobilní aplikaci kadeřnictví. Firemní maskot [JMÉNO / POPIS MASKOTA] představuje „delší účes“: ukazuje na delší vlasy, gesto „dlouhé“, nebo má výrazně delší střih. Výraz spokojený, uvolněný.
+Ilustrace pro mobilní aplikaci. Firemní maskot [JMÉNO / POPIS MASKOTA] představuje koncept „střední / vyvážené“: např. pravítko nebo gesto „uprostřed“, rovnováha, něco mezi malým a velkým. Žádné vlasy ani barber kontext. Výraz vyrovnaný, profesionální. Obecná ikona pro volbu „Medium length“.
 
 Formát: čtverec 1:1. Styl: moderní, semi-realistický vzhled – ne kreslený ani cartoon. Čisté linie, konzistentní s firemním maskotem. Pozadí: průhledné (transparent), export PNG s alfa kanálem.
 ```
@@ -241,7 +223,28 @@ Formát: čtverec 1:1. Styl: moderní, semi-realistický vzhled – ne kreslený
 **Prompt (EN):**
 
 ```
-Mobile app illustration for a barbershop. Brand mascot [MASCOT NAME] representing “longer haircut”: pointing at longer hair, “long” gesture, or with a visibly longer cut. Relaxed, satisfied expression.
+zve
+```
+
+---
+
+### 10. Ikona: Longer (Delší)
+
+**Soubor:** `type-longer.png`  
+**Koncept:** Obecný symbol „dlouhé / velké“ – bez vázání na účes nebo stříhání.
+
+**Prompt (CZ):**
+
+```
+Ilustrace pro mobilní aplikaci. Firemní maskot [JMÉNO / POPIS MASKOTA] představuje koncept „dlouhé / velké“: např. gesto rukou (dlouhá vzdálenost), ukazuje na něco dlouhého nebo velkého, nebo drží dlouhý předmět. Žádné vlasy ani barber kontext. Výraz uvolněný, srozumitelný. Obecná ikona pro volbu „Longer“.
+
+Formát: čtverec 1:1. Styl: moderní, semi-realistický vzhled – ne kreslený ani cartoon. Čisté linie, konzistentní s firemním maskotem. Pozadí: průhledné (transparent), export PNG s alfa kanálem.
+```
+
+**Prompt (EN):**
+
+```
+Mobile app illustration. Brand mascot [MASCOT NAME] representing the concept “long / large”: e.g. hand gesture (long distance), pointing at something long or big, or holding a long object. No hair or barber context. Relaxed, understandable expression. Generic icon for “Longer” option.
 
 Format: square 1:1. Style: modern, semi-realistic look – not cartoon or drawn. Clean lines, consistent with the brand mascot. Background: transparent, export PNG with alpha channel.
 ```
@@ -250,12 +253,13 @@ Format: square 1:1. Style: modern, semi-realistic look – not cartoon or drawn.
 
 ### 11. Ikona: Office (Do kanclu)
 
-**Soubor:** `type-office.png`
+**Soubor:** `type-office.png`  
+**Koncept:** Maskot v kancelářském / pracovním kontextu – formální, profesionální prostředí (ne „účes do kanclu“).
 
 **Prompt (CZ):**
 
 ```
-Ilustrace pro mobilní aplikaci kadeřnictví. Firemní maskot [JMÉNO / POPIS MASKOTA] představuje „účes do kanclu“: v profesionálním / formálním postoji, např. s kravatou nebo v košili, upravený účes. Výraz seriózní, profesionální.
+Ilustrace pro mobilní aplikaci. Firemní maskot [JMÉNO / POPIS MASKOTA] v kancelářském kontextu: např. v košili nebo s kravatou, u pracovního stolu, s dokumentem nebo laptopem. Profesionální, formální situace. Žádné nůžky ani barber kontext. Výraz seriózní, profesionální. Obecná ikona pro volbu „Office“.
 
 Formát: čtverec 1:1. Styl: moderní, semi-realistický vzhled – ne kreslený ani cartoon. Čisté linie, konzistentní s firemním maskotem. Pozadí: průhledné (transparent), export PNG s alfa kanálem.
 ```
@@ -263,7 +267,7 @@ Formát: čtverec 1:1. Styl: moderní, semi-realistický vzhled – ne kreslený
 **Prompt (EN):**
 
 ```
-Mobile app illustration for a barbershop. Brand mascot [MASCOT NAME] representing “office haircut”: professional, formal pose – e.g. with tie or shirt, neat haircut. Serious, professional expression.
+Mobile app illustration. Brand mascot [MASCOT NAME] in office context: e.g. in shirt or tie, at a desk, with document or laptop. Professional, formal situation. No scissors or barber context. Serious, professional expression. Generic icon for “Office” option.
 
 Format: square 1:1. Style: modern, semi-realistic look – not cartoon or drawn. Clean lines, consistent with the brand mascot. Background: transparent, export PNG with alpha channel.
 ```
@@ -272,12 +276,13 @@ Format: square 1:1. Style: modern, semi-realistic look – not cartoon or drawn.
 
 ### 12. Ikona: Sporty (Sportovní)
 
-**Soubor:** `type-sporty.png`
+**Soubor:** `type-sporty.png`  
+**Koncept:** Maskot ve sportovním kontextu – dynamika, sport, pohyb (ne „sportovní účes“).
 
 **Prompt (CZ):**
 
 ```
-Ilustrace pro mobilní aplikaci kadeřnictví. Firemní maskot [JMÉNO / POPIS MASKOTA] představuje „sportovní účes“: dynamický postoj, sportovní účes (krátký, praktický), volitelně sportovní doplněk. Výraz aktivní, energický.
+Ilustrace pro mobilní aplikaci. Firemní maskot [JMÉNO / POPIS MASKOTA] ve sportovním kontextu: např. dynamický postoj, s míčem nebo sportovním doplňkem, v pohybu. Sportovní nálada, energie. Žádné nůžky ani barber kontext. Výraz aktivní, energický. Obecná ikona pro volbu „Sporty“.
 
 Formát: čtverec 1:1. Styl: moderní, semi-realistický vzhled – ne kreslený ani cartoon. Čisté linie, konzistentní s firemním maskotem. Pozadí: průhledné (transparent), export PNG s alfa kanálem.
 ```
@@ -285,7 +290,7 @@ Formát: čtverec 1:1. Styl: moderní, semi-realistický vzhled – ne kreslený
 **Prompt (EN):**
 
 ```
-Mobile app illustration for a barbershop. Brand mascot [MASCOT NAME] representing “sporty haircut”: dynamic pose, sporty cut (short, practical), optional sports accessory. Active, energetic expression.
+Mobile app illustration. Brand mascot [MASCOT NAME] in sport context: e.g. dynamic pose, with ball or sports accessory, in motion. Sporty vibe, energy. No scissors or barber context. Active, energetic expression. Generic icon for “Sporty” option.
 
 Format: square 1:1. Style: modern, semi-realistic look – not cartoon or drawn. Clean lines, consistent with the brand mascot. Background: transparent, export PNG with alpha channel.
 ```
@@ -294,12 +299,13 @@ Format: square 1:1. Style: modern, semi-realistic look – not cartoon or drawn.
 
 ### 13. Ikona: Modern (Moderní)
 
-**Soubor:** `type-modern.png`
+**Soubor:** `type-modern.png`  
+**Koncept:** Maskot v moderním / trendy kontextu – současný styl, sebevědomí (ne doslovně „moderní účes“).
 
 **Prompt (CZ):**
 
 ```
-Ilustrace pro mobilní aplikaci kadeřnictví. Firemní maskot [JMÉNO / POPIS MASKOTA] představuje „moderní účes“: současný, trendy střih, sebevědomý postoj. Výraz moderní, stylový.
+Ilustrace pro mobilní aplikaci. Firemní maskot [JMÉNO / POPIS MASKOTA] v moderním kontextu: sebevědomý postoj, současný styl, trendy nálada. Žádné nůžky ani barber kontext. Výraz moderní, stylový. Obecná ikona pro volbu „Modern“.
 
 Formát: čtverec 1:1. Styl: moderní, semi-realistický vzhled – ne kreslený ani cartoon. Čisté linie, konzistentní s firemním maskotem. Pozadí: průhledné (transparent), export PNG s alfa kanálem.
 ```
@@ -307,7 +313,7 @@ Formát: čtverec 1:1. Styl: moderní, semi-realistický vzhled – ne kreslený
 **Prompt (EN):**
 
 ```
-Mobile app illustration for a barbershop. Brand mascot [MASCOT NAME] representing “modern haircut”: current, trendy cut, confident pose. Modern, stylish expression.
+Mobile app illustration. Brand mascot [MASCOT NAME] in modern context: confident pose, current style, trendy vibe. No scissors or barber context. Modern, stylish expression. Generic icon for “Modern” option.
 
 Format: square 1:1. Style: modern, semi-realistic look – not cartoon or drawn. Clean lines, consistent with the brand mascot. Background: transparent, export PNG with alpha channel.
 ```
@@ -316,12 +322,13 @@ Format: square 1:1. Style: modern, semi-realistic look – not cartoon or drawn.
 
 ### 14. Ikona: Retro
 
-**Soubor:** `type-retro.png`
+**Soubor:** `type-retro.png`  
+**Koncept:** Maskot v retro / vintage kontextu – starý styl, nostalgie (ne doslovně „retro účes“).
 
 **Prompt (CZ):**
 
 ```
-Ilustrace pro mobilní aplikaci kadeřnictví. Firemní maskot [JMÉNO / POPIS MASKOTA] představuje „retro účes“: vintage styl, např. klasický pánský střih z minulých desetiletí. Výraz nostalgický, stylový.
+Ilustrace pro mobilní aplikaci. Firemní maskot [JMÉNO / POPIS MASKOTA] v retro / vintage kontextu: např. styl minulých desetiletí, klasická nálada, nostalgie. Žádné nůžky ani barber kontext. Výraz nostalgický, stylový. Obecná ikona pro volbu „Retro“.
 
 Formát: čtverec 1:1. Styl: moderní, semi-realistický vzhled – ne kreslený ani cartoon. Čisté linie, konzistentní s firemním maskotem. Pozadí: průhledné (transparent), export PNG s alfa kanálem.
 ```
@@ -329,7 +336,7 @@ Formát: čtverec 1:1. Styl: moderní, semi-realistický vzhled – ne kreslený
 **Prompt (EN):**
 
 ```
-Mobile app illustration for a barbershop. Brand mascot [MASCOT NAME] representing “retro haircut”: vintage style, e.g. classic men’s cut from past decades. Nostalgic, stylish expression.
+Mobile app illustration. Brand mascot [MASCOT NAME] in retro / vintage context: e.g. style from past decades, classic vibe, nostalgia. No scissors or barber context. Nostalgic, stylish expression. Generic icon for “Retro” option.
 
 Format: square 1:1. Style: modern, semi-realistic look – not cartoon or drawn. Clean lines, consistent with the brand mascot. Background: transparent, export PNG with alpha channel.
 ```
@@ -338,12 +345,13 @@ Format: square 1:1. Style: modern, semi-realistic look – not cartoon or drawn.
 
 ### 15. Ikona: Casual (Pod pantoflák / Casual)
 
-**Soubor:** `type-casual.png`
+**Soubor:** `type-casual.png`  
+**Koncept:** Maskot v uvolněném / casual kontextu – pohodová situace, doma, všední den (ne „casual účes“).
 
 **Prompt (CZ):**
 
 ```
-Ilustrace pro mobilní aplikaci kadeřnictví. Firemní maskot [JMÉNO / POPIS MASKOTA] představuje „casual / uvolněný účes“: uvolněný postoj, nenápadný, všední střih. Výraz pohodový, přirozený.
+Ilustrace pro mobilní aplikaci. Firemní maskot [JMÉNO / POPIS MASKOTA] v uvolněném kontextu: pohodový postoj, casual oblečení, domácí nebo všední nálada. Žádné nůžky ani barber kontext. Výraz pohodový, přirozený. Obecná ikona pro volbu „Casual“.
 
 Formát: čtverec 1:1. Styl: moderní, semi-realistický vzhled – ne kreslený ani cartoon. Čisté linie, konzistentní s firemním maskotem. Pozadí: průhledné (transparent), export PNG s alfa kanálem.
 ```
@@ -351,7 +359,7 @@ Formát: čtverec 1:1. Styl: moderní, semi-realistický vzhled – ne kreslený
 **Prompt (EN):**
 
 ```
-Mobile app illustration for a barbershop. Brand mascot [MASCOT NAME] representing “casual haircut”: relaxed pose, low-key, everyday cut. Laid-back, natural expression.
+Mobile app illustration. Brand mascot [MASCOT NAME] in casual context: relaxed pose, casual clothing, home or everyday vibe. No scissors or barber context. Laid-back, natural expression. Generic icon for “Casual” option.
 
 Format: square 1:1. Style: modern, semi-realistic look – not cartoon or drawn. Clean lines, consistent with the brand mascot. Background: transparent, export PNG with alpha channel.
 ```
@@ -360,12 +368,13 @@ Format: square 1:1. Style: modern, semi-realistic look – not cartoon or drawn.
 
 ### 16. Ikona: Summer (Léto)
 
-**Soubor:** `season-summer.png`
+**Soubor:** `season-summer.png`  
+**Koncept:** Maskot v letním kontextu – slunce, teplo, léto (ne „účes na léto“).
 
 **Prompt (CZ):**
 
 ```
-Ilustrace pro mobilní aplikaci kadeřnictví. Firemní maskot [JMÉNO / POPIS MASKOTA] představuje „účes na léto“: letní nálada, slunce, krátký / vzdušný střih. Výraz svěží, letní.
+Ilustrace pro mobilní aplikaci. Firemní maskot [JMÉNO / POPIS MASKOTA] v letním kontextu: letní nálada, slunce, teplo, svěžest. Volitelně sluneční brýle nebo letní doplněk. Žádné nůžky ani barber kontext. Výraz svěží, letní. Obecná ikona pro volbu „Summer“.
 
 Formát: čtverec 1:1. Styl: moderní, semi-realistický vzhled – ne kreslený ani cartoon. Čisté linie, konzistentní s firemním maskotem. Pozadí: průhledné (transparent), export PNG s alfa kanálem.
 ```
@@ -373,7 +382,7 @@ Formát: čtverec 1:1. Styl: moderní, semi-realistický vzhled – ne kreslený
 **Prompt (EN):**
 
 ```
-Mobile app illustration for a barbershop. Brand mascot [MASCOT NAME] representing “summer haircut”: summer vibe, sun, short or airy cut. Fresh, summery expression.
+Mobile app illustration. Brand mascot [MASCOT NAME] in summer context: summer vibe, sun, warmth, freshness. Optional sunglasses or summer accessory. No scissors or barber context. Fresh, summery expression. Generic icon for “Summer” option.
 
 Format: square 1:1. Style: modern, semi-realistic look – not cartoon or drawn. Clean lines, consistent with the brand mascot. Background: transparent, export PNG with alpha channel.
 ```
@@ -382,12 +391,13 @@ Format: square 1:1. Style: modern, semi-realistic look – not cartoon or drawn.
 
 ### 17. Ikona: Winter (Zima)
 
-**Soubor:** `season-winter.png`
+**Soubor:** `season-winter.png`  
+**Koncept:** Maskot v zimním kontextu – zima, chlad, útulno (ne „účes na zimu“).
 
 **Prompt (CZ):**
 
 ```
-Ilustrace pro mobilní aplikaci kadeřnictví. Firemní maskot [JMÉNO / POPIS MASKOTA] představuje „účes na zimu“: zimní nálada, teplý / kryjící střih. Výraz útulný, zimní.
+Ilustrace pro mobilní aplikaci. Firemní maskot [JMÉNO / POPIS MASKOTA] v zimním kontextu: zimní nálada, chlad, útulno. Volitelně čepice, šála nebo sněhová vločka. Žádné nůžky ani barber kontext. Výraz útulný, zimní. Obecná ikona pro volbu „Winter“.
 
 Formát: čtverec 1:1. Styl: moderní, semi-realistický vzhled – ne kreslený ani cartoon. Čisté linie, konzistentní s firemním maskotem. Pozadí: průhledné (transparent), export PNG s alfa kanálem.
 ```
@@ -395,7 +405,7 @@ Formát: čtverec 1:1. Styl: moderní, semi-realistický vzhled – ne kreslený
 **Prompt (EN):**
 
 ```
-Mobile app illustration for a barbershop. Brand mascot [MASCOT NAME] representing “winter haircut”: winter vibe, warmer or more covering cut. Cozy, winter expression.
+Mobile app illustration. Brand mascot [MASCOT NAME] in winter context: winter vibe, cold, cozy. Optional hat, scarf or snowflake. No scissors or barber context. Cozy, winter expression.
 
 Format: square 1:1. Style: modern, semi-realistic look – not cartoon or drawn. Clean lines, consistent with the brand mascot. Background: transparent, export PNG with alpha channel.
 ```
@@ -404,12 +414,13 @@ Format: square 1:1. Style: modern, semi-realistic look – not cartoon or drawn.
 
 ### 18. Ikona: All-year (Celoročně)
 
-**Soubor:** `season-all-year.png`
+**Soubor:** `season-all-year.png`  
+**Koncept:** Maskot s konceptem „celý rok / univerzální“ – kalendář, všechny roční období (ne „účes na celý rok“).
 
 **Prompt (CZ):**
 
 ```
-Ilustrace pro mobilní aplikaci kadeřnictví. Firemní maskot [JMÉNO / POPIS MASKOTA] představuje „účes na celý rok“: univerzální střih, celoroční použití, např. gesto „všude / vždy“. Výraz univerzální, spokojený.
+Ilustrace pro mobilní aplikaci. Firemní maskot [JMÉNO / POPIS MASKOTA] s konceptem „celý rok / univerzální“: např. s kalendářem, gesto „všude / vždy“, nebo symbol všech ročních období. Žádné nůžky ani barber kontext. Výraz univerzální, spokojený. Obecná ikona pro volbu „All-year“.
 
 Formát: čtverec 1:1. Styl: moderní, semi-realistický vzhled – ne kreslený ani cartoon. Čisté linie, konzistentní s firemním maskotem. Pozadí: průhledné (transparent), export PNG s alfa kanálem.
 ```
@@ -417,7 +428,7 @@ Formát: čtverec 1:1. Styl: moderní, semi-realistický vzhled – ne kreslený
 **Prompt (EN):**
 
 ```
-Mobile app illustration for a barbershop. Brand mascot [MASCOT NAME] representing “all-year haircut”: universal cut, year-round use, e.g. “everywhere / always” gesture. Universal, satisfied expression.
+Mobile app illustration. Brand mascot [MASCOT NAME] with “all-year / universal” concept: e.g. with calendar, “everywhere / always” gesture, or symbol of all seasons. No scissors or barber context. Universal, satisfied expression.
 
 Format: square 1:1. Style: modern, semi-realistic look – not cartoon or drawn. Clean lines, consistent with the brand mascot. Background: transparent, export PNG with alpha channel.
 ```

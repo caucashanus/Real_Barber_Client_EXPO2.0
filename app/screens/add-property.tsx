@@ -34,21 +34,21 @@ interface PropertyData {
     barber_id: string; // kdo účes dělal (employee id)
 }
 
-const propertyTypeOptions: Array<{ label: string; icon: IconName; value: string }> = [
-    { label: 'Shorter', icon: 'CircleDot', value: 'kratsi' },
-    { label: 'Medium length', icon: 'Ruler', value: 'stredne_dlouhy' },
-    { label: 'Longer', icon: 'Maximize', value: 'delsi' },
-    { label: 'Office', icon: 'Briefcase', value: 'do_kanclu' },
-    { label: 'Sporty', icon: 'Dumbbell', value: 'sportovni' },
-    { label: 'Modern', icon: 'Sparkles', value: 'moderni' },
-    { label: 'Retro', icon: 'Clock', value: 'retro' },
-    { label: 'Casual', icon: 'Home', value: 'podpantoflak' },
+const propertyTypeOptions: Array<{ label: string; icon?: IconName; iconImage?: number; value: string }> = [
+    { label: 'Shorter', iconImage: require('@/assets/img/type-shorter.png'), value: 'kratsi' },
+    { label: 'Medium length', iconImage: require('@/assets/img/type-medium-length.png'), value: 'stredne_dlouhy' },
+    { label: 'Longer', iconImage: require('@/assets/img/type-longer.png'), value: 'delsi' },
+    { label: 'Office', iconImage: require('@/assets/img/type-office.png'), value: 'do_kanclu' },
+    { label: 'Sporty', iconImage: require('@/assets/img/type-sporty.png'), value: 'sportovni' },
+    { label: 'Modern', iconImage: require('@/assets/img/type-modern.png'), value: 'moderni' },
+    { label: 'Retro', iconImage: require('@/assets/img/type-retro.png'), value: 'retro' },
+    { label: 'Casual', iconImage: require('@/assets/img/type-casual.png'), value: 'podpantoflak' },
 ];
 
-const guestAccessOptions: Array<{ label: string; description: string; icon: IconName; value: string }> = [
-    { label: 'Summer', description: 'Haircut for warm months.', icon: 'Sun', value: 'letni' },
-    { label: 'Winter', description: 'Haircut for cold weather.', icon: 'Snowflake', value: 'zimni' },
-    { label: 'All-year', description: 'You wear it all the time.', icon: 'Calendar', value: 'celorocni' },
+const guestAccessOptions: Array<{ label: string; description: string; icon?: IconName; iconImage?: number; value: string }> = [
+    { label: 'Summer', description: 'Haircut for warm months.', iconImage: require('@/assets/img/season-summer.png'), value: 'letni' },
+    { label: 'Winter', description: 'Haircut for cold weather.', iconImage: require('@/assets/img/season-winter.png'), value: 'zimni' },
+    { label: 'All-year', description: 'You wear it all the time.', iconImage: require('@/assets/img/season-all-year.png'), value: 'celorocni' },
 ];
 
 const amenityOptions: Array<{ label: string; icon: IconName }> = [
@@ -83,6 +83,7 @@ const PropertyTypeStep: React.FC<StepProps> = ({ data, updateData }) => (
                 key={option.value}
                 title={option.label}
                 icon={option.icon}
+                customIcon={option.iconImage != null ? <Image source={option.iconImage} className={option.value === 'delsi' ? 'w-14 h-14' : 'w-12 h-12'} resizeMode="contain" /> : undefined}
                 selected={data.propertyType === option.value}
                 onPress={() => updateData({ propertyType: option.value })}
             />
@@ -104,6 +105,7 @@ const GuestAccessStep: React.FC<StepProps> = ({ data, updateData }) => (
                     title={option.label}
                     description={option.description}
                     icon={option.icon}
+                    customIcon={option.iconImage != null ? <Image source={option.iconImage} className="w-12 h-12" resizeMode="contain" /> : undefined}
                     selected={data.guestAccessType === option.value}
                     onPress={() => updateData({ guestAccessType: option.value })}
                 />
