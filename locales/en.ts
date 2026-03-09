@@ -276,6 +276,7 @@ export const en = {
   // Branch detail
   branchTitle: 'Branch',
   branchDescription: 'Branch description',
+  branchReadMore: 'Read more',
   branchAddressNotSet: 'Address not set',
   branchTeam: 'Team',
   branchMine: 'Mine',
@@ -283,6 +284,7 @@ export const en = {
   branchWeb: 'Web',
   branchServices: 'Services',
   branchReserve: 'Reserve',
+  branchFullRating: 'Full rating',
 
   // Barber detail
   barberWorkSamples: 'Work samples',

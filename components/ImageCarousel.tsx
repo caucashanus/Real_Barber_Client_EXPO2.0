@@ -33,6 +33,25 @@ const ImageCarousel: React.FC<ImageCarouselProps> = ({
     const [containerWidth, setContainerWidth] = useState(propWidth || Dimensions.get('window').width);
     const [activeIndex, setActiveIndex] = useState(0);
     const flatListRef = React.useRef<FlatList>(null);
+    const activeIndexRef = React.useRef(0);
+
+    useEffect(() => {
+        activeIndexRef.current = activeIndex;
+    }, [activeIndex]);
+
+    useEffect(() => {
+        if (!autoPlay || images.length <= 1) return;
+        const id = setInterval(() => {
+            const next = (activeIndexRef.current + 1) % images.length;
+            flatListRef.current?.scrollToOffset({
+                offset: next * containerWidth,
+                animated: true,
+            });
+            setActiveIndex(next);
+            activeIndexRef.current = next;
+        }, autoPlayInterval);
+        return () => clearInterval(id);
+    }, [autoPlay, autoPlayInterval, images.length, containerWidth]);
 
     const handleLayout = (event: LayoutChangeEvent) => {
         const { width } = event.nativeEvent.layout;

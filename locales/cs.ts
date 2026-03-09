@@ -278,6 +278,7 @@ export const cs: Record<TranslationKey, string> = {
   // Branch detail
   branchTitle: 'Pobočka',
   branchDescription: 'Popis pobočky',
+  branchReadMore: 'Číst více',
   branchAddressNotSet: 'Adresa není zadána',
   branchTeam: 'Tým',
   branchMine: 'Moje',
@@ -285,6 +286,7 @@ export const cs: Record<TranslationKey, string> = {
   branchWeb: 'Web',
   branchServices: 'Služby',
   branchReserve: 'Rezervovat',
+  branchFullRating: 'Celý průměr',
 
   // Barber detail
   barberWorkSamples: 'Ukázky práce',

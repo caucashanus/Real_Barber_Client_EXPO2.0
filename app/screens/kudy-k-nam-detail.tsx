@@ -27,7 +27,7 @@ function getKudyVideoUrl(branch: Branch): string | null {
 
 const KudyKNamDetail = () => {
   const insets = useSafeAreaInsets();
-  const { t } = useTranslation();
+  const { t, locale } = useTranslation();
   const { apiToken } = useAuth();
   const videoRef = useRef<Video>(null);
   const { id: branchId } = useLocalSearchParams<{ id?: string }>();
@@ -119,7 +119,9 @@ const KudyKNamDetail = () => {
 
           <Section title={t('kudyTransportParking')} titleSize="lg" className="mb-6 mt-8">
             <ThemedText className="text-base text-light-subtext dark:text-dark-subtext mb-4">
-              {item?.description ?? branch.address ?? '—'}
+              {locale === 'cs' && item?.descriptionCs
+                ? item.descriptionCs
+                : (item?.description ?? branch.address ?? '—')}
             </ThemedText>
             {item?.mapsUrl ? (
               <Pressable
