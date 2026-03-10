@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { View, ScrollView, Image, TouchableOpacity } from 'react-native';
+import * as Haptics from 'expo-haptics';
 import { router } from 'expo-router';
 import Slider from '@react-native-community/slider';
 import MultiStep, { Step } from '@/components/MultiStep';
@@ -390,6 +391,9 @@ const CharacteristicsStep: React.FC<StepProps> = ({ data, updateData }) => {
 // Success Step
 const SuccessStep: React.FC<StepProps> = ({ data }) => {
     const { t } = useTranslation();
+    useEffect(() => {
+        Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success).catch(() => {});
+    }, []);
     return (
         <View className="p-8 flex-1 items-center justify-center">
             <Image

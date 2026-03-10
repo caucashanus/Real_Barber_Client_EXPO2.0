@@ -451,6 +451,7 @@ const BookingCard = (props: {
   const title = booking.item?.name ?? 'Booking';
   const isPast = isPastAndNotCancelled(booking);
   const isCurrent = isBookingCurrent(booking);
+  const isUpcoming = isBookingUpcoming(booking);
   const hasReview = reviewRating != null && reviewRating >= 1;
   const isCancelled = (booking.status ?? '').toLowerCase() === 'cancelled' || (booking.status ?? '').toLowerCase() === 'canceled';
 
@@ -478,15 +479,18 @@ const BookingCard = (props: {
       className={`w-full rounded-xl mt-4 border border-neutral-300 dark:border-neutral-700 bg-light-primary dark:bg-dark-primary ${cardOpacity}`}
     >
       <Pressable onPress={goToDetail} className="p-4">
-        <View className="flex-row items-center mb-4">
-          <ThemedText className={`text-base font-semibold ${getStatusColor()}`}>
-            {getStatusText()}
-          </ThemedText>
-          {isCurrent && (
-            <View className="ml-2">
-              <LiveIndicator />
-            </View>
-          )}
+        <View className="flex-row items-center justify-between mb-4">
+          <View className="flex-row items-center">
+            <ThemedText className={`text-base font-semibold ${getStatusColor()}`}>
+              {getStatusText()}
+            </ThemedText>
+            {isCurrent && (
+              <View className="ml-2">
+                <LiveIndicator />
+              </View>
+            )}
+          </View>
+          {isUpcoming && <CountdownDisplay target={getTargetDate(booking)} />}
         </View>
         <View className="flex-row items-center justify-between">
           <View className="flex-1 mr-3">

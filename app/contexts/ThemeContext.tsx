@@ -27,12 +27,15 @@ export const ThemeProvider = ({ children }: { children: React.ReactNode }) => {
   // Create a stable toggleTheme function with useCallback
   const toggleTheme = useCallback(() => {
     const nextTheme = isDark ? 'light' : 'dark';
-    
-    // Use requestAnimationFrame to defer state updates
-    requestAnimationFrame(() => {
-      setColorScheme(nextTheme);
-    });
-  }, [isDark, setColorScheme]);
+    setIsDark(!isDark);
+    try {
+      if (typeof setColorScheme === 'function') {
+        setColorScheme(nextTheme);
+      }
+    } catch {
+      // nativewind setColorScheme may be read-only in some environments
+    }
+  }, [isDark]);
 
   return (
     <ThemeContext.Provider value={{ isDark, toggleTheme }}>

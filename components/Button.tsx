@@ -1,6 +1,7 @@
 // components/Button.tsx
 import React from 'react';
 import { Text, ActivityIndicator, TouchableOpacity, View, Pressable } from 'react-native';
+import * as Haptics from 'expo-haptics';
 import { Link, router } from 'expo-router';
 import Icon, { IconName } from './Icon';
 
@@ -119,6 +120,10 @@ export const Button: React.FC<ButtonProps> = ({
     </>
   );
 
+  const triggerHaptic = () => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium).catch(() => {});
+  };
+
   if (href) {
     return (
       <TouchableOpacity
@@ -127,6 +132,7 @@ export const Button: React.FC<ButtonProps> = ({
         className={`px-4 relative ${buttonStyles[variant]} ${buttonSize[size]} ${roundedStyles[rounded]} items-center justify-center ${disabledStyle} ${className}`} 
         {...props}
         onPress={() => {
+          triggerHaptic();
           router.push(href);
         }}
       >
@@ -137,7 +143,10 @@ export const Button: React.FC<ButtonProps> = ({
 
   return (
     <TouchableOpacity
-      onPress={onPress}
+      onPress={() => {
+        triggerHaptic();
+        onPress?.();
+      }}
       disabled={loading || disabled}
       activeOpacity={0.8}
       className={`px-4 relative ${buttonStyles[variant]} ${buttonSize[size]} ${roundedStyles[rounded]} items-center justify-center ${disabledStyle} ${className}`} 

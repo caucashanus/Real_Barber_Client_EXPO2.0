@@ -4,27 +4,23 @@ import { router } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import ThemedText from '@/components/ThemedText';
 import { Button } from '@/components/Button';
+import { useTranslation } from '@/app/hooks/useTranslation';
 
-const GUIDE_STEPS = [
-  {
-    image: require('@/assets/img/guide-step-1.jpg'),
-    buttonText: "Whenever you have an idea, create your haircut — give it a name and save it. Then show it at the branch and the barber knows exactly what you want.",
-  },
-  {
-    image: require('@/assets/img/guide-step-2.jpg'),
-    buttonText: "At the branch just show the barber your saved haircut. No need to explain — the barber sees exactly what you want.",
-  },
-  {
-    image: require('@/assets/img/guide-step-3.jpg'),
-    buttonText: "You have all your haircuts in one place. Add more anytime or show them at your next visit.",
-  },
+const GUIDE_STEP_IMAGES = [
+  require('@/assets/img/guide-step-1.png'),
+  require('@/assets/img/guide-step-2.jpg'),
+  require('@/assets/img/guide-step-3.jpg'),
 ];
+const GUIDE_STEP_KEYS = ['guideMyHaircutsStep1', 'guideMyHaircutsStep2', 'guideMyHaircutsStep3'] as const;
 
 export default function GuideMyHaircutsScreen() {
   const insets = useSafeAreaInsets();
+  const { t } = useTranslation();
   const [step, setStep] = React.useState(0);
-  const current = GUIDE_STEPS[step];
-  const isLastStep = step === GUIDE_STEPS.length - 1;
+  const isLastStep = step === GUIDE_STEP_KEYS.length - 1;
+  const stepImage = GUIDE_STEP_IMAGES[step];
+  const stepTextKey = GUIDE_STEP_KEYS[step];
+  const current = stepImage && stepTextKey ? { image: stepImage, buttonText: t(stepTextKey) } : null;
 
   const onButtonPress = () => {
     if (isLastStep) {
@@ -37,7 +33,7 @@ export default function GuideMyHaircutsScreen() {
   if (!current) return null;
 
   return (
-    <View className="flex-1 bg-light-primary dark:bg-dark-primary">
+    <View className="flex-1">
       <Pressable className="flex-1" onPress={onButtonPress}>
         <Image
           source={current.image}
@@ -47,20 +43,23 @@ export default function GuideMyHaircutsScreen() {
         />
       </Pressable>
       <View
-        className="px-6 pb-6 pt-4 bg-light-primary dark:bg-dark-primary"
-        style={{ paddingBottom: insets.bottom + 24 }}
+        className="absolute bottom-0 left-0 right-0 px-6 pt-6"
+        style={{
+          paddingBottom: insets.bottom + 24,
+          backgroundColor: 'rgba(0,0,0,0.55)',
+        }}
       >
+        <ThemedText className="text-sm text-center text-white mt-1 px-2">
+          {current.buttonText}
+        </ThemedText>
         <Button
-          title={isLastStep ? "Got it" : "Next"}
+          title={isLastStep ? t('guideMyHaircutsGotIt') : t('guideMyHaircutsNext')}
           size="large"
-          className="bg-highlight"
+          className="bg-highlight mt-4"
           textClassName="text-white"
           rounded="full"
           onPress={onButtonPress}
         />
-        <ThemedText className="text-sm text-center text-light-subtext dark:text-dark-subtext mt-3 px-2">
-          {current.buttonText}
-        </ThemedText>
       </View>
     </View>
   );

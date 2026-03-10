@@ -1,11 +1,14 @@
 import ThemeScroller from '@/components/ThemeScroller';
 import React, { useContext, useState, useEffect } from 'react';
-import { View, Animated, ActivityIndicator } from 'react-native';
+import { View, Animated, ActivityIndicator, Pressable, ScrollView } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import Section from '@/components/layout/Section';
 import { CardScroller } from '@/components/CardScroller';
 import Card from '@/components/Card';
 import AnimatedView from '@/components/AnimatedView';
 import ThemedText from '@/components/ThemedText';
+import Icon from '@/components/Icon';
+import { shadowPresets } from '@/utils/useShadow';
 import { ScrollContext } from './_layout';
 import { useRouter } from 'expo-router';
 import { useAuth } from '@/app/contexts/AuthContext';
@@ -20,6 +23,9 @@ const MOCK_PRODUCTS = [
   { id: '4', title: 'Beard oil', price: '349 Kč', image: require('@/assets/img/room-4.avif') },
 ];
 
+const PROMO_DISMISSED_KEY = 'products_promo_dismissed';
+const PROMO_HIDE_MS = 24 * 60 * 60 * 1000; // 24 h
+
 function productImageUrl(purchase: ClientProductPurchase): string {
   const url = purchase.product.primaryImage?.url ?? purchase.product.images?.[0]?.url;
   return url ?? '';
@@ -33,6 +39,34 @@ const ProductsScreen = () => {
   const setSelectedPurchase = useSetSelectedPurchase();
   const [purchasedLoading, setPurchasedLoading] = useState(true);
   const [purchasedProducts, setPurchasedProducts] = useState<ClientProductPurchase[]>([]);
+  const [dismissedPromoAt, setDismissedPromoAt] = useState<Record<number, number>>({});
+
+  useEffect(() => {
+    AsyncStorage.getItem(PROMO_DISMISSED_KEY).then((raw) => {
+      if (!raw) return;
+      try {
+        const parsed: Record<string, number> = JSON.parse(raw);
+        const now = Date.now();
+        const next: Record<number, number> = {};
+        Object.entries(parsed).forEach(([k, ts]) => {
+          const idx = Number(k);
+          if (now - ts < PROMO_HIDE_MS) next[idx] = ts;
+        });
+        setDismissedPromoAt(next);
+      } catch {
+        /* ignore */
+      }
+    });
+  }, []);
+
+  const handleDismissPromo = (index: number) => {
+    const now = Date.now();
+    setDismissedPromoAt((prev) => {
+      const next = { ...prev, [index]: now };
+      AsyncStorage.setItem(PROMO_DISMISSED_KEY, JSON.stringify(next)).catch(() => {});
+      return next;
+    });
+  };
 
   useEffect(() => {
     if (!apiToken) {
@@ -55,8 +89,8 @@ const ProductsScreen = () => {
       scrollEventThrottle={16}
     >
       <AnimatedView animation="scaleIn" className="flex-1 mt-4">
-        <Section title={t('productsMyPurchased')} titleSize="lg" className="mb-6">
-          <CardScroller space={15} className="mt-1.5 pb-4">
+        <Section title={t('productsMyPurchased')} titleSize="lg" className="mb-2">
+          <CardScroller space={15} className="mt-1.5 pb-2">
             {purchasedLoading ? (
               <View className="py-8 items-center">
                 <ActivityIndicator size="small" />
@@ -90,6 +124,42 @@ const ProductsScreen = () => {
             )}
           </CardScroller>
         </Section>
+
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          className="-mx-global mb-6"
+          contentContainerStyle={{ paddingHorizontal: 16, paddingRight: 24, paddingTop: 8, paddingBottom: 18 }}
+        >
+          {[
+            { titleKey: 'productsPromoTitle', subtitleKey: 'productsPromoSubtitle' },
+            { titleKey: 'productsPromoTitle2', subtitleKey: 'productsPromoSubtitle2' },
+            { titleKey: 'productsPromoTitle3', subtitleKey: 'productsPromoSubtitle3' },
+            { titleKey: 'productsPromoTitle4', subtitleKey: 'productsPromoSubtitle4' },
+            { titleKey: 'productsPromoTitle5', subtitleKey: 'productsPromoSubtitle5' },
+          ]
+            .map((item, index) => ({ item, index }))
+            .filter(({ index }) => !dismissedPromoAt[index] || Date.now() - dismissedPromoAt[index] >= PROMO_HIDE_MS)
+            .map(({ item, index }) => (
+              <View
+                key={index}
+                style={{ ...shadowPresets.large, width: 280, marginRight: 15 }}
+                className="p-5 rounded-2xl bg-light-secondary dark:bg-dark-secondary flex-shrink-0"
+              >
+                <View className="flex-row justify-between items-start">
+                  <View className="flex-1 pr-2">
+                    <ThemedText className="text-lg font-bold text-light-text dark:text-dark-text">{t(item.titleKey)}</ThemedText>
+                    <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext mt-1">
+                      {t(item.subtitleKey)}
+                    </ThemedText>
+                  </View>
+                  <Pressable className="p-1" onPress={() => handleDismissPromo(index)}>
+                    <Icon name="X" size={18} className="text-light-subtext dark:text-dark-subtext" />
+                  </Pressable>
+                </View>
+              </View>
+            ))}
+        </ScrollView>
 
         <Section title={t('productsTitle')} titleSize="lg" link="/screens/map" linkText={t('commonViewAll')}>
           <CardScroller space={15} className="mt-1.5 pb-4">

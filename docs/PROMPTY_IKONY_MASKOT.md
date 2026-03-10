@@ -16,7 +16,7 @@ Cíl: jednotné vizuály pro flow „Přidat účes“, všechny ikony v jednom 
 
 ## Seznam všech ikon vhodných pro jednotný (mascot) styl
 
-Níže je kompletní přehled ikon/obrázků v projektu, které dávají smysl mít ve **stejném stylu** (s maskotem). Pro všechny položky 1–7 už v dokumentu máte hotové prompty.
+Níže je kompletní přehled ikon/obrázků v projektu, které dávají smysl mít ve **stejném stylu** (s maskotem). Pro všechny položky 1–11 (flow + tab bar) už v dokumentu máte hotové prompty.
 
 | # | Soubor | Kde se používá | Poznámka |
 |---|--------|----------------|----------|
@@ -24,9 +24,13 @@ Níže je kompletní přehled ikon/obrázků v projektu, které dávají smysl m
 | **2** | `assets/img/myrules.png` | Flow „Přidat účes“ krok 2, úvodní karta Moje účesy | Dej svému účesu pravidla |
 | **3** | `assets/img/savefinish.png` | Flow „Přidat účes“ krok 3, úvodní karta Moje účesy | Finishujeme a ukládáme |
 | **4** | `assets/img/gratulations.png` | Stránka Congratulations po dokončení wizardu | Gratulujeme |
-| **5** | `assets/img/house.png` | Tab bar: Wallet, My haircuts, Branches, Guides | „Domov“ / přehled |
-| **6** | `assets/img/experience.png` | Tab bar: Barbers, Products | Barbeři / Produkty |
-| **7** | `assets/img/services.png` | Tab bar: Services | Služby |
+| **5** | `assets/img/wallet.png` | Tab bar: Wallet | Peněženka |
+| **6** | `assets/img/my-haircuts.png` | Tab bar: My haircuts | Moje střihy |
+| **7** | `assets/img/branches.png` | Tab bar: Branches | Pobočky |
+| **8** | `assets/img/guides.png` | Tab bar: Guides | Průvodce |
+| **9** | `assets/img/barbers.png` | Tab bar: Barbers | Barbeři |
+| **10** | `assets/img/services.png` | Tab bar: Services | Služby |
+| **11** | `assets/img/products.png` | Tab bar: Products | Produkty |
 
 ### Požadované velikosti ikon (stejné jako na místech použití v appce)
 
@@ -38,9 +42,13 @@ Všechny ikony jsou v kódu zobrazené jako **čtverce**. Exportujte PNG ve veli
 | 2 | `myrules.png` | 64×64 px (kroky flow), 80×80 px (karta Moje účesy) | **80×80 px** (nebo 160×160 px pro 2× Retina) |
 | 3 | `savefinish.png` | 64×64 px (kroky flow), 80×80 px (karta Moje účesy) | **80×80 px** (nebo 160×160 px pro 2× Retina) |
 | 4 | `gratulations.png` | 128×128 px (stránka Congratulations) | **128×128 px** (nebo 256×256 px pro 2× Retina) |
-| 5 | `house.png` | 45×45 px (tab bar) | **45×45 px** (nebo 90×90 px pro 2× Retina) |
-| 6 | `experience.png` | 45×45 px (tab bar) | **45×45 px** (nebo 90×90 px pro 2× Retina) |
-| 7 | `services.png` | 45×45 px (tab bar) | **45×45 px** (nebo 90×90 px pro 2× Retina) |
+| 5 | `wallet.png` | 45×45 px (tab bar) | **45×45 px** (nebo 90×90 px pro 2× Retina) |
+| 6 | `my-haircuts.png` | 45×45 px (tab bar) | **45×45 px** (nebo 90×90 px pro 2× Retina) |
+| 7 | `branches.png` | 45×45 px (tab bar) | **45×45 px** (nebo 90×90 px pro 2× Retina) |
+| 8 | `guides.png` | 45×45 px (tab bar) | **45×45 px** (nebo 90×90 px pro 2× Retina) |
+| 9 | `barbers.png` | 45×45 px (tab bar) | **45×45 px** (nebo 90×90 px pro 2× Retina) |
+| 10 | `services.png` | 45×45 px (tab bar) | **45×45 px** (nebo 90×90 px pro 2× Retina) |
+| 11 | `products.png` | 45×45 px (tab bar) | **45×45 px** (nebo 90×90 px pro 2× Retina) |
 
 *Pokud chcete jednu velikost pro všechny (např. 512×512 px), aplikace obrázky v kódu zmenší; důležité je zachovat poměr 1:1 (čtverec).*
 
@@ -52,7 +60,7 @@ Aby ikony v aplikaci správně fungovaly, dodržujte:
 |-----------|--------|
 | **Formát** | **PNG** (s průhledností – alfa kanál) |
 | **Poměr stran** | **1 : 1** (čtverec) |
-| **Rozlišení tab bar** (house, experience, services) | **45×45 px** nebo **90×90 px** (doporučeno 90×90 pro ostrost na Retina) |
+| **Rozlišení tab bar** (wallet, my-haircuts, branches, guides, barbers, services, products) | **45×45 px** nebo **90×90 px** (doporučeno 90×90 pro ostrost na Retina) |
 | **Rozlišení flow „Přidat účes“** (myidea, myrules, savefinish) | **80×80 px** nebo **160×160 px** |
 | **Rozlišení gratulations** | **128×128 px** nebo **256×256 px** |
 | **Složka v projektu** | `assets/img/` |
@@ -60,14 +68,12 @@ Aby ikony v aplikaci správně fungovaly, dodržujte:
 
 **Přesné názvy souborů, které kód očekává:**
 
-- `house.png` – tab bar (Wallet, Moje střihy, Pobočky, Guides sdílejí tuto jednu ikonu)
-- `experience.png` – tab bar (Barbers, Products sdílejí tuto jednu ikonu)
-- `services.png` – tab bar (Services)
+- `wallet.png`, `my-haircuts.png`, `branches.png`, `guides.png`, `barbers.png`, `services.png`, `products.png` – tab bar (každá záložka má vlastní ikonu v `components/HomeTabs.tsx`)
 - `myidea.png`, `myrules.png`, `savefinish.png`, `gratulations.png` – flow Přidat účes a Congratulations
 
-**Důležité:** V `components/HomeTabs.tsx` se momentálně používají **jen 3 obrázky** pro celý tab bar (house, experience, services). Pokud máte více variant (např. samostatné ikony pro Peněženku, Moje střihy, Pobočky, Průvodce), vyberte jednu jako `house.png` a ostatní můžete použít po úpravě kódu (doplnění dalších souborů a změna `HomeTabs.tsx`). Pro „bez úprav kódu“ stačí nahradit tyto 3 soubory: `house.png`, `experience.png`, `services.png`.
+**Důležité:** V `components/HomeTabs.tsx` se používají **7 samostatných obrázků** pro tab bar. Pro nahrazení jednotným stylem s maskotem vygenerujte a nahraďte těchto 7 souborů.
 
-**Celkem: 7 ikon** (úvod + tab bar). **+ 11 ikon pro krok 2 wizardu** (What best describes your haircut? / For which season?) – prompty v sekci „Ikony pro krok 2 wizardu“ (ikony 8–18). Vše ve stejném semi-realistickém stylu s maskotem a průhledným pozadím.
+**Celkem: 11 ikon** (4 úvod + 7 tab bar). **+ 11 ikon pro krok 2 wizardu** (What best describes your haircut? / For which season?) – prompty v sekci „Ikony pro krok 2 wizardu“ (ikony 8–18). Vše ve stejném semi-realistickém stylu s maskotem a průhledným pozadím.
 
 ### Volitelně (velké ikony na celoobrazovkách)
 
@@ -458,9 +464,11 @@ Format: square 1:1. Style: modern, semi-realistic look – not cartoon or drawn.
 
 ---
 
-## Fullscreen obrázky pro návod „Na co mi to je?“ (My haircuts)
+## Fullscreen obrázky pro návod „K čemu to je?“ (Moje účesy)
 
-Na obrazovce **My haircuts** bude tlačítko typu „Na co mi to je?“ – po kliknutí se zobrazí **3 fullscreen obrázky** (kroky návodu). Uživatel na každém kroku klikne na tlačítko dole a přejde na další; na třetím kroku návod končí.
+**Přesnější prompty podle logiky sekce Moje účesy** (ukládání nápadů, ukázka holiči, osobní galerie) jsou v samostatném dokumentu: **[docs/PROMPTY_NAVOD_MOJE_UCESY.md](PROMPTY_NAVOD_MOJE_UCESY.md)**. Níže zůstávají původní znění pro referenci.
+
+Na obrazovce **Moje účesy** je odkaz „K čemu to je?“ – po kliknutí se zobrazí **3 fullscreen obrázky** (kroky návodu). Uživatel na každém kroku klikne na tlačítko dole a přejde na další; na třetím kroku návod končí.
 
 **Specifikace obrázků:**  
 - **Rozměr:** 1080×1920 px (poměr 9:16, portrét).  
@@ -562,11 +570,15 @@ Přehled **souborů** a **míst v kódu**, kde se používají – abyste vědě
 
 | Soubor obrázku   | Kde se používá | Popis |
 |------------------|----------------|-------|
-| `assets/img/house.png`      | `components/HomeTabs.tsx` | Tab: **Wallet**, **My haircuts**, **Branches**, **Guides** (4× stejná ikona) |
-| `assets/img/experience.png` | `components/HomeTabs.tsx` | Tab: **Barbers**, **Products** (2× stejná ikona) |
-| `assets/img/services.png`  | `components/HomeTabs.tsx` | Tab: **Services** (1×) |
+| `assets/img/wallet.png`      | `components/HomeTabs.tsx` | Tab: **Wallet** |
+| `assets/img/my-haircuts.png` | `components/HomeTabs.tsx` | Tab: **My haircuts** |
+| `assets/img/branches.png`    | `components/HomeTabs.tsx` | Tab: **Branches** |
+| `assets/img/guides.png`      | `components/HomeTabs.tsx` | Tab: **Guides** |
+| `assets/img/barbers.png`     | `components/HomeTabs.tsx` | Tab: **Barbers** |
+| `assets/img/services.png`    | `components/HomeTabs.tsx` | Tab: **Services** |
+| `assets/img/products.png`    | `components/HomeTabs.tsx` | Tab: **Products** |
 
-Tedy **3 různé obrázky** v tab baru – všechny by šlo nahradit ilustracemi s maskotem ve stejném stylu jako flow „Přidat účes“.
+Tedy **7 obrázků** v tab baru – všechny lze nahradit ilustracemi s maskotem ve stejném stylu jako flow „Přidat účes“.
 
 ### Ostatní obrázky (spíš placeholdery / obsah, ne nutně maskot)
 
@@ -591,7 +603,7 @@ Níže jsou návrhy pro **ikony v dolní navigaci**. Stejný formát a styl jako
 
 ### 5. Ikony pro tab: Wallet, My haircuts, Branches, Guides
 
-**Soubor(y):** např. `house.png` nebo oddělené soubory pro každou záložku.
+**Soubor(y):** `wallet.png`, `my-haircuts.png`, `branches.png`, `guides.png` (každá záložka má vlastní ikonu).
 
 #### 5a Peněženka (Wallet)
 
@@ -675,7 +687,7 @@ Technical: square 1:1, semi-realistic style, transparent background (PNG with al
 
 ### 6. Ikony pro tab: Barbers, Products
 
-**Soubor(y):** např. `experience.png` nebo oddělené soubory.
+**Soubor(y):** `barbers.png`, `products.png` (každá záložka má vlastní ikonu).
 
 #### 6a Barbeři (Barbers)
 
@@ -750,7 +762,7 @@ Technical: square 1:1 (export 512×512 or 1024×1024 px, final 45×45 or 90×90 
 
 - **4 ikony flow „Přidat účes“:** Vytvoř si účes (myidea), Dej pravidla (myrules), Finishujeme (savefinish), Gratulujeme (gratulations). Odpovídající soubory a místa v kódu jsou v tabulce výše.
 - **11 ikon pro krok 2 wizardu** (What best describes your haircut? / For which season?): type-shorter.png … type-casual.png (8 ks), season-summer.png, season-winter.png, season-all-year.png (3 ks). Použití: `app/screens/add-property.tsx` – propertyTypeOptions, guestAccessOptions. Prompty v sekci „Ikony pro krok 2 wizardu“ (ikony 8–18).
-- **Ikony tab baru:** 4 varianty pro „domov“ (5a Peněženka, 5b Moje střihy, 5c Pobočky, 5d Průvodce), 2 varianty pro experience (6a Barbeři – více maskotů v řadě, 6b Produkty – kolínská + matná pasta, přiložit referenční fotky), 1 ikona Services (znázornění nabídky). Soubory např. house.png, experience.png, services.png nebo oddělené. Vše v `components/HomeTabs.tsx`.
+- **Ikony tab baru:** 7 samostatných ikon – wallet.png, my-haircuts.png, branches.png, guides.png, barbers.png, services.png, products.png. Vše v `components/HomeTabs.tsx`. Prompty pro varianty 5a–5d (Wallet, Moje střihy, Pobočky, Průvodce), 6a–6b (Barbeři, Produkty) a 7 (Services) jsou v sekcích 5.–7. níže.
 - V každém promptu je maskot hlavní postava a dělá konkrétní činnost dané sekce.
 - Před generováním doplňte `[JMÉNO / POPIS MASKOTA]` a případně přidejte referenční obrázek maskota pro konzistenci.
 - Ostatní obrázky (room-*, user-*, wallet/*, markers, branches) jsou v dokumentu vypsané pro přehled; nahrazení maskotem je volitelné.

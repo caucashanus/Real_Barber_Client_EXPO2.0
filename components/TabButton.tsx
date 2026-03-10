@@ -13,10 +13,12 @@ export type TabButtonProps = TabTriggerSlotProps & {
   customContent?: ReactNode;
   labelAnimated?: boolean;
   hasBadge?: boolean;
+  /** When true, tab is hidden (no layout space) but still registered in the navigator. */
+  hidden?: boolean;
 };
 
 export const TabButton = forwardRef<View, TabButtonProps>(
-  ({ icon, avatar, children, isFocused, onPress, customContent, labelAnimated = true, hasBadge = false, ...props }, ref) => {
+  ({ icon, avatar, children, isFocused, onPress, customContent, labelAnimated = true, hasBadge = false, hidden = false, ...props }, ref) => {
     const colors = useThemeColors();
 
     // Use Animated Values to control opacity and translateY
@@ -81,7 +83,8 @@ export const TabButton = forwardRef<View, TabButtonProps>(
         className={`w-1/5 overflow-hidden ${isFocused ? '' : ''}`}
         ref={ref}
         {...props}
-        onPress={onPress}>
+        onPress={onPress}
+        style={[props.style, hidden ? { display: 'none' as const } : null]}>
         <View className="flex-col items-center justify-center pt-4 pb-0 w-full relative">
           {/*<Animated.View className="absolute w-full h-[2px] bg-black dark:bg-white left-0 top-0"
             style={{

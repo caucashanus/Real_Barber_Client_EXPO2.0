@@ -29,77 +29,30 @@ function TabsContent() {
         }}
       >
         {/****Host tabs */}
-        <TabTrigger
-          name="dashboard"
-          href="/(tabs)/dashboard"
-          asChild
-          style={{ display: isBusinessMode ? 'flex' : 'none' }}
-        >
-          <TabButton labelAnimated={false} icon="Home">{t('navHome')}</TabButton>
+        <TabTrigger name="dashboard" href="/(tabs)/dashboard" asChild>
+          <TabButton labelAnimated={false} icon="Home" hidden={!isBusinessMode}>{t('navHome')}</TabButton>
         </TabTrigger>
-        <TabTrigger
-          name="calendar"
-          href="/(tabs)/calendar"
-          asChild
-          style={{ display: isBusinessMode ? 'flex' : 'none' }}
-        >
-          <TabButton labelAnimated={false} icon="CalendarFold">{t('navCalendar')}</TabButton>
+        <TabTrigger name="calendar" href="/(tabs)/calendar" asChild>
+          <TabButton labelAnimated={false} icon="CalendarFold" hidden={!isBusinessMode}>{t('navCalendar')}</TabButton>
         </TabTrigger>
-        <TabTrigger
-          name="analytics"
-          href="/(tabs)/listings"
-          asChild
-          style={{ display: isBusinessMode ? 'flex' : 'none' }}
-        >
-          <TabButton labelAnimated={false} icon="File">{t('navListings')}</TabButton>
+        <TabTrigger name="analytics" href="/(tabs)/listings" asChild>
+          <TabButton labelAnimated={false} icon="File" hidden={!isBusinessMode}>{t('navListings')}</TabButton>
         </TabTrigger>
-
 
         {/* Consumer mode tabs */}
-        <TabTrigger
-          name="(home)"
-          href="/(tabs)/(home)"
-          asChild
-          style={{ display: isBusinessMode ? 'none' : 'flex' }}
-        >
-          <TabButton labelAnimated={false} icon="Search">{t('navHome')}</TabButton>
+        <TabTrigger name="(home)" href="/(tabs)/(home)" asChild>
+          <TabButton labelAnimated={false} icon="Search" hidden={isBusinessMode}>{t('navHome')}</TabButton>
         </TabTrigger>
-
-        <TabTrigger
-          name="favorites"
-          href="/favorites"
-          asChild
-          style={{ display: isBusinessMode ? 'none' : 'flex' }}
-        >
-          <TabButton labelAnimated={false} icon="Heart">{t('navFavorites')}</TabButton>
+        <TabTrigger name="favorites" href="/favorites" asChild>
+          <TabButton labelAnimated={false} icon="Heart" hidden={isBusinessMode}>{t('navFavorites')}</TabButton>
         </TabTrigger>
-
-        <TabTrigger
-          name="trips"
-          href="/trips"
-          asChild
-          style={{ display: isBusinessMode ? 'none' : 'flex' }}
-        >
-          <TabButton labelAnimated={false} hasBadge={hasUpcomingBookings} icon="CalendarPlus">{t('navBookings')}</TabButton>
+        <TabTrigger name="trips" href="/trips" asChild>
+          <TabButton labelAnimated={false} hasBadge={hasUpcomingBookings} icon="CalendarPlus" hidden={isBusinessMode}>{t('navBookings')}</TabButton>
         </TabTrigger>
-
-        <TabTrigger
-          name="chat"
-          href="/(tabs)/chat"
-          asChild
-          style={{ display: isBusinessMode ? 'flex' : 'flex' }}
-        >
+        <TabTrigger name="chat" href="/(tabs)/chat" asChild>
           <TabButton labelAnimated={false} hasBadge icon="MessageSquare">{t('navMessages')}</TabButton>
         </TabTrigger>
-
-
-
-        <TabTrigger
-          name="profile"
-          href="/profile"
-          asChild
-          style={{ display: isBusinessMode ? 'flex' : 'flex' }}
-        >
+        <TabTrigger name="profile" href="/profile" asChild>
           <TabButton labelAnimated={false} icon="CircleUser">{t('navProfile')}</TabButton>
         </TabTrigger>
 
