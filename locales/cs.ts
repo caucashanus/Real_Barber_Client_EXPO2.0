@@ -65,7 +65,7 @@ export const cs: Record<TranslationKey, string> = {
   tabBarbers: 'Barbeři',
   tabServices: 'Služby',
   tabProducts: 'Produkty',
-  tabGuides: 'Průvodci',
+  tabGuides: 'Návody',
 
   // Trips / Bookings
   tripsTitle: 'Vaše rezervace',

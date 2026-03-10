@@ -44,6 +44,29 @@ Všechny ikony jsou v kódu zobrazené jako **čtverce**. Exportujte PNG ve veli
 
 *Pokud chcete jednu velikost pro všechny (např. 512×512 px), aplikace obrázky v kódu zmenší; důležité je zachovat poměr 1:1 (čtverec).*
 
+### Specifikace ikon pro kód (kam dát soubory a v jakém formátu)
+
+Aby ikony v aplikaci správně fungovaly, dodržujte:
+
+| Požadavek | Hodnota |
+|-----------|--------|
+| **Formát** | **PNG** (s průhledností – alfa kanál) |
+| **Poměr stran** | **1 : 1** (čtverec) |
+| **Rozlišení tab bar** (house, experience, services) | **45×45 px** nebo **90×90 px** (doporučeno 90×90 pro ostrost na Retina) |
+| **Rozlišení flow „Přidat účes“** (myidea, myrules, savefinish) | **80×80 px** nebo **160×160 px** |
+| **Rozlišení gratulations** | **128×128 px** nebo **256×256 px** |
+| **Složka v projektu** | `assets/img/` |
+| **Použití v kódu** | `require('@/assets/img/nazev.png')` |
+
+**Přesné názvy souborů, které kód očekává:**
+
+- `house.png` – tab bar (Wallet, Moje střihy, Pobočky, Guides sdílejí tuto jednu ikonu)
+- `experience.png` – tab bar (Barbers, Products sdílejí tuto jednu ikonu)
+- `services.png` – tab bar (Services)
+- `myidea.png`, `myrules.png`, `savefinish.png`, `gratulations.png` – flow Přidat účes a Congratulations
+
+**Důležité:** V `components/HomeTabs.tsx` se momentálně používají **jen 3 obrázky** pro celý tab bar (house, experience, services). Pokud máte více variant (např. samostatné ikony pro Peněženku, Moje střihy, Pobočky, Průvodce), vyberte jednu jako `house.png` a ostatní můžete použít po úpravě kódu (doplnění dalších souborů a změna `HomeTabs.tsx`). Pro „bez úprav kódu“ stačí nahradit tyto 3 soubory: `house.png`, `experience.png`, `services.png`.
+
 **Celkem: 7 ikon** (úvod + tab bar). **+ 11 ikon pro krok 2 wizardu** (What best describes your haircut? / For which season?) – prompty v sekci „Ikony pro krok 2 wizardu“ (ikony 8–18). Vše ve stejném semi-realistickém stylu s maskotem a průhledným pozadím.
 
 ### Volitelně (velké ikony na celoobrazovkách)
@@ -559,80 +582,167 @@ Tyto nemusíte měnit na maskot – jen pokud chcete jednotný vizuál i tam.
 
 ## 5.–7. Ikony pro tab bar (návrhy promptů)
 
-Níže jsou návrhy pro **3 ikony v dolní navigaci**. Stejný formát a styl jako u ikon 1–4; každý prompt je samostatný.
+Níže jsou návrhy pro **ikony v dolní navigaci**. Stejný formát a styl jako u ikon 1–4. Ikony se zobrazují malé (45×45 px), kompozice musí být **jednoduchá a čitelná**. Pro záložky Wallet / Moje střihy / Pobočky / Guides jsou **4 varianty** (lze generovat jako jeden společný motiv nebo 4 samostatné ikony); pro Barbers a Products **2 varianty**; pro Services **1 motiv** (znázornění nabídky).
 
-### 5. Ikona tabu: Wallet / My haircuts / Branches / Guides („domov“ / přehled)
-
-**Soubor:** `house.png`  
 **Velikost:** 45×45 px (tab bar). Export: **45×45 px** nebo 90×90 px (2× Retina), čtverec PNG.  
-**Použití:**  
-`components/HomeTabs.tsx` – labely: Wallet, My haircuts, Branches, Guides.
+**Použití:** `components/HomeTabs.tsx`.
+
+---
+
+### 5. Ikony pro tab: Wallet, My haircuts, Branches, Guides
+
+**Soubor(y):** např. `house.png` nebo oddělené soubory pro každou záložku.
+
+#### 5a Peněženka (Wallet)
 
 **Prompt (CZ):**
 
 ```
-Ilustrace pro mobilní aplikaci kadeřnictví, ikona pro záložku (Wallet / Moje účesy / Pobočky / Průvodce). Firemní maskot [JMÉNO / POPIS MASKOTA] v roli „domova“ nebo přehledu: například stojí v přívětivém postoji, má u sebe symbol domu nebo seznamu, nebo vítá zákazníka. Výraz přátelský, přehledový.
+Ikona pro záložku Peněženka. Firemní maskot [JMÉNO / POPIS MASKOTA] stojí v centru, v jedné ruce drží peněženku (otevřenou nebo zavřenou). Kolem maskota jsou znázorněny peníze – mince, bankovky nebo symboly peněz (např. plovoucí kolem postavy, decentně, ne přeplněno). Výraz spokojený, klidný. Hlavní motiv: maskot + peněženka v ruce + peníze kolem. Žádné složité pozadí. Kompozice čitelná v malé velikosti 45×45 px.
 
-Formát: čtverec nebo 1:1, vhodné pro ikonu v UI (např. 512×512 px nebo 1024×1024). Styl: moderní, semi-realistický vzhled – ne kreslený ani cartoon. Čisté linie, profesionální dojem, konzistentní s firemním maskotem. Vyhněte se přehnaně animovanému nebo dětskému stylu. Pozadí: průhledné (transparent) – žádné barevné pozadí, export PNG s alfa kanálem, aby ikona vypadala dobře na jakémkoli pozadí v aplikaci. Čtvercový formát, vhodné jako ikona tabu v aplikaci. Jednotný vizuální styl značky.
+Technické: čtverec 1:1 (export 512×512 nebo 1024×1024 px, finálně 45×45 nebo 90×90 px). Styl semi-realistický, moderní – ne cartoon. Čisté linie, konzistentní s firemním maskotem. Pozadí průhledné (PNG s alfa kanálem).
 ```
 
 **Prompt (EN):**
 
 ```
-Mobile app illustration for a barbershop, icon for tab (Wallet / My haircuts / Branches / Guides). Brand mascot [MASCOT NAME] in a “home” or overview role: e.g. standing in a welcoming pose, with a house or list symbol, or welcoming the customer. Friendly, clear expression.
+Tab icon for Wallet. Brand mascot [MASCOT NAME] in the center, holding a wallet in one hand (open or closed). Around the mascot, money is suggested – coins, banknotes or money symbols (e.g. floating gently around the figure, subtle, not cluttered). Expression: content, calm. Main motif: mascot + wallet in hand + money around. No complex background. Composition readable at small size 45×45 px.
 
-Format: square or 1:1, suitable for a UI icon (e.g. 512×512 or 1024×1024 px). Style: modern, semi-realistic look – not cartoon or drawn. Clean lines, professional feel, consistent with the brand mascot. Avoid overly animated or childish style. Background: transparent – no colored background, export PNG with alpha channel so the icon looks good on any app background. Square format, suitable as a tab icon in the app. Cohesive brand visual identity.
+Technical: square 1:1 (export 512×512 or 1024×1024 px, final 45×45 or 90×90 px). Semi-realistic, modern style – not cartoon. Clean lines, consistent with brand mascot. Transparent background (PNG with alpha channel).
 ```
 
 ---
 
-### 6. Ikona tabu: Barbers / Products
-
-**Soubor:** `experience.png`  
-**Velikost:** 45×45 px (tab bar). Export: **45×45 px** nebo 90×90 px (2× Retina), čtverec PNG.  
-**Použití:**  
-`components/HomeTabs.tsx` – labely: Barbers, Products.
+#### 5b Moje střihy (My haircuts)
 
 **Prompt (CZ):**
 
 ```
-Ilustrace pro mobilní aplikaci kadeřnictví, ikona pro záložku Barbeři / Produkty. Firemní maskot [JMÉNO / POPIS MASKOTA] v roli „zkušenosti“ nebo nabídky: například ukazuje na člověka (barbera) nebo na produkt (vosk, gel), nebo má vedle sebe nůžky a láhev přípravku. Výraz profesionální, nabízející.
+Ikona pro záložku Moje střihy. Firemní maskot [JMÉNO / POPIS MASKOTA] je šťastný, spokojený – úsměv, pozitivní výraz. Kolem něj „běhají“ nebo plují jeho myšlenkové bubliny s účesy: v bublinách jsou malé náznaky různých účesů (krátký, delší, s vousy, styling atd.), jako by si prohlížel své nápady. Maskot v centru, bubliny s účesy kolem. Žádné složité pozadí. Kompozice čitelná v 45×45 px.
 
-Formát: čtverec nebo 1:1, vhodné pro ikonu v UI (např. 512×512 px nebo 1024×1024). Styl: moderní, semi-realistický vzhled – ne kreslený ani cartoon. Čisté linie, profesionální dojem, konzistentní s firemním maskotem. Vyhněte se přehnaně animovanému nebo dětskému stylu. Pozadí: průhledné (transparent) – žádné barevné pozadí, export PNG s alfa kanálem, aby ikona vypadala dobře na jakémkoli pozadí v aplikaci. Čtvercový formát, vhodné jako ikona tabu v aplikaci. Jednotný vizuální styl značky.
+Technické: čtverec 1:1 (export 512×512 nebo 1024×1024 px, finálně 45×45 nebo 90×90 px). Styl semi-realistický, moderní – ne cartoon. Čisté linie, konzistentní s firemním maskotem. Pozadí průhledné (PNG s alfa kanálem).
 ```
 
 **Prompt (EN):**
 
 ```
-Mobile app illustration for a barbershop, icon for tab Barbers / Products. Brand mascot [MASCOT NAME] in an “experience” or offering role: e.g. pointing at a person (barber) or a product (wax, gel), or with scissors and a product bottle beside him. Professional, offering expression.
+Tab icon for My haircuts. Brand mascot [MASCOT NAME] looks happy, content – smile, positive expression. Around him, his thought bubbles "run" or float with hairstyles: inside the bubbles, small hints of different haircuts (short, longer, with beard, styling, etc.), as if browsing his ideas. Mascot in center, hairstyle bubbles around. No complex background. Composition readable at 45×45 px.
 
-Format: square or 1:1, suitable for a UI icon (e.g. 512×512 or 1024×1024 px). Style: modern, semi-realistic look – not cartoon or drawn. Clean lines, professional feel, consistent with the brand mascot. Avoid overly animated or childish style. Background: transparent – no colored background, export PNG with alpha channel so the icon looks good on any app background. Square format, suitable as a tab icon in the app. Cohesive brand visual identity.
+Technical: square 1:1 (export 512×512 or 1024×1024 px, final 45×45 or 90×90 px). Semi-realistic, modern style – not cartoon. Clean lines, consistent with brand mascot. Transparent background (PNG with alpha channel).
 ```
 
 ---
 
-### 7. Ikona tabu: Services
-
-**Soubor:** `services.png`  
-**Velikost:** 45×45 px (tab bar). Export: **45×45 px** nebo 90×90 px (2× Retina), čtverec PNG.  
-**Použití:**  
-`components/HomeTabs.tsx` – label: Services.
+#### 5c Pobočky (Branches)
 
 **Prompt (CZ):**
 
 ```
-Ilustrace pro mobilní aplikaci kadeřnictví, ikona pro záložku Služby. Firemní maskot [JMÉNO / POPIS MASKOTA] v roli služeb: například drží nůžky nebo holicí strojek, nebo ukazuje na „menu“ služeb (stříhání, vousy, styling). Výraz odborný, služebný.
+Ikona pro záložku Pobočky. Firemní maskot [JMÉNO / POPIS MASKOTA] v souvislosti s mapou: například stojí vedle malé mapy nebo schematické mapky (znázornění poboček / lokací), nebo drží mapu v ruce, nebo na mapě ukazuje. Motiv „kde nás najdeš“ – mapa jako hlavní symbol, maskot u ní. Jednoduchá, čitelná kompozice pro 45×45 px.
 
-Formát: čtverec nebo 1:1, vhodné pro ikonu v UI (např. 512×512 px nebo 1024×1024). Styl: moderní, semi-realistický vzhled – ne kreslený ani cartoon. Čisté linie, profesionální dojem, konzistentní s firemním maskotem. Vyhněte se přehnaně animovanému nebo dětskému stylu. Pozadí: průhledné (transparent) – žádné barevné pozadí, export PNG s alfa kanálem, aby ikona vypadala dobře na jakémkoli pozadí v aplikaci. Čtvercový formát, vhodné jako ikona tabu v aplikaci. Jednotný vizuální styl značky.
+Technické: čtverec 1:1 (export 512×512 nebo 1024×1024 px, finálně 45×45 nebo 90×90 px). Styl semi-realistický, moderní – ne cartoon. Čisté linie, konzistentní s firemním maskotem. Pozadí průhledné (PNG s alfa kanálem).
 ```
 
 **Prompt (EN):**
 
 ```
-Mobile app illustration for a barbershop, icon for tab Services. Brand mascot [MASCOT NAME] in a services role: e.g. holding scissors or a trimmer, or pointing at a “menu” of services (haircut, beard, styling). Expert, service-oriented expression.
+Tab icon for Branches. Brand mascot [MASCOT NAME] in connection with a map: e.g. standing next to a small map or schematic map (showing branches / locations), or holding a map, or pointing at the map. Motif "where to find us" – map as main symbol, mascot with it. Simple, readable composition for 45×45 px.
 
-Format: square or 1:1, suitable for a UI icon (e.g. 512×512 or 1024×1024 px). Style: modern, semi-realistic look – not cartoon or drawn. Clean lines, professional feel, consistent with the brand mascot. Avoid overly animated or childish style. Background: transparent – no colored background, export PNG with alpha channel so the icon looks good on any app background. Square format, suitable as a tab icon in the app. Cohesive brand visual identity.
+Technical: square 1:1 (export 512×512 or 1024×1024 px, final 45×45 or 90×90 px). Semi-realistic, modern style – not cartoon. Clean lines, consistent with brand mascot. Transparent background (PNG with alpha channel).
 ```
+
+---
+
+#### 5d Průvodce (Guides)
+
+**Prompt (CZ):**
+
+```
+Ikona pro záložku Průvodce. Firemní maskot [JMÉNO / POPIS MASKOTA] v roli průvodce: přívětivý postoj, může lehce ukazovat nebo mít u sebe symbol „průvodce“ (např. malá kniha, seznam tipů, nebo kompas). Výraz vstřícný, „jdu ti poradit“. Jednoduchá kompozice, čitelná v 45×45 px.
+
+Technické: čtverec 1:1, semi-realistický styl, průhledné pozadí (PNG s alfa kanálem).
+```
+
+**Prompt (EN):**
+
+```
+Tab icon for Guides. Brand mascot [MASCOT NAME] in a guide role: friendly pose, may gesture slightly or have a "guide" symbol (e.g. small book, list of tips, or compass). Expression welcoming, "here to help". Simple composition, readable at 45×45 px.
+
+Technical: square 1:1, semi-realistic style, transparent background (PNG with alpha channel).
+```
+
+---
+
+### 6. Ikony pro tab: Barbers, Products
+
+**Soubor(y):** např. `experience.png` nebo oddělené soubory.
+
+#### 6a Barbeři (Barbers)
+
+**Důležité pro čtvercovou ikonu:** Kompozice musí **vyplňovat celý čtverec** – postavy velké v záběru, minimum prázdného okolí, aby ikona vizuálně „vážila“ stejně jako ostatní tab ikony (ne malá skupinka uprostřed prázdného pole).
+
+**Prompt (CZ):**
+
+```
+Ikona pro záložku Barbeři – **čtvercový formát 1:1, kompozice musí vyplnit celý čtverec**. Na obrázku je více stejných firemních maskotů [JMÉNO / POPIS MASKOTA] vedle sebe v řadě (např. 2–3 maskoti). Postavy jsou **velké v záběru**, zabírají většinu plochy ikony – těsný výřez, žádné velké prázdné okraje kolem skupiny. Jako by foto „nařezané“ tak, že řada holiců vyplňuje čtverec od okraje k okraji (nebo téměř). Jednotný vizuální styl, všichni stejný maskot, přátelský/profesionální dojem. Průhledné pozadí. Výsledek musí mít stejnou vizuální „sílu“ jako ostatní tab ikony – ne malé postavy uprostřed prázdného čtverce.
+
+Technické: čtverec 1:1 (export 512×512 nebo 1024×1024 px, finálně 45×45 nebo 90×90 px). Styl semi-realistický, moderní – ne cartoon. Pozadí průhledné (PNG s alfa kanálem).
+```
+
+**Prompt (EN):**
+
+```
+Tab icon for Barbers – **square format 1:1, composition must fill the entire square**. Multiple identical brand mascots [MASCOT NAME] side by side in a row (e.g. 2–3 mascots). Figures are **large in frame**, occupying most of the icon area – tight crop, no large empty margins around the group. As if the image is cropped so the row of barbers fills the square edge to edge (or nearly). Consistent visual style, same mascot repeated, friendly/professional feel. Transparent background. The result must have the same visual weight as other tab icons – not small figures in the middle of an empty square.
+
+Technical: square 1:1 (export 512×512 or 1024×1024 px, final 45×45 or 90×90 px). Semi-realistic, modern style – not cartoon. Transparent background (PNG with alpha channel).
+```
+
+---
+
+#### 6b Produkty (Products)
+
+**Poznámka:** Pro věrné znázornění produktů přiložte k promptu **referenční fotky**: 1) kolínská (cologne), 2) matná pasta (matte paste). Nástroj, který to umí, pak vykreslí maskota s těmito konkrétními předměty.
+
+**Prompt (CZ):**
+
+```
+Ikona pro záložku Produkty. Firemní maskot [JMÉNO / POPIS MASKOTA] drží v **jedné ruce kolínskou** (flakon na kolínskou / cologne – viz referenční fotka) a ve **druhé ruce matnou pastu** (tubu nebo balení matné pasty – viz referenční fotka). Postoj profesionální, nabízející – jako by představoval produkty. Výraz vstřícný. Hlavní motiv: maskot + kolínská v jedné ruce + matná pasta ve druhé. Žádné složité pozadí. Kompozice čitelná v 45×45 px. Pokud máte referenční obrázky kolínské a pasty, přidejte je k promptu pro konzistentní vzhled.
+
+Technické: čtverec 1:1 (export 512×512 nebo 1024×1024 px, finálně 45×45 nebo 90×90 px). Styl semi-realistický, moderní – ne cartoon. Pozadí průhledné (PNG s alfa kanálem).
+```
+
+**Prompt (EN):**
+
+```
+Tab icon for Products. Brand mascot [MASCOT NAME] holds **cologne in one hand** (cologne bottle / flacon – see reference photo) and **matte paste in the other hand** (tube or matte paste packaging – see reference photo). Professional, offering pose – as if presenting the products. Expression welcoming. Main motif: mascot + cologne in one hand + matte paste in the other. No complex background. Composition readable at 45×45 px. If you have reference images of the cologne and paste, add them to the prompt for consistent look.
+
+Technical: square 1:1 (export 512×512 or 1024×1024 px, final 45×45 or 90×90 px). Semi-realistic, modern style – not cartoon. Transparent background (PNG with alpha channel).
+```
+
+---
+
+### 7. Ikona tabu: Services – znázornění nabídky
+
+**Soubor:** `services.png`
+
+**Prompt (CZ):**
+
+```
+Ikona pro záložku Služby. Znázornění **nabídky služeb** – firemní maskot [JMÉNO / POPIS MASKOTA] v odborném, služebném postoji. Vedle nebo kolem něj jednoduchá vizualizace nabídky: seznam s odrážkami, menu, checklist nebo ikona „služby“ (např. lísteček s položkami). Žádné nástroje v ruce (žádné nůžky, strojek). Výraz: odborný, spolehlivý. Jednoduchá kompozice, čitelná v 45×45 px.
+
+Technické: čtverec 1:1 (export 512×512 nebo 1024×1024 px, finálně 45×45 nebo 90×90 px). Styl semi-realistický, moderní – ne cartoon. Pozadí průhledné (PNG s alfa kanálem).
+```
+
+**Prompt (EN):**
+
+```
+Tab icon for Services. Representation of **service offer** – brand mascot [MASCOT NAME] in an expert, service-oriented pose. Next to or around him, simple visualization of an offer: list with bullet points, menu, checklist or "services" icon (e.g. note with items). No tools in hand (no scissors, trimmer). Expression: expert, reliable. Simple composition, readable at 45×45 px.
+
+Technical: square 1:1 (export 512×512 or 1024×1024 px, final 45×45 or 90×90 px). Semi-realistic, modern style – not cartoon. Transparent background (PNG with alpha channel).
+```
+
+---
+
 
 ---
 
@@ -640,7 +750,7 @@ Format: square or 1:1, suitable for a UI icon (e.g. 512×512 or 1024×1024 px). 
 
 - **4 ikony flow „Přidat účes“:** Vytvoř si účes (myidea), Dej pravidla (myrules), Finishujeme (savefinish), Gratulujeme (gratulations). Odpovídající soubory a místa v kódu jsou v tabulce výše.
 - **11 ikon pro krok 2 wizardu** (What best describes your haircut? / For which season?): type-shorter.png … type-casual.png (8 ks), season-summer.png, season-winter.png, season-all-year.png (3 ks). Použití: `app/screens/add-property.tsx` – propertyTypeOptions, guestAccessOptions. Prompty v sekci „Ikony pro krok 2 wizardu“ (ikony 8–18).
-- **3 ikony tab baru:** house.png (Wallet / My haircuts / Branches / Guides), experience.png (Barbers / Products), services.png (Services). Vše v `components/HomeTabs.tsx`.
+- **Ikony tab baru:** 4 varianty pro „domov“ (5a Peněženka, 5b Moje střihy, 5c Pobočky, 5d Průvodce), 2 varianty pro experience (6a Barbeři – více maskotů v řadě, 6b Produkty – kolínská + matná pasta, přiložit referenční fotky), 1 ikona Services (znázornění nabídky). Soubory např. house.png, experience.png, services.png nebo oddělené. Vše v `components/HomeTabs.tsx`.
 - V každém promptu je maskot hlavní postava a dělá konkrétní činnost dané sekce.
 - Před generováním doplňte `[JMÉNO / POPIS MASKOTA]` a případně přidejte referenční obrázek maskota pro konzistenci.
 - Ostatní obrázky (room-*, user-*, wallet/*, markers, branches) jsou v dokumentu vypsané pro přehled; nahrazení maskotem je volitelné.

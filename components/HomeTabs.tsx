@@ -1,5 +1,6 @@
 import { View, Animated, Image, TouchableOpacity, ScrollView } from 'react-native';
 import React, { useRef, useEffect, useState } from 'react';
+import * as Haptics from 'expo-haptics';
 import ThemedText from './ThemedText';
 import { Link, router, usePathname } from 'expo-router';
 import { useTranslation } from '@/app/hooks/useTranslation';
@@ -18,13 +19,13 @@ const HomeTabs = (props: any) => {
                 showsHorizontalScrollIndicator={false}
                 contentContainerStyle={{ flexGrow: 1, justifyContent: 'center', paddingHorizontal: 8 }}
             >
-                <TabItem href="/wallet" active={currentPath === '/wallet'} label={t('tabWallet')} icon={require('@/assets/img/house.png')} scrollY={props.scrollY} />
-                <TabItem href="/my-haircuts" active={currentPath === '/my-haircuts'} label={t('tabMyHaircuts')} icon={require('@/assets/img/house.png')} scrollY={props.scrollY} />
-                <TabItem href="/" active={currentPath === '/'} label={t('tabBranches')} icon={require('@/assets/img/house.png')} scrollY={props.scrollY} />
-                <TabItem href="/experience" active={currentPath === '/experience'} label={t('tabBarbers')} icon={require('@/assets/img/experience.png')} scrollY={props.scrollY} />
+                <TabItem href="/wallet" active={currentPath === '/wallet'} label={t('tabWallet')} icon={require('@/assets/img/wallet.png')} scrollY={props.scrollY} />
+                <TabItem href="/my-haircuts" active={currentPath === '/my-haircuts'} label={t('tabMyHaircuts')} icon={require('@/assets/img/my-haircuts.png')} scrollY={props.scrollY} />
+                <TabItem href="/" active={currentPath === '/'} label={t('tabBranches')} icon={require('@/assets/img/branches.png')} scrollY={props.scrollY} />
+                <TabItem href="/experience" active={currentPath === '/experience'} label={t('tabBarbers')} icon={require('@/assets/img/barbers.png')} scrollY={props.scrollY} />
                 <TabItem href="/services" active={currentPath === '/services'} label={t('tabServices')} icon={require('@/assets/img/services.png')} scrollY={props.scrollY} />
-                <TabItem href="/products" active={currentPath === '/products'} label={t('tabProducts')} icon={require('@/assets/img/experience.png')} scrollY={props.scrollY} />
-                <TabItem href="/guides" active={currentPath === '/guides'} label={t('tabGuides')} icon={require('@/assets/img/house.png')} scrollY={props.scrollY} />
+                <TabItem href="/products" active={currentPath === '/products'} label={t('tabProducts')} icon={require('@/assets/img/products.png')} scrollY={props.scrollY} />
+                <TabItem href="/guides" active={currentPath === '/guides'} label={t('tabGuides')} icon={require('@/assets/img/guides.png')} scrollY={props.scrollY} />
             </ScrollView>
         </View>
     );
@@ -67,8 +68,13 @@ const TabItem = (props: any) => {
         return () => props.scrollY.removeListener(listenerId);
     }, [props.scrollY, animatedSize, isExpanded]);
 
+    const handlePress = () => {
+        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy).catch(() => {});
+        router.push(props.href);
+    };
+
     return (
-            <TouchableOpacity onPress={() => router.push(props.href)} activeOpacity={0.5} className={`items-center pb-2 px-6 min-w-[72px] border-b-2 ${props.active ? 'border-black dark:border-white' : 'border-transparent'}`}>
+            <TouchableOpacity onPress={handlePress} activeOpacity={0.5} className={`items-center pb-2 px-6 min-w-[72px] border-b-2 ${props.active ? 'border-black dark:border-white' : 'border-transparent'}`}>
                 <Animated.View
                     style={{
                         width: animatedSize,

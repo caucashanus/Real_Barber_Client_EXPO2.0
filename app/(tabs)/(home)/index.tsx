@@ -124,13 +124,8 @@ const HomeScreen = () => {
                     <ThemedText className='text-base font-medium flex-1 pr-2'>
                         {t('homeContinueSearchBarbershops')}
                     </ThemedText>
-                    <View className='w-20 h-20 relative'>
-                        <View className='w-full h-full rounded-xl relative z-20 overflow-hidden border-2 border-light-primary dark:border-dark-primary'>
-                            <Image className='w-full h-full' source={{ uri: 'https://images.unsplash.com/photo-1526318896980-cf78c088247c?q=80&w=400' }} />
-                        </View>
-                        <View className='w-full h-full absolute top-0 left-1 rotate-12 rounded-xl overflow-hidden border-2 border-light-primary dark:border-dark-primary'>
-                            <Image className='w-full h-full' source={{ uri: 'https://images.pexels.com/photos/69903/pexels-photo-69903.jpeg?auto=compress&cs=tinysrgb&w=1200' }} />
-                        </View>
+                    <View className='w-20 h-20 items-center justify-center'>
+                        <Image className='w-full h-full' source={require('@/assets/img/branches.png')} resizeMode="contain" />
                     </View>
                 </Pressable>
                 <Section title={t('popularBarbershops')} titleSize="lg" link="/screens/map" linkText={t('commonViewAll')}>
