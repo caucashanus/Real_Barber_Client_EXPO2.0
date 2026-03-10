@@ -171,6 +171,12 @@ export const cs: Record<TranslationKey, string> = {
   // Products (home)
   productsMyPurchased: 'Moje zakoupené produkty',
   productsTitle: 'Produkty',
+  productsPromoTitle: 'Doporučené produkty',
+  productsPromoSubtitle: 'Vybrané přípravky a styling pro váš účes.',
+  productsPromoTitle2: 'Novinky',
+  productsPromoSubtitle2: 'Nejnovější přípravky a limited edice.',
+  productsPromoTitle3: 'Slevy',
+  productsPromoSubtitle3: 'Aktuální slevy na vybrané produkty.',
   productsNoPurchased: 'Žádné zakoupené produkty.',
   walletTransactions: 'Transakce',
   walletNoTransactions: 'Žádné transakce',
@@ -529,6 +535,11 @@ export const cs: Record<TranslationKey, string> = {
   walletMore: 'Více',
   walletShowAll: 'Zobrazit vše',
   walletFlexiFondy: 'FlexiFondy',
+  walletFlexiFondySubtitle: 'S variabilním úrokem v EUR, GBP nebo USD. Investiční riziko.',
+  walletPromoTitle2: 'RBC Cashback',
+  walletPromoSubtitle2: 'Získejte cashback z každého nákupu v partnerských salonech.',
+  walletPromoTitle3: 'Dárkové karty RBC',
+  walletPromoSubtitle3: 'Darujte RBC kredity jako dárkovou kartu.',
   walletMoreButton: 'Více',
 
   // Add property steps & texts
@@ -643,6 +654,13 @@ export const cs: Record<TranslationKey, string> = {
   // Guides
   guidesLoading: 'Načítání průvodců…',
   guidesNoGuides: 'Zatím žádní průvodci.',
+
+  // Návod „K čemu je Moje střihy“
+  guideMyHaircutsStep1: 'Kdykoli máš nápad na účes, vytvoř si ho – dej mu název a ulož. Pak ho u pobočky ukaž holiči a bude přesně vědět, co chceš.',
+  guideMyHaircutsStep2: 'U pobočky stačí holiči ukázat uložený účes. Nemusíš nic vysvětlovat – holič vidí přesně, co chceš.',
+  guideMyHaircutsStep3: 'Všechny své účesy máš na jednom místě. Můžeš přidávat další kdykoli nebo je ukázat při příští návštěvě.',
+  guideMyHaircutsNext: 'Další',
+  guideMyHaircutsGotIt: 'Rozumím',
 
   // Earnings
   earningsUpcoming: 'Nadcházející',

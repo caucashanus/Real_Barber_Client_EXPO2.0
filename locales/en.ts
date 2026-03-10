@@ -169,6 +169,12 @@ export const en = {
   // Products (home)
   productsMyPurchased: 'My purchased products',
   productsTitle: 'Products',
+  productsPromoTitle: 'Recommended products',
+  productsPromoSubtitle: 'Selected styling and care products for your look.',
+  productsPromoTitle2: 'New arrivals',
+  productsPromoSubtitle2: 'Latest products and limited editions.',
+  productsPromoTitle3: 'Deals',
+  productsPromoSubtitle3: 'Current discounts on selected products.',
   productsNoPurchased: 'No purchased products.',
   walletTransactions: 'Transactions',
   walletNoTransactions: 'No transactions',
@@ -527,6 +533,11 @@ export const en = {
   walletMore: 'More',
   walletShowAll: 'Show all',
   walletFlexiFondy: 'FlexiFondy',
+  walletFlexiFondySubtitle: 'Variable interest in EUR, GBP or USD. Investment risk.',
+  walletPromoTitle2: 'RBC Cashback',
+  walletPromoSubtitle2: 'Earn cashback on every purchase at partner salons.',
+  walletPromoTitle3: 'RBC Gift Cards',
+  walletPromoSubtitle3: 'Give RBC credits as a gift card.',
   walletMoreButton: 'More',
 
   // Add property steps & texts
@@ -641,6 +652,13 @@ export const en = {
   // Guides
   guidesLoading: 'Loading guides…',
   guidesNoGuides: 'No guides yet.',
+
+  // Guide "What's My haircuts for"
+  guideMyHaircutsStep1: "Whenever you have an idea, create your haircut — give it a name and save it. Then show it at the branch and the barber knows exactly what you want.",
+  guideMyHaircutsStep2: "At the branch just show the barber your saved haircut. No need to explain — the barber sees exactly what you want.",
+  guideMyHaircutsStep3: "You have all your haircuts in one place. Add more anytime or show them at your next visit.",
+  guideMyHaircutsNext: 'Next',
+  guideMyHaircutsGotIt: 'Got it',
 
   // Earnings
   earningsUpcoming: 'Upcoming',

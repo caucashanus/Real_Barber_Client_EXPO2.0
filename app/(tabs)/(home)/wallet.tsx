@@ -1,7 +1,7 @@
 import ThemeScroller from '@/components/ThemeScroller';
 import React, { useCallback, useContext, useEffect, useRef, useState } from 'react';
 import { useFocusEffect } from '@react-navigation/native';
-import { View, Animated, Pressable, ActivityIndicator } from 'react-native';
+import { View, Animated, Pressable, ActivityIndicator, ScrollView } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import AnimatedView from '@/components/AnimatedView';
 
@@ -64,6 +64,8 @@ function transactionAvatarSrc(item: RbCoinsHistoryItem): string | import('react-
 }
 
 const ANIM_DURATION_MS = 500;
+const WALLET_PROMO_DISMISSED_KEY = 'wallet_promo_dismissed';
+const WALLET_PROMO_HIDE_MS = 24 * 60 * 60 * 1000; // 24 h
 
 const WalletScreen = () => {
   const router = useRouter();
@@ -80,6 +82,34 @@ const WalletScreen = () => {
   const [displayAmount, setDisplayAmount] = useState(0);
   const countAnim = useRef(new Animated.Value(0)).current;
   const lastAnimatedBalanceRef = useRef<number | null>(null);
+  const [dismissedPromoAt, setDismissedPromoAt] = useState<Record<number, number>>({});
+
+  useEffect(() => {
+    AsyncStorage.getItem(WALLET_PROMO_DISMISSED_KEY).then((raw) => {
+      if (!raw) return;
+      try {
+        const parsed: Record<string, number> = JSON.parse(raw);
+        const now = Date.now();
+        const next: Record<number, number> = {};
+        Object.entries(parsed).forEach(([k, ts]) => {
+          const idx = Number(k);
+          if (now - ts < WALLET_PROMO_HIDE_MS) next[idx] = ts;
+        });
+        setDismissedPromoAt(next);
+      } catch {
+        /* ignore */
+      }
+    });
+  }, []);
+
+  const handleDismissPromo = (index: number) => {
+    const now = Date.now();
+    setDismissedPromoAt((prev) => {
+      const next = { ...prev, [index]: now };
+      AsyncStorage.setItem(WALLET_PROMO_DISMISSED_KEY, JSON.stringify(next)).catch(() => {});
+      return next;
+    });
+  };
 
   useEffect(() => {
     getLastSeenBalance(WALLET_LAST_SEEN_BALANCE_KEY).then((stored) => {
@@ -201,20 +231,40 @@ const WalletScreen = () => {
           </Pressable>
         </View>
 
-        {/* 3. Reklamní banner (mock) – stejný styl jako Continue searching */}
-        <View style={{ ...shadowPresets.large }} className="mt-4 p-5 rounded-2xl bg-light-secondary dark:bg-dark-secondary">
-          <View className="flex-row justify-between items-start">
-            <View className="flex-1 pr-2">
-              <ThemedText className="text-lg font-bold text-light-text dark:text-dark-text">{t('walletFlexiFondy')}</ThemedText>
-              <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext mt-1">
-                S variabilním úrokem v EUR, GBP nebo USD. Investiční riziko.
-              </ThemedText>
-            </View>
-            <Pressable className="p-1">
-              <Icon name="X" size={18} className="text-light-subtext dark:text-dark-subtext" />
-            </Pressable>
-          </View>
-        </View>
+        {/* 3. Reklamní karty – horizontální scroll, X skryje na 24 h */}
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          className="-mx-global mt-4 mb-0"
+          contentContainerStyle={{ paddingHorizontal: 16, paddingRight: 24, paddingVertical: 18 }}
+        >
+          {[
+            { titleKey: 'walletFlexiFondy', subtitleKey: 'walletFlexiFondySubtitle' },
+            { titleKey: 'walletPromoTitle2', subtitleKey: 'walletPromoSubtitle2' },
+            { titleKey: 'walletPromoTitle3', subtitleKey: 'walletPromoSubtitle3' },
+          ]
+            .map((item, index) => ({ item, index }))
+            .filter(({ index }) => !dismissedPromoAt[index] || Date.now() - dismissedPromoAt[index] >= WALLET_PROMO_HIDE_MS)
+            .map(({ item, index }) => (
+              <View
+                key={index}
+                style={{ ...shadowPresets.large, width: 280, marginRight: 15 }}
+                className="p-5 rounded-2xl bg-light-secondary dark:bg-dark-secondary flex-shrink-0"
+              >
+                <View className="flex-row justify-between items-start">
+                  <View className="flex-1 pr-2">
+                    <ThemedText className="text-lg font-bold text-light-text dark:text-dark-text">{t(item.titleKey)}</ThemedText>
+                    <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext mt-1">
+                      {t(item.subtitleKey)}
+                    </ThemedText>
+                  </View>
+                  <Pressable className="p-1" onPress={() => handleDismissPromo(index)}>
+                    <Icon name="X" size={18} className="text-light-subtext dark:text-dark-subtext" />
+                  </Pressable>
+                </View>
+              </View>
+            ))}
+        </ScrollView>
 
         {/* 4. Transakce – stejný blok se stínem jako na Branches */}
         <Section title={t('walletTransactions')} titleSize="lg" className="mt-6">
