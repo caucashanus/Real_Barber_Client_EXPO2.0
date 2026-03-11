@@ -1,5 +1,6 @@
-import React, { useEffect, useState } from 'react';
-import { View, ActivityIndicator, Image, Pressable, Linking } from 'react-native';
+import React, { useEffect, useRef, useState } from 'react';
+import { View, ActivityIndicator, Image, Pressable, Linking, Alert } from 'react-native';
+import { ActionSheetRef } from 'react-native-actions-sheet';
 import { useLocalSearchParams, router } from 'expo-router';
 import Header from '@/components/Header';
 import ThemedScroller from '@/components/ThemeScroller';
@@ -13,9 +14,10 @@ import Divider from '@/components/layout/Divider';
 import Icon from '@/components/Icon';
 import { Button } from '@/components/Button';
 import AnimatedView from '@/components/AnimatedView';
+import ConfirmationModal from '@/components/ConfirmationModal';
 import { useAuth } from '@/app/contexts/AuthContext';
 import { useSetTransferRecipient } from '@/app/contexts/TransferRecipientContext';
-import { getBookings, type Booking } from '../../api/bookings';
+import { getBookings, cancelBooking, type Booking } from '../../api/bookings';
 import { getBranches, type Branch, type BranchService } from '@/api/branches';
 import { getClientOverview, type ClientOverviewReservation } from '@/api/reviews';
 import { useTranslation } from '@/app/hooks/useTranslation';
@@ -107,6 +109,7 @@ const BookingDetailScreen = () => {
   const { apiToken } = useAuth();
   const { t } = useTranslation();
   const setTransferRecipient = useSetTransferRecipient();
+  const cancelSheetRef = useRef<ActionSheetRef>(null);
   const [booking, setBooking] = useState<Booking | null>(null);
   const [branch, setBranch] = useState<Branch | null>(null);
   const [hasReview, setHasReview] = useState(false);
@@ -186,6 +189,7 @@ const BookingDetailScreen = () => {
   const isCancelled = status === 'cancelled' || status === 'canceled';
   const isPast = isBookingPast(booking);
   const isUpcoming = !isCancelled && !isPast;
+  const cancelMessage = `${t('tripDetailCancelConfirmIntro')} ${appointment.dateStr} ${appointment.fromTime} ${t('tripDetailCancelConfirmAtBranch')} ${booking.branch?.name ?? '—'}.`;
   const carouselImages =
     branch != null
       ? branchImages(branch)
@@ -379,25 +383,69 @@ const BookingDetailScreen = () => {
       <ThemedFooter>
         <View className="flex-row gap-3">
           {isPast && (
-            <Button
-              title={hasReview ? t('reviewUpdate') : t('branchReview')}
-              variant="outline"
-              iconStart="Star"
-              className="flex-1"
-              href={`/screens/review?entityType=reservation&entityId=${encodeURIComponent(booking.id)}&entityName=${encodeURIComponent(booking.item?.name ?? booking.branch?.name ?? 'Booking')}${booking.item?.imageUrl ? `&entityImage=${encodeURIComponent(booking.item.imageUrl)}` : ''}${booking.employee?.name ? `&entityEmployeeName=${encodeURIComponent(booking.employee.name)}` : ''}${booking.employee?.avatarUrl ? `&entityEmployeeAvatar=${encodeURIComponent(booking.employee.avatarUrl)}` : ''}`}
-            />
+            <View className="flex-row gap-3 flex-1">
+              <Button
+                title={t('tripDetailRepeatReservation')}
+                variant="outline"
+                iconStart="CalendarPlus"
+                className="flex-1"
+                href={booking.branchId ? `/screens/branch-detail?id=${encodeURIComponent(booking.branchId)}` : undefined}
+              />
+              <Button
+                title={hasReview ? t('reviewUpdate') : t('branchReview')}
+                variant="outline"
+                iconStart="Star"
+                className="flex-1"
+                href={`/screens/review?entityType=reservation&entityId=${encodeURIComponent(booking.id)}&entityName=${encodeURIComponent(booking.item?.name ?? booking.branch?.name ?? 'Booking')}${booking.item?.imageUrl ? `&entityImage=${encodeURIComponent(booking.item.imageUrl)}` : ''}${booking.employee?.name ? `&entityEmployeeName=${encodeURIComponent(booking.employee.name)}` : ''}${booking.employee?.avatarUrl ? `&entityEmployeeAvatar=${encodeURIComponent(booking.employee.avatarUrl)}` : ''}`}
+              />
+            </View>
           )}
           {isUpcoming && (
-            <Button
-              title={t('tripDetailCancelBooking')}
-              variant="outline"
-              iconStart="X"
-              className="flex-1"
-              onPress={() => {}}
-            />
+            <View className="flex-row gap-3 flex-1">
+              <Button
+                title={t('tripDetailMoveButton')}
+                variant="outline"
+                iconStart="Calendar"
+                className="flex-1"
+                href={`/screens/reschedule?id=${encodeURIComponent(booking.id)}`}
+              />
+              <Button
+                title={t('tripDetailCancelButton')}
+                variant="outline"
+                iconStart="X"
+                className="flex-1"
+                onPress={() => cancelSheetRef.current?.show()}
+              />
+            </View>
           )}
         </View>
       </ThemedFooter>
+      {isUpcoming && (
+        <ConfirmationModal
+          actionSheetRef={cancelSheetRef}
+          title={t('tripDetailCancelBooking')}
+          message={cancelMessage}
+          optionalReasonPlaceholder={t('tripDetailCancelReasonPlaceholder')}
+          quickReasons={[
+            t('cancelReasonOtherTerm'),
+            t('cancelReasonNoTime'),
+            t('cancelReasonChangeOfPlans'),
+          ]}
+          cancelText={t('tripDetailCancelNo')}
+          confirmText={t('tripDetailCancelYes')}
+          onCancel={() => {}}
+          onConfirm={(reason) => {
+            if (!apiToken) return;
+            cancelBooking(apiToken, booking.id, reason)
+              .then(() => {
+                router.back();
+              })
+              .catch((e) => {
+                Alert.alert(t('tripDetailCancelError'), e instanceof Error ? e.message : String(e));
+              });
+          }}
+        />
+      )}
     </>
   );
 };

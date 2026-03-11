@@ -140,3 +140,37 @@ export async function getBookingAvailability(
 
   return JSON.parse(text) as BookingAvailabilityResponse;
 }
+
+/** DELETE /api/client/bookings/[id] – cancel a booking for the authenticated client. */
+export async function cancelBooking(
+  apiToken: string,
+  bookingId: string,
+  reason?: string
+): Promise<{ cancelled: true }> {
+  const url = `${CRM_BASE}/api/client/bookings/${encodeURIComponent(bookingId)}`;
+  const res = await fetch(url, {
+    method: 'DELETE',
+    headers: {
+      Authorization: `Bearer ${apiToken}`,
+      'Content-Type': 'application/json',
+    },
+    body: reason != null && reason.trim() !== '' ? JSON.stringify({ reason: reason.trim() }) : undefined,
+  });
+  const text = await res.text();
+  if (res.status === 401) throw new Error('Unauthorized');
+  if (res.status === 403) throw new Error('Cannot cancel booking (wrong owner or status)');
+  if (res.status === 404) throw new Error('Booking not found');
+  if (res.status === 500) throw new Error('Failed to cancel booking');
+  if (!res.ok) {
+    let msg = `Error ${res.status}`;
+    try {
+      const body = JSON.parse(text) as { message?: string; error?: string };
+      if (body?.message) msg = body.message;
+      else if (body?.error) msg = body.error;
+    } catch {
+      if (text) msg = `${msg}: ${text.slice(0, 200)}`;
+    }
+    throw new Error(msg);
+  }
+  return text ? (JSON.parse(text) as { cancelled: true }) : { cancelled: true };
+}

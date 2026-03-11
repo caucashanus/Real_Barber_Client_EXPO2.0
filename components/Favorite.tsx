@@ -8,6 +8,7 @@ import { ActionSheetRef } from 'react-native-actions-sheet';
 import ThemedText from './ThemedText';
 import { router } from 'expo-router';
 import { useAuth } from '@/app/contexts/AuthContext';
+import { useTranslation } from '@/app/hooks/useTranslation';
 import {
   getFavorites,
   addFavorite,
@@ -40,6 +41,7 @@ const Favorite: React.FC<FavoriteProps> = ({
   title,
 }) => {
   const { apiToken } = useAuth();
+  const { t } = useTranslation();
   const [isFavorite, setIsFavorite] = useState(initialState);
   const [favoriteId, setFavoriteId] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -133,27 +135,27 @@ const Favorite: React.FC<FavoriteProps> = ({
       >
         <View className="p-4 pb-6">
           <ThemedText className="text-lg font-bold mt-4 mb-1 text-left">
-            {isFavorite ? 'Added to Favourites' : 'Removed from Favourites'}
+            {isFavorite ? t('favoritesSheetTitleAdded') : t('favoritesSheetTitleRemoved')}
           </ThemedText>
 
           <ThemedText className="text-left mb-6">
             {isFavorite
-              ? `${displayTitle} has been added to your favourites.`
-              : `${displayTitle} has been removed from your favourites.`
+              ? `${displayTitle} ${t('favoritesSheetMessageAdded')}`
+              : `${displayTitle} ${t('favoritesSheetMessageRemoved')}`
             }
           </ThemedText>
 
           <View className="flex-row w-full justify-center">
             {isFavorite && (
               <Button
-                title="View Favourites"
+                title={t('favoritesSheetViewFavourites')}
                 className="flex-1"
                 onPress={handleViewFavorites}
               />
             )}
 
             <Button
-              title="Continue Browsing"
+              title={t('favoritesSheetContinueBrowsing')}
               variant="outline"
               className={isFavorite ? "ml-3 px-6" : "px-6"}
               onPress={() => actionSheetRef.current?.hide()}

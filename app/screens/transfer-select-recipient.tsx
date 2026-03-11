@@ -108,6 +108,8 @@ function recipientAvatarSrc(r: TransferRecipient): string | import('react-native
 export default function TransferSelectRecipientScreen() {
   const router = useRouter();
   const { t } = useTranslation();
+  const tRef = useRef(t);
+  tRef.current = t;
   const { apiToken } = useAuth();
   const setTransferRecipient = useSetTransferRecipient();
   const [balance, setBalance] = useState<number>(0);
@@ -133,7 +135,7 @@ export default function TransferSelectRecipientScreen() {
       .then(([bal, historyData, employeesList]) => {
         setBalance(bal);
         setHistory(historyData);
-        const fromHistory = buildRecipientsFromHistory(historyData, t);
+        const fromHistory = buildRecipientsFromHistory(historyData, tRef.current);
         const employees = Array.isArray(employeesList) ? employeesList : [];
         setRecipients(mergeEmployeesWithHistory(employees, fromHistory));
       })
@@ -143,7 +145,7 @@ export default function TransferSelectRecipientScreen() {
         setRecipients([]);
       })
       .finally(() => setLoading(false));
-  }, [apiToken, t]);
+  }, [apiToken]);
 
   useEffect(() => {
     const q = searchQuery.trim();
