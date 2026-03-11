@@ -381,39 +381,51 @@ const BookingDetailScreen = () => {
       </ThemedScroller>
 
       <ThemedFooter>
-        <View className="flex-row gap-3">
+        <View className="flex-row gap-2 items-center justify-center">
           {isPast && (
-            <View className="flex-row gap-3 flex-1">
+            <View className="flex-row gap-2 flex-1">
               <Button
                 title={t('tripDetailRepeatReservation')}
                 variant="outline"
+                size="small"
                 iconStart="CalendarPlus"
-                className="flex-1"
+                iconSize={16}
+                className="flex-1 min-w-0"
+                textClassName="text-sm"
                 href={booking.branchId ? `/screens/branch-detail?id=${encodeURIComponent(booking.branchId)}` : undefined}
               />
               <Button
                 title={hasReview ? t('reviewUpdate') : t('branchReview')}
                 variant="outline"
+                size="small"
                 iconStart="Star"
-                className="flex-1"
+                iconSize={16}
+                className="flex-1 min-w-0"
+                textClassName="text-sm"
                 href={`/screens/review?entityType=reservation&entityId=${encodeURIComponent(booking.id)}&entityName=${encodeURIComponent(booking.item?.name ?? booking.branch?.name ?? 'Booking')}${booking.item?.imageUrl ? `&entityImage=${encodeURIComponent(booking.item.imageUrl)}` : ''}${booking.employee?.name ? `&entityEmployeeName=${encodeURIComponent(booking.employee.name)}` : ''}${booking.employee?.avatarUrl ? `&entityEmployeeAvatar=${encodeURIComponent(booking.employee.avatarUrl)}` : ''}`}
               />
             </View>
           )}
           {isUpcoming && (
-            <View className="flex-row gap-3 flex-1">
+            <View className="flex-row gap-2 flex-1">
               <Button
                 title={t('tripDetailMoveButton')}
                 variant="outline"
+                size="small"
                 iconStart="Calendar"
-                className="flex-1"
+                iconSize={16}
+                className="flex-1 min-w-0"
+                textClassName="text-sm"
                 href={`/screens/reschedule?id=${encodeURIComponent(booking.id)}`}
               />
               <Button
                 title={t('tripDetailCancelButton')}
                 variant="outline"
+                size="small"
                 iconStart="X"
-                className="flex-1"
+                iconSize={16}
+                className="flex-1 min-w-0"
+                textClassName="text-sm"
                 onPress={() => cancelSheetRef.current?.show()}
               />
             </View>

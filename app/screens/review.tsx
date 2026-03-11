@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { View, TouchableOpacity, Alert, Image, ActivityIndicator } from 'react-native';
+import * as Haptics from 'expo-haptics';
 import Avatar from '@/components/Avatar';
 import { router, useLocalSearchParams } from 'expo-router';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
@@ -19,6 +20,7 @@ const StarRating = ({ rating, setRating }: { rating: number; setRating: (rating:
     const colors = useThemeColors();
 
     const handlePress = (starIndex: number) => {
+        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(() => {});
         const newRating = starIndex + 1;
         setRating(newRating === rating ? 0 : newRating);
     };
@@ -224,7 +226,10 @@ const ReviewScreen = () => {
                             label={t('reviewAnonymous')}
                             description={t('reviewAnonymousDesc')}
                             value={isAnonymous}
-                            onChange={setIsAnonymous}
+                            onChange={(value) => {
+                                Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(() => {});
+                                setIsAnonymous(value);
+                            }}
                             className="py-3"
                         />
                     </View>

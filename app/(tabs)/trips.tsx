@@ -21,10 +21,11 @@ import { useTranslation } from '@/app/hooks/useTranslation';
 
 type BookingFilter = 'all' | 'current' | 'upcoming' | 'past' | 'cancelled' | 'rated' | 'pending_review';
 
-function formatBookingDate(b: Booking): string {
+function formatBookingDate(b: Booking, locale: string = 'en'): string {
   const d = new Date(b.date);
+  const dateLocale = locale === 'cs' ? 'cs-CZ' : 'en-GB';
   const day = d.getDate();
-  const month = d.toLocaleString('en-GB', { month: 'short' });
+  const month = d.toLocaleString(dateLocale, { month: 'short' });
   const year = d.getFullYear();
   return `${day} ${month} ${year}, ${b.slotStart} - ${b.slotEnd}`;
 }
@@ -219,7 +220,7 @@ const CountdownDisplay = ({ target }: { target: Date }) => {
 
 const TripsScreen = () => {
   const router = useRouter();
-  const { t } = useTranslation();
+  const { t, locale } = useTranslation();
   const { scrollY, scrollHandler, scrollEventThrottle } = useCollapsibleTitle();
   const { apiToken } = useAuth();
   const { refresh: refreshBookingsBadge } = useBookingsBadge();
@@ -399,7 +400,7 @@ const TripsScreen = () => {
                     <BookingCard
                       key={booking.id}
                       booking={booking}
-                      dateText={formatBookingDate(booking)}
+                      dateText={formatBookingDate(booking, locale)}
                       reviewRating={bookingReviewMap[booking.id]}
                       onOpenReview={() => {
                         const imageParam = booking.item?.imageUrl

@@ -478,7 +478,7 @@ export const cs: Record<TranslationKey, string> = {
   reschedulePlaceholder: 'Výběr nového termínu bude brzy k dispozici.',
   tripDetailCancelBooking: 'Zrušit rezervaci',
   tripDetailCancelButton: 'Zrušit',
-  tripDetailRepeatReservation: 'Opakovat rezervaci',
+  tripDetailRepeatReservation: 'Opakovat',
   tripDetailCancelConfirmIntro: 'Právě rušíte rezervaci na',
   tripDetailCancelConfirmAtBranch: 'na pobočce',
   tripDetailCancelReasonPlaceholder: 'Důvod (nepovinné)',

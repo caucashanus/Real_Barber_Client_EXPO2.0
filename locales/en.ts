@@ -476,7 +476,7 @@ export const en = {
   reschedulePlaceholder: 'Choosing a new date and time will be available soon.',
   tripDetailCancelBooking: 'Cancel booking',
   tripDetailCancelButton: 'Cancel',
-  tripDetailRepeatReservation: 'Repeat reservation',
+  tripDetailRepeatReservation: 'Repeat',
   tripDetailCancelConfirmIntro: 'You are about to cancel the reservation on',
   tripDetailCancelConfirmAtBranch: 'at branch',
   tripDetailCancelReasonPlaceholder: 'Reason (optional)',
