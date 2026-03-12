@@ -4,6 +4,7 @@ import { Text, ActivityIndicator, TouchableOpacity, View, Pressable } from 'reac
 import * as Haptics from 'expo-haptics';
 import { Link, router } from 'expo-router';
 import Icon, { IconName } from './Icon';
+import useThemeColors from '@/app/contexts/ThemeColors';
 
 type RoundedOption = 'none' | 'xs' | 'sm' | 'md' | 'lg' | 'xl' | 'full';
 
@@ -43,8 +44,9 @@ export const Button: React.FC<ButtonProps> = ({
   iconClassName = '',
   ...props
 }) => {
+  const colors = useThemeColors();
   const buttonStyles = {
-    primary: 'bg-highlight',
+    primary: '',
     secondary: 'bg-light-secondary dark:bg-dark-secondary',
     outline: 'border border-black dark:border-white bg-transparent',
     ghost: 'bg-transparent',
@@ -124,12 +126,15 @@ export const Button: React.FC<ButtonProps> = ({
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium).catch(() => {});
   };
 
+  const primaryStyle = variant === 'primary' ? { backgroundColor: colors.highlight } : undefined;
+
   if (href) {
     return (
       <TouchableOpacity
         disabled={loading || disabled}
         activeOpacity={0.8}
-        className={`px-4 relative ${buttonStyles[variant]} ${buttonSize[size]} ${roundedStyles[rounded]} items-center justify-center ${disabledStyle} ${className}`} 
+        style={primaryStyle}
+        className={`px-4 relative ${buttonStyles[variant]} ${buttonSize[size]} ${roundedStyles[rounded]} items-center justify-center ${disabledStyle} ${className}`}
         {...props}
         onPress={() => {
           triggerHaptic();
@@ -149,7 +154,8 @@ export const Button: React.FC<ButtonProps> = ({
       }}
       disabled={loading || disabled}
       activeOpacity={0.8}
-      className={`px-4 relative ${buttonStyles[variant]} ${buttonSize[size]} ${roundedStyles[rounded]} items-center justify-center ${disabledStyle} ${className}`} 
+      style={primaryStyle}
+      className={`px-4 relative ${buttonStyles[variant]} ${buttonSize[size]} ${roundedStyles[rounded]} items-center justify-center ${disabledStyle} ${className}`}
       {...props}
     >
       {ButtonContent}

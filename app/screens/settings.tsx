@@ -28,6 +28,7 @@ export default function SettingsScreen() {
                 <Section titleSize='3xl' className='pt-4 pb-10 px-4' title={t('settingsTitle')} subtitle={t('settingsSubtitle')} />
 
                 <View className='px-4'>
+                    <ListLink title={t('settingsAccent')} description={t('settingsAccentDesc')} icon="Palette" href="/screens/settings-accent" />
                     <ListLink title={t('settingsPayments')} description={t('settingsPaymentsDesc')} icon="CreditCard" href="/screens/profile/payments" />
                     <ListLink title={t('settingsNotifications')} description={t('settingsNotificationsDesc')} icon="Bell" href="/screens/profile/notifications" />
                     <ListLink title={t('settingsCurrency')} description={t('settingsCurrencyDesc')} icon="DollarSign" href="/screens/profile/currency" />

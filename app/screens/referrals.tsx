@@ -7,11 +7,13 @@ import Icon from '@/components/Icon';
 import Divider from '@/components/layout/Divider';
 import { useAuth } from '@/app/contexts/AuthContext';
 import { useTranslation } from '@/app/hooks/useTranslation';
+import useThemeColors from '@/app/contexts/ThemeColors';
 import { getReferrals, type ClientReferralsResponse } from '@/api/referrals';
 
 const ReferralsScreen = () => {
   const { apiToken } = useAuth();
   const { t } = useTranslation();
+  const colors = useThemeColors();
   const [referrals, setReferrals] = useState<ClientReferralsResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -50,7 +52,7 @@ const ReferralsScreen = () => {
         {/* Hero block – same layout as Earnings */}
         <View className="mt-14 mb-20 px-global">
           <ThemedText className="text-5xl font-semibold">{t('referralsInvited')}</ThemedText>
-          <ThemedText className="text-5xl text-highlight font-semibold">
+          <ThemedText style={{ color: colors.highlight }} className="text-5xl font-semibold">
             {loading ? '…' : invited}
           </ThemedText>
           <ThemedText className="text-5xl font-semibold">{t('referralsFriends')}</ThemedText>

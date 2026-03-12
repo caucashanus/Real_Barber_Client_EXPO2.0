@@ -18,10 +18,12 @@ import { router } from 'expo-router';
 import { useAuth } from '@/app/contexts/AuthContext';
 import { getClientMe, patchClientMe, type ClientMe } from '@/api/client';
 import { useTranslation } from '@/app/hooks/useTranslation';
+import useThemeColors from '@/app/contexts/ThemeColors';
 
 export default function EditProfileScreen() {
   const { apiToken } = useAuth();
   const { t } = useTranslation();
+  const colors = useThemeColors();
   const [client, setClient] = useState<ClientMe | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -260,7 +262,7 @@ export default function EditProfileScreen() {
           <ThemedText className="mb-3 text-lg font-semibold text-light-primary dark:text-dark-primary">{t('editProfilePhoneNumber')}</ThemedText>
           <ThemedText className="mb-6 text-base leading-6 text-light-subtext dark:text-dark-subtext">
             The phone number is the only contact detail that cannot be changed by you in the app. If you need to change it, please call{' '}
-            <ThemedText className="text-base font-semibold text-highlight underline" onPress={() => Linking.openURL('tel:+420608332881')}>
+            <ThemedText style={{ color: colors.highlight }} className="text-base font-semibold underline" onPress={() => Linking.openURL('tel:+420608332881')}>
               +420 608 332 881
             </ThemedText>
             {' '}and state your request. We will process it shortly and make the change for you.

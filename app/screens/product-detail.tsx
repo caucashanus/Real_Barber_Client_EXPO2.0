@@ -23,6 +23,7 @@ import { useSelectedPurchase, useSetSelectedPurchase } from '@/app/contexts/Sele
 import { useAuth } from '@/app/contexts/AuthContext';
 import { getEntityReviews, type EntityReviewItem } from '@/api/reviews';
 import { useTranslation } from '@/app/hooks/useTranslation';
+import useThemeColors from '@/app/contexts/ThemeColors';
 
 const property = {
     id: 1,
@@ -146,6 +147,7 @@ const PropertyDetail = () => {
     const setSelectedPurchase = useSetSelectedPurchase();
     const { apiToken, client } = useAuth();
     const { t } = useTranslation();
+    const colors = useThemeColors();
     const [instantBook, setInstantBook] = useState(false);
     const [isFocused, setIsFocused] = useState(true);
     const [reviews, setReviews] = useState<EntityReviewItem[]>([]);
@@ -414,7 +416,7 @@ const PropertyDetail = () => {
                                                             </View>
                                                         </View>
                                                         {isOwnReview && (
-                                                            <View className="ml-2 px-2 py-1 rounded-md bg-highlight">
+                                                            <View style={{ backgroundColor: colors.highlight }} className="ml-2 px-2 py-1 rounded-md">
                                                                 <ThemedText className="text-xs font-medium text-white">{t('productEdit')}</ThemedText>
                                                             </View>
                                                         )}
@@ -488,7 +490,7 @@ const PropertyDetail = () => {
                         <View className='flex-row items-center ml-auto'>
                             <Button
                                 title={purchase ? 'Buy' : 'Reserve'}
-                                className='bg-highlight ml-6 px-6'
+                                variant="primary" className="ml-6 px-6"
                                 textClassName='text-white'
                                 size='medium'
                                 href='/screens/order-detail?id=1'

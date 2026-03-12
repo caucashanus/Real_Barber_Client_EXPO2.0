@@ -138,7 +138,8 @@ export const Chip = ({
       style={style}
     >
       <View
-        className={`${paddingClasses} ${roundedClasses[rounded]} ${isChipSelected ? 'bg-highlight' : 'bg-light-secondary dark:bg-dark-secondary'} flex-row items-center justify-center`}
+        style={isChipSelected ? { backgroundColor: colors.highlight } : undefined}
+        className={`${paddingClasses} ${roundedClasses[rounded]} ${!isChipSelected ? 'bg-light-secondary dark:bg-dark-secondary' : ''} flex-row items-center justify-center`}
       >
         {children}
       </View>

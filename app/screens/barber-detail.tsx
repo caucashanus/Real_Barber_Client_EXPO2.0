@@ -28,6 +28,7 @@ import { router } from 'expo-router';
 import { CardScroller } from '@/components/CardScroller';
 import { getEntityReviews, type EntityReviewItem } from '@/api/reviews';
 import { useTranslation } from '@/app/hooks/useTranslation';
+import useThemeColors from '@/app/contexts/ThemeColors';
 
 type TopSlide = { type: 'image' | 'video'; uri: string };
 
@@ -105,6 +106,7 @@ export default function BarberDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const { apiToken, client } = useAuth();
   const { t } = useTranslation();
+  const colors = useThemeColors();
   const insets = useSafeAreaInsets();
   const [employee, setEmployee] = useState<EmployeeDetail | null>(null);
   const [loading, setLoading] = useState(true);
@@ -489,7 +491,7 @@ export default function BarberDetailScreen() {
                           </View>
                         </View>
                         {isOwnReview && (
-                          <View className="ml-2 px-2 py-1 rounded-md bg-highlight">
+                          <View style={{ backgroundColor: colors.highlight }} className="ml-2 px-2 py-1 rounded-md">
                             <ThemedText className="text-xs font-medium text-white">{t('barberMine')}</ThemedText>
                           </View>
                         )}
@@ -521,7 +523,7 @@ export default function BarberDetailScreen() {
         <View className="flex-row items-center ml-auto">
           <Button
             title={t('commonReserve')}
-            className="bg-highlight ml-6 px-6"
+            variant="primary" className="ml-6 px-6"
             textClassName="text-white"
             size="medium"
             rounded="lg"

@@ -29,6 +29,12 @@ export const cs: Record<TranslationKey, string> = {
   settingsChangePasswordDesc: 'Změňte své heslo',
   settingsHelp: 'Nápověda',
   settingsHelpDesc: 'Kontaktovat podporu',
+  settingsAccent: 'Barevnost',
+  settingsAccentDesc: 'Barva zvýraznění v aplikaci',
+  accentTitle: 'Barevnost',
+  accentHexPlaceholder: 'např. #FF2056',
+  accentHueSlider: 'Odstín',
+  accentReset: 'Výchozí barva',
   settingsSwitchToCzech: 'Přepnout do češtiny',
   settingsSwitchToEnglish: 'Přepnout do angličtiny',
 

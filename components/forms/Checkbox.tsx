@@ -41,13 +41,16 @@ const Checkbox: React.FC<CheckboxProps> = ({
                 onPress={handlePress}
                 className="flex-row items-center"
             >
-                <View className={`
+                <View
+                  style={isChecked ? { borderColor: colors.highlight } : undefined}
+                  className={`
           w-6 h-6 rounded border flex items-center justify-center
-          ${isChecked ? 'bg-primary border-highlight' : 'border-black/40 dark:border-white/40'}
+          ${isChecked ? 'bg-primary' : 'border-black/40 dark:border-white/40'}
           ${error ? 'border-red-500' : ''}
-        `}>
+        `}
+                >
                     {isChecked && (
-                        <View className='w-full h-full bg-highlight rounded border-[2px] border-light-primary dark:border-dark-primary items-center justify-center'>
+                        <View style={{ backgroundColor: colors.highlight }} className='w-full h-full rounded border-[2px] border-light-primary dark:border-dark-primary items-center justify-center'>
                             <Icon name="Check" size={14} color="#fff" />
                         </View>
                     )}

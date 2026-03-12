@@ -2,6 +2,7 @@ import React from 'react';
 import { View, ScrollView, Pressable } from 'react-native';
 import ThemedText from './ThemedText';
 import Avatar from './Avatar';
+import useThemeColors from '@/app/contexts/ThemeColors';
 import type { Employee } from '@/api/employees';
 
 interface BarberPickerProps {
@@ -13,6 +14,7 @@ interface BarberPickerProps {
 }
 
 export default function BarberPicker({ employees, value, onChange, label = 'Kadeřník', className = '' }: BarberPickerProps) {
+  const colors = useThemeColors();
   return (
     <View className={`mb-4 ${className}`}>
       {label ? (
@@ -32,7 +34,8 @@ export default function BarberPicker({ employees, value, onChange, label = 'Kade
               className="items-center w-20 flex-shrink-0 mr-5"
             >
               <View
-                className={`rounded-full p-0.5 ${selected ? 'border-2 border-highlight' : 'border border-light-secondary dark:border-dark-secondary'}`}
+                style={selected ? { borderColor: colors.highlight } : undefined}
+                className={`rounded-full p-0.5 ${selected ? 'border-2' : 'border border-light-secondary dark:border-dark-secondary'}`}
               >
                 <Avatar size="xl" src={e.avatarUrl ?? undefined} name={e.name} />
               </View>

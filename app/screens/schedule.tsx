@@ -9,6 +9,7 @@ import { Button } from '@/components/Button';
 import { ActionSheetRef } from 'react-native-actions-sheet';
 import Section from '@/components/layout/Section';
 import { useTranslation } from '@/app/hooks/useTranslation';
+import useThemeColors from '@/app/contexts/ThemeColors';
 import ThemedText from '@/components/ThemedText';
 import { shadowPresets } from '@/utils/useShadow';
 import Grid from '@/components/layout/Grid';
@@ -290,6 +291,7 @@ interface ScheduleCardProps {
 }
 
 const ScheduleCard = ({ name, image, branchNames, dateVariant }: ScheduleCardProps) => {
+  const colors = useThemeColors();
   return (
     <View style={{ ...shadowPresets.large }} className="bg-light-primary dark:bg-dark-secondary rounded-3xl overflow-hidden">
       <View className="w-full aspect-[3/4] bg-neutral-200 dark:bg-neutral-800">
@@ -322,7 +324,7 @@ const ScheduleCard = ({ name, image, branchNames, dateVariant }: ScheduleCardPro
         <ThemedText className="text-base font-semibold mb-2" numberOfLines={1}>{name}</ThemedText>
         <View className="flex-row items-center w-full">
           <View className="h-1.5 rounded-full bg-neutral-200 dark:bg-neutral-800 flex-1 mr-2">
-            <View className="h-full bg-highlight rounded-full" style={{ width: '50%' }} />
+            <View style={{ backgroundColor: colors.highlight, width: '50%' }} className="h-full rounded-full" />
           </View>
           <ThemedText className="text-xs text-light-subtext dark:text-dark-subtext">2/4</ThemedText>
         </View>

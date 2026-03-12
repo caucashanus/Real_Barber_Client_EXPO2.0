@@ -11,6 +11,7 @@ import Section from '@/components/layout/Section';
 import ShowRating from '@/components/ShowRating';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useTranslation } from '@/app/hooks/useTranslation';
+import useThemeColors from '@/app/contexts/ThemeColors';
 
 // Property interface
 interface Property {
@@ -105,6 +106,7 @@ const priceBreakdown: PriceBreakdown = {
 export default function OrderDetailScreen() {
   const insets = useSafeAreaInsets();
   const { t } = useTranslation();
+  const colors = useThemeColors();
   const { id } = useLocalSearchParams<{ id: string }>();
   const [selectedPaymentMethod, setSelectedPaymentMethod] = useState('1');
 
@@ -214,10 +216,11 @@ export default function OrderDetailScreen() {
                 <Pressable
                   key={method.id}
                   onPress={() => setSelectedPaymentMethod(method.id)}
+                  style={selectedPaymentMethod === method.id ? { borderColor: colors.highlight } : undefined}
                   className={`flex-row items-center p-4 rounded-lg border ${
-                    selectedPaymentMethod === method.id
-                      ? 'border-highlight '
-                      : 'border-light-secondary dark:border-dark-secondary'
+                    selectedPaymentMethod !== method.id
+                      ? 'border-light-secondary dark:border-dark-secondary'
+                      : ''
                   }`}
                 >
                   <Icon name={method.icon as any} size={24} className="mr-4" />
@@ -227,11 +230,14 @@ export default function OrderDetailScreen() {
                       {method.details}
                     </ThemedText>
                   </View>
-                  <View className={`w-5 h-5 rounded-full border-2 ${
-                    selectedPaymentMethod === method.id
-                      ? 'border-highlight bg-highlight'
-                      : 'border-light-subtext dark:border-dark-subtext'
-                  } items-center justify-center`}>
+                  <View
+                    style={selectedPaymentMethod === method.id ? { borderColor: colors.highlight, backgroundColor: colors.highlight } : undefined}
+                    className={`w-5 h-5 rounded-full border-2 ${
+                      selectedPaymentMethod !== method.id
+                        ? 'border-light-subtext dark:border-dark-subtext'
+                        : ''
+                    } items-center justify-center`}
+                  >
                     {selectedPaymentMethod === method.id && (
                       <View className="w-2 h-2 rounded-full bg-white" />
                     )}
@@ -300,7 +306,8 @@ export default function OrderDetailScreen() {
       >
         <Button
           title={t('orderConfirmAndPay')}
-          className="w-full bg-highlight"
+          variant="primary"
+          className="w-full"
           textClassName="text-white font-semibold"
           size="large"
           rounded="lg"

@@ -28,7 +28,7 @@ export default function AddPropertyStart() {
                 <IntroStep number="3" title={t('addPropertyStep3Title')} description={t('addPropertyStep3Desc')} image={require('@/assets/img/savefinish.png')} />
                 
                 <View className=' pb-2 mt-auto' style={{ paddingBottom: insets.bottom }}>
-                    <Button size="large" className='bg-highlight' textClassName='text-white' rounded="full" title={t('addPropertyLetsGo')} href='/screens/add-property' />
+                    <Button size="large" variant="primary" textClassName='text-white' rounded="full" title={t('addPropertyLetsGo')} href='/screens/add-property' />
                 </View>
             </View>
         </>

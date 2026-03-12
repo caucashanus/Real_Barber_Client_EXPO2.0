@@ -39,6 +39,7 @@ const mockUser = {
 
 export default function ChatDetailScreen() {
     const insets = useSafeAreaInsets();
+    const colors = useThemeColors();
     const { id } = useLocalSearchParams();
     const [message, setMessage] = useState('');
     const [messages, setMessages] = useState(mockMessages);
@@ -115,7 +116,8 @@ export default function ChatDetailScreen() {
             className={`flex-row ${item.isSent ? 'justify-end' : 'justify-start'} mb-4 px-4`}
         >
             <View
-                className={`rounded-2xl px-4 py-2 max-w-[80%] ${item.isSent ? 'bg-highlight' : 'bg-light-secondary dark:bg-dark-secondary'}`}
+                style={item.isSent ? { backgroundColor: colors.highlight } : undefined}
+                className={`rounded-2xl px-4 py-2 max-w-[80%] ${!item.isSent ? 'bg-light-secondary dark:bg-dark-secondary' : ''}`}
             >
                 <ThemedText className={item.isSent ? 'text-white' : ''}>{item.text}</ThemedText>
                 <ThemedText className={`text-xs mt-1 ${item.isSent ? 'text-white/70' : 'text-light-subtext dark:text-dark-subtext'}`}>
@@ -206,7 +208,8 @@ export default function ChatDetailScreen() {
                             <Icon
                                 name="Send"
                                 size={24}
-                                className={message.trim() ? 'text-highlight' : 'opacity-50'}
+                                color={message.trim() ? colors.highlight : undefined}
+                                className={!message.trim() ? 'opacity-50' : ''}
                             />
                         </TouchableOpacity>
                     </View>

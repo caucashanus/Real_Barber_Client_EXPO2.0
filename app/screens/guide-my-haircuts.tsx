@@ -54,8 +54,9 @@ export default function GuideMyHaircutsScreen() {
         </ThemedText>
         <Button
           title={isLastStep ? t('guideMyHaircutsGotIt') : t('guideMyHaircutsNext')}
+          variant="primary"
           size="large"
-          className="bg-highlight mt-4"
+          className="mt-4"
           textClassName="text-white"
           rounded="full"
           onPress={onButtonPress}

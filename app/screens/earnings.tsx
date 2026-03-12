@@ -206,7 +206,7 @@ const Counter = (props: any) => {
     return (
         <View className='mt-14 mb-20 px-global'>
             <ThemedText className='text-5xl font-semibold'>{t('earningsYouveMade')}</ThemedText>
-            <ThemedText className='text-5xl text-highlight font-semibold'>
+            <ThemedText style={{ color: colors.highlight }} className='text-5xl font-semibold'>
                 ${displayAmount.toLocaleString()}
             </ThemedText>
             <View className='flex-row items-center justify-between'>

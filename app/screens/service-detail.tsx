@@ -18,6 +18,7 @@ import { useAuth } from '@/app/contexts/AuthContext';
 import { getItemsAll, type Item } from '@/api/items';
 import { getEntityReviews, type EntityReviewItem } from '@/api/reviews';
 import { useTranslation } from '@/app/hooks/useTranslation';
+import useThemeColors from '@/app/contexts/ThemeColors';
 
 function formatReviewDate(iso: string): string {
   try {
@@ -59,6 +60,7 @@ export default function ServiceDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const { apiToken, client } = useAuth();
   const { t } = useTranslation();
+  const colors = useThemeColors();
   const insets = useSafeAreaInsets();
   const [item, setItem] = useState<Item | null>(null);
   const [loading, setLoading] = useState(true);
@@ -280,7 +282,7 @@ export default function ServiceDetailScreen() {
                             </View>
                           </View>
                           {isOwnReview && (
-                            <View className="ml-2 px-2 py-1 rounded-md bg-highlight">
+                            <View style={{ backgroundColor: colors.highlight }} className="ml-2 px-2 py-1 rounded-md">
                               <ThemedText className="text-xs font-medium text-white">{t('commonEdit')}</ThemedText>
                             </View>
                           )}
@@ -312,7 +314,7 @@ export default function ServiceDetailScreen() {
         <View className="flex-row items-center ml-auto">
           <Button
             title={t('commonReserve')}
-            className="bg-highlight ml-6 px-6"
+            variant="primary" className="ml-6 px-6"
             textClassName="text-white"
             size="medium"
             rounded="lg"

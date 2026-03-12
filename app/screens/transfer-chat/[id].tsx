@@ -18,6 +18,7 @@ import { Button } from '@/components/Button';
 import { useAuth } from '@/app/contexts/AuthContext';
 import { useTransferRecipient, useSetTransferRecipient } from '@/app/contexts/TransferRecipientContext';
 import { useTranslation } from '@/app/hooks/useTranslation';
+import useThemeColors from '@/app/contexts/ThemeColors';
 import {
   getRbCoinsBalance,
   getRbCoinsHistory,
@@ -46,6 +47,7 @@ export default function TransferChatScreen() {
   const insets = useSafeAreaInsets();
   const router = useRouter();
   const { t } = useTranslation();
+  const colors = useThemeColors();
   const { apiToken } = useAuth();
   const recipientFromContext = useTransferRecipient();
   const setTransferRecipient = useSetTransferRecipient();
@@ -197,9 +199,8 @@ export default function TransferChatScreen() {
                   className={`flex-row mb-4 ${isSent ? 'justify-end' : 'justify-start'}`}
                 >
                   <View
-                    className={`rounded-2xl px-4 py-2 max-w-[80%] ${
-                      isSent ? 'bg-highlight' : 'bg-light-secondary dark:bg-dark-secondary'
-                    }`}
+                    style={isSent ? { backgroundColor: colors.highlight } : undefined}
+                    className={`rounded-2xl px-4 py-2 max-w-[80%] ${!isSent ? 'bg-light-secondary dark:bg-dark-secondary' : ''}`}
                   >
                     <ThemedText className={`text-base font-semibold ${isSent ? 'text-white' : ''}`}>
                       {isSent ? '-' : '+'}

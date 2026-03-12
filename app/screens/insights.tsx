@@ -40,15 +40,16 @@ const InsightsScreen = () => {
 };
 
 const InsightCard = (props: any) => {
+    const colors = useThemeColors();
     return (
         <View
             style={{ ...shadowPresets.large }}
             className='bg-light-primary dark:bg-dark-secondary rounded-3xl p-4'>
-            <Icon name={props.icon} size={20} strokeWidth={2} color="white" className='bg-highlight w-12 h-12 rounded-full mb-20' />
+            <Icon name={props.icon} size={20} strokeWidth={2} color="white" style={{ backgroundColor: colors.highlight }} className='w-12 h-12 rounded-full mb-20' />
             <ThemedText className='text-xl font-semibold mb-1'>{props.title}</ThemedText>
             <View className='flex-row items-center w-full'>
                 <View className='h-2 rounded-full bg-neutral-200 dark:bg-neutral-800 flex-1 mr-3' >
-                    <View className='h-full bg-highlight rounded-full ' style={{ width: `${props.percentage}%` }} />
+                    <View style={{ backgroundColor: colors.highlight, width: `${props.percentage}%` }} className='h-full rounded-full' />
                 </View>
                 <ThemedText className='text-sm opacity-50'>{props.amount}</ThemedText>
             </View>

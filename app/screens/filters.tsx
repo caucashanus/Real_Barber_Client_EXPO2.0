@@ -102,7 +102,7 @@ export default function FiltersScreen() {
                     title={t('filtersApply')}
                     rounded="full"
                     size="large"
-                    className='bg-highlight'
+                    variant="primary"
                     textClassName='text-white'
                     onPress={handleApplyFilters}
                 />

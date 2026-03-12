@@ -8,6 +8,7 @@ import ThemedText from '@/components/ThemedText';
 import Avatar from '@/components/Avatar';
 import type { RbCoinsHistoryItem } from '@/api/rb-coins';
 import { useTranslation } from '@/app/hooks/useTranslation';
+import useThemeColors from '@/app/contexts/ThemeColors';
 
 function formatBalance(value: number): string {
   return value.toLocaleString('cs-CZ', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
@@ -51,6 +52,7 @@ export default function TransactionDetailModal({
   onClose,
 }: TransactionDetailModalProps) {
   const { t, locale } = useTranslation();
+  const colors = useThemeColors();
   const insets = useSafeAreaInsets();
   const router = useRouter();
   const setTransferRecipient = useSetTransferRecipient();
@@ -179,7 +181,8 @@ export default function TransactionDetailModal({
               {isTransfer && (
                 <Pressable
                   onPress={handleOdeslat}
-                  className="mt-4 py-3 rounded-xl bg-highlight items-center active:opacity-80"
+                  style={{ backgroundColor: colors.highlight }}
+                  className="mt-4 py-3 rounded-xl items-center active:opacity-80"
                 >
                   <ThemedText className="text-base font-semibold text-white">{t('walletDetailSend')}</ThemedText>
                 </Pressable>

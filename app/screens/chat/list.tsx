@@ -5,6 +5,7 @@ import Avatar from '@/components/Avatar';
 import Header from '@/components/Header';
 import ThemedText from '@/components/ThemedText';
 import { useTranslation } from '@/app/hooks/useTranslation';
+import useThemeColors from '@/app/contexts/ThemeColors';
 
 interface ChatUser {
   id: string;
@@ -46,6 +47,7 @@ const mockChats: ChatUser[] = [
 
 export default function ChatListScreen() {
   const { t } = useTranslation();
+  const colors = useThemeColors();
   const renderChatItem = ({ item }: { item: ChatUser }) => (
     <Link href={`/screens/chat/${item.id}`} asChild>
       <TouchableOpacity 
@@ -73,7 +75,7 @@ export default function ChatListScreen() {
               {item.lastMessage}
             </ThemedText>
             {item.unread && (
-              <View className="w-2 h-2 rounded-full bg-highlight ml-2" />
+              <View style={{ backgroundColor: colors.highlight }} className="w-2 h-2 rounded-full ml-2" />
             )}
           </View>
         </View>

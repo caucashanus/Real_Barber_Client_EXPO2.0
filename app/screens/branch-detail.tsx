@@ -21,6 +21,7 @@ import { useAuth } from '@/app/contexts/AuthContext';
 import { getBranches, type Branch, type BranchService, type BranchEmployee } from '@/api/branches';
 import { getEntityReviews, type EntityReviewItem } from '@/api/reviews';
 import { useTranslation } from '@/app/hooks/useTranslation';
+import useThemeColors from '@/app/contexts/ThemeColors';
 
 function getServicesList(branch: Branch): BranchService[] {
   const s = branch.services;
@@ -158,6 +159,7 @@ export default function BranchDetailScreen() {
   const router = useRouter();
   const { apiToken, client } = useAuth();
   const { t } = useTranslation();
+  const colors = useThemeColors();
   const insets = useSafeAreaInsets();
   const [branch, setBranch] = useState<Branch | null>(null);
   const [loading, setLoading] = useState(true);
@@ -342,7 +344,7 @@ export default function BranchDetailScreen() {
                   {descriptionClean.length > 50 ? (
                     <ThemedText
                       onPress={() => setDescriptionModalVisible(true)}
-                      className="text-base text-highlight font-medium"
+                      style={{ color: colors.highlight }} className="text-base font-medium"
                     >
                       {t('branchReadMore')}
                     </ThemedText>
@@ -416,7 +418,7 @@ export default function BranchDetailScreen() {
                           </View>
                         </View>
                         {isOwnReview && (
-                          <View className="ml-2 px-2 py-1 rounded-md bg-highlight">
+                          <View style={{ backgroundColor: colors.highlight }} className="ml-2 px-2 py-1 rounded-md">
                             <ThemedText className="text-xs font-medium text-white">{t('branchMine')}</ThemedText>
                           </View>
                         )}
@@ -439,7 +441,7 @@ export default function BranchDetailScreen() {
               </View>
               <Pressable
                 onPress={() => setRatingModalVisible(true)}
-                className="px-3 py-2 rounded-lg bg-highlight"
+                style={{ backgroundColor: colors.highlight }} className="px-3 py-2 rounded-lg"
               >
                 <ThemedText className="text-sm font-medium text-white">{t('branchFullRating')}</ThemedText>
               </Pressable>
@@ -507,7 +509,7 @@ export default function BranchDetailScreen() {
         <View className="flex-row items-center ml-auto">
           <Button
             title={t('branchReserve')}
-            className="bg-highlight ml-6 px-6"
+            variant="primary" className="ml-6 px-6"
             textClassName="text-white"
             size="medium"
             rounded="lg"

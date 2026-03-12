@@ -62,8 +62,8 @@ const FloatingButton: React.FC<FloatingButtonProps> = ({
     const buttonContent = (
         <TouchableOpacity
             onPress={onPress}
-            className="flex-row items-center bg-highlight px-4 py-3 rounded-full shadow-lg"
-            style={[styles.button, style]}
+            className="flex-row items-center px-4 py-3 rounded-full shadow-lg"
+            style={[styles.button, { backgroundColor: colors.highlight }, style]}
         >
             <Icon name={icon} size={20} color="white" />
             <ThemedText className="text-white ml-2">{label}</ThemedText>

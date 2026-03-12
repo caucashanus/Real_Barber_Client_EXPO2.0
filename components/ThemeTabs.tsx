@@ -2,6 +2,7 @@ import React, { useState, useRef, ReactNode, useEffect } from 'react';
 import { View, ScrollView, Animated, Dimensions, TouchableOpacity, ViewStyle, BackHandler } from 'react-native';
 import ThemedText from './ThemedText';
 import AnimatedView from './AnimatedView';
+import useThemeColors from '@/app/contexts/ThemeColors';
 
 type ThemeTabsProps = {
     children: ReactNode;
@@ -33,6 +34,7 @@ const ThemeTabs: React.FC<ThemeTabsProps> = ({
     type = 'fixed',
     scrollEnabled = true
 }) => {
+    const colors = useThemeColors();
     const [activeTab, setActiveTab] = useState(0);
     const scrollX = useRef(new Animated.Value(0)).current;
     const tabContentRef = useRef<ScrollView>(null);
@@ -110,12 +112,13 @@ const ThemeTabs: React.FC<ThemeTabsProps> = ({
                                             onPress={() => handleTabPress(index)}
                                         >
                                             <ThemedText
-                                                className={`text-base ${activeTab === index ? 'text-highlight' : ''}`}
+                                                style={activeTab === index ? { color: colors.highlight } : undefined}
+                                                className="text-base"
                                             >
                                                 {tab.props.name}
                                             </ThemedText>
                                             {activeTab === index && (
-                                                <View className='absolute bottom-0 h-[2px] w-full bg-highlight' />
+                                                <View style={{ backgroundColor: colors.highlight }} className='absolute bottom-0 h-[2px] w-full' />
                                             )}
                                         </TouchableOpacity>
                                     </Animated.View>
@@ -137,12 +140,13 @@ const ThemeTabs: React.FC<ThemeTabsProps> = ({
                                             onPress={() => handleTabPress(index)}
                                         >
                                             <ThemedText
-                                                className={`text-base ${activeTab === index ? 'text-highlight' : ''}`}
+                                                style={activeTab === index ? { color: colors.highlight } : undefined}
+                                                className="text-base"
                                             >
                                                 {tab.props.name}
                                             </ThemedText>
                                             {activeTab === index && (
-                                                <View className='absolute bottom-0 h-[2px] w-full bg-highlight' />
+                                                <View style={{ backgroundColor: colors.highlight }} className='absolute bottom-0 h-[2px] w-full' />
                                             )}
                                         </TouchableOpacity>
                                     </Animated.View>

@@ -39,16 +39,17 @@ const Selectable: React.FC<SelectableProps> = ({
       <Pressable
         onPress={onPress}
         style={style}
+        style={selected ? { borderColor: colors.highlight } : undefined}
         className={`
           border  dark:border-transparent rounded-2xl p-4 active:opacity-70 y dark:bg-dark-secondary/50
-          ${selected ? ' bg-light-subtext/0 dark:bg-dark-secondary border-highlight' : ' border-neutral-400 dark:border-transparent'}
+          ${selected ? ' bg-light-subtext/0 dark:bg-dark-secondary' : ' border-neutral-400 dark:border-transparent'}
           ${error ? 'border-red-500' : ''}
           ${className}
         `}
       >
         <View className="flex-row items-center">
           {icon && (
-            <View className={`mr-4 h-12 w-12 rounded-xl items-center justify-center bg-light-secondary dark:bg-white/10 ${selected ? 'bg-highlight' : ''}`}>
+            <View style={selected ? { backgroundColor: colors.highlight } : undefined} className={`mr-4 h-12 w-12 rounded-xl items-center justify-center bg-light-secondary dark:bg-white/10 ${!selected ? '' : ''}`}>
               <Icon 
                 name={icon} 
                 size={20} 

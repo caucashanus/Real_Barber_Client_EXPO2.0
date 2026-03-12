@@ -27,6 +27,12 @@ export const en = {
   settingsChangePasswordDesc: 'Change your password',
   settingsHelp: 'Help',
   settingsHelpDesc: 'Contact support',
+  settingsAccent: 'Accent color',
+  settingsAccentDesc: 'Highlight color used across the app',
+  accentTitle: 'Accent color',
+  accentHexPlaceholder: 'e.g. #FF2056',
+  accentHueSlider: 'Hue',
+  accentReset: 'Default color',
   settingsSwitchToCzech: 'Switch to Czech',
   settingsSwitchToEnglish: 'Switch to English',
 

@@ -10,6 +10,7 @@ import { CardScroller } from '@/components/CardScroller';
 import Section from '@/components/layout/Section';
 import { useCollapsibleTitle } from '@/app/hooks/useCollapsibleTitle';
 import { useTranslation } from '@/app/hooks/useTranslation';
+import useThemeColors from '@/app/contexts/ThemeColors';
 
 interface ChatUser {
   id: string;
@@ -120,6 +121,7 @@ const mockChats: ChatUser[] = [
 type FilterType = 'all' | 'read' | 'unread';
 
 export default function ChatListScreen() {
+  const colors = useThemeColors();
   const [selectedFilter, setSelectedFilter] = useState<FilterType>('all');
   const { t } = useTranslation();
   const { scrollY, onScroll, scrollEventThrottle } = useCollapsibleTitle();
@@ -167,7 +169,7 @@ export default function ChatListScreen() {
                 {item.timestamp}
               </ThemedText>
               {item.unread && (
-                <View className="w-2 h-2 rounded-full bg-highlight ml-2" />
+                <View style={{ backgroundColor: colors.highlight }} className="w-2 h-2 rounded-full ml-2" />
               )}
             </View>
           </View>

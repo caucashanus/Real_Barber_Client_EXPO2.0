@@ -7,10 +7,12 @@ import ThemedText from '@/components/ThemedText';
 import { router } from 'expo-router';
 import { Button } from '@/components/Button';
 import { useTranslation } from '@/app/hooks/useTranslation';
+import useThemeColors from '@/app/contexts/ThemeColors';
 
 const MyHaircutsScreen = () => {
   const scrollY = useContext(ScrollContext);
   const { t } = useTranslation();
+  const colors = useThemeColors();
 
   return (
     <ThemeScroller
@@ -26,7 +28,7 @@ const MyHaircutsScreen = () => {
           className="mb-4 py-2"
           accessibilityLabel="What's it for?"
         >
-          <ThemedText className="text-base text-highlight font-medium">{t('myHaircutsWhatsFor')}</ThemedText>
+          <ThemedText style={{ color: colors.highlight }} className="text-base font-medium">{t('myHaircutsWhatsFor')}</ThemedText>
         </Pressable>
         <View className="p-10 items-center rounded-3xl bg-slate-200 mt-6 mb-8 dark:bg-dark-secondary">
           <View className="w-20 h-20 relative">

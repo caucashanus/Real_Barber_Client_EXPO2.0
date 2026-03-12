@@ -12,6 +12,7 @@ import Section from '@/components/layout/Section';
 import { Button } from '@/components/Button';
 import Icon from '@/components/Icon';
 import { useTranslation } from '@/app/hooks/useTranslation';
+import useThemeColors from '@/app/contexts/ThemeColors';
 import { useAuth } from '@/app/contexts/AuthContext';
 import { getBranches, type Branch } from '@/api/branches';
 
@@ -28,6 +29,7 @@ function getKudyVideoUrl(branch: Branch): string | null {
 const KudyKNamDetail = () => {
   const insets = useSafeAreaInsets();
   const { t, locale } = useTranslation();
+  const colors = useThemeColors();
   const { apiToken } = useAuth();
   const videoRef = useRef<Video>(null);
   const { id: branchId } = useLocalSearchParams<{ id?: string }>();
@@ -128,7 +130,7 @@ const KudyKNamDetail = () => {
                 onPress={() => Linking.openURL(item.mapsUrl!)}
                 className="flex-row items-center py-3 px-4 rounded-xl bg-light-secondary dark:bg-dark-secondary active:opacity-80 mb-3"
               >
-                <Icon name="MapPin" size={22} className="text-highlight mr-3" />
+                <Icon name="MapPin" size={22} color={colors.highlight} className="mr-3" />
                 <ThemedText className="text-base font-medium">{t('kudyOpenGoogleMaps')}</ThemedText>
               </Pressable>
             ) : null}
@@ -137,7 +139,7 @@ const KudyKNamDetail = () => {
                 onPress={() => Linking.openURL(item.wazeUrl!)}
                 className="flex-row items-center py-3 px-4 rounded-xl bg-light-secondary dark:bg-dark-secondary active:opacity-80 mb-3"
               >
-                <Icon name="Car" size={22} className="text-highlight mr-3" />
+                <Icon name="Car" size={22} color={colors.highlight} className="mr-3" />
                 <ThemedText className="text-base font-medium">{t('kudyOpenWaze')}</ThemedText>
               </Pressable>
             ) : null}
@@ -146,7 +148,7 @@ const KudyKNamDetail = () => {
                 onPress={() => Linking.openURL(item.uberUrl!)}
                 className="flex-row items-center py-3 px-4 rounded-xl bg-light-secondary dark:bg-dark-secondary active:opacity-80"
               >
-                <Icon name="Car" size={22} className="text-highlight mr-3" />
+                <Icon name="Car" size={22} color={colors.highlight} className="mr-3" />
                 <ThemedText className="text-base font-medium">{t('kudyRideUber')}</ThemedText>
               </Pressable>
             ) : null}
@@ -167,7 +169,7 @@ const KudyKNamDetail = () => {
             <Button
               title={t('kudyShowVideo')}
               iconStart="Play"
-              className="bg-highlight ml-6 px-6"
+              variant="primary" className="ml-6 px-6"
               textClassName="text-white"
               size="medium"
               onPress={handleShowFullscreenVideo}

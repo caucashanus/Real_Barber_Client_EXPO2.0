@@ -1,5 +1,6 @@
 import React, { useState, useRef } from 'react';
 import { View, Pressable, Animated } from 'react-native';
+import useThemeColors from '@/app/contexts/ThemeColors';
 
 interface ToggleProps {
   value?: boolean;
@@ -14,6 +15,7 @@ const Toggle: React.FC<ToggleProps> = ({
   disabled = false,
   className = ''
 }) => {
+  const colors = useThemeColors();
   const [isActive, setIsActive] = useState(value ?? false);
   const slideAnim = useRef(new Animated.Value(value ?? false ? 1 : 0)).current;
 
@@ -44,7 +46,8 @@ const Toggle: React.FC<ToggleProps> = ({
       className={`w-12 h-7 rounded-full ${disabled ? 'opacity-50' : ''} ${className}`}
     >
       <View
-        className={`w-full h-full rounded-full absolute ${isOn ? 'bg-highlight' : 'bg-light-secondary dark:bg-dark-secondary'}`}
+        style={isOn ? { backgroundColor: colors.highlight } : undefined}
+        className={`w-full h-full rounded-full absolute ${!isOn ? 'bg-light-secondary dark:bg-dark-secondary' : ''}`}
       />
       <Animated.View
         style={{

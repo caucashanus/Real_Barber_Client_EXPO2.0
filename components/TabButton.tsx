@@ -70,7 +70,7 @@ export const TabButton = forwardRef<View, TabButtonProps>(
       }
       if (avatar) {
         return (
-          <View className={`rounded-full border-2 ${isFocused ? 'border-highlight' : 'border-transparent'}`}>
+          <View style={isFocused ? { borderColor: colors.highlight } : undefined} className={`rounded-full border-2 ${!isFocused ? 'border-transparent' : ''}`}>
             <Avatar src={avatar} size="xxs"  />
           </View>
         );
@@ -102,12 +102,12 @@ export const TabButton = forwardRef<View, TabButtonProps>(
                 transform: [{ translateY: labelMarginBottom }],
               }}
             >
-              <ThemedText className={`text-[9px] mt-px text-highlight`}>
+              <ThemedText style={{ color: colors.highlight }} className="text-[9px] mt-px">
                 {children}
               </ThemedText>
             </Animated.View>
           ) : (
-            <ThemedText className={`text-[9px] mt-px ${isFocused ? 'text-highlight' : 'text-neutral-500'}`}>
+            <ThemedText style={isFocused ? { color: colors.highlight } : undefined} className={`text-[9px] mt-px ${!isFocused ? 'text-neutral-500' : ''}`}>
               {children}
             </ThemedText>
           )}

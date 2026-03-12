@@ -12,6 +12,7 @@ import { TransferRecipientProvider } from './contexts/TransferRecipientContext';
 import { SelectedPurchaseProvider } from './contexts/SelectedPurchaseContext';
 import { BranchFilterProvider } from './contexts/BranchFilterContext';
 import { LanguageProvider } from './contexts/LanguageContext';
+import { AccentColorProvider } from './contexts/AccentColorContext';
 
 NativeWindStyleSheet.setOutput({
   default: 'native',
@@ -38,6 +39,7 @@ export default function RootLayout() {
       <BusinessModeProvider>
         <LanguageProvider>
         <ThemeProvider>
+          <AccentColorProvider>
           <AuthProvider>
             <TransferRecipientProvider>
               <SelectedPurchaseProvider>
@@ -47,6 +49,7 @@ export default function RootLayout() {
               </SelectedPurchaseProvider>
             </TransferRecipientProvider>
           </AuthProvider>
+          </AccentColorProvider>
         </ThemeProvider>
         </LanguageProvider>
       </BusinessModeProvider>
