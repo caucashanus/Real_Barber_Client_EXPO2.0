@@ -62,14 +62,6 @@ function getMediaUrlsSorted(media: Branch['media']): string[] {
   return withOrder.map((m) => m.url);
 }
 
-function branchPrice(branch: Branch): string {
-  const servicesList = getServicesList(branch);
-  const prices = servicesList.map((s) => s.price).filter((p) => p != null);
-  if (prices.length === 0) return '';
-  const min = Math.min(...prices);
-  return `from ${min} Kč`;
-}
-
 function branchImages(branch: Branch): string[] {
   const urls = getMediaUrlsSorted(branch.media);
   if (urls.length > 0) return urls;
@@ -82,7 +74,6 @@ function branchImages(branch: Branch): string[] {
 type MapBranchItem = {
   id: string;
   title: string;
-  price: string;
   rating: string;
   description: string;
   lat: number;
@@ -109,7 +100,6 @@ function branchToMapItem(branch: Branch, index: number): MapBranchItem {
   return {
     id: branch.id,
     title: branch.name,
-    price: branchPrice(branch) || '—',
     rating: '4.5',
     description: branch.address?.trim() || branch.name,
     lat,
@@ -245,7 +235,7 @@ const MapScreen = () => {
                         </View>
                     }
                     backgroundInteractionEnabled
-                    initialSnapIndex={1}
+                    initialSnapIndex={0}
                     snapPoints={[10, 100]}
                     gestureEnabled
                     overdrawEnabled={false}
@@ -290,7 +280,6 @@ const MapScreen = () => {
                                     <Text className="text-sm text-light-subtext dark:text-dark-subtext">
                                         {item.description}
                                     </Text>
-                                    <ThemedText className='font-bold text-base mt-2'>{item.price}</ThemedText>
                                 </View>
                             </CustomCard>
                         )}

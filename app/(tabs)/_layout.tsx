@@ -2,11 +2,13 @@ import { useThemeColors } from 'app/contexts/ThemeColors';
 import { TabButton } from 'components/TabButton';
 import { Tabs, TabList, TabTrigger, TabSlot } from 'expo-router/ui';
 import React from 'react';
+import { Platform } from 'react-native';
 import { useBusinessMode } from '@/app/contexts/BusinesModeContext';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useBookingsBadge } from '@/app/contexts/BookingsBadgeContext';
 import { BookingsBadgeProvider } from '@/app/contexts/BookingsBadgeContext';
 import { useTranslation } from '@/app/hooks/useTranslation';
+import { NativeTabs, Icon, Label, Badge } from 'expo-router/unstable-native-tabs';
 
 function TabsContent() {
   const colors = useThemeColors();
@@ -15,16 +17,44 @@ function TabsContent() {
   const insets = useSafeAreaInsets();
   const { hasUpcomingBookings } = useBookingsBadge();
 
+  const useNativeTabsOnIos = Platform.OS === 'ios' && !isBusinessMode;
+
+  if (useNativeTabsOnIos) {
+    return (
+      <NativeTabs tintColor={colors.highlight}>
+        <NativeTabs.Trigger name="(home)">
+          <Icon sf={{ default: 'magnifyingglass', selected: 'magnifyingglass' }} />
+          <Label>{t('navHome')}</Label>
+        </NativeTabs.Trigger>
+        <NativeTabs.Trigger name="favorites">
+          <Icon sf={{ default: 'heart', selected: 'heart.fill' }} />
+          <Label>{t('navFavorites')}</Label>
+        </NativeTabs.Trigger>
+        <NativeTabs.Trigger name="trips">
+          <Icon sf={{ default: 'calendar', selected: 'calendar' }} />
+          <Label>{t('navBookings')}</Label>
+          {hasUpcomingBookings ? <Badge>1</Badge> : null}
+        </NativeTabs.Trigger>
+        <NativeTabs.Trigger name="chat">
+          <Icon sf={{ default: 'message', selected: 'message.fill' }} />
+          <Label>{t('navMessages')}</Label>
+        </NativeTabs.Trigger>
+        <NativeTabs.Trigger name="profile">
+          <Icon sf={{ default: 'person.circle', selected: 'person.circle.fill' }} />
+          <Label>{t('navProfile')}</Label>
+        </NativeTabs.Trigger>
+      </NativeTabs>
+    );
+  }
+
   return (
     <Tabs>
       <TabSlot />
       <TabList
         style={{
-          //height: 80,
           backgroundColor: colors.bg,
           borderTopColor: colors.secondary,
           borderTopWidth: 1,
-          // paddingTop: insets.top,
           paddingBottom: insets.bottom,
         }}
       >
@@ -55,8 +85,6 @@ function TabsContent() {
         <TabTrigger name="profile" href="/profile" asChild>
           <TabButton labelAnimated={false} icon="CircleUser">{t('navProfile')}</TabButton>
         </TabTrigger>
-
-
       </TabList>
     </Tabs>
   );
