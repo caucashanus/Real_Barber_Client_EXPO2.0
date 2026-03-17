@@ -174,9 +174,9 @@ export const DatePicker: React.FC<DatePickerProps> = ({
         <View className="relative">
           <TouchableOpacity
             onPress={showDatePicker}
-            className={`border rounded-lg py-4 px-3 h-14 pr-10 text-black dark:text-white bg-transparent
-              ${isFocused ? 'border-black dark:border-white' : 'border-black/60 dark:border-white/60'}
-              ${error ? 'border-red-500' : ''}`}
+            className={`border rounded-xl py-4 px-3 h-14 pr-10 text-black dark:text-white bg-transparent
+              ${isFocused ? 'border-neutral-400 dark:border-neutral-500' : 'border-neutral-200 dark:border-neutral-700'}
+              ${error ? 'border-red-500 dark:border-red-400' : ''}`}
           >
             <ThemedText className={value ? 'text-base' : 'text-base text-gray-500'}>
               {value ? formatToYYYYMMDD(value) : placeholder}
@@ -187,7 +187,7 @@ export const DatePicker: React.FC<DatePickerProps> = ({
           </Pressable>
         </View>
         {error && (
-          <ThemedText className="text-red-500 text-xs mt-1">{error}</ThemedText>
+          <ThemedText className="text-red-500 dark:text-red-400 text-xs mt-1">{error}</ThemedText>
         )}
         {renderDatePicker()}
       </View>
@@ -210,8 +210,8 @@ export const DatePicker: React.FC<DatePickerProps> = ({
           <TouchableOpacity
             onPress={showDatePicker}
             className={`border-b-2 py-4 px-0 h-14 pr-10 text-black dark:text-white bg-transparent border-t-0 border-l-0 border-r-0
-              ${isFocused ? 'border-black dark:border-white' : 'border-black/60 dark:border-white/60'}
-              ${error ? 'border-red-500' : ''}`}
+              ${isFocused ? 'border-neutral-400 dark:border-neutral-500' : 'border-neutral-200 dark:border-neutral-700'}
+              ${error ? 'border-red-500 dark:border-red-400' : ''}`}
           >
             <ThemedText className={value ? 'text-base' : 'text-base text-gray-500'}>
               {value ? formatToYYYYMMDD(value) : ''}
@@ -222,7 +222,7 @@ export const DatePicker: React.FC<DatePickerProps> = ({
           </Pressable>
         </View>
         {error && (
-          <ThemedText className="text-red-500 text-xs mt-1">{error}</ThemedText>
+          <ThemedText className="text-red-500 dark:text-red-400 text-xs mt-1">{error}</ThemedText>
         )}
         {renderDatePicker()}
       </View>
@@ -243,9 +243,9 @@ export const DatePicker: React.FC<DatePickerProps> = ({
         </Pressable>
         <TouchableOpacity
           onPress={showDatePicker}
-          className={`border rounded-lg py-4 px-3 h-14 pr-10 text-black dark:text-white bg-transparent
-            ${isFocused ? 'border-black dark:border-white' : 'border-black/60 dark:border-white/60'}
-            ${error ? 'border-red-500' : ''}`}
+          className={`border rounded-xl py-4 px-3 h-14 pr-10 text-black dark:text-white bg-transparent
+            ${isFocused ? 'border-neutral-400 dark:border-neutral-500' : 'border-neutral-200 dark:border-neutral-700'}
+            ${error ? 'border-red-500 dark:border-red-400' : ''}`}
         >
           <ThemedText className={value ? 'text-base' : 'text-base text-gray-500'}>
             {value ? formatToYYYYMMDD(value) : ''}
@@ -256,7 +256,7 @@ export const DatePicker: React.FC<DatePickerProps> = ({
         </Pressable>
       </View>
       {error && (
-        <ThemedText className="text-red-500 text-xs mt-1">{error}</ThemedText>
+        <ThemedText className="text-red-500 dark:text-red-400 text-xs mt-1">{error}</ThemedText>
       )}
       {renderDatePicker()}
     </View>

@@ -239,23 +239,41 @@ const ReviewScreen = () => {
                 )}
             </ThemedScroller>
             <ThemedFooter>
-                <Button
-                    title={isEditMode ? t('reviewUpdate') : t('reviewSubmit')}
-                    onPress={handleSubmit}
-                    disabled={!canSubmit || submitting || deleting}
-                />
-                {isEditMode && (
-                    <TouchableOpacity
-                        onPress={handleDelete}
-                        disabled={submitting || deleting}
-                        className="mt-3 py-2"
-                        activeOpacity={0.7}
-                    >
-                        <ThemedText className="text-center text-sm text-red-500 dark:text-red-400">
-                            {deleting ? t('reviewDeleting') : t('reviewDelete')}
-                        </ThemedText>
-                    </TouchableOpacity>
-                )}
+                <View className="flex-row bg-light-secondary dark:bg-dark-secondary rounded-2xl overflow-hidden">
+                    {isEditMode ? (
+                        <>
+                            <Button
+                                variant="ghost"
+                                size="small"
+                                title={t('reviewUpdate')}
+                                onPress={handleSubmit}
+                                disabled={!canSubmit || submitting || deleting}
+                                className={`flex-1 py-3.5 px-0 min-w-0 rounded-none ${!canSubmit || submitting || deleting ? 'opacity-100' : ''}`}
+                                textClassName={`text-sm font-semibold ${!canSubmit || submitting || deleting ? 'text-neutral-400 dark:text-neutral-500' : 'text-neutral-800 dark:text-neutral-200'}`}
+                            />
+                            <View className="w-px self-stretch bg-neutral-200 dark:bg-neutral-700" />
+                            <Button
+                                variant="ghost"
+                                size="small"
+                                title={deleting ? t('reviewDeleting') : t('reviewDelete')}
+                                onPress={handleDelete}
+                                disabled={submitting || deleting}
+                                className={`flex-1 py-3.5 px-0 min-w-0 rounded-none ${submitting || deleting ? 'opacity-100' : ''}`}
+                                textClassName={`text-sm font-semibold ${submitting || deleting ? 'text-red-400 dark:text-red-500 opacity-70' : 'text-red-600 dark:text-red-400'}`}
+                            />
+                        </>
+                    ) : (
+                        <Button
+                            variant="ghost"
+                            size="small"
+                            title={t('reviewSubmit')}
+                            onPress={handleSubmit}
+                            disabled={!canSubmit || submitting || deleting}
+                            className={`flex-1 py-3.5 px-0 rounded-2xl ${!canSubmit || submitting || deleting ? 'opacity-100' : ''}`}
+                            textClassName={`text-sm font-semibold ${!canSubmit || submitting || deleting ? 'text-neutral-400 dark:text-neutral-500' : 'text-neutral-800 dark:text-neutral-200'}`}
+                        />
+                    )}
+                </View>
             </ThemedFooter>
         </>
     );

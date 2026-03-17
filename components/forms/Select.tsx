@@ -181,9 +181,9 @@ const Select: React.FC<SelectProps> = ({
                 <View className="relative">
                     <TouchableOpacity
                         onPress={handlePress}
-                        className={`w-full bg-transparent border rounded-lg px-4 py-3 h-14 flex-row justify-between items-center 
-                            ${isFocused ? 'border-black dark:border-white' : 'border-black/60 dark:border-white/60'}
-                            ${error ? 'border-red-500' : ''}`}
+                        className={`w-full bg-transparent border rounded-xl px-4 py-3 h-14 flex-row justify-between items-center 
+                            ${isFocused ? 'border-neutral-400 dark:border-neutral-500' : 'border-neutral-200 dark:border-neutral-700'}
+                            ${error ? 'border-red-500 dark:border-red-400' : ''}`}
                     >
                         <ThemedText className={selectedOption ? '' : 'text-light-subtext dark:text-dark-subtext'}>
                             {selectedOption ? selectedOption.label : placeholder}
@@ -192,7 +192,7 @@ const Select: React.FC<SelectProps> = ({
                     </TouchableOpacity>
                 </View>
                 {error && (
-                    <Text className="text-red-500 text-sm mt-1">{error}</Text>
+                    <Text className="text-red-500 dark:text-red-400 text-sm mt-1">{error}</Text>
                 )}
                 {renderActionSheet()}
             </View>
@@ -215,8 +215,8 @@ const Select: React.FC<SelectProps> = ({
                     <TouchableOpacity
                         onPress={handlePress}
                         className={`w-full bg-transparent border-b-2 border-t-0 border-l-0 border-r-0 px-0 py-3 h-14 flex-row justify-between items-center 
-                            ${isFocused ? 'border-black dark:border-white' : 'border-black/60 dark:border-white/60'}
-                            ${error ? 'border-red-500' : ''}`}
+                            ${isFocused ? 'border-neutral-400 dark:border-neutral-500' : 'border-neutral-200 dark:border-neutral-700'}
+                            ${error ? 'border-red-500 dark:border-red-400' : ''}`}
                     >
                         <ThemedText className={selectedOption ? '' : 'text-light-subtext dark:text-dark-subtext'}>
                             {selectedOption ? selectedOption.label : ''}
@@ -225,7 +225,7 @@ const Select: React.FC<SelectProps> = ({
                     </TouchableOpacity>
                 </View>
                 {error && (
-                    <Text className="text-red-500 text-sm mt-1">{error}</Text>
+                    <Text className="text-red-500 dark:text-red-400 text-sm mt-1">{error}</Text>
                 )}
                 {renderActionSheet()}
             </View>
@@ -246,9 +246,9 @@ const Select: React.FC<SelectProps> = ({
                 </Pressable>
                 <TouchableOpacity
                     onPress={handlePress}
-                    className={`w-full bg-transparent border rounded-lg px-4 py-3 h-14 flex-row justify-between items-center 
-                        ${isFocused ? 'border-black dark:border-white' : 'border-black/60 dark:border-white/60'}
-                        ${error ? 'border-red-500' : ''}`}
+                    className={`w-full bg-transparent border rounded-xl px-4 py-3 h-14 flex-row justify-between items-center 
+                        ${isFocused ? 'border-neutral-400 dark:border-neutral-500' : 'border-neutral-200 dark:border-neutral-700'}
+                        ${error ? 'border-red-500 dark:border-red-400' : ''}`}
                 >
                     <ThemedText className={selectedOption ? '' : 'text-light-subtext dark:text-dark-subtext'}>
                         {selectedOption ? selectedOption.label : placeholder}
@@ -257,7 +257,7 @@ const Select: React.FC<SelectProps> = ({
                 </TouchableOpacity>
             </View>
             {error && (
-                <Text className="text-red-500 text-sm mt-1">{error}</Text>
+                <Text className="text-red-500 dark:text-red-400 text-sm mt-1">{error}</Text>
             )}
             {renderActionSheet()}
         </View>

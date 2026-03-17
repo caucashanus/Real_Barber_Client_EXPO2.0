@@ -16,6 +16,7 @@ import { CardScroller } from '@/components/CardScroller';
 import ShowRating from '@/components/ShowRating';
 import LiveIndicator from '@/components/LiveIndicator';
 import Avatar from '@/components/Avatar';
+import { Button } from '@/components/Button';
 import { useRouter } from 'expo-router';
 import { useTranslation } from '@/app/hooks/useTranslation';
 
@@ -429,10 +430,8 @@ const TripsScreen = () => {
 };
 
 const YearDivider = (props: { year: string }) => (
-  <View className="w-full mb-4 items-center justify-center">
-    <View className="w-px h-4 bg-gray-300 dark:bg-gray-800" />
-    <ThemedText className="text-base text-gray-500 my-1">{props.year}</ThemedText>
-    <View className="w-px h-4 bg-gray-300 dark:bg-gray-800" />
+  <View className="w-full mb-3 mt-1">
+    <ThemedText className="text-xs font-medium text-light-subtext dark:text-dark-subtext uppercase tracking-wider">{props.year}</ThemedText>
   </View>
 );
 
@@ -463,70 +462,95 @@ const BookingCard = (props: {
     return t('bookingStatusUpcoming');
   };
 
-  const getStatusColor = () => {
-    if (isCancelled) return 'text-red-600 dark:text-red-400';
-    if (isCurrent) return 'text-green-600 dark:text-green-400';
-    if (isPast) return 'text-gray-600 dark:text-gray-400';
-    return 'text-black dark:text-white';
+  const getStatusPillClass = () => {
+    if (isCancelled) return 'bg-red-100 dark:bg-red-900/30';
+    if (isCurrent) return 'bg-green-100 dark:bg-green-900/30';
+    if (isPast) return 'bg-neutral-100 dark:bg-neutral-800';
+    return 'bg-neutral-100 dark:bg-neutral-800';
   };
 
-  const cardOpacity = isCancelled ? 'opacity-60' : 'opacity-100';
+  const getStatusTextClass = () => {
+    if (isCancelled) return 'text-red-700 dark:text-red-300';
+    if (isCurrent) return 'text-green-700 dark:text-green-300';
+    if (isPast) return 'text-neutral-600 dark:text-neutral-400';
+    return 'text-neutral-700 dark:text-neutral-300';
+  };
+
+  const cardOpacity = isCancelled ? 'opacity-70' : 'opacity-100';
 
   const goToDetail = () => router.push(`/screens/trip-detail?id=${booking.id}`);
 
   return (
     <View
-      style={shadowPresets.large}
-      className={`w-full rounded-xl mt-4 border border-neutral-300 dark:border-neutral-700 bg-light-primary dark:bg-dark-primary ${cardOpacity}`}
+      style={shadowPresets.card}
+      className={`w-full rounded-2xl mt-4 overflow-hidden border border-neutral-200 dark:border-neutral-700 bg-light-primary dark:bg-dark-primary ${cardOpacity}`}
     >
-      <Pressable onPress={goToDetail} className="p-4">
-        <View className="flex-row items-center justify-between mb-4">
-          <View className="flex-row items-center">
-            <ThemedText className={`text-base font-semibold ${getStatusColor()}`}>
-              {getStatusText()}
-            </ThemedText>
+      <Pressable onPress={goToDetail} className="p-5" android_ripple={null}>
+        <View className="flex-row items-center justify-between gap-3 mb-4">
+          <View className="flex-row items-center flex-1 min-w-0">
+            <View className={`rounded-full px-2.5 py-1 ${getStatusPillClass()}`}>
+              <ThemedText className={`text-xs font-semibold ${getStatusTextClass()}`}>
+                {getStatusText()}
+              </ThemedText>
+            </View>
             {isCurrent && (
               <View className="ml-2">
                 <LiveIndicator />
               </View>
             )}
           </View>
-          {isUpcoming && <CountdownDisplay target={getTargetDate(booking)} />}
+          {isUpcoming && (
+            <View className="rounded-full px-2.5 py-1 bg-light-secondary dark:bg-dark-secondary">
+              <CountdownDisplay target={getTargetDate(booking)} />
+            </View>
+          )}
         </View>
-        <View className="flex-row items-center justify-between">
-          <View className="flex-1 mr-3">
-            <ThemedText className="text-xl font-semibold">{title}</ThemedText>
-            <ThemedText className="text-base text-light-subtext dark:text-dark-subtext">{dateText}</ThemedText>
+        <View className="flex-row items-start justify-between gap-3">
+          <View className="flex-1 min-w-0">
+            <ThemedText className="text-lg font-semibold" numberOfLines={2}>{title}</ThemedText>
+            <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext mt-0.5">{dateText}</ThemedText>
             {booking.branch?.name ? (
-              <ThemedText className="text-sm text-gray-500 dark:text-gray-400 mt-1">{booking.branch.name}</ThemedText>
+              <ThemedText className="text-xs text-light-subtext dark:text-dark-subtext mt-1" numberOfLines={1}>
+                {booking.branch.name}
+              </ThemedText>
             ) : null}
           </View>
-          <Avatar src={booking.employee?.avatarUrl ?? undefined} name={booking.employee?.name} size="sm" />
+          <Avatar src={booking.employee?.avatarUrl ?? undefined} name={booking.employee?.name} size="md" />
         </View>
       </Pressable>
       {!isCancelled && (
-        <View className="w-full flex-row border-t border-neutral-300 dark:border-neutral-700">
-          <Pressable
+        <View className="flex-row bg-light-secondary dark:bg-dark-secondary rounded-b-2xl">
+          <Button
+            variant="ghost"
+            size="small"
+            title={t('tripsViewBooking')}
             onPress={goToDetail}
-            className="flex-1 py-5 items-center border-r border-neutral-300 dark:border-neutral-700"
-          >
-            <ThemedText className="font-semibold">{t('tripsViewBooking')}</ThemedText>
-          </Pressable>
+            className="flex-1 py-3.5 px-0 rounded-none rounded-bl-2xl"
+            textClassName="text-sm font-semibold text-neutral-800 dark:text-neutral-200"
+          />
+          <View className="w-px self-stretch bg-neutral-200 dark:bg-neutral-700" />
           {isPast && !hasReview ? (
-            <Pressable onPress={onOpenReview} className="flex-1 py-5 items-center">
-              <ThemedText className="font-semibold">{t('tripsAddReview')}</ThemedText>
-            </Pressable>
+            <Button
+              variant="ghost"
+              size="small"
+              title={t('tripsAddReview')}
+              onPress={onOpenReview}
+              className="flex-1 py-3.5 px-0 rounded-none rounded-br-2xl"
+              textClassName="text-sm font-semibold text-neutral-800 dark:text-neutral-200"
+            />
           ) : isPast && hasReview ? (
-            <TouchableOpacity onPress={onOpenReview} activeOpacity={0.7} className="flex-1 py-5 items-center justify-center">
+            <TouchableOpacity onPress={onOpenReview} activeOpacity={0.7} className="flex-1 py-3.5 items-center justify-center rounded-br-2xl">
               <ShowRating rating={reviewRating!} size="sm" displayMode="stars" />
             </TouchableOpacity>
           ) : (
-            <Pressable
+            <Button
+              variant="ghost"
+              size="small"
+              title={t('tripsMessage')}
               onPress={() => router.push('/screens/chat/user')}
-              className="flex-1 py-5 items-center"
-            >
-              <ThemedText className="font-semibold">{t('tripsMessage')}</ThemedText>
-            </Pressable>
+              className="flex-1 py-3.5 px-0 rounded-none rounded-br-2xl"
+              textClassName="text-sm font-semibold text-neutral-800 dark:text-neutral-200"
+            />
           )}
         </View>
       )}

@@ -126,10 +126,10 @@ const Input: React.FC<CustomTextInputProps> = ({
         <View className="relative">
           <StyledTextInput
             ref={inputRef}
-            className={`border rounded-lg  px-3 ${isMultiline ? 'h-36 pt-4' : 'h-14'} ${(isPassword || rightIcon) ? 'pr-10' : ''} 
+            className={`border rounded-xl px-3 ${isMultiline ? 'h-36 pt-4' : 'h-14'} ${(isPassword || rightIcon) ? 'pr-10' : ''} 
               text-black dark:text-white bg-transparent
-              ${isFocused ? 'border-black dark:border-white' : 'border-black/60 dark:border-white/60'}
-              ${error ? 'border-red-500' : ''}
+              ${isFocused ? 'border-neutral-400 dark:border-neutral-500' : 'border-neutral-200 dark:border-neutral-700'}
+              ${error ? 'border-red-500 dark:border-red-400' : ''}
               ${className}`}
             onFocus={() => setIsFocused(true)}
             onBlur={() => setIsFocused(false)}
@@ -145,7 +145,7 @@ const Input: React.FC<CustomTextInputProps> = ({
           {renderRightIcon()}
         </View>
         {error && (
-          <ThemedText className="text-red-500 text-xs mt-1">{error}</ThemedText>
+          <ThemedText className="text-red-500 dark:text-red-400 text-xs mt-1">{error}</ThemedText>
         )}
       </View>
     );
@@ -187,8 +187,8 @@ const Input: React.FC<CustomTextInputProps> = ({
             ref={inputRef}
             className={`border-b-2 py-3 px-0 ${isMultiline ? 'h-36 pt-4' : 'h-14'} ${(isPassword || rightIcon) ? 'pr-10' : ''} 
               text-black dark:text-white bg-transparent border-t-0 border-l-0 border-r-0
-              ${isFocused ? 'border-black dark:border-white' : 'border-black/60 dark:border-white/60'}
-              ${error ? 'border-red-500' : ''}
+              ${isFocused ? 'border-neutral-400 dark:border-neutral-500' : 'border-neutral-200 dark:border-neutral-700'}
+              ${error ? 'border-red-500 dark:border-red-400' : ''}
               ${className}`}
             onFocus={() => setIsFocused(true)}
             onBlur={() => setIsFocused(false)}
@@ -206,7 +206,7 @@ const Input: React.FC<CustomTextInputProps> = ({
         </View>
         
         {error && (
-          <ThemedText className="text-red-500 text-xs mt-1">{error}</ThemedText>
+          <ThemedText className="text-red-500 dark:text-red-400 text-xs mt-1">{error}</ThemedText>
         )}
       </View>
     );
@@ -233,10 +233,10 @@ const Input: React.FC<CustomTextInputProps> = ({
         
         <StyledTextInput
           ref={inputRef}
-          className={`border rounded-lg py-3 px-3 ${isMultiline ? 'h-36 pt-4' : 'h-14'} ${(isPassword || rightIcon) ? 'pr-10' : ''} 
+          className={`border rounded-xl py-3 px-3 ${isMultiline ? 'h-36 pt-4' : 'h-14'} ${(isPassword || rightIcon) ? 'pr-10' : ''} 
             text-black dark:text-white bg-transparent
-            ${isFocused ? 'border-black dark:border-white' : 'border-black/60 dark:border-white/60'}
-            ${error ? 'border-red-500' : ''}
+            ${isFocused ? 'border-neutral-400 dark:border-neutral-500' : 'border-neutral-200 dark:border-neutral-700'}
+            ${error ? 'border-red-500 dark:border-red-400' : ''}
             ${className}`}
           onFocus={() => setIsFocused(true)}
           onBlur={() => setIsFocused(false)}
@@ -254,7 +254,7 @@ const Input: React.FC<CustomTextInputProps> = ({
 
       
       {error && (
-        <ThemedText className="text-red-500 text-xs mt-1">{error}</ThemedText>
+        <ThemedText className="text-red-500 dark:text-red-400 text-xs mt-1">{error}</ThemedText>
       )}
     </View>
   );

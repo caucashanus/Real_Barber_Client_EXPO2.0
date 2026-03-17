@@ -381,54 +381,56 @@ const BookingDetailScreen = () => {
       </ThemedScroller>
 
       <ThemedFooter>
-        <View className="flex-row gap-2 items-center justify-center">
+        <View className="flex-row bg-light-secondary dark:bg-dark-secondary rounded-2xl overflow-hidden">
           {isPast && (
-            <View className="flex-row gap-2 flex-1">
+            <>
               <Button
-                title={t('tripDetailRepeatReservation')}
-                variant="outline"
+                variant="ghost"
                 size="small"
+                title={t('tripDetailRepeatReservation')}
                 iconStart="CalendarPlus"
                 iconSize={16}
-                className="flex-1 min-w-0"
-                textClassName="text-sm"
+                className="flex-1 py-3.5 px-0 min-w-0 rounded-none"
+                textClassName="text-sm font-semibold text-neutral-800 dark:text-neutral-200"
                 href={booking.branchId ? `/screens/branch-detail?id=${encodeURIComponent(booking.branchId)}` : undefined}
               />
+              <View className="w-px self-stretch bg-neutral-200 dark:bg-neutral-700" />
               <Button
-                title={hasReview ? t('reviewUpdate') : t('branchReview')}
-                variant="outline"
+                variant="ghost"
                 size="small"
+                title={hasReview ? t('reviewUpdate') : t('branchReview')}
                 iconStart="Star"
                 iconSize={16}
-                className="flex-1 min-w-0"
-                textClassName="text-sm"
+                className="flex-1 py-3.5 px-0 min-w-0 rounded-none"
+                textClassName="text-sm font-semibold text-neutral-800 dark:text-neutral-200"
                 href={`/screens/review?entityType=reservation&entityId=${encodeURIComponent(booking.id)}&entityName=${encodeURIComponent(booking.item?.name ?? booking.branch?.name ?? 'Booking')}${booking.item?.imageUrl ? `&entityImage=${encodeURIComponent(booking.item.imageUrl)}` : ''}${booking.employee?.name ? `&entityEmployeeName=${encodeURIComponent(booking.employee.name)}` : ''}${booking.employee?.avatarUrl ? `&entityEmployeeAvatar=${encodeURIComponent(booking.employee.avatarUrl)}` : ''}`}
               />
-            </View>
+            </>
           )}
           {isUpcoming && (
-            <View className="flex-row gap-2 flex-1">
+            <>
               <Button
-                title={t('tripDetailMoveButton')}
-                variant="outline"
+                variant="ghost"
                 size="small"
+                title={t('tripDetailMoveButton')}
                 iconStart="Calendar"
                 iconSize={16}
-                className="flex-1 min-w-0"
-                textClassName="text-sm"
+                className="flex-1 py-3.5 px-0 min-w-0 rounded-none"
+                textClassName="text-sm font-semibold text-neutral-800 dark:text-neutral-200"
                 href={`/screens/reschedule?id=${encodeURIComponent(booking.id)}`}
               />
+              <View className="w-px self-stretch bg-neutral-200 dark:bg-neutral-700" />
               <Button
-                title={t('tripDetailCancelButton')}
-                variant="outline"
+                variant="ghost"
                 size="small"
+                title={t('tripDetailCancelButton')}
                 iconStart="X"
                 iconSize={16}
-                className="flex-1 min-w-0"
-                textClassName="text-sm"
+                className="flex-1 py-3.5 px-0 min-w-0 rounded-none"
+                textClassName="text-sm font-semibold text-red-600 dark:text-red-400"
                 onPress={() => cancelSheetRef.current?.show()}
               />
-            </View>
+            </>
           )}
         </View>
       </ThemedFooter>

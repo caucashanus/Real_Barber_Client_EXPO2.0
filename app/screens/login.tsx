@@ -137,6 +137,7 @@ export default function LoginScreen() {
             loading={isLoading}
             size="large"
             className="mb-6"
+            textClassName="font-bold text-lg"
           />
 
           <View className="flex-row justify-center">
