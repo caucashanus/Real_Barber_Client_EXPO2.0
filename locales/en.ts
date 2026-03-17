@@ -635,6 +635,8 @@ export const en = {
   addPropertyStep3Title: 'Finish and save',
   addPropertyStep3Desc: "Get your dream fresh cut and don't explain a thing to anyone.",
   addPropertyLetsGo: "Let's go",
+  multiStepNext: 'Next',
+  multiStepComplete: 'Complete',
 
   // Add property – haircut types (step 1)
   addPropertyTypeShorter: 'Shorter',

@@ -637,6 +637,8 @@ export const cs: Record<TranslationKey, string> = {
   addPropertyStep3Title: 'Dokončete a uložte',
   addPropertyStep3Desc: 'Získejte vysněný střih a nemusíte nikomu nic vysvětlovat.',
   addPropertyLetsGo: 'Jdeme na to',
+  multiStepNext: 'Další',
+  multiStepComplete: 'Dokončit',
 
   // Add property – typy účesu (krok 1)
   addPropertyTypeShorter: 'Kratší',

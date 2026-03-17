@@ -6,6 +6,8 @@ import ThemedText from '@/components/ThemedText';
 import Icon from '@/components/Icon';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
+import { useTranslation } from '@/app/hooks/useTranslation';
+import useThemeColors from '@/app/contexts/ThemeColors';
 
 // Step component that will be used as children
 export interface StepProps {
@@ -136,13 +138,9 @@ export default function MultiStep({
     }
   };
 
-  const handleClose = () => {
-    if (onClose) {
-      onClose();
-    }
-  };
-
   const insets = useSafeAreaInsets();
+  const { t } = useTranslation();
+  const colors = useThemeColors();
 
   return (
     <View style={{paddingBottom: insets.bottom}} className={`flex-1 bg-light-primary dark:bg-dark-primary ${className}`}>
@@ -187,8 +185,6 @@ export default function MultiStep({
         />
       )}
 
-      
-
       {/* Step Content */}
       <Animated.View
         className="flex-1"
@@ -232,14 +228,17 @@ export default function MultiStep({
         </View>
       )}
 
-      {/* Bottom Navigation */}
+      {/* Bottom Navigation – stejná logika jako tlačítko „Jdeme na to“ (accent pozadí + bílý text) */}
       <View className="px-4 py-3 border-t border-light-secondary dark:border-dark-secondary">
         <Button
-          title={isLastStep ? "Complete" : "Next"}
+          variant="primary"
+          size="large"
+          rounded="full"
+          title={isLastStep ? t('multiStepComplete') : t('multiStepNext')}
           onPress={handleNext}
           className="w-full"
-          size="large"
-          textClassName='text-white'
+          textClassName="text-white font-semibold"
+          style={{ backgroundColor: colors.highlight }}
         />
       </View>
     </View>
