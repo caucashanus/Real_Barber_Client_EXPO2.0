@@ -71,6 +71,27 @@ function getPaymentMethodLabel(method: string | null | undefined, t: (key: strin
     .join(' ');
 }
 
+function getPaymentMethodFromPayments(booking: Booking, t: (key: string) => string): string | null {
+  const normalizedMethod = (booking.paymentMethod ?? '').trim().toUpperCase().replace(/\s+/g, '_');
+  if (normalizedMethod !== 'COMBINED') return null;
+  if (!Array.isArray(booking.payments) || booking.payments.length === 0) return null;
+
+  const seen = new Set<string>();
+  const labels: string[] = [];
+
+  for (const payment of booking.payments) {
+    const methodRaw = (payment?.method ?? '').toString();
+    if (!methodRaw) continue;
+    const methodKey = methodRaw.trim().toUpperCase().replace(/\s+/g, '_');
+    if (!methodKey || seen.has(methodKey)) continue;
+    seen.add(methodKey);
+    labels.push(getPaymentMethodLabel(methodRaw, t));
+  }
+
+  if (labels.length === 0) return null;
+  return labels.join(' + ');
+}
+
 function formatAppointment(b: Booking): { dateStr: string; fromTime: string; toTime: string } {
   const d = new Date(b.date);
   const dateStr = `${d.getDate()} ${d.toLocaleString('en-GB', { month: 'short' })} ${d.getFullYear()}`;
@@ -185,6 +206,7 @@ const BookingDetailScreen = () => {
 
   const appointment = formatAppointment(booking);
   const location = booking.branch?.address ?? booking.branch?.name ?? '—';
+  const paymentMethodLabel = getPaymentMethodFromPayments(booking, t) ?? getPaymentMethodLabel(booking.paymentMethod, t);
   const status = (booking.status ?? '').toLowerCase();
   const isCancelled = status === 'cancelled' || status === 'canceled';
   const isPast = isBookingPast(booking);
@@ -329,7 +351,7 @@ const BookingDetailScreen = () => {
               <Icon name="CreditCard" size={20} className="mr-3" />
               <View>
                 <ThemedText className="font-medium">
-                  {getPaymentMethodLabel(booking.paymentMethod, t)}
+                  {paymentMethodLabel}
                 </ThemedText>
                 <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext">
                   {booking.price} Kč

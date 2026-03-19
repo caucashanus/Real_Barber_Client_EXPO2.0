@@ -36,6 +36,16 @@ function favoriteTypeLabel(entityType: string): string {
   }
 }
 
+function getFavoriteImageUrl(fav: Favorite): string | undefined {
+  const photoUrl = (fav as { photoUrl?: unknown }).photoUrl;
+  if (typeof photoUrl === 'string' && photoUrl.length > 0) return photoUrl;
+
+  const avatarUrl = (fav as { avatarUrl?: unknown }).avatarUrl;
+  if (typeof avatarUrl === 'string' && avatarUrl.length > 0) return avatarUrl;
+
+  return undefined;
+}
+
 const FavoritesScreen = () => {
   const { t } = useTranslation();
   const [isEditMode, setIsEditMode] = useState(false);
@@ -108,7 +118,7 @@ const FavoritesScreen = () => {
                   href={favoriteHref(fav)}
                   key={fav.id}
                   title={fav.title ?? '—'}
-                  image={require('@/assets/img/room-1.avif')}
+                  image={getFavoriteImageUrl(fav) ?? require('@/assets/img/room-1.avif')}
                   description={favoriteTypeLabel(fav.entityType)}
                   imageHeight={180}
                   rounded="2xl"

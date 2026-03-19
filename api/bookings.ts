@@ -21,6 +21,11 @@ export interface BookingItem {
   imageUrl?: string | null;
 }
 
+export interface BookingPayment {
+  method?: string | null;
+  amount?: number | null;
+}
+
 export interface Booking {
   id: string;
   clientId: string;
@@ -33,6 +38,7 @@ export interface Booking {
   duration: number;
   price: number;
   paymentMethod?: string | null;
+  payments?: BookingPayment[] | null;
   status: string;
   notes?: string | null;
   createdAt: string;
