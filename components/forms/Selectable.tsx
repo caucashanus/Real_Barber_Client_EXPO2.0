@@ -8,6 +8,9 @@ import AnimatedView from '../AnimatedView';
 interface SelectableProps {
   title: string;
   description?: string;
+  descriptionClassName?: string;
+  selectedIndicatorPosition?: 'inline' | 'topRight' | 'bottomRight';
+  showSelectedIndicator?: boolean;
   icon?: IconName;
   customIcon?: ReactNode;
   iconColor?: string;
@@ -22,6 +25,9 @@ interface SelectableProps {
 const Selectable: React.FC<SelectableProps> = ({
   title,
   description,
+  descriptionClassName = '',
+  selectedIndicatorPosition = 'inline',
+  showSelectedIndicator = true,
   icon,
   customIcon,
   iconColor,
@@ -41,7 +47,7 @@ const Selectable: React.FC<SelectableProps> = ({
         style={style}
         style={selected ? { borderColor: colors.highlight } : undefined}
         className={`
-          border  dark:border-transparent rounded-2xl p-4 active:opacity-70 y dark:bg-dark-secondary/50
+          relative border  dark:border-transparent rounded-2xl p-4 active:opacity-70 y dark:bg-dark-secondary/50
           ${selected ? ' bg-light-subtext/0 dark:bg-dark-secondary' : ' border-neutral-400 dark:border-transparent'}
           ${error ? 'border-red-500' : ''}
           ${className}
@@ -68,12 +74,12 @@ const Selectable: React.FC<SelectableProps> = ({
               {title}
             </ThemedText>
             {description && (
-              <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext mt-0">
+              <ThemedText className={`text-sm text-light-subtext dark:text-dark-subtext mt-0 ${descriptionClassName}`}>
                 {description}
               </ThemedText>
             )}
           </View>
-          {selected ? (
+          {selected && showSelectedIndicator && selectedIndicatorPosition === 'inline' ? (
             <AnimatedView className="ml-3" animation="bounceIn" duration={500}>
               <Icon 
                 name="CheckCircle2" 
@@ -81,10 +87,25 @@ const Selectable: React.FC<SelectableProps> = ({
                 color={colors.highlight}
               />
             </AnimatedView>
-          ) : (
-            <></>
-          )}
+          ) : null}
         </View>
+        {selected && showSelectedIndicator && selectedIndicatorPosition !== 'inline' ? (
+          <AnimatedView
+            className={
+              selectedIndicatorPosition === 'topRight'
+                ? 'absolute top-3 right-3'
+                : 'absolute bottom-3 right-3'
+            }
+            animation="bounceIn"
+            duration={500}
+          >
+            <Icon
+              name="CheckCircle2"
+              size={20}
+              color={colors.highlight}
+            />
+          </AnimatedView>
+        ) : null}
       </Pressable>
 
       {error && (

@@ -318,7 +318,7 @@ const TripsScreen = () => {
         title={t('tripsTitle')}
         variant="collapsibleTitle"
         scrollY={scrollY}
-        rightComponents={[<HeaderIcon icon="PlusCircle" href="#" onPress={() => {}} />]}
+        rightComponents={[<HeaderIcon icon="PlusCircle" href="/screens/reservation-create-start" />]}
       />
       <AnimatedView animation="scaleIn" className="flex-1">
         {loading ? (

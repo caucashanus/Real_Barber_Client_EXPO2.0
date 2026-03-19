@@ -68,6 +68,22 @@ export interface GetBookingsOptions {
   upcoming?: boolean;
 }
 
+export interface CreateBookingBody {
+  employeeId: string;
+  branchId: string;
+  itemId: string;
+  date: string; // YYYY-MM-DD
+  slotStart: string; // HH:MM
+  slotEnd?: string;
+  notes?: string;
+}
+
+export interface CreateBookingResponse {
+  id?: string;
+  booking?: Booking;
+  [key: string]: unknown;
+}
+
 export async function getBookings(
   apiToken: string,
   options: GetBookingsOptions = {}
@@ -93,6 +109,43 @@ export async function getBookings(
   return res.json() as Promise<BookingsResponse>;
 }
 
+/** POST /api/client/bookings – create a new booking for the authenticated client. */
+export async function createBooking(
+  apiToken: string,
+  body: CreateBookingBody
+): Promise<CreateBookingResponse> {
+  const url = `${CRM_BASE}/api/client/bookings`;
+  const res = await fetch(url, {
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${apiToken}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(body),
+  });
+
+  const text = await res.text();
+  if (res.status === 401) throw new Error('Unauthorized');
+  if (res.status === 400) throw new Error('Invalid booking data or slot conflict');
+  if (res.status === 404) throw new Error('Employee, branch, or service not found');
+  if (res.status === 409) throw new Error('Booking conflict or duplicate');
+  if (res.status === 500) throw new Error('Failed to create booking');
+  if (!res.ok) {
+    let msg = `Error ${res.status}`;
+    try {
+      const parsed = JSON.parse(text) as { message?: string; error?: string };
+      if (parsed?.message) msg = parsed.message;
+      else if (parsed?.error) msg = parsed.error;
+    } catch {
+      if (text) msg = `${msg}: ${text.slice(0, 200)}`;
+    }
+    throw new Error(msg);
+  }
+
+  if (!text) return {};
+  return JSON.parse(text) as CreateBookingResponse;
+}
+
 /** Query params for availability. employeeId and date required; branchId and itemId optional. */
 export interface GetBookingAvailabilityParams {
   employeeId: string;
@@ -106,9 +159,28 @@ export interface BookingAvailabilityResponse {
   date: string;
   employee: { id: string; name: string };
   service: { id: string; name: string; duration: number; price: number } | null;
+  schedule?: {
+    hasDayOff?: boolean;
+    shifts?: Array<{
+      id?: string;
+      branchId?: string;
+      startTime?: string;
+      endTime?: string;
+      source?: string;
+    }>;
+  };
   workingHours: { start: string; end: string };
+  blockedRanges?: Array<{
+    type?: string;
+    start: string;
+    end: string;
+    reservationId?: string;
+  }>;
   existingBookings: Array<{ id: string; start: string; end: string; service?: string }>;
-  availability: { totalSlots: number; slots: Array<{ start: string; end: string; duration: number }> };
+  availability: {
+    totalSlots: number;
+    slots: Array<{ branchId?: string; start: string; end: string; duration: number }>;
+  };
   [key: string]: unknown;
 }
 
