@@ -14,7 +14,7 @@ export default function ThemedFooter({ children, className, ...props }: ThemeFoo
   return (
     <ThemeFooter
       style={{paddingBottom: insets.bottom}}
-      className={`bg-light-primary dark:bg-dark-primary px-global pt-global w-full  ${className || ''}`}
+      className={`bg-light-primary dark:bg-dark-primary px-global pt-global w-full items-stretch ${className || ''}`}
       {...props}
     >
       {children}

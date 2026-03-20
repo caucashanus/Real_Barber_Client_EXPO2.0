@@ -109,6 +109,19 @@ export async function getBookings(
   return res.json() as Promise<BookingsResponse>;
 }
 
+/** Load one booking by id (paginates list until found or exhausted). */
+export async function getBookingById(apiToken: string, bookingId: string): Promise<Booking | null> {
+  const limit = 100;
+  let offset = 0;
+  for (;;) {
+    const res = await getBookings(apiToken, { limit, offset });
+    const found = res.bookings.find((b) => b.id === bookingId) ?? null;
+    if (found) return found;
+    if (!res.pagination.hasMore) return null;
+    offset += limit;
+  }
+}
+
 /** POST /api/client/bookings – create a new booking for the authenticated client. */
 export async function createBooking(
   apiToken: string,
@@ -251,4 +264,72 @@ export async function cancelBooking(
     throw new Error(msg);
   }
   return text ? (JSON.parse(text) as { cancelled: true }) : { cancelled: true };
+}
+
+/** PATCH /api/client/bookings/{id} – update booking (all body fields optional). */
+export interface UpdateBookingBody {
+  branchId?: string;
+  date?: string;
+  employeeId?: string;
+  itemId?: string;
+  notes?: string;
+  slotEnd?: string;
+  slotStart?: string;
+}
+
+export interface UpdateBookingResponse {
+  message?: string;
+  status?: number;
+  booking?: Booking;
+  [key: string]: unknown;
+}
+
+export async function updateBooking(
+  apiToken: string,
+  bookingId: string,
+  body: UpdateBookingBody
+): Promise<UpdateBookingResponse> {
+  const payload: Record<string, string> = {};
+  (Object.entries(body) as [keyof UpdateBookingBody, string | undefined][]).forEach(([key, value]) => {
+    if (value !== undefined && value !== null && String(value).trim() !== '') {
+      payload[key as string] = String(value).trim();
+    }
+  });
+
+  const url = `${CRM_BASE}/api/client/bookings/${encodeURIComponent(bookingId)}`;
+  const res = await fetch(url, {
+    method: 'PATCH',
+    headers: {
+      Authorization: `Bearer ${apiToken}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(payload),
+  });
+
+  const text = await res.text();
+  if (res.status === 401) throw new Error('Unauthorized');
+  if (res.status === 403) throw new Error('Cannot modify booking (wrong owner or status)');
+  if (res.status === 404) throw new Error('Booking not found');
+  if (res.status === 400) throw new Error('Invalid booking data or slot conflict');
+  if (res.status === 409) throw new Error('Booking conflict');
+  if (res.status === 500) throw new Error('Failed to update booking');
+  if (!res.ok) {
+    let msg = `Error ${res.status}`;
+    try {
+      const parsed = JSON.parse(text) as { message?: string; error?: string };
+      if (parsed?.message) msg = parsed.message;
+      else if (parsed?.error) msg = parsed.error;
+      else if (text) msg = `${msg}: ${text.slice(0, 200)}`;
+    } catch {
+      if (text) msg = `${msg}: ${text.slice(0, 200)}`;
+    }
+    throw new Error(msg);
+  }
+
+  if (!text) return { status: res.status };
+  try {
+    return JSON.parse(text) as UpdateBookingResponse;
+  } catch {
+    return { status: res.status };
+  }
 }
