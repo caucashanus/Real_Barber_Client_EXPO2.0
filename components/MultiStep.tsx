@@ -32,6 +32,8 @@ interface StepData {
   component: ReactNode;
 }
 
+export type StepNavigationReason = 'next' | 'back' | 'skip';
+
 interface MultiStepProps {
   children: ReactNode;
   onComplete: () => void;
@@ -40,6 +42,8 @@ interface MultiStepProps {
   showStepIndicator?: boolean;
   className?: string;
   onStepChange?: (nextStep: number) => boolean;
+  /** Called whenever the visible step index changes (Next, Back, Skip). */
+  onStepIndexChange?: (stepIndex: number, reason: StepNavigationReason) => void;
   isNextDisabled?: (currentStep: number) => boolean;
 }
 
@@ -51,6 +55,7 @@ export default function MultiStep({
   showStepIndicator = true,
   className = '',
   onStepChange,
+  onStepIndexChange,
   isNextDisabled,
 }: MultiStepProps) {
   // Filter and validate children to only include Step components
@@ -126,19 +131,24 @@ export default function MultiStep({
       
       if (canProceed) {
         setCurrentStepIndex(nextStep);
+        onStepIndexChange?.(nextStep, 'next');
       }
     }
   };
 
   const handleBack = () => {
     if (!isFirstStep) {
-      setCurrentStepIndex(currentStepIndex - 1);
+      const prevIndex = currentStepIndex - 1;
+      setCurrentStepIndex(prevIndex);
+      onStepIndexChange?.(prevIndex, 'back');
     }
   };
 
   const handleSkip = () => {
     if (currentStep.optional && !isLastStep) {
-      setCurrentStepIndex(currentStepIndex + 1);
+      const nextIndex = currentStepIndex + 1;
+      setCurrentStepIndex(nextIndex);
+      onStepIndexChange?.(nextIndex, 'skip');
     }
   };
 

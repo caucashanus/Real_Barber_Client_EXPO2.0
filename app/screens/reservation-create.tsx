@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { View, ScrollView, Pressable, ActivityIndicator, Image } from 'react-native';
 import { router } from 'expo-router';
 import { Video, ResizeMode } from 'expo-av';
@@ -9,6 +9,7 @@ import Avatar from '@/components/Avatar';
 import { Chip } from '@/components/Chip';
 import { Button } from '@/components/Button';
 import Section from '@/components/layout/Section';
+import Divider from '@/components/layout/Divider';
 import { CardScroller } from '@/components/CardScroller';
 import ShowRating from '@/components/ShowRating';
 import Icon from '@/components/Icon';
@@ -83,6 +84,19 @@ function getBranchMedia(branch: Branch): Array<{ url: string; type?: 'image' | '
     })
     .filter((x): x is { url: string; type?: 'image' | 'video'; order?: number } => x != null)
     .sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
+}
+
+/** Stejná priorita jako `branchCardImage` na home (Top picks / pobočky): média → imageUrl → první služba → fallback. */
+function getBranchCardImageSource(branch: Branch | null): string | number {
+  if (!branch) return require('@/assets/img/room-1.avif');
+  const media = getBranchMedia(branch);
+  const firstStill = media.find((m) => m.type !== 'video') ?? media[0];
+  if (firstStill?.url) return firstStill.url;
+  if (branch.imageUrl) return branch.imageUrl;
+  const servicesList = getServicesList(branch);
+  const firstWithImage = servicesList.find((s) => s.imageUrl);
+  if (firstWithImage?.imageUrl) return firstWithImage.imageUrl;
+  return require('@/assets/img/room-1.avif');
 }
 
 function employeeDescription(employee: BranchEmployee): string {
@@ -195,6 +209,14 @@ type ServiceOption = {
   category?: { id?: string; name?: string } | null;
 };
 
+function isReservationStepValid(stepIndex: number, d: ReservationFlowData): boolean {
+  if (stepIndex === 0) return Boolean(d.branchId);
+  if (stepIndex === 1) return Boolean(d.employeeId);
+  if (stepIndex === 2) return Boolean(d.itemId);
+  if (stepIndex === 3) return Boolean(d.date && d.slotStart);
+  return true;
+}
+
 function groupServicesByCategory(services: ServiceOption[]): Array<{ key: string; name: string; services: ServiceOption[] }> {
   const map = new Map<string, { key: string; name: string; services: ServiceOption[] }>();
   for (const svc of services) {
@@ -221,7 +243,6 @@ export default function ReservationCreateScreen() {
   const [loadingEmployeeServices, setLoadingEmployeeServices] = useState(false);
   const [creatingBooking, setCreatingBooking] = useState(false);
   const [createBookingError, setCreateBookingError] = useState<string | null>(null);
-  const [currentStep, setCurrentStep] = useState(0);
   const [detailsEmployeeId, setDetailsEmployeeId] = useState<string | null>(null);
   const detailsSheetRef = useRef<ActionSheetRef>(null);
   const [detailsBranchId, setDetailsBranchId] = useState<string | null>(null);
@@ -238,6 +259,104 @@ export default function ReservationCreateScreen() {
     slotEnd: '',
     duration: 0,
   });
+
+  /** Clear wizard fields for steps after `stepIndex` (used when user goes Back). */
+  const resetFlowAfterStep = useCallback((stepIndex: number) => {
+    setData((prev) => {
+      if (stepIndex < 1) {
+        return {
+          ...prev,
+          employeeId: '',
+          itemId: '',
+          date: '',
+          slotStart: '',
+          slotEnd: '',
+          duration: 0,
+        };
+      }
+      if (stepIndex < 2) {
+        return {
+          ...prev,
+          itemId: '',
+          date: '',
+          slotStart: '',
+          slotEnd: '',
+          duration: 0,
+        };
+      }
+      if (stepIndex < 3) {
+        return {
+          ...prev,
+          date: '',
+          slotStart: '',
+          slotEnd: '',
+          duration: 0,
+        };
+      }
+      if (stepIndex < 4) {
+        return {
+          ...prev,
+          slotStart: '',
+          slotEnd: '',
+          duration: 0,
+        };
+      }
+      return prev;
+    });
+    if (stepIndex < 3) {
+      setLastSelectedDateByMonth({});
+    }
+    if (stepIndex < 1) {
+      setMonthOffset(0);
+    }
+  }, []);
+
+  const selectBranchId = useCallback((branchId: string) => {
+    let branchChanged = false;
+    setData((prev) => {
+      if (prev.branchId === branchId) return prev;
+      branchChanged = true;
+      return {
+        ...prev,
+        branchId,
+        employeeId: '',
+        itemId: '',
+        date: '',
+        slotStart: '',
+        slotEnd: '',
+        duration: 0,
+      };
+    });
+    if (branchChanged) {
+      setLastSelectedDateByMonth({});
+      setMonthOffset(0);
+    }
+  }, []);
+
+  const selectEmployee = useCallback((employeeId: string) => {
+    setData((prev) => ({
+      ...prev,
+      employeeId,
+      itemId: '',
+      date: '',
+      slotStart: '',
+      slotEnd: '',
+      duration: 0,
+    }));
+    setLastSelectedDateByMonth({});
+  }, []);
+
+  const selectServiceOption = useCallback((service: ServiceOption) => {
+    setData((prev) => ({
+      ...prev,
+      itemId: service.id,
+      date: '',
+      slotStart: '',
+      slotEnd: '',
+      duration: service.duration,
+    }));
+    setLastSelectedDateByMonth({});
+  }, []);
 
   useEffect(() => {
     if (!apiToken) {
@@ -415,19 +534,6 @@ export default function ReservationCreateScreen() {
     };
   }, [apiToken, data.employeeId, data.branchId, data.itemId, monthOffset, currentMonthKey]);
 
-  const onStepChange = (nextStep: number): boolean => {
-    setCurrentStep(nextStep);
-    return true;
-  };
-
-  const isCurrentStepValid = useMemo(() => {
-    if (currentStep === 0) return Boolean(data.branchId);
-    if (currentStep === 1) return Boolean(data.employeeId);
-    if (currentStep === 2) return Boolean(data.itemId);
-    if (currentStep === 3) return Boolean(data.date && data.slotStart);
-    return true;
-  }, [currentStep, data.branchId, data.employeeId, data.itemId, data.date, data.slotStart]);
-
   const handleCreateBooking = async () => {
     if (!apiToken || creatingBooking) return;
     setCreateBookingError(null);
@@ -458,17 +564,6 @@ export default function ReservationCreateScreen() {
     }
   };
 
-  const selectEmployee = (employeeId: string) => {
-    setData((prev) => ({
-      ...prev,
-      employeeId,
-      itemId: '',
-      slotStart: '',
-      slotEnd: '',
-      duration: 0,
-    }));
-  };
-
   const selectDate = (dateValue: string) => {
     const d = new Date(dateValue);
     if (!Number.isNaN(d.getTime())) {
@@ -494,6 +589,22 @@ export default function ReservationCreateScreen() {
   const detailsBranchMedia = detailsBranch ? getBranchMedia(detailsBranch) : [];
   const detailsBranchImages = detailsBranchMedia.filter((m) => m.type !== 'video');
   const detailsBranchVideo = detailsBranchMedia.find((m) => m.type === 'video');
+  const selectedEmployee = employees.find((e) => e.id === data.employeeId) ?? null;
+  const selectedService = services.find((s) => s.id === data.itemId) ?? null;
+  const selectedEmployeeName = selectedEmployee?.name ?? '—';
+  const selectedServiceName = selectedService?.name ?? '—';
+  const selectedDateLabel = data.date
+    ? new Date(data.date).toLocaleDateString('cs-CZ', {
+        weekday: 'short',
+        day: 'numeric',
+        month: 'numeric',
+        year: 'numeric',
+      })
+    : '—';
+  const summaryBranchCardImage = useMemo(
+    () => getBranchCardImageSource(selectedBranch),
+    [selectedBranch]
+  );
 
   return (
     <>
@@ -501,8 +612,12 @@ export default function ReservationCreateScreen() {
         onComplete={handleCreateBooking}
         onClose={() => router.back()}
         showStepIndicator={false}
-        onStepChange={onStepChange}
-        isNextDisabled={() => !isCurrentStepValid}
+        onStepIndexChange={(idx, reason) => {
+          if (reason === 'back') {
+            resetFlowAfterStep(idx);
+          }
+        }}
+        isNextDisabled={(stepIndex) => !isReservationStepValid(stepIndex, data)}
       >
       <Step title="Choose branch">
         <ScrollView className="p-4 px-8">
@@ -544,31 +659,13 @@ export default function ReservationCreateScreen() {
                   className="relative"
                   selected={data.branchId === branch.id}
                   showSelectedIndicator={false}
-                  onPress={() =>
-                    setData((prev) => ({
-                      ...prev,
-                      branchId: branch.id,
-                      employeeId: '',
-                      itemId: '',
-                      slotStart: '',
-                      slotEnd: '',
-                      duration: 0,
-                    }))
-                  }
+                  onPress={() => selectBranchId(branch.id)}
                   style={{ paddingRight: 74 }}
                 />
                 <Pressable
                   className="absolute right-4 top-4 rounded-full bg-light-secondary dark:bg-dark-secondary px-2 py-1"
                   onPress={() => {
-                    setData((prev) => ({
-                      ...prev,
-                      branchId: branch.id,
-                      employeeId: '',
-                      itemId: '',
-                      slotStart: '',
-                      slotEnd: '',
-                      duration: 0,
-                    }));
+                    selectBranchId(branch.id);
                     setDetailsBranchId(branch.id);
                     setIsBranchDescriptionExpanded(false);
                     branchDetailsSheetRef.current?.show();
@@ -664,15 +761,7 @@ export default function ReservationCreateScreen() {
                   return (
                     <Pressable
                       key={service.id}
-                      onPress={() =>
-                        setData((prev) => ({
-                          ...prev,
-                          itemId: service.id,
-                          slotStart: '',
-                          slotEnd: '',
-                          duration: service.duration,
-                        }))
-                      }
+                      onPress={() => selectServiceOption(service)}
                       className="w-[160px] active:opacity-80"
                     >
                       <View
@@ -793,87 +882,66 @@ export default function ReservationCreateScreen() {
               {groupedSlots.morning.length > 0 ? (
                 <Section title="Ráno" titleSize="md" className="mb-2">
                   <View className="flex-row flex-wrap gap-2 mt-1">
-                    {groupedSlots.morning.map((slot, index) => {
-                      const isSelected = data.slotStart === slot.start && data.slotEnd === slot.end;
-                      return (
-                        <Pressable
-                          key={`m-${slot.start}-${slot.end}-${slot.branchId ?? 'any'}-${index}`}
-                          onPress={() =>
-                            setData((prev) => ({
-                              ...prev,
-                              slotStart: slot.start,
-                              slotEnd: slot.end,
-                              duration: slot.duration,
-                            }))
-                          }
-                          className={`px-3 py-2 rounded-full border ${
-                            isSelected
-                              ? 'bg-light-accent dark:bg-dark-accent border-light-accent dark:border-dark-accent'
-                              : 'bg-light-secondary dark:bg-dark-secondary border-light-secondary dark:border-dark-secondary'
-                          }`}
-                        >
-                          <ThemedText className={`text-sm ${isSelected ? 'text-white' : ''}`}>{slot.start}</ThemedText>
-                        </Pressable>
-                      );
-                    })}
+                    {groupedSlots.morning.map((slot, index) => (
+                      <Chip
+                        key={`m-${slot.start}-${slot.end}-${slot.branchId ?? 'any'}-${index}`}
+                        size="lg"
+                        label={slot.start}
+                        isSelected={data.slotStart === slot.start && data.slotEnd === slot.end}
+                        onPress={() =>
+                          setData((prev) => ({
+                            ...prev,
+                            slotStart: slot.start,
+                            slotEnd: slot.end,
+                            duration: slot.duration,
+                          }))
+                        }
+                      />
+                    ))}
                   </View>
                 </Section>
               ) : null}
               {groupedSlots.afternoon.length > 0 ? (
                 <Section title="Odpoledne" titleSize="md" className="mb-2">
                   <View className="flex-row flex-wrap gap-2 mt-1">
-                    {groupedSlots.afternoon.map((slot, index) => {
-                      const isSelected = data.slotStart === slot.start && data.slotEnd === slot.end;
-                      return (
-                        <Pressable
-                          key={`a-${slot.start}-${slot.end}-${slot.branchId ?? 'any'}-${index}`}
-                          onPress={() =>
-                            setData((prev) => ({
-                              ...prev,
-                              slotStart: slot.start,
-                              slotEnd: slot.end,
-                              duration: slot.duration,
-                            }))
-                          }
-                          className={`px-3 py-2 rounded-full border ${
-                            isSelected
-                              ? 'bg-light-accent dark:bg-dark-accent border-light-accent dark:border-dark-accent'
-                              : 'bg-light-secondary dark:bg-dark-secondary border-light-secondary dark:border-dark-secondary'
-                          }`}
-                        >
-                          <ThemedText className={`text-sm ${isSelected ? 'text-white' : ''}`}>{slot.start}</ThemedText>
-                        </Pressable>
-                      );
-                    })}
+                    {groupedSlots.afternoon.map((slot, index) => (
+                      <Chip
+                        key={`a-${slot.start}-${slot.end}-${slot.branchId ?? 'any'}-${index}`}
+                        size="lg"
+                        label={slot.start}
+                        isSelected={data.slotStart === slot.start && data.slotEnd === slot.end}
+                        onPress={() =>
+                          setData((prev) => ({
+                            ...prev,
+                            slotStart: slot.start,
+                            slotEnd: slot.end,
+                            duration: slot.duration,
+                          }))
+                        }
+                      />
+                    ))}
                   </View>
                 </Section>
               ) : null}
               {groupedSlots.evening.length > 0 ? (
                 <Section title="Večer" titleSize="md" className="mb-2">
                   <View className="flex-row flex-wrap gap-2 mt-1">
-                    {groupedSlots.evening.map((slot, index) => {
-                      const isSelected = data.slotStart === slot.start && data.slotEnd === slot.end;
-                      return (
-                        <Pressable
-                          key={`e-${slot.start}-${slot.end}-${slot.branchId ?? 'any'}-${index}`}
-                          onPress={() =>
-                            setData((prev) => ({
-                              ...prev,
-                              slotStart: slot.start,
-                              slotEnd: slot.end,
-                              duration: slot.duration,
-                            }))
-                          }
-                          className={`px-3 py-2 rounded-full border ${
-                            isSelected
-                              ? 'bg-light-accent dark:bg-dark-accent border-light-accent dark:border-dark-accent'
-                              : 'bg-light-secondary dark:bg-dark-secondary border-light-secondary dark:border-dark-secondary'
-                          }`}
-                        >
-                          <ThemedText className={`text-sm ${isSelected ? 'text-white' : ''}`}>{slot.start}</ThemedText>
-                        </Pressable>
-                      );
-                    })}
+                    {groupedSlots.evening.map((slot, index) => (
+                      <Chip
+                        key={`e-${slot.start}-${slot.end}-${slot.branchId ?? 'any'}-${index}`}
+                        size="lg"
+                        label={slot.start}
+                        isSelected={data.slotStart === slot.start && data.slotEnd === slot.end}
+                        onPress={() =>
+                          setData((prev) => ({
+                            ...prev,
+                            slotStart: slot.start,
+                            slotEnd: slot.end,
+                            duration: slot.duration,
+                          }))
+                        }
+                      />
+                    ))}
                   </View>
                 </Section>
               ) : null}
@@ -887,45 +955,105 @@ export default function ReservationCreateScreen() {
         </ScrollView>
       </Step>
 
-      <Step title="Review">
-        <View className="p-8 flex-1">
-          <ThemedText className="text-3xl font-semibold">Review reservation</ThemedText>
-          <ThemedText className="text-base text-light-subtext dark:text-dark-subtext mt-1">
-            Zkontrolujte vybrane udaje a pokracujte.
+      <Step title="Shrnutí rezervace">
+        <ScrollView className="flex-1 px-global pb-6" showsVerticalScrollIndicator={false}>
+          <ThemedText className="text-2xl font-bold pt-4">Shrnutí rezervace</ThemedText>
+          <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext mt-1">
+            Zkontrolujte údaje před potvrzením.
           </ThemedText>
 
-          <View className="mt-8 bg-light-secondary dark:bg-dark-secondary rounded-2xl p-4 gap-3">
-            <SummaryRow label="Pobocka" value={selectedBranch?.name ?? '—'} />
-            <SummaryRow
-              label="Barber"
-              value={employees.find((e) => e.id === data.employeeId)?.name ?? '—'}
-            />
-            <SummaryRow
-              label="Sluzba"
-              value={services.find((s) => s.id === data.itemId)?.name ?? '—'}
-            />
-            <SummaryRow label="Datum" value={data.date || '—'} />
-            <SummaryRow label="Cas" value={data.slotStart && data.slotEnd ? `${data.slotStart} - ${data.slotEnd}` : '—'} />
+          <View className="mt-3 p-3 rounded-xl bg-light-accent/10 dark:bg-dark-accent/15 border border-light-accent/25 dark:border-dark-accent/30">
+            <ThemedText className="text-center text-sm font-medium text-light-text dark:text-dark-text">
+              Potvrzením dokončíte vytvoření rezervace.
+            </ThemedText>
           </View>
 
-          <Pressable
-            className="mt-5 p-4 rounded-xl border border-light-secondary dark:border-dark-secondary"
-            onPress={() => router.push('/screens/reservations')}
-          >
-            <ThemedText className="text-center text-light-subtext dark:text-dark-subtext">
-              Potvrzenim dokoncite vytvoreni rezervace.
-            </ThemedText>
-          </Pressable>
+          <Divider className="mt-4 h-2 bg-light-secondary dark:bg-dark-darker" />
+
+          <Section title="Pobočka" titleSize="lg" className="pt-3 pb-1">
+            <View className="mt-2 rounded-2xl overflow-hidden bg-light-secondary dark:bg-dark-secondary">
+              <Image
+                source={
+                  typeof summaryBranchCardImage === 'number'
+                    ? summaryBranchCardImage
+                    : { uri: summaryBranchCardImage }
+                }
+                className="w-full h-40"
+                resizeMode="cover"
+              />
+              <View className="p-3">
+                <ThemedText className="text-base font-semibold">{selectedBranch?.name ?? '—'}</ThemedText>
+                {selectedBranch?.address ? (
+                  <View className="flex-row items-start mt-1.5">
+                    <Icon name="MapPin" size={14} className="mr-1.5 mt-0.5 text-light-subtext dark:text-dark-subtext" />
+                    <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext flex-1">
+                      {selectedBranch.address}
+                    </ThemedText>
+                  </View>
+                ) : null}
+              </View>
+            </View>
+          </Section>
+
+          <Divider className="mt-4 h-2 bg-light-secondary dark:bg-dark-darker" />
+
+          <Section title="U vašeho specialisty" titleSize="lg" className="pt-3 pb-1">
+            <View className="flex-row items-center mt-2">
+              {selectedEmployee ? (
+                <Avatar size="md" src={selectedEmployee.avatarUrl ?? undefined} name={selectedEmployee.name} />
+              ) : (
+                <View className="w-12 h-12 rounded-full bg-light-secondary dark:bg-dark-secondary items-center justify-center">
+                  <ThemedText className="text-xs text-light-subtext dark:text-dark-subtext">—</ThemedText>
+                </View>
+              )}
+              <View className="ml-3 flex-1 min-w-0">
+                <ThemedText className="text-base font-semibold" numberOfLines={1}>
+                  {selectedEmployeeName}
+                </ThemedText>
+                {selectedServiceName !== '—' ? (
+                  <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext mt-0.5" numberOfLines={2}>
+                    {selectedServiceName}
+                    {selectedService ? ` · ${selectedService.price} Kč` : ''}
+                  </ThemedText>
+                ) : (
+                  <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext mt-0.5">—</ThemedText>
+                )}
+              </View>
+            </View>
+          </Section>
+
+          <Divider className="mt-4 h-2 bg-light-secondary dark:bg-dark-darker" />
+
+          <Section title="Váš termín" titleSize="lg" className="pt-3 pb-1">
+            <ThemedText className="text-base font-semibold mt-2">{selectedDateLabel}</ThemedText>
+            <View className="flex-row items-center justify-between bg-light-secondary dark:bg-dark-secondary rounded-xl p-3 mt-2">
+              <View>
+                <ThemedText className="text-xs text-light-subtext dark:text-dark-subtext">Od</ThemedText>
+                <ThemedText className="text-base font-semibold">{data.slotStart || '—'}</ThemedText>
+              </View>
+              <View className="items-end">
+                <ThemedText className="text-xs text-light-subtext dark:text-dark-subtext">Do</ThemedText>
+                <ThemedText className="text-base font-semibold">{data.slotEnd || '—'}</ThemedText>
+              </View>
+            </View>
+            {data.duration > 0 ? (
+              <View className="flex-row items-center justify-between pt-2.5">
+                <ThemedText className="text-xs text-light-subtext dark:text-dark-subtext">Délka</ThemedText>
+                <ThemedText className="text-sm font-semibold">{data.duration} min</ThemedText>
+              </View>
+            ) : null}
+          </Section>
+
           {creatingBooking ? (
-            <View className="mt-4 flex-row items-center justify-center">
+            <View className="mt-3 flex-row items-center justify-center">
               <ActivityIndicator size="small" />
-              <ThemedText className="ml-2 text-light-subtext dark:text-dark-subtext">Vytvarim rezervaci...</ThemedText>
+              <ThemedText className="ml-2 text-sm text-light-subtext dark:text-dark-subtext">Vytvářím rezervaci...</ThemedText>
             </View>
           ) : null}
           {createBookingError ? (
-            <ThemedText className="mt-4 text-red-500 dark:text-red-400">{createBookingError}</ThemedText>
+            <ThemedText className="mt-3 text-sm text-red-500 dark:text-red-400">{createBookingError}</ThemedText>
           ) : null}
-        </View>
+        </ScrollView>
       </Step>
       </MultiStep>
       <ActionSheetThemed ref={detailsSheetRef} gestureEnabled>
@@ -1018,14 +1146,5 @@ export default function ReservationCreateScreen() {
         </ScrollView>
       </ActionSheetThemed>
     </>
-  );
-}
-
-function SummaryRow(props: { label: string; value: string }) {
-  return (
-    <View className="flex-row items-center justify-between">
-      <ThemedText className="text-light-subtext dark:text-dark-subtext">{props.label}</ThemedText>
-      <ThemedText className="font-medium">{props.value}</ThemedText>
-    </View>
   );
 }

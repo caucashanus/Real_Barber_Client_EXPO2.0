@@ -1,6 +1,6 @@
 import React from 'react';
 
-import Header from '@/components/Header';
+import Header, { HeaderIcon } from '@/components/Header';
 import useThemeColors from '@/app/contexts/ThemeColors';
 import ThemedScroller from '@/components/ThemeScroller';
 import ThemedFooter from '@/components/ThemeFooter';
@@ -104,7 +104,13 @@ const ReservationsScreen = () => {
         <>
             <Header
                 showBackButton
-
+                rightComponents={[
+                    <HeaderIcon
+                        key="add-reservation"
+                        href="/screens/reservation-create-start"
+                        icon="Plus"
+                    />,
+                ]}
             />
 
             <ThemedScroller
