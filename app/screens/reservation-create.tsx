@@ -11,6 +11,7 @@ import { Button } from '@/components/Button';
 import Section from '@/components/layout/Section';
 import { CardScroller } from '@/components/CardScroller';
 import ShowRating from '@/components/ShowRating';
+import Icon from '@/components/Icon';
 import ActionSheetThemed from '@/components/ActionSheetThemed';
 import { ActionSheetRef } from 'react-native-actions-sheet';
 import { useAuth } from '@/app/contexts/AuthContext';
@@ -146,18 +147,39 @@ function getEmployeeMedia(employee: BranchEmployee): Array<{ url: string; type?:
     .filter((x): x is { url: string; type?: 'image' | 'video' } => x != null);
 }
 
-function nextDays(count: number): Array<{ value: string; label: string }> {
-  const out: Array<{ value: string; label: string }> = [];
+function toIsoDate(date: Date): string {
+  const y = date.getFullYear();
+  const m = `${date.getMonth() + 1}`.padStart(2, '0');
+  const d = `${date.getDate()}`.padStart(2, '0');
+  return `${y}-${m}-${d}`;
+}
+
+function getMonthDays(offset: number): Array<{ value: string; label: string }> {
   const now = new Date();
-  for (let i = 0; i < count; i += 1) {
-    const d = new Date(now);
-    d.setDate(now.getDate() + i);
-    const value = d.toISOString().slice(0, 10);
-    const day = d.toLocaleDateString('cs-CZ', { weekday: 'short' });
-    const date = d.toLocaleDateString('cs-CZ', { day: '2-digit', month: '2-digit' });
-    out.push({ value, label: `${day} ${date}` });
+  const year = now.getFullYear();
+  const month = now.getMonth() + offset;
+  const first = new Date(year, month, 1);
+  const last = new Date(year, month + 1, 0);
+  const out: Array<{ value: string; label: string }> = [];
+  for (let day = 1; day <= last.getDate(); day += 1) {
+    const d = new Date(first.getFullYear(), first.getMonth(), day);
+    if (d < new Date(now.getFullYear(), now.getMonth(), now.getDate())) continue;
+    out.push({
+      value: toIsoDate(d),
+      label: d.toLocaleDateString('cs-CZ', { weekday: 'short', day: '2-digit' }),
+    });
   }
   return out;
+}
+
+function timeToMinutes(time: string): number {
+  const [h, m] = time.split(':').map(Number);
+  return (Number.isFinite(h) ? h : 0) * 60 + (Number.isFinite(m) ? m : 0);
+}
+
+function getMonthOffsetFromToday(target: Date): number {
+  const now = new Date();
+  return (target.getFullYear() - now.getFullYear()) * 12 + (target.getMonth() - now.getMonth());
 }
 
 type ServiceOption = {
@@ -189,6 +211,8 @@ export default function ReservationCreateScreen() {
   const [availability, setAvailability] = useState<BookingAvailabilityResponse | null>(null);
   const [loadingAvailability, setLoadingAvailability] = useState(false);
   const [availabilityError, setAvailabilityError] = useState<string | null>(null);
+  const [availableDatesInMonth, setAvailableDatesInMonth] = useState<Set<string>>(new Set());
+  const [loadingMonthAvailability, setLoadingMonthAvailability] = useState(false);
   const [employeeServices, setEmployeeServices] = useState<EmployeeService[]>([]);
   const [loadingEmployeeServices, setLoadingEmployeeServices] = useState(false);
   const [creatingBooking, setCreatingBooking] = useState(false);
@@ -200,6 +224,7 @@ export default function ReservationCreateScreen() {
   const [detailsBranchId, setDetailsBranchId] = useState<string | null>(null);
   const branchDetailsSheetRef = useRef<ActionSheetRef>(null);
   const [isBranchDescriptionExpanded, setIsBranchDescriptionExpanded] = useState(false);
+  const [monthOffset, setMonthOffset] = useState(0);
   const [data, setData] = useState<ReservationFlowData>({
     branchId: '',
     employeeId: '',
@@ -251,7 +276,24 @@ export default function ReservationCreateScreen() {
     return getServicesList(selectedBranch);
   }, [selectedBranch, employeeServices]);
   const serviceCategories = useMemo(() => groupServicesByCategory(services), [services]);
-  const dayOptions = useMemo(() => nextDays(14), []);
+  const groupedSlots = useMemo(() => {
+    const slots = availability?.availability?.slots ?? [];
+    const morning = slots.filter((s) => timeToMinutes(s.start) < 12 * 60);
+    const afternoon = slots.filter((s) => timeToMinutes(s.start) >= 12 * 60 && timeToMinutes(s.start) < 17 * 60);
+    const evening = slots.filter((s) => timeToMinutes(s.start) >= 17 * 60);
+    return { morning, afternoon, evening };
+  }, [availability]);
+  const monthDays = useMemo(() => getMonthDays(monthOffset), [monthOffset]);
+  const visibleMonthDays = useMemo(
+    () => monthDays.filter((day) => availableDatesInMonth.has(day.value)),
+    [monthDays, availableDatesInMonth]
+  );
+  const monthLabel = useMemo(() => {
+    const d = new Date();
+    d.setMonth(d.getMonth() + monthOffset);
+    const txt = d.toLocaleDateString('cs-CZ', { month: 'long' });
+    return txt.charAt(0).toUpperCase() + txt.slice(1);
+  }, [monthOffset]);
 
   useEffect(() => {
     if (!apiToken || !data.employeeId) {
@@ -289,6 +331,46 @@ export default function ReservationCreateScreen() {
       })
       .finally(() => setLoadingAvailability(false));
   }, [apiToken, data.employeeId, data.date, data.branchId, data.itemId]);
+
+  useEffect(() => {
+    if (!apiToken || !data.employeeId || monthDays.length === 0) {
+      setAvailableDatesInMonth(new Set());
+      setLoadingMonthAvailability(false);
+      return;
+    }
+    let cancelled = false;
+    setLoadingMonthAvailability(true);
+    Promise.all(
+      monthDays.map(async (day) => {
+        try {
+          const res = await getBookingAvailability(apiToken, {
+            employeeId: data.employeeId,
+            date: day.value,
+            branchId: data.branchId || undefined,
+            itemId: data.itemId || undefined,
+          });
+          const count = res?.availability?.slots?.length ?? 0;
+          return count > 0 ? day.value : null;
+        } catch {
+          return null;
+        }
+      })
+    )
+      .then((values) => {
+        if (cancelled) return;
+        const next = new Set(values.filter((v): v is string => v != null));
+        setAvailableDatesInMonth(next);
+        if (data.date && !next.has(data.date)) {
+          setData((prev) => ({ ...prev, date: '', slotStart: '', slotEnd: '', duration: 0 }));
+        }
+      })
+      .finally(() => {
+        if (!cancelled) setLoadingMonthAvailability(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [apiToken, data.employeeId, data.branchId, data.itemId, monthOffset]);
 
   const onStepChange = (nextStep: number): boolean => {
     setStepError(null);
@@ -586,8 +668,63 @@ export default function ReservationCreateScreen() {
               Vyberte den a následně dostupný termín.
             </ThemedText>
           </View>
+          <View className="flex-row gap-2 mb-4">
+            <Chip
+              size="lg"
+              label="Dnes"
+              isSelected={data.date === toIsoDate(new Date())}
+              onPress={() => {
+                const target = new Date();
+                setMonthOffset(Math.max(0, getMonthOffsetFromToday(target)));
+                setData((prev) => ({
+                  ...prev,
+                  date: toIsoDate(target),
+                  slotStart: '',
+                  slotEnd: '',
+                  duration: 0,
+                }));
+              }}
+            />
+            <Chip
+              size="lg"
+              label="Zítra"
+              isSelected={data.date === toIsoDate(new Date(Date.now() + 24 * 60 * 60 * 1000))}
+              onPress={() => {
+                const target = new Date(Date.now() + 24 * 60 * 60 * 1000);
+                setMonthOffset(Math.max(0, getMonthOffsetFromToday(target)));
+                setData((prev) => ({
+                  ...prev,
+                  date: toIsoDate(target),
+                  slotStart: '',
+                  slotEnd: '',
+                  duration: 0,
+                }));
+              }}
+            />
+          </View>
+          <View className="mb-3 flex-row items-center justify-between">
+            <Pressable
+              disabled={monthOffset === 0}
+              onPress={() => setMonthOffset((prev) => Math.max(0, prev - 1))}
+              className={`rounded-full p-2 ${monthOffset === 0 ? 'opacity-40' : 'opacity-100'}`}
+            >
+              <Icon name="ChevronLeft" size={24} className="-translate-x-px" />
+            </Pressable>
+            <ThemedText className="text-base font-semibold">{monthLabel}</ThemedText>
+            <Pressable
+              onPress={() => setMonthOffset((prev) => prev + 1)}
+              className="rounded-full p-2"
+            >
+              <Icon name="ChevronRight" size={24} className="translate-x-px" />
+            </Pressable>
+          </View>
+          {loadingMonthAvailability ? (
+            <View className="py-4 items-center">
+              <ActivityIndicator size="small" />
+            </View>
+          ) : null}
           <View className="flex-row flex-wrap gap-2">
-            {dayOptions.map((day) => (
+            {visibleMonthDays.map((day) => (
               <Chip
                 key={day.value}
                 size="lg"
@@ -605,6 +742,11 @@ export default function ReservationCreateScreen() {
               />
             ))}
           </View>
+          {!loadingMonthAvailability && visibleMonthDays.length === 0 ? (
+            <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext mt-2">
+              V tomto měsíci nejsou žádné volné termíny.
+            </ThemedText>
+          ) : null}
           <View className="mt-6 mb-2">
             <ThemedText className="text-lg font-semibold">Dostupné časy</ThemedText>
             <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext">
@@ -619,23 +761,69 @@ export default function ReservationCreateScreen() {
             <ThemedText className="text-red-500">{availabilityError}</ThemedText>
           ) : (
             <>
-              {availability?.availability?.slots?.map((slot) => (
-                <Selectable
-                  key={`${slot.start}-${slot.end}-${slot.branchId ?? 'any'}`}
-                  title={`${slot.start} - ${slot.end}`}
-                  description={`${slot.duration} min`}
-                  selected={data.slotStart === slot.start && data.slotEnd === slot.end}
-                  showSelectedIndicator={false}
-                  onPress={() =>
-                    setData((prev) => ({
-                      ...prev,
-                      slotStart: slot.start,
-                      slotEnd: slot.end,
-                      duration: slot.duration,
-                    }))
-                  }
-                />
-              ))}
+              {groupedSlots.morning.length > 0 ? (
+                <Section title="Ráno" titleSize="md" className="mb-2">
+                  {groupedSlots.morning.map((slot) => (
+                    <Selectable
+                      key={`m-${slot.start}-${slot.end}-${slot.branchId ?? 'any'}`}
+                      title={`${slot.start} - ${slot.end}`}
+                      description={`${slot.duration} min`}
+                      selected={data.slotStart === slot.start && data.slotEnd === slot.end}
+                      showSelectedIndicator={false}
+                      onPress={() =>
+                        setData((prev) => ({
+                          ...prev,
+                          slotStart: slot.start,
+                          slotEnd: slot.end,
+                          duration: slot.duration,
+                        }))
+                      }
+                    />
+                  ))}
+                </Section>
+              ) : null}
+              {groupedSlots.afternoon.length > 0 ? (
+                <Section title="Odpoledne" titleSize="md" className="mb-2">
+                  {groupedSlots.afternoon.map((slot) => (
+                    <Selectable
+                      key={`a-${slot.start}-${slot.end}-${slot.branchId ?? 'any'}`}
+                      title={`${slot.start} - ${slot.end}`}
+                      description={`${slot.duration} min`}
+                      selected={data.slotStart === slot.start && data.slotEnd === slot.end}
+                      showSelectedIndicator={false}
+                      onPress={() =>
+                        setData((prev) => ({
+                          ...prev,
+                          slotStart: slot.start,
+                          slotEnd: slot.end,
+                          duration: slot.duration,
+                        }))
+                      }
+                    />
+                  ))}
+                </Section>
+              ) : null}
+              {groupedSlots.evening.length > 0 ? (
+                <Section title="Večer" titleSize="md" className="mb-2">
+                  {groupedSlots.evening.map((slot) => (
+                    <Selectable
+                      key={`e-${slot.start}-${slot.end}-${slot.branchId ?? 'any'}`}
+                      title={`${slot.start} - ${slot.end}`}
+                      description={`${slot.duration} min`}
+                      selected={data.slotStart === slot.start && data.slotEnd === slot.end}
+                      showSelectedIndicator={false}
+                      onPress={() =>
+                        setData((prev) => ({
+                          ...prev,
+                          slotStart: slot.start,
+                          slotEnd: slot.end,
+                          duration: slot.duration,
+                        }))
+                      }
+                    />
+                  ))}
+                </Section>
+              ) : null}
               {(availability?.availability?.slots?.length ?? 0) === 0 ? (
                 <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext">
                   Pro vybrané parametry nejsou dostupné žádné termíny.
