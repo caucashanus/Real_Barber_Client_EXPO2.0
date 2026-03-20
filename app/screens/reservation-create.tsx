@@ -8,10 +8,13 @@ import ThemedText from '@/components/ThemedText';
 import Avatar from '@/components/Avatar';
 import { Chip } from '@/components/Chip';
 import { Button } from '@/components/Button';
+import Section from '@/components/layout/Section';
+import { CardScroller } from '@/components/CardScroller';
 import ShowRating from '@/components/ShowRating';
 import ActionSheetThemed from '@/components/ActionSheetThemed';
 import { ActionSheetRef } from 'react-native-actions-sheet';
 import { useAuth } from '@/app/contexts/AuthContext';
+import useThemeColors from '@/app/contexts/ThemeColors';
 import { getBranches, type Branch, type BranchEmployee, type BranchService } from '@/api/branches';
 import { createBooking, getBookingAvailability, type BookingAvailabilityResponse } from '@/api/bookings';
 import { getEmployeeById, getEmployees, type Employee, type EmployeeService } from '@/api/employees';
@@ -157,8 +160,29 @@ function nextDays(count: number): Array<{ value: string; label: string }> {
   return out;
 }
 
+type ServiceOption = {
+  id: string;
+  name: string;
+  imageUrl?: string | null;
+  price: number;
+  duration: number;
+  category?: { id?: string; name?: string } | null;
+};
+
+function groupServicesByCategory(services: ServiceOption[]): Array<{ key: string; name: string; services: ServiceOption[] }> {
+  const map = new Map<string, { key: string; name: string; services: ServiceOption[] }>();
+  for (const svc of services) {
+    const key = svc.category?.id ?? svc.category?.name ?? 'other';
+    const name = svc.category?.name ?? 'Ostatní';
+    if (!map.has(key)) map.set(key, { key, name, services: [] });
+    map.get(key)!.services.push(svc);
+  }
+  return Array.from(map.values());
+}
+
 export default function ReservationCreateScreen() {
   const { apiToken } = useAuth();
+  const colors = useThemeColors();
   const [branches, setBranches] = useState<Branch[]>([]);
   const [employeesById, setEmployeesById] = useState<Record<string, Employee>>({});
   const [loadingBranches, setLoadingBranches] = useState(true);
@@ -222,10 +246,11 @@ export default function ReservationCreateScreen() {
         .filter((e) => e.isActive !== false),
     [selectedBranch, employeesById]
   );
-  const services = useMemo(() => {
+  const services = useMemo<ServiceOption[]>(() => {
     if (employeeServices.length > 0) return employeeServices;
     return getServicesList(selectedBranch);
   }, [selectedBranch, employeeServices]);
+  const serviceCategories = useMemo(() => groupServicesByCategory(services), [services]);
   const dayOptions = useMemo(() => nextDays(14), []);
 
   useEffect(() => {
@@ -283,8 +308,8 @@ export default function ReservationCreateScreen() {
       setStepError('Vyberte datum.');
       return false;
     }
-    if (currentStep === 4 && !data.slotStart) {
-      setStepError('Vyberte cas rezervace.');
+    if (currentStep === 3 && !data.slotStart) {
+      setStepError('Vyberte čas rezervace.');
       return false;
     }
     setCurrentStep(nextStep);
@@ -503,23 +528,46 @@ export default function ReservationCreateScreen() {
               <ActivityIndicator size="small" />
             </View>
           ) : null}
-          {services.map((service) => (
-            <Selectable
-              key={service.id}
-              title={service.name}
-              description={`${service.duration} min • ${service.price} Kc`}
-              selected={data.itemId === service.id}
-              showSelectedIndicator={false}
-              onPress={() =>
-                setData((prev) => ({
-                  ...prev,
-                  itemId: service.id,
-                  slotStart: '',
-                  slotEnd: '',
-                  duration: 0,
-                }))
-              }
-            />
+          {serviceCategories.map((category) => (
+            <Section key={category.key} title={category.name} titleSize="lg" className="mb-4">
+              <CardScroller className="mt-1.5 pb-1" space={12}>
+                {category.services.map((service) => {
+                  const isSelected = data.itemId === service.id;
+                  return (
+                    <Pressable
+                      key={service.id}
+                      onPress={() =>
+                        setData((prev) => ({
+                          ...prev,
+                          itemId: service.id,
+                          slotStart: '',
+                          slotEnd: '',
+                          duration: service.duration,
+                        }))
+                      }
+                      className="w-[160px] rounded-2xl border bg-light-primary dark:bg-dark-primary overflow-hidden"
+                      style={isSelected ? { borderColor: colors.highlight, borderWidth: 2 } : undefined}
+                    >
+                      <Image
+                        source={service.imageUrl ? { uri: service.imageUrl } : require('@/assets/img/room-1.avif')}
+                        className="w-[160px] h-[140px]"
+                        resizeMode="cover"
+                      />
+                      <View className="px-2 py-2">
+                        <ThemedText className="text-sm font-medium" numberOfLines={1}>
+                          {service.name}
+                        </ThemedText>
+                        <View className="mt-1 self-start rounded-full bg-light-secondary dark:bg-dark-secondary px-2 py-1">
+                          <ThemedText className="text-xs text-light-subtext dark:text-dark-subtext">
+                            {service.price} Kč
+                          </ThemedText>
+                        </View>
+                      </View>
+                    </Pressable>
+                  );
+                })}
+              </CardScroller>
+            </Section>
           ))}
           {services.length === 0 ? (
             <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext">
@@ -530,12 +578,12 @@ export default function ReservationCreateScreen() {
         </ScrollView>
       </Step>
 
-      <Step title="Vyberte datum">
+      <Step title="Vyberte datum a čas">
         <ScrollView className="p-4 px-8">
           <View className="mb-8">
-            <ThemedText className="text-3xl font-semibold">Vyberte datum</ThemedText>
+            <ThemedText className="text-3xl font-semibold">Vyberte datum a čas</ThemedText>
             <ThemedText className="text-base text-light-subtext dark:text-dark-subtext">
-              Vyberte den, kdy chcete přijít.
+              Vyberte den a následně dostupný termín.
             </ThemedText>
           </View>
           <View className="flex-row flex-wrap gap-2">
@@ -557,15 +605,9 @@ export default function ReservationCreateScreen() {
               />
             ))}
           </View>
-          {stepError ? <ThemedText className="text-red-500 mt-4">{stepError}</ThemedText> : null}
-        </ScrollView>
-      </Step>
-
-      <Step title="Vyberte čas">
-        <ScrollView className="p-4 px-8">
-          <View className="mb-8">
-            <ThemedText className="text-3xl font-semibold">Vyberte čas</ThemedText>
-            <ThemedText className="text-base text-light-subtext dark:text-dark-subtext">
+          <View className="mt-6 mb-2">
+            <ThemedText className="text-lg font-semibold">Dostupné časy</ThemedText>
+            <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext">
               Vyberte volný čas z dostupných termínů.
             </ThemedText>
           </View>
@@ -601,7 +643,7 @@ export default function ReservationCreateScreen() {
               ) : null}
             </>
           )}
-          {stepError ? <ThemedText className="text-red-500 mt-2">{stepError}</ThemedText> : null}
+          {stepError ? <ThemedText className="text-red-500 mt-4">{stepError}</ThemedText> : null}
         </ScrollView>
       </Step>
 

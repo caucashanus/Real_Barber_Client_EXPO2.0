@@ -1,5 +1,6 @@
 import React, { ReactNode } from 'react';
 import { View, Pressable, StyleProp, ViewStyle } from 'react-native';
+import * as Haptics from 'expo-haptics';
 import ThemedText from '../ThemedText';
 import Icon, { IconName } from '../Icon';
 import useThemeColors from '@/app/contexts/ThemeColors';
@@ -39,11 +40,15 @@ const Selectable: React.FC<SelectableProps> = ({
   style,
 }) => {
   const colors = useThemeColors();
+  const handlePress = () => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(() => {});
+    onPress?.();
+  };
 
   return (
     <View className={`mb-2 ${containerClassName}`} >
       <Pressable
-        onPress={onPress}
+        onPress={handlePress}
         style={style}
         style={selected ? { borderColor: colors.highlight } : undefined}
         className={`
