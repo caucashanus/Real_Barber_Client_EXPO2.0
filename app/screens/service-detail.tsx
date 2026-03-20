@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useCallback, useRef } from 'react';
 import { useFocusEffect } from '@react-navigation/native';
-import { View, Image, ActivityIndicator, Pressable, ScrollView, type LayoutChangeEvent } from 'react-native';
+import { View, Image, ActivityIndicator, Pressable, ScrollView, Animated, type LayoutChangeEvent } from 'react-native';
 import { useLocalSearchParams, router } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Header from '@/components/Header';
@@ -70,6 +70,7 @@ export default function ServiceDetailScreen() {
   const [loadingReviews, setLoadingReviews] = useState(false);
   const [hasReviewed, setHasReviewed] = useState(false);
   const scrollRef = useRef<ScrollView>(null);
+  const heroScrollY = useRef(new Animated.Value(0)).current;
   const contentYRef = useRef(0);
   const reviewsSectionYInContentRef = useRef(0);
 
@@ -168,15 +169,42 @@ export default function ServiceDetailScreen() {
   return (
     <>
       <Header title="" rightComponents={rightComponents} showBackButton />
-      <ThemedScroller ref={scrollRef} className="px-0 bg-light-primary dark:bg-dark-primary">
-        <View className="bg-light-secondary dark:bg-dark-secondary">
+      <ThemedScroller
+        ref={scrollRef}
+        className="px-0 bg-light-primary dark:bg-dark-primary"
+        onScroll={Animated.event([{ nativeEvent: { contentOffset: { y: heroScrollY } } }], {
+          useNativeDriver: false,
+        })}
+        scrollEventThrottle={16}
+      >
+        <Animated.View
+          className="bg-light-secondary dark:bg-dark-secondary overflow-hidden"
+          style={{
+            transform: [
+              {
+                scale: heroScrollY.interpolate({
+                  inputRange: [-160, 0],
+                  outputRange: [1.18, 1],
+                  extrapolate: 'clamp',
+                }),
+              },
+              {
+                translateY: heroScrollY.interpolate({
+                  inputRange: [-160, 0],
+                  outputRange: [-20, 0],
+                  extrapolate: 'clamp',
+                }),
+              },
+            ],
+          }}
+        >
           <Image
             source={typeof images[0] === 'string' ? { uri: images[0] } : images[0]}
             className="w-full"
             style={{ aspectRatio: 4 / 3 }}
             resizeMode="cover"
           />
-        </View>
+        </Animated.View>
 
         <View
           className="p-global"

@@ -11,6 +11,7 @@ import Card from '@/components/Card';
 import Icon from '@/components/Icon';
 import { useCollapsibleTitle } from '@/app/hooks/useCollapsibleTitle';
 import { useAuth } from '@/app/contexts/AuthContext';
+import { useFavoritesSync } from '@/app/contexts/FavoritesSyncContext';
 import { useTranslation } from '@/app/hooks/useTranslation';
 import { getFavorites, deleteFavorite, type Favorite } from '@/api/favorites';
 
@@ -51,6 +52,7 @@ const FavoritesScreen = () => {
   const [isEditMode, setIsEditMode] = useState(false);
   const { scrollY, scrollHandler, scrollEventThrottle } = useCollapsibleTitle();
   const { apiToken } = useAuth();
+  const { favoritesVersion, notifyFavoritesChanged } = useFavoritesSync();
   const [favorites, setFavorites] = useState<Favorite[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -71,13 +73,14 @@ const FavoritesScreen = () => {
   useFocusEffect(
     React.useCallback(() => {
       loadFavorites();
-    }, [apiToken])
+    }, [apiToken, favoritesVersion])
   );
 
   const handleRemove = (favoriteId: string) => {
     if (!apiToken) return;
     deleteFavorite(apiToken, favoriteId)
       .then(() => setFavorites((prev) => prev.filter((f) => f.id !== favoriteId)))
+      .then(() => notifyFavoritesChanged())
       .catch(() => {});
   };
 

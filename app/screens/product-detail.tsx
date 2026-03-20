@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
-import { View, Text, Image, Pressable, ScrollView, ActivityIndicator, type LayoutChangeEvent } from 'react-native';
+import { View, Text, Image, Pressable, ScrollView, ActivityIndicator, Animated, type LayoutChangeEvent } from 'react-native';
 import { Share } from 'react-native';
 import Header, { HeaderIcon } from '@/components/Header';
 import ThemedText from '@/components/ThemedText';
@@ -236,6 +236,7 @@ const PropertyDetail = () => {
 
     const scrollRef = useRef<ScrollView>(null);
     const roundedViewYRef = useRef(0);
+    const heroScrollY = useRef(new Animated.Value(0)).current;
     const reviewsSectionYInRoundedRef = useRef(0);
     const scrollToReviews = useCallback(() => {
         const y = roundedViewYRef.current + reviewsSectionYInRoundedRef.current;
@@ -272,11 +273,20 @@ const PropertyDetail = () => {
         <>
             {isFocused && <StatusBar style="light" translucent />}
             <Header variant='transparent' title="" rightComponents={rightComponents} showBackButton />
-            <ThemedScroller ref={scrollRef} className="px-0 bg-light-primary dark:bg-dark-primary">
+            <ThemedScroller
+                ref={scrollRef}
+                className="px-0 bg-light-primary dark:bg-dark-primary"
+                onScroll={Animated.event([{ nativeEvent: { contentOffset: { y: heroScrollY } } }], {
+                    useNativeDriver: false,
+                })}
+                scrollEventThrottle={16}
+            >
                 <ImageCarousel
                     images={displayImages}
                     height={500}
                     paginationStyle="dots"
+                    scrollY={heroScrollY}
+                    stretchOnPullDown
                 />
 
                 <View

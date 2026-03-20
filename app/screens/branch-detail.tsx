@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useCallback, useRef } from 'react';
 import { useFocusEffect } from '@react-navigation/native';
-import { View, Image, ActivityIndicator, Pressable, ScrollView, Linking, Modal, type LayoutChangeEvent } from 'react-native';
+import { View, Image, ActivityIndicator, Pressable, ScrollView, Linking, Modal, Animated, type LayoutChangeEvent } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import * as WebBrowser from 'expo-web-browser';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -171,6 +171,7 @@ export default function BranchDetailScreen() {
   const [descriptionModalVisible, setDescriptionModalVisible] = useState(false);
   const [ratingModalVisible, setRatingModalVisible] = useState(false);
   const scrollRef = useRef<ScrollView>(null);
+  const heroScrollY = useRef(new Animated.Value(0)).current;
   const roundedViewYRef = useRef(0);
   const reviewsSectionYInRoundedRef = useRef(0);
 
@@ -275,7 +276,14 @@ export default function BranchDetailScreen() {
     <>
       <StatusBar style="light" translucent />
       <Header variant="transparent" title="" rightComponents={rightComponents} showBackButton />
-      <ThemedScroller ref={scrollRef} className="px-0 bg-light-primary dark:bg-dark-primary">
+      <ThemedScroller
+        ref={scrollRef}
+        className="px-0 bg-light-primary dark:bg-dark-primary"
+        onScroll={Animated.event([{ nativeEvent: { contentOffset: { y: heroScrollY } } }], {
+          useNativeDriver: false,
+        })}
+        scrollEventThrottle={16}
+      >
         <ImageCarousel
           images={images}
           height={500}
@@ -283,6 +291,8 @@ export default function BranchDetailScreen() {
           autoPlay
           autoPlayInterval={3000}
           loop
+          scrollY={heroScrollY}
+          stretchOnPullDown
         />
 
         <View

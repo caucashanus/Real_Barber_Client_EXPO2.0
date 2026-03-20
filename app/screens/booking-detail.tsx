@@ -1,5 +1,5 @@
-import React from 'react';
-import { View, ScrollView } from 'react-native';
+import React, { useRef } from 'react';
+import { View, ScrollView, Animated } from 'react-native';
 import Header from '@/components/Header';
 import useThemeColors from '@/app/contexts/ThemeColors';
 import ThemedScroller from '@/components/ThemeScroller';
@@ -66,6 +66,7 @@ const BookingDetailScreen = () => {
     const colors = useThemeColors();
     const insets = useSafeAreaInsets();
     const { t } = useTranslation();
+    const heroScrollY = useRef(new Animated.Value(0)).current;
 
     const handleApprove = () => {
         console.log('Booking approved');
@@ -86,6 +87,10 @@ const BookingDetailScreen = () => {
             <ThemedScroller
                 className="flex-1 px-0"
                 keyboardShouldPersistTaps="handled"
+                onScroll={Animated.event([{ nativeEvent: { contentOffset: { y: heroScrollY } } }], {
+                    useNativeDriver: false,
+                })}
+                scrollEventThrottle={16}
             >
                 <AnimatedView animation="fadeIn" duration={400} delay={100}>
                     {/* Property Images */}
@@ -94,6 +99,8 @@ const BookingDetailScreen = () => {
                             height={300}
                             rounded='2xl'
                             images={['https://tinyurl.com/2blrf2sk', 'https://tinyurl.com/2yyfr9rc', 'https://tinyurl.com/2cmu4ns5']}
+                            scrollY={heroScrollY}
+                            stretchOnPullDown
                         />
                     </View>
 

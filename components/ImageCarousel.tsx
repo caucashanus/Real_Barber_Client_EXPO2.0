@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, FlatList, Image, Dimensions, Pressable, StyleSheet, LayoutChangeEvent } from 'react-native';
+import { View, FlatList, Image, Dimensions, StyleSheet, LayoutChangeEvent, Animated } from 'react-native';
 import { ImageSourcePropType } from 'react-native';
 import ThemedText from '@/components/ThemedText';
 
@@ -15,6 +15,10 @@ interface ImageCarouselProps {
     loop?: boolean;
     className?: string;
     rounded?: 'none' | 'sm' | 'md' | 'lg' | 'xl' | '2xl' | 'full';
+    /** Parent scroll value for stretchy hero pull-down effect. */
+    scrollY?: Animated.Value;
+    /** Enable pull-down stretch animation (requires scrollY). */
+    stretchOnPullDown?: boolean;
 }
 
 const ImageCarousel: React.FC<ImageCarouselProps> = ({
@@ -29,6 +33,8 @@ const ImageCarousel: React.FC<ImageCarouselProps> = ({
     loop = true,
     className = '',
     rounded = 'none',
+    scrollY,
+    stretchOnPullDown = false,
 }) => {
     const [containerWidth, setContainerWidth] = useState(propWidth || Dimensions.get('window').width);
     const [activeIndex, setActiveIndex] = useState(0);
@@ -124,6 +130,28 @@ const ImageCarousel: React.FC<ImageCarouselProps> = ({
         </View>
     );
 
+    const heroAnimatedStyle =
+        stretchOnPullDown && scrollY
+            ? {
+                  transform: [
+                      {
+                          scale: scrollY.interpolate({
+                              inputRange: [-160, 0],
+                              outputRange: [1.18, 1],
+                              extrapolate: 'clamp',
+                          }),
+                      },
+                      {
+                          translateY: scrollY.interpolate({
+                              inputRange: [-160, 0],
+                              outputRange: [-20, 0],
+                              extrapolate: 'clamp',
+                          }),
+                      },
+                  ],
+              }
+            : undefined;
+
     return (
         <View 
             className={`${getRoundedClass()} ${className}`}
@@ -136,21 +164,23 @@ const ImageCarousel: React.FC<ImageCarouselProps> = ({
             ]}
             onLayout={handleLayout}
         >
-            <FlatList
-                ref={flatListRef}
-                data={images}
-                horizontal
-                pagingEnabled
-                showsHorizontalScrollIndicator={false}
-                keyExtractor={(_, index) => index.toString()}
-                renderItem={renderItem}
-                onMomentumScrollEnd={(e) => {
-                    const contentOffsetX = e.nativeEvent.contentOffset.x;
-                    handleImageChange(contentOffsetX);
-                }}
-                style={{ height }}
-                contentContainerStyle={{ width: containerWidth * images.length }}
-            />
+            <Animated.View style={[styles.animatedContainer, heroAnimatedStyle]}>
+                <FlatList
+                    ref={flatListRef}
+                    data={images}
+                    horizontal
+                    pagingEnabled
+                    showsHorizontalScrollIndicator={false}
+                    keyExtractor={(_, index) => index.toString()}
+                    renderItem={renderItem}
+                    onMomentumScrollEnd={(e) => {
+                        const contentOffsetX = e.nativeEvent.contentOffset.x;
+                        handleImageChange(contentOffsetX);
+                    }}
+                    style={{ height }}
+                    contentContainerStyle={{ width: containerWidth * images.length }}
+                />
+            </Animated.View>
             {renderPagination()}
         </View>
     );
@@ -162,6 +192,10 @@ const styles = StyleSheet.create({
     },
     image: {
         backgroundColor: '#f0f0f0',
+    },
+    animatedContainer: {
+        width: '100%',
+        height: '100%',
     },
 });
 

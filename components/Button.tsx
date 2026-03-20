@@ -1,6 +1,6 @@
 // components/Button.tsx
 import React from 'react';
-import { Text, ActivityIndicator, TouchableOpacity, View, type StyleProp, type ViewStyle } from 'react-native';
+import { Text, ActivityIndicator, TouchableOpacity, View, Pressable } from 'react-native';
 import * as Haptics from 'expo-haptics';
 import { Link, router } from 'expo-router';
 import Icon, { IconName } from './Icon';
@@ -24,8 +24,6 @@ interface ButtonProps {
   iconSize?: number;
   iconColor?: string;
   iconClassName?: string;
-  /** Merged with primary background; use for e.g. custom `backgroundColor`. */
-  style?: StyleProp<ViewStyle>;
 }
 
 export const Button: React.FC<ButtonProps> = ({
@@ -44,8 +42,7 @@ export const Button: React.FC<ButtonProps> = ({
   iconSize,
   iconColor,
   iconClassName = '',
-  style: styleFromProps,
-  ...restProps
+  ...props
 }) => {
   const colors = useThemeColors();
   const buttonStyles = {
@@ -98,28 +95,26 @@ export const Button: React.FC<ButtonProps> = ({
   const ButtonContent = (
     <>
       {loading ? (
-        <View className="w-full items-center justify-center py-0.5">
-          <ActivityIndicator color={variant === 'primary' ? (colors.isDark ? '#fff' : '#000') : '#0EA5E9'} />
-        </View>
+        <ActivityIndicator color={variant === 'primary' ? (colors.isDark ? '#fff' : '#000') : '#0EA5E9'} />
       ) : (
-        <View className="w-full flex-row items-center justify-center px-0">
+        <View className="flex-row items-center justify-center">
           {iconStart && (
             <Icon 
               name={iconStart} 
               size={getIconSize()} 
               color={getIconColor()} 
-              className={`mr-2 shrink-0 ${iconClassName} `} 
+              className={`mr-2 ${iconClassName} `} 
             />
           )}
           
-          <Text className={`${textColor} font-medium text-center shrink ${textClassName}`}>{title}</Text>
+          <Text className={`${textColor} font-medium ${textClassName}`}>{title}</Text>
           
           {iconEnd && (
             <Icon 
               name={iconEnd} 
               size={getIconSize()} 
               color={getIconColor()} 
-              className={`ml-2 shrink-0 ${iconClassName}`} 
+              className={`ml-2 ${iconClassName}`} 
             />
           )}
         </View>
@@ -132,16 +127,15 @@ export const Button: React.FC<ButtonProps> = ({
   };
 
   const primaryStyle = variant === 'primary' ? { backgroundColor: colors.highlight } : undefined;
-  const mergedStyle = [primaryStyle, styleFromProps].filter(Boolean);
 
   if (href) {
     return (
       <TouchableOpacity
         disabled={loading || disabled}
         activeOpacity={0.8}
-        style={mergedStyle.length ? mergedStyle : undefined}
+        style={primaryStyle}
         className={`px-4 relative ${buttonStyles[variant]} ${buttonSize[size]} ${roundedStyles[rounded]} items-center justify-center ${disabledStyle} ${className}`}
-        {...restProps}
+        {...props}
         onPress={() => {
           triggerHaptic();
           router.push(href);
@@ -160,9 +154,9 @@ export const Button: React.FC<ButtonProps> = ({
       }}
       disabled={loading || disabled}
       activeOpacity={0.8}
-      style={mergedStyle.length ? mergedStyle : undefined}
+      style={primaryStyle}
       className={`px-4 relative ${buttonStyles[variant]} ${buttonSize[size]} ${roundedStyles[rounded]} items-center justify-center ${disabledStyle} ${className}`}
-      {...restProps}
+      {...props}
     >
       {ButtonContent}
     </TouchableOpacity>

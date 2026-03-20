@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { View, ActivityIndicator, Image, Pressable, Linking, Alert } from 'react-native';
+import { View, ActivityIndicator, Image, Pressable, Linking, Alert, Animated } from 'react-native';
 import { ActionSheetRef } from 'react-native-actions-sheet';
 import { useLocalSearchParams, router } from 'expo-router';
 import Header from '@/components/Header';
@@ -135,6 +135,7 @@ const BookingDetailScreen = () => {
   const dateLocaleTag = locale === 'cs' ? 'cs-CZ' : 'en-GB';
   const setTransferRecipient = useSetTransferRecipient();
   const cancelSheetRef = useRef<ActionSheetRef>(null);
+  const heroScrollY = useRef(new Animated.Value(0)).current;
   const [booking, setBooking] = useState<Booking | null>(null);
   const [branch, setBranch] = useState<Branch | null>(null);
   const [hasReview, setHasReview] = useState(false);
@@ -226,13 +227,22 @@ const BookingDetailScreen = () => {
   return (
     <>
       <Header title={t('bookingDetailTitle')} showBackButton />
-      <ThemedScroller className="flex-1 px-0" keyboardShouldPersistTaps="handled">
+      <ThemedScroller
+        className="flex-1 px-0"
+        keyboardShouldPersistTaps="handled"
+        onScroll={Animated.event([{ nativeEvent: { contentOffset: { y: heroScrollY } } }], {
+          useNativeDriver: false,
+        })}
+        scrollEventThrottle={16}
+      >
         <AnimatedView animation="fadeIn" duration={400} delay={100}>
           <View className="px-global">
             <ImageCarousel
               height={300}
               rounded="2xl"
               images={carouselImages}
+              scrollY={heroScrollY}
+              stretchOnPullDown
             />
           </View>
 

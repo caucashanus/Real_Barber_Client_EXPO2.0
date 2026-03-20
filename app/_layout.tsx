@@ -13,6 +13,7 @@ import { SelectedPurchaseProvider } from './contexts/SelectedPurchaseContext';
 import { BranchFilterProvider } from './contexts/BranchFilterContext';
 import { LanguageProvider } from './contexts/LanguageContext';
 import { AccentColorProvider } from './contexts/AccentColorContext';
+import { FavoritesSyncProvider } from './contexts/FavoritesSyncContext';
 
 NativeWindStyleSheet.setOutput({
   default: 'native',
@@ -44,7 +45,9 @@ export default function RootLayout() {
             <TransferRecipientProvider>
               <SelectedPurchaseProvider>
                 <BranchFilterProvider>
-                  <ThemedLayout />
+                  <FavoritesSyncProvider>
+                    <ThemedLayout />
+                  </FavoritesSyncProvider>
                 </BranchFilterProvider>
               </SelectedPurchaseProvider>
             </TransferRecipientProvider>

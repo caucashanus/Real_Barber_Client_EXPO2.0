@@ -9,6 +9,7 @@ import ThemedText from './ThemedText';
 import { router } from 'expo-router';
 import { useAuth } from '@/app/contexts/AuthContext';
 import { useTranslation } from '@/app/hooks/useTranslation';
+import { useFavoritesSync } from '@/app/contexts/FavoritesSyncContext';
 import {
   getFavorites,
   addFavorite,
@@ -42,6 +43,7 @@ const Favorite: React.FC<FavoriteProps> = ({
 }) => {
   const { apiToken } = useAuth();
   const { t } = useTranslation();
+  const { favoritesVersion, notifyFavoritesChanged } = useFavoritesSync();
   const [isFavorite, setIsFavorite] = useState(initialState);
   const [favoriteId, setFavoriteId] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -65,7 +67,7 @@ const Favorite: React.FC<FavoriteProps> = ({
       })
       .catch(() => {});
     return () => { cancelled = true; };
-  }, [useApi, apiToken, entityType, entityId]);
+  }, [useApi, apiToken, entityType, entityId, favoritesVersion]);
 
   const handleToggle = async () => {
     const newState = !isFavorite;
@@ -80,6 +82,7 @@ const Favorite: React.FC<FavoriteProps> = ({
           });
           setFavoriteId(created.id);
           setIsFavorite(true);
+          notifyFavoritesChanged();
           actionSheetRef.current?.show();
         } else {
           if (favoriteId) {
@@ -87,6 +90,7 @@ const Favorite: React.FC<FavoriteProps> = ({
             setFavoriteId(null);
           }
           setIsFavorite(false);
+          notifyFavoritesChanged();
           actionSheetRef.current?.show();
         }
         onToggle?.(newState);

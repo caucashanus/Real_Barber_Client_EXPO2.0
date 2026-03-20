@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useCallback, useRef, useMemo } from 'react';
 import { useFocusEffect } from '@react-navigation/native';
-import { View, Image, ActivityIndicator, Pressable, ScrollView, Modal, useWindowDimensions, FlatList, type LayoutChangeEvent } from 'react-native';
+import { View, Image, ActivityIndicator, Pressable, ScrollView, Modal, Animated, useWindowDimensions, FlatList, type LayoutChangeEvent } from 'react-native';
 import { useLocalSearchParams } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
@@ -180,6 +180,7 @@ export default function BarberDetailScreen() {
   const { countByRating, average, total: reviewsComputedTotal } = useReviewStats(reviews);
   const displayTotal = reviewsTotal ?? reviewsComputedTotal;
   const scrollRef = useRef<ScrollView>(null);
+  const heroScrollY = useRef(new Animated.Value(0)).current;
   const roundedViewYRef = useRef(0);
   const reviewsSectionYInRoundedRef = useRef(0);
 
@@ -230,8 +231,36 @@ export default function BarberDetailScreen() {
     <>
       <StatusBar style="light" translucent />
       <Header variant="transparent" title="" rightComponents={rightComponents} showBackButton />
-      <ThemedScroller ref={scrollRef} className="px-0 bg-light-primary dark:bg-dark-primary">
-        <View style={{ height: CAROUSEL_HEIGHT, width: carouselWidth }}>
+      <ThemedScroller
+        ref={scrollRef}
+        className="px-0 bg-light-primary dark:bg-dark-primary"
+        onScroll={Animated.event([{ nativeEvent: { contentOffset: { y: heroScrollY } } }], {
+          useNativeDriver: false,
+        })}
+        scrollEventThrottle={16}
+      >
+        <Animated.View
+          style={{
+            height: CAROUSEL_HEIGHT,
+            width: carouselWidth,
+            transform: [
+              {
+                scale: heroScrollY.interpolate({
+                  inputRange: [-160, 0],
+                  outputRange: [1.18, 1],
+                  extrapolate: 'clamp',
+                }),
+              },
+              {
+                translateY: heroScrollY.interpolate({
+                  inputRange: [-160, 0],
+                  outputRange: [-20, 0],
+                  extrapolate: 'clamp',
+                }),
+              },
+            ],
+          }}
+        >
           <FlatList
             ref={topCarouselRef}
             data={topSlides}
@@ -275,7 +304,7 @@ export default function BarberDetailScreen() {
               ))}
             </View>
           ) : null}
-        </View>
+        </Animated.View>
 
         <View
           style={{ borderTopLeftRadius: 30, borderTopRightRadius: 30 }}
