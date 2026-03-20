@@ -40,6 +40,7 @@ interface MultiStepProps {
   showStepIndicator?: boolean;
   className?: string;
   onStepChange?: (nextStep: number) => boolean;
+  isNextDisabled?: (currentStep: number) => boolean;
 }
 
 export default function MultiStep({
@@ -50,6 +51,7 @@ export default function MultiStep({
   showStepIndicator = true,
   className = '',
   onStepChange,
+  isNextDisabled,
 }: MultiStepProps) {
   // Filter and validate children to only include Step components
   const validChildren = Children.toArray(children)
@@ -79,6 +81,7 @@ export default function MultiStep({
   const currentStep = steps[currentStepIndex];
   const isLastStep = currentStepIndex === steps.length - 1;
   const isFirstStep = currentStepIndex === 0;
+  const nextDisabled = isNextDisabled ? isNextDisabled(currentStepIndex) : false;
 
   // Animation values
   const fadeAnim = useRef(new Animated.Value(0)).current;
@@ -114,6 +117,7 @@ export default function MultiStep({
   }, [currentStepIndex]);
 
   const handleNext = () => {
+    if (nextDisabled) return;
     if (isLastStep) {
       onComplete();
     } else {
@@ -238,7 +242,11 @@ export default function MultiStep({
           onPress={handleNext}
           className="w-full"
           textClassName="text-white font-semibold"
-          style={{ backgroundColor: colors.highlight }}
+          style={{
+            backgroundColor: nextDisabled ? colors.secondary : colors.highlight,
+            opacity: nextDisabled ? 0.9 : 1,
+          }}
+          disabled={nextDisabled}
         />
       </View>
     </View>

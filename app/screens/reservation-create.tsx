@@ -182,6 +182,10 @@ function getMonthOffsetFromToday(target: Date): number {
   return (target.getFullYear() - now.getFullYear()) * 12 + (target.getMonth() - now.getMonth());
 }
 
+function getMonthKeyFromDate(date: Date): string {
+  return `${date.getFullYear()}-${`${date.getMonth() + 1}`.padStart(2, '0')}`;
+}
+
 type ServiceOption = {
   id: string;
   name: string;
@@ -218,13 +222,13 @@ export default function ReservationCreateScreen() {
   const [creatingBooking, setCreatingBooking] = useState(false);
   const [createBookingError, setCreateBookingError] = useState<string | null>(null);
   const [currentStep, setCurrentStep] = useState(0);
-  const [stepError, setStepError] = useState<string | null>(null);
   const [detailsEmployeeId, setDetailsEmployeeId] = useState<string | null>(null);
   const detailsSheetRef = useRef<ActionSheetRef>(null);
   const [detailsBranchId, setDetailsBranchId] = useState<string | null>(null);
   const branchDetailsSheetRef = useRef<ActionSheetRef>(null);
   const [isBranchDescriptionExpanded, setIsBranchDescriptionExpanded] = useState(false);
   const [monthOffset, setMonthOffset] = useState(0);
+  const [lastSelectedDateByMonth, setLastSelectedDateByMonth] = useState<Record<string, string>>({});
   const [data, setData] = useState<ReservationFlowData>({
     branchId: '',
     employeeId: '',
@@ -288,11 +292,20 @@ export default function ReservationCreateScreen() {
     () => monthDays.filter((day) => availableDatesInMonth.has(day.value)),
     [monthDays, availableDatesInMonth]
   );
+  const todayIso = useMemo(() => toIsoDate(new Date()), []);
+  const tomorrowIso = useMemo(() => toIsoDate(new Date(Date.now() + 24 * 60 * 60 * 1000)), []);
+  const showTodayChip = availableDatesInMonth.has(todayIso);
+  const showTomorrowChip = availableDatesInMonth.has(tomorrowIso);
   const monthLabel = useMemo(() => {
     const d = new Date();
     d.setMonth(d.getMonth() + monthOffset);
     const txt = d.toLocaleDateString('cs-CZ', { month: 'long' });
     return txt.charAt(0).toUpperCase() + txt.slice(1);
+  }, [monthOffset]);
+  const currentMonthKey = useMemo(() => {
+    const d = new Date();
+    d.setMonth(d.getMonth() + monthOffset);
+    return getMonthKeyFromDate(d);
   }, [monthOffset]);
 
   useEffect(() => {
@@ -358,10 +371,40 @@ export default function ReservationCreateScreen() {
     )
       .then((values) => {
         if (cancelled) return;
-        const next = new Set(values.filter((v): v is string => v != null));
+        const available = values.filter((v): v is string => v != null).sort();
+        const next = new Set(available);
         setAvailableDatesInMonth(next);
-        if (data.date && !next.has(data.date)) {
-          setData((prev) => ({ ...prev, date: '', slotStart: '', slotEnd: '', duration: 0 }));
+        const remembered = lastSelectedDateByMonth[currentMonthKey];
+        const selectedForMonth = data.date && next.has(data.date) ? data.date : null;
+        const rememberedForMonth = remembered && next.has(remembered) ? remembered : null;
+        const fallbackFirst = available.length > 0 ? available[0] : null;
+        const nextDate = selectedForMonth ?? rememberedForMonth ?? fallbackFirst;
+
+        if (nextDate) {
+          setLastSelectedDateByMonth((prev) => {
+            if (prev[currentMonthKey] === nextDate) return prev;
+            return {
+              ...prev,
+              [currentMonthKey]: nextDate,
+            };
+          });
+          setData((prev) => {
+            if (prev.date === nextDate && prev.slotStart === '' && prev.slotEnd === '' && prev.duration === 0) {
+              return prev;
+            }
+            return {
+              ...prev,
+              date: nextDate,
+              slotStart: '',
+              slotEnd: '',
+              duration: 0,
+            };
+          });
+        } else {
+          setData((prev) => {
+            if (prev.date === '' && prev.slotStart === '' && prev.slotEnd === '' && prev.duration === 0) return prev;
+            return { ...prev, date: '', slotStart: '', slotEnd: '', duration: 0 };
+          });
         }
       })
       .finally(() => {
@@ -370,33 +413,20 @@ export default function ReservationCreateScreen() {
     return () => {
       cancelled = true;
     };
-  }, [apiToken, data.employeeId, data.branchId, data.itemId, monthOffset]);
+  }, [apiToken, data.employeeId, data.branchId, data.itemId, monthOffset, currentMonthKey]);
 
   const onStepChange = (nextStep: number): boolean => {
-    setStepError(null);
-    if (currentStep === 0 && !data.branchId) {
-      setStepError('Vyberte pobocku.');
-      return false;
-    }
-    if (currentStep === 1 && !data.employeeId) {
-      setStepError('Vyberte barbera.');
-      return false;
-    }
-    if (currentStep === 2 && !data.itemId) {
-      setStepError('Vyberte sluzbu.');
-      return false;
-    }
-    if (currentStep === 3 && !data.date) {
-      setStepError('Vyberte datum.');
-      return false;
-    }
-    if (currentStep === 3 && !data.slotStart) {
-      setStepError('Vyberte čas rezervace.');
-      return false;
-    }
     setCurrentStep(nextStep);
     return true;
   };
+
+  const isCurrentStepValid = useMemo(() => {
+    if (currentStep === 0) return Boolean(data.branchId);
+    if (currentStep === 1) return Boolean(data.employeeId);
+    if (currentStep === 2) return Boolean(data.itemId);
+    if (currentStep === 3) return Boolean(data.date && data.slotStart);
+    return true;
+  }, [currentStep, data.branchId, data.employeeId, data.itemId, data.date, data.slotStart]);
 
   const handleCreateBooking = async () => {
     if (!apiToken || creatingBooking) return;
@@ -439,6 +469,23 @@ export default function ReservationCreateScreen() {
     }));
   };
 
+  const selectDate = (dateValue: string) => {
+    const d = new Date(dateValue);
+    if (!Number.isNaN(d.getTime())) {
+      setLastSelectedDateByMonth((prev) => ({
+        ...prev,
+        [getMonthKeyFromDate(d)]: dateValue,
+      }));
+    }
+    setData((prev) => ({
+      ...prev,
+      date: dateValue,
+      slotStart: '',
+      slotEnd: '',
+      duration: 0,
+    }));
+  };
+
   const detailsEmployee = employees.find((e) => e.id === detailsEmployeeId) ?? null;
   const detailsDescription = detailsEmployee ? employeeDescription(detailsEmployee) : '';
   const detailsMedia = detailsEmployee ? getEmployeeMedia(detailsEmployee) : [];
@@ -455,6 +502,7 @@ export default function ReservationCreateScreen() {
         onClose={() => router.back()}
         showStepIndicator={false}
         onStepChange={onStepChange}
+        isNextDisabled={() => !isCurrentStepValid}
       >
       <Step title="Choose branch">
         <ScrollView className="p-4 px-8">
@@ -533,7 +581,6 @@ export default function ReservationCreateScreen() {
               </View>
             ))
           )}
-          {stepError ? <ThemedText className="text-red-500 mt-2">{stepError}</ThemedText> : null}
         </ScrollView>
       </Step>
 
@@ -593,7 +640,6 @@ export default function ReservationCreateScreen() {
               Pro pobočku nejsou dostupní žádní barbeři.
             </ThemedText>
           ) : null}
-          {stepError ? <ThemedText className="text-red-500 mt-2">{stepError}</ThemedText> : null}
         </ScrollView>
       </Step>
 
@@ -627,22 +673,22 @@ export default function ReservationCreateScreen() {
                           duration: service.duration,
                         }))
                       }
-                      className="w-[160px] rounded-2xl border bg-light-primary dark:bg-dark-primary overflow-hidden"
-                      style={isSelected ? { borderColor: colors.highlight, borderWidth: 2 } : undefined}
+                      className="w-[160px] active:opacity-80"
                     >
-                      <Image
-                        source={service.imageUrl ? { uri: service.imageUrl } : require('@/assets/img/room-1.avif')}
-                        className="w-[160px] h-[140px]"
-                        resizeMode="cover"
-                      />
-                      <View className="px-2 py-2">
-                        <ThemedText className="text-sm font-medium" numberOfLines={1}>
-                          {service.name}
-                        </ThemedText>
-                        <View className="mt-1 self-start rounded-full bg-light-secondary dark:bg-dark-secondary px-2 py-1">
-                          <ThemedText className="text-xs text-light-subtext dark:text-dark-subtext">
-                            {service.price} Kč
-                          </ThemedText>
+                      <View
+                        className="rounded-2xl overflow-hidden"
+                        style={isSelected ? { borderColor: colors.highlight, borderWidth: 2 } : undefined}
+                      >
+                        <Image
+                          source={service.imageUrl ? { uri: service.imageUrl } : require('@/assets/img/room-1.avif')}
+                          className="w-[160px] h-[140px]"
+                          resizeMode="cover"
+                        />
+                      </View>
+                      <View className="py-2 w-full flex-row items-center justify-between gap-2">
+                        <ThemedText className="text-sm font-medium flex-1 min-w-0" numberOfLines={1}>{service.name}</ThemedText>
+                        <View className="self-start rounded-full bg-light-secondary dark:bg-dark-secondary px-2 py-1">
+                          <ThemedText className="text-xs text-light-subtext dark:text-dark-subtext">{service.price} Kč</ThemedText>
                         </View>
                       </View>
                     </Pressable>
@@ -656,7 +702,6 @@ export default function ReservationCreateScreen() {
               Pro vybraného barbera nejsou dostupné žádné služby.
             </ThemedText>
           ) : null}
-          {stepError ? <ThemedText className="text-red-500 mt-2">{stepError}</ThemedText> : null}
         </ScrollView>
       </Step>
 
@@ -669,38 +714,30 @@ export default function ReservationCreateScreen() {
             </ThemedText>
           </View>
           <View className="flex-row gap-2 mb-4">
-            <Chip
-              size="lg"
-              label="Dnes"
-              isSelected={data.date === toIsoDate(new Date())}
-              onPress={() => {
-                const target = new Date();
-                setMonthOffset(Math.max(0, getMonthOffsetFromToday(target)));
-                setData((prev) => ({
-                  ...prev,
-                  date: toIsoDate(target),
-                  slotStart: '',
-                  slotEnd: '',
-                  duration: 0,
-                }));
-              }}
-            />
-            <Chip
-              size="lg"
-              label="Zítra"
-              isSelected={data.date === toIsoDate(new Date(Date.now() + 24 * 60 * 60 * 1000))}
-              onPress={() => {
-                const target = new Date(Date.now() + 24 * 60 * 60 * 1000);
-                setMonthOffset(Math.max(0, getMonthOffsetFromToday(target)));
-                setData((prev) => ({
-                  ...prev,
-                  date: toIsoDate(target),
-                  slotStart: '',
-                  slotEnd: '',
-                  duration: 0,
-                }));
-              }}
-            />
+            {showTodayChip ? (
+              <Chip
+                size="lg"
+                label="Dnes"
+                isSelected={data.date === todayIso}
+                onPress={() => {
+                  const target = new Date();
+                  setMonthOffset(Math.max(0, getMonthOffsetFromToday(target)));
+                  selectDate(toIsoDate(target));
+                }}
+              />
+            ) : null}
+            {showTomorrowChip ? (
+              <Chip
+                size="lg"
+                label="Zítra"
+                isSelected={data.date === tomorrowIso}
+                onPress={() => {
+                  const target = new Date(Date.now() + 24 * 60 * 60 * 1000);
+                  setMonthOffset(Math.max(0, getMonthOffsetFromToday(target)));
+                  selectDate(toIsoDate(target));
+                }}
+              />
+            ) : null}
           </View>
           <View className="mb-3 flex-row items-center justify-between">
             <Pressable
@@ -730,15 +767,7 @@ export default function ReservationCreateScreen() {
                 size="lg"
                 label={day.label}
                 isSelected={data.date === day.value}
-                onPress={() =>
-                  setData((prev) => ({
-                    ...prev,
-                    date: day.value,
-                    slotStart: '',
-                    slotEnd: '',
-                    duration: 0,
-                  }))
-                }
+                onPress={() => selectDate(day.value)}
               />
             ))}
           </View>
@@ -763,65 +792,89 @@ export default function ReservationCreateScreen() {
             <>
               {groupedSlots.morning.length > 0 ? (
                 <Section title="Ráno" titleSize="md" className="mb-2">
-                  {groupedSlots.morning.map((slot) => (
-                    <Selectable
-                      key={`m-${slot.start}-${slot.end}-${slot.branchId ?? 'any'}`}
-                      title={`${slot.start} - ${slot.end}`}
-                      description={`${slot.duration} min`}
-                      selected={data.slotStart === slot.start && data.slotEnd === slot.end}
-                      showSelectedIndicator={false}
-                      onPress={() =>
-                        setData((prev) => ({
-                          ...prev,
-                          slotStart: slot.start,
-                          slotEnd: slot.end,
-                          duration: slot.duration,
-                        }))
-                      }
-                    />
-                  ))}
+                  <View className="flex-row flex-wrap gap-2 mt-1">
+                    {groupedSlots.morning.map((slot, index) => {
+                      const isSelected = data.slotStart === slot.start && data.slotEnd === slot.end;
+                      return (
+                        <Pressable
+                          key={`m-${slot.start}-${slot.end}-${slot.branchId ?? 'any'}-${index}`}
+                          onPress={() =>
+                            setData((prev) => ({
+                              ...prev,
+                              slotStart: slot.start,
+                              slotEnd: slot.end,
+                              duration: slot.duration,
+                            }))
+                          }
+                          className={`px-3 py-2 rounded-full border ${
+                            isSelected
+                              ? 'bg-light-accent dark:bg-dark-accent border-light-accent dark:border-dark-accent'
+                              : 'bg-light-secondary dark:bg-dark-secondary border-light-secondary dark:border-dark-secondary'
+                          }`}
+                        >
+                          <ThemedText className={`text-sm ${isSelected ? 'text-white' : ''}`}>{slot.start}</ThemedText>
+                        </Pressable>
+                      );
+                    })}
+                  </View>
                 </Section>
               ) : null}
               {groupedSlots.afternoon.length > 0 ? (
                 <Section title="Odpoledne" titleSize="md" className="mb-2">
-                  {groupedSlots.afternoon.map((slot) => (
-                    <Selectable
-                      key={`a-${slot.start}-${slot.end}-${slot.branchId ?? 'any'}`}
-                      title={`${slot.start} - ${slot.end}`}
-                      description={`${slot.duration} min`}
-                      selected={data.slotStart === slot.start && data.slotEnd === slot.end}
-                      showSelectedIndicator={false}
-                      onPress={() =>
-                        setData((prev) => ({
-                          ...prev,
-                          slotStart: slot.start,
-                          slotEnd: slot.end,
-                          duration: slot.duration,
-                        }))
-                      }
-                    />
-                  ))}
+                  <View className="flex-row flex-wrap gap-2 mt-1">
+                    {groupedSlots.afternoon.map((slot, index) => {
+                      const isSelected = data.slotStart === slot.start && data.slotEnd === slot.end;
+                      return (
+                        <Pressable
+                          key={`a-${slot.start}-${slot.end}-${slot.branchId ?? 'any'}-${index}`}
+                          onPress={() =>
+                            setData((prev) => ({
+                              ...prev,
+                              slotStart: slot.start,
+                              slotEnd: slot.end,
+                              duration: slot.duration,
+                            }))
+                          }
+                          className={`px-3 py-2 rounded-full border ${
+                            isSelected
+                              ? 'bg-light-accent dark:bg-dark-accent border-light-accent dark:border-dark-accent'
+                              : 'bg-light-secondary dark:bg-dark-secondary border-light-secondary dark:border-dark-secondary'
+                          }`}
+                        >
+                          <ThemedText className={`text-sm ${isSelected ? 'text-white' : ''}`}>{slot.start}</ThemedText>
+                        </Pressable>
+                      );
+                    })}
+                  </View>
                 </Section>
               ) : null}
               {groupedSlots.evening.length > 0 ? (
                 <Section title="Večer" titleSize="md" className="mb-2">
-                  {groupedSlots.evening.map((slot) => (
-                    <Selectable
-                      key={`e-${slot.start}-${slot.end}-${slot.branchId ?? 'any'}`}
-                      title={`${slot.start} - ${slot.end}`}
-                      description={`${slot.duration} min`}
-                      selected={data.slotStart === slot.start && data.slotEnd === slot.end}
-                      showSelectedIndicator={false}
-                      onPress={() =>
-                        setData((prev) => ({
-                          ...prev,
-                          slotStart: slot.start,
-                          slotEnd: slot.end,
-                          duration: slot.duration,
-                        }))
-                      }
-                    />
-                  ))}
+                  <View className="flex-row flex-wrap gap-2 mt-1">
+                    {groupedSlots.evening.map((slot, index) => {
+                      const isSelected = data.slotStart === slot.start && data.slotEnd === slot.end;
+                      return (
+                        <Pressable
+                          key={`e-${slot.start}-${slot.end}-${slot.branchId ?? 'any'}-${index}`}
+                          onPress={() =>
+                            setData((prev) => ({
+                              ...prev,
+                              slotStart: slot.start,
+                              slotEnd: slot.end,
+                              duration: slot.duration,
+                            }))
+                          }
+                          className={`px-3 py-2 rounded-full border ${
+                            isSelected
+                              ? 'bg-light-accent dark:bg-dark-accent border-light-accent dark:border-dark-accent'
+                              : 'bg-light-secondary dark:bg-dark-secondary border-light-secondary dark:border-dark-secondary'
+                          }`}
+                        >
+                          <ThemedText className={`text-sm ${isSelected ? 'text-white' : ''}`}>{slot.start}</ThemedText>
+                        </Pressable>
+                      );
+                    })}
+                  </View>
                 </Section>
               ) : null}
               {(availability?.availability?.slots?.length ?? 0) === 0 ? (
@@ -831,7 +884,6 @@ export default function ReservationCreateScreen() {
               ) : null}
             </>
           )}
-          {stepError ? <ThemedText className="text-red-500 mt-4">{stepError}</ThemedText> : null}
         </ScrollView>
       </Step>
 
