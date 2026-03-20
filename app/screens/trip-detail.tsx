@@ -16,6 +16,7 @@ import { Button } from '@/components/Button';
 import AnimatedView from '@/components/AnimatedView';
 import ConfirmationModal from '@/components/ConfirmationModal';
 import { useAuth } from '@/app/contexts/AuthContext';
+import { useLanguage } from '@/app/contexts/LanguageContext';
 import { useSetTransferRecipient } from '@/app/contexts/TransferRecipientContext';
 import { getBookings, cancelBooking, type Booking } from '../../api/bookings';
 import { getBranches, type Branch, type BranchService } from '@/api/branches';
@@ -92,9 +93,10 @@ function getPaymentMethodFromPayments(booking: Booking, t: (key: string) => stri
   return labels.join(' + ');
 }
 
-function formatAppointment(b: Booking): { dateStr: string; fromTime: string; toTime: string } {
+function formatAppointment(b: Booking, dateLocale: string): { dateStr: string; fromTime: string; toTime: string } {
   const d = new Date(b.date);
-  const dateStr = `${d.getDate()} ${d.toLocaleString('en-GB', { month: 'short' })} ${d.getFullYear()}`;
+  const monthShort = d.toLocaleString(dateLocale, { month: 'short' });
+  const dateStr = `${d.getDate()} ${monthShort} ${d.getFullYear()}`;
   return {
     dateStr,
     fromTime: b.slotStart,
@@ -128,7 +130,9 @@ function isBookingPast(booking: Booking): boolean {
 const BookingDetailScreen = () => {
   const { id } = useLocalSearchParams<{ id: string }>();
   const { apiToken } = useAuth();
+  const { locale } = useLanguage();
   const { t } = useTranslation();
+  const dateLocaleTag = locale === 'cs' ? 'cs-CZ' : 'en-GB';
   const setTransferRecipient = useSetTransferRecipient();
   const cancelSheetRef = useRef<ActionSheetRef>(null);
   const [booking, setBooking] = useState<Booking | null>(null);
@@ -148,11 +152,11 @@ const BookingDetailScreen = () => {
       .then((res) => {
         const found = res.bookings.find((b) => b.id === id) ?? null;
         setBooking(found);
-        if (!found) setError('Booking not found');
+        if (!found) setError(t('bookingNotFound'));
       })
-      .catch((e) => setError(e instanceof Error ? e.message : 'Failed to load'))
+      .catch((e) => setError(e instanceof Error ? e.message : t('bookingLoadFailed')))
       .finally(() => setLoading(false));
-  }, [apiToken, id]);
+  }, [apiToken, id, t]);
 
   useEffect(() => {
     if (!apiToken || !booking?.branchId) {
@@ -198,13 +202,13 @@ const BookingDetailScreen = () => {
       <>
         <Header title={t('bookingDetailTitle')} showBackButton />
         <View className="flex-1 items-center justify-center bg-light-primary dark:bg-dark-primary p-6">
-          <ThemedText className="text-center text-red-500 dark:text-red-400">{error ?? 'Booking not found'}</ThemedText>
+          <ThemedText className="text-center text-red-500 dark:text-red-400">{error ?? t('bookingNotFound')}</ThemedText>
         </View>
       </>
     );
   }
 
-  const appointment = formatAppointment(booking);
+  const appointment = formatAppointment(booking, dateLocaleTag);
   const location = booking.branch?.address ?? booking.branch?.name ?? '—';
   const paymentMethodLabel = getPaymentMethodFromPayments(booking, t) ?? getPaymentMethodLabel(booking.paymentMethod, t);
   const status = (booking.status ?? '').toLowerCase();
@@ -302,7 +306,9 @@ const BookingDetailScreen = () => {
               <View className="flex-row items-center justify-between pt-2">
                 <View>
                   <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext">{t('bookingDuration')}</ThemedText>
-                  <ThemedText className="text-lg font-semibold">{booking.duration} min</ThemedText>
+                  <ThemedText className="text-lg font-semibold">
+                    {booking.duration} {t('bookingMinutesShort')}
+                  </ThemedText>
                 </View>
               </View>
             </View>
@@ -333,13 +339,19 @@ const BookingDetailScreen = () => {
           <Section title={t('bookingPriceDetails')} titleSize="lg" className="px-global pt-4">
             <View className="mt-4 space-y-3">
               <View className="flex-row justify-between">
-                <ThemedText className="text-light-subtext dark:text-dark-subtext">{booking.item?.name ?? 'Service'}</ThemedText>
-                <ThemedText>{booking.price} Kč</ThemedText>
+                <ThemedText className="text-light-subtext dark:text-dark-subtext">
+                  {booking.item?.name ?? t('bookingServiceFallback')}
+                </ThemedText>
+                <ThemedText>
+                  {booking.price} {t('reservationCurrencySuffix')}
+                </ThemedText>
               </View>
               <Divider className="my-3" />
               <View className="flex-row justify-between">
                 <ThemedText className="font-bold text-lg">{t('bookingTotal')}</ThemedText>
-                <ThemedText className="font-bold text-lg">{booking.price} Kč</ThemedText>
+                <ThemedText className="font-bold text-lg">
+                  {booking.price} {t('reservationCurrencySuffix')}
+                </ThemedText>
               </View>
             </View>
           </Section>
@@ -354,7 +366,7 @@ const BookingDetailScreen = () => {
                   {paymentMethodLabel}
                 </ThemedText>
                 <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext">
-                  {booking.price} Kč
+                  {booking.price} {t('reservationCurrencySuffix')}
                 </ThemedText>
               </View>
             </View>

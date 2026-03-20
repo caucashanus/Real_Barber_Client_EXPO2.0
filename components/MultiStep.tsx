@@ -180,7 +180,7 @@ export default function MultiStep({
             currentStep.optional && !isLastStep && (
               <Button
                 key="skip"
-                title="Skip"
+                title={t('multiStepSkip')}
                 variant="ghost"
                 onPress={handleSkip}
                 size="small"

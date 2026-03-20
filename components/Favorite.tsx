@@ -108,7 +108,7 @@ const Favorite: React.FC<FavoriteProps> = ({
   };
 
   return (
-    <>
+    <View>
       <Pressable onPress={handleToggle} disabled={loading} className={className}>
         {isWhite ? (
           <Icon
@@ -163,7 +163,7 @@ const Favorite: React.FC<FavoriteProps> = ({
           </View>
         </View>
       </ActionSheetThemed>
-    </>
+    </View>
   );
 };
 

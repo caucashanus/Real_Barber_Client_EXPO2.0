@@ -1,5 +1,5 @@
 import { Link, router } from 'expo-router';
-import { View, Text, Image, Pressable, ImageBackground, TouchableOpacity, ViewStyle, Dimensions, ImageSourcePropType } from 'react-native';
+import { View, Text, Image, Pressable, ImageBackground, TouchableOpacity, ViewStyle, Dimensions, ImageSourcePropType, StyleSheet } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import ThemedText from './ThemedText';
 import { Button } from './Button';
@@ -126,6 +126,10 @@ const Card: React.FC<CardProps> = ({
     };
 
     const renderContent = () => {
+        const resolvedOuterStyle = StyleSheet.flatten([
+            width != null ? { width } : null,
+            ...(Array.isArray(style) ? style : style != null ? [style] : []),
+        ]);
 
         const cardContent = (
             <View 
@@ -218,20 +222,17 @@ const Card: React.FC<CardProps> = ({
                                     <View className="flex-row items-center bg-light-secondary dark:bg-dark-secondary rounded-full px-1.5 py-0.5 gap-1">
                                         {pillContent}
                                     </View>
-                                ) : (
-                                    <>
-                                        {price ? (
-                                            <View className="flex-row items-center bg-light-secondary dark:bg-dark-secondary rounded-full px-2 py-1">
-                                                {renderPrice()}
-                                            </View>
-                                        ) : null}
-                                        {badgeSecondary ? (
-                                            <View className="bg-light-secondary dark:bg-dark-secondary rounded-full px-2 py-1">
-                                                <ThemedText className="text-xs text-gray-500 dark:text-gray-300">{badgeSecondary}</ThemedText>
-                                            </View>
-                                        ) : null}
-                                    </>
-                                )}
+                                ) : null}
+                                {!pillContent && price ? (
+                                    <View className="flex-row items-center bg-light-secondary dark:bg-dark-secondary rounded-full px-2 py-1">
+                                        {renderPrice()}
+                                    </View>
+                                ) : null}
+                                {!pillContent && badgeSecondary ? (
+                                    <View className="bg-light-secondary dark:bg-dark-secondary rounded-full px-2 py-1">
+                                        <ThemedText className="text-xs text-gray-500 dark:text-gray-300">{badgeSecondary}</ThemedText>
+                                    </View>
+                                ) : null}
                             </View>
                         )}
                         
@@ -250,14 +251,24 @@ const Card: React.FC<CardProps> = ({
 
         if (href) {
             return (
-                <TouchableOpacity className={`${variant === 'overlay' ? '!h-auto' : ''} ${className}`} activeOpacity={0.8} onPress={() => router.push(href)} style={{ width: width, ...style }}>
+                <TouchableOpacity
+                    className={`${variant === 'overlay' ? '!h-auto' : ''} ${className}`}
+                    activeOpacity={0.8}
+                    onPress={() => router.push(href)}
+                    style={resolvedOuterStyle}
+                >
                     {cardContent}
                 </TouchableOpacity>
             );
         }
 
         return (
-            <TouchableOpacity className={`${variant === 'overlay' ? '!h-auto' : ''} ${className}`} activeOpacity={0.8} onPress={handlePress} style={{ width: width, ...style }}>
+            <TouchableOpacity
+                className={`${variant === 'overlay' ? '!h-auto' : ''} ${className}`}
+                activeOpacity={0.8}
+                onPress={handlePress}
+                style={resolvedOuterStyle}
+            >
                 {cardContent}
             </TouchableOpacity>
         );

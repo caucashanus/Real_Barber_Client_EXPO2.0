@@ -14,7 +14,8 @@ type LanguageContextType = {
 const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
 
 export function LanguageProvider({ children }: { children: React.ReactNode }) {
-  const [locale, setLocaleState] = useState<Locale>('en');
+  /** Výchozí čeština; uložená volba v AsyncStorage má přednost. */
+  const [locale, setLocaleState] = useState<Locale>('cs');
 
   useEffect(() => {
     AsyncStorage.getItem(LOCALE_KEY).then((stored) => {

@@ -16,7 +16,9 @@ import Icon from '@/components/Icon';
 import ActionSheetThemed from '@/components/ActionSheetThemed';
 import { ActionSheetRef } from 'react-native-actions-sheet';
 import { useAuth } from '@/app/contexts/AuthContext';
+import { useLanguage } from '@/app/contexts/LanguageContext';
 import useThemeColors from '@/app/contexts/ThemeColors';
+import { useTranslation } from '@/app/hooks/useTranslation';
 import { getBranches, type Branch, type BranchEmployee, type BranchService } from '@/api/branches';
 import { createBooking, getBookingAvailability, type BookingAvailabilityResponse } from '@/api/bookings';
 import { getEmployeeById, getEmployees, type Employee, type EmployeeService } from '@/api/employees';
@@ -168,7 +170,7 @@ function toIsoDate(date: Date): string {
   return `${y}-${m}-${d}`;
 }
 
-function getMonthDays(offset: number): Array<{ value: string; label: string }> {
+function getMonthDays(offset: number, dateLocale: string): Array<{ value: string; label: string }> {
   const now = new Date();
   const year = now.getFullYear();
   const month = now.getMonth() + offset;
@@ -180,7 +182,7 @@ function getMonthDays(offset: number): Array<{ value: string; label: string }> {
     if (d < new Date(now.getFullYear(), now.getMonth(), now.getDate())) continue;
     out.push({
       value: toIsoDate(d),
-      label: d.toLocaleDateString('cs-CZ', { weekday: 'short', day: '2-digit' }),
+      label: d.toLocaleDateString(dateLocale, { weekday: 'short', day: '2-digit' }),
     });
   }
   return out;
@@ -217,11 +219,14 @@ function isReservationStepValid(stepIndex: number, d: ReservationFlowData): bool
   return true;
 }
 
-function groupServicesByCategory(services: ServiceOption[]): Array<{ key: string; name: string; services: ServiceOption[] }> {
+function groupServicesByCategory(
+  services: ServiceOption[],
+  otherCategoryLabel: string
+): Array<{ key: string; name: string; services: ServiceOption[] }> {
   const map = new Map<string, { key: string; name: string; services: ServiceOption[] }>();
   for (const svc of services) {
     const key = svc.category?.id ?? svc.category?.name ?? 'other';
-    const name = svc.category?.name ?? 'Ostatní';
+    const name = svc.category?.name ?? otherCategoryLabel;
     if (!map.has(key)) map.set(key, { key, name, services: [] });
     map.get(key)!.services.push(svc);
   }
@@ -230,6 +235,9 @@ function groupServicesByCategory(services: ServiceOption[]): Array<{ key: string
 
 export default function ReservationCreateScreen() {
   const { apiToken } = useAuth();
+  const { t } = useTranslation();
+  const { locale } = useLanguage();
+  const dateLocaleTag = locale === 'cs' ? 'cs-CZ' : 'en-GB';
   const colors = useThemeColors();
   const [branches, setBranches] = useState<Branch[]>([]);
   const [employeesById, setEmployeesById] = useState<Record<string, Employee>>({});
@@ -398,7 +406,11 @@ export default function ReservationCreateScreen() {
     if (employeeServices.length > 0) return employeeServices;
     return getServicesList(selectedBranch);
   }, [selectedBranch, employeeServices]);
-  const serviceCategories = useMemo(() => groupServicesByCategory(services), [services]);
+  const serviceCategoryOtherLabel = t('serviceCategoryOther');
+  const serviceCategories = useMemo(
+    () => groupServicesByCategory(services, serviceCategoryOtherLabel),
+    [services, serviceCategoryOtherLabel]
+  );
   const groupedSlots = useMemo(() => {
     const slots = availability?.availability?.slots ?? [];
     const morning = slots.filter((s) => timeToMinutes(s.start) < 12 * 60);
@@ -406,7 +418,7 @@ export default function ReservationCreateScreen() {
     const evening = slots.filter((s) => timeToMinutes(s.start) >= 17 * 60);
     return { morning, afternoon, evening };
   }, [availability]);
-  const monthDays = useMemo(() => getMonthDays(monthOffset), [monthOffset]);
+  const monthDays = useMemo(() => getMonthDays(monthOffset, dateLocaleTag), [monthOffset, dateLocaleTag]);
   const visibleMonthDays = useMemo(
     () => monthDays.filter((day) => availableDatesInMonth.has(day.value)),
     [monthDays, availableDatesInMonth]
@@ -418,9 +430,9 @@ export default function ReservationCreateScreen() {
   const monthLabel = useMemo(() => {
     const d = new Date();
     d.setMonth(d.getMonth() + monthOffset);
-    const txt = d.toLocaleDateString('cs-CZ', { month: 'long' });
+    const txt = d.toLocaleDateString(dateLocaleTag, { month: 'long' });
     return txt.charAt(0).toUpperCase() + txt.slice(1);
-  }, [monthOffset]);
+  }, [monthOffset, dateLocaleTag]);
   const currentMonthKey = useMemo(() => {
     const d = new Date();
     d.setMonth(d.getMonth() + monthOffset);
@@ -594,7 +606,7 @@ export default function ReservationCreateScreen() {
   const selectedEmployeeName = selectedEmployee?.name ?? '—';
   const selectedServiceName = selectedService?.name ?? '—';
   const selectedDateLabel = data.date
-    ? new Date(data.date).toLocaleDateString('cs-CZ', {
+    ? new Date(data.date).toLocaleDateString(dateLocaleTag, {
         weekday: 'short',
         day: 'numeric',
         month: 'numeric',
@@ -619,15 +631,15 @@ export default function ReservationCreateScreen() {
         }}
         isNextDisabled={(stepIndex) => !isReservationStepValid(stepIndex, data)}
       >
-      <Step title="Choose branch">
+      <Step title={t('reservationStepBranchTitle')}>
         <ScrollView className="p-4 px-8">
           <View className="mb-8">
-            <ThemedText className="text-3xl font-semibold">Vyberte pobočku</ThemedText>
+            <ThemedText className="text-3xl font-semibold">{t('reservationStepBranchTitle')}</ThemedText>
             <ThemedText className="text-base text-light-subtext dark:text-dark-subtext">
-              Vyberte pobočku, kde chcete rezervaci.
+              {t('reservationStepBranchSubtitle')}
             </ThemedText>
             <Button
-              title="Zobrazit mapu"
+              title={t('reservationShowMap')}
               variant="outline"
               size="small"
               rounded="full"
@@ -672,7 +684,7 @@ export default function ReservationCreateScreen() {
                   }}
                 >
                   <ThemedText className="text-xs text-light-subtext dark:text-dark-subtext">
-                    Více
+                    {t('reservationMore')}
                   </ThemedText>
                 </Pressable>
               </View>
@@ -681,12 +693,12 @@ export default function ReservationCreateScreen() {
         </ScrollView>
       </Step>
 
-      <Step title="Vyberte specialistu">
+      <Step title={t('reservationStepEmployeeTitle')}>
         <ScrollView className="p-4 px-8">
           <View className="mb-8">
-            <ThemedText className="text-3xl font-semibold">Vyberte specialistu</ThemedText>
+            <ThemedText className="text-3xl font-semibold">{t('reservationStepEmployeeTitle')}</ThemedText>
             <ThemedText className="text-base text-light-subtext dark:text-dark-subtext">
-              Vyberte holiče, ke kterému chcete vytvořit rezervaci.
+              {t('reservationStepEmployeeSubtitle')}
             </ThemedText>
           </View>
           {employees.map((emp) => (
@@ -716,7 +728,7 @@ export default function ReservationCreateScreen() {
                   }}
                 >
                   <ThemedText className="text-xs text-light-subtext dark:text-dark-subtext">
-                    Více
+                    {t('reservationMore')}
                   </ThemedText>
                 </Pressable>
               ) : null}
@@ -734,18 +746,18 @@ export default function ReservationCreateScreen() {
           ))}
           {employees.length === 0 ? (
             <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext">
-              Pro pobočku nejsou dostupní žádní barbeři.
+              {t('reservationNoBarbers')}
             </ThemedText>
           ) : null}
         </ScrollView>
       </Step>
 
-      <Step title="Vyberte službu">
+      <Step title={t('reservationStepServiceTitle')}>
         <ScrollView className="p-4 px-8">
           <View className="mb-8">
-            <ThemedText className="text-3xl font-semibold">Vyberte službu</ThemedText>
+            <ThemedText className="text-3xl font-semibold">{t('reservationStepServiceTitle')}</ThemedText>
             <ThemedText className="text-base text-light-subtext dark:text-dark-subtext">
-              Vyberte službu, kterou chcete rezervovat.
+              {t('reservationStepServiceSubtitle')}
             </ThemedText>
           </View>
           {loadingEmployeeServices ? (
@@ -777,7 +789,9 @@ export default function ReservationCreateScreen() {
                       <View className="py-2 w-full flex-row items-center justify-between gap-2">
                         <ThemedText className="text-sm font-medium flex-1 min-w-0" numberOfLines={1}>{service.name}</ThemedText>
                         <View className="self-start rounded-full bg-light-secondary dark:bg-dark-secondary px-2 py-1">
-                          <ThemedText className="text-xs text-light-subtext dark:text-dark-subtext">{service.price} Kč</ThemedText>
+                          <ThemedText className="text-xs text-light-subtext dark:text-dark-subtext">
+                            {service.price} {t('reservationCurrencySuffix')}
+                          </ThemedText>
                         </View>
                       </View>
                     </Pressable>
@@ -788,25 +802,25 @@ export default function ReservationCreateScreen() {
           ))}
           {services.length === 0 ? (
             <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext">
-              Pro vybraného barbera nejsou dostupné žádné služby.
+              {t('reservationNoServices')}
             </ThemedText>
           ) : null}
         </ScrollView>
       </Step>
 
-      <Step title="Vyberte datum a čas">
+      <Step title={t('reservationStepDatetimeTitle')}>
         <ScrollView className="p-4 px-8">
           <View className="mb-8">
-            <ThemedText className="text-3xl font-semibold">Vyberte datum a čas</ThemedText>
+            <ThemedText className="text-3xl font-semibold">{t('reservationStepDatetimeTitle')}</ThemedText>
             <ThemedText className="text-base text-light-subtext dark:text-dark-subtext">
-              Vyberte den a následně dostupný termín.
+              {t('reservationStepDatetimeSubtitle')}
             </ThemedText>
           </View>
           <View className="flex-row gap-2 mb-4">
             {showTodayChip ? (
               <Chip
                 size="lg"
-                label="Dnes"
+                label={t('reservationToday')}
                 isSelected={data.date === todayIso}
                 onPress={() => {
                   const target = new Date();
@@ -818,7 +832,7 @@ export default function ReservationCreateScreen() {
             {showTomorrowChip ? (
               <Chip
                 size="lg"
-                label="Zítra"
+                label={t('reservationTomorrow')}
                 isSelected={data.date === tomorrowIso}
                 onPress={() => {
                   const target = new Date(Date.now() + 24 * 60 * 60 * 1000);
@@ -862,13 +876,13 @@ export default function ReservationCreateScreen() {
           </View>
           {!loadingMonthAvailability && visibleMonthDays.length === 0 ? (
             <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext mt-2">
-              V tomto měsíci nejsou žádné volné termíny.
+              {t('reservationNoSlotsMonth')}
             </ThemedText>
           ) : null}
           <View className="mt-6 mb-2">
-            <ThemedText className="text-lg font-semibold">Dostupné časy</ThemedText>
+            <ThemedText className="text-lg font-semibold">{t('reservationAvailableTimes')}</ThemedText>
             <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext">
-              Vyberte volný čas z dostupných termínů.
+              {t('reservationAvailableTimesSubtitle')}
             </ThemedText>
           </View>
           {loadingAvailability ? (
@@ -880,7 +894,7 @@ export default function ReservationCreateScreen() {
           ) : (
             <>
               {groupedSlots.morning.length > 0 ? (
-                <Section title="Ráno" titleSize="md" className="mb-2">
+                <Section title={t('reservationMorning')} titleSize="md" className="mb-2">
                   <View className="flex-row flex-wrap gap-2 mt-1">
                     {groupedSlots.morning.map((slot, index) => (
                       <Chip
@@ -902,7 +916,7 @@ export default function ReservationCreateScreen() {
                 </Section>
               ) : null}
               {groupedSlots.afternoon.length > 0 ? (
-                <Section title="Odpoledne" titleSize="md" className="mb-2">
+                <Section title={t('reservationAfternoon')} titleSize="md" className="mb-2">
                   <View className="flex-row flex-wrap gap-2 mt-1">
                     {groupedSlots.afternoon.map((slot, index) => (
                       <Chip
@@ -924,7 +938,7 @@ export default function ReservationCreateScreen() {
                 </Section>
               ) : null}
               {groupedSlots.evening.length > 0 ? (
-                <Section title="Večer" titleSize="md" className="mb-2">
+                <Section title={t('reservationEvening')} titleSize="md" className="mb-2">
                   <View className="flex-row flex-wrap gap-2 mt-1">
                     {groupedSlots.evening.map((slot, index) => (
                       <Chip
@@ -947,7 +961,7 @@ export default function ReservationCreateScreen() {
               ) : null}
               {(availability?.availability?.slots?.length ?? 0) === 0 ? (
                 <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext">
-                  Pro vybrané parametry nejsou dostupné žádné termíny.
+                  {t('reservationNoSlotsSelection')}
                 </ThemedText>
               ) : null}
             </>
@@ -955,22 +969,22 @@ export default function ReservationCreateScreen() {
         </ScrollView>
       </Step>
 
-      <Step title="Shrnutí rezervace">
+      <Step title={t('reservationSummaryTitle')}>
         <ScrollView className="flex-1 px-global pb-6" showsVerticalScrollIndicator={false}>
-          <ThemedText className="text-2xl font-bold pt-4">Shrnutí rezervace</ThemedText>
+          <ThemedText className="text-2xl font-bold pt-4">{t('reservationSummaryTitle')}</ThemedText>
           <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext mt-1">
-            Zkontrolujte údaje před potvrzením.
+            {t('reservationSummarySubtitle')}
           </ThemedText>
 
           <View className="mt-3 p-3 rounded-xl bg-light-accent/10 dark:bg-dark-accent/15 border border-light-accent/25 dark:border-dark-accent/30">
             <ThemedText className="text-center text-sm font-medium text-light-text dark:text-dark-text">
-              Potvrzením dokončíte vytvoření rezervace.
+              {t('reservationSummaryConfirmHint')}
             </ThemedText>
           </View>
 
           <Divider className="mt-4 h-2 bg-light-secondary dark:bg-dark-darker" />
 
-          <Section title="Pobočka" titleSize="lg" className="pt-3 pb-1">
+          <Section title={t('reservationSummaryBranch')} titleSize="lg" className="pt-3 pb-1">
             <View className="mt-2 rounded-2xl overflow-hidden bg-light-secondary dark:bg-dark-secondary">
               <Image
                 source={
@@ -997,7 +1011,7 @@ export default function ReservationCreateScreen() {
 
           <Divider className="mt-4 h-2 bg-light-secondary dark:bg-dark-darker" />
 
-          <Section title="U vašeho specialisty" titleSize="lg" className="pt-3 pb-1">
+          <Section title={t('reservationSummaryWithSpecialist')} titleSize="lg" className="pt-3 pb-1">
             <View className="flex-row items-center mt-2">
               {selectedEmployee ? (
                 <Avatar size="md" src={selectedEmployee.avatarUrl ?? undefined} name={selectedEmployee.name} />
@@ -1013,7 +1027,7 @@ export default function ReservationCreateScreen() {
                 {selectedServiceName !== '—' ? (
                   <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext mt-0.5" numberOfLines={2}>
                     {selectedServiceName}
-                    {selectedService ? ` · ${selectedService.price} Kč` : ''}
+                    {selectedService ? ` · ${selectedService.price} ${t('reservationCurrencySuffix')}` : ''}
                   </ThemedText>
                 ) : (
                   <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext mt-0.5">—</ThemedText>
@@ -1024,21 +1038,23 @@ export default function ReservationCreateScreen() {
 
           <Divider className="mt-4 h-2 bg-light-secondary dark:bg-dark-darker" />
 
-          <Section title="Váš termín" titleSize="lg" className="pt-3 pb-1">
+          <Section title={t('reservationSummaryAppointment')} titleSize="lg" className="pt-3 pb-1">
             <ThemedText className="text-base font-semibold mt-2">{selectedDateLabel}</ThemedText>
             <View className="flex-row items-center justify-between bg-light-secondary dark:bg-dark-secondary rounded-xl p-3 mt-2">
               <View>
-                <ThemedText className="text-xs text-light-subtext dark:text-dark-subtext">Od</ThemedText>
+                <ThemedText className="text-xs text-light-subtext dark:text-dark-subtext">{t('reservationSummaryFrom')}</ThemedText>
                 <ThemedText className="text-base font-semibold">{data.slotStart || '—'}</ThemedText>
               </View>
               <View className="items-end">
-                <ThemedText className="text-xs text-light-subtext dark:text-dark-subtext">Do</ThemedText>
+                <ThemedText className="text-xs text-light-subtext dark:text-dark-subtext">{t('reservationSummaryTo')}</ThemedText>
                 <ThemedText className="text-base font-semibold">{data.slotEnd || '—'}</ThemedText>
               </View>
             </View>
             {data.duration > 0 ? (
               <View className="flex-row items-center justify-between pt-2.5">
-                <ThemedText className="text-xs text-light-subtext dark:text-dark-subtext">Délka</ThemedText>
+                <ThemedText className="text-xs text-light-subtext dark:text-dark-subtext">
+                  {t('reservationSummaryEstimatedDuration')}
+                </ThemedText>
                 <ThemedText className="text-sm font-semibold">{data.duration} min</ThemedText>
               </View>
             ) : null}
@@ -1047,7 +1063,9 @@ export default function ReservationCreateScreen() {
           {creatingBooking ? (
             <View className="mt-3 flex-row items-center justify-center">
               <ActivityIndicator size="small" />
-              <ThemedText className="ml-2 text-sm text-light-subtext dark:text-dark-subtext">Vytvářím rezervaci...</ThemedText>
+              <ThemedText className="ml-2 text-sm text-light-subtext dark:text-dark-subtext">
+                {t('reservationSummaryCreating')}
+              </ThemedText>
             </View>
           ) : null}
           {createBookingError ? (
@@ -1059,20 +1077,22 @@ export default function ReservationCreateScreen() {
       <ActionSheetThemed ref={detailsSheetRef} gestureEnabled>
         <ScrollView className="max-h-[75vh]" contentContainerStyle={{ padding: 16, paddingBottom: 24 }}>
           <ThemedText className="text-lg font-bold mt-2 mb-2 text-left">
-            {detailsEmployee?.name ?? 'Specialista'}
+            {detailsEmployee?.name ?? t('sheetSpecialistFallback')}
           </ThemedText>
           <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext mb-5">
-            {detailsDescription || 'Bez popisu.'}
+            {detailsDescription || t('sheetNoBio')}
           </ThemedText>
           {detailsMedia.length > 0 ? (
             <View className="mb-5">
-              <ThemedText className="text-sm font-semibold mb-2">Ukázka práce</ThemedText>
+              <ThemedText className="text-sm font-semibold mb-2">{t('sheetPortfolio')}</ThemedText>
               <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 10 }}>
                 {detailsMedia.map((m, index) => (
                   <View key={`${m.url}-${index}`} className="w-24 h-24 rounded-xl overflow-hidden bg-light-secondary dark:bg-dark-secondary">
                     {m.type === 'video' ? (
                       <View className="flex-1 items-center justify-center">
-                        <ThemedText className="text-xs text-light-subtext dark:text-dark-subtext">Video</ThemedText>
+                        <ThemedText className="text-xs text-light-subtext dark:text-dark-subtext">
+                          {t('sheetVideoLabel')}
+                        </ThemedText>
                       </View>
                     ) : (
                       <Image source={{ uri: m.url }} className="w-full h-full" resizeMode="cover" />
@@ -1083,7 +1103,7 @@ export default function ReservationCreateScreen() {
             </View>
           ) : null}
           <Button
-            title="Zavřít"
+            title={t('sheetClose')}
             variant="outline"
             onPress={() => detailsSheetRef.current?.hide()}
           />
@@ -1092,13 +1112,13 @@ export default function ReservationCreateScreen() {
       <ActionSheetThemed ref={branchDetailsSheetRef} gestureEnabled>
         <ScrollView className="max-h-[75vh]" contentContainerStyle={{ padding: 16, paddingBottom: 24 }}>
           <ThemedText className="text-lg font-bold mt-2 mb-2 text-left">
-            {detailsBranch?.name ?? 'Pobočka'}
+            {detailsBranch?.name ?? t('sheetBranchFallback')}
           </ThemedText>
           <ThemedText
             numberOfLines={isBranchDescriptionExpanded ? undefined : 3}
             className="text-sm leading-6 text-light-subtext dark:text-dark-subtext mb-2"
           >
-            {detailsBranchDescription || 'Tato pobočka zatím nemá krátké představení.'}
+            {detailsBranchDescription || t('sheetBranchNoIntro')}
           </ThemedText>
           {detailsBranchDescription ? (
             <Pressable
@@ -1106,7 +1126,7 @@ export default function ReservationCreateScreen() {
               onPress={() => setIsBranchDescriptionExpanded((prev) => !prev)}
             >
               <ThemedText className="text-xs text-light-subtext dark:text-dark-subtext">
-                {isBranchDescriptionExpanded ? 'Skrýt popis' : 'Zobrazit celý popis'}
+                {isBranchDescriptionExpanded ? t('sheetHideDescription') : t('sheetShowFullDescription')}
               </ThemedText>
             </Pressable>
           ) : (
@@ -1114,7 +1134,7 @@ export default function ReservationCreateScreen() {
           )}
           {detailsBranchVideo ? (
             <View className="mb-4 rounded-xl overflow-hidden bg-black">
-              <ThemedText className="text-sm font-semibold">Kudy na pobočku?</ThemedText>
+              <ThemedText className="text-sm font-semibold">{t('sheetHowToBranch')}</ThemedText>
               <Video
                 source={{ uri: detailsBranchVideo.url }}
                 style={{ width: '100%', height: 220 }}
@@ -1128,7 +1148,7 @@ export default function ReservationCreateScreen() {
           ) : null}
           {detailsBranchImages.length > 0 ? (
             <View className="mb-5">
-              <ThemedText className="text-sm font-semibold mb-2">Interiér pobočky</ThemedText>
+              <ThemedText className="text-sm font-semibold mb-2">{t('sheetBranchInterior')}</ThemedText>
               <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 10 }}>
                 {detailsBranchImages.map((m, index) => (
                   <View key={`${m.url}-${index}`} className="w-24 h-24 rounded-xl overflow-hidden bg-light-secondary dark:bg-dark-secondary">
@@ -1139,7 +1159,7 @@ export default function ReservationCreateScreen() {
             </View>
           ) : null}
           <Button
-            title="Zavřít"
+            title={t('sheetClose')}
             variant="outline"
             onPress={() => branchDetailsSheetRef.current?.hide()}
           />
