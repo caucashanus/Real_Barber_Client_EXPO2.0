@@ -756,6 +756,125 @@ Technical: square 1:1 (export 512×512 or 1024×1024 px, final 45×45 or 90×90 
 ---
 
 
+## Ikony pro nové flow: Vytvořit rezervaci + Přesunout rezervaci
+
+Pro nové obrazovky rezervací (create + reschedule) můžete použít stejný mascot styl jako výše.
+
+**Doporučená technická specifikace (stejná jako jinde):**
+- čtverec 1:1
+- PNG s průhledným pozadím (alpha)
+- export 512×512 px (nebo 1024×1024 px) a pak zmenšit dle použití v UI
+- moderní semi-realistický styl, ne cartoon
+
+| # | Návrh souboru | Kde se hodí | Koncept |
+|---|---------------|-------------|---------|
+| 19 | `reservation-branch.png` | Vytvořit rezervaci: výběr pobočky | maskot + mapa/pin + výběr pobočky |
+| 20 | `reservation-specialist.png` | Vytvořit rezervaci: výběr specialisty | maskot + profil specialisty |
+| 21 | `reservation-service.png` | Vytvořit rezervaci: výběr služby | maskot + seznam služeb / checklist |
+| 22 | `reservation-time.png` | Vytvořit rezervaci: datum a čas | maskot + kalendář + hodiny |
+| 23 | `reservation-summary.png` | Vytvořit rezervaci: shrnutí | maskot + souhrnná karta + check |
+| 24 | `reschedule-old-slot.png` | Přesunout rezervaci: současný termín | maskot + přeškrtnutý původní termín |
+| 25 | `reschedule-new-slot.png` | Přesunout rezervaci: nový termín | maskot + nový kalendářní slot |
+| 26 | `reschedule-confirm.png` | Přesunout rezervaci: potvrzení | maskot + potvrzeno / check + „okamžitě“ |
+
+### 19. Ikona: Výběr pobočky (`reservation-branch.png`)
+**Prompt (CZ):**
+```
+Ilustrace pro mobilní aplikaci. Firemní maskot [JMÉNO / POPIS MASKOTA] vybírá pobočku: drží mapu nebo ukazuje na mapový pin, případně stojí vedle stylizované mapy s označeným bodem. Koncept „vyber pobočku“. Výraz jistý, orientovaný.
+Formát: čtverec 1:1. Styl: moderní, semi-realistický vzhled – ne cartoon. Čisté linie, konzistentní s maskotem. Pozadí transparentní, export PNG s alfa kanálem.
+```
+**Prompt (EN):**
+```
+Mobile app illustration. Brand mascot [MASCOT NAME] choosing a branch: holding a map or pointing to a map pin, optionally standing next to a stylized map with one highlighted location. Concept: “choose branch”. Confident, focused expression.
+Format: square 1:1. Style: modern semi-realistic look, not cartoon. Clean lines, consistent with mascot. Transparent background, PNG with alpha channel.
+```
+
+### 20. Ikona: Výběr specialisty (`reservation-specialist.png`)
+**Prompt (CZ):**
+```
+Ilustrace pro mobilní aplikaci. Firemní maskot [JMÉNO / POPIS MASKOTA] vybírá specialistu: vedle něj je profilová karta specialisty (avatar + jméno), případně barber křeslo jako jemný symbol. Koncept „vyber specialistu“. Výraz přátelský, rozhodný.
+Formát: čtverec 1:1, moderní semi-realistický styl, transparentní PNG pozadí.
+```
+**Prompt (EN):**
+```
+Mobile app illustration. Brand mascot [MASCOT NAME] choosing a specialist: next to him is a specialist profile card (avatar + name), optionally with a subtle barber chair symbol. Concept: “choose specialist”. Friendly, decisive expression.
+Format: square 1:1, modern semi-realistic style, transparent PNG background.
+```
+
+### 21. Ikona: Výběr služby (`reservation-service.png`)
+**Prompt (CZ):**
+```
+Ilustrace pro mobilní aplikaci. Firemní maskot [JMÉNO / POPIS MASKOTA] vybírá službu ze seznamu: drží nebo ukazuje na checklist / seznam položek služeb. Koncept „vyber službu“. Žádné přeplněné pozadí.
+Formát: čtverec 1:1. Styl: moderní semi-realistický, transparentní PNG.
+```
+**Prompt (EN):**
+```
+Mobile app illustration. Brand mascot [MASCOT NAME] selecting a service from a list: holding or pointing to a checklist / service list card. Concept: “choose service”. Keep background minimal.
+Format: square 1:1. Style: modern semi-realistic, transparent PNG.
+```
+
+### 22. Ikona: Výběr data a času (`reservation-time.png`)
+**Prompt (CZ):**
+```
+Ilustrace pro mobilní aplikaci. Firemní maskot [JMÉNO / POPIS MASKOTA] vybírá termín: v kompozici je kalendář + hodiny (nebo časový slot). Koncept „vyber datum a čas rezervace“. Výraz soustředěný, přehledný.
+Formát: čtverec 1:1, moderní semi-realistický styl, transparentní PNG.
+```
+**Prompt (EN):**
+```
+Mobile app illustration. Brand mascot [MASCOT NAME] choosing appointment time: calendar + clock (or time slot) visible in composition. Concept: “pick booking date and time”. Focused, clear expression.
+Format: square 1:1, modern semi-realistic style, transparent PNG.
+```
+
+### 23. Ikona: Shrnutí rezervace (`reservation-summary.png`)
+**Prompt (CZ):**
+```
+Ilustrace pro mobilní aplikaci. Firemní maskot [JMÉNO / POPIS MASKOTA] kontroluje shrnutí rezervace: drží nebo ukazuje souhrnnou kartu s body (pobočka, specialista, služba, čas) a ikonou check. Koncept „zkontroluj a potvrď“. Výraz spokojený a jistý.
+Formát: čtverec 1:1, moderní semi-realistický styl, transparentní PNG.
+```
+**Prompt (EN):**
+```
+Mobile app illustration. Brand mascot [MASCOT NAME] reviewing reservation summary: holding or pointing to a summary card (branch, specialist, service, time) with a check icon. Concept: “review and confirm”. Confident, satisfied expression.
+Format: square 1:1, modern semi-realistic style, transparent PNG.
+```
+
+### 24. Ikona: Současný termín (`reschedule-old-slot.png`)
+**Prompt (CZ):**
+```
+Ilustrace pro mobilní aplikaci. Firemní maskot [JMÉNO / POPIS MASKOTA] ukazuje původní termín, který se mění: karta s datem/časem je ztlumená a přeškrtnutá. Koncept „starý termín bude nahrazen“. Výraz neutrální, informativní.
+Formát: čtverec 1:1, moderní semi-realistický styl, transparentní PNG.
+```
+**Prompt (EN):**
+```
+Mobile app illustration. Brand mascot [MASCOT NAME] showing the original slot being changed: date/time card is muted and crossed out. Concept: “old slot will be replaced”. Neutral, informative expression.
+Format: square 1:1, modern semi-realistic style, transparent PNG.
+```
+
+### 25. Ikona: Nový termín (`reschedule-new-slot.png`)
+**Prompt (CZ):**
+```
+Ilustrace pro mobilní aplikaci. Firemní maskot [JMÉNO / POPIS MASKOTA] vybírá nový termín: zvýrazněný kalendářní den a časový slot, čistá pozitivní kompozice. Koncept „nový termín rezervace“. Výraz rozhodný, pozitivní.
+Formát: čtverec 1:1, moderní semi-realistický styl, transparentní PNG.
+```
+**Prompt (EN):**
+```
+Mobile app illustration. Brand mascot [MASCOT NAME] choosing a new slot: highlighted calendar day and time slot in a clean positive composition. Concept: “new reservation slot”. Decisive, positive expression.
+Format: square 1:1, modern semi-realistic style, transparent PNG.
+```
+
+### 26. Ikona: Potvrdit přesunutí okamžitě (`reschedule-confirm.png`)
+**Prompt (CZ):**
+```
+Ilustrace pro mobilní aplikaci. Firemní maskot [JMÉNO / POPIS MASKOTA] potvrzuje přesunutí rezervace okamžitě: vedle něj je potvrzovací check a jemný symbol rychlosti (např. malý blesk). Koncept „potvrdit přesunutí okamžitě“. Výraz jistý, finální.
+Formát: čtverec 1:1, moderní semi-realistický styl, transparentní PNG.
+```
+**Prompt (EN):**
+```
+Mobile app illustration. Brand mascot [MASCOT NAME] confirming instant reschedule: confirmation check icon plus a subtle speed symbol (e.g. small lightning). Concept: “confirm reschedule now”. Confident final expression.
+Format: square 1:1, modern semi-realistic style, transparent PNG.
+```
+
+---
+
 ---
 
 ## Shrnutí
