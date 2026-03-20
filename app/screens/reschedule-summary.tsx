@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { View, ScrollView, ActivityIndicator } from 'react-native';
+import { View, ScrollView, ActivityIndicator, Image } from 'react-native';
 import { router, useLocalSearchParams } from 'expo-router';
 import Header from '@/components/Header';
 import ThemedText from '@/components/ThemedText';
@@ -130,6 +130,14 @@ export default function RescheduleSummaryScreen() {
       <Header title={t('rescheduleSummaryTitle')} showBackButton />
       <View className="flex-1 bg-light-primary dark:bg-dark-primary">
         <ScrollView className="flex-1 px-global pt-2" showsVerticalScrollIndicator={false}>
+          <View className="mb-4 items-center pt-2">
+            <Image
+              source={require('@/assets/img/reschedule-confirm.png')}
+              className="h-20 w-20"
+              resizeMode="contain"
+              accessibilityIgnoresInvertColors
+            />
+          </View>
           <Divider className="mt-2 h-2 bg-light-secondary dark:bg-dark-darker" />
 
           <Section title={t('rescheduleCurrentTitle')} titleSize="lg" className="pt-3 pb-1">

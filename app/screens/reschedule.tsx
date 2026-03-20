@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { View, ScrollView, Pressable, ActivityIndicator } from 'react-native';
+import { View, ScrollView, Pressable, ActivityIndicator, Image } from 'react-native';
 import { router, useLocalSearchParams } from 'expo-router';
 import Header from '@/components/Header';
 import ThemedText from '@/components/ThemedText';
@@ -284,6 +284,15 @@ export default function RescheduleScreen() {
           </Section>
 
           <Section title={t('reschedulePickTitle')} titleSize="lg" className="mb-4">
+            <View className="mb-4 items-center">
+              <Image
+                source={require('@/assets/img/reschedule-new-slot.png')}
+                className="h-20 w-20"
+                style={{ width: 80, height: 80 }}
+                resizeMode="contain"
+                accessibilityIgnoresInvertColors
+              />
+            </View>
             <View className="mb-3 mt-2 flex-row items-center justify-between">
               <Pressable
                 disabled={monthOffset === 0}
