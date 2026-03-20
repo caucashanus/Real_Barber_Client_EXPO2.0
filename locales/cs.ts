@@ -422,6 +422,9 @@ export const cs: Record<TranslationKey, string> = {
   transferChatNotEnoughRbc: 'Nemáte dostatek RBC.',
   transferChatFailed: 'Převod se nezdařil.',
   transferChatYesterday: 'Včera',
+  transferChatMenuViewProfile: 'Zobrazit profil',
+  transferChatMenuBlockUser: 'Blokovat uživatele',
+  transferChatMenuReportUser: 'Nahlásit uživatele',
   commonRecipient: 'Příjemce',
 
   // Insights

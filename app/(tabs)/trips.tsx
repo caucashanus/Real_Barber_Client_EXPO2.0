@@ -546,6 +546,19 @@ const BookingCard = (props: {
             <TouchableOpacity onPress={onOpenReview} activeOpacity={0.7} className="flex-1 py-3.5 items-center justify-center rounded-br-2xl">
               <ShowRating rating={reviewRating!} size="sm" displayMode="stars" />
             </TouchableOpacity>
+          ) : isUpcoming ? (
+            <Button
+              variant="ghost"
+              size="small"
+              title={t('tripDetailMoveButton')}
+              iconStart="Calendar"
+              iconSize={16}
+              onPress={() =>
+                router.push(`/screens/reschedule?id=${encodeURIComponent(booking.id)}`)
+              }
+              className="flex-1 py-3.5 px-0 rounded-none rounded-br-2xl"
+              textClassName="text-sm font-semibold text-neutral-800 dark:text-neutral-200"
+            />
           ) : (
             <Button
               variant="ghost"

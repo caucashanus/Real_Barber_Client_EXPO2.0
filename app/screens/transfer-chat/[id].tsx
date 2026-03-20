@@ -8,13 +8,17 @@ import {
   ActivityIndicator,
   Alert,
   Keyboard,
+  TouchableOpacity,
 } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import Header from '@/components/Header';
+import ActionSheet, { ActionSheetRef } from 'react-native-actions-sheet';
+import Header, { HeaderIcon } from '@/components/Header';
 import Avatar from '@/components/Avatar';
 import ThemedText from '@/components/ThemedText';
 import { Button } from '@/components/Button';
+import ActionSheetThemed from '@/components/ActionSheetThemed';
+import Icon from '@/components/Icon';
 import { useAuth } from '@/app/contexts/AuthContext';
 import { useTransferRecipient, useSetTransferRecipient } from '@/app/contexts/TransferRecipientContext';
 import { useTranslation } from '@/app/hooks/useTranslation';
@@ -69,6 +73,7 @@ export default function TransferChatScreen() {
   const [sendNote, setSendNote] = useState('');
   const [sending, setSending] = useState(false);
   const scrollRef = useRef<ScrollView>(null);
+  const actionSheetRef = useRef<ActionSheetRef>(null);
 
   const scrollToBottom = useCallback(() => {
     setTimeout(() => scrollRef.current?.scrollToEnd({ animated: true }), 100);
@@ -167,7 +172,15 @@ export default function TransferChatScreen() {
           showBackButton
           onBackPress={() => router.back()}
           middleComponent={<ThemedText className="text-lg font-semibold">{displayName}</ThemedText>}
-          rightComponents={[<Avatar key="avatar" size="sm" src={avatarSrc} name={displayName} />]}
+          rightComponents={[
+            <Avatar key="avatar" size="sm" src={avatarSrc} name={displayName} />,
+            <HeaderIcon
+              key="menu"
+              icon="MoreVertical"
+              href="0"
+              onPress={() => actionSheetRef.current?.show()}
+            />,
+          ]}
         />
 
         <ScrollView
@@ -261,6 +274,28 @@ export default function TransferChatScreen() {
             className="rounded-xl"
           />
         </View>
+
+        <ActionSheetThemed
+          ref={actionSheetRef}
+          gestureEnabled
+          containerStyle={{
+            borderTopLeftRadius: 20,
+            borderTopRightRadius: 20,
+          }}
+        >
+          <View className="p-4">
+            <TouchableOpacity
+              className="py-4 flex-row items-center"
+              onPress={() => {
+                actionSheetRef.current?.hide();
+                router.push(`/screens/barber-detail?id=${encodeURIComponent(id)}`);
+              }}
+            >
+              <Icon name="User" size={20} className="mr-3" />
+              <ThemedText>{t('transferChatMenuViewProfile')}</ThemedText>
+            </TouchableOpacity>
+          </View>
+        </ActionSheetThemed>
       </View>
     </KeyboardAvoidingView>
   );

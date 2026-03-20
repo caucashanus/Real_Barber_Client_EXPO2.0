@@ -420,6 +420,9 @@ export const en = {
   transferChatNotEnoughRbc: "You don't have enough RBC.",
   transferChatFailed: 'Transfer failed.',
   transferChatYesterday: 'Yesterday',
+  transferChatMenuViewProfile: 'View profile',
+  transferChatMenuBlockUser: 'Block user',
+  transferChatMenuReportUser: 'Report user',
   commonRecipient: 'Recipient',
 
   // Insights
