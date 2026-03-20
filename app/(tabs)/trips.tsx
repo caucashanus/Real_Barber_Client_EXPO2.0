@@ -318,7 +318,11 @@ const TripsScreen = () => {
         title={t('tripsTitle')}
         variant="collapsibleTitle"
         scrollY={scrollY}
-        rightComponents={[<HeaderIcon icon="PlusCircle" href="/screens/reservation-create-start" />]}
+        collapsibleTitleExpandedFontSize={36}
+        collapsibleTitleCollapsedFontSize={20}
+        rightComponents={[
+          <HeaderIcon key="add-booking" icon="PlusCircle" href="/screens/reservation-create-start" iconSize={28} />,
+        ]}
       />
       <AnimatedView animation="scaleIn" className="flex-1">
         {loading ? (

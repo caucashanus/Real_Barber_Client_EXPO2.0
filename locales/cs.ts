@@ -262,7 +262,7 @@ export const cs: Record<TranslationKey, string> = {
 
   // Trip detail / Booking detail
   bookingDetailTitle: 'Detail rezervace',
-  bookingInCareOf: 'U koho',
+  bookingInCareOf: 'V péči u',
   bookingMessage: 'Zpráva',
   bookingSendRbcTip: 'Poslat RBC jako spropitné',
   bookingYourAppointment: 'Vaše návštěva',
@@ -489,11 +489,13 @@ export const cs: Record<TranslationKey, string> = {
   reschedulePlaceholder: 'Výběr nového termínu bude brzy k dispozici.',
   rescheduleIntro: 'Zvolte nový datum a čas. Pobočka, holič a služba zůstávají stejné.',
   rescheduleCurrentTitle: 'Současná rezervace',
+  rescheduleCurrentTimeHeading: 'Současný termín',
+  rescheduleCurrentTimeHint: 'Čas, který měníte – po potvrzení ho nahradí nový výběr.',
   reschedulePickTitle: 'Nový termín',
   rescheduleContinue: 'Pokračovat na shrnutí',
   rescheduleSummaryTitle: 'Shrnutí přesunutí rezervace',
   rescheduleSummarySubtitle: 'Zkontrolujte nový termín a potvrďte změnu.',
-  rescheduleConfirm: 'Potvrdit přesunutí',
+  rescheduleConfirm: 'Potvrdit přesunutí okamžitě',
   rescheduleSave: 'Uložit nový termín',
   rescheduleSaving: 'Ukládám…',
   rescheduleLoadError: 'Nepodařilo se načíst rezervaci',

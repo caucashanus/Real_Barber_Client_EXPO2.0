@@ -1,13 +1,14 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { View, ScrollView, Pressable, ActivityIndicator, Platform } from 'react-native';
+import { View, ScrollView, Pressable, ActivityIndicator } from 'react-native';
 import { router, useLocalSearchParams } from 'expo-router';
 import Header from '@/components/Header';
 import ThemedText from '@/components/ThemedText';
+import ThemedFooter from '@/components/ThemeFooter';
 import Section from '@/components/layout/Section';
 import { Chip } from '@/components/Chip';
 import Icon from '@/components/Icon';
+import CurrentBookingCard from '@/components/booking/CurrentBookingCard';
 import { Button } from '@/components/Button';
-import ThemedFooter from '@/components/ThemeFooter';
 import useThemeColors from '@/app/contexts/ThemeColors';
 import { useAuth } from '@/app/contexts/AuthContext';
 import { useLanguage } from '@/app/contexts/LanguageContext';
@@ -18,17 +19,6 @@ import {
   type Booking,
   type BookingAvailabilityResponse,
 } from '@/api/bookings';
-
-const rescheduleFooterBarStyle = Platform.select({
-  ios: {
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: -3 },
-    shadowOpacity: 0.15,
-    shadowRadius: 6,
-  },
-  android: { elevation: 12 },
-  default: {},
-});
 
 function toIsoDate(d: Date): string {
   const y = d.getFullYear();
@@ -146,6 +136,7 @@ export default function RescheduleScreen() {
     const txt = d.toLocaleDateString(dateLocaleTag, { month: 'long' });
     return txt.charAt(0).toUpperCase() + txt.slice(1);
   }, [monthOffset, dateLocaleTag]);
+
   const groupedSlots = useMemo(() => {
     const slots = availability?.availability?.slots ?? [];
     const morning = slots.filter((s) => timeToMinutes(s.start) < 12 * 60);
@@ -289,15 +280,7 @@ export default function RescheduleScreen() {
           <ThemedText className="text-base text-light-subtext dark:text-dark-subtext mb-4">{t('rescheduleIntro')}</ThemedText>
 
           <Section title={t('rescheduleCurrentTitle')} titleSize="lg" className="mb-4">
-            <View className="mt-2 rounded-xl bg-light-secondary dark:bg-dark-secondary p-3 gap-1">
-              <ThemedText className="text-sm font-semibold">{booking.branch?.name ?? '—'}</ThemedText>
-              <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext">
-                {booking.employee?.name ?? '—'} · {booking.item?.name ?? '—'}
-              </ThemedText>
-              <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext">
-                {(booking.date || '').slice(0, 10)} · {booking.slotStart} – {booking.slotEnd}
-              </ThemedText>
-            </View>
+            <CurrentBookingCard booking={booking} />
           </Section>
 
           <Section title={t('reschedulePickTitle')} titleSize="lg" className="mb-4">
@@ -427,28 +410,26 @@ export default function RescheduleScreen() {
           <View className="h-8" />
         </ScrollView>
 
-        <View style={rescheduleFooterBarStyle}>
-          <ThemedFooter className="border-t border-neutral-200 dark:border-neutral-700 bg-light-secondary dark:bg-dark-secondary !pt-3">
+        <ThemedFooter>
+          <View className="flex-row rounded-2xl overflow-hidden bg-light-secondary dark:bg-dark-secondary">
             <Button
-              variant="primary"
-              size="large"
-              rounded="full"
+              variant={canSave ? 'primary' : 'ghost'}
+              size="small"
+              rounded="none"
               title={t('rescheduleContinue')}
               onPress={() => {
                 onContinueToSummary();
               }}
-              className="w-full"
+              className={`w-full flex-1 py-3.5 px-0 min-w-0 rounded-none ${!canSave ? 'opacity-60' : ''}`}
               textClassName={
-                !canSave
-                  ? 'text-neutral-900 dark:text-neutral-100 font-semibold'
-                  : 'text-white font-semibold'
+                canSave
+                  ? 'text-sm font-semibold text-white'
+                  : 'text-sm font-semibold text-neutral-800 dark:text-neutral-200'
               }
-              style={{
-                backgroundColor: !canSave ? colors.secondary : colors.highlight,
-              }}
+              style={canSave ? { backgroundColor: colors.highlight } : undefined}
             />
-          </ThemedFooter>
-        </View>
+          </View>
+        </ThemedFooter>
       </View>
     </>
   );

@@ -25,6 +25,10 @@ type HeaderProps = {
   variant?: 'default' | 'transparent' | 'blurred' | 'collapsibleTitle';
   onScroll?: (event: NativeSyntheticEvent<NativeScrollEvent>) => void;
   scrollY?: Animated.Value;
+  /** Max font size when scroll = 0 (collapsibleTitle only). */
+  collapsibleTitleExpandedFontSize?: number;
+  /** Min font size when scrolled (collapsibleTitle only). */
+  collapsibleTitleCollapsedFontSize?: number;
 };
 
 const Header: React.FC<HeaderProps> = ({
@@ -44,6 +48,8 @@ const Header: React.FC<HeaderProps> = ({
   variant = 'default',
   onScroll,
   scrollY: externalScrollY,
+  collapsibleTitleExpandedFontSize = 30,
+  collapsibleTitleCollapsedFontSize = 18,
 }) => {
   const colors = useThemeColors();
   const translateY = useRef(new Animated.Value(0)).current;
@@ -210,7 +216,7 @@ const Header: React.FC<HeaderProps> = ({
 
     const titleFontSize = activeScrollY.interpolate({
       inputRange: [0, 100],
-      outputRange: [30, 18],
+      outputRange: [collapsibleTitleExpandedFontSize, collapsibleTitleCollapsedFontSize],
       extrapolate: 'clamp',
     });
 
@@ -220,42 +226,43 @@ const Header: React.FC<HeaderProps> = ({
         className={`w-full bg-light-primary dark:bg-dark-primary ${className}`}
       >
         <View className="px-global">
-          <View className="flex-row justify-between items-center py-4">
-            {/* Left side - back button if needed */}
+          <View className="flex-row items-center py-4">
+            {/* Left: title uses remaining width (no extra flex-1 spacer — that halved the title area) */}
             {(showBackButton || leftComponent || title) && (
-              <View className='flex-row items-center flex-1'>
+              <View className="min-w-0 flex-1 flex-row items-center pr-3">
                 {showBackButton && (
-                  <TouchableOpacity onPress={handleBackPress} className='mr-global relative z-50 py-4'>
+                  <TouchableOpacity onPress={handleBackPress} className="mr-global relative z-50 shrink-0 py-4">
                     <Icon name="ArrowLeft" size={24} color={isTransparent ? 'white' : colors.icon} />
                   </TouchableOpacity>
                 )}
 
-                {leftComponent || title && (
-                  <View className='flex-row items-center relative z-50 '>
+                {(leftComponent || title) && (
+                  <View className="min-w-0 flex-1 flex-row items-center relative z-50">
                     {leftComponent}
 
-                    {title && (
-                      <Animated.View style={{ paddingBottom: titlePaddingBottom, paddingTop: titlePaddingTop }}>
+                    {title ? (
+                      <Animated.View
+                        style={{ flexShrink: 1, paddingBottom: titlePaddingBottom, paddingTop: titlePaddingTop }}
+                      >
                         <Animated.Text
+                          numberOfLines={2}
+                          ellipsizeMode="tail"
                           style={{ fontSize: titleFontSize }}
-                          className="font-semibold  text-black dark:text-white"
+                          className="font-semibold text-black dark:text-white"
                         >
                           {title}
                         </Animated.Text>
                       </Animated.View>
-                    )}
+                    ) : null}
                   </View>
                 )}
               </View>
             )}
 
-            {/* Spacer to push right components to the right */}
-            <View className="flex-1" />
-
-            {/* Right components */}
-            <View className="flex-row items-center">
+            {/* Right — fixed width, does not steal half the row */}
+            <View className="shrink-0 flex-row items-center">
               {rightComponents.map((component, index) => (
-                <View key={index} className="ml-6">
+                <View key={index} className={index > 0 ? 'ml-4' : ''}>
                   {component}
                 </View>
               ))}
@@ -329,38 +336,51 @@ type HeaderItemProps = {
   hasBadge?: boolean;
   onPress?: any;
   isWhite?: boolean;
+  /** Icon size in px (touch area scales with it). Default 22. */
+  iconSize?: number;
 };
 
-export const HeaderIcon = ({ href, icon, hasBadge, onPress, className = '', isWhite = false }: HeaderItemProps) => (
-  <>
-    {onPress ? (
-      <TouchableOpacity onPress={onPress} className='overflow-visible mb-2'>
-        <View className={`flex-row items-center justify-center relative overflow-visible h-7 w-7 ${className}`}>
-          {hasBadge && (
-            <View className='w-4 h-4 border-2 border-light-primary dark:border-dark-primary z-30 absolute -top-0 -right-0 bg-red-500 rounded-full' />
-          )}
-          {isWhite ? (
-            <Icon name={icon} size={22} color="white" />
-          ) : (
-            <Icon name={icon} size={22} />
-          )}
-        </View>
-      </TouchableOpacity>
-    ) : (
-      <Link href={href} asChild>
-        <TouchableOpacity className='overflow-visible mb-2'>
-          <View className={`flex-row items-center justify-center relative overflow-visible h-7 w-7 ${className}`}>
+export const HeaderIcon = ({
+  href,
+  icon,
+  hasBadge,
+  onPress,
+  className = '',
+  isWhite = false,
+  iconSize = 22,
+}: HeaderItemProps) => {
+  const boxClass = iconSize >= 26 ? 'h-10 w-10' : iconSize >= 24 ? 'h-9 w-9' : 'h-7 w-7';
+  return (
+    <>
+      {onPress ? (
+        <TouchableOpacity onPress={onPress} className="overflow-visible mb-2" hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}>
+          <View className={`flex-row items-center justify-center relative overflow-visible ${boxClass} ${className}`}>
             {hasBadge && (
-              <View className='w-4 h-4 border-2 border-light-primary dark:border-dark-primary z-30 absolute -top-0 -right-[3px] bg-red-500 rounded-full' />
+              <View className="w-4 h-4 border-2 border-light-primary dark:border-dark-primary z-30 absolute -top-0 -right-0 bg-red-500 rounded-full" />
             )}
             {isWhite ? (
-              <Icon name={icon} size={22} color="white" />
+              <Icon name={icon} size={iconSize} color="white" />
             ) : (
-              <Icon name={icon} size={22} />
+              <Icon name={icon} size={iconSize} />
             )}
           </View>
         </TouchableOpacity>
-      </Link>
-    )}
-  </>
-);
+      ) : (
+        <Link href={href} asChild>
+          <TouchableOpacity className="overflow-visible mb-2" hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}>
+            <View className={`flex-row items-center justify-center relative overflow-visible ${boxClass} ${className}`}>
+              {hasBadge && (
+                <View className="w-4 h-4 border-2 border-light-primary dark:border-dark-primary z-30 absolute -top-0 -right-[3px] bg-red-500 rounded-full" />
+              )}
+              {isWhite ? (
+                <Icon name={icon} size={iconSize} color="white" />
+              ) : (
+                <Icon name={icon} size={iconSize} />
+              )}
+            </View>
+          </TouchableOpacity>
+        </Link>
+      )}
+    </>
+  );
+};

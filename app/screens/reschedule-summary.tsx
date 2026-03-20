@@ -1,28 +1,18 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { View, ScrollView, ActivityIndicator, Platform } from 'react-native';
+import { View, ScrollView, ActivityIndicator } from 'react-native';
 import { router, useLocalSearchParams } from 'expo-router';
 import Header from '@/components/Header';
 import ThemedText from '@/components/ThemedText';
 import ThemedFooter from '@/components/ThemeFooter';
 import Section from '@/components/layout/Section';
 import Divider from '@/components/layout/Divider';
+import CurrentBookingCard from '@/components/booking/CurrentBookingCard';
 import { Button } from '@/components/Button';
 import useThemeColors from '@/app/contexts/ThemeColors';
 import { useAuth } from '@/app/contexts/AuthContext';
 import { useLanguage } from '@/app/contexts/LanguageContext';
 import { useTranslation } from '@/app/hooks/useTranslation';
 import { getBookingById, updateBooking, type Booking } from '@/api/bookings';
-
-const rescheduleFooterBarStyle = Platform.select({
-  ios: {
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: -3 },
-    shadowOpacity: 0.15,
-    shadowRadius: 6,
-  },
-  android: { elevation: 12 },
-  default: {},
-});
 
 function formatDateLabel(date: string, locale: string): string {
   const parsed = new Date(date);
@@ -104,7 +94,7 @@ export default function RescheduleSummaryScreen() {
         slotStart,
         slotEnd,
       });
-      router.replace(`/screens/trip-detail?id=${encodeURIComponent(booking.id)}`);
+      router.replace('/trips');
     } catch (e) {
       setSubmitError(e instanceof Error ? e.message : String(e));
     } finally {
@@ -143,15 +133,7 @@ export default function RescheduleSummaryScreen() {
           <Divider className="mt-2 h-2 bg-light-secondary dark:bg-dark-darker" />
 
           <Section title={t('rescheduleCurrentTitle')} titleSize="lg" className="pt-3 pb-1">
-            <View className="mt-2 rounded-xl bg-light-secondary dark:bg-dark-secondary p-3 gap-1">
-              <ThemedText className="text-sm font-semibold">{booking.branch?.name ?? '—'}</ThemedText>
-              <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext">
-                {booking.employee?.name ?? '—'} · {booking.item?.name ?? '—'}
-              </ThemedText>
-              <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext">
-                {(booking.date || '').slice(0, 10)} · {booking.slotStart} – {booking.slotEnd}
-              </ThemedText>
-            </View>
+            <CurrentBookingCard booking={booking} />
           </Section>
 
           <Divider className="mt-4 h-2 bg-light-secondary dark:bg-dark-darker" />
@@ -182,24 +164,24 @@ export default function RescheduleSummaryScreen() {
           <View className="h-8" />
         </ScrollView>
 
-        <View style={rescheduleFooterBarStyle}>
-          <ThemedFooter className="border-t border-neutral-200 dark:border-neutral-700 bg-light-secondary dark:bg-dark-secondary !pt-3">
+        <ThemedFooter>
+          <View className="flex-row rounded-2xl overflow-hidden bg-light-secondary dark:bg-dark-secondary">
             <Button
               variant="primary"
-              size="large"
-              rounded="full"
+              size="small"
+              rounded="none"
               title={t('rescheduleConfirm')}
               loading={saving}
               onPress={() => {
                 void onConfirm();
               }}
               disabled={saving}
-              className="w-full"
-              textClassName="text-white font-semibold"
+              className="w-full flex-1 py-3.5 px-0 min-w-0 rounded-none"
+              textClassName="text-sm font-semibold text-white"
               style={{ backgroundColor: colors.highlight }}
             />
-          </ThemedFooter>
-        </View>
+          </View>
+        </ThemedFooter>
       </View>
     </>
   );
