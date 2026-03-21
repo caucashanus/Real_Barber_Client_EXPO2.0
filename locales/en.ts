@@ -564,6 +564,12 @@ export const en = {
   favoritesSheetMessageRemoved: 'has been removed from your favourites.',
   favoritesSheetViewFavourites: 'View Favourites',
   favoritesSheetContinueBrowsing: 'Continue Browsing',
+  favoritesBadgeBranch: 'Branch',
+  favoritesBadgeBarber: 'Barber',
+  favoritesBadgeService: 'Service',
+  favoritesBadgeProduct: 'Product',
+  favoritesBadgePromotion: 'Promotion',
+  favoritesBadgeGuide: 'Guide',
 
   // Dashboard
   dashboardRecentReservations: 'Recent reservations',

@@ -28,12 +28,29 @@ function favoriteHref(fav: Favorite): string {
   }
 }
 
-function favoriteTypeLabel(entityType: string): string {
-  switch (entityType) {
-    case 'branch': return 'Branch';
-    case 'employee': return 'Barber';
-    case 'item': return 'Service';
-    default: return entityType;
+function favoriteCategoryBadgeText(
+  fav: Favorite,
+  t: (key: string) => string
+): string {
+  const raw = fav.category?.trim();
+  if (raw) return raw;
+
+  switch (fav.entityType) {
+    case 'branch':
+      return t('favoritesBadgeBranch');
+    case 'employee':
+      return t('favoritesBadgeBarber');
+    case 'item':
+    case 'service':
+      return t('favoritesBadgeService');
+    case 'product':
+      return t('favoritesBadgeProduct');
+    case 'promotion':
+      return t('favoritesBadgePromotion');
+    case 'guide':
+      return t('favoritesBadgeGuide');
+    default:
+      return fav.entityType;
   }
 }
 
@@ -122,7 +139,7 @@ const FavoritesScreen = () => {
                   key={fav.id}
                   title={fav.title ?? '—'}
                   image={getFavoriteImageUrl(fav) ?? require('@/assets/img/room-1.avif')}
-                  description={favoriteTypeLabel(fav.entityType)}
+                  badge={favoriteCategoryBadgeText(fav, t)}
                   imageHeight={180}
                   rounded="2xl"
                 >

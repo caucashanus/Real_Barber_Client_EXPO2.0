@@ -632,17 +632,18 @@ export default function ReservationCreateScreen() {
         isNextDisabled={(stepIndex) => !isReservationStepValid(stepIndex, data)}
       >
       <Step title={t('reservationStepBranchTitle')}>
-        <ScrollView className="p-4 px-8">
-          <View className="mb-6 items-center">
+        <ScrollView className="pt-2 pb-4 px-6">
+          <View className="mb-3 items-center">
             <Image
               source={require('@/assets/img/reservation-branch.png')}
-              className="h-20 w-20"
+              className="h-16 w-16"
+              style={{ width: 64, height: 64 }}
               resizeMode="contain"
               accessibilityIgnoresInvertColors
             />
           </View>
-          <View className="mb-8">
-            <ThemedText className="text-3xl font-semibold">{t('reservationStepBranchTitle')}</ThemedText>
+          <View className="mb-5">
+            <ThemedText className="text-2xl font-semibold">{t('reservationStepBranchTitle')}</ThemedText>
             <ThemedText className="text-base text-light-subtext dark:text-dark-subtext">
               {t('reservationStepBranchSubtitle')}
             </ThemedText>
@@ -651,7 +652,7 @@ export default function ReservationCreateScreen() {
               variant="outline"
               size="small"
               rounded="full"
-              className="self-center mt-4 px-4"
+              className="self-center mt-2 px-4"
               href="/screens/map"
             />
           </View>
@@ -702,17 +703,18 @@ export default function ReservationCreateScreen() {
       </Step>
 
       <Step title={t('reservationStepEmployeeTitle')}>
-        <ScrollView className="p-4 px-8">
-          <View className="mb-6 items-center">
+        <ScrollView className="pt-2 pb-4 px-6">
+          <View className="mb-3 items-center">
             <Image
               source={require('@/assets/img/reservation-specialist.png')}
-              className="h-20 w-20"
+              className="h-16 w-16"
+              style={{ width: 64, height: 64 }}
               resizeMode="contain"
               accessibilityIgnoresInvertColors
             />
           </View>
-          <View className="mb-8">
-            <ThemedText className="text-3xl font-semibold">{t('reservationStepEmployeeTitle')}</ThemedText>
+          <View className="mb-5">
+            <ThemedText className="text-2xl font-semibold">{t('reservationStepEmployeeTitle')}</ThemedText>
             <ThemedText className="text-base text-light-subtext dark:text-dark-subtext">
               {t('reservationStepEmployeeSubtitle')}
             </ThemedText>
@@ -769,17 +771,18 @@ export default function ReservationCreateScreen() {
       </Step>
 
       <Step title={t('reservationStepServiceTitle')}>
-        <ScrollView className="p-4 px-8">
-          <View className="mb-6 items-center">
+        <ScrollView className="pt-2 pb-4 px-6">
+          <View className="mb-3 items-center">
             <Image
               source={require('@/assets/img/reservation-service.png')}
-              className="h-20 w-20"
+              className="h-16 w-16"
+              style={{ width: 64, height: 64 }}
               resizeMode="contain"
               accessibilityIgnoresInvertColors
             />
           </View>
-          <View className="mb-8">
-            <ThemedText className="text-3xl font-semibold">{t('reservationStepServiceTitle')}</ThemedText>
+          <View className="mb-5">
+            <ThemedText className="text-2xl font-semibold">{t('reservationStepServiceTitle')}</ThemedText>
             <ThemedText className="text-base text-light-subtext dark:text-dark-subtext">
               {t('reservationStepServiceSubtitle')}
             </ThemedText>
@@ -833,18 +836,18 @@ export default function ReservationCreateScreen() {
       </Step>
 
       <Step title={t('reservationStepDatetimeTitle')}>
-        <ScrollView className="p-4 px-8">
-          <View className="mb-6 items-center">
+        <ScrollView className="pt-2 pb-4 px-6">
+          <View className="mb-3 items-center">
             <Image
               source={require('@/assets/img/reservation-time.png')}
-              className="h-20 w-20"
-              style={{ width: 80, height: 80 }}
+              className="h-16 w-16"
+              style={{ width: 64, height: 64 }}
               resizeMode="contain"
               accessibilityIgnoresInvertColors
             />
           </View>
-          <View className="mb-8">
-            <ThemedText className="text-3xl font-semibold">{t('reservationStepDatetimeTitle')}</ThemedText>
+          <View className="mb-5">
+            <ThemedText className="text-2xl font-semibold">{t('reservationStepDatetimeTitle')}</ThemedText>
             <ThemedText className="text-base text-light-subtext dark:text-dark-subtext">
               {t('reservationStepDatetimeSubtitle')}
             </ThemedText>
@@ -1003,12 +1006,12 @@ export default function ReservationCreateScreen() {
       </Step>
 
       <Step title={t('reservationSummaryTitle')}>
-        <ScrollView className="flex-1 px-global pb-6" showsVerticalScrollIndicator={false}>
-          <View className="mb-6 items-center pt-4">
+        <ScrollView className="flex-1 px-global pb-6 pt-2" showsVerticalScrollIndicator={false}>
+          <View className="mb-3 items-center">
             <Image
               source={require('@/assets/img/reservation-summary.png')}
-              className="h-20 w-20"
-              style={{ width: 80, height: 80 }}
+              className="h-16 w-16"
+              style={{ width: 64, height: 64 }}
               resizeMode="contain"
               accessibilityIgnoresInvertColors
             />

@@ -566,6 +566,12 @@ export const cs: Record<TranslationKey, string> = {
   favoritesSheetMessageRemoved: 'bylo odebráno z vašich oblíbených.',
   favoritesSheetViewFavourites: 'Zobrazit oblíbené',
   favoritesSheetContinueBrowsing: 'Pokračovat v prohlížení',
+  favoritesBadgeBranch: 'Pobočka',
+  favoritesBadgeBarber: 'Holič',
+  favoritesBadgeService: 'Služba',
+  favoritesBadgeProduct: 'Produkt',
+  favoritesBadgePromotion: 'Akce',
+  favoritesBadgeGuide: 'Průvodce',
 
   // Dashboard
   dashboardRecentReservations: 'Nedávné rezervace',

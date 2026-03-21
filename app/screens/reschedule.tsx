@@ -279,21 +279,44 @@ export default function RescheduleScreen() {
         <ScrollView className="flex-1 px-global pt-4" keyboardShouldPersistTaps="handled">
           <ThemedText className="text-base text-light-subtext dark:text-dark-subtext mb-4">{t('rescheduleIntro')}</ThemedText>
 
-          <Section title={t('rescheduleCurrentTitle')} titleSize="lg" className="mb-4">
+          <Section
+            className="mb-4"
+            header={
+              <View className="flex-row items-center justify-between gap-3 w-full">
+                <ThemedText className="text-lg font-semibold flex-1 min-w-0 pr-2" numberOfLines={2}>
+                  {t('rescheduleCurrentTitle')}
+                </ThemedText>
+                <Image
+                  source={require('@/assets/img/reschedule-old-slot.png')}
+                  className="h-16 w-16 shrink-0"
+                  style={{ width: 64, height: 64 }}
+                  resizeMode="contain"
+                  accessibilityIgnoresInvertColors
+                />
+              </View>
+            }
+          >
             <CurrentBookingCard booking={booking} />
           </Section>
 
-          <Section title={t('reschedulePickTitle')} titleSize="lg" className="mb-4">
-            <View className="mb-4 items-center">
-              <Image
-                source={require('@/assets/img/reschedule-new-slot.png')}
-                className="h-20 w-20"
-                style={{ width: 80, height: 80 }}
-                resizeMode="contain"
-                accessibilityIgnoresInvertColors
-              />
-            </View>
-            <View className="mb-3 mt-2 flex-row items-center justify-between">
+          <Section
+            className="mb-4"
+            header={
+              <View className="flex-row items-center justify-between gap-3 w-full">
+                <ThemedText className="text-lg font-semibold flex-1 min-w-0 pr-2" numberOfLines={2}>
+                  {t('reschedulePickTitle')}
+                </ThemedText>
+                <Image
+                  source={require('@/assets/img/reschedule-new-slot.png')}
+                  className="h-16 w-16 shrink-0"
+                  style={{ width: 64, height: 64 }}
+                  resizeMode="contain"
+                  accessibilityIgnoresInvertColors
+                />
+              </View>
+            }
+          >
+            <View className="mb-3 flex-row items-center justify-between">
               <Pressable
                 disabled={monthOffset === 0}
                 onPress={() => setMonthOffset((prev) => Math.max(0, prev - 1))}
