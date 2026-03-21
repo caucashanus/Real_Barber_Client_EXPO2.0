@@ -13,6 +13,18 @@ const SWITCH_LABEL_EN = 'Switch to English';
 const FLAG_CZ = '🇨🇿';
 const FLAG_EN = '🇬🇧';
 
+/** Nastavení → Platby (→ `/screens/profile/payments`). Nastav na `true`, až bude sekce znovu potřeba. */
+const SHOW_SETTINGS_PAYMENTS_SECTION = false;
+
+/** Nastavení → Měna (`/screens/profile/currency`). Nastav na `true`, až bude znovu potřeba. */
+const SHOW_SETTINGS_CURRENCY_SECTION = false;
+
+/** Nastavení → Nápověda (`/screens/help`). Nastav na `true`, až bude znovu potřeba. */
+const SHOW_SETTINGS_HELP_SECTION = false;
+
+/** Nastavení → Oznámení (`/screens/profile/notifications`). Nastav na `true`, až bude znovu potřeba. */
+const SHOW_SETTINGS_NOTIFICATIONS_SECTION = false;
+
 export default function SettingsScreen() {
     const { locale, toggleLocale } = useLanguage();
     const { t } = useTranslation();
@@ -29,11 +41,19 @@ export default function SettingsScreen() {
 
                 <View className='px-4'>
                     <ListLink title={t('settingsAccent')} description={t('settingsAccentDesc')} icon="Palette" href="/screens/settings-accent" />
-                    <ListLink title={t('settingsPayments')} description={t('settingsPaymentsDesc')} icon="CreditCard" href="/screens/profile/payments" />
-                    <ListLink title={t('settingsNotifications')} description={t('settingsNotificationsDesc')} icon="Bell" href="/screens/profile/notifications" />
-                    <ListLink title={t('settingsCurrency')} description={t('settingsCurrencyDesc')} icon="DollarSign" href="/screens/profile/currency" />
+                    {SHOW_SETTINGS_PAYMENTS_SECTION ? (
+                        <ListLink title={t('settingsPayments')} description={t('settingsPaymentsDesc')} icon="CreditCard" href="/screens/profile/payments" />
+                    ) : null}
+                    {SHOW_SETTINGS_NOTIFICATIONS_SECTION ? (
+                        <ListLink title={t('settingsNotifications')} description={t('settingsNotificationsDesc')} icon="Bell" href="/screens/profile/notifications" />
+                    ) : null}
+                    {SHOW_SETTINGS_CURRENCY_SECTION ? (
+                        <ListLink title={t('settingsCurrency')} description={t('settingsCurrencyDesc')} icon="DollarSign" href="/screens/profile/currency" />
+                    ) : null}
                     <ListLink title={t('settingsChangePassword')} description={t('settingsChangePasswordDesc')} icon="KeyRound" href="/screens/change-password" />
-                    <ListLink title={t('settingsHelp')} description={t('settingsHelpDesc')} icon="HelpCircle" href="/screens/help" />
+                    {SHOW_SETTINGS_HELP_SECTION ? (
+                        <ListLink title={t('settingsHelp')} description={t('settingsHelpDesc')} icon="HelpCircle" href="/screens/help" />
+                    ) : null}
                 </View>
 
                 <View className='items-center justify-center pb-8 pt-6'>

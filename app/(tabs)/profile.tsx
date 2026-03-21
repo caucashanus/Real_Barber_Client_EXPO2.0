@@ -19,13 +19,27 @@ import { getBookings } from '@/api/bookings';
 import { getClientReviewsList } from '@/api/reviews';
 import { useTranslation } from '@/app/hooks/useTranslation';
 
+/** Profil → Doporučení (`/screens/referrals`). Nastav na `true`, až bude sekce znovu potřeba. */
+const SHOW_PROFILE_REFERRALS_SECTION = false;
+
+/** Profil → Nápověda (`/screens/help`). Nastav na `true`, až bude sekce znovu potřeba. */
+const SHOW_PROFILE_HELP_SECTION = false;
+
+/** Profil – ikona Oznámení v hlavičce (`/screens/notifications`). Nastav na `true`, až bude znovu potřeba. */
+const SHOW_PROFILE_HEADER_NOTIFICATIONS = false;
+
 export default function ProfileScreen() {
     const { isBusinessMode } = useBusinessMode();
     return (
         <View className="flex-1 bg-light-primary dark:bg-dark-primary">
             <Header
                 leftComponent={<ThemeToggle />}
-                rightComponents={[<HeaderIcon icon="Bell" href="/screens/notifications" />]} />
+                rightComponents={
+                    SHOW_PROFILE_HEADER_NOTIFICATIONS
+                        ? [<HeaderIcon key="notifications" icon="Bell" href="/screens/notifications" />]
+                        : []
+                }
+            />
             <View className='flex-1 bg-light-primary dark:bg-dark-primary'>
 
                 <ThemedScroller>
@@ -173,8 +187,12 @@ const PersonalProfile = () => {
             <View className='gap-1 px-4'>
                 <ListLink showChevron title={t('profileAccountSettings')} icon="Settings" href="/screens/settings" />
                 <ListLink showChevron title={t('profileEditProfile')} icon="UserRoundPen" href="/screens/edit-profile" />
-                <ListLink showChevron title={t('profileGetHelp')} icon="HelpCircle" href="/screens/help" />
-                <ListLink showChevron title={t('profileReferrals')} icon="Gift" href="/screens/referrals" />
+                {SHOW_PROFILE_HELP_SECTION ? (
+                    <ListLink showChevron title={t('profileGetHelp')} icon="HelpCircle" href="/screens/help" />
+                ) : null}
+                {SHOW_PROFILE_REFERRALS_SECTION ? (
+                    <ListLink showChevron title={t('profileReferrals')} icon="Gift" href="/screens/referrals" />
+                ) : null}
                 <Divider />
                 <ListLink showChevron title={t('profileLogout')} icon="LogOut" href="/screens/welcome" />
             </View>

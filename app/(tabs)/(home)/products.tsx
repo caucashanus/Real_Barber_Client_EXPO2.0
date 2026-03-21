@@ -26,6 +26,12 @@ const MOCK_PRODUCTS = [
 const PROMO_DISMISSED_KEY = 'products_promo_dismissed';
 const PROMO_HIDE_MS = 24 * 60 * 60 * 1000; // 24 h
 
+/** Produkty: horizontální promo pás (široké karty). Nastav na `true`, až bude znovu potřeba. */
+const SHOW_PRODUCTS_PROMO_STRIP = false;
+
+/** Produkty: spodní řádek katalogu (mock CardScroller). Nastav na `true`, až bude znovu potřeba. */
+const SHOW_PRODUCTS_CATALOG_CAROUSEL = false;
+
 function productImageUrl(purchase: ClientProductPurchase): string {
   const url = purchase.product.primaryImage?.url ?? purchase.product.images?.[0]?.url;
   return url ?? '';
@@ -125,61 +131,65 @@ const ProductsScreen = () => {
           </CardScroller>
         </Section>
 
-        <ScrollView
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          className="-mx-global mb-6"
-          contentContainerStyle={{ paddingHorizontal: 16, paddingRight: 24, paddingTop: 8, paddingBottom: 18 }}
-        >
-          {[
-            { titleKey: 'productsPromoTitle', subtitleKey: 'productsPromoSubtitle' },
-            { titleKey: 'productsPromoTitle2', subtitleKey: 'productsPromoSubtitle2' },
-            { titleKey: 'productsPromoTitle3', subtitleKey: 'productsPromoSubtitle3' },
-            { titleKey: 'productsPromoTitle4', subtitleKey: 'productsPromoSubtitle4' },
-            { titleKey: 'productsPromoTitle5', subtitleKey: 'productsPromoSubtitle5' },
-          ]
-            .map((item, index) => ({ item, index }))
-            .filter(({ index }) => !dismissedPromoAt[index] || Date.now() - dismissedPromoAt[index] >= PROMO_HIDE_MS)
-            .map(({ item, index }) => (
-              <View
-                key={index}
-                style={{ ...shadowPresets.large, width: 280, marginRight: 15 }}
-                className="p-5 rounded-2xl bg-light-secondary dark:bg-dark-secondary flex-shrink-0"
-              >
-                <View className="flex-row justify-between items-start">
-                  <View className="flex-1 pr-2">
-                    <ThemedText className="text-lg font-bold text-light-text dark:text-dark-text">{t(item.titleKey)}</ThemedText>
-                    <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext mt-1">
-                      {t(item.subtitleKey)}
-                    </ThemedText>
+        {SHOW_PRODUCTS_PROMO_STRIP ? (
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            className="-mx-global mb-6"
+            contentContainerStyle={{ paddingHorizontal: 16, paddingRight: 24, paddingTop: 8, paddingBottom: 18 }}
+          >
+            {[
+              { titleKey: 'productsPromoTitle', subtitleKey: 'productsPromoSubtitle' },
+              { titleKey: 'productsPromoTitle2', subtitleKey: 'productsPromoSubtitle2' },
+              { titleKey: 'productsPromoTitle3', subtitleKey: 'productsPromoSubtitle3' },
+              { titleKey: 'productsPromoTitle4', subtitleKey: 'productsPromoSubtitle4' },
+              { titleKey: 'productsPromoTitle5', subtitleKey: 'productsPromoSubtitle5' },
+            ]
+              .map((item, index) => ({ item, index }))
+              .filter(({ index }) => !dismissedPromoAt[index] || Date.now() - dismissedPromoAt[index] >= PROMO_HIDE_MS)
+              .map(({ item, index }) => (
+                <View
+                  key={index}
+                  style={{ ...shadowPresets.large, width: 280, marginRight: 15 }}
+                  className="p-5 rounded-2xl bg-light-secondary dark:bg-dark-secondary flex-shrink-0"
+                >
+                  <View className="flex-row justify-between items-start">
+                    <View className="flex-1 pr-2">
+                      <ThemedText className="text-lg font-bold text-light-text dark:text-dark-text">{t(item.titleKey)}</ThemedText>
+                      <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext mt-1">
+                        {t(item.subtitleKey)}
+                      </ThemedText>
+                    </View>
+                    <Pressable className="p-1" onPress={() => handleDismissPromo(index)}>
+                      <Icon name="X" size={18} className="text-light-subtext dark:text-dark-subtext" />
+                    </Pressable>
                   </View>
-                  <Pressable className="p-1" onPress={() => handleDismissPromo(index)}>
-                    <Icon name="X" size={18} className="text-light-subtext dark:text-dark-subtext" />
-                  </Pressable>
                 </View>
-              </View>
-            ))}
-        </ScrollView>
+              ))}
+          </ScrollView>
+        ) : null}
 
-        <Section title={t('productsTitle')} titleSize="lg" link="/screens/map" linkText={t('commonViewAll')}>
-          <CardScroller space={15} className="mt-1.5 pb-4">
-            {MOCK_PRODUCTS.map((item) => (
-              <Card
-                key={item.id}
-                title={item.title}
-                rounded="2xl"
-                price={item.price}
-                hasFavorite
-                favoriteEntityType="product"
-                favoriteEntityId={item.id}
-                width={160}
-                imageHeight={160}
-                image={item.image}
-                href="/screens/product-detail"
-              />
-            ))}
-          </CardScroller>
-        </Section>
+        {SHOW_PRODUCTS_CATALOG_CAROUSEL ? (
+          <Section title={t('productsTitle')} titleSize="lg" link="/screens/map" linkText={t('commonViewAll')}>
+            <CardScroller space={15} className="mt-1.5 pb-4">
+              {MOCK_PRODUCTS.map((item) => (
+                <Card
+                  key={item.id}
+                  title={item.title}
+                  rounded="2xl"
+                  price={item.price}
+                  hasFavorite
+                  favoriteEntityType="product"
+                  favoriteEntityId={item.id}
+                  width={160}
+                  imageHeight={160}
+                  image={item.image}
+                  href="/screens/product-detail"
+                />
+              ))}
+            </CardScroller>
+          </Section>
+        ) : null}
       </AnimatedView>
     </ThemeScroller>
   );
