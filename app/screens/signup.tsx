@@ -15,6 +15,7 @@ import { formatToYYYYMMDD } from '@/utils/date';
 import { MOCK_SIGNUP } from '@/constants/mockSignup';
 import { getEmailDomainChipSuggestions } from '@/utils/emailSuggestions';
 import { Chip } from '@/components/Chip';
+import SignupAvatarPicker, { type AvatarChoice } from '@/components/signup/SignupAvatarPicker';
 
 const MIN_PASSWORD_LEN = 4;
 
@@ -84,6 +85,19 @@ function phoneDigitsValid(phoneDisplay: string): boolean {
   return digits.length >= 9;
 }
 
+/** Pro mock / zobrazení (katalog = URL z API, vlastní = file://). */
+function avatarChoiceToStoredUrl(choice: AvatarChoice): string {
+  if (choice.kind === 'none') return '';
+  if (choice.kind === 'catalog') return choice.url;
+  return choice.uri;
+}
+
+/** Jen HTTPS URL pro PATCH na CRM (vlastní fotka z galerie zatím neposíláme). */
+function avatarRemoteForApiPatch(choice: AvatarChoice): string | undefined {
+  if (choice.kind === 'catalog') return choice.url;
+  return undefined;
+}
+
 export default function SignupScreen() {
   const { t } = useTranslation();
   const { setAuth } = useAuth();
@@ -100,8 +114,7 @@ export default function SignupScreen() {
   const [passwordError, setPasswordError] = useState('');
   const [confirmPasswordError, setConfirmPasswordError] = useState('');
   const [birthday, setBirthday] = useState<Date | null>(null);
-  const [avatarUrl, setAvatarUrl] = useState('');
-  const [avatarUrlError, setAvatarUrlError] = useState('');
+  const [avatarChoice, setAvatarChoice] = useState<AvatarChoice>({ kind: 'none' });
 
   const [apiError, setApiError] = useState('');
   const [submitting, setSubmitting] = useState(false);
@@ -196,15 +209,6 @@ export default function SignupScreen() {
     return true;
   };
 
-  const validateAvatarUrl = (value: string) => {
-    if (!isValidOptionalHttpUrl(value)) {
-      setAvatarUrlError(t('signupAvatarUrlInvalid'));
-      return false;
-    }
-    setAvatarUrlError('');
-    return true;
-  };
-
   const isStepValid = useCallback(
     (idx: number): boolean => {
       switch (idx) {
@@ -221,14 +225,14 @@ export default function SignupScreen() {
             password === confirmPassword
           );
         case 4:
-          return birthday !== null;
+          return true;
         case 5:
-          return isValidOptionalHttpUrl(avatarUrl);
+          return true;
         default:
           return true;
       }
     },
-    [firstName, lastName, phone, email, password, confirmPassword, birthday, avatarUrl]
+    [firstName, lastName, phone, email, password, confirmPassword, birthday]
   );
 
   const isNextDisabled = useCallback(
@@ -243,8 +247,7 @@ export default function SignupScreen() {
     const emailOk = validateEmail(email);
     const pwdOk = validatePassword(password);
     const confirmOk = validateConfirmPassword(confirmPassword);
-    const avatarOk = validateAvatarUrl(avatarUrl);
-    if (!phoneOk || !emailOk || !pwdOk || !confirmOk || !avatarOk) {
+    if (!phoneOk || !emailOk || !pwdOk || !confirmOk) {
       return;
     }
 
@@ -260,11 +263,11 @@ export default function SignupScreen() {
           lastName,
           email,
           fullPhone,
-          avatarUrl,
+          avatarUrl: avatarChoiceToStoredUrl(avatarChoice),
           birthday,
         });
         await setAuth(MOCK_AUTH_TOKEN, MOCK_API_TOKEN, client);
-        router.replace('/(tabs)/(home)');
+        router.replace('/screens/signup-summary');
         return;
       }
 
@@ -282,13 +285,14 @@ export default function SignupScreen() {
       if (birthday) {
         patchBody.birthday = formatToYYYYMMDD(birthday);
       }
-      if (avatarUrl.trim()) {
-        patchBody.avatar = avatarUrl.trim();
+      const avatarRemote = avatarRemoteForApiPatch(avatarChoice);
+      if (avatarRemote) {
+        patchBody.avatar = avatarRemote;
       }
       const me = await patchClientMe(data.apiToken, patchBody);
       await setAuth(data.token, data.apiToken, clientMeToCrm(me));
 
-      router.replace('/(tabs)/(home)');
+      router.replace('/screens/signup-summary');
     } catch (e) {
       setApiError(e instanceof Error ? e.message : t('signupRegisterFailed'));
     } finally {
@@ -519,22 +523,13 @@ export default function SignupScreen() {
             <ThemedText className="text-base text-light-subtext dark:text-dark-subtext mt-1 mb-6">
               {t('signupStepAvatarSubtitle')}
             </ThemedText>
-            <Input
-              label={t('signupAvatarUrlLabel')}
-              value={avatarUrl}
-              onChangeText={(text) => {
-                setAvatarUrl(text);
-                if (avatarUrlError) validateAvatarUrl(text);
-              }}
-              error={avatarUrlError}
-              keyboardType="url"
-              autoCapitalize="none"
-              autoComplete="off"
-              placeholder="https://…"
-              containerClassName="mb-4"
+            <SignupAvatarPicker
+              value={avatarChoice}
+              onChange={setAvatarChoice}
+              carouselHint={t('signupAvatarCarouselHint')}
             />
             {apiError ? (
-              <ThemedText className="text-red-500 dark:text-red-400 text-sm mb-2">{apiError}</ThemedText>
+              <ThemedText className="text-red-500 dark:text-red-400 text-sm mt-4">{apiError}</ThemedText>
             ) : null}
           </View>
         </Step>

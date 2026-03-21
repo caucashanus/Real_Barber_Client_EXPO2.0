@@ -24,6 +24,10 @@ interface ButtonProps {
   iconSize?: number;
   iconColor?: string;
   iconClassName?: string;
+  /** Výchozí Medium; pro silnější zpětnou vazbu (např. MultiStep) použij Heavy. */
+  impactFeedbackStyle?: Haptics.ImpactFeedbackStyle;
+  /** Když haptiku vyvoláváš ručně (např. v onPress callbacku). */
+  disableHaptic?: boolean;
 }
 
 export const Button: React.FC<ButtonProps> = ({
@@ -42,6 +46,8 @@ export const Button: React.FC<ButtonProps> = ({
   iconSize,
   iconColor,
   iconClassName = '',
+  impactFeedbackStyle = Haptics.ImpactFeedbackStyle.Medium,
+  disableHaptic = false,
   ...props
 }) => {
   const colors = useThemeColors();
@@ -123,7 +129,8 @@ export const Button: React.FC<ButtonProps> = ({
   );
 
   const triggerHaptic = () => {
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium).catch(() => {});
+    if (disableHaptic) return;
+    Haptics.impactAsync(impactFeedbackStyle).catch(() => {});
   };
 
   const primaryStyle = variant === 'primary' ? { backgroundColor: colors.highlight } : undefined;

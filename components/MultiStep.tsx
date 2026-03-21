@@ -18,6 +18,7 @@ import {
   Platform,
   Keyboard,
 } from 'react-native';
+import * as Haptics from 'expo-haptics';
 import Header from '@/components/Header';
 import { Button } from '@/components/Button';
 import ThemedText from '@/components/ThemedText';
@@ -185,8 +186,13 @@ const MultiStep = forwardRef<MultiStepHandle, MultiStepProps>(function MultiStep
     }
   };
 
+  const stepTransitionHaptic = () => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy).catch(() => {});
+  };
+
   const handleBack = () => {
     if (!isFirstStep) {
+      stepTransitionHaptic();
       const prevIndex = currentStepIndex - 1;
       setCurrentStepIndex(prevIndex);
       onStepIndexChange?.(prevIndex, 'back');
@@ -195,6 +201,7 @@ const MultiStep = forwardRef<MultiStepHandle, MultiStepProps>(function MultiStep
 
   const handleSkip = useCallback(() => {
     if (currentStep.optional && !isLastStep) {
+      stepTransitionHaptic();
       const nextIndex = currentStepIndex + 1;
       setCurrentStepIndex(nextIndex);
       onStepIndexChange?.(nextIndex, 'skip');
@@ -257,6 +264,7 @@ const MultiStep = forwardRef<MultiStepHandle, MultiStepProps>(function MultiStep
                 variant="ghost"
                 onPress={handleSkip}
                 size="small"
+                disableHaptic
               />
             ),
             !isFirstStep && (
@@ -324,6 +332,7 @@ const MultiStep = forwardRef<MultiStepHandle, MultiStepProps>(function MultiStep
           rounded="full"
           title={isLastStep ? t('multiStepComplete') : t('multiStepNext')}
           onPress={handleNext}
+          impactFeedbackStyle={Haptics.ImpactFeedbackStyle.Heavy}
           className="w-full"
           textClassName="text-white font-semibold"
           loading={footerLoading}

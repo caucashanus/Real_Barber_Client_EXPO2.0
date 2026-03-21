@@ -16,7 +16,14 @@
     "plugins": [
       "expo-router",
       "expo-font",
-      "expo-web-browser"
+      "expo-web-browser",
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "Aplikace potřebuje přístup ke galerii pro výběr profilové fotky.",
+          "cameraPermission": "Aplikace potřebuje přístup ke fotoaparátu pro profilovou fotku."
+        }
+      ]
     ],
     "orientation": "portrait",
     "icon": "./assets/icon.png",
