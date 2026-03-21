@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Pressable } from 'react-native';
+import { View, Pressable, Keyboard, TouchableWithoutFeedback } from 'react-native';
 import { Link, router } from 'expo-router';
 import Input from '@/components/forms/Input';
 import Select from '@/components/forms/Select';
@@ -71,7 +71,8 @@ export default function LoginScreen() {
   return (
     <>
       <Header showBackButton />
-      <View className="flex-1 bg-light-primary dark:bg-dark-primary p-6">
+      <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
+        <View className="flex-1 bg-light-primary dark:bg-dark-primary p-6">
         <View className="mt-8">
           <ThemedText className="text-3xl font-bold mb-1">{t('loginWelcomeBack')}</ThemedText>
           <ThemedText className="text-light-subtext dark:text-dark-subtext mb-6">
@@ -151,7 +152,8 @@ export default function LoginScreen() {
             </Link>
           </View>
         </View>
-      </View>
+        </View>
+      </TouchableWithoutFeedback>
     </>
   );
 }

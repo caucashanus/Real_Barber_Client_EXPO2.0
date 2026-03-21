@@ -3,7 +3,7 @@ import { View, TouchableOpacity, Platform, Animated, Pressable } from 'react-nat
 import Modal from 'react-native-modal';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { useThemeColors } from '@/app/contexts/ThemeColors';
-import { formatToYYYYMMDD } from '@/utils/date';
+import { formatDateLocaleLong } from '@/utils/date';
 import ThemedText from '@/components/ThemedText';
 import { useTranslation } from '@/app/hooks/useTranslation';
 import { useLanguage } from '@/app/contexts/LanguageContext';
@@ -188,10 +188,16 @@ export const DatePicker: React.FC<DatePickerProps> = ({
               ${error ? 'border-red-500 dark:border-red-400' : ''}`}
           >
             <ThemedText className={value ? 'text-base' : 'text-base text-gray-500'}>
-              {value ? formatToYYYYMMDD(value) : placeholder}
+              {value ? formatDateLocaleLong(value, appLocale) : placeholder}
             </ThemedText>
           </TouchableOpacity>
-          <Pressable className="absolute right-3 top-[18px] z-10">
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel={label || t('datePickerPlaceholder')}
+            onPress={showDatePicker}
+            hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+            className="absolute right-3 top-[18px] z-20"
+          >
             <Icon name="Calendar" size={20} color={colors.text} />
           </Pressable>
         </View>
@@ -223,10 +229,16 @@ export const DatePicker: React.FC<DatePickerProps> = ({
               ${error ? 'border-red-500 dark:border-red-400' : ''}`}
           >
             <ThemedText className={value ? 'text-base' : 'text-base text-gray-500'}>
-              {value ? formatToYYYYMMDD(value) : ''}
+              {value ? formatDateLocaleLong(value, appLocale) : ''}
             </ThemedText>
           </TouchableOpacity>
-          <Pressable className="absolute right-0 top-[18px] z-10">
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel={label || t('datePickerPlaceholder')}
+            onPress={showDatePicker}
+            hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+            className="absolute right-0 top-[18px] z-20"
+          >
             <Icon name="Calendar" size={20} color={colors.text} />
           </Pressable>
         </View>
@@ -257,10 +269,16 @@ export const DatePicker: React.FC<DatePickerProps> = ({
             ${error ? 'border-red-500 dark:border-red-400' : ''}`}
         >
           <ThemedText className={value ? 'text-base' : 'text-base text-gray-500'}>
-            {value ? formatToYYYYMMDD(value) : ''}
+            {value ? formatDateLocaleLong(value, appLocale) : ''}
           </ThemedText>
         </TouchableOpacity>
-        <Pressable className="absolute right-3 top-[18px] z-10">
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel={label || t('datePickerPlaceholder')}
+          onPress={showDatePicker}
+          hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+          className="absolute right-3 top-[18px] z-20"
+        >
           <Icon name="Calendar" size={20} color={colors.text} />
         </Pressable>
       </View>

@@ -1,5 +1,23 @@
-import React, { ReactNode, useState, useRef, useEffect, Children, isValidElement } from 'react';
-import { View, Pressable, ScrollView, Animated } from 'react-native';
+import React, {
+  ReactNode,
+  useState,
+  useRef,
+  useEffect,
+  useCallback,
+  useImperativeHandle,
+  forwardRef,
+  Children,
+  isValidElement,
+} from 'react';
+import {
+  View,
+  Pressable,
+  ScrollView,
+  Animated,
+  KeyboardAvoidingView,
+  Platform,
+  Keyboard,
+} from 'react-native';
 import Header from '@/components/Header';
 import { Button } from '@/components/Button';
 import ThemedText from '@/components/ThemedText';
@@ -12,6 +30,11 @@ import useThemeColors from '@/app/contexts/ThemeColors';
 export interface StepProps {
   title: string;
   optional?: boolean;
+  /**
+   * U volitelného kroku: `false` = v hlavičce se neukáže „Přeskočit“ (např. vlastní tlačítko v obsahu).
+   * Výchozí: u optional kroků se skip v hlavičce zobrazuje.
+   */
+  optionalSkipInHeader?: boolean;
   children: ReactNode;
 }
 
@@ -28,6 +51,7 @@ interface StepData {
   key: string;
   title: string;
   optional?: boolean;
+  optionalSkipInHeader?: boolean;
   component: ReactNode;
 }
 
@@ -48,29 +72,40 @@ interface MultiStepProps {
   footerLoading?: boolean;
 }
 
-export default function MultiStep({
-  children,
-  onComplete,
-  onClose,
-  showHeader = true,
-  showStepIndicator = true,
-  className = '',
-  onStepChange,
-  onStepIndexChange,
-  isNextDisabled,
-  footerLoading = false,
-}: MultiStepProps) {
+export type MultiStepHandle = {
+  /** Stejné jako „Přeskočit“ u volitelného kroku (např. z obsahu kroku). */
+  skipOptionalStep: () => void;
+};
+
+const MultiStep = forwardRef<MultiStepHandle, MultiStepProps>(function MultiStep(
+  {
+    children,
+    onComplete,
+    onClose,
+    showHeader = true,
+    showStepIndicator = true,
+    className = '',
+    onStepChange,
+    onStepIndexChange,
+    isNextDisabled,
+    footerLoading = false,
+  },
+  ref
+) {
   // Filter and validate children to only include Step components
   const validChildren = Children.toArray(children)
     .filter(isStepComponent);
   
   // Extract step data from children
   const steps: StepData[] = validChildren.map((child, index) => {
-    const { title, optional, children: stepContent } = (child as React.ReactElement<StepProps>).props;
+    const { title, optional, optionalSkipInHeader, children: stepContent } = (
+      child as React.ReactElement<StepProps>
+    ).props;
     return {
       key: `step-${index}`,
       title: title || `Step ${index + 1}`,
       optional,
+      optionalSkipInHeader,
       component: stepContent
     };
   });
@@ -85,6 +120,7 @@ export default function MultiStep({
   }
 
   const [currentStepIndex, setCurrentStepIndex] = useState(0);
+  const [keyboardVisible, setKeyboardVisible] = useState(false);
   const currentStep = steps[currentStepIndex];
   const isLastStep = currentStepIndex === steps.length - 1;
   const isFirstStep = currentStepIndex === 0;
@@ -123,6 +159,17 @@ export default function MultiStep({
     });
   }, [currentStepIndex]);
 
+  useEffect(() => {
+    const showEvent = Platform.OS === 'ios' ? 'keyboardWillShow' : 'keyboardDidShow';
+    const hideEvent = Platform.OS === 'ios' ? 'keyboardWillHide' : 'keyboardDidHide';
+    const subShow = Keyboard.addListener(showEvent, () => setKeyboardVisible(true));
+    const subHide = Keyboard.addListener(hideEvent, () => setKeyboardVisible(false));
+    return () => {
+      subShow.remove();
+      subHide.remove();
+    };
+  }, []);
+
   const handleNext = () => {
     if (nextDisabled || footerLoading) return;
     if (isLastStep) {
@@ -146,20 +193,44 @@ export default function MultiStep({
     }
   };
 
-  const handleSkip = () => {
+  const handleSkip = useCallback(() => {
     if (currentStep.optional && !isLastStep) {
       const nextIndex = currentStepIndex + 1;
       setCurrentStepIndex(nextIndex);
       onStepIndexChange?.(nextIndex, 'skip');
     }
-  };
+  }, [currentStep.optional, isLastStep, currentStepIndex, onStepIndexChange]);
+
+  useImperativeHandle(
+    ref,
+    () => ({
+      skipOptionalStep: () => {
+        handleSkip();
+      },
+    }),
+    [handleSkip]
+  );
+
+  const showHeaderSkip =
+    currentStep.optional &&
+    !isLastStep &&
+    currentStep.optionalSkipInHeader !== false;
 
   const insets = useSafeAreaInsets();
   const { t } = useTranslation();
   const colors = useThemeColors();
 
+  /** Nad klávesnicí nepotřebujeme plný safe-area inset (jinak vzniká zbytečná mezera). */
+  const bottomInset = keyboardVisible ? 4 : insets.bottom;
+  const bottomPadClass = keyboardVisible ? 'py-1.5' : 'py-3';
+
   return (
-    <View style={{paddingBottom: insets.bottom}} className={`flex-1 bg-light-primary dark:bg-dark-primary ${className}`}>
+    <KeyboardAvoidingView
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      style={{ flex: 1 }}
+      className={`bg-light-primary dark:bg-dark-primary ${className}`}
+    >
+      <View style={{ flex: 1, paddingBottom: bottomInset }} className="bg-light-primary dark:bg-dark-primary">
       {showHeader && (
         <Header
           rightComponents={[
@@ -179,7 +250,7 @@ export default function MultiStep({
             ) : undefined
           ]}
           leftComponent={[
-            currentStep.optional && !isLastStep && (
+            showHeaderSkip && (
               <Button
                 key="skip"
                 title={t('multiStepSkip')}
@@ -212,6 +283,7 @@ export default function MultiStep({
         <ScrollView
           contentContainerStyle={{ flexGrow: 1 }}
           keyboardShouldPersistTaps="handled"
+          keyboardDismissMode={Platform.OS === 'ios' ? 'interactive' : 'on-drag'}
           showsVerticalScrollIndicator={false}
         >
           {currentStep.component}
@@ -220,7 +292,7 @@ export default function MultiStep({
 
       {/* Step Indicators */}
       {showStepIndicator && (
-        <View className="px-4 py-3 flex-row justify-center">
+        <View className={`px-4 ${bottomPadClass} flex-row justify-center`}>
           {steps.map((_, index) => (
             <Animated.View
               key={index}
@@ -245,7 +317,7 @@ export default function MultiStep({
       )}
 
       {/* Bottom Navigation – stejná logika jako tlačítko „Jdeme na to“ (accent pozadí + bílý text) */}
-      <View className="px-4 py-3 border-t border-light-secondary dark:border-dark-secondary">
+      <View className={`px-4 ${bottomPadClass} border-t border-light-secondary dark:border-dark-secondary`}>
         <Button
           variant="primary"
           size="large"
@@ -262,6 +334,9 @@ export default function MultiStep({
           disabled={nextDisabled || footerLoading}
         />
       </View>
-    </View>
+      </View>
+    </KeyboardAvoidingView>
   );
-} 
+});
+
+export default MultiStep;
