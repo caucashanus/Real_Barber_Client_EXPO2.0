@@ -5,6 +5,9 @@ const LOCALE_KEY = '@app_locale';
 
 export type Locale = 'en' | 'cs';
 
+/** Výchozí jazyk při prvním spuštění (žádná uložená volba v AsyncStorage). */
+export const DEFAULT_LOCALE: Locale = 'cs';
+
 type LanguageContextType = {
   locale: Locale;
   setLocale: (locale: Locale) => void;
@@ -15,11 +18,16 @@ const LanguageContext = createContext<LanguageContextType | undefined>(undefined
 
 export function LanguageProvider({ children }: { children: React.ReactNode }) {
   /** Výchozí čeština; uložená volba v AsyncStorage má přednost. */
-  const [locale, setLocaleState] = useState<Locale>('cs');
+  const [locale, setLocaleState] = useState<Locale>(DEFAULT_LOCALE);
 
   useEffect(() => {
     AsyncStorage.getItem(LOCALE_KEY).then((stored) => {
-      if (stored === 'cs' || stored === 'en') setLocaleState(stored);
+      if (stored === 'cs' || stored === 'en') {
+        setLocaleState(stored);
+      } else {
+        setLocaleState(DEFAULT_LOCALE);
+        AsyncStorage.setItem(LOCALE_KEY, DEFAULT_LOCALE).catch(() => {});
+      }
     });
   }, []);
 

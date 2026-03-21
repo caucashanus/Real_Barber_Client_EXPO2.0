@@ -54,6 +54,18 @@ Levý horní roh (přepínač tématu) a zbytek profilu (účet, úprava profilu
 
 ---
 
+## Welcome (Vítejte zpět) — `app/screens/welcome.tsx`
+
+| Konstanta | Výchozí | Kde v UI | Co to bylo |
+|-----------|---------|----------|------------|
+| `SHOW_WELCOME_GOOGLE_APPLE_BUTTONS` | `false` | Pod hlavním CTA tlačítkem | Dvě tlačítka **Continue with Google** / **Pokračovat přes Google** a **Continue with Apple** / **Pokračovat přes Apple** (ikony AntDesign), obě mock navigace na `/(tabs)/(home)`. |
+
+**Viditelné dál:** přepínač tématu, přepínač jazyka (EN/CS), nadpis „Welcome back“ / „Vítejte zpět“, podtitulek, hlavní tlačítko **Start** / **Začít** → `/screens/login`.
+
+**Překlady:** `welcomeContinueGoogle`, `welcomeContinueApple` v `locales/cs.ts` / `en.ts`.
+
+---
+
 ## Obnovení do ostrého provozu (doporučený postup)
 
 1. Pro každou funkci, kterou chcete znovu ukázat uživatelům, **smažte** příslušnou `const SHOW_* = false` a **odstraňte** obal `{SHOW_* ? (…) : null}` tak, aby komponenty byly v JSX přímo (bez podmínky).

@@ -5,7 +5,6 @@ import { Button } from '@/components/Button';
 import ThemedText from '@/components/ThemedText';
 import Icon from '@/components/Icon';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { router } from 'expo-router';
 import { useTranslation } from '@/app/hooks/useTranslation';
 import useThemeColors from '@/app/contexts/ThemeColors';
 
@@ -45,6 +44,8 @@ interface MultiStepProps {
   /** Called whenever the visible step index changes (Next, Back, Skip). */
   onStepIndexChange?: (stepIndex: number, reason: StepNavigationReason) => void;
   isNextDisabled?: (currentStep: number) => boolean;
+  /** Loading state for the bottom primary button (e.g. async submit on last step). */
+  footerLoading?: boolean;
 }
 
 export default function MultiStep({
@@ -57,6 +58,7 @@ export default function MultiStep({
   onStepChange,
   onStepIndexChange,
   isNextDisabled,
+  footerLoading = false,
 }: MultiStepProps) {
   // Filter and validate children to only include Step components
   const validChildren = Children.toArray(children)
@@ -122,7 +124,7 @@ export default function MultiStep({
   }, [currentStepIndex]);
 
   const handleNext = () => {
-    if (nextDisabled) return;
+    if (nextDisabled || footerLoading) return;
     if (isLastStep) {
       onComplete();
     } else {
@@ -164,7 +166,7 @@ export default function MultiStep({
             onClose ? (
               <Pressable
                 key="close"
-                onPress={() => router.back()}
+                onPress={() => onClose()}
                 className="p-2 rounded-full active:bg-light-secondary dark:active:bg-dark-secondary"
                 hitSlop={8}
               >
@@ -252,11 +254,12 @@ export default function MultiStep({
           onPress={handleNext}
           className="w-full"
           textClassName="text-white font-semibold"
+          loading={footerLoading}
           style={{
-            backgroundColor: nextDisabled ? colors.secondary : colors.highlight,
-            opacity: nextDisabled ? 0.9 : 1,
+            backgroundColor: nextDisabled || footerLoading ? colors.secondary : colors.highlight,
+            opacity: nextDisabled || footerLoading ? 0.9 : 1,
           }}
-          disabled={nextDisabled}
+          disabled={nextDisabled || footerLoading}
         />
       </View>
     </View>

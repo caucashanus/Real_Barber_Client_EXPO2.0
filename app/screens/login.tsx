@@ -140,11 +140,13 @@ export default function LoginScreen() {
             textClassName="font-bold text-lg"
           />
 
-          <View className="flex-row justify-center">
-            <ThemedText className="text-light-subtext dark:text-dark-subtext">{t('loginNoAccount')}</ThemedText>
+          <View className="flex-row justify-center items-center flex-wrap gap-x-1">
+            <ThemedText className="text-lg text-light-text dark:text-dark-text">{t('loginNoAccount')}</ThemedText>
             <Link href="/screens/signup" asChild>
               <Pressable>
-                <ThemedText className="underline">{t('loginSignUp')}</ThemedText>
+                <ThemedText className="text-lg font-semibold underline text-light-text dark:text-dark-text">
+                  {t('loginSignUp')}
+                </ThemedText>
               </Pressable>
             </Link>
           </View>

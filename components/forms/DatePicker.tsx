@@ -27,7 +27,7 @@ export const DatePicker: React.FC<DatePickerProps> = ({
   value,
   onChange,
   label,
-  placeholder = 'Select date',
+  placeholder: placeholderProp,
   maxDate,
   minDate,
   error,
@@ -39,6 +39,7 @@ export const DatePicker: React.FC<DatePickerProps> = ({
   const [isFocused, setIsFocused] = useState(false);
   const colors = useThemeColors();
   const { t } = useTranslation();
+  const placeholder = placeholderProp ?? t('datePickerPlaceholder');
   const { locale: appLocale } = useLanguage();
   /** BCP 47 – měsíce v iOS spinneru; tlačítka modalu přes t() */
   const pickerLocale = appLocale === 'cs' ? 'cs-CZ' : 'en-GB';
@@ -134,7 +135,7 @@ export const DatePicker: React.FC<DatePickerProps> = ({
                 textClassName="text-base font-normal"
               />
               <ThemedText className="text-lg font-medium">
-                {label || 'Select Date'}
+                {label || t('datePickerPlaceholder')}
               </ThemedText>
               <Button
                 title={t('datePickerDone')}

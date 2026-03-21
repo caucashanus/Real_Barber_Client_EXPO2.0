@@ -49,6 +49,56 @@ export async function loginWithPhone(
   return res.json() as Promise<LoginResponse>;
 }
 
+export interface RegisterOptions {
+  /** Volitelný e-mail (backend ho může vyžadovat nebo ne podle verze API). */
+  email?: string;
+  firstName?: string;
+  lastName?: string;
+}
+
+/** POST /api/client/auth/register – nový klientský účet (telefon + heslo). Odpověď stejná jako u loginu. */
+export async function registerWithPhone(
+  phone: string,
+  password: string,
+  options?: RegisterOptions
+): Promise<LoginResponse> {
+  const platform = Platform.OS as string;
+  const appVersion = Constants.expoConfig?.version ?? '1.0.0';
+
+  const body: Record<string, unknown> = {
+    phone: phone.trim(),
+    password,
+    platform,
+    appVersion,
+  };
+  const email = options?.email?.trim();
+  if (email) body.email = email;
+  const fn = options?.firstName?.trim();
+  const ln = options?.lastName?.trim();
+  if (fn) body.firstName = fn;
+  if (ln) body.lastName = ln;
+
+  const res = await fetch(`${CRM_BASE}/api/client/auth/register`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body),
+  });
+
+  if (!res.ok) {
+    const raw = await res.text();
+    let message = `Chyba ${res.status}`;
+    try {
+      const data = JSON.parse(raw) as { message?: string; error?: string };
+      message = data.message || data.error || raw.slice(0, 200) || message;
+    } catch {
+      if (raw) message = raw.slice(0, 200);
+    }
+    throw new Error(message);
+  }
+
+  return res.json() as Promise<LoginResponse>;
+}
+
 /** POST /api/client/auth/forgot-password – request password reset (identifier = email or phone). */
 export async function forgotPassword(identifier: string): Promise<void> {
   const res = await fetch(`${CRM_BASE}/api/client/auth/forgot-password`, {
