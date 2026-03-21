@@ -237,7 +237,7 @@ const ReviewStep = () => {
         {/* Service Provider */}
         <View className="px-global py-7 border-b-8 mb-4 border-light-secondary dark:border-dark-darker">
             <View className="rounded-lg flex-row items-center">
-                <Image source={require('@/assets/img/user-2.jpg')} className="w-12 h-12 rounded-full" />
+                <Image source={require('@/assets/img/wallet/RB.avatar.jpg')} className="w-12 h-12 rounded-full" />
                 <View className="ml-4 flex-1">
                     <View className="flex-row items-center justify-between flex-1">
                         <ThemedText className="font-bold text-lg">Sarah Miller</ThemedText>

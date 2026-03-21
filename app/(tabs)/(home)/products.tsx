@@ -17,10 +17,10 @@ import { getClientProducts, type ClientProductPurchase } from '@/api/products';
 import { useTranslation } from '@/app/hooks/useTranslation';
 
 const MOCK_PRODUCTS = [
-  { id: '1', title: 'Hair wax', price: '199 Kč', image: require('@/assets/img/room-1.avif') },
-  { id: '2', title: 'Styling gel', price: '149 Kč', image: require('@/assets/img/room-2.avif') },
-  { id: '3', title: 'Shampoo', price: '279 Kč', image: require('@/assets/img/room-3.avif') },
-  { id: '4', title: 'Beard oil', price: '349 Kč', image: require('@/assets/img/room-4.avif') },
+  { id: '1', title: 'Hair wax', price: '199 Kč', image: require('@/assets/img/barbers.png') },
+  { id: '2', title: 'Styling gel', price: '149 Kč', image: require('@/assets/img/barbers.png') },
+  { id: '3', title: 'Shampoo', price: '279 Kč', image: require('@/assets/img/barbers.png') },
+  { id: '4', title: 'Beard oil', price: '349 Kč', image: require('@/assets/img/barbers.png') },
 ];
 
 const PROMO_DISMISSED_KEY = 'products_promo_dismissed';
@@ -113,7 +113,7 @@ const ProductsScreen = () => {
                     favoriteEntityId={purchase.product.id}
                     width={160}
                     imageHeight={160}
-                    image={imgUrl || require('@/assets/img/room-1.avif')}
+                    image={imgUrl || require('@/assets/img/barbers.png')}
                     onPress={() => {
                       setSelectedPurchase(purchase);
                       router.push(`/screens/product-detail?id=${purchase.product.id}`);

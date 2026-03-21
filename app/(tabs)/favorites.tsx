@@ -138,7 +138,7 @@ const FavoritesScreen = () => {
                   href={favoriteHref(fav)}
                   key={fav.id}
                   title={fav.title ?? '—'}
-                  image={getFavoriteImageUrl(fav) ?? require('@/assets/img/room-1.avif')}
+                  image={getFavoriteImageUrl(fav) ?? require('@/assets/img/barbers.png')}
                   badge={favoriteCategoryBadgeText(fav, t)}
                   imageHeight={180}
                   rounded="2xl"

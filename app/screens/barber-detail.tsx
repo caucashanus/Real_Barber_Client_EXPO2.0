@@ -286,7 +286,7 @@ export default function BarberDetailScreen() {
                   />
                 ) : (
                   <Image
-                    source={item.uri ? { uri: item.uri } : require('@/assets/img/room-1.avif')}
+                    source={item.uri ? { uri: item.uri } : require('@/assets/img/barbers.png')}
                     style={{ width: carouselWidth, height: CAROUSEL_HEIGHT }}
                     resizeMode="cover"
                   />

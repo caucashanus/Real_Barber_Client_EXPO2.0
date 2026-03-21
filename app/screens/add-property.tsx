@@ -409,7 +409,7 @@ const SuccessStep: React.FC<StepProps> = ({ data }) => {
             {/*<View className="w-full bg-light-secondary dark:bg-dark-secondary rounded-lg p-4 mb-8">
                 <View className="flex-row items-center">
                     <Image
-                        source={require('@/assets/img/room-1.avif')}
+                        source={require('@/assets/img/barbers.png')}
                         className="w-20 h-20 rounded-lg mr-4"
                         resizeMode="cover"
                     />

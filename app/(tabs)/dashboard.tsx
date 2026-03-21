@@ -181,7 +181,7 @@ const ReservationCard = () => {
                         <ThemedText className='text-xl font-semibold'>John Doe</ThemedText>
                         <ThemedText className='text-base font-regular'>Jun 23 - 28</ThemedText>
                     </View>
-                    <Image source={require('@/assets/img/user-4.jpg')} className="w-12 h-12 rounded-full" />
+                    <Image source={require('@/assets/img/wallet/RB.avatar.jpg')} className="w-12 h-12 rounded-full" />
                 </View>
             </View>
             <View className='w-full flex-row border-t border-neutral-300 dark:border-neutral-700'>

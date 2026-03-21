@@ -32,12 +32,12 @@ const EmptyScreen = () => {
                     <Chip size="lg" label={t('listingsHomes')} />
                     <Chip size="lg" label={t('listingsExperiences')} />
                 </View>
-                <ListingCard title="Apartment in New York" description="Brooklyn, NY" image={require('@/assets/img/room-2.avif')} />
-                <ListingCard title="House in Barcelona" description="Barcelona, Spain" image={require('@/assets/img/room-1.avif')} />
-                <ListingCard title="Lofthouse in New York" description="Brooklyn, NY" image={require('@/assets/img/room-3.avif')} />
-                <ListingCard title="Apartment in New York" description="Brooklyn, NY" image={require('@/assets/img/room-4.avif')} />
-                <ListingCard title="Beach house" description="Siargao, Philippines" image={require('@/assets/img/room-5.avif')} />
-                <ListingCard title="Forest house" description="Rocky mountain, USA" image={require('@/assets/img/room-6.avif')} />
+                <ListingCard title="Apartment in New York" description="Brooklyn, NY" image={require('@/assets/img/barbers.png')} />
+                <ListingCard title="House in Barcelona" description="Barcelona, Spain" image={require('@/assets/img/barbers.png')} />
+                <ListingCard title="Lofthouse in New York" description="Brooklyn, NY" image={require('@/assets/img/barbers.png')} />
+                <ListingCard title="Apartment in New York" description="Brooklyn, NY" image={require('@/assets/img/barbers.png')} />
+                <ListingCard title="Beach house" description="Siargao, Philippines" image={require('@/assets/img/barbers.png')} />
+                <ListingCard title="Forest house" description="Rocky mountain, USA" image={require('@/assets/img/barbers.png')} />
             </ThemedScroller>
           
         </AniamatedView>

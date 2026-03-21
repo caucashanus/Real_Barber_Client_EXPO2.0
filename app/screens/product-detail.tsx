@@ -46,15 +46,15 @@ const property = {
     host: {
         id: 101,
         name: 'John Doe',
-        avatar: require('@/assets/img/user-3.jpg'),
+        avatar: require('@/assets/img/wallet/RB.avatar.jpg'),
         location: 'Upper East Side, Manhattan, New York',
         joinedDate: 'January 2018'
     },
     images: [
-        require('@/assets/img/room-2.avif'),
-        require('@/assets/img/room-3.avif'),
-        require('@/assets/img/room-5.avif'),
-        require('@/assets/img/room-4.avif')
+        require('@/assets/img/barbers.png'),
+        require('@/assets/img/barbers.png'),
+        require('@/assets/img/barbers.png'),
+        require('@/assets/img/barbers.png')
     ],
 };
 
@@ -169,7 +169,7 @@ const PropertyDetail = () => {
                 ? [purchase.product.primaryImage.url]
                 : [])
         : property.images;
-    const displayImages = images.length > 0 ? images : [require('@/assets/img/room-2.avif')];
+    const displayImages = images.length > 0 ? images : [require('@/assets/img/barbers.png')];
     const totalPrice = purchase != null ? `${purchase.totalPrice} Kč` : property.price;
     const priceLabel = purchase != null ? 'per product' : 'night';
     const sellerName = purchase?.seller.name ?? property.host.name;

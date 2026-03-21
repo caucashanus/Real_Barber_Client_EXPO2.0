@@ -14,7 +14,7 @@ import { useTranslation } from '@/app/hooks/useTranslation';
 import { getClientCut, patchClientCut, deleteClientCut, type ClientCut } from '@/api/cuts';
 import { getEmployees, type Employee } from '@/api/employees';
 
-const PLACEHOLDER_IMAGE = require('@/assets/img/room-1.avif');
+const PLACEHOLDER_IMAGE = require('@/assets/img/barbers.png');
 
 export default function HaircutDetailScreen() {
   const { id } = useLocalSearchParams<{ id?: string }>();

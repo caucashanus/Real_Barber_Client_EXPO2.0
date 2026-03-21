@@ -24,7 +24,7 @@ const bookingData = {
     location: 'Barcelona, Spain',
     guest: {
         name: 'John Smith',
-        avatar: require('@/assets/img/user-3.jpg'),
+        avatar: require('@/assets/img/wallet/RB.avatar.jpg'),
         rating: 4.7,
         reviewCount: 23,
         joinedDate: 'Joined in 2022',

@@ -52,7 +52,7 @@ function itemImages(item: Item): (string | number)[] {
   if (media && Array.isArray(media)) {
     media.forEach((m: { url?: string }) => { if (m?.url) out.push(m.url); });
   }
-  if (out.length === 0) out.push(require('@/assets/img/room-1.avif'));
+  if (out.length === 0) out.push(require('@/assets/img/barbers.png'));
   return out;
 }
 

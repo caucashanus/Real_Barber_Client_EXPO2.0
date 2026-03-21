@@ -365,7 +365,7 @@ const ExperienceScreen = () => {
                                                 price=""
                                                 width={160}
                                                 imageHeight={160}
-                                                image={emp.avatarUrl ?? require('@/assets/img/room-1.avif')}
+                                                image={emp.avatarUrl ?? require('@/assets/img/barbers.png')}
                                                 badge="New"
                                             />
                                         ))}
@@ -387,7 +387,7 @@ const ExperienceScreen = () => {
                                                 price=""
                                                 width={160}
                                                 imageHeight={160}
-                                                image={emp.avatarUrl ?? require('@/assets/img/room-1.avif')}
+                                                image={emp.avatarUrl ?? require('@/assets/img/barbers.png')}
                                             />
                                         ))}
                                     </>
@@ -407,7 +407,7 @@ const ExperienceScreen = () => {
                                                 price=""
                                                 width={160}
                                                 imageHeight={160}
-                                                image={emp.avatarUrl ?? require('@/assets/img/room-1.avif')}
+                                                image={emp.avatarUrl ?? require('@/assets/img/barbers.png')}
                                             />
                                         ))}
                                     </>
@@ -427,7 +427,7 @@ const ExperienceScreen = () => {
                                                 price=""
                                                 width={160}
                                                 imageHeight={160}
-                                                image={emp.avatarUrl ?? require('@/assets/img/room-1.avif')}
+                                                image={emp.avatarUrl ?? require('@/assets/img/barbers.png')}
                                             />
                                         ))}
                                     </>
@@ -448,7 +448,7 @@ const ExperienceScreen = () => {
                                                 rating={employeeAverageRating[emp.id]}
                                                 width={160}
                                                 imageHeight={160}
-                                                image={emp.avatarUrl ?? require('@/assets/img/room-1.avif')}
+                                                image={emp.avatarUrl ?? require('@/assets/img/barbers.png')}
                                             />
                                         ))}
                                     </>

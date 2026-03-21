@@ -5,7 +5,7 @@
 export interface KudyKNamVideoItem {
   id: string;
   title: string;
-  /** require('@/assets/videos/nazev.mp4') nebo { uri: '...' }; když chybí, karta/detail bez videa */
+  /** Lokální require(...) nebo { uri: '...' } (např. CDN); když chybí, karta/detail bez videa */
   source?: number | { uri: string } | null;
   /** Odkaz na Google Mapy – zobrazí se v detailu jako „Otevřít v Mapách“ */
   mapsUrl?: string | null;

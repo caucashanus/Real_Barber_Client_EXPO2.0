@@ -87,7 +87,7 @@ const ServicesScreen = () => {
                   favoriteEntityId={item.id}
                   width={100}
                   imageHeight={100}
-                  image={item.imageUrl || require('@/assets/img/room-1.avif')}
+                  image={item.imageUrl || require('@/assets/img/barbers.png')}
                   href={`/screens/service-detail?id=${item.id}`}
                 />
               ))
@@ -110,7 +110,7 @@ const ServicesScreen = () => {
                   favoriteEntityId={item.id}
                   width={160}
                   imageHeight={160}
-                  image={item.imageUrl || require('@/assets/img/room-1.avif')}
+                  image={item.imageUrl || require('@/assets/img/barbers.png')}
                   href={`/screens/service-detail?id=${item.id}`}
                 />
               ))
@@ -133,7 +133,7 @@ const ServicesScreen = () => {
                   favoriteEntityId={item.id}
                   width={160}
                   imageHeight={160}
-                  image={item.imageUrl || require('@/assets/img/room-1.avif')}
+                  image={item.imageUrl || require('@/assets/img/barbers.png')}
                   href={`/screens/service-detail?id=${item.id}`}
                 />
               ))
@@ -156,7 +156,7 @@ const ServicesScreen = () => {
                   favoriteEntityId={item.id}
                   width={160}
                   imageHeight={160}
-                  image={item.imageUrl || require('@/assets/img/room-1.avif')}
+                  image={item.imageUrl || require('@/assets/img/barbers.png')}
                   href={`/screens/service-detail?id=${item.id}`}
                 />
               ))
@@ -179,7 +179,7 @@ const ServicesScreen = () => {
                   favoriteEntityId={item.id}
                   width={160}
                   imageHeight={160}
-                  image={item.imageUrl || require('@/assets/img/room-1.avif')}
+                  image={item.imageUrl || require('@/assets/img/barbers.png')}
                   href={`/screens/service-detail?id=${item.id}`}
                 />
               ))

@@ -54,7 +54,7 @@ interface PriceBreakdown {
 const propertyData: Property = {
   id: '1',
   name: 'Luxury Penthouse with Central Park View',
-  image: require('@/assets/img/room-2.avif'),
+  image: require('@/assets/img/barbers.png'),
   rating: 4.9,
   reviews: 284,
   location: 'Upper East Side, Manhattan',

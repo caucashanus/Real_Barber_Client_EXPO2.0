@@ -35,10 +35,6 @@ function TabsContent() {
           <Label>{t('navBookings')}</Label>
           {hasUpcomingBookings ? <Badge>1</Badge> : null}
         </NativeTabs.Trigger>
-        <NativeTabs.Trigger name="chat">
-          <Icon sf={{ default: 'message', selected: 'message.fill' }} />
-          <Label>{t('navMessages')}</Label>
-        </NativeTabs.Trigger>
         <NativeTabs.Trigger name="profile">
           <Icon sf={{ default: 'person.circle', selected: 'person.circle.fill' }} />
           <Label>{t('navProfile')}</Label>
@@ -78,9 +74,6 @@ function TabsContent() {
         </TabTrigger>
         <TabTrigger name="trips" href="/trips" asChild>
           <TabButton labelAnimated={false} hasBadge={hasUpcomingBookings} icon="CalendarPlus" hidden={isBusinessMode}>{t('navBookings')}</TabButton>
-        </TabTrigger>
-        <TabTrigger name="chat" href="/(tabs)/chat" asChild>
-          <TabButton labelAnimated={false} hasBadge icon="MessageSquare">{t('navMessages')}</TabButton>
         </TabTrigger>
         <TabTrigger name="profile" href="/profile" asChild>
           <TabButton labelAnimated={false} icon="CircleUser">{t('navProfile')}</TabButton>

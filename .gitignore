@@ -17,10 +17,6 @@ web-build/
 .env.test.local
 .env.production.local
 
-# Kudy k nám – velká videa necommitujeme (limit GitHubu 100 MB)
-assets/videos/*.mp4
-assets/videos/*.MP4
-
 # Logs
 npm-debug.log*
 yarn-debug.log*

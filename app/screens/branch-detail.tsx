@@ -61,7 +61,7 @@ function branchImages(branch: Branch): (string | number)[] {
   if (branch.imageUrl) out.push(branch.imageUrl);
   const servicesList = getServicesList(branch);
   servicesList.forEach((svc) => { if (svc.imageUrl) out.push(svc.imageUrl); });
-  if (out.length === 0) out.push(require('@/assets/img/room-1.avif'));
+  if (out.length === 0) out.push(require('@/assets/img/barbers.png'));
   return out;
 }
 
@@ -72,7 +72,7 @@ function branchCarouselImages(branch: Branch): (string | number)[] {
   mediaImageUrls.forEach((url) => out.push(url));
   const servicesList = getServicesList(branch);
   servicesList.forEach((svc) => { if (svc.imageUrl) out.push(svc.imageUrl); });
-  if (out.length === 0) out.push(require('@/assets/img/room-1.avif'));
+  if (out.length === 0) out.push(require('@/assets/img/barbers.png'));
   return out;
 }
 

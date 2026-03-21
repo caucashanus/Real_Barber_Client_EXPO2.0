@@ -126,7 +126,7 @@ const PersonalProfile = () => {
     );
 
     const displayName = client?.firstName?.trim() || client?.name?.trim() || null;
-    const avatarSrc = client?.avatarUrl ?? require('@/assets/img/thomino.jpg');
+    const avatarSrc = client?.avatarUrl ?? require('@/assets/img/wallet/RB.avatar.jpg');
     const addressLine = [client?.address?.trim(), client?.city?.trim()].filter(Boolean).join(', ') || null;
     const daysMember = daysSinceCreatedAt(client?.createdAt);
 

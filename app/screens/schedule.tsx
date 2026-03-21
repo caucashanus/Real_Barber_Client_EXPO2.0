@@ -245,7 +245,7 @@ const ScheduleScreen = () => {
                 >
                   <ScheduleCard
                     name={emp.name}
-                    image={emp.avatarUrl ?? require('@/assets/img/room-1.avif')}
+                    image={emp.avatarUrl ?? require('@/assets/img/barbers.png')}
                     branchNames={branchNames}
                     dateVariant={dateVariant}
                   />

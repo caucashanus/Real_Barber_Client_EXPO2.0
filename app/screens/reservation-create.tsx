@@ -90,7 +90,7 @@ function getBranchMedia(branch: Branch): Array<{ url: string; type?: 'image' | '
 
 /** Stejná priorita jako `branchCardImage` na home (Top picks / pobočky): média → imageUrl → první služba → fallback. */
 function getBranchCardImageSource(branch: Branch | null): string | number {
-  if (!branch) return require('@/assets/img/room-1.avif');
+  if (!branch) return require('@/assets/img/barbers.png');
   const media = getBranchMedia(branch);
   const firstStill = media.find((m) => m.type !== 'video') ?? media[0];
   if (firstStill?.url) return firstStill.url;
@@ -98,7 +98,7 @@ function getBranchCardImageSource(branch: Branch | null): string | number {
   const servicesList = getServicesList(branch);
   const firstWithImage = servicesList.find((s) => s.imageUrl);
   if (firstWithImage?.imageUrl) return firstWithImage.imageUrl;
-  return require('@/assets/img/room-1.avif');
+  return require('@/assets/img/barbers.png');
 }
 
 function employeeDescription(employee: BranchEmployee): string {
@@ -808,7 +808,7 @@ export default function ReservationCreateScreen() {
                         style={isSelected ? { borderColor: colors.highlight, borderWidth: 2 } : undefined}
                       >
                         <Image
-                          source={service.imageUrl ? { uri: service.imageUrl } : require('@/assets/img/room-1.avif')}
+                          source={service.imageUrl ? { uri: service.imageUrl } : require('@/assets/img/barbers.png')}
                           className="w-[160px] h-[140px]"
                           resizeMode="cover"
                         />

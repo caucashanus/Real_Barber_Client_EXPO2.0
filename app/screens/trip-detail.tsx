@@ -329,7 +329,7 @@ const BookingDetailScreen = () => {
           <Section title={t('bookingReservationDetails')} titleSize="lg" className="px-global pt-4">
             <View className="mt-4 space-y-3">
               <Image
-                source={booking.item?.imageUrl ? { uri: booking.item.imageUrl } : require('@/assets/img/room-1.avif')}
+                source={booking.item?.imageUrl ? { uri: booking.item.imageUrl } : require('@/assets/img/barbers.png')}
                 className="w-32 h-32 rounded-xl mb-3"
                 resizeMode="cover"
               />

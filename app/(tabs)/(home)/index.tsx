@@ -50,7 +50,7 @@ function branchCardImage(branch: Branch): string | number {
   const servicesList = getServicesList(branch);
   const firstService = servicesList[0];
   if (firstService?.imageUrl) return firstService.imageUrl;
-  return require('@/assets/img/room-1.avif');
+  return require('@/assets/img/barbers.png');
 }
 
 function branchPrice(branch: Branch): string {
@@ -153,7 +153,7 @@ const HomeScreen = () => {
                       />
                     ))}
                     {!apiToken && !popularBranches &&
-                      [require('@/assets/img/room-1.avif'), require('@/assets/img/room-2.avif'), require('@/assets/img/room-3.avif'), require('@/assets/img/room-4.avif')].map((img, i) => (
+                      [require('@/assets/img/barbers.png'), require('@/assets/img/barbers.png'), require('@/assets/img/barbers.png'), require('@/assets/img/barbers.png')].map((img, i) => (
                         <Card key={i} title={`Barbershop ${i + 1}`} rounded="2xl" hasFavorite rating={4.5} href="/screens/login" price="from 0 Kč" width={160} imageHeight={160} image={img} />
                       ))
                     }
@@ -234,7 +234,7 @@ const HomeScreen = () => {
                       />
                     ))}
                     {!apiToken && !popularBranches && !branchesLoading && (
-                      [require('@/assets/img/room-1.avif'), require('@/assets/img/room-2.avif'), require('@/assets/img/room-3.avif')].map((img, i) => (
+                      [require('@/assets/img/barbers.png'), require('@/assets/img/barbers.png'), require('@/assets/img/barbers.png')].map((img, i) => (
                         <Card key={i} title="" rounded="2xl" width={160} imageHeight={160} image={img} />
                       ))
                     )}
