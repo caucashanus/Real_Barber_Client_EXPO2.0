@@ -230,6 +230,12 @@ export const en = {
   editProfilePhoneNumber: 'Phone number',
   editProfileSendSms: 'Send SMS request',
   editProfileWhatsApp: 'WhatsApp request',
+  editProfilePhoneInfoBeforeCall:
+    'The phone number is the only contact detail that cannot be changed by you in the app. If you need to change it, please write to us at',
+  editProfilePhoneInfoAfterCall:
+    'and include your request in the message. We will process it shortly and make the change for you.',
+  editProfilePhoneChangeRequestBody:
+    'Hello, I would like to request a change of my phone number. My name is {{name}}. My current phone number is {{current}}. The number I want to change to: ',
 
   // Currency
   currencyTitle: 'Currency',
@@ -581,6 +587,10 @@ export const en = {
   calendarThisWeek: 'This week',
   calendarNextWeek: 'Next week',
   calendarThisMonth: 'This month',
+
+  // Native date picker (iOS modal toolbar)
+  datePickerCancel: 'Cancel',
+  datePickerDone: 'Done',
 
   // Chat
   chatTitle: 'Chat',

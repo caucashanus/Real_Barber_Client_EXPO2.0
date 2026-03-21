@@ -875,6 +875,229 @@ Format: square 1:1, modern semi-realistic style, transparent PNG.
 
 ---
 
+## Ikony pro Search modal (hlavní obrazovky)
+
+Po klepnutí na pole **„Hledat“ / Search** nahoře se otevře modální přehled s **6 položkami** (viz `components/SearchBar.tsx`): každá má vlevo **čtvercovou ikonu** v šedém rámečku (`w-12 h-12`, ikona cca **24 px**), vpravo titulek a podtitulek, šipka dál.
+
+Dnes jsou tam **vektorové ikony** (Lucide): MapPin, Calendar, UserCircle, Scissors, CalendarDays, Heart. Níže jsou **prompty pro vlastní PNG** – **ne** jako scény s maskotem v každé ikoně, ale jako **symbolové ikony** (mapový pin, kalendář, rezervace, služby, rozvrh, srdce… **bez postavy maskota** v obrázku). Vizuální styl (barvy, render, „semi-realistické“ ikonky, pocit značky) má **odpovídat maskotovi a celému Real Barber** – k tomu přidejte do nástroje **referenční fotky maskota** (nebo brand kit), ne jako „vykresli maskota do ikony“, ale jako **„takhle vypadá naše značka – udělej ikony v tom samém stylu“**.
+
+Po vygenerování soubory dejte do `assets/img/` pod uvedenými názvy a v kódu nahradíte `<Icon name={…} />` za `<Image source={require('…')} />` (implementaci udělá vývojář po dodání souborů).
+
+**Doporučená technická specifikace:**
+- čtverec **1 : 1**, PNG s **průhledným pozadím** (alfa)
+- export **512×512 px** nebo **1024×1024 px** (aplikace zmenší do ~48×48 px v rámečku)
+- **obsah ikony = symbol / pictogram**, ne maskot; styl **semi-realistický**, **ne cartoon**, sladěný s referencí maskota / značky
+- čitelné i v **malé velikosti** (jednoduchá silueta, ne přeplněný detail)
+
+| # | Soubor | Položka v modalu (CS / EN) | Koncept |
+|---|--------|-----------------------------|---------|
+| 27 | `search-modal-branches.png` | Pobočky / Branches | symbol: mapa / mapový pin (výběr místa) |
+| 28 | `search-modal-bookings.png` | Mé rezervace / My bookings | symbol: kalendář + termín / rezervace |
+| 29 | `search-modal-barbers.png` | Barbeři / Barbers | symbol: holič / barber / profil (bez celé postavy maskota) |
+| 30 | `search-modal-services.png` | Služby / Services | symbol: nabídka služeb / menu (ne důraz na „maskota se nůžkami“) |
+| 31 | `search-modal-schedule.png` | Rozvrh (rezervace) / Schedule | symbol: kalendář / časový plán |
+| 32 | `search-modal-favorites.png` | Oblíbené / Favorites | symbol: **srdce** (v appce se oblíbené označují srdíčkem / „srdce“ u favorite) |
+
+### 27. Ikona Search modal: Pobočky (`search-modal-branches.png`)
+
+**Prompt (CZ):**
+
+```
+Ikona pro mobilní aplikaci kadeřnictví – řádek v modálním menu „Search“. **Nepožadujte postavu maskota.** Vytvořte **čistě symbolickou ikonu**: mapový pin na stylizované mapě nebo zjednodušená mapa s jedním zvýrazněným bodem (motiv „pobočky / výběr místa“). Kompozice jednoduchá, čitelná v malém čtverci.
+
+Styl: moderní, **semi-realistická ikonka** – ne cartoon. Sladěte vzhled s brandem Real Barber: přiložte **referenční obrázek maskota** nebo brand barvy jako referenci stylu (barvy, materiál, render), ale **do výsledné ikony nevkládejte maskota jako postavu**.
+
+Formát: čtverec 1:1. Pozadí transparentní, PNG s alfa kanálem.
+```
+
+**Prompt (EN):**
+
+```
+Small square **symbol icon** for a barbershop app search modal row “Branches”. **Do not include the mascot character.** Use a **pure pictogram**: map pin on a stylized map, or a simplified map with one highlighted location (“branches / pick a place”). Simple readable silhouette at small size.
+
+Style: modern **semi-realistic icon** – not cartoon. Match the Real Barber brand: attach **reference image(s) of the brand mascot** or brand colors as **style reference only** (palette, rendering feel) – **do not** put the mascot figure inside the icon.
+
+Format: square 1:1. Transparent background, PNG with alpha.
+```
+
+### 28. Ikona Search modal: Mé rezervace (`search-modal-bookings.png`)
+
+**Prompt (CZ):**
+
+```
+Ikona pro Search modal – „Mé rezervace“. **Bez postavy maskota.** Symbol: kalendářní stránka s označeným dnem, případně malá karta rezervace s časem (motiv „moje návštěvy / bookingy“). Přehledná, klidná kompozice.
+
+Styl: semi-realistická ikonka; konzistence se značkou přes **referenční fotky maskota / brand** jako styl (ne jako postava ve výsledku).
+
+Formát: čtverec 1:1, transparentní PNG.
+```
+
+**Prompt (EN):**
+
+```
+Search modal icon for “My bookings”. **No mascot character.** Symbol: calendar page with a marked day, or a small reservation card with time (“my visits / bookings”). Calm, clear layout.
+
+Style: semi-realistic icon; align with brand using **mascot reference photos** for **style only** (not the mascot inside the icon).
+
+Format: square 1:1, transparent PNG.
+```
+
+### 29. Ikona Search modal: Barbeři (`search-modal-barbers.png`)
+
+**Prompt (CZ):**
+
+```
+Ikona pro Search modal – „Barbeři“. **Nepožadujte maskota.** Symbol: generická silueta holiče / hlava s účesem / jemná ikona „barber“ (kadeřnické křeslo jako silueta) – motiv „prohlédnout barbery“. **Ne** portrét vašeho maskota; jen obecný profesionální symbol.
+
+Styl: semi-realistická ikonka; barvy a render sladit s referencí maskota / značky.
+
+Formát: čtverec 1:1, transparentní PNG.
+```
+
+**Prompt (EN):**
+
+```
+Search modal icon for “Barbers”. **No mascot character.** Symbol: generic barber silhouette, head with haircut, or subtle barber-chair silhouette – “browse barbers”. **Not** your mascot’s portrait; a neutral professional pictogram.
+
+Style: semi-realistic icon; colors and shading aligned with **mascot/brand reference** for consistency.
+
+Format: square 1:1, transparent PNG.
+```
+
+### 30. Ikona Search modal: Služby (`search-modal-services.png`)
+
+**Prompt (CZ):**
+
+```
+Ikona pro Search modal – „Služby“. **Bez maskota.** Symbol: jednoduchý seznam s odrážkami, stylizované menu nebo ikona „nabídka služeb“ (důraz na **nabídku**, ne na velké nůžky jako hlavní motiv). Koncept „služby a ceník“.
+
+Styl: semi-realistická ikonka; konzistence se značkou přes referenční obrázky maskota (jen styl).
+
+Formát: čtverec 1:1, transparentní PNG.
+```
+
+**Prompt (EN):**
+
+```
+Search modal icon for “Services”. **No mascot.** Symbol: simple bullet list, stylized menu, or “service offer” pictogram (emphasize **offer**, not large scissors as the main graphic). Concept: services and pricing.
+
+Style: semi-realistic icon; use mascot images as **style reference only**.
+
+Format: square 1:1, transparent PNG.
+```
+
+### 31. Ikona Search modal: Rozvrh (`search-modal-schedule.png`)
+
+**Prompt (CZ):**
+
+```
+Ikona pro Search modal – „Rozvrh“ (rezervace / harmonogram). **Bez maskota.** Symbol: kalendář, týdenní pás nebo časová osa s několika sloty – přehledný plán (motiv „naplánuj / rozvrh“).
+
+Styl: semi-realistická ikonka; sladění se značkou přes referenci maskota (styl, barvy).
+
+Formát: čtverec 1:1, transparentní PNG.
+```
+
+**Prompt (EN):**
+
+```
+Search modal icon for “Schedule” (book appointment / timeline). **No mascot.** Symbol: calendar, week strip, or timeline with a few time slots – clear “plan / schedule” pictogram.
+
+Style: semi-realistic icon; brand-consistent via **mascot reference** (style and palette only).
+
+Format: square 1:1, transparent PNG.
+```
+
+### 32. Ikona Search modal: Oblíbené (`search-modal-favorites.png`)
+
+**Prompt (CZ):**
+
+```
+Ikona pro Search modal – „Oblíbené“. **Bez postavy maskota.** V aplikaci Real Barber uživatelé oblíbené označují **srdíčkem** (favorite = srdce / „lajk“) – ikona má být s tím **příbuzná**: hlavní motiv **výrazné srdce** (vyplněné / outline dle stylu značky), případně jemně doplněná hvězdička jen pokud to nepřebije srdce. Motiv „uložené oblíbené pobočky a barbeři“. Teplá, pozitivní, čitelná v malém čtverci.
+
+Styl: semi-realistická ikonka; konzistence se značkou přes referenci maskota (jen styl vykreslení a barvy).
+
+Formát: čtverec 1:1, transparentní PNG.
+```
+
+**Prompt (EN):**
+
+```
+Search modal icon for “Favorites”. **No mascot character.** In the Real Barber app, favorites are marked with a **heart** – the icon should **match that**: primary motif a **clear heart** (filled or outline, consistent with brand). Optional subtle star only if it does not compete with the heart motif. “Saved favorite branches and barbers”. Warm, positive, readable at small size.
+
+Style: semi-realistic icon; match brand using **mascot reference** for rendering style and colors only.
+
+Format: square 1:1, transparent PNG.
+```
+
+---
+
+## Post-processing: sjednocení barev jedné sady ikon (Sora / podobný nástroj)
+
+Máte už **vygenerované PNG**, které chcete **vizuálně nechat stejné** (tvary, kompozice, motiv), ale **barvy nejsou sjednocené** – nepůsobí jako jedna kolekce. Níže je **jeden opakovatelný prompt** (stejný text pro každý soubor), který má nástroji říct: **měň jen barvy / tón**, ne obsah.
+
+**Důležité:** Žádný generativní nástroj nemusí garantovat **pixel-perfect 100 % identitu** – pokud potřebujete naprostou věrnost tvarům, použijte v editoru (Photoshop, Figma, Affinity) **úpravu barev / Replace color / křivky** nad **jednou společnou paletou**. Prompt níže cílí na **maximální zachování kompozice** a **sjednocení palety**.
+
+### Paleta Real Barber (z `tailwind.config.js`)
+
+| Role | Hex |
+|------|-----|
+| Akcent (highlight) | `#FF2056` |
+| Text / tmavé prvky (light theme) | `#000000` |
+| Subtext / šedá | `#64748B` |
+| Sekundární světlá plocha | `#F5F5F5` |
+| Tmavé pozadí (dark UI) | `#171717`, `#262626` |
+
+Tyto hodnoty můžete v promptu měnit, pokud máte novější brand manuál.
+
+---
+
+### Prompt pro Sora (CZ) – stejný pro každé už hotové PNG
+
+```
+Úkol: POST-PROCESSING BARV – negeneruj nový obsah od nuly.
+
+Vstupní obrázek je finální ikona (PNG s průhledným pozadím). Zachovej:
+• stejnou kompozici, siluety, proporce a všechny tvary jako na vstupu;
+• průhledné pozadí tam, kde bylo průhledné (alfa kanál);
+• stejné rozlišení a čtvercový poměr 1:1 – žádné ořezání, žádné přepočítání kompozice.
+
+Změň POUZE barevné složení tak, aby ikona vizuálně patřila do jedné kolekce „Real Barber“:
+• akcent značky: #FF2056 (zvýraznění, důležité plochy);
+• neutrály: sjednocené odstíny černé, šedé a světlých ploch v souladu s #000000, #64748B, #F5F5F5 podle role na ikoně;
+• žádné nové objekty, žádné překreslení tvarů, žádný nový text ani logo.
+
+Výstup: PNG s alfa kanálem, stejná velikost jako vstup. Výsledek = stejná ikona jako vstup, jen sladěné barvy jako jedna sada.
+
+Pokud nástroj má režim „edit / color / stylize barvy“, použij ho místo úplné regenerace.
+```
+
+### Prompt for Sora (EN) – same for every file
+
+```
+TASK: COLOR HARMONIZATION ONLY – do not invent new content.
+
+Input: final app icon, PNG with transparent background. Preserve:
+• exact same composition, silhouettes, proportions, and all shapes;
+• transparency wherever the input was transparent;
+• same resolution and 1:1 square – no crop, no layout change.
+
+Change ONLY the color treatment so the icon matches a unified “Real Barber” set:
+• brand accent: #FF2056 for highlights and key fills;
+• neutrals: harmonized blacks, grays, and light fills consistent with #000000, #64748B, #F5F5F5 as appropriate;
+• no new objects, no redrawn shapes, no added text or logos.
+
+Output: PNG with alpha, same dimensions as input. Same icon as input, only recolored to one cohesive palette.
+
+Use “edit / color / recolor” mode if available instead of full regeneration.
+```
+
+### Jak to použít v praxi
+
+1. **Stejný prompt** (CZ nebo EN) pro **každou ikonu** zvlášť – díky stejné paleti budou výsledky blíž jedné kolekci.
+2. Volitelně jako **druhý vstup** přiložte **jednu referenční ikonu ze sady**, která má „správné“ barvy, s poznámkou: „Match the color palette of this reference.“
+3. Po exportu vždy zkontrolujte **průhlednost** a **ostrost** na malé velikosti (48×48 px).
+
 ---
 
 ## Shrnutí
@@ -882,6 +1105,8 @@ Format: square 1:1, modern semi-realistic style, transparent PNG.
 - **4 ikony flow „Přidat účes“:** Vytvoř si účes (myidea), Dej pravidla (myrules), Finishujeme (savefinish), Gratulujeme (gratulations). Odpovídající soubory a místa v kódu jsou v tabulce výše.
 - **11 ikon pro krok 2 wizardu** (What best describes your haircut? / For which season?): type-shorter.png … type-casual.png (8 ks), season-summer.png, season-winter.png, season-all-year.png (3 ks). Použití: `app/screens/add-property.tsx` – propertyTypeOptions, guestAccessOptions. Prompty v sekci „Ikony pro krok 2 wizardu“ (ikony 8–18).
 - **Ikony tab baru:** 7 samostatných ikon – wallet.png, my-haircuts.png, branches.png, guides.png, barbers.png, services.png, products.png. Vše v `components/HomeTabs.tsx`. Prompty pro varianty 5a–5d (Wallet, Moje střihy, Pobočky, Průvodce), 6a–6b (Barbeři, Produkty) a 7 (Services) jsou v sekcích 5.–7. níže.
-- V každém promptu je maskot hlavní postava a dělá konkrétní činnost dané sekce.
-- Před generováním doplňte `[JMÉNO / POPIS MASKOTA]` a případně přidejte referenční obrázek maskota pro konzistenci.
+- **Ikony Search modalu (6 ks):** `search-modal-branches.png` … `search-modal-favorites.png` – po klepnutí na Search (`components/SearchBar.tsx`). Prompty v sekci „Ikony pro Search modal (hlavní obrazovky)“ (ikony 27–32). **Oproti ostatním maskot sekcím:** jde o **symbolové ikony bez postavy maskota**; referenční fotky maskota slouží ke **sladění stylu** s brandem.
+- U ostatních sekcí v tomto dokumentu (flow, tab bar, rezervace…) často bývá maskot hlavní postava dané scény – u Search modalu záměrně **ne**.
+- Před generováním přiložte **referenční obrázek maskota** (a případně barvy značky) pro konzistenci stylu; u Search modalu **nedoplňujte** `[JMÉNO / POPIS MASKOTA]` jako postavu do kompozice – u těchto šesti ikon stačí reference pro vzhled.
 - Ostatní obrázky (room-*, user-*, wallet/*, markers, branches) jsou v dokumentu vypsané pro přehled; nahrazení maskotem je volitelné.
+- **Sjednocení barev u už hotových ikon:** sekce „Post-processing: sjednocení barev jedné sady ikon (Sora / podobný nástroj)“ – opakovatelný prompt CZ/EN + paleta Real Barber.

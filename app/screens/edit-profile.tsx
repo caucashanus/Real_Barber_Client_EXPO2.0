@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { View, Image, TouchableOpacity, ActivityIndicator, Pressable, Linking } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import { ActionSheetRef } from 'react-native-actions-sheet';
@@ -44,9 +44,18 @@ export default function EditProfileScreen() {
   const [country, setCountry] = useState('');
   const phoneInfoSheetRef = useRef<ActionSheetRef>(null);
 
-  const phoneChangeRequestMessage = `Hello, I would like to request a change of my phone number. My name is ${firstName.trim() || ''} ${lastName.trim() || ''}. My current phone number is ${phone.trim() || '—'}. The number I want to change to: `;
-  const openSmsRequest = () => Linking.openURL(`sms:+420608332881?body=${encodeURIComponent(phoneChangeRequestMessage)}`);
-  const openWhatsAppRequest = () => Linking.openURL(`https://wa.me/420608332881?text=${encodeURIComponent(phoneChangeRequestMessage)}`);
+  const phoneChangeRequestMessage = useMemo(() => {
+    const name = `${firstName.trim()} ${lastName.trim()}`.trim() || '—';
+    const current = phone.trim() || '—';
+    return t('editProfilePhoneChangeRequestBody')
+      .replace(/\{\{name\}\}/g, name)
+      .replace(/\{\{current\}\}/g, current);
+  }, [firstName, lastName, phone, t]);
+
+  const openSmsRequest = () =>
+    Linking.openURL(`sms:+420608332881?body=${encodeURIComponent(phoneChangeRequestMessage)}`);
+  const openWhatsAppRequest = () =>
+    Linking.openURL(`https://wa.me/420608332881?text=${encodeURIComponent(phoneChangeRequestMessage)}`);
 
   useEffect(() => {
     if (!apiToken) {
@@ -259,13 +268,14 @@ export default function EditProfileScreen() {
 
       <ActionSheetThemed ref={phoneInfoSheetRef} gestureEnabled>
         <View className="p-4 pb-6">
-          <ThemedText className="mb-3 text-lg font-semibold text-light-primary dark:text-dark-primary">{t('editProfilePhoneNumber')}</ThemedText>
+          <ThemedText className="mb-3 text-lg font-semibold text-light-text dark:text-dark-text">{t('editProfilePhoneNumber')}</ThemedText>
           <ThemedText className="mb-6 text-base leading-6 text-light-subtext dark:text-dark-subtext">
-            The phone number is the only contact detail that cannot be changed by you in the app. If you need to change it, please call{' '}
-            <ThemedText style={{ color: colors.highlight }} className="text-base font-semibold underline" onPress={() => Linking.openURL('tel:+420608332881')}>
+            {t('editProfilePhoneInfoBeforeCall')}{' '}
+            <ThemedText style={{ color: colors.highlight }} className="text-base font-semibold underline" onPress={() => Linking.openURL('sms:+420608332881')}>
               +420 608 332 881
             </ThemedText>
-            {' '}and state your request. We will process it shortly and make the change for you.
+            {' '}
+            {t('editProfilePhoneInfoAfterCall')}
           </ThemedText>
 
           <View className="flex-row w-full justify-center">

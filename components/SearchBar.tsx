@@ -1,6 +1,6 @@
-import { Modal, Pressable, View, Platform } from "react-native";
+import { Modal, Pressable, View, Platform, Image, ImageSourcePropType } from "react-native";
 import Animated from 'react-native-reanimated';
-import Icon, { IconName } from "./Icon";
+import Icon from "./Icon";
 import ThemedText from "./ThemedText";
 import React, { useState } from "react";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -12,8 +12,16 @@ import { BlurView } from "expo-blur";
 import { useTranslation } from '@/app/hooks/useTranslation';
 
 const NAV_ITEM_IDS = ['branches', 'bookings', 'barbers', 'services', 'schedule', 'favorites'] as const;
-const NAV_ICONS: IconName[] = ['MapPin', 'Calendar', 'UserCircle', 'Scissors', 'CalendarDays', 'Heart'];
 const NAV_HREFS = ['/screens/map', '/trips', '/experience', '/services', '/screens/schedule', '/favorites'];
+
+const SEARCH_MODAL_IMAGES: ImageSourcePropType[] = [
+  require('@/assets/img/search-modal-branches.png'),
+  require('@/assets/img/search-modal-bookings.png'),
+  require('@/assets/img/search-modal-barbers.png'),
+  require('@/assets/img/search-modal-services.png'),
+  require('@/assets/img/search-modal-schedule.png'),
+  require('@/assets/img/search-modal-favorites.png'),
+];
 
 const SearchBar = () => {
   const [showModal, setShowModal] = useState(false);
@@ -72,8 +80,14 @@ const SearchModal = ({ showModal, setShowModal }: SearchModalProps) => {
                   onPress={() => handleNav(NAV_HREFS[i])}
                   style={{ ...shadowPresets.large }}
                   className="flex-row items-center w-full p-global mb-4 bg-light-primary dark:bg-dark-secondary rounded-2xl">
-                  <View className="w-12 h-12 rounded-xl bg-light-secondary dark:bg-dark-primary items-center justify-center mr-4">
-                    <Icon name={NAV_ICONS[i]} size={24} />
+                  <View className="w-12 h-12 rounded-xl bg-light-secondary dark:bg-dark-primary items-center justify-center mr-4 overflow-hidden">
+                    <Image
+                      source={SEARCH_MODAL_IMAGES[i]}
+                      className="h-8 w-8"
+                      style={{ width: 32, height: 32 }}
+                      resizeMode="contain"
+                      accessibilityIgnoresInvertColors
+                    />
                   </View>
                   <View className="flex-1">
                     <ThemedText className="text-lg font-semibold">{t(TITLE_KEYS[i])}</ThemedText>

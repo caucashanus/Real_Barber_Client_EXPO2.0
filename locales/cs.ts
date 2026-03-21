@@ -232,6 +232,12 @@ export const cs: Record<TranslationKey, string> = {
   editProfilePhoneNumber: 'Telefonní číslo',
   editProfileSendSms: 'Odeslat SMS žádost',
   editProfileWhatsApp: 'WhatsApp žádost',
+  editProfilePhoneInfoBeforeCall:
+    'Telefonní číslo je jediný kontaktní údaj, který v aplikaci nemůžete změnit sami. Pokud ho potřebujete změnit, napište nám na',
+  editProfilePhoneInfoAfterCall:
+    'a ve zprávě uveďte svou žádost. Zpracujeme ji co nejdříve a číslo vám změníme.',
+  editProfilePhoneChangeRequestBody:
+    'Dobrý den, žádám o změnu telefonního čísla. Jméno: {{name}}. Současné číslo: {{current}}. Nové číslo: ',
 
   // Currency
   currencyTitle: 'Měna',
@@ -583,6 +589,10 @@ export const cs: Record<TranslationKey, string> = {
   calendarThisWeek: 'Tento týden',
   calendarNextWeek: 'Příští týden',
   calendarThisMonth: 'Tento měsíc',
+
+  // Native date picker (iOS modal toolbar)
+  datePickerCancel: 'Zrušit',
+  datePickerDone: 'Hotovo',
 
   // Chat
   chatTitle: 'Chat',

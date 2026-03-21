@@ -5,6 +5,8 @@ import DateTimePicker from '@react-native-community/datetimepicker';
 import { useThemeColors } from '@/app/contexts/ThemeColors';
 import { formatToYYYYMMDD } from '@/utils/date';
 import ThemedText from '@/components/ThemedText';
+import { useTranslation } from '@/app/hooks/useTranslation';
+import { useLanguage } from '@/app/contexts/LanguageContext';
 import { Button } from '@/components/Button';
 import Icon from '@/components/Icon';
 import { InputVariant } from './Input';
@@ -36,6 +38,10 @@ export const DatePicker: React.FC<DatePickerProps> = ({
   const [tempDate, setTempDate] = useState<Date>(value || new Date());
   const [isFocused, setIsFocused] = useState(false);
   const colors = useThemeColors();
+  const { t } = useTranslation();
+  const { locale: appLocale } = useLanguage();
+  /** BCP 47 – měsíce v iOS spinneru; tlačítka modalu přes t() */
+  const pickerLocale = appLocale === 'cs' ? 'cs-CZ' : 'en-GB';
   const animatedLabelValue = useRef(new Animated.Value(value ? 1 : 0)).current;
 
   useEffect(() => {
@@ -122,7 +128,7 @@ export const DatePicker: React.FC<DatePickerProps> = ({
           <View className="bg-light-primary dark:bg-dark-primary rounded-t-xl items-center justify-center w-full">
             <View className="flex-row justify-between items-center p-4 border-b border-light-secondary dark:border-dark-secondary w-full">
               <Button
-                title="Cancel"
+                title={t('datePickerCancel')}
                 variant="ghost"
                 onPress={hideDatePicker}
                 textClassName="text-base font-normal"
@@ -131,7 +137,7 @@ export const DatePicker: React.FC<DatePickerProps> = ({
                 {label || 'Select Date'}
               </ThemedText>
               <Button
-                title="Done"
+                title={t('datePickerDone')}
                 variant="ghost"
                 onPress={handleConfirm}
                 textClassName="text-base font-semibold"
@@ -144,6 +150,7 @@ export const DatePicker: React.FC<DatePickerProps> = ({
               onChange={handleDateChange}
               maximumDate={maxDate}
               minimumDate={minDate}
+              locale={pickerLocale}
               themeVariant={colors.isDark ? 'dark' : 'light'}
               style={{ backgroundColor: colors.bg }}
             />
@@ -159,6 +166,7 @@ export const DatePicker: React.FC<DatePickerProps> = ({
           onChange={handleDateChange}
           maximumDate={maxDate}
           minimumDate={minDate}
+          locale={pickerLocale}
         />
       );
     }
