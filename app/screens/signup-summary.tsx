@@ -1,7 +1,8 @@
 import React, { useEffect } from 'react';
-import { View, Image, ActivityIndicator } from 'react-native';
+import { View, Image, ActivityIndicator, useWindowDimensions } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Stack, router } from 'expo-router';
+import LottieView from 'lottie-react-native';
 import * as Haptics from 'expo-haptics';
 import { useAuth } from '@/app/contexts/AuthContext';
 import useThemeColors from '@/app/contexts/ThemeColors';
@@ -10,10 +11,13 @@ import { Button } from '@/components/Button';
 import ThemedText from '@/components/ThemedText';
 import Icon from '@/components/Icon';
 
+const REGISTRATION_SUMMARY_LOTTIE = require('@/assets/lottie/registrationsummary.json');
+
 export default function SignupSummaryScreen() {
   const { client, isLoading } = useAuth();
   const colors = useThemeColors();
   const { t } = useTranslation();
+  const { width: winW, height: winH } = useWindowDimensions();
 
   useEffect(() => {
     if (!isLoading && !client) {
@@ -43,45 +47,61 @@ export default function SignupSummaryScreen() {
         }}
       />
       <SafeAreaView className="flex-1 bg-light-primary dark:bg-dark-primary">
-        <View className="flex-1 px-global justify-between py-8">
-          <View className="flex-1 justify-center items-center">
-            <View
-              className="rounded-full overflow-hidden border-4 border-light-secondary dark:border-dark-secondary bg-light-secondary dark:bg-dark-secondary mb-8"
-              style={{ width: 160, height: 160 }}
-            >
-              {showAvatar ? (
-                <Image
-                  source={{ uri: raw }}
-                  style={{ width: '100%', height: '100%' }}
-                  resizeMode="cover"
-                />
-              ) : (
-                <View className="flex-1 items-center justify-center">
-                  <Icon
-                    name="User"
-                    size={72}
-                    className="text-light-subtext dark:text-dark-subtext opacity-60"
-                  />
-                </View>
-              )}
-            </View>
-
-            <ThemedText className="text-2xl font-bold text-light-text dark:text-dark-text text-center px-4">
-              {client.name}
-            </ThemedText>
+        <View className="flex-1">
+          <View
+            pointerEvents="none"
+            className="absolute left-0 right-0 top-0 bottom-0 items-center justify-center bg-light-primary dark:bg-dark-primary"
+            style={{ zIndex: 0 }}
+          >
+            <LottieView
+              source={REGISTRATION_SUMMARY_LOTTIE}
+              autoPlay
+              loop
+              resizeMode="cover"
+              style={{ width: winW, height: winH }}
+            />
           </View>
 
-          <Button
-            variant="primary"
-            size="large"
-            rounded="full"
-            title={t('signupWelcomeJoinTeam')}
-            onPress={() => router.replace('/(tabs)/(home)')}
-            className="w-full"
-            textClassName="text-white font-semibold"
-            style={{ backgroundColor: colors.highlight }}
-            impactFeedbackStyle={Haptics.ImpactFeedbackStyle.Heavy}
-          />
+          <View className="flex-1 px-global justify-between py-8" style={{ zIndex: 1 }}>
+            <View className="flex-1 justify-center items-center">
+              <View
+                className="rounded-full overflow-hidden border-4 border-light-secondary dark:border-dark-secondary bg-light-secondary dark:bg-dark-secondary mb-8"
+                style={{ width: 160, height: 160 }}
+              >
+                {showAvatar ? (
+                  <Image
+                    source={{ uri: raw }}
+                    style={{ width: '100%', height: '100%' }}
+                    resizeMode="cover"
+                  />
+                ) : (
+                  <View className="flex-1 items-center justify-center">
+                    <Icon
+                      name="User"
+                      size={72}
+                      className="text-light-subtext dark:text-dark-subtext opacity-60"
+                    />
+                  </View>
+                )}
+              </View>
+
+              <ThemedText className="text-2xl font-bold text-light-text dark:text-dark-text text-center px-4">
+                {client.name}
+              </ThemedText>
+            </View>
+
+            <Button
+              variant="primary"
+              size="large"
+              rounded="full"
+              title={t('signupWelcomeJoinTeam')}
+              onPress={() => router.replace('/(tabs)/(home)')}
+              className="w-full"
+              textClassName="text-white font-semibold"
+              style={{ backgroundColor: colors.highlight }}
+              impactFeedbackStyle={Haptics.ImpactFeedbackStyle.Heavy}
+            />
+          </View>
         </View>
       </SafeAreaView>
     </>
