@@ -1,5 +1,6 @@
 import React, { useRef, useEffect, useState, useMemo } from 'react';
-import { View, Text, Image, Pressable, Dimensions, TouchableOpacity, ActivityIndicator } from 'react-native';
+import { View, Text, Image, Pressable, Dimensions, TouchableOpacity, ActivityIndicator, Platform } from 'react-native';
+import * as Location from 'expo-location';
 import MapView, { MapStyleElement, Marker } from 'react-native-maps';
 import useThemeColors from '@/app/contexts/ThemeColors';
 import Header, { HeaderIcon } from '@/components/Header';
@@ -17,7 +18,7 @@ import * as LucideIcons from 'lucide-react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import SearchBar from '@/components/SearchBar';
 import PriceMarker from '@/components/PriceMarker';
-import { router } from 'expo-router';
+import { router, useLocalSearchParams } from 'expo-router';
 import { useAuth } from '@/app/contexts/AuthContext';
 import { useBranchFilter } from '@/app/contexts/BranchFilterContext';
 import { getBranches, type Branch, type BranchService } from '@/api/branches';
@@ -135,12 +136,21 @@ function applyBranchFilter(items: MapBranchItem[], filter: BranchFilterState): M
   return items.filter((item) => passesFilter(item.title, filter));
 }
 
+function stringSearchParam(v: string | string[] | undefined): string | undefined {
+  if (v == null) return undefined;
+  const x = Array.isArray(v) ? v[0] : v;
+  return typeof x === 'string' && x.trim().length > 0 ? x : undefined;
+}
 
 const MapScreen = () => {
     const colors = useThemeColors();
     const { apiToken } = useAuth();
     const { t } = useTranslation();
+    const params = useLocalSearchParams<{ mapQuery?: string; mapLabel?: string }>();
+    const mapQuery = stringSearchParam(params.mapQuery);
+    const mapLabel = stringSearchParam(params.mapLabel);
     const { filter, resetFilter } = useBranchFilter();
+    const [mapFocus, setMapFocus] = useState<{ lat: number; lng: number; title: string } | null>(null);
 
     useEffect(() => {
         return () => {
@@ -169,6 +179,44 @@ const MapScreen = () => {
             .catch(() => setAllBranches([]))
             .finally(() => setLoading(false));
     }, [apiToken]);
+
+    useEffect(() => {
+        if (!mapQuery) {
+            setMapFocus(null);
+            return;
+        }
+        let cancelled = false;
+        (async () => {
+            try {
+                if (Platform.OS === 'android') {
+                    const { status } = await Location.requestForegroundPermissionsAsync();
+                    if (status !== 'granted' || cancelled) return;
+                }
+                const results = await Location.geocodeAsync(mapQuery);
+                if (cancelled || !results?.length) return;
+                const { latitude, longitude } = results[0];
+                if (!Number.isFinite(latitude) || !Number.isFinite(longitude)) return;
+                const title = mapLabel ?? mapQuery;
+                setMapFocus({ lat: latitude, lng: longitude, title });
+                requestAnimationFrame(() => {
+                    mapRef.current?.animateToRegion(
+                        {
+                            latitude,
+                            longitude,
+                            latitudeDelta: 0.05,
+                            longitudeDelta: 0.05,
+                        },
+                        500
+                    );
+                });
+            } catch {
+                if (!cancelled) setMapFocus(null);
+            }
+        })();
+        return () => {
+            cancelled = true;
+        };
+    }, [mapQuery, mapLabel]);
 
     useEffect(() => {
         actionSheetRef.current?.show();
@@ -221,6 +269,13 @@ const MapScreen = () => {
                             }}
                         />
                     ))}
+                    {mapFocus ? (
+                        <Marker
+                            coordinate={{ latitude: mapFocus.lat, longitude: mapFocus.lng }}
+                            title={mapFocus.title}
+                            pinColor={colors.highlight}
+                        />
+                    ) : null}
                 </MapView>
 
                 <ActionSheet

@@ -84,6 +84,14 @@ export interface ClientCatalogReviewAuthor {
   avatarUrl?: string | null;
 }
 
+/** Štítek / flag produktu (např. Prodejní, Na vlasy). */
+export interface ClientCatalogProductFlag {
+  id: string;
+  name: string;
+  color: string;
+  description: string;
+}
+
 /** Recenze produktu v odpovědi GET /api/client/products/by-flag. */
 export interface ClientCatalogProductReview {
   id: string;
@@ -115,6 +123,8 @@ export interface ClientCatalogProduct {
   stockByWarehouse?: ClientCatalogStockByWarehouse[];
   /** Recenze k produktu (stejný zdroj jako katalog). */
   reviews?: ClientCatalogProductReview[];
+  /** Všechny flagy produktu (ne jen filtr dotazu). */
+  flags?: ClientCatalogProductFlag[];
 }
 
 export interface ClientProductsByFlagResponse {

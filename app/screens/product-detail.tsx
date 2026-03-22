@@ -30,6 +30,11 @@ import { getEntityReviews, type EntityReviewItem } from '@/api/reviews';
 import type { ClientCatalogProductReview } from '@/api/products';
 import { useTranslation } from '@/app/hooks/useTranslation';
 import useThemeColors from '@/app/contexts/ThemeColors';
+import {
+    compareCatalogStockWarehouseRows,
+    warehouseGeocodeQuery,
+    warehouseUiName,
+} from '@/utils/catalogWarehouse';
 
 const property = {
     id: 1,
@@ -197,6 +202,7 @@ const PropertyDetail = () => {
         productId && !purchase && selectedCatalogProduct && selectedCatalogProduct.id === productId
     );
     const catalog = isFromCatalog ? selectedCatalogProduct : null;
+    const catalogWarehouseLabel = catalog != null ? t('warehouseDisplayCentral') : '';
     const catalogReviewsList = catalog?.reviews ?? [];
     const hasCatalogReviews = Boolean(catalog && catalogReviewsList.length > 0);
     const catalogReviewStats = useReviewStats(hasCatalogReviews ? catalogReviewsList : EMPTY_RATING_ROWS);
@@ -229,6 +235,8 @@ const PropertyDetail = () => {
     const locationText = purchase?.warehouse
         ? `${purchase.warehouse.name}${purchase.warehouse.location ? ` - ${purchase.warehouse.location}` : ''}`
         : property.host.location;
+    /** Prodejce jen u skutečného nákupu; u katalogu bez nákupu neukazovat mock hostitele. */
+    const showSellerSection = purchase != null || catalog == null;
 
     const productImageUrl = purchase
         ? (purchase.product.primaryImage?.url ?? purchase.product.images?.find((i) => i.isPrimary)?.url ?? purchase.product.images?.[0]?.url ?? '')
@@ -398,26 +406,30 @@ const PropertyDetail = () => {
                         ) : null}
                     </View>
 
-                    <View className="flex-row items-center mt-8 mb-8 py-global border-y border-neutral-200 dark:border-dark-secondary">
-                        <Avatar
-                            size="md"
-                            src={sellerAvatar}
-                            name={sellerName}
-                            className="mr-4"
-                            link={purchase ? undefined : `/screens/user-profile`}
-                        />
-                        <View className="ml-0">
-                            <ThemedText className="font-semibold text-base">{t('productSeller')}: {sellerName}</ThemedText>
-                            <View className="flex-row items-center">
-                                <Icon name="MapPin" size={12} className="mr-1" />
-                                <ThemedText className="text-xs text-light-subtext dark:text-dark-subtext">
-                                    {locationText}
+                    {showSellerSection ? (
+                        <View className="flex-row items-center mt-8 mb-8 py-global border-y border-neutral-200 dark:border-dark-secondary">
+                            <Avatar
+                                size="md"
+                                src={sellerAvatar}
+                                name={sellerName}
+                                className="mr-4"
+                                link={purchase ? undefined : `/screens/user-profile`}
+                            />
+                            <View className="ml-0">
+                                <ThemedText className="font-semibold text-base">
+                                    {t('productSeller')}: {sellerName}
                                 </ThemedText>
+                                <View className="flex-row items-center">
+                                    <Icon name="MapPin" size={12} className="mr-1" />
+                                    <ThemedText className="text-xs text-light-subtext dark:text-dark-subtext">
+                                        {locationText}
+                                    </ThemedText>
+                                </View>
                             </View>
                         </View>
-                    </View>
+                    ) : null}
 
-                    <ThemedText className="text-base">{description}</ThemedText>
+                    <ThemedText className={`text-base ${!showSellerSection ? 'mt-2' : ''}`}>{description}</ThemedText>
 
 
 
@@ -428,8 +440,50 @@ const PropertyDetail = () => {
                         <View className="mt-3">
                             {catalog ? (
                                 <>
-                                    {catalog.sku ? (
-                                        <FeatureItem icon="Hash" label={t('productSku')} value={catalog.sku} />
+                                    {catalog.flags && catalog.flags.length > 0 ? (
+                                        <View className="py-4">
+                                            <View className="flex-row items-start">
+                                                <Icon
+                                                    name="Tag"
+                                                    size={24}
+                                                    strokeWidth={1.5}
+                                                    className="mr-3 mt-0.5 text-light-text dark:text-dark-text"
+                                                />
+                                                <View className="flex-1 min-w-0">
+                                                    <ThemedText className="text-light-text dark:text-dark-text mb-2">
+                                                        {t('productCatalogFlags')}
+                                                    </ThemedText>
+                                                    <View className="flex-row flex-wrap gap-2">
+                                                        {[...catalog.flags]
+                                                            .sort((a, b) =>
+                                                                a.name.localeCompare(b.name, undefined, {
+                                                                    sensitivity: 'base',
+                                                                })
+                                                            )
+                                                            .map((f) => (
+                                                            <View
+                                                                key={f.id}
+                                                                style={{
+                                                                    backgroundColor: f.color?.trim() || '#737373',
+                                                                }}
+                                                                className="px-3 py-1.5 rounded-full"
+                                                            >
+                                                                <Text
+                                                                    style={{
+                                                                        color: '#ffffff',
+                                                                        fontSize: 13,
+                                                                        fontWeight: '600',
+                                                                    }}
+                                                                    numberOfLines={1}
+                                                                >
+                                                                    {f.name}
+                                                                </Text>
+                                                            </View>
+                                                            ))}
+                                                    </View>
+                                                </View>
+                                            </View>
+                                        </View>
                                     ) : null}
                                     <FeatureItem
                                         icon="Package"
@@ -450,46 +504,68 @@ const PropertyDetail = () => {
                                             </ThemedText>
                                             {[...catalog.stockByWarehouse]
                                                 .sort((a, b) =>
-                                                    a.warehouse.name.localeCompare(b.warehouse.name, undefined, {
-                                                        sensitivity: 'base',
-                                                    })
+                                                    compareCatalogStockWarehouseRows(a, b, catalogWarehouseLabel)
                                                 )
-                                                .map((row) => (
-                                                    <View
-                                                        key={row.warehouse.id}
-                                                        className="flex-row justify-between items-start py-3 border-b border-neutral-100 dark:border-dark-secondary/60 last:border-b-0"
-                                                    >
-                                                        <View className="flex-1 pr-3 min-w-0">
-                                                            <ThemedText className="text-sm font-medium text-light-text dark:text-dark-text">
-                                                                {row.warehouse.name}
+                                                .map((row) => {
+                                                    const whDisplayName = warehouseUiName(
+                                                        row.warehouse.name,
+                                                        catalogWarehouseLabel
+                                                    );
+                                                    const mapQuery = warehouseGeocodeQuery(row.warehouse, whDisplayName);
+                                                    const canOpenMap = mapQuery.trim().length > 0;
+                                                    return (
+                                                        <View
+                                                            key={row.warehouse.id}
+                                                            className="flex-row justify-between items-start py-3 border-b border-neutral-100 dark:border-dark-secondary/60 last:border-b-0"
+                                                        >
+                                                            <Pressable
+                                                                accessibilityRole="button"
+                                                                accessibilityLabel={t('productWarehouseOpenMap')}
+                                                                disabled={!canOpenMap}
+                                                                onPress={() => {
+                                                                    if (!canOpenMap) return;
+                                                                    router.push(
+                                                                        `/screens/map?mapQuery=${encodeURIComponent(mapQuery)}&mapLabel=${encodeURIComponent(whDisplayName)}`
+                                                                    );
+                                                                }}
+                                                                className={`flex-1 pr-3 min-w-0 ${canOpenMap ? 'active:opacity-70' : ''}`}
+                                                            >
+                                                                <ThemedText className="text-sm font-medium text-light-text dark:text-dark-text">
+                                                                    {whDisplayName}
+                                                                </ThemedText>
+                                                                {row.warehouse.location ? (
+                                                                    <ThemedText className="text-xs text-light-subtext dark:text-dark-subtext mt-0.5">
+                                                                        {row.warehouse.location}
+                                                                    </ThemedText>
+                                                                ) : null}
+                                                                {row.warehouse.address &&
+                                                                row.warehouse.address !== row.warehouse.location ? (
+                                                                    <ThemedText
+                                                                        className="text-xs text-light-subtext dark:text-dark-subtext mt-0.5"
+                                                                        numberOfLines={2}
+                                                                    >
+                                                                        {row.warehouse.address}
+                                                                    </ThemedText>
+                                                                ) : !row.warehouse.location && row.warehouse.address ? (
+                                                                    <ThemedText
+                                                                        className="text-xs text-light-subtext dark:text-dark-subtext mt-0.5"
+                                                                        numberOfLines={2}
+                                                                    >
+                                                                        {row.warehouse.address}
+                                                                    </ThemedText>
+                                                                ) : null}
+                                                                {canOpenMap ? (
+                                                                    <ThemedText className="text-xs text-light-subtext dark:text-dark-subtext mt-1.5 underline">
+                                                                        {t('productWarehouseMapHint')}
+                                                                    </ThemedText>
+                                                                ) : null}
+                                                            </Pressable>
+                                                            <ThemedText className="text-sm font-semibold text-light-text dark:text-dark-text shrink-0">
+                                                                {row.quantity} {t('productPiecesAbbr')}
                                                             </ThemedText>
-                                                            {row.warehouse.location ? (
-                                                                <ThemedText className="text-xs text-light-subtext dark:text-dark-subtext mt-0.5">
-                                                                    {row.warehouse.location}
-                                                                </ThemedText>
-                                                            ) : null}
-                                                            {row.warehouse.address &&
-                                                            row.warehouse.address !== row.warehouse.location ? (
-                                                                <ThemedText
-                                                                    className="text-xs text-light-subtext dark:text-dark-subtext mt-0.5"
-                                                                    numberOfLines={2}
-                                                                >
-                                                                    {row.warehouse.address}
-                                                                </ThemedText>
-                                                            ) : !row.warehouse.location && row.warehouse.address ? (
-                                                                <ThemedText
-                                                                    className="text-xs text-light-subtext dark:text-dark-subtext mt-0.5"
-                                                                    numberOfLines={2}
-                                                                >
-                                                                    {row.warehouse.address}
-                                                                </ThemedText>
-                                                            ) : null}
                                                         </View>
-                                                        <ThemedText className="text-sm font-semibold text-light-text dark:text-dark-text shrink-0">
-                                                            {row.quantity} {t('productPiecesAbbr')}
-                                                        </ThemedText>
-                                                    </View>
-                                                ))}
+                                                    );
+                                                })}
                                         </View>
                                     ) : null}
                                 </>
