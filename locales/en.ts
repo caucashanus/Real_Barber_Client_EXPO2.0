@@ -349,6 +349,9 @@ export const en = {
 
   // Product detail
   productSeller: 'Seller',
+  productPricePerProduct: 'per product',
+  productPricePerNight: 'per night',
+  productSharePrice: 'Price',
   productDetails: 'Product details',
   productGuests: 'Guests',
   productBedrooms: 'Bedrooms',
@@ -366,6 +369,10 @@ export const en = {
   productPurchaseUnitPrice: 'Unit price',
   productPurchaseTotal: 'Total paid',
   productPurchaseNotes: 'Notes',
+  productPurchaseCashback: 'Cashback',
+  productPurchaseCashbackStatus: 'Cashback payout',
+  productPurchaseCashbackPaid: 'Paid out',
+  productPurchaseCashbackPending: 'Not paid out yet',
   productCatalogFlags: 'Labels',
   productStock: 'Stock quantity',
   productAvailability: 'Availability',

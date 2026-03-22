@@ -145,6 +145,10 @@ function purchasePaymentBreakdownRows(purchase: ClientProductPurchase): boolean 
     return n > 1;
 }
 
+function purchaseHasCashbackFields(purchase: ClientProductPurchase): boolean {
+    return purchase.cashbackAmount != null || purchase.cashbackPaid != null;
+}
+
 const EMPTY_RATING_ROWS: ReadonlyArray<{ rating: number }> = [];
 
 function useReviewStats(reviews: ReadonlyArray<{ rating: number }>) {
@@ -264,7 +268,8 @@ const PropertyDetail = () => {
     const displayImages = images.length > 0 ? images : [require('@/assets/img/barbers.png')];
     const totalPrice =
         purchase != null ? `${purchase.totalPrice} Kč` : catalog != null ? `${catalog.price} Kč` : property.price;
-    const priceLabel = purchase != null ? 'per product' : catalog != null ? '' : 'night';
+    const priceLabel =
+        purchase != null ? t('productPricePerProduct') : catalog != null ? '' : t('productPricePerNight');
     const sellerName = purchase?.seller.name ?? property.host.name;
     const sellerAvatar = purchase?.seller.avatarUrl ?? property.host.avatar;
     const locationText = purchase?.warehouse
@@ -350,10 +355,10 @@ const PropertyDetail = () => {
         try {
             const message =
                 purchase != null
-                    ? `${title}\nPrice: ${totalPrice} per product`
+                    ? `${title}\n${t('productSharePrice')}: ${totalPrice} ${t('productPricePerProduct')}`
                     : catalog != null
-                      ? `${title}\nPrice: ${totalPrice}`
-                      : `Check out this amazing property: ${property.title}\nPrice: ${property.price} per night`;
+                      ? `${title}\n${t('productSharePrice')}: ${totalPrice}`
+                      : `Check out this amazing property: ${property.title}\n${t('productSharePrice')}: ${property.price} ${t('productPricePerNight')}`;
             await Share.share({ message, title });
         } catch (error) {
             console.error('Error sharing:', error);
@@ -668,6 +673,28 @@ const PropertyDetail = () => {
                                                     icon="Coins"
                                                     label={t('paymentMethodRbc')}
                                                     value={String(purchase.totalCoins)}
+                                                />
+                                            ) : null}
+                                        </>
+                                    ) : null}
+                                    {purchaseHasCashbackFields(purchase) ? (
+                                        <>
+                                            {purchase.cashbackAmount != null ? (
+                                                <FeatureItem
+                                                    icon="Gift"
+                                                    label={t('productPurchaseCashback')}
+                                                    value={`${purchase.cashbackAmount} ${(purchase.cashbackUnit ?? 'RBC').trim()}`}
+                                                />
+                                            ) : null}
+                                            {purchase.cashbackPaid != null ? (
+                                                <FeatureItem
+                                                    icon={purchase.cashbackPaid ? 'CircleCheck' : 'Clock'}
+                                                    label={t('productPurchaseCashbackStatus')}
+                                                    value={
+                                                        purchase.cashbackPaid
+                                                            ? t('productPurchaseCashbackPaid')
+                                                            : t('productPurchaseCashbackPending')
+                                                    }
                                                 />
                                             ) : null}
                                         </>

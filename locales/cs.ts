@@ -351,6 +351,9 @@ export const cs: Record<TranslationKey, string> = {
 
   // Product detail
   productSeller: 'Prodejce',
+  productPricePerProduct: 'za produkt',
+  productPricePerNight: 'za noc',
+  productSharePrice: 'Cena',
   productDetails: 'Detaily produktu',
   productGuests: 'Hosté',
   productBedrooms: 'Ložnice',
@@ -368,6 +371,10 @@ export const cs: Record<TranslationKey, string> = {
   productPurchaseUnitPrice: 'Cena za kus',
   productPurchaseTotal: 'Celkem zaplaceno',
   productPurchaseNotes: 'Poznámka',
+  productPurchaseCashback: 'Cashback',
+  productPurchaseCashbackStatus: 'Výplata cashbacku',
+  productPurchaseCashbackPaid: 'Vyplaceno',
+  productPurchaseCashbackPending: 'Zatím nevyplaceno',
   productCatalogFlags: 'Štítky',
   productStock: 'Počet na skladě',
   productAvailability: 'Dostupnost',

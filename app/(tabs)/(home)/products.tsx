@@ -33,6 +33,16 @@ function productImageUrl(purchase: ClientProductPurchase): string {
   return url ?? '';
 }
 
+/** Náhodné pořadí (Fisher–Yates), nová kopie pole. */
+function shuffled<T>(items: readonly T[]): T[] {
+  const out = [...items];
+  for (let i = out.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [out[i], out[j]] = [out[j], out[i]];
+  }
+  return out;
+}
+
 const ProductsScreen = () => {
   const scrollY = useContext(ScrollContext);
   const router = useRouter();
@@ -93,7 +103,7 @@ const ProductsScreen = () => {
     }
     setCatalogLoading(true);
     getClientProductsByFlag(apiToken)
-      .then((res) => setCatalogProducts(res.products ?? []))
+      .then((res) => setCatalogProducts(shuffled(res.products ?? [])))
       .catch(() => setCatalogProducts([]))
       .finally(() => setCatalogLoading(false));
   }, [apiToken]);

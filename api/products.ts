@@ -45,6 +45,10 @@ export interface ClientProductPurchase {
   totalCard: number;
   totalCoins: number;
   notes: string | null;
+  /** Vyplacený / připisovaný cashback z nákupu (pokud API vrací). */
+  cashbackAmount?: number | null;
+  cashbackPaid?: boolean | null;
+  cashbackUnit?: string | null;
   product: ProductInfo;
   seller: PurchaseSeller;
   warehouse: PurchaseWarehouse;
