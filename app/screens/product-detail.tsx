@@ -19,9 +19,15 @@ import Avatar from '@/components/Avatar';
 import { StatusBar } from 'expo-status-bar';
 import { useFocusEffect } from '@react-navigation/native';
 import { useLocalSearchParams, router } from 'expo-router';
-import { useSelectedPurchase, useSetSelectedPurchase } from '@/app/contexts/SelectedPurchaseContext';
+import {
+    useSelectedCatalogProduct,
+    useSelectedPurchase,
+    useSetSelectedCatalogProduct,
+    useSetSelectedPurchase,
+} from '@/app/contexts/SelectedPurchaseContext';
 import { useAuth } from '@/app/contexts/AuthContext';
 import { getEntityReviews, type EntityReviewItem } from '@/api/reviews';
+import type { ClientCatalogProductReview } from '@/api/products';
 import { useTranslation } from '@/app/hooks/useTranslation';
 import useThemeColors from '@/app/contexts/ThemeColors';
 
@@ -99,7 +105,9 @@ function formatReviewDate(iso: string): string {
     }
 }
 
-function useReviewStats(reviews: EntityReviewItem[]) {
+const EMPTY_RATING_ROWS: ReadonlyArray<{ rating: number }> = [];
+
+function useReviewStats(reviews: ReadonlyArray<{ rating: number }>) {
     return React.useMemo(() => {
         const countByRating: Record<number, number> = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 };
         let sum = 0;
@@ -112,6 +120,30 @@ function useReviewStats(reviews: EntityReviewItem[]) {
         const average = total > 0 ? Math.round((sum / total) * 10) / 10 : 0;
         return { countByRating, average, total };
     }, [reviews]);
+}
+
+function catalogReviewDisplayName(
+    review: ClientCatalogProductReview,
+    anonymousLabel: string
+): string {
+    if (review.isAnonymous) return anonymousLabel;
+    const a = review.author;
+    if (!a) return anonymousLabel;
+    const named = a.name?.trim();
+    if (named) return named;
+    const parts = [a.firstName, a.lastName].filter(Boolean);
+    const joined = parts.join(' ').trim();
+    return joined || anonymousLabel;
+}
+
+function catalogReviewBody(review: ClientCatalogProductReview): string {
+    const d = review.description?.trim();
+    if (d) return d;
+    const p = review.positiveFeedback?.trim();
+    if (p) return p;
+    const n = review.negativeFeedback?.trim();
+    if (n) return n;
+    return '—';
 }
 
 const similarProperties = [
@@ -145,6 +177,8 @@ const PropertyDetail = () => {
     const { id: productId } = useLocalSearchParams<{ id?: string }>();
     const selectedPurchase = useSelectedPurchase();
     const setSelectedPurchase = useSetSelectedPurchase();
+    const selectedCatalogProduct = useSelectedCatalogProduct();
+    const setSelectedCatalogProduct = useSetSelectedCatalogProduct();
     const { apiToken, client } = useAuth();
     const { t } = useTranslation();
     const colors = useThemeColors();
@@ -159,19 +193,37 @@ const PropertyDetail = () => {
 
     const isFromPurchased = Boolean(productId && selectedPurchase && selectedPurchase.product.id === productId);
     const purchase = isFromPurchased ? selectedPurchase : null;
+    const isFromCatalog = Boolean(
+        productId && !purchase && selectedCatalogProduct && selectedCatalogProduct.id === productId
+    );
+    const catalog = isFromCatalog ? selectedCatalogProduct : null;
+    const catalogReviewsList = catalog?.reviews ?? [];
+    const hasCatalogReviews = Boolean(catalog && catalogReviewsList.length > 0);
+    const catalogReviewStats = useReviewStats(hasCatalogReviews ? catalogReviewsList : EMPTY_RATING_ROWS);
+    const hideBuyerReviewsSection = Boolean(catalog && !hasCatalogReviews);
+    const showHeaderReviewRow = !hideBuyerReviewsSection;
 
-    const title = purchase?.product.name ?? property.title;
-    const description = purchase?.product.description ?? property.description;
+    const title = purchase?.product.name ?? catalog?.name ?? property.title;
+    const description =
+        purchase?.product.description ??
+        (catalog != null ? (catalog.description ?? '') : property.description);
     const images = purchase
         ? (purchase.product.images?.length
             ? purchase.product.images.map((img) => img.url)
             : purchase.product.primaryImage
                 ? [purchase.product.primaryImage.url]
                 : [])
-        : property.images;
+        : catalog
+          ? (catalog.images?.length
+              ? catalog.images.map((img) => img.url)
+              : catalog.primaryImage
+                ? [catalog.primaryImage.url]
+                : [])
+          : property.images;
     const displayImages = images.length > 0 ? images : [require('@/assets/img/barbers.png')];
-    const totalPrice = purchase != null ? `${purchase.totalPrice} Kč` : property.price;
-    const priceLabel = purchase != null ? 'per product' : 'night';
+    const totalPrice =
+        purchase != null ? `${purchase.totalPrice} Kč` : catalog != null ? `${catalog.price} Kč` : property.price;
+    const priceLabel = purchase != null ? 'per product' : catalog != null ? '' : 'night';
     const sellerName = purchase?.seller.name ?? property.host.name;
     const sellerAvatar = purchase?.seller.avatarUrl ?? property.host.avatar;
     const locationText = purchase?.warehouse
@@ -180,15 +232,23 @@ const PropertyDetail = () => {
 
     const productImageUrl = purchase
         ? (purchase.product.primaryImage?.url ?? purchase.product.images?.find((i) => i.isPrimary)?.url ?? purchase.product.images?.[0]?.url ?? '')
-        : '';
+        : catalog
+          ? (catalog.primaryImage?.url ??
+              catalog.images?.find((i) => i.isPrimary)?.url ??
+              catalog.images?.[0]?.url ??
+              '')
+          : '';
 
     const reviewParams = purchase
         ? `entityType=sale_log&entityId=${encodeURIComponent(purchase.purchaseId)}&entityName=${encodeURIComponent(title)}${productImageUrl ? `&entityImage=${encodeURIComponent(productImageUrl)}` : ''}`
         : '';
 
     useEffect(() => {
-        return () => setSelectedPurchase(null);
-    }, [setSelectedPurchase]);
+        return () => {
+            setSelectedPurchase(null);
+            setSelectedCatalogProduct(null);
+        };
+    }, [setSelectedPurchase, setSelectedCatalogProduct]);
 
     useEffect(() => {
         if (!apiToken || !purchase?.purchaseId) {
@@ -245,17 +305,18 @@ const PropertyDetail = () => {
 
     const handleShare = async () => {
         try {
-            await Share.share({
-                message: purchase
+            const message =
+                purchase != null
                     ? `${title}\nPrice: ${totalPrice} per product`
-                    : `Check out this amazing property: ${property.title}\nPrice: ${property.price} per night`,
-                title
-            });
+                    : catalog != null
+                      ? `${title}\nPrice: ${totalPrice}`
+                      : `Check out this amazing property: ${property.title}\nPrice: ${property.price} per night`;
+            await Share.share({ message, title });
         } catch (error) {
             console.error('Error sharing:', error);
         }
     };
-    const productIdForFavorite = purchase?.product.id ?? productId ?? '';
+    const productIdForFavorite = purchase?.product.id ?? catalog?.id ?? productId ?? '';
     const rightComponents = [
         <Favorite
             key="fav"
@@ -294,22 +355,47 @@ const PropertyDetail = () => {
                     className="p-global bg-light-primary dark:bg-dark-primary -mt-[30px]"
                     onLayout={(e: LayoutChangeEvent) => { roundedViewYRef.current = e.nativeEvent.layout.y; }}
                 >
+                    {catalog && (!catalog.inStock || catalog.totalStock <= 0) ? (
+                        <View className="mb-4 py-3 px-3 rounded-xl bg-red-500 dark:bg-red-600 items-center justify-center">
+                            <ThemedText className="text-sm font-bold text-white tracking-wide">
+                                {t('productsCatalogOutOfStockBadge')}
+                            </ThemedText>
+                        </View>
+                    ) : null}
                     <View className=''>
                         <ThemedText className="text-3xl text-center font-semibold">{title}</ThemedText>
-                        <View className='flex-row items-center justify-center mt-4'>
-                            <Pressable onPress={scrollToReviews} className="flex-row items-center active:opacity-70">
-                                <ShowRating rating={purchase ? average : property.ratings.overall} size="lg" className='px-4 py-2 border-r border-neutral-200 dark:border-dark-secondary' />
-                                <ThemedText className="text-base px-4">{purchase ? `${displayTotal} Reviews` : '234 Reviews'}</ThemedText>
-                            </Pressable>
-                            {purchase && (
-                                <Pressable
-                                    onPress={() => router.push(`/screens/review?${reviewParams}`)}
-                                    className="ml-4 px-3 py-2 rounded-lg bg-light-secondary dark:bg-dark-secondary"
-                                >
-                                    <ThemedText className="text-sm font-medium">{hasReviewed ? t('reviewUpdate') : t('productRecenzovat')}</ThemedText>
+                        {showHeaderReviewRow ? (
+                            <View className='flex-row items-center justify-center mt-4'>
+                                <Pressable onPress={scrollToReviews} className="flex-row items-center active:opacity-70">
+                                    <ShowRating
+                                        rating={
+                                            purchase
+                                                ? average
+                                                : hasCatalogReviews
+                                                  ? catalogReviewStats.average
+                                                  : property.ratings.overall
+                                        }
+                                        size="lg"
+                                        className='px-4 py-2 border-r border-neutral-200 dark:border-dark-secondary'
+                                    />
+                                    <ThemedText className="text-base px-4">
+                                        {purchase
+                                            ? `${displayTotal} Reviews`
+                                            : hasCatalogReviews
+                                              ? `${catalogReviewStats.total} ${t('productReviewsCount')}`
+                                              : '234 Reviews'}
+                                    </ThemedText>
                                 </Pressable>
-                            )}
-                        </View>
+                                {purchase && (
+                                    <Pressable
+                                        onPress={() => router.push(`/screens/review?${reviewParams}`)}
+                                        className="ml-4 px-3 py-2 rounded-lg bg-light-secondary dark:bg-dark-secondary"
+                                    >
+                                        <ThemedText className="text-sm font-medium">{hasReviewed ? t('reviewUpdate') : t('productRecenzovat')}</ThemedText>
+                                    </Pressable>
+                                )}
+                            </View>
+                        ) : null}
                     </View>
 
                     <View className="flex-row items-center mt-8 mb-8 py-global border-y border-neutral-200 dark:border-dark-secondary">
@@ -340,10 +426,81 @@ const PropertyDetail = () => {
                     {/* Property / Product Features */}
                     <Section title={t('productDetails')} titleSize="lg" className="mb-6 mt-2">
                         <View className="mt-3">
-                            <FeatureItem icon="Users" label={t('productGuests')} value={property.features.guests} />
-                            <FeatureItem icon="BedDouble" label={t('productBedrooms')} value={property.features.bedrooms} />
-                            <FeatureItem icon="Bath" label={t('productBathrooms')} value={property.features.bathrooms} />
-                            <FeatureItem icon="PencilRuler" label={t('productSize')} value={property.features.size} />
+                            {catalog ? (
+                                <>
+                                    {catalog.sku ? (
+                                        <FeatureItem icon="Hash" label={t('productSku')} value={catalog.sku} />
+                                    ) : null}
+                                    <FeatureItem
+                                        icon="Package"
+                                        label={t('productStock')}
+                                        value={String(catalog.totalStock)}
+                                    />
+                                    <FeatureItem
+                                        icon="CircleCheck"
+                                        label={t('productAvailability')}
+                                        value={
+                                            catalog.inStock ? t('productsCatalogInStock') : t('productsCatalogOutOfStock')
+                                        }
+                                    />
+                                    {catalog.stockByWarehouse && catalog.stockByWarehouse.length > 0 ? (
+                                        <View className="mt-2 pt-4 border-t border-neutral-200 dark:border-dark-secondary">
+                                            <ThemedText className="text-sm font-semibold mb-2 text-light-text dark:text-dark-text">
+                                                {t('productStockByWarehouse')}
+                                            </ThemedText>
+                                            {[...catalog.stockByWarehouse]
+                                                .sort((a, b) =>
+                                                    a.warehouse.name.localeCompare(b.warehouse.name, undefined, {
+                                                        sensitivity: 'base',
+                                                    })
+                                                )
+                                                .map((row) => (
+                                                    <View
+                                                        key={row.warehouse.id}
+                                                        className="flex-row justify-between items-start py-3 border-b border-neutral-100 dark:border-dark-secondary/60 last:border-b-0"
+                                                    >
+                                                        <View className="flex-1 pr-3 min-w-0">
+                                                            <ThemedText className="text-sm font-medium text-light-text dark:text-dark-text">
+                                                                {row.warehouse.name}
+                                                            </ThemedText>
+                                                            {row.warehouse.location ? (
+                                                                <ThemedText className="text-xs text-light-subtext dark:text-dark-subtext mt-0.5">
+                                                                    {row.warehouse.location}
+                                                                </ThemedText>
+                                                            ) : null}
+                                                            {row.warehouse.address &&
+                                                            row.warehouse.address !== row.warehouse.location ? (
+                                                                <ThemedText
+                                                                    className="text-xs text-light-subtext dark:text-dark-subtext mt-0.5"
+                                                                    numberOfLines={2}
+                                                                >
+                                                                    {row.warehouse.address}
+                                                                </ThemedText>
+                                                            ) : !row.warehouse.location && row.warehouse.address ? (
+                                                                <ThemedText
+                                                                    className="text-xs text-light-subtext dark:text-dark-subtext mt-0.5"
+                                                                    numberOfLines={2}
+                                                                >
+                                                                    {row.warehouse.address}
+                                                                </ThemedText>
+                                                            ) : null}
+                                                        </View>
+                                                        <ThemedText className="text-sm font-semibold text-light-text dark:text-dark-text shrink-0">
+                                                            {row.quantity} {t('productPiecesAbbr')}
+                                                        </ThemedText>
+                                                    </View>
+                                                ))}
+                                        </View>
+                                    ) : null}
+                                </>
+                            ) : (
+                                <>
+                                    <FeatureItem icon="Users" label={t('productGuests')} value={property.features.guests} />
+                                    <FeatureItem icon="BedDouble" label={t('productBedrooms')} value={property.features.bedrooms} />
+                                    <FeatureItem icon="Bath" label={t('productBathrooms')} value={property.features.bathrooms} />
+                                    <FeatureItem icon="PencilRuler" label={t('productSize')} value={property.features.size} />
+                                </>
+                            )}
                         </View>
                     </Section>
 
@@ -363,12 +520,19 @@ const PropertyDetail = () => {
 
                     <Divider className="my-4" />
 
-                    {/* Ratings & Reviews */}
+                    {/* Ratings & Reviews (u katalogu bez recenzí sekci nezobrazujeme) */}
+                    {!hideBuyerReviewsSection ? (
                     <View onLayout={(e: LayoutChangeEvent) => { reviewsSectionYInRoundedRef.current = e.nativeEvent.layout.y; }}>
                         <Section
                             title={t('productBuyerReviews')}
                             titleSize="lg"
-                            subtitle={purchase ? `${displayTotal} reviews` : `${property.ratings.reviews} reviews`}
+                            subtitle={
+                                purchase
+                                    ? `${displayTotal} reviews`
+                                    : hasCatalogReviews
+                                      ? `${catalogReviewStats.total} ${t('productReviewsCount')}`
+                                      : `${property.ratings.reviews} reviews`
+                            }
                             className="mb-6"
                         >
                         {purchase ? (
@@ -441,6 +605,66 @@ const PropertyDetail = () => {
                                     </CardScroller>
                                 )}
                             </>
+                        ) : hasCatalogReviews ? (
+                            <>
+                                <View className="mt-4 bg-light-secondary dark:bg-dark-secondary p-4 rounded-lg">
+                                    <View className="flex-row items-center mb-4">
+                                        <ShowRating rating={catalogReviewStats.average} size="lg" />
+                                        <ThemedText className="ml-2 text-light-subtext dark:text-dark-subtext">
+                                            ({catalogReviewStats.total})
+                                        </ThemedText>
+                                    </View>
+                                    <View className="space-y-2">
+                                        {([5, 4, 3, 2, 1] as const).map((stars) => (
+                                            <View key={stars} className="flex-row items-center justify-between py-1.5">
+                                                <ShowRating rating={stars} size="sm" displayMode="stars" />
+                                                <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext">
+                                                    {catalogReviewStats.countByRating[stars] ?? 0} reviews
+                                                </ThemedText>
+                                            </View>
+                                        ))}
+                                    </View>
+                                </View>
+                                <View className="mt-6 flex-row items-center justify-between mb-3">
+                                    <ThemedText className="font-semibold text-lg">{t('productBuyerReviews')}</ThemedText>
+                                </View>
+                                <CardScroller className="mt-1" space={10}>
+                                    {catalogReviewsList.map((review) => {
+                                        const authorName = catalogReviewDisplayName(
+                                            review,
+                                            t('productReviewAuthorAnonymous')
+                                        );
+                                        const avatarUri = review.isAnonymous ? '' : review.author?.avatarUrl ?? '';
+                                        return (
+                                            <View
+                                                key={review.id}
+                                                className="w-[280px] bg-light-secondary dark:bg-dark-secondary p-4 rounded-lg"
+                                            >
+                                                <View className="flex-row items-center mb-2">
+                                                    {avatarUri ? (
+                                                        <Image
+                                                            source={{ uri: avatarUri }}
+                                                            className="w-10 h-10 rounded-full mr-2"
+                                                        />
+                                                    ) : (
+                                                        <Avatar size="sm" name={authorName} className="mr-2" />
+                                                    )}
+                                                    <View className="min-w-0 flex-1">
+                                                        <ThemedText className="font-medium" numberOfLines={1}>
+                                                            {authorName}
+                                                        </ThemedText>
+                                                        <ThemedText className="text-xs text-light-subtext dark:text-dark-subtext">
+                                                            {formatReviewDate(review.createdAt)}
+                                                        </ThemedText>
+                                                    </View>
+                                                </View>
+                                                <ShowRating rating={review.rating} size="sm" className="mb-2" />
+                                                <ThemedText className="text-sm">{catalogReviewBody(review)}</ThemedText>
+                                            </View>
+                                        );
+                                    })}
+                                </CardScroller>
+                            </>
                         ) : (
                             <>
                                 <View className="mt-4 bg-light-secondary dark:bg-dark-secondary p-4 rounded-lg">
@@ -484,6 +708,7 @@ const PropertyDetail = () => {
 
                         </Section>
                     </View>
+                    ) : null}
                 </View>
             </ThemedScroller>
 
@@ -494,12 +719,17 @@ const PropertyDetail = () => {
                         className=' flex-row items-center justify-start px-global pt-4 border-t border-neutral-200 dark:border-dark-secondary'
                     >
                         <View>
-                            <ThemedText className='text-xl font-bold'>{totalPrice} {priceLabel}</ThemedText>
-                            {!purchase && <ThemedText className='text-xs opacity-60'>5 - 12 June</ThemedText>}
+                            <ThemedText className='text-xl font-bold'>
+                                {totalPrice}
+                                {priceLabel ? ` ${priceLabel}` : ''}
+                            </ThemedText>
+                            {!purchase && !catalog && (
+                                <ThemedText className='text-xs opacity-60'>5 - 12 June</ThemedText>
+                            )}
                         </View>
                         <View className='flex-row items-center ml-auto'>
                             <Button
-                                title={purchase ? 'Buy' : 'Reserve'}
+                                title={purchase || catalog ? 'Buy' : 'Reserve'}
                                 variant="primary" className="ml-6 px-6"
                                 textClassName='text-white'
                                 size='medium'

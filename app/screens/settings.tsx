@@ -41,6 +41,12 @@ export default function SettingsScreen() {
 
                 <View className='px-4'>
                     <ListLink title={t('settingsAccent')} description={t('settingsAccentDesc')} icon="Palette" href="/screens/settings-accent" />
+                    <ListLink
+                        title={t('settingsCommunicationPrefs')}
+                        description={t('settingsCommunicationPrefsDesc')}
+                        icon="MessagesSquare"
+                        href="/screens/communication-settings"
+                    />
                     {SHOW_SETTINGS_PAYMENTS_SECTION ? (
                         <ListLink title={t('settingsPayments')} description={t('settingsPaymentsDesc')} icon="CreditCard" href="/screens/profile/payments" />
                     ) : null}

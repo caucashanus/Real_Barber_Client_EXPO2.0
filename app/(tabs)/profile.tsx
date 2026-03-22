@@ -25,20 +25,15 @@ const SHOW_PROFILE_REFERRALS_SECTION = false;
 /** Profil → Nápověda (`/screens/help`). Nastav na `true`, až bude sekce znovu potřeba. */
 const SHOW_PROFILE_HELP_SECTION = false;
 
-/** Profil – ikona Oznámení v hlavičce (`/screens/notifications`). Nastav na `true`, až bude znovu potřeba. */
-const SHOW_PROFILE_HEADER_NOTIFICATIONS = false;
-
 export default function ProfileScreen() {
     const { isBusinessMode } = useBusinessMode();
     return (
         <View className="flex-1 bg-light-primary dark:bg-dark-primary">
             <Header
                 leftComponent={<ThemeToggle />}
-                rightComponents={
-                    SHOW_PROFILE_HEADER_NOTIFICATIONS
-                        ? [<HeaderIcon key="notifications" icon="Bell" href="/screens/notifications" />]
-                        : []
-                }
+                rightComponents={[
+                    <HeaderIcon key="notifications" icon="Bell" href="/screens/notifications" />,
+                ]}
             />
             <View className='flex-1 bg-light-primary dark:bg-dark-primary'>
 
