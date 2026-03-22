@@ -29,6 +29,9 @@ import { useAuth } from '@/app/contexts/AuthContext';
 import { getEntityReviews, type EntityReviewItem } from '@/api/reviews';
 import type { ClientCatalogProductReview } from '@/api/products';
 import { useTranslation } from '@/app/hooks/useTranslation';
+import type { Locale } from '@/app/contexts/LanguageContext';
+import type { TranslationKey } from '@/locales';
+import type { ClientProductPurchase } from '@/api/products';
 import useThemeColors from '@/app/contexts/ThemeColors';
 import {
     compareCatalogStockWarehouseRows,
@@ -110,6 +113,38 @@ function formatReviewDate(iso: string): string {
     }
 }
 
+function formatPurchaseDate(iso: string, locale: Locale): string {
+    try {
+        const d = new Date(iso);
+        if (locale === 'cs') {
+            return d.toLocaleDateString('cs-CZ', { day: 'numeric', month: 'long', year: 'numeric' });
+        }
+        return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+    } catch {
+        return iso;
+    }
+}
+
+function purchasePaymentMethodLabel(
+    method: string | undefined,
+    t: (key: TranslationKey) => string
+): string {
+    if (!method) return '—';
+    const normalized = method.trim().toUpperCase().replace(/\s+/g, '_');
+    if (normalized === 'CASH') return t('paymentMethodCash');
+    if (normalized === 'CARD' || normalized === 'CREDIT_CARD' || normalized === 'DEBIT_CARD') return t('paymentMethodCard');
+    if (normalized === 'RBC' || normalized === 'RB_COINS' || normalized === 'RBCOINS') return t('paymentMethodRbc');
+    return method
+        .split('_')
+        .map((part) => (part.toLowerCase() === 'rbc' ? 'RBC' : part.charAt(0).toUpperCase() + part.slice(1).toLowerCase()))
+        .join(' ');
+}
+
+function purchasePaymentBreakdownRows(purchase: ClientProductPurchase): boolean {
+    const n = [purchase.totalCash, purchase.totalCard, purchase.totalCoins].filter((v) => v > 0).length;
+    return n > 1;
+}
+
 const EMPTY_RATING_ROWS: ReadonlyArray<{ rating: number }> = [];
 
 function useReviewStats(reviews: ReadonlyArray<{ rating: number }>) {
@@ -185,7 +220,7 @@ const PropertyDetail = () => {
     const selectedCatalogProduct = useSelectedCatalogProduct();
     const setSelectedCatalogProduct = useSetSelectedCatalogProduct();
     const { apiToken, client } = useAuth();
-    const { t } = useTranslation();
+    const { t, locale } = useTranslation();
     const colors = useThemeColors();
     const [instantBook, setInstantBook] = useState(false);
     const [isFocused, setIsFocused] = useState(true);
@@ -513,6 +548,15 @@ const PropertyDetail = () => {
                                                     );
                                                     const mapQuery = warehouseGeocodeQuery(row.warehouse, whDisplayName);
                                                     const canOpenMap = mapQuery.trim().length > 0;
+                                                    const loc = row.warehouse.location?.trim();
+                                                    const addr = row.warehouse.address?.trim();
+                                                    const separateAddress = Boolean(addr && loc && addr !== loc);
+                                                    const addressLineOnly = Boolean(addr && !loc);
+                                                    const mapHintEl = canOpenMap ? (
+                                                        <ThemedText className="text-xs text-light-subtext dark:text-dark-subtext underline shrink-0">
+                                                            {t('productWarehouseMapHint')}
+                                                        </ThemedText>
+                                                    ) : null;
                                                     return (
                                                         <View
                                                             key={row.warehouse.id}
@@ -533,31 +577,32 @@ const PropertyDetail = () => {
                                                                 <ThemedText className="text-sm font-medium text-light-text dark:text-dark-text">
                                                                     {whDisplayName}
                                                                 </ThemedText>
-                                                                {row.warehouse.location ? (
+                                                                {loc && !separateAddress && !addressLineOnly ? (
+                                                                    <View className="flex-row flex-wrap items-baseline gap-x-2 mt-0.5">
+                                                                        <ThemedText
+                                                                            className="text-xs text-light-subtext dark:text-dark-subtext min-w-0 shrink"
+                                                                            numberOfLines={2}
+                                                                        >
+                                                                            {loc}
+                                                                        </ThemedText>
+                                                                        {mapHintEl}
+                                                                    </View>
+                                                                ) : null}
+                                                                {loc && separateAddress ? (
                                                                     <ThemedText className="text-xs text-light-subtext dark:text-dark-subtext mt-0.5">
-                                                                        {row.warehouse.location}
+                                                                        {loc}
                                                                     </ThemedText>
                                                                 ) : null}
-                                                                {row.warehouse.address &&
-                                                                row.warehouse.address !== row.warehouse.location ? (
-                                                                    <ThemedText
-                                                                        className="text-xs text-light-subtext dark:text-dark-subtext mt-0.5"
-                                                                        numberOfLines={2}
-                                                                    >
-                                                                        {row.warehouse.address}
-                                                                    </ThemedText>
-                                                                ) : !row.warehouse.location && row.warehouse.address ? (
-                                                                    <ThemedText
-                                                                        className="text-xs text-light-subtext dark:text-dark-subtext mt-0.5"
-                                                                        numberOfLines={2}
-                                                                    >
-                                                                        {row.warehouse.address}
-                                                                    </ThemedText>
-                                                                ) : null}
-                                                                {canOpenMap ? (
-                                                                    <ThemedText className="text-xs text-light-subtext dark:text-dark-subtext mt-1.5 underline">
-                                                                        {t('productWarehouseMapHint')}
-                                                                    </ThemedText>
+                                                                {separateAddress || addressLineOnly ? (
+                                                                    <View className="flex-row flex-wrap items-baseline gap-x-2 mt-0.5">
+                                                                        <ThemedText
+                                                                            className="text-xs text-light-subtext dark:text-dark-subtext min-w-0 shrink"
+                                                                            numberOfLines={2}
+                                                                        >
+                                                                            {addr}
+                                                                        </ThemedText>
+                                                                        {mapHintEl}
+                                                                    </View>
                                                                 ) : null}
                                                             </Pressable>
                                                             <ThemedText className="text-sm font-semibold text-light-text dark:text-dark-text shrink-0">
@@ -567,6 +612,65 @@ const PropertyDetail = () => {
                                                     );
                                                 })}
                                         </View>
+                                    ) : null}
+                                </>
+                            ) : purchase ? (
+                                <>
+                                    <FeatureItem
+                                        icon="Calendar"
+                                        label={t('productPurchaseDate')}
+                                        value={formatPurchaseDate(purchase.purchaseDate, locale)}
+                                    />
+                                    <FeatureItem
+                                        icon="CreditCard"
+                                        label={t('checkoutPaymentMethod')}
+                                        value={purchasePaymentMethodLabel(purchase.paymentMethod, t)}
+                                    />
+                                    <FeatureItem
+                                        icon="Package"
+                                        label={t('productPurchaseQuantity')}
+                                        value={String(purchase.quantity)}
+                                    />
+                                    <FeatureItem
+                                        icon="CircleDollarSign"
+                                        label={t('productPurchaseUnitPrice')}
+                                        value={`${purchase.unitPrice} Kč`}
+                                    />
+                                    <FeatureItem
+                                        icon="Wallet"
+                                        label={t('productPurchaseTotal')}
+                                        value={`${purchase.totalPrice} Kč`}
+                                    />
+                                    {purchase.product.sku ? (
+                                        <FeatureItem icon="Hash" label={t('productSku')} value={purchase.product.sku} />
+                                    ) : null}
+                                    {purchase.notes ? (
+                                        <FeatureItem icon="StickyNote" label={t('productPurchaseNotes')} value={purchase.notes} />
+                                    ) : null}
+                                    {purchasePaymentBreakdownRows(purchase) ? (
+                                        <>
+                                            {purchase.totalCash > 0 ? (
+                                                <FeatureItem
+                                                    icon="Banknote"
+                                                    label={t('paymentMethodCash')}
+                                                    value={`${purchase.totalCash} Kč`}
+                                                />
+                                            ) : null}
+                                            {purchase.totalCard > 0 ? (
+                                                <FeatureItem
+                                                    icon="CreditCard"
+                                                    label={t('paymentMethodCard')}
+                                                    value={`${purchase.totalCard} Kč`}
+                                                />
+                                            ) : null}
+                                            {purchase.totalCoins > 0 ? (
+                                                <FeatureItem
+                                                    icon="Coins"
+                                                    label={t('paymentMethodRbc')}
+                                                    value={String(purchase.totalCoins)}
+                                                />
+                                            ) : null}
+                                        </>
                                     ) : null}
                                 </>
                             ) : (
