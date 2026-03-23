@@ -1,9 +1,10 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { View, ScrollView, Pressable, Dimensions } from 'react-native';
+import { View, ScrollView, Pressable, Dimensions, Image } from 'react-native';
 import Slider from '@react-native-community/slider';
 import ActionSheet, { ActionSheetRef } from 'react-native-actions-sheet';
 import ThemedText from '@/components/ThemedText';
 import { Chip } from '@/components/Chip';
+import Selectable from '@/components/forms/Selectable';
 import Icon from '@/components/Icon';
 import { Button } from '@/components/Button';
 import Input from '@/components/forms/Input';
@@ -245,16 +246,25 @@ export default function HaircutNoteEditModals({ kind, note, onClose, onApply }: 
       >
         {kind === 'overview' ? (
           <>
-            <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext mb-2">
+            <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext mb-1">
               {t('addPropertyStepHaircutType')}
             </ThemedText>
-            <View className="flex-row flex-wrap gap-3 mb-6">
+            <ThemedText className="text-xs text-light-subtext dark:text-dark-subtext mb-3">
+              {t('addPropertySelectMultiple')}
+            </ThemedText>
+            <View className="mb-6">
               {PROPERTY_TYPE_OPTIONS.map((option) => (
-                <Chip
-                  size="lg"
+                <Selectable
                   key={option.value}
-                  label={t(option.labelKey)}
-                  isSelected={typeValues.includes(option.value)}
+                  title={t(option.labelKey)}
+                  selected={typeValues.includes(option.value)}
+                  customIcon={
+                    <Image
+                      source={option.iconImage}
+                      className="h-12 w-12"
+                      resizeMode="contain"
+                    />
+                  }
                   onPress={() => {
                     setTypeValues((prev) =>
                       prev.includes(option.value)
@@ -265,16 +275,26 @@ export default function HaircutNoteEditModals({ kind, note, onClose, onApply }: 
                 />
               ))}
             </View>
-            <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext mb-2">
+            <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext mb-1">
               {t('addPropertyStepSeason')}
             </ThemedText>
-            <View className="flex-row flex-wrap gap-3">
+            <ThemedText className="text-xs text-light-subtext dark:text-dark-subtext mb-3">
+              {t('addPropertySelectMultiple')}
+            </ThemedText>
+            <View>
               {GUEST_ACCESS_OPTIONS.map((option) => (
-                <Chip
-                  size="lg"
+                <Selectable
                   key={option.value}
-                  label={t(option.labelKey)}
-                  isSelected={seasonValues.includes(option.value)}
+                  title={t(option.labelKey)}
+                  description={t(option.descKey)}
+                  selected={seasonValues.includes(option.value)}
+                  customIcon={
+                    <Image
+                      source={option.iconImage}
+                      className="h-12 w-12"
+                      resizeMode="contain"
+                    />
+                  }
                   onPress={() => {
                     setSeasonValues((prev) =>
                       prev.includes(option.value)

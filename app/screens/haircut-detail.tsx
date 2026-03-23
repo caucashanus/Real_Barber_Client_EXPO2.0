@@ -342,76 +342,15 @@ export default function HaircutDetailScreen() {
         scrollEventThrottle={16}
       >
         <AnimatedView animation="fadeIn" duration={400} delay={100}>
-          {!editing ? (
-            <View className="px-global">
-              <ImageCarousel
-                height={300}
-                rounded="2xl"
-                images={carouselImages}
-                scrollY={heroScrollY}
-                stretchOnPullDown
-              />
-            </View>
-          ) : (
-            <View className="px-global pt-2">
-              <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext mb-2">
-                {t('haircutDetailPhotosSection')}
-              </ThemedText>
-              <ScrollView
-                horizontal
-                nestedScrollEnabled
-                showsHorizontalScrollIndicator={false}
-                className={uploadingPhotos ? 'opacity-50' : ''}
-              >
-                <View className="flex-row items-stretch gap-3 pb-1 pr-2">
-                  {sortedCutPhotos.map((p, index) => {
-                    const uri = p.media?.url;
-                    if (!uri) return null;
-                    return (
-                      <View key={p.id} className="relative h-44 w-36 shrink-0">
-                        <Image
-                          source={{ uri }}
-                          className="h-44 w-36 rounded-xl bg-light-secondary dark:bg-dark-secondary"
-                          resizeMode="cover"
-                        />
-                        <Pressable
-                          onPress={() => removePhotoAt(index)}
-                          disabled={uploadingPhotos}
-                          className="absolute -top-1 -right-1 w-7 h-7 rounded-full bg-red-500 items-center justify-center"
-                        >
-                          <Icon name="X" size={14} color="white" />
-                        </Pressable>
-                      </View>
-                    );
-                  })}
-                  {cut.photos.length < MAX_CUT_PHOTOS ? (
-                    <View className="shrink-0 flex-row gap-3">
-                      <TouchableOpacity
-                        disabled={uploadingPhotos}
-                        onPress={pickImagesForCut}
-                        className="h-44 w-36 shrink-0 items-center justify-center rounded-lg border-2 border-dashed border-light-subtext dark:border-dark-subtext"
-                      >
-                        <Icon name="Plus" size={24} className="text-light-subtext dark:text-dark-subtext" />
-                        <ThemedText className="mt-1 px-1 text-center text-xs text-light-subtext dark:text-dark-subtext">
-                          {t('addPropertyAddPhoto')}
-                        </ThemedText>
-                      </TouchableOpacity>
-                      <TouchableOpacity
-                        disabled={uploadingPhotos}
-                        onPress={takePhotoForCut}
-                        className="h-44 w-36 shrink-0 items-center justify-center rounded-lg border-2 border-dashed border-light-subtext dark:border-dark-subtext"
-                      >
-                        <Icon name="Plus" size={24} className="text-light-subtext dark:text-dark-subtext" />
-                        <ThemedText className="mt-1 px-1 text-center text-xs text-light-subtext dark:text-dark-subtext">
-                          {t('addPropertyTakePhoto')}
-                        </ThemedText>
-                      </TouchableOpacity>
-                    </View>
-                  ) : null}
-                </View>
-              </ScrollView>
-            </View>
-          )}
+          <View className="px-global">
+            <ImageCarousel
+              height={300}
+              rounded="2xl"
+              images={carouselImages}
+              scrollY={heroScrollY}
+              stretchOnPullDown
+            />
+          </View>
 
           <View className="px-global pt-6 pb-4">
             {editing ? (
@@ -510,31 +449,50 @@ export default function HaircutDetailScreen() {
             onNoteChange={setDraftNote}
           />
 
-          {!editing ? (
-            <>
-              <Divider className="mt-6 h-2 bg-light-secondary dark:bg-dark-darker" />
+          <Divider className="mt-6 h-2 bg-light-secondary dark:bg-dark-darker" />
 
-              <Section
-                title={t('haircutDetailPhotosSection')}
-                titleSize="lg"
-                titleAlign="right"
-                className="px-global pt-4 pb-6"
+          <Section
+            title={t('haircutDetailPhotosSection')}
+            titleSize="lg"
+            titleAlign="right"
+            className="px-global pt-4 pb-6"
+          >
+            <View className="mt-4">
+              {haircutPhotoUrls.length === 0 ? (
+                <ThemedText className="mb-3 text-center text-sm text-light-subtext dark:text-dark-subtext">
+                  {t('haircutDetailPhotosEmpty')}
+                </ThemedText>
+              ) : null}
+
+              <ScrollView
+                horizontal
+                nestedScrollEnabled
+                showsHorizontalScrollIndicator={false}
+                className={uploadingPhotos ? 'opacity-50' : ''}
               >
-                <View className="mt-4">
-                  {haircutPhotoUrls.length === 0 ? (
-                    <ThemedText className="mb-3 text-center text-sm text-light-subtext dark:text-dark-subtext">
-                      {t('haircutDetailPhotosEmpty')}
-                    </ThemedText>
-                  ) : null}
-
-                  <ScrollView
-                    horizontal
-                    nestedScrollEnabled
-                    showsHorizontalScrollIndicator={false}
-                    className={uploadingPhotos ? 'opacity-50' : ''}
-                  >
-                    <View className="flex-row items-stretch gap-3 pb-1 pr-2">
-                      {haircutPhotoUrls.map((uri, index) => (
+                <View className="flex-row items-stretch gap-3 pb-1 pr-2">
+                  {editing
+                    ? sortedCutPhotos.map((p, index) => {
+                        const uri = p.media?.url;
+                        if (!uri) return null;
+                        return (
+                          <View key={p.id} className="relative h-44 w-36 shrink-0">
+                            <Image
+                              source={{ uri }}
+                              className="h-44 w-36 rounded-xl bg-light-secondary dark:bg-dark-secondary"
+                              resizeMode="cover"
+                            />
+                            <Pressable
+                              onPress={() => removePhotoAt(index)}
+                              disabled={uploadingPhotos}
+                              className="absolute -top-1 -right-1 w-7 h-7 rounded-full bg-red-500 items-center justify-center"
+                            >
+                              <Icon name="X" size={14} color="white" />
+                            </Pressable>
+                          </View>
+                        );
+                      })
+                    : haircutPhotoUrls.map((uri, index) => (
                         <Image
                           key={`${uri}-${index}`}
                           source={{ uri }}
@@ -543,36 +501,34 @@ export default function HaircutDetailScreen() {
                         />
                       ))}
 
-                      {cut.photos.length < MAX_CUT_PHOTOS ? (
-                        <View className="shrink-0 flex-row gap-3">
-                          <TouchableOpacity
-                            disabled={uploadingPhotos}
-                            onPress={pickImagesForCut}
-                            className="h-44 w-36 shrink-0 items-center justify-center rounded-lg border-2 border-dashed border-light-subtext dark:border-dark-subtext"
-                          >
-                            <Icon name="Plus" size={24} className="text-light-subtext dark:text-dark-subtext" />
-                            <ThemedText className="mt-1 px-1 text-center text-xs text-light-subtext dark:text-dark-subtext">
-                              {t('addPropertyAddPhoto')}
-                            </ThemedText>
-                          </TouchableOpacity>
-                          <TouchableOpacity
-                            disabled={uploadingPhotos}
-                            onPress={takePhotoForCut}
-                            className="h-44 w-36 shrink-0 items-center justify-center rounded-lg border-2 border-dashed border-light-subtext dark:border-dark-subtext"
-                          >
-                            <Icon name="Plus" size={24} className="text-light-subtext dark:text-dark-subtext" />
-                            <ThemedText className="mt-1 px-1 text-center text-xs text-light-subtext dark:text-dark-subtext">
-                              {t('addPropertyTakePhoto')}
-                            </ThemedText>
-                          </TouchableOpacity>
-                        </View>
-                      ) : null}
+                  {cut.photos.length < MAX_CUT_PHOTOS ? (
+                    <View className="shrink-0 flex-row gap-3">
+                      <TouchableOpacity
+                        disabled={uploadingPhotos}
+                        onPress={pickImagesForCut}
+                        className="h-44 w-36 shrink-0 items-center justify-center rounded-lg border-2 border-dashed border-light-subtext dark:border-dark-subtext"
+                      >
+                        <Icon name="Plus" size={24} className="text-light-subtext dark:text-dark-subtext" />
+                        <ThemedText className="mt-1 px-1 text-center text-xs text-light-subtext dark:text-dark-subtext">
+                          {t('addPropertyAddPhoto')}
+                        </ThemedText>
+                      </TouchableOpacity>
+                      <TouchableOpacity
+                        disabled={uploadingPhotos}
+                        onPress={takePhotoForCut}
+                        className="h-44 w-36 shrink-0 items-center justify-center rounded-lg border-2 border-dashed border-light-subtext dark:border-dark-subtext"
+                      >
+                        <Icon name="Plus" size={24} className="text-light-subtext dark:text-dark-subtext" />
+                        <ThemedText className="mt-1 px-1 text-center text-xs text-light-subtext dark:text-dark-subtext">
+                          {t('addPropertyTakePhoto')}
+                        </ThemedText>
+                      </TouchableOpacity>
                     </View>
-                  </ScrollView>
+                  ) : null}
                 </View>
-              </Section>
-            </>
-          ) : null}
+              </ScrollView>
+            </View>
+          </Section>
         </AnimatedView>
       </ThemedScroller>
 

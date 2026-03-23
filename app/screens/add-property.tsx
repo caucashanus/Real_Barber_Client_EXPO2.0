@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { View, ScrollView, Image, TouchableOpacity, Alert } from 'react-native';
+import { View, ScrollView, Image, TouchableOpacity, Alert, useWindowDimensions } from 'react-native';
 import * as Haptics from 'expo-haptics';
 import { router } from 'expo-router';
 import * as ImagePicker from 'expo-image-picker';
@@ -33,8 +33,15 @@ import {
   GUEST_ACCESS_OPTIONS,
   PROPERTY_TYPE_OPTIONS,
 } from '@/constants/haircutWizardOptions';
+import { HAIRCUT_TITLE_SUGGESTION_KEYS } from '@/constants/haircutTitleSuggestions';
 
 const MAX_CUT_PHOTOS = 5;
+
+/** Po zavření průvodce nebo po uložení účesu – platná cesta (neexistující `/(drawer)/…` způsobovala „Page not found“). */
+const MY_HAIRCUTS_ROUTE = '/(tabs)/(home)/my-haircuts';
+
+/** Stejné jako `px-8` u kroku – záporný margin pro full-bleed pás chipů. */
+const STEP_HORIZONTAL_INSET_PX = 32;
 
 interface PropertyData extends HaircutWizardPropertyData {
   photoAssets: ImagePickerAsset[];
@@ -291,6 +298,7 @@ const PhotosStep: React.FC<StepProps> = ({ data, updateData }) => {
 // Step 6: Title and Description (název účesu + popis)
 const TitleDescriptionStep: React.FC<StepProps> = ({ data, updateData }) => {
     const { t } = useTranslation();
+    const { width: windowWidth } = useWindowDimensions();
     return (
     <ScrollView className="p-4 px-8">
         <View className='mb-10'>
@@ -310,6 +318,41 @@ const TitleDescriptionStep: React.FC<StepProps> = ({ data, updateData }) => {
             <ThemedText className="text-xs text-light-subtext dark:text-dark-subtext">
                 {data.title.length}/50
             </ThemedText>
+            <ThemedText className="text-xs text-light-subtext dark:text-dark-subtext mt-3 mb-2">
+                {t('addPropertyTitleQuickIdeas')}
+            </ThemedText>
+            <View
+                className="mt-1"
+                style={{
+                    width: windowWidth,
+                    marginLeft: -STEP_HORIZONTAL_INSET_PX,
+                    marginRight: -STEP_HORIZONTAL_INSET_PX,
+                }}
+            >
+            <ScrollView
+                horizontal
+                nestedScrollEnabled
+                showsHorizontalScrollIndicator={false}
+                keyboardShouldPersistTaps="handled"
+            >
+                <View className="flex-row items-center gap-2 pb-1 pl-4">
+                    {HAIRCUT_TITLE_SUGGESTION_KEYS.map((key) => {
+                        const label = t(key);
+                        const selected = data.title.trim() === label.trim();
+                        return (
+                            <View key={key} className="shrink-0">
+                                <Chip
+                                    size="lg"
+                                    label={label}
+                                    isSelected={selected}
+                                    onPress={() => updateData({ title: label.slice(0, 50) })}
+                                />
+                            </View>
+                        );
+                    })}
+                </View>
+            </ScrollView>
+            </View>
         </Section>
 
         <Section title={t('addPropertyDescription')} titleSize="md" padding="sm" className="mt-6">
@@ -484,14 +527,14 @@ export default function AddPropertyScreen() {
                 }
 
                 const noteText = buildHaircutNote(data, t);
-                const cut = await createClientCut(apiToken, {
+                await createClientCut(apiToken, {
                     hairstyle: trimmedTitle,
                     note: noteText || null,
                     barber_id: data.barber_id.trim() || null,
                     photos: photoIds,
                 });
 
-                router.replace(`/screens/haircut-detail?id=${encodeURIComponent(cut.id)}`);
+                router.replace(MY_HAIRCUTS_ROUTE);
             } catch (e) {
                 const msg = e instanceof Error ? e.message : t('addPropertyCutSaveFailed');
                 Alert.alert('', msg);
@@ -504,7 +547,7 @@ export default function AddPropertyScreen() {
     return (
         <MultiStep
             onComplete={handleWizardComplete}
-            onClose={() => router.push('/(drawer)/(tabs)/')}
+            onClose={() => router.replace(MY_HAIRCUTS_ROUTE)}
             showStepIndicator={false}
             footerLoading={submitting}
             isNextDisabled={isNextDisabled}

@@ -15,6 +15,10 @@ import { useTranslation } from '@/app/hooks/useTranslation';
 import useThemeColors from '@/app/contexts/ThemeColors';
 import { useAuth } from '@/app/contexts/AuthContext';
 import { getClientCuts, type ClientCut } from '@/api/cuts';
+import {
+  isHaircutIntroCooldownActive,
+  setHaircutIntroCooldown24h,
+} from '@/utils/haircut-intro-cooldown';
 
 const CUT_PLACEHOLDER = require('@/assets/img/barbers.png');
 
@@ -31,6 +35,13 @@ const MyHaircutsScreen = () => {
   const [cuts, setCuts] = useState<ClientCut[]>([]);
   const [loading, setLoading] = useState(false);
   const [loadError, setLoadError] = useState<string | null>(null);
+  const [haircutIntroCooldown, setHaircutIntroCooldown] = useState(false);
+
+  useFocusEffect(
+    useCallback(() => {
+      void isHaircutIntroCooldownActive().then(setHaircutIntroCooldown);
+    }, [])
+  );
 
   useFocusEffect(
     useCallback(() => {
@@ -74,27 +85,33 @@ const MyHaircutsScreen = () => {
       scrollEventThrottle={16}
     >
       <AnimatedView animation="scaleIn" className="flex-1 mt-4">
-        <View className="p-10 items-center rounded-3xl bg-slate-200 mb-6 dark:bg-dark-secondary">
-          <View className="w-20 h-20 relative">
-            <View className="w-full h-full rounded-xl relative z-20 overflow-hidden border-2 border-light-primary dark:border-dark-primary">
-              <Image className="w-full h-full" source={require('@/assets/img/myidea.png')} resizeMode="contain" />
+        {!haircutIntroCooldown ? (
+          <View className="p-10 items-center rounded-3xl bg-slate-200 mb-6 dark:bg-dark-secondary">
+            <View className="w-20 h-20 relative">
+              <View className="w-full h-full rounded-xl relative z-20 overflow-hidden border-2 border-light-primary dark:border-dark-primary">
+                <Image className="w-full h-full" source={require('@/assets/img/myidea.png')} resizeMode="contain" />
+              </View>
+              <View className="w-full h-full absolute top-0 left-8 rotate-12 rounded-xl overflow-hidden border-2 border-light-primary dark:border-dark-primary">
+                <Image className="w-full h-full" source={require('@/assets/img/myrules.png')} resizeMode="contain" />
+              </View>
+              <View className="w-full h-full absolute top-0 right-8 -rotate-12 rounded-xl overflow-hidden border-2 border-light-primary dark:border-dark-primary">
+                <Image className="w-full h-full" source={require('@/assets/img/savefinish.png')} resizeMode="contain" />
+              </View>
             </View>
-            <View className="w-full h-full absolute top-0 left-8 rotate-12 rounded-xl overflow-hidden border-2 border-light-primary dark:border-dark-primary">
-              <Image className="w-full h-full" source={require('@/assets/img/myrules.png')} resizeMode="contain" />
-            </View>
-            <View className="w-full h-full absolute top-0 right-8 -rotate-12 rounded-xl overflow-hidden border-2 border-light-primary dark:border-dark-primary">
-              <Image className="w-full h-full" source={require('@/assets/img/savefinish.png')} resizeMode="contain" />
-            </View>
+            <ThemedText className="text-2xl font-semibold mt-4">{t('myHaircutsCreate')}</ThemedText>
+            <ThemedText className="text-sm font-light text-center px-4">{t('myHaircutsCreateDesc')}</ThemedText>
+            <Button
+              title={t('profileGetStarted')}
+              className="mt-4"
+              textClassName="text-white"
+              onPress={async () => {
+                await setHaircutIntroCooldown24h();
+                setHaircutIntroCooldown(true);
+                router.push('/screens/add-property-start?from=cta');
+              }}
+            />
           </View>
-          <ThemedText className="text-2xl font-semibold mt-4">{t('myHaircutsCreate')}</ThemedText>
-          <ThemedText className="text-sm font-light text-center px-4">{t('myHaircutsCreateDesc')}</ThemedText>
-          <Button
-            title={t('profileGetStarted')}
-            className="mt-4"
-            textClassName="text-white"
-            onPress={() => router.push('/screens/add-property-start')}
-          />
-        </View>
+        ) : null}
 
         <View className="mb-4 flex-row items-center justify-between gap-2 py-2">
           <Pressable
@@ -108,7 +125,10 @@ const MyHaircutsScreen = () => {
             </ThemedText>
           </Pressable>
           <Pressable
-            onPress={() => router.push('/screens/add-property-start')}
+            onPress={async () => {
+              const skip = await isHaircutIntroCooldownActive();
+              router.push(skip ? '/screens/add-property' : '/screens/add-property-start');
+            }}
             className="h-10 w-10 shrink-0 items-center justify-center rounded-full bg-light-secondary active:opacity-70 dark:bg-dark-secondary"
             accessibilityRole="button"
             accessibilityLabel={t('myHaircutsAddNewA11y')}

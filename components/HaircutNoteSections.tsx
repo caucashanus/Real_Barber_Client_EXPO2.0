@@ -25,6 +25,7 @@ import {
 import { useTranslation } from '@/app/hooks/useTranslation';
 import type { TranslationKey } from '@/locales';
 import HaircutNoteEditModals, { type HaircutNotePickerKind } from '@/components/HaircutNoteEditModals';
+import Selectable from '@/components/forms/Selectable';
 
 const SECTION_TITLE_KEY: Record<HaircutNoteSectionId, TranslationKey> = {
   overview: 'haircutNoteSectionOverview',
@@ -152,27 +153,26 @@ function OverviewTagsBlock({
     return <NoteRow label="" value={value} />;
   }
   return (
-    <View className="flex-row flex-wrap gap-2">
+    <View>
       {tags.map((tag, i) => {
         const img = variant === 'type' ? resolvePropertyTypeIcon(tag) : resolveSeasonIcon(tag);
-        const big = variant === 'type' && isLongerHaircutTypeLabel(tag);
         return (
           <View key={`${tag}-${i}`} className="relative">
-            <View className="flex-row items-center rounded-full bg-light-secondary dark:bg-dark-secondary px-3 py-1.5 pr-8">
-              {img ? (
-                <Image
-                  source={img}
-                  className={big ? 'mr-1.5 h-7 w-7' : 'mr-1.5 h-6 w-6'}
-                  resizeMode="contain"
-                />
-              ) : null}
-              <ThemedText className="text-sm text-light-text dark:text-dark-text">{tag}</ThemedText>
-            </View>
+            <Selectable
+              title={tag}
+              selected
+              showSelectedIndicator={!editing}
+              customIcon={
+                img ? (
+                  <Image source={img} className="h-12 w-12" resizeMode="contain" />
+                ) : undefined
+              }
+            />
             {editing && onRemoveTag ? (
               <Pressable
                 onPress={() => onRemoveTag(tag)}
                 hitSlop={6}
-                className="absolute -top-1 -right-1 h-6 w-6 items-center justify-center rounded-full bg-red-500"
+                className="absolute -top-1 -right-1 z-10 h-7 w-7 items-center justify-center rounded-full bg-red-500"
               >
                 <Icon name="X" size={12} color="white" />
               </Pressable>

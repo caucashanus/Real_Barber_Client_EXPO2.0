@@ -219,7 +219,7 @@ export default function EditProfileScreen() {
                 </TouchableOpacity>
                 <View className="flex-1">
                   <Button
-                    title={avatarSrc ? 'Change photo' : 'Upload photo'}
+                    title={avatarSrc ? t('editProfileChangePhoto') : t('editProfileUploadPhoto')}
                     variant="outline"
                     onPress={pickImage}
                   />
