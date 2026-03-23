@@ -565,6 +565,15 @@ export const cs: Record<TranslationKey, string> = {
   notifSettingsHostPromotions: 'Akce hostitele',
   notifSettingsTravelTips: 'Cestovní tipy',
   notifSettingsMarketingEmails: 'Marketingové e-maily',
+  notifTestLocalSectionTitle: 'Test notifikace',
+  notifTestLocalSectionDesc:
+    'Zobrazí lokální notifikaci za pár sekund — ověří oprávnění a kanál. Neověřuje push ze serveru (CRM).',
+  notifTestLocalButton: 'Test notifikace',
+  notifTestLocalNotifTitle: 'Real Barber',
+  notifTestLocalNotifBody: 'Test lokální notifikace — OK',
+  notifTestLocalPermissionTitle: 'Oznámení',
+  notifTestLocalPermissionMessage: 'Povolte oznámení v nastavení systému.',
+  notifTestLocalUnsupported: 'Na této platformě není k dispozici.',
 
   // Payments (extra)
   paymentsCvv: 'CVC',

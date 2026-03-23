@@ -563,6 +563,15 @@ export const en = {
   notifSettingsHostPromotions: 'Host Promotions',
   notifSettingsTravelTips: 'Travel Tips',
   notifSettingsMarketingEmails: 'Marketing Emails',
+  notifTestLocalSectionTitle: 'Test notification',
+  notifTestLocalSectionDesc:
+    'Shows a local notification in a few seconds — checks permission and channel. Does not test server push (CRM).',
+  notifTestLocalButton: 'Test notification',
+  notifTestLocalNotifTitle: 'Real Barber',
+  notifTestLocalNotifBody: 'Local test notification — OK',
+  notifTestLocalPermissionTitle: 'Notifications',
+  notifTestLocalPermissionMessage: 'Allow notifications in system settings.',
+  notifTestLocalUnsupported: 'Not available on this platform.',
 
   // Payments (extra)
   paymentsCvv: 'CVV',
