@@ -43,6 +43,8 @@ interface CardProps {
     topLeftBadge?: React.ReactNode;
     /** Custom content for the pill under title (replaces price/rating/badgeSecondary when set) */
     pillContent?: React.ReactNode;
+    /** Zobrazí se před `description` (např. avatar holiče). */
+    descriptionAvatar?: string | ImageSourcePropType;
     children?: React.ReactNode;
     style?: ViewStyle;
 }
@@ -74,6 +76,7 @@ const Card: React.FC<CardProps> = ({
     titleTrailing,
     topLeftBadge,
     pillContent,
+    descriptionAvatar,
     children,
     style,
     ...props
@@ -211,11 +214,26 @@ const Card: React.FC<CardProps> = ({
                             {titleTrailing}
                         </View>
 
-                        {description && (
-                            <ThemedText numberOfLines={1} className="text-xs mb-px text-gray-500 dark:text-gray-300">
-                                {description}
-                            </ThemedText>
-                        )}
+                        {description ? (
+                            <View className="mb-px mt-0.5 flex-row items-center gap-1.5">
+                                {descriptionAvatar ? (
+                                    <Image
+                                        source={
+                                            typeof descriptionAvatar === 'string'
+                                                ? { uri: descriptionAvatar }
+                                                : descriptionAvatar
+                                        }
+                                        className="h-5 w-5 shrink-0 rounded-full bg-light-secondary dark:bg-dark-secondary"
+                                    />
+                                ) : null}
+                                <ThemedText
+                                    numberOfLines={1}
+                                    className="min-w-0 flex-1 text-xs text-gray-500 dark:text-gray-300"
+                                >
+                                    {description}
+                                </ThemedText>
+                            </View>
+                        ) : null}
                         {(price || badgeSecondary || pillContent) && (
                             <View className="flex-row items-center mt-1 flex-wrap gap-1">
                                 {pillContent ? (

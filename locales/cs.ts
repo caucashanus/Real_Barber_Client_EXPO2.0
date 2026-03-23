@@ -193,6 +193,7 @@ export const cs: Record<TranslationKey, string> = {
 
   // My haircuts
   myHaircutsWhatsFor: 'K čemu to je?',
+  myHaircutsAddNewA11y: 'Přidat nový střih',
   myHaircutsYours: 'Vaše střihy',
   myHaircutsEmpty: 'Zatím nemáte uložený střih. Přidejte si ho níže.',
   myHaircutsLoginToSee: 'Pro zobrazení uložených střihů se přihlaste.',

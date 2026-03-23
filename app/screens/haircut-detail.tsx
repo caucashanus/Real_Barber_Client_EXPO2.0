@@ -7,6 +7,7 @@ import {
   Image,
   TouchableOpacity,
   ScrollView,
+  Pressable,
 } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import type { ImagePickerAsset } from 'expo-image-picker';
@@ -37,20 +38,6 @@ import { getEmployees, type Employee } from '@/api/employees';
 const PLACEHOLDER_IMAGE = require('@/assets/img/barbers.png');
 /** Stejný limit jako ve wizardu `add-property`. */
 const MAX_CUT_PHOTOS = 5;
-
-/** Stejné placeholdery jako v `booking-detail` — sekce později nahradíte reálnými daty střihu. */
-const bookingData = {
-  checkIn: 'Dec 20, 2025',
-  checkOut: 'Dec 25, 2025',
-  nights: 5,
-  guests: 4,
-  adults: 3,
-  children: 1,
-  infants: 0,
-  pets: 0,
-  requestDate: 'Dec 10, 2024',
-  specialRequests: [] as string[],
-};
 
 /** Rozdělí `createdAt` na datum a čas pro dvousloupcovou kartu (jako check-in / check-out). */
 function formatCutCreatedAtParts(iso: string | undefined): { date: string; time: string } {
@@ -85,9 +72,9 @@ export default function HaircutDetailScreen() {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [editing, setEditing] = useState(false);
-  const [hairstyle, setHairstyle] = useState('');
-  const [note, setNote] = useState('');
-  const [barberId, setBarberId] = useState<string>('');
+  const [draftHairstyle, setDraftHairstyle] = useState('');
+  const [draftNote, setDraftNote] = useState('');
+  const [draftBarberId, setDraftBarberId] = useState<string>('');
   const [employees, setEmployees] = useState<Employee[]>([]);
   const [uploadingPhotos, setUploadingPhotos] = useState(false);
 
@@ -101,9 +88,6 @@ export default function HaircutDetailScreen() {
     getClientCut(apiToken, id)
       .then((data) => {
         setCut(data);
-        setHairstyle(data.hairstyle ?? '');
-        setNote(data.note ?? '');
-        setBarberId(data.barber?.id ?? '');
       })
       .catch((e) => {
         setError(e instanceof Error ? e.message : 'Failed to load haircut.');
@@ -123,6 +107,17 @@ export default function HaircutDetailScreen() {
       .catch(() => setEmployees([]));
   }, [apiToken]);
 
+  const syncDraftsFromCut = useCallback(() => {
+    if (!cut) return;
+    setDraftHairstyle(cut.hairstyle ?? '');
+    setDraftNote(cut.note ?? '');
+    setDraftBarberId(cut.barber?.id ?? '');
+  }, [cut]);
+
+  useEffect(() => {
+    if (!editing) syncDraftsFromCut();
+  }, [cut, editing, syncDraftsFromCut]);
+
   const carouselImages = useMemo(() => {
     if (!cut) return [PLACEHOLDER_IMAGE];
     const urls = cut.photos?.map((p) => p.media?.url).filter(Boolean) as string[];
@@ -138,6 +133,29 @@ export default function HaircutDetailScreen() {
       .filter(Boolean) as string[];
   }, [cut]);
 
+  const sortedCutPhotos = useMemo(() => {
+    if (!cut?.photos?.length) return [];
+    return [...cut.photos].sort((a, b) => a.order - b.order);
+  }, [cut]);
+
+  const patchFieldsForPhotos = useCallback(() => {
+    if (!cut) {
+      return {
+        hairstyle: '',
+        note: null as string | null,
+        barber_id: null as string | null,
+      };
+    }
+    const hairstyle = (editing ? draftHairstyle : cut.hairstyle).trim();
+    const noteRaw = editing ? draftNote : (cut.note ?? '');
+    const barberRaw = editing ? draftBarberId : (cut.barber?.id ?? '');
+    return {
+      hairstyle,
+      note: noteRaw.trim() || null,
+      barber_id: barberRaw.trim() || null,
+    };
+  }, [cut, editing, draftHairstyle, draftNote, draftBarberId]);
+
   const appendPhotosFromAssets = useCallback(
     async (assets: ImagePickerAsset[]) => {
       if (!apiToken || !id || !cut || assets.length === 0) return;
@@ -146,7 +164,8 @@ export default function HaircutDetailScreen() {
       if (slice.length === 0) return;
       setUploadingPhotos(true);
       try {
-        const label = cut.hairstyle?.trim() || t('haircutTitle');
+        const pf = patchFieldsForPhotos();
+        const label = pf.hairstyle || t('haircutTitle');
         const mediaIds = [...cut.photos]
           .sort((a, b) => a.order - b.order)
           .map((p) => p.media?.id)
@@ -162,9 +181,9 @@ export default function HaircutDetailScreen() {
           mediaIds.push(uploaded.id);
         }
         const updated = await patchClientCut(apiToken, id, {
-          hairstyle: cut.hairstyle.trim(),
-          note: cut.note?.trim() || null,
-          barber_id: cut.barber?.id?.trim() || null,
+          hairstyle: pf.hairstyle,
+          note: pf.note,
+          barber_id: pf.barber_id,
           photos: mediaIds,
         });
         setCut(updated);
@@ -174,7 +193,34 @@ export default function HaircutDetailScreen() {
         setUploadingPhotos(false);
       }
     },
-    [apiToken, id, cut, t]
+    [apiToken, id, cut, t, patchFieldsForPhotos]
+  );
+
+  const removePhotoAt = useCallback(
+    async (photoIndex: number) => {
+      if (!apiToken || !id || !cut) return;
+      const sorted = [...cut.photos].sort((a, b) => a.order - b.order);
+      const remaining = sorted
+        .filter((_, i) => i !== photoIndex)
+        .map((p) => p.media?.id)
+        .filter(Boolean) as string[];
+      setUploadingPhotos(true);
+      try {
+        const pf = patchFieldsForPhotos();
+        const updated = await patchClientCut(apiToken, id, {
+          hairstyle: pf.hairstyle,
+          note: pf.note,
+          barber_id: pf.barber_id,
+          photos: remaining,
+        });
+        setCut(updated);
+      } catch (e) {
+        Alert.alert('', e instanceof Error ? e.message : t('haircutDetailPhotoUploadFailed'));
+      } finally {
+        setUploadingPhotos(false);
+      }
+    },
+    [apiToken, id, cut, patchFieldsForPhotos, t]
   );
 
   const pickImagesForCut = useCallback(async () => {
@@ -208,7 +254,7 @@ export default function HaircutDetailScreen() {
 
   const handleSave = async () => {
     if (!apiToken || !id) return;
-    const trimmedName = hairstyle.trim();
+    const trimmedName = draftHairstyle.trim();
     if (!trimmedName) {
       setError('Name is required');
       return;
@@ -218,8 +264,8 @@ export default function HaircutDetailScreen() {
     try {
       const updated = await patchClientCut(apiToken, id, {
         hairstyle: trimmedName,
-        note: note.trim() || null,
-        barber_id: barberId.trim() || null,
+        note: draftNote.trim() || null,
+        barber_id: draftBarberId.trim() || null,
       });
       setCut(updated);
       setEditing(false);
@@ -231,11 +277,7 @@ export default function HaircutDetailScreen() {
   };
 
   const cancelEdit = () => {
-    if (!cut) return;
     setEditing(false);
-    setHairstyle(cut.hairstyle ?? '');
-    setNote(cut.note ?? '');
-    setBarberId(cut.barber?.id ?? '');
     setError(null);
   };
 
@@ -287,64 +329,17 @@ export default function HaircutDetailScreen() {
 
   if (!cut) return null;
 
-  if (editing) {
-    return (
-      <>
-        <Header title={cut.hairstyle || t('haircutTitle')} showBackButton />
-        <ThemedScroller className="flex-1" keyboardShouldPersistTaps="handled">
-          <AnimatedView animation="fadeIn" duration={300}>
-            <Section title="" titleSize="md" className="mt-4 px-global">
-              <Input
-                label={t('haircutName')}
-                value={hairstyle}
-                onChangeText={setHairstyle}
-                placeholder="e.g. Low Fade"
-                containerClassName="mb-4"
-              />
-              <BarberPicker
-                label={t('haircutBarber')}
-                employees={employees}
-                value={barberId}
-                onChange={setBarberId}
-              />
-              <Input
-                label={t('haircutNote')}
-                value={note}
-                onChangeText={setNote}
-                placeholder="Optional note"
-                isMultiline
-                containerClassName="mb-4"
-              />
-              {error ? (
-                <ThemedText className="mb-2 text-red-500 dark:text-red-400">{error}</ThemedText>
-              ) : null}
-            </Section>
-          </AnimatedView>
-        </ThemedScroller>
-        <ThemedFooter>
-          <View className="flex-row gap-3">
-            <Button title={t('commonCancel')} variant="outline" className="flex-1" onPress={cancelEdit} />
-            <Button
-              title={saving ? 'Saving…' : t('commonSave')}
-              variant="primary"
-              textClassName="text-white"
-              className="flex-1"
-              onPress={handleSave}
-              disabled={saving}
-            />
-          </View>
-        </ThemedFooter>
-      </>
-    );
-  }
-
   const barberName = cut.barber?.name ?? '—';
   const barberAvatar = cut.barber?.avatarUrl ?? undefined;
   const createdParts = formatCutCreatedAtParts(cut.createdAt);
 
+  const headerTitle = editing
+    ? draftHairstyle.trim() || t('haircutTitle')
+    : cut.hairstyle || t('haircutTitle');
+
   return (
     <>
-      <Header title={cut.hairstyle || t('haircutTitle')} showBackButton />
+      <Header title={headerTitle} showBackButton />
       <ThemedScroller
         className="flex-1 px-0"
         keyboardShouldPersistTaps="handled"
@@ -354,102 +349,21 @@ export default function HaircutDetailScreen() {
         scrollEventThrottle={16}
       >
         <AnimatedView animation="fadeIn" duration={400} delay={100}>
-          <View className="px-global">
-            <ImageCarousel
-              height={300}
-              rounded="2xl"
-              images={carouselImages}
-              scrollY={heroScrollY}
-              stretchOnPullDown
-            />
-          </View>
-
-          <View className="px-global pt-6 pb-4">
-            <ThemedText className="text-2xl font-bold mb-2">{cut.hairstyle || t('haircutTitle')}</ThemedText>
-            <View className="flex-row items-center">
-              <Icon name="MapPin" size={16} className="mr-2 text-light-subtext dark:text-dark-subtext" />
-              <ThemedText className="text-light-subtext dark:text-dark-subtext">{barberName}</ThemedText>
-            </View>
-          </View>
-
-          <Divider className="h-2 bg-light-secondary dark:bg-dark-darker" />
-
-          <Section title={t('haircutDetailCreatedWith')} titleSize="lg" className="px-global pt-4">
-            <View className="flex-row items-center justify-between mt-4 mb-4">
-              <View className="flex-row items-center flex-1">
-                <Avatar src={barberAvatar ?? PLACEHOLDER_IMAGE} size="lg" name={barberName !== '—' ? barberName : undefined} />
-                <View className="ml-3 flex-1">
-                  <ThemedText className="text-lg font-semibold">{barberName}</ThemedText>
-                  <View className="flex-row items-center mt-px">
-                    <ShowRating rating={5} size="sm" />
-                    <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext ml-2">(0 reviews)</ThemedText>
-                  </View>
-                </View>
-              </View>
-            </View>
-
-            {cut.barber?.id ? (
-              <ListLink
-                icon="Gift"
-                title={t('bookingSendRbcTip')}
-                description={t('bookingSendRbcTip')}
-                showChevron
-                className="rounded-xl bg-light-secondary px-4 py-3 dark:bg-dark-secondary"
-                onPress={() => {
-                  const barber = cut.barber;
-                  if (!barber?.id) return;
-                  setTransferRecipient({
-                    id: barber.id,
-                    name: barber.name ?? '—',
-                    type: 'EMPLOYEE',
-                    avatarUrl: barber.avatarUrl ?? undefined,
-                  });
-                  router.push(`/screens/transfer-chat/${encodeURIComponent(barber.id)}`);
-                }}
+          {!editing ? (
+            <View className="px-global">
+              <ImageCarousel
+                height={300}
+                rounded="2xl"
+                images={carouselImages}
+                scrollY={heroScrollY}
+                stretchOnPullDown
               />
-            ) : null}
-          </Section>
-
-          <Divider className="mt-6 h-2 bg-light-secondary dark:bg-dark-darker" />
-
-          <Section title={t('haircutDetailCreatedAtPrefix')} titleSize="lg" className="px-global pt-4">
-            <View className="mt-4">
-              <View className="flex-row items-center justify-between bg-light-secondary dark:bg-dark-secondary rounded-xl p-4">
-                <View>
-                  <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext">
-                    {t('haircutDetailCreatedDateLabel')}
-                  </ThemedText>
-                  <ThemedText className="text-lg font-semibold">{createdParts.date}</ThemedText>
-                </View>
-                <View className="items-end">
-                  <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext">
-                    {t('haircutDetailCreatedTimeLabel')}
-                  </ThemedText>
-                  <ThemedText className="text-lg font-semibold">{createdParts.time}</ThemedText>
-                </View>
-              </View>
             </View>
-          </Section>
-
-          <Divider className="mt-6 h-2 bg-light-secondary dark:bg-dark-darker" />
-
-          <HaircutNoteSections note={cut.note} />
-
-          <Divider className="mt-6 h-2 bg-light-secondary dark:bg-dark-darker" />
-
-          <Section
-            title={t('haircutDetailPhotosSection')}
-            titleSize="lg"
-            titleAlign="right"
-            className="px-global pt-4 pb-6"
-          >
-            <View className="mt-4">
-              {haircutPhotoUrls.length === 0 ? (
-                <ThemedText className="mb-3 text-center text-sm text-light-subtext dark:text-dark-subtext">
-                  {t('haircutDetailPhotosEmpty')}
-                </ThemedText>
-              ) : null}
-
+          ) : (
+            <View className="px-global pt-2">
+              <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext mb-2">
+                {t('haircutDetailPhotosSection')}
+              </ThemedText>
               <ScrollView
                 horizontal
                 nestedScrollEnabled
@@ -457,15 +371,26 @@ export default function HaircutDetailScreen() {
                 className={uploadingPhotos ? 'opacity-50' : ''}
               >
                 <View className="flex-row items-stretch gap-3 pb-1 pr-2">
-                  {haircutPhotoUrls.map((uri, index) => (
-                    <Image
-                      key={`${uri}-${index}`}
-                      source={{ uri }}
-                      className="h-44 w-36 shrink-0 rounded-xl bg-light-secondary dark:bg-dark-secondary"
-                      resizeMode="cover"
-                    />
-                  ))}
-
+                  {sortedCutPhotos.map((p, index) => {
+                    const uri = p.media?.url;
+                    if (!uri) return null;
+                    return (
+                      <View key={p.id} className="relative h-44 w-36 shrink-0">
+                        <Image
+                          source={{ uri }}
+                          className="h-44 w-36 rounded-xl bg-light-secondary dark:bg-dark-secondary"
+                          resizeMode="cover"
+                        />
+                        <Pressable
+                          onPress={() => removePhotoAt(index)}
+                          disabled={uploadingPhotos}
+                          className="absolute -top-1 -right-1 w-7 h-7 rounded-full bg-red-500 items-center justify-center"
+                        >
+                          <Icon name="X" size={14} color="white" />
+                        </Pressable>
+                      </View>
+                    );
+                  })}
                   {cut.photos.length < MAX_CUT_PHOTOS ? (
                     <View className="shrink-0 flex-row gap-3">
                       <TouchableOpacity
@@ -493,27 +418,205 @@ export default function HaircutDetailScreen() {
                 </View>
               </ScrollView>
             </View>
+          )}
+
+          <View className="px-global pt-6 pb-4">
+            {editing ? (
+              <>
+                <Input
+                  label={t('haircutName')}
+                  value={draftHairstyle}
+                  onChangeText={setDraftHairstyle}
+                  placeholder="e.g. Low Fade"
+                  containerClassName="mb-2"
+                />
+                {error ? (
+                  <ThemedText className="mb-2 text-red-500 dark:text-red-400">{error}</ThemedText>
+                ) : null}
+              </>
+            ) : (
+              <ThemedText className="text-2xl font-bold">{cut.hairstyle || t('haircutTitle')}</ThemedText>
+            )}
+          </View>
+
+          <Divider className="h-2 bg-light-secondary dark:bg-dark-darker" />
+
+          <Section title={t('haircutDetailCreatedWith')} titleSize="lg" className="px-global pt-4">
+            {editing ? (
+              <BarberPicker
+                label={t('haircutBarber')}
+                employees={employees}
+                value={draftBarberId}
+                onChange={setDraftBarberId}
+              />
+            ) : (
+              <>
+                <View className="flex-row items-center justify-between mt-4 mb-4">
+                  <View className="flex-row items-center flex-1">
+                    <Avatar src={barberAvatar ?? PLACEHOLDER_IMAGE} size="lg" name={barberName !== '—' ? barberName : undefined} />
+                    <View className="ml-3 flex-1">
+                      <ThemedText className="text-lg font-semibold">{barberName}</ThemedText>
+                      <View className="flex-row items-center mt-px">
+                        <ShowRating rating={5} size="sm" />
+                        <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext ml-2">(0 reviews)</ThemedText>
+                      </View>
+                    </View>
+                  </View>
+                </View>
+
+                {cut.barber?.id ? (
+                  <ListLink
+                    icon="Gift"
+                    title={t('bookingSendRbcTip')}
+                    description={t('bookingSendRbcTip')}
+                    showChevron
+                    className="rounded-xl bg-light-secondary px-4 py-3 dark:bg-dark-secondary"
+                    onPress={() => {
+                      const barber = cut.barber;
+                      if (!barber?.id) return;
+                      setTransferRecipient({
+                        id: barber.id,
+                        name: barber.name ?? '—',
+                        type: 'EMPLOYEE',
+                        avatarUrl: barber.avatarUrl ?? undefined,
+                      });
+                      router.push(`/screens/transfer-chat/${encodeURIComponent(barber.id)}`);
+                    }}
+                  />
+                ) : null}
+              </>
+            )}
           </Section>
+
+          <Divider className="mt-6 h-2 bg-light-secondary dark:bg-dark-darker" />
+
+          <Section title={t('haircutDetailCreatedAtPrefix')} titleSize="lg" className="px-global pt-4">
+            <View className="mt-4">
+              <View className="flex-row items-center justify-between bg-light-secondary dark:bg-dark-secondary rounded-xl p-4">
+                <View>
+                  <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext">
+                    {t('haircutDetailCreatedDateLabel')}
+                  </ThemedText>
+                  <ThemedText className="text-lg font-semibold">{createdParts.date}</ThemedText>
+                </View>
+                <View className="items-end">
+                  <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext">
+                    {t('haircutDetailCreatedTimeLabel')}
+                  </ThemedText>
+                  <ThemedText className="text-lg font-semibold">{createdParts.time}</ThemedText>
+                </View>
+              </View>
+            </View>
+          </Section>
+
+          <Divider className="mt-6 h-2 bg-light-secondary dark:bg-dark-darker" />
+
+          <HaircutNoteSections
+            note={editing ? draftNote : cut.note}
+            editing={editing}
+            onNoteChange={setDraftNote}
+          />
+
+          {!editing ? (
+            <>
+              <Divider className="mt-6 h-2 bg-light-secondary dark:bg-dark-darker" />
+
+              <Section
+                title={t('haircutDetailPhotosSection')}
+                titleSize="lg"
+                titleAlign="right"
+                className="px-global pt-4 pb-6"
+              >
+                <View className="mt-4">
+                  {haircutPhotoUrls.length === 0 ? (
+                    <ThemedText className="mb-3 text-center text-sm text-light-subtext dark:text-dark-subtext">
+                      {t('haircutDetailPhotosEmpty')}
+                    </ThemedText>
+                  ) : null}
+
+                  <ScrollView
+                    horizontal
+                    nestedScrollEnabled
+                    showsHorizontalScrollIndicator={false}
+                    className={uploadingPhotos ? 'opacity-50' : ''}
+                  >
+                    <View className="flex-row items-stretch gap-3 pb-1 pr-2">
+                      {haircutPhotoUrls.map((uri, index) => (
+                        <Image
+                          key={`${uri}-${index}`}
+                          source={{ uri }}
+                          className="h-44 w-36 shrink-0 rounded-xl bg-light-secondary dark:bg-dark-secondary"
+                          resizeMode="cover"
+                        />
+                      ))}
+
+                      {cut.photos.length < MAX_CUT_PHOTOS ? (
+                        <View className="shrink-0 flex-row gap-3">
+                          <TouchableOpacity
+                            disabled={uploadingPhotos}
+                            onPress={pickImagesForCut}
+                            className="h-44 w-36 shrink-0 items-center justify-center rounded-lg border-2 border-dashed border-light-subtext dark:border-dark-subtext"
+                          >
+                            <Icon name="Plus" size={24} className="text-light-subtext dark:text-dark-subtext" />
+                            <ThemedText className="mt-1 px-1 text-center text-xs text-light-subtext dark:text-dark-subtext">
+                              {t('addPropertyAddPhoto')}
+                            </ThemedText>
+                          </TouchableOpacity>
+                          <TouchableOpacity
+                            disabled={uploadingPhotos}
+                            onPress={takePhotoForCut}
+                            className="h-44 w-36 shrink-0 items-center justify-center rounded-lg border-2 border-dashed border-light-subtext dark:border-dark-subtext"
+                          >
+                            <Icon name="Plus" size={24} className="text-light-subtext dark:text-dark-subtext" />
+                            <ThemedText className="mt-1 px-1 text-center text-xs text-light-subtext dark:text-dark-subtext">
+                              {t('addPropertyTakePhoto')}
+                            </ThemedText>
+                          </TouchableOpacity>
+                        </View>
+                      ) : null}
+                    </View>
+                  </ScrollView>
+                </View>
+              </Section>
+            </>
+          ) : null}
         </AnimatedView>
       </ThemedScroller>
 
       <ThemedFooter>
-        <View className="flex-row gap-3">
-          <Button
-            title={t('commonDelete')}
-            variant="outline"
-            iconStart="X"
-            className="flex-1"
-            onPress={handleDelete}
-          />
-          <Button
-            title={t('commonEdit')}
-            variant="primary"
-            iconStart="UserRoundPen"
-            className="flex-1 min-w-0"
-            onPress={() => setEditing(true)}
-          />
-        </View>
+        {editing ? (
+          <View className="flex-row gap-3">
+            <Button title={t('commonCancel')} variant="outline" className="flex-1" onPress={cancelEdit} />
+            <Button
+              title={saving ? 'Saving…' : t('commonSave')}
+              variant="primary"
+              textClassName="text-white"
+              className="flex-1"
+              onPress={handleSave}
+              disabled={saving}
+            />
+          </View>
+        ) : (
+          <View className="flex-row gap-3">
+            <Button
+              title={t('commonDelete')}
+              variant="outline"
+              iconStart="X"
+              className="flex-1"
+              onPress={handleDelete}
+            />
+            <Button
+              title={t('commonEdit')}
+              variant="primary"
+              iconStart="UserRoundPen"
+              className="flex-1 min-w-0"
+              onPress={() => {
+                syncDraftsFromCut();
+                setEditing(true);
+              }}
+            />
+          </View>
+        )}
       </ThemedFooter>
     </>
   );

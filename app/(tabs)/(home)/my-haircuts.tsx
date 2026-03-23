@@ -10,6 +10,7 @@ import { CardScroller } from '@/components/CardScroller';
 import Card from '@/components/Card';
 import { router } from 'expo-router';
 import { Button } from '@/components/Button';
+import Icon from '@/components/Icon';
 import { useTranslation } from '@/app/hooks/useTranslation';
 import useThemeColors from '@/app/contexts/ThemeColors';
 import { useAuth } from '@/app/contexts/AuthContext';
@@ -73,15 +74,48 @@ const MyHaircutsScreen = () => {
       scrollEventThrottle={16}
     >
       <AnimatedView animation="scaleIn" className="flex-1 mt-4">
-        <Pressable
-          onPress={() => router.push('/screens/guide-my-haircuts')}
-          className="mb-4 py-2"
-          accessibilityLabel="What's it for?"
-        >
-          <ThemedText style={{ color: colors.highlight }} className="text-base font-medium">
-            {t('myHaircutsWhatsFor')}
-          </ThemedText>
-        </Pressable>
+        <View className="p-10 items-center rounded-3xl bg-slate-200 mb-6 dark:bg-dark-secondary">
+          <View className="w-20 h-20 relative">
+            <View className="w-full h-full rounded-xl relative z-20 overflow-hidden border-2 border-light-primary dark:border-dark-primary">
+              <Image className="w-full h-full" source={require('@/assets/img/myidea.png')} resizeMode="contain" />
+            </View>
+            <View className="w-full h-full absolute top-0 left-8 rotate-12 rounded-xl overflow-hidden border-2 border-light-primary dark:border-dark-primary">
+              <Image className="w-full h-full" source={require('@/assets/img/myrules.png')} resizeMode="contain" />
+            </View>
+            <View className="w-full h-full absolute top-0 right-8 -rotate-12 rounded-xl overflow-hidden border-2 border-light-primary dark:border-dark-primary">
+              <Image className="w-full h-full" source={require('@/assets/img/savefinish.png')} resizeMode="contain" />
+            </View>
+          </View>
+          <ThemedText className="text-2xl font-semibold mt-4">{t('myHaircutsCreate')}</ThemedText>
+          <ThemedText className="text-sm font-light text-center px-4">{t('myHaircutsCreateDesc')}</ThemedText>
+          <Button
+            title={t('profileGetStarted')}
+            className="mt-4"
+            textClassName="text-white"
+            onPress={() => router.push('/screens/add-property-start')}
+          />
+        </View>
+
+        <View className="mb-4 flex-row items-center justify-between gap-2 py-2">
+          <Pressable
+            onPress={() => router.push('/screens/guide-my-haircuts')}
+            className="min-w-0 flex-1 shrink py-1"
+            accessibilityRole="link"
+            accessibilityLabel={t('myHaircutsWhatsFor')}
+          >
+            <ThemedText style={{ color: colors.highlight }} className="text-base font-medium">
+              {t('myHaircutsWhatsFor')}
+            </ThemedText>
+          </Pressable>
+          <Pressable
+            onPress={() => router.push('/screens/add-property-start')}
+            className="h-10 w-10 shrink-0 items-center justify-center rounded-full bg-light-secondary active:opacity-70 dark:bg-dark-secondary"
+            accessibilityRole="button"
+            accessibilityLabel={t('myHaircutsAddNewA11y')}
+          >
+            <Icon name="Plus" size={24} color={colors.highlight} />
+          </Pressable>
+        </View>
 
         <Section title={t('myHaircutsYours')} titleSize="lg" className="mb-6">
           <CardScroller space={15} className="mt-1.5 pb-4">
@@ -104,6 +138,11 @@ const MyHaircutsScreen = () => {
                   key={cut.id}
                   title={cut.hairstyle?.trim() || t('haircutTitle')}
                   description={cut.barber?.name}
+                  descriptionAvatar={
+                    cut.barber?.name
+                      ? cut.barber.avatarUrl?.trim() || CUT_PLACEHOLDER
+                      : undefined
+                  }
                   rounded="2xl"
                   href={`/screens/haircut-detail?id=${encodeURIComponent(cut.id)}`}
                   width={160}
@@ -114,28 +153,6 @@ const MyHaircutsScreen = () => {
             )}
           </CardScroller>
         </Section>
-
-        <View className="p-10 items-center rounded-3xl bg-slate-200 mt-2 mb-8 dark:bg-dark-secondary">
-          <View className="w-20 h-20 relative">
-            <View className="w-full h-full rounded-xl relative z-20 overflow-hidden border-2 border-light-primary dark:border-dark-primary">
-              <Image className="w-full h-full" source={require('@/assets/img/myidea.png')} resizeMode="contain" />
-            </View>
-            <View className="w-full h-full absolute top-0 left-8 rotate-12 rounded-xl overflow-hidden border-2 border-light-primary dark:border-dark-primary">
-              <Image className="w-full h-full" source={require('@/assets/img/myrules.png')} resizeMode="contain" />
-            </View>
-            <View className="w-full h-full absolute top-0 right-8 -rotate-12 rounded-xl overflow-hidden border-2 border-light-primary dark:border-dark-primary">
-              <Image className="w-full h-full" source={require('@/assets/img/savefinish.png')} resizeMode="contain" />
-            </View>
-          </View>
-          <ThemedText className="text-2xl font-semibold mt-4">{t('myHaircutsCreate')}</ThemedText>
-          <ThemedText className="text-sm font-light text-center px-4">{t('myHaircutsCreateDesc')}</ThemedText>
-          <Button
-            title={t('profileGetStarted')}
-            className="mt-4"
-            textClassName="text-white"
-            onPress={() => router.push('/screens/add-property-start')}
-          />
-        </View>
       </AnimatedView>
     </ThemeScroller>
   );

@@ -189,6 +189,7 @@ export const en = {
 
   // My haircuts
   myHaircutsWhatsFor: "What's it for?",
+  myHaircutsAddNewA11y: 'Add new haircut',
   myHaircutsYours: 'Your haircuts',
   myHaircutsEmpty: 'No saved haircuts yet. Add one below.',
   myHaircutsLoginToSee: 'Log in to see your saved haircuts.',
