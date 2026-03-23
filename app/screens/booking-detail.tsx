@@ -226,7 +226,12 @@ const BookingDetailScreen = () => {
                     <Divider className="mt-6 h-2 bg-light-secondary dark:bg-dark-darker" />
 
                     {/* Price Breakdown */}
-                    <Section title={t('bookingEarningsBreakdown')} titleSize="lg" className="px-global pt-4">
+                    <Section
+                        title={t('bookingEarningsBreakdown')}
+                        titleSize="lg"
+                        titleAlign="right"
+                        className="px-global pt-4"
+                    >
                         <View className="mt-4 space-y-3">
                             <View className="flex-row justify-between">
                                 <ThemedText className="text-light-subtext dark:text-dark-subtext">
@@ -265,7 +270,12 @@ const BookingDetailScreen = () => {
                     <Divider className="mt-6 h-2 bg-light-secondary dark:bg-dark-darker" />
 
                     {/* Payment Information */}
-                    <Section title={t('bookingPaymentMethod')} titleSize="lg" className="px-global pt-4">
+                    <Section
+                        title={t('bookingPaymentMethod')}
+                        titleSize="lg"
+                        titleAlign="right"
+                        className="px-global pt-4"
+                    >
                         <View className="flex-row items-center mt-4">
                             <Icon name="CreditCard" size={20} className="mr-3" />
                             <View>
@@ -282,7 +292,12 @@ const BookingDetailScreen = () => {
                     <Divider className="mt-6 h-2 bg-light-secondary dark:bg-dark-darker" />
 
                     {/* Request Details */}
-                    <Section title={t('bookingRequestDetails')} titleSize="lg" className="px-global pt-4 pb-6">
+                    <Section
+                        title={t('bookingRequestDetails')}
+                        titleSize="lg"
+                        titleAlign="right"
+                        className="px-global pt-4 pb-6"
+                    >
                         <View className="mt-4 space-y-3">
                             <View className="flex-row justify-between">
                                 <ThemedText className="text-light-subtext dark:text-dark-subtext">Request date</ThemedText>

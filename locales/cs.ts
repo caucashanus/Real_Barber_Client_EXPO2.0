@@ -193,6 +193,10 @@ export const cs: Record<TranslationKey, string> = {
 
   // My haircuts
   myHaircutsWhatsFor: 'K čemu to je?',
+  myHaircutsYours: 'Vaše střihy',
+  myHaircutsEmpty: 'Zatím nemáte uložený střih. Přidejte si ho níže.',
+  myHaircutsLoginToSee: 'Pro zobrazení uložených střihů se přihlaste.',
+  myHaircutsLoadError: 'Střihy se nepodařilo načíst.',
   myHaircutsCreate: 'Vytvořte si svůj střih',
   myHaircutsCreateDesc: 'Objevte, jak přidat svůj styl a získat střih, který chcete',
 
@@ -313,6 +317,17 @@ export const cs: Record<TranslationKey, string> = {
   paymentMethodCard: 'Kartou',
   paymentMethodRbc: 'RB coiny',
   bookingGuestInfo: 'Informace o hostu',
+  haircutDetailCreatedWith: 'Účes jsme vytvořili s',
+  haircutDetailCreatedAtPrefix: 'Datum vytvoření účesu',
+  haircutDetailCreatedDateLabel: 'Datum',
+  haircutDetailCreatedTimeLabel: 'Čas',
+  haircutDetailNoteTitle: 'Podrobnosti účesu',
+  haircutNoteSectionOverview: 'Typ a období',
+  haircutNoteSectionMeasurements: 'Délky a péče',
+  haircutNoteSectionFeatures: 'Vlastnosti',
+  haircutNoteSectionDifficulty: 'Náročnost',
+  haircutNoteSectionDescription: 'Popis',
+  haircutNoteSectionOther: 'Další',
   bookingDetails: 'Detaily rezervace',
   bookingMessageFromGuest: 'Zpráva od hosta',
   bookingRequestDetails: 'Detaily žádosti',
@@ -449,6 +464,8 @@ export const cs: Record<TranslationKey, string> = {
   haircutTitle: 'Střih',
   haircutAdd: 'Přidat střih',
   haircutPhotos: 'Fotky',
+  haircutPhotosHint:
+    'Volitelné fotky z galerie nebo foťáku. Při uložení střihu se nahrají na server.',
 
   // Add property / haircut
   addPropertyTitle: 'Název',
@@ -770,6 +787,7 @@ export const cs: Record<TranslationKey, string> = {
   addPropertyLengthCm: 'Délka v cm',
   addPropertyHowOftenTrim: 'Jak často na úpravu?',
   addPropertyWeeksToComeIn: 'Každých kolik týdnů přijít',
+  addPropertyWeeksUnit: 'týdnů',
   addPropertyWhatGoesWith: 'Co k účesu patří?',
   addPropertySelectMultiple: 'Vyberte vše, co k vašemu účesu sedí. Můžete vybrat více možností.',
   addPropertyAddPhotos: 'Přidat fotky účesu',
@@ -781,7 +799,10 @@ export const cs: Record<TranslationKey, string> = {
   addPropertyStylingDifficulty: 'Náročnost stylingu a holič',
   addPropertyHowDemanding: 'Jak náročný je účes na styling a kdo vám ho dělal?',
   addPropertyCongratulations: 'Gratulujeme!',
-  addPropertySuccessMessage: 'Váš účes byl úspěšně uložen. Najdete ho v sekci Moje střihy.',
+  addPropertySuccessMessage:
+    'Už jen krok. Klepněte na Dokončit a účes uložíme — případné fotky se nahrají na server.',
+  addPropertyCutSaveFailed: 'Účes se nepodařilo uložit. Zkuste to prosím znovu.',
+  addPropertyLoginRequired: 'Pro uložení účesu se prosím přihlaste.',
   addPropertyEasyTitle: 'Přidat účes je snadné',
   addPropertyStep1Title: 'Vytvořte si účes',
   addPropertyStep1Desc: 'Vymyslete název a vytvořte.',

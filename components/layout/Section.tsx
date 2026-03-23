@@ -16,6 +16,8 @@ interface SectionProps {
     className?: string;
     icon?: IconName;
     titleSize?: TitleSize;
+    /** Zarovnání nadpisu (výchozí vlevo). */
+    titleAlign?: 'left' | 'right';
     style?: ViewStyle;
     link?: string;
     linkText?: string;
@@ -35,6 +37,7 @@ export const Section: React.FC<SectionProps> = ({
     style,
     icon,
     titleSize = 'xl',
+    titleAlign = 'left',
     link,
     linkText,
     linkClassName = '',
@@ -74,18 +77,36 @@ export const Section: React.FC<SectionProps> = ({
         >
             {/* Header Section */}
             {(title || header) && (
-                <View className="flex-row items-center">
+                <View
+                    className={`flex-row items-center w-full ${
+                        icon
+                            ? titleAlign === 'right'
+                                ? 'justify-between'
+                                : ''
+                            : titleAlign === 'right'
+                              ? 'justify-end'
+                              : ''
+                    }`}
+                >
                     {icon && (
                         <View className="mr-4">
                             <Icon name={icon} size={24} />
                         </View>
                     )}
-                    <View>
+                    <View className={titleAlign === 'right' && icon ? 'flex-1 items-end' : undefined}>
                         {header || (
                             <>
                                 {title && (
-                                    <View className={`flex-row items-center w-full justify-start${titleTrailing ? ' gap-2' : ''}`}>
-                                        <ThemedText className={`${getTitleClass()} font-semibold`}>
+                                    <View
+                                        className={`flex-row items-center w-full ${
+                                            titleAlign === 'right' ? 'justify-end' : 'justify-start'
+                                        }${titleTrailing ? ' gap-2' : ''}`}
+                                    >
+                                        <ThemedText
+                                            className={`${getTitleClass()} font-semibold${
+                                                titleAlign === 'right' ? ' text-right' : ''
+                                            }`}
+                                        >
                                             {title}
                                         </ThemedText>
                                         {titleTrailing}
@@ -97,7 +118,11 @@ export const Section: React.FC<SectionProps> = ({
                                     </View>
                                 )}
                                 {subtitle && (
-                                    <ThemedText className={` text-light-subtext dark:text-dark-subtext`}>
+                                    <ThemedText
+                                        className={`text-light-subtext dark:text-dark-subtext${
+                                            titleAlign === 'right' ? ' text-right w-full' : ''
+                                        }`}
+                                    >
                                         {subtitle}
                                     </ThemedText>
                                 )}

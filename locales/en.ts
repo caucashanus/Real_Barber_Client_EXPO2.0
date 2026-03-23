@@ -189,6 +189,10 @@ export const en = {
 
   // My haircuts
   myHaircutsWhatsFor: "What's it for?",
+  myHaircutsYours: 'Your haircuts',
+  myHaircutsEmpty: 'No saved haircuts yet. Add one below.',
+  myHaircutsLoginToSee: 'Log in to see your saved haircuts.',
+  myHaircutsLoadError: 'Could not load haircuts.',
   myHaircutsCreate: 'Create your haircut',
   myHaircutsCreateDesc: 'Discover how to add your style and get the cut you want',
 
@@ -309,6 +313,17 @@ export const en = {
   paymentMethodCard: 'Card',
   paymentMethodRbc: 'RB coins',
   bookingGuestInfo: 'Guest Information',
+  haircutDetailCreatedWith: 'We created this haircut with',
+  haircutDetailCreatedAtPrefix: 'Haircut created',
+  haircutDetailCreatedDateLabel: 'Date',
+  haircutDetailCreatedTimeLabel: 'Time',
+  haircutDetailNoteTitle: 'Haircut details',
+  haircutNoteSectionOverview: 'Type and season',
+  haircutNoteSectionMeasurements: 'Lengths and care',
+  haircutNoteSectionFeatures: 'Features',
+  haircutNoteSectionDifficulty: 'Difficulty',
+  haircutNoteSectionDescription: 'Description',
+  haircutNoteSectionOther: 'Other',
   bookingDetails: 'Booking details',
   bookingMessageFromGuest: 'Message from guest',
   bookingRequestDetails: 'Request details',
@@ -445,6 +460,8 @@ export const en = {
   haircutTitle: 'Haircut',
   haircutAdd: 'Add haircut',
   haircutPhotos: 'Photos',
+  haircutPhotosHint:
+    'Optional photos from gallery or camera. They are uploaded when you save the haircut.',
 
   // Add property / haircut
   addPropertyTitle: 'Title',
@@ -767,6 +784,7 @@ export const en = {
   addPropertyLengthCm: 'Length in cm',
   addPropertyHowOftenTrim: 'How often to trim?',
   addPropertyWeeksToComeIn: 'Every how many weeks to come in',
+  addPropertyWeeksUnit: 'weeks',
   addPropertyWhatGoesWith: 'What goes with this haircut?',
   addPropertySelectMultiple:
     'Select everything that fits your haircut. You can select multiple options.',
@@ -780,7 +798,9 @@ export const en = {
   addPropertyHowDemanding: 'How demanding is the haircut to style and who did it for you?',
   addPropertyCongratulations: 'Congratulations!',
   addPropertySuccessMessage:
-    'Your haircut was saved successfully. You can find it in the My haircuts section.',
+    'You are almost done. Tap Complete to save your haircut — we will upload photos if you added any.',
+  addPropertyCutSaveFailed: 'Could not save your haircut. Please try again.',
+  addPropertyLoginRequired: 'Log in to save your haircut.',
   addPropertyEasyTitle: "It's easy to add your haircut",
   addPropertyStep1Title: 'Create your haircut',
   addPropertyStep1Desc: 'Come up with a name and create.',

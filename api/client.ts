@@ -51,11 +51,83 @@ export interface UpdateClientMeBody {
   country?: string;
 }
 
-/** PATCH /api/client/me – update current client profile (partial). */
-export async function patchClientMe(
+export interface UploadClientMediaInput {
+  uri: string;
+  name?: string;
+  mimeType?: string;
+  title?: string;
+  alt?: string;
+  flagId?: string;
+}
+
+export interface ClientMediaFile {
+  id: string;
+  url: string;
+  mimeType?: string;
+  fileType?: string;
+  fileSize?: number;
+  title?: string | null;
+  alt?: string | null;
+}
+
+function inferMimeTypeFromName(name: string): string {
+  const ext = name.toLowerCase().split('.').pop() ?? '';
+  if (ext === 'jpg' || ext === 'jpeg') return 'image/jpeg';
+  if (ext === 'png') return 'image/png';
+  if (ext === 'webp') return 'image/webp';
+  if (ext === 'heic') return 'image/heic';
+  if (ext === 'gif') return 'image/gif';
+  if (ext === 'mp4') return 'video/mp4';
+  if (ext === 'mov') return 'video/quicktime';
+  return 'application/octet-stream';
+}
+
+/** POST /api/client/media – upload client media and return created media file. */
+export async function uploadClientMedia(
   apiToken: string,
-  body: UpdateClientMeBody
-): Promise<ClientMe> {
+  input: UploadClientMediaInput
+): Promise<ClientMediaFile> {
+  const filename = input.name?.trim() || `client-media-${Date.now()}.jpg`;
+  const mimeType = input.mimeType?.trim() || inferMimeTypeFromName(filename);
+
+  const form = new FormData();
+  form.append('file', {
+    uri: input.uri,
+    name: filename,
+    type: mimeType,
+  } as unknown as Blob);
+  if (input.title?.trim()) form.append('title', input.title.trim());
+  if (input.alt?.trim()) form.append('alt', input.alt.trim());
+  if (input.flagId?.trim()) form.append('flagId', input.flagId.trim());
+
+  const res = await fetch(`${CRM_BASE}/api/client/media`, {
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${apiToken}`,
+    },
+    body: form,
+  });
+
+  if (res.status === 401) throw new Error('Unauthorized');
+  if (res.status === 413) throw new Error('Soubor je příliš velký (max 15 MB)');
+  if (res.status === 400) {
+    const txt = await res.text().catch(() => '');
+    throw new Error(txt || 'Neplatný soubor nebo parametry uploadu');
+  }
+  if (!res.ok) throw new Error(`Media upload failed: ${res.status}`);
+
+  const data = (await res.json()) as
+    | { mediaFile?: ClientMediaFile; file?: ClientMediaFile }
+    | ClientMediaFile;
+  const media = 'mediaFile' in data ? data.mediaFile : 'file' in data ? data.file : data;
+  if (!media?.id || !media?.url) {
+    throw new Error('Media upload response is missing file url');
+  }
+  return media;
+}
+
+/** PATCH /api/client/me – update current client profile (partial). */
+export async function patchClientMe(apiToken: string, body: UpdateClientMeBody): Promise<ClientMe> {
   const res = await fetch(`${CRM_BASE}/api/client/me`, {
     method: 'PATCH',
     headers: {

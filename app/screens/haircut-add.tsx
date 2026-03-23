@@ -1,7 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { View, Image, Pressable, Alert } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
+import type { ImagePickerAsset } from 'expo-image-picker';
 import { router } from 'expo-router';
+import { uploadClientMedia } from '@/api/client';
 import Header from '@/components/Header';
 import ThemedScroller from '@/components/ThemeScroller';
 import ThemedText from '@/components/ThemedText';
@@ -20,7 +22,7 @@ const MAX_PHOTOS = 5;
 export default function HaircutAddScreen() {
   const { t } = useTranslation();
   const { apiToken } = useAuth();
-  const [photoUris, setPhotoUris] = useState<string[]>([]);
+  const [photoAssets, setPhotoAssets] = useState<ImagePickerAsset[]>([]);
   const [hairstyle, setHairstyle] = useState('');
   const [note, setNote] = useState('');
   const [barberId, setBarberId] = useState<string>('');
@@ -44,12 +46,11 @@ export default function HaircutAddScreen() {
     const result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
       allowsMultipleSelection: true,
-      selectionLimit: MAX_PHOTOS - photoUris.length,
+      selectionLimit: MAX_PHOTOS - photoAssets.length,
       quality: 0.8,
     });
     if (!result.canceled && result.assets.length) {
-      const newUris = result.assets.map((a) => a.uri);
-      setPhotoUris((prev) => [...prev, ...newUris].slice(0, MAX_PHOTOS));
+      setPhotoAssets((prev) => [...prev, ...result.assets].slice(0, MAX_PHOTOS));
     }
   };
 
@@ -63,13 +64,13 @@ export default function HaircutAddScreen() {
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
       quality: 0.8,
     });
-    if (!result.canceled && result.assets[0] && photoUris.length < MAX_PHOTOS) {
-      setPhotoUris((prev) => [...prev, result.assets[0].uri].slice(0, MAX_PHOTOS));
+    if (!result.canceled && result.assets[0] && photoAssets.length < MAX_PHOTOS) {
+      setPhotoAssets((prev) => [...prev, result.assets[0]].slice(0, MAX_PHOTOS));
     }
   };
 
   const removePhoto = (index: number) => {
-    setPhotoUris((prev) => prev.filter((_, i) => i !== index));
+    setPhotoAssets((prev) => prev.filter((_, i) => i !== index));
   };
 
   const handleSave = async () => {
@@ -82,12 +83,23 @@ export default function HaircutAddScreen() {
     setSaving(true);
     setError(null);
     try {
+      const photoIds: string[] = [];
+      for (const asset of photoAssets) {
+        const uploaded = await uploadClientMedia(apiToken, {
+          uri: asset.uri,
+          name: asset.fileName ?? undefined,
+          mimeType: asset.mimeType ?? undefined,
+          title: trimmedName,
+          alt: trimmedName,
+        });
+        photoIds.push(uploaded.id);
+      }
+
       await createClientCut(apiToken, {
         hairstyle: trimmedName,
         note: note.trim() || null,
         barber_id: barberId.trim() || null,
-        // Fotky: API očekává media ID po nahrání na server. Zatím posíláme jen název a poznámku.
-        // Po doplnění upload endpointu lze přidat photos: [...mediaIds].
+        photos: photoIds,
       });
       router.back();
     } catch (e) {
@@ -103,12 +115,12 @@ export default function HaircutAddScreen() {
       <ThemedScroller className="flex-1" keyboardShouldPersistTaps="handled">
         <Section title={t('haircutPhotos')} titleSize="md" className="mt-2">
           <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext mb-3">
-            Add haircut photos from gallery or camera (optional). Only name and note are saved for now.
+            {t('haircutPhotosHint')}
           </ThemedText>
           <View className="flex-row flex-wrap gap-3">
-            {photoUris.map((uri, index) => (
-              <View key={`${uri}-${index}`} className="relative">
-                <Image source={{ uri }} className="w-20 h-20 rounded-xl bg-light-secondary dark:bg-dark-secondary" resizeMode="cover" />
+            {photoAssets.map((asset, index) => (
+              <View key={`${asset.uri}-${index}`} className="relative">
+                <Image source={{ uri: asset.uri }} className="w-20 h-20 rounded-xl bg-light-secondary dark:bg-dark-secondary" resizeMode="cover" />
                 <Pressable
                   onPress={() => removePhoto(index)}
                   className="absolute -top-1 -right-1 w-6 h-6 rounded-full bg-red-500 items-center justify-center"
@@ -117,7 +129,7 @@ export default function HaircutAddScreen() {
                 </Pressable>
               </View>
             ))}
-            {photoUris.length < MAX_PHOTOS && (
+            {photoAssets.length < MAX_PHOTOS && (
               <>
                 <Pressable
                   onPress={pickFromGallery}

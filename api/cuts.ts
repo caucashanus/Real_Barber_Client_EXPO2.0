@@ -85,11 +85,42 @@ export interface CreateClientCutBody {
   photos?: string[];
 }
 
+/**
+ * POST /api/client/cuts může vrátit buď přímo `ClientCut`, nebo stejný obal jako GET list (`{ client, cuts, stats, ... }`).
+ */
+function parseCreateClientCutResponse(raw: unknown, createdHairstyle: string): ClientCut | null {
+  if (!raw || typeof raw !== 'object') return null;
+  const o = raw as Record<string, unknown>;
+
+  if (typeof o.id === 'string' && typeof o.hairstyle === 'string') {
+    return raw as ClientCut;
+  }
+
+  const nestedCut = o.cut ?? o.createdCut;
+  if (nestedCut && typeof nestedCut === 'object' && 'id' in nestedCut && 'hairstyle' in nestedCut) {
+    return nestedCut as ClientCut;
+  }
+
+  const cuts = o.cuts;
+  if (!Array.isArray(cuts) || cuts.length === 0) return null;
+
+  const list = cuts as ClientCut[];
+  const name = createdHairstyle.trim();
+  const matches = list.filter((c) => c.hairstyle?.trim() === name);
+  const pool = matches.length > 0 ? matches : list;
+  const sorted = [...pool].sort(
+    (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+  );
+  return sorted[0] ?? null;
+}
+
 /** POST /api/client/cuts – create a new haircut. */
 export async function createClientCut(
   apiToken: string,
   body: CreateClientCutBody
 ): Promise<ClientCut> {
+  const hairstyleTrimmed = body.hairstyle.trim();
+
   const res = await fetch(`${CRM_BASE}/api/client/cuts`, {
     method: 'POST',
     headers: {
@@ -97,7 +128,7 @@ export async function createClientCut(
       Authorization: `Bearer ${apiToken}`,
     },
     body: JSON.stringify({
-      hairstyle: body.hairstyle.trim(),
+      hairstyle: hairstyleTrimmed,
       note: body.note?.trim() || null,
       barber_id: body.barber_id ?? null,
       photos: body.photos ?? [],
@@ -111,7 +142,12 @@ export async function createClientCut(
   if (res.status === 401) throw new Error('Unauthorized');
   if (!res.ok) throw new Error(`Error ${res.status}`);
 
-  return res.json() as Promise<ClientCut>;
+  const raw = await res.json().catch(() => null);
+  const cut = parseCreateClientCutResponse(raw, hairstyleTrimmed);
+  if (!cut?.id) {
+    throw new Error('Invalid response from server');
+  }
+  return cut;
 }
 
 /** GET /api/client/cuts/[id] – get a single haircut. */

@@ -1,18 +1,68 @@
 import ThemeScroller from '@/components/ThemeScroller';
-import React, { useContext } from 'react';
-import { View, Image, Animated, Pressable } from 'react-native';
+import React, { useCallback, useContext, useState } from 'react';
+import { View, Image, Animated, Pressable, ActivityIndicator } from 'react-native';
+import { useFocusEffect } from '@react-navigation/native';
 import AnimatedView from '@/components/AnimatedView';
 import { ScrollContext } from './_layout';
 import ThemedText from '@/components/ThemedText';
+import Section from '@/components/layout/Section';
+import { CardScroller } from '@/components/CardScroller';
+import Card from '@/components/Card';
 import { router } from 'expo-router';
 import { Button } from '@/components/Button';
 import { useTranslation } from '@/app/hooks/useTranslation';
 import useThemeColors from '@/app/contexts/ThemeColors';
+import { useAuth } from '@/app/contexts/AuthContext';
+import { getClientCuts, type ClientCut } from '@/api/cuts';
+
+const CUT_PLACEHOLDER = require('@/assets/img/barbers.png');
+
+function cutCardImage(cut: ClientCut) {
+  const url = cut.photos?.[0]?.media?.url;
+  return url ? { uri: url } : CUT_PLACEHOLDER;
+}
 
 const MyHaircutsScreen = () => {
   const scrollY = useContext(ScrollContext);
   const { t } = useTranslation();
   const colors = useThemeColors();
+  const { apiToken } = useAuth();
+  const [cuts, setCuts] = useState<ClientCut[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [loadError, setLoadError] = useState<string | null>(null);
+
+  useFocusEffect(
+    useCallback(() => {
+      if (!apiToken) {
+        setCuts([]);
+        setLoadError(null);
+        setLoading(false);
+        return undefined;
+      }
+
+      let cancelled = false;
+      setLoading(true);
+      setLoadError(null);
+
+      getClientCuts(apiToken, { orderBy: 'updatedAt', orderDirection: 'desc' })
+        .then((res) => {
+          if (!cancelled) setCuts(res.cuts ?? []);
+        })
+        .catch((e) => {
+          if (!cancelled) {
+            setCuts([]);
+            setLoadError(e instanceof Error ? e.message : t('myHaircutsLoadError'));
+          }
+        })
+        .finally(() => {
+          if (!cancelled) setLoading(false);
+        });
+
+      return () => {
+        cancelled = true;
+      };
+    }, [apiToken, t])
+  );
 
   return (
     <ThemeScroller
@@ -28,9 +78,44 @@ const MyHaircutsScreen = () => {
           className="mb-4 py-2"
           accessibilityLabel="What's it for?"
         >
-          <ThemedText style={{ color: colors.highlight }} className="text-base font-medium">{t('myHaircutsWhatsFor')}</ThemedText>
+          <ThemedText style={{ color: colors.highlight }} className="text-base font-medium">
+            {t('myHaircutsWhatsFor')}
+          </ThemedText>
         </Pressable>
-        <View className="p-10 items-center rounded-3xl bg-slate-200 mt-6 mb-8 dark:bg-dark-secondary">
+
+        <Section title={t('myHaircutsYours')} titleSize="lg" className="mb-6">
+          <CardScroller space={15} className="mt-1.5 pb-4">
+            {!apiToken ? (
+              <ThemedText className="py-2 text-light-subtext dark:text-dark-subtext pr-4">
+                {t('myHaircutsLoginToSee')}
+              </ThemedText>
+            ) : loading ? (
+              <View className="flex-row items-center py-4 gap-3">
+                <ActivityIndicator size="small" />
+                <ThemedText className="text-light-subtext dark:text-dark-subtext">{t('commonLoading')}</ThemedText>
+              </View>
+            ) : loadError ? (
+              <ThemedText className="py-2 text-red-500 dark:text-red-400 pr-4">{loadError}</ThemedText>
+            ) : cuts.length === 0 ? (
+              <ThemedText className="py-2 text-light-subtext dark:text-dark-subtext pr-4">{t('myHaircutsEmpty')}</ThemedText>
+            ) : (
+              cuts.map((cut) => (
+                <Card
+                  key={cut.id}
+                  title={cut.hairstyle?.trim() || t('haircutTitle')}
+                  description={cut.barber?.name}
+                  rounded="2xl"
+                  href={`/screens/haircut-detail?id=${encodeURIComponent(cut.id)}`}
+                  width={160}
+                  imageHeight={160}
+                  image={cutCardImage(cut)}
+                />
+              ))
+            )}
+          </CardScroller>
+        </Section>
+
+        <View className="p-10 items-center rounded-3xl bg-slate-200 mt-2 mb-8 dark:bg-dark-secondary">
           <View className="w-20 h-20 relative">
             <View className="w-full h-full rounded-xl relative z-20 overflow-hidden border-2 border-light-primary dark:border-dark-primary">
               <Image className="w-full h-full" source={require('@/assets/img/myidea.png')} resizeMode="contain" />
@@ -44,7 +129,12 @@ const MyHaircutsScreen = () => {
           </View>
           <ThemedText className="text-2xl font-semibold mt-4">{t('myHaircutsCreate')}</ThemedText>
           <ThemedText className="text-sm font-light text-center px-4">{t('myHaircutsCreateDesc')}</ThemedText>
-          <Button title={t('profileGetStarted')} className="mt-4" textClassName="text-white" onPress={() => router.push('/screens/add-property-start')} />
+          <Button
+            title={t('profileGetStarted')}
+            className="mt-4"
+            textClassName="text-white"
+            onPress={() => router.push('/screens/add-property-start')}
+          />
         </View>
       </AnimatedView>
     </ThemeScroller>

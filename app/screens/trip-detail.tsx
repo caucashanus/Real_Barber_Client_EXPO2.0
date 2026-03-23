@@ -424,7 +424,12 @@ const BookingDetailScreen = () => {
 
           <Divider className="mt-6 h-2 bg-light-secondary dark:bg-dark-darker" />
 
-          <Section title={t('bookingPaymentMethod')} titleSize="lg" className="px-global pt-4">
+          <Section
+            title={t('bookingPaymentMethod')}
+            titleSize="lg"
+            titleAlign="right"
+            className="px-global pt-4"
+          >
             <View className="mt-4 flex-row items-center">
               <Icon name="CreditCard" size={20} className="mr-3" />
               <View>
