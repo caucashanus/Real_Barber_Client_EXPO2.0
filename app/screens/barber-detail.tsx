@@ -556,7 +556,7 @@ export default function BarberDetailScreen() {
             className="ml-6 px-6"
             size="medium"
             rounded="lg"
-            href={`/screens/checkout?employeeId=${employee.id}`}
+            href={`/screens/reservation-create?employeeId=${encodeURIComponent(employee.id)}`}
           />
         </View>
       </View>

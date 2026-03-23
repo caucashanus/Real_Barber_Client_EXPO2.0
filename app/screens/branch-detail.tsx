@@ -519,11 +519,11 @@ export default function BranchDetailScreen() {
         <View className="flex-row items-center ml-auto">
           <Button
             title={t('branchReserve')}
-            variant="primary" className="ml-6 px-6"
-            textClassName="text-white"
+            variant="primary"
+            className="ml-6 px-6"
             size="medium"
             rounded="lg"
-            href={`/screens/checkout?branchId=${branch.id}`}
+            href={`/screens/reservation-create?branchId=${encodeURIComponent(branch.id)}`}
           />
         </View>
       </View>

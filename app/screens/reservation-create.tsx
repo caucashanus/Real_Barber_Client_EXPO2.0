@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { View, ScrollView, Pressable, ActivityIndicator, Image } from 'react-native';
-import { router } from 'expo-router';
+import { router, useLocalSearchParams } from 'expo-router';
 import { Video, ResizeMode } from 'expo-av';
 import MultiStep, { Step } from '@/components/MultiStep';
 import Selectable from '@/components/forms/Selectable';
@@ -21,7 +21,15 @@ import useThemeColors from '@/app/contexts/ThemeColors';
 import { useTranslation } from '@/app/hooks/useTranslation';
 import { getBranches, type Branch, type BranchEmployee, type BranchService } from '@/api/branches';
 import { createBooking, getBookingAvailability, type BookingAvailabilityResponse } from '@/api/bookings';
-import { getEmployeeById, getEmployees, type Employee, type EmployeeService } from '@/api/employees';
+import Header from '@/components/Header';
+import {
+  getEmployeeById,
+  getEmployees,
+  type Employee,
+  type EmployeeDetail,
+  type EmployeeBranch,
+  type EmployeeService,
+} from '@/api/employees';
 
 interface ReservationFlowData {
   branchId: string;
@@ -43,6 +51,13 @@ function getServicesList(branch: Branch | null): BranchService[] {
   if (!branch?.services) return [];
   if (Array.isArray(branch.services)) return branch.services;
   return Object.values(branch.services);
+}
+
+function getEmployeeBranchesList(employee: Pick<EmployeeDetail, 'branches'>): EmployeeBranch[] {
+  const b = employee.branches;
+  if (!b) return [];
+  if (Array.isArray(b)) return b;
+  return Object.values(b);
 }
 
 function getEmployeeServicesList(services: EmployeeService[] | Record<string, EmployeeService> | undefined): EmployeeService[] {
@@ -233,7 +248,20 @@ function groupServicesByCategory(
   return Array.from(map.values());
 }
 
+type BarberEntryMode = 'none' | 'single' | 'multi' | 'branch' | 'service';
+
+function trimParam(v: string | undefined): string | undefined {
+  if (typeof v !== 'string') return undefined;
+  const t = v.trim();
+  return t !== '' ? t : undefined;
+}
+
 export default function ReservationCreateScreen() {
+  const params = useLocalSearchParams<{ employeeId?: string; branchId?: string; itemId?: string }>();
+  const presetEmployeeId = trimParam(params.employeeId);
+  const presetBranchId = trimParam(params.branchId);
+  const presetItemId = trimParam(params.itemId);
+
   const { apiToken } = useAuth();
   const { t } = useTranslation();
   const { locale } = useLanguage();
@@ -268,91 +296,120 @@ export default function ReservationCreateScreen() {
     duration: 0,
   });
 
-  /** Clear wizard fields for steps after `stepIndex` (used when user goes Back). */
-  const resetFlowAfterStep = useCallback((stepIndex: number) => {
-    setData((prev) => {
-      if (stepIndex < 1) {
-        return {
-          ...prev,
-          employeeId: '',
-          itemId: '',
-          date: '',
-          slotStart: '',
-          slotEnd: '',
-          duration: 0,
-        };
-      }
-      if (stepIndex < 2) {
-        return {
-          ...prev,
-          itemId: '',
-          date: '',
-          slotStart: '',
-          slotEnd: '',
-          duration: 0,
-        };
-      }
-      if (stepIndex < 3) {
-        return {
-          ...prev,
-          date: '',
-          slotStart: '',
-          slotEnd: '',
-          duration: 0,
-        };
-      }
-      if (stepIndex < 4) {
-        return {
-          ...prev,
-          slotStart: '',
-          slotEnd: '',
-          duration: 0,
-        };
-      }
-      return prev;
-    });
-    if (stepIndex < 3) {
-      setLastSelectedDateByMonth({});
-    }
-    if (stepIndex < 1) {
-      setMonthOffset(0);
-    }
-  }, []);
+  const [barberEntryMode, setBarberEntryMode] = useState<BarberEntryMode>('none');
+  const [barberBootstrap, setBarberBootstrap] = useState<'pending' | 'ready' | 'error'>(() =>
+    presetEmployeeId || presetBranchId || presetItemId ? 'pending' : 'ready'
+  );
+  const [initialMultiStepIndex, setInitialMultiStepIndex] = useState(0);
+  const [presetBranchFilterIds, setPresetBranchFilterIds] = useState<Set<string> | null>(null);
 
-  const selectBranchId = useCallback((branchId: string) => {
-    let branchChanged = false;
-    setData((prev) => {
-      if (prev.branchId === branchId) return prev;
-      branchChanged = true;
-      return {
-        ...prev,
-        branchId,
-        employeeId: '',
-        itemId: '',
-        date: '',
-        slotStart: '',
-        slotEnd: '',
-        duration: 0,
-      };
-    });
-    if (branchChanged) {
-      setLastSelectedDateByMonth({});
-      setMonthOffset(0);
-    }
-  }, []);
+  /** Clear wizard fields for steps after `stepIndex` (used when user goes Back). */
+  const resetFlowAfterStep = useCallback(
+    (stepIndex: number) => {
+      setData((prev) => {
+        if (stepIndex < 1) {
+          return {
+            ...prev,
+            employeeId: presetEmployeeId ? presetEmployeeId : '',
+            itemId: presetItemId ? presetItemId : '',
+            date: '',
+            slotStart: '',
+            slotEnd: '',
+            duration: presetItemId ? prev.duration : 0,
+          };
+        }
+        if (stepIndex < 2) {
+          if (presetItemId) {
+            return {
+              ...prev,
+              date: '',
+              slotStart: '',
+              slotEnd: '',
+              duration: prev.duration,
+            };
+          }
+          return {
+            ...prev,
+            itemId: '',
+            date: '',
+            slotStart: '',
+            slotEnd: '',
+            duration: 0,
+          };
+        }
+        if (stepIndex < 3) {
+          return {
+            ...prev,
+            date: '',
+            slotStart: '',
+            slotEnd: '',
+            duration: presetItemId ? prev.duration : 0,
+          };
+        }
+        if (stepIndex < 4) {
+          return {
+            ...prev,
+            slotStart: '',
+            slotEnd: '',
+            duration: presetItemId ? prev.duration : 0,
+          };
+        }
+        return prev;
+      });
+      if (stepIndex < 3) {
+        setLastSelectedDateByMonth({});
+      }
+      if (stepIndex < 1) {
+        setMonthOffset(0);
+      }
+    },
+    [presetEmployeeId, presetItemId]
+  );
+
+  const selectBranchId = useCallback(
+    (branchId: string) => {
+      let branchChanged = false;
+      setData((prev) => {
+        if (prev.branchId === branchId) return prev;
+        branchChanged = true;
+        const b = branches.find((x) => x.id === branchId);
+        let nextDuration = 0;
+        if (presetItemId && b) {
+          const sl = getServicesList(b);
+          const svc = sl.find((s) => s.id === presetItemId);
+          nextDuration = svc?.duration ?? prev.duration ?? 0;
+        }
+        return {
+          ...prev,
+          branchId,
+          employeeId: presetEmployeeId ? presetEmployeeId : '',
+          itemId: presetItemId ? presetItemId : '',
+          date: '',
+          slotStart: '',
+          slotEnd: '',
+          duration: presetItemId ? nextDuration : 0,
+        };
+      });
+      if (branchChanged) {
+        setLastSelectedDateByMonth({});
+        setMonthOffset(0);
+      }
+    },
+    [presetEmployeeId, presetItemId, branches]
+  );
 
   const selectEmployee = useCallback((employeeId: string) => {
     setData((prev) => ({
       ...prev,
       employeeId,
-      itemId: '',
+      itemId: presetItemId ? presetItemId : '',
       date: '',
       slotStart: '',
       slotEnd: '',
-      duration: 0,
+      duration: presetItemId ? prev.duration : 0,
     }));
     setLastSelectedDateByMonth({});
-  }, []);
+  }, [presetItemId]);
 
   const selectServiceOption = useCallback((service: ServiceOption) => {
     setData((prev) => ({
@@ -391,10 +448,152 @@ export default function ReservationCreateScreen() {
       .finally(() => setLoadingBranches(false));
   }, [apiToken]);
 
+  useEffect(() => {
+    const hasDeepLink = Boolean(presetEmployeeId || presetBranchId || presetItemId);
+    if (!hasDeepLink) {
+      setBarberBootstrap('ready');
+      setBarberEntryMode('none');
+      setPresetBranchFilterIds(null);
+      setInitialMultiStepIndex(0);
+      return;
+    }
+    if (!apiToken) {
+      setBarberBootstrap('error');
+      return;
+    }
+    if (loadingBranches) return;
+
+    if (presetEmployeeId) {
+      let cancelled = false;
+      setBarberBootstrap('pending');
+      getEmployeeById(apiToken, presetEmployeeId)
+        .then((emp) => {
+          if (cancelled) return;
+          const eb = getEmployeeBranchesList(emp);
+          const ids = new Set(eb.map((b) => b.id).filter((id) => typeof id === 'string' && id));
+          const matched = branches.filter((b) => ids.has(b.id));
+          if (matched.length === 1) {
+            setData((prev) => ({
+              ...prev,
+              branchId: matched[0].id,
+              employeeId: presetEmployeeId,
+              itemId: '',
+              date: '',
+              slotStart: '',
+              slotEnd: '',
+              duration: 0,
+            }));
+            setLastSelectedDateByMonth({});
+            setMonthOffset(0);
+            setBarberEntryMode('single');
+            setInitialMultiStepIndex(2);
+            setPresetBranchFilterIds(null);
+            setBarberBootstrap('ready');
+          } else if (matched.length > 1) {
+            setData((prev) => ({
+              ...prev,
+              branchId: '',
+              employeeId: presetEmployeeId,
+              itemId: '',
+              date: '',
+              slotStart: '',
+              slotEnd: '',
+              duration: 0,
+            }));
+            setLastSelectedDateByMonth({});
+            setMonthOffset(0);
+            setBarberEntryMode('multi');
+            setInitialMultiStepIndex(0);
+            setPresetBranchFilterIds(ids);
+            setBarberBootstrap('ready');
+          } else {
+            setBarberEntryMode('none');
+            setBarberBootstrap('error');
+          }
+        })
+        .catch(() => {
+          if (!cancelled) {
+            setBarberEntryMode('none');
+            setBarberBootstrap('error');
+          }
+        });
+      return () => {
+        cancelled = true;
+      };
+    }
+
+    if (presetBranchId) {
+      const exists = branches.some((b) => b.id === presetBranchId);
+      if (!exists) {
+        setBarberEntryMode('none');
+        setBarberBootstrap('error');
+        return;
+      }
+      setData((prev) => ({
+        ...prev,
+        branchId: presetBranchId,
+        employeeId: '',
+        itemId: '',
+        date: '',
+        slotStart: '',
+        slotEnd: '',
+        duration: 0,
+      }));
+      setLastSelectedDateByMonth({});
+      setMonthOffset(0);
+      setBarberEntryMode('branch');
+      setInitialMultiStepIndex(1);
+      setPresetBranchFilterIds(null);
+      setBarberBootstrap('ready');
+      return;
+    }
+
+    if (presetItemId) {
+      let duration = 0;
+      let found = false;
+      for (const b of branches) {
+        const sl = getServicesList(b);
+        const svc = sl.find((s) => s.id === presetItemId);
+        if (svc) {
+          duration = svc.duration;
+          found = true;
+          break;
+        }
+      }
+      if (!found) {
+        setBarberEntryMode('none');
+        setBarberBootstrap('error');
+        return;
+      }
+      setData((prev) => ({
+        ...prev,
+        branchId: '',
+        employeeId: '',
+        itemId: presetItemId,
+        date: '',
+        slotStart: '',
+        slotEnd: '',
+        duration,
+      }));
+      setLastSelectedDateByMonth({});
+      setMonthOffset(0);
+      setBarberEntryMode('service');
+      setInitialMultiStepIndex(0);
+      setPresetBranchFilterIds(null);
+      setBarberBootstrap('ready');
+    }
+  }, [presetEmployeeId, presetBranchId, presetItemId, apiToken, loadingBranches, branches]);
+
   const selectedBranch = useMemo(
     () => branches.find((b) => b.id === data.branchId) ?? null,
     [branches, data.branchId]
   );
+  const branchesForReservation = useMemo(() => {
+    if (presetBranchFilterIds != null && presetBranchFilterIds.size > 0) {
+      return branches.filter((b) => presetBranchFilterIds.has(b.id));
+    }
+    return branches;
+  }, [branches, presetBranchFilterIds]);
   const employees = useMemo(
     () =>
       getEmployeesList(selectedBranch)
@@ -460,6 +659,8 @@ export default function ReservationCreateScreen() {
       setAvailabilityError(null);
       return;
     }
+    let cancelled = false;
+    setAvailability(null);
     setLoadingAvailability(true);
     setAvailabilityError(null);
     getBookingAvailability(apiToken, {
@@ -467,13 +668,23 @@ export default function ReservationCreateScreen() {
       date: data.date,
       branchId: data.branchId || undefined,
       itemId: data.itemId || undefined,
+      noCache: true,
     })
-      .then((res) => setAvailability(res))
-      .catch((e) => {
-        setAvailability(null);
-        setAvailabilityError(e instanceof Error ? e.message : 'Failed to load');
+      .then((res) => {
+        if (!cancelled) setAvailability(res);
       })
-      .finally(() => setLoadingAvailability(false));
+      .catch((e) => {
+        if (!cancelled) {
+          setAvailability(null);
+          setAvailabilityError(e instanceof Error ? e.message : 'Failed to load');
+        }
+      })
+      .finally(() => {
+        if (!cancelled) setLoadingAvailability(false);
+      });
+    return () => {
+      cancelled = true;
+    };
   }, [apiToken, data.employeeId, data.date, data.branchId, data.itemId]);
 
   useEffect(() => {
@@ -483,6 +694,7 @@ export default function ReservationCreateScreen() {
       return;
     }
     let cancelled = false;
+    setAvailableDatesInMonth(new Set());
     setLoadingMonthAvailability(true);
     Promise.all(
       monthDays.map(async (day) => {
@@ -492,6 +704,7 @@ export default function ReservationCreateScreen() {
             date: day.value,
             branchId: data.branchId || undefined,
             itemId: data.itemId || undefined,
+            noCache: true,
           });
           const count = res?.availability?.slots?.length ?? 0;
           return count > 0 ? day.value : null;
@@ -601,7 +814,15 @@ export default function ReservationCreateScreen() {
   const detailsBranchMedia = detailsBranch ? getBranchMedia(detailsBranch) : [];
   const detailsBranchImages = detailsBranchMedia.filter((m) => m.type !== 'video');
   const detailsBranchVideo = detailsBranchMedia.find((m) => m.type === 'video');
-  const selectedEmployee = employees.find((e) => e.id === data.employeeId) ?? null;
+  const selectedEmployee = useMemo(() => {
+    const fromList = employees.find((e) => e.id === data.employeeId);
+    if (fromList) return fromList;
+    const full = data.employeeId ? employeesById[data.employeeId] : undefined;
+    if (full) {
+      return mergeEmployee({ id: full.id, name: full.name, isActive: true } as BranchEmployee, full);
+    }
+    return null;
+  }, [employees, data.employeeId, employeesById]);
   const selectedService = services.find((s) => s.id === data.itemId) ?? null;
   const selectedEmployeeName = selectedEmployee?.name ?? '—';
   const selectedServiceName = selectedService?.name ?? '—';
@@ -618,9 +839,82 @@ export default function ReservationCreateScreen() {
     [selectedBranch]
   );
 
+  const useFlowNextResolver =
+    (barberEntryMode === 'multi' && Boolean(presetEmployeeId)) ||
+    (barberEntryMode === 'service' && Boolean(presetItemId));
+
+  const useFlowPrevResolver =
+    Boolean(presetEmployeeId) || barberEntryMode === 'branch' || barberEntryMode === 'service';
+
+  const flowStepNextIndex = useCallback(
+    (currentStepIndex: number, _stepsLength: number) => {
+      if (barberEntryMode === 'multi' && presetEmployeeId && currentStepIndex === 0) return 2;
+      if (barberEntryMode === 'service' && presetItemId && currentStepIndex === 1) return 3;
+      return currentStepIndex + 1;
+    },
+    [barberEntryMode, presetEmployeeId, presetItemId]
+  );
+
+  const flowStepPrevIndex = useCallback(
+    (currentStepIndex: number) => {
+      if (presetEmployeeId) {
+        if (barberEntryMode === 'single' && currentStepIndex === 2) return -1;
+        if (barberEntryMode === 'multi' && currentStepIndex === 2) return 0;
+        return currentStepIndex - 1;
+      }
+      if (barberEntryMode === 'branch' && presetBranchId) {
+        if (currentStepIndex === 1) return -1;
+        return currentStepIndex - 1;
+      }
+      if (barberEntryMode === 'service' && presetItemId) {
+        if (currentStepIndex === 3) return 1;
+        if (currentStepIndex === 0) return -1;
+        return currentStepIndex - 1;
+      }
+      return currentStepIndex - 1;
+    },
+    [presetEmployeeId, presetBranchId, presetItemId, barberEntryMode]
+  );
+
+  if (barberBootstrap === 'pending') {
+    return (
+      <View className="flex-1 bg-light-primary dark:bg-dark-primary">
+        <Header showBackButton />
+        <View className="flex-1 items-center justify-center">
+          <ActivityIndicator size="small" />
+          <ThemedText className="mt-3 text-sm text-light-subtext dark:text-dark-subtext">
+            {t('commonLoading')}
+          </ThemedText>
+        </View>
+      </View>
+    );
+  }
+
+  if (
+    barberBootstrap === 'error' &&
+    (presetEmployeeId || presetBranchId || presetItemId)
+  ) {
+    return (
+      <View className="flex-1 bg-light-primary dark:bg-dark-primary px-global pt-2">
+        <Header showBackButton />
+        <View className="mt-6">
+          <ThemedText className="text-base text-light-text dark:text-dark-text">
+            {presetEmployeeId
+              ? t('reservationFromBarberLoadError')
+              : t('reservationFromDeepLinkError')}
+          </ThemedText>
+        </View>
+      </View>
+    );
+  }
+
   return (
     <>
       <MultiStep
+        key={`res-${presetEmployeeId ?? 'e'}-${presetBranchId ?? 'b'}-${presetItemId ?? 'i'}-${barberEntryMode}-${initialMultiStepIndex}`}
+        initialStepIndex={initialMultiStepIndex}
+        getNextStepIndex={useFlowNextResolver ? flowStepNextIndex : undefined}
+        getPrevStepIndex={useFlowPrevResolver ? flowStepPrevIndex : undefined}
         onComplete={handleCreateBooking}
         onClose={() => router.back()}
         showStepIndicator={false}
@@ -661,7 +955,7 @@ export default function ReservationCreateScreen() {
               <ActivityIndicator size="small" />
             </View>
           ) : (
-            branches.map((branch) => (
+            branchesForReservation.map((branch) => (
               <View key={branch.id} className="mb-2">
                 <Selectable
                   title={branch.name}
@@ -792,14 +1086,19 @@ export default function ReservationCreateScreen() {
               <ActivityIndicator size="small" />
             </View>
           ) : null}
-          {serviceCategories.map((category) => (
-            <Section key={category.key} title={category.name} titleSize="lg" className="mb-4">
+          {serviceCategories.map((category, categoryIndex) => (
+            <Section
+              key={`res-svc-cat-${category.key}-${categoryIndex}`}
+              title={category.name}
+              titleSize="lg"
+              className="mb-4"
+            >
               <CardScroller className="mt-1.5 pb-1" space={12}>
-                {category.services.map((service) => {
+                {category.services.map((service, serviceIndex) => {
                   const isSelected = data.itemId === service.id;
                   return (
                     <Pressable
-                      key={service.id}
+                      key={`res-svc-${category.key}-${service.id}-${serviceIndex}`}
                       onPress={() => selectServiceOption(service)}
                       className="w-[160px] active:opacity-80"
                     >

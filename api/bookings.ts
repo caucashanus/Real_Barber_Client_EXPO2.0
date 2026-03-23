@@ -165,6 +165,8 @@ export interface GetBookingAvailabilityParams {
   date: string; // YYYY-MM-DD
   branchId?: string;
   itemId?: string;
+  /** Přidá cache-busting query param, aby se vždy načetla čerstvá data. */
+  noCache?: boolean;
 }
 
 /** Response shape from GET /api/client/bookings/availability (see CRM for actual fields). */
@@ -207,6 +209,7 @@ export async function getBookingAvailability(
   q.set('date', params.date);
   if (params.branchId) q.set('branchId', params.branchId);
   if (params.itemId) q.set('itemId', params.itemId);
+  if (params.noCache) q.set('_ts', String(Date.now()));
   const url = `${CRM_BASE}/api/client/bookings/availability?${q.toString()}`;
 
   const res = await fetch(url, {
@@ -249,7 +252,7 @@ export async function cancelBooking(
   });
   const text = await res.text();
   if (res.status === 401) throw new Error('Unauthorized');
-  if (res.status === 403) throw new Error('Cannot cancel booking (wrong owner or status)');
+  if (res.status === 403) throw new Error('Rezervaci nelze zrušit méně než 2 hodiny před domluveným termínem.');
   if (res.status === 404) throw new Error('Booking not found');
   if (res.status === 500) throw new Error('Failed to cancel booking');
   if (!res.ok) {
@@ -308,7 +311,7 @@ export async function updateBooking(
 
   const text = await res.text();
   if (res.status === 401) throw new Error('Unauthorized');
-  if (res.status === 403) throw new Error('Cannot modify booking (wrong owner or status)');
+  if (res.status === 403) throw new Error('Rezervaci nelze upravit méně než 1 hodinu před domluveným termínem.');
   if (res.status === 404) throw new Error('Booking not found');
   if (res.status === 400) throw new Error('Invalid booking data or slot conflict');
   if (res.status === 409) throw new Error('Booking conflict');

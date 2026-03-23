@@ -773,6 +773,10 @@ export const en = {
   reservationStartStep3Title: 'Choose a time',
   reservationStartStep3Desc: "We'll show available slots and you'll confirm the booking.",
   reservationStartCta: "Let's go",
+  reservationFromBarberLoadError:
+    'We could not start a booking for this barber. They may have no branch assigned or the data could not be loaded.',
+  reservationFromDeepLinkError:
+    'We could not open the booking flow. The branch or service may be unavailable.',
   reservationStepBranchTitle: 'Choose a branch',
   reservationStepBranchSubtitle: 'Select the branch where you want to book.',
   reservationShowMap: 'View map',

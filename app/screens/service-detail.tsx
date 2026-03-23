@@ -342,11 +342,11 @@ export default function ServiceDetailScreen() {
         <View className="flex-row items-center ml-auto">
           <Button
             title={t('commonReserve')}
-            variant="primary" className="ml-6 px-6"
-            textClassName="text-white"
+            variant="primary"
+            className="ml-6 px-6"
             size="medium"
             rounded="lg"
-            href={`/screens/checkout?itemId=${item.id}`}
+            href={`/screens/reservation-create?itemId=${encodeURIComponent(item.id)}`}
           />
         </View>
       </View>

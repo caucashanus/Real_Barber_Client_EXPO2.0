@@ -71,6 +71,12 @@ interface MultiStepProps {
   isNextDisabled?: (currentStep: number) => boolean;
   /** Loading state for the bottom primary button (e.g. async submit on last step). */
   footerLoading?: boolean;
+  /** Počáteční krok (např. deep link přeskočí výběr pobočky / holiče). */
+  initialStepIndex?: number;
+  /** Nelineární „Další“ (např. z kroku 0 rovnou na 2). */
+  getNextStepIndex?: (currentStepIndex: number, stepsLength: number) => number;
+  /** Nelineární „Zpět“; vraťte -1 pro zavření wizardu (`onClose`). */
+  getPrevStepIndex?: (currentStepIndex: number) => number;
 }
 
 export type MultiStepHandle = {
@@ -90,6 +96,9 @@ const MultiStep = forwardRef<MultiStepHandle, MultiStepProps>(function MultiStep
     onStepIndexChange,
     isNextDisabled,
     footerLoading = false,
+    initialStepIndex = 0,
+    getNextStepIndex,
+    getPrevStepIndex,
   },
   ref
 ) {
@@ -120,7 +129,7 @@ const MultiStep = forwardRef<MultiStepHandle, MultiStepProps>(function MultiStep
     });
   }
 
-  const [currentStepIndex, setCurrentStepIndex] = useState(0);
+  const [currentStepIndex, setCurrentStepIndex] = useState(initialStepIndex);
   const [keyboardVisible, setKeyboardVisible] = useState(false);
   const currentStep = steps[currentStepIndex];
   const isLastStep = currentStepIndex === steps.length - 1;
@@ -176,9 +185,12 @@ const MultiStep = forwardRef<MultiStepHandle, MultiStepProps>(function MultiStep
     if (isLastStep) {
       onComplete();
     } else {
-      const nextStep = currentStepIndex + 1;
+      const nextStep = getNextStepIndex
+        ? getNextStepIndex(currentStepIndex, steps.length)
+        : currentStepIndex + 1;
+      if (nextStep < 0 || nextStep >= steps.length) return;
       const canProceed = onStepChange ? onStepChange(nextStep) : true;
-      
+
       if (canProceed) {
         setCurrentStepIndex(nextStep);
         onStepIndexChange?.(nextStep, 'next');
@@ -191,6 +203,19 @@ const MultiStep = forwardRef<MultiStepHandle, MultiStepProps>(function MultiStep
   };
 
   const handleBack = () => {
+    if (getPrevStepIndex) {
+      const prevIndex = getPrevStepIndex(currentStepIndex);
+      if (prevIndex < 0) {
+        onClose?.();
+        return;
+      }
+      if (prevIndex !== currentStepIndex) {
+        stepTransitionHaptic();
+        setCurrentStepIndex(prevIndex);
+        onStepIndexChange?.(prevIndex, 'back');
+      }
+      return;
+    }
     if (!isFirstStep) {
       stepTransitionHaptic();
       const prevIndex = currentStepIndex - 1;

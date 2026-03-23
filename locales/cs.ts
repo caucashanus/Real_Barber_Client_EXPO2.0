@@ -775,6 +775,10 @@ export const cs: Record<TranslationKey, string> = {
   reservationStartStep3Title: 'Vyberte termín',
   reservationStartStep3Desc: 'Zobrazíme dostupné časy a potvrdíte rezervaci.',
   reservationStartCta: 'Jdeme na to',
+  reservationFromBarberLoadError:
+    'Rezervaci u tohoto holiče se nepodařilo zahájit. Nemusí mít přiřazenou pobočku nebo se nepodařilo načíst data.',
+  reservationFromDeepLinkError:
+    'Rezervaci se nepodařilo otevřít. Pobočka nebo služba nemusí být k dispozici.',
   reservationStepBranchTitle: 'Vyberte pobočku',
   reservationStepBranchSubtitle: 'Vyberte pobočku, kde chcete rezervaci.',
   reservationShowMap: 'Zobrazit mapu',
