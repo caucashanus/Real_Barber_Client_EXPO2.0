@@ -1,16 +1,17 @@
+import { router } from 'expo-router';
 import React, { useState } from 'react';
 import { View, KeyboardAvoidingView, Platform } from 'react-native';
-import { router } from 'expo-router';
+
+import { changePassword } from '@/api/auth';
+import { useAuth } from '@/app/contexts/AuthContext';
+import { useTranslation } from '@/app/hooks/useTranslation';
+import { Button } from '@/components/Button';
 import Header from '@/components/Header';
+import Icon from '@/components/Icon';
 import ThemedScroller from '@/components/ThemeScroller';
 import ThemedText from '@/components/ThemedText';
 import Input from '@/components/forms/Input';
 import Section from '@/components/layout/Section';
-import { Button } from '@/components/Button';
-import Icon from '@/components/Icon';
-import { useAuth } from '@/app/contexts/AuthContext';
-import { changePassword } from '@/api/auth';
-import { useTranslation } from '@/app/hooks/useTranslation';
 
 export default function ChangePasswordScreen() {
   const { apiToken } = useAuth();
@@ -26,27 +27,27 @@ export default function ChangePasswordScreen() {
     setError(null);
 
     if (!currentPassword || !newPassword || !confirmPassword) {
-      setError('Please fill in all fields.');
+      setError(t('changePasswordErrorFillAll'));
       return;
     }
 
     if (newPassword.length < 6) {
-      setError('New password must be at least 6 characters.');
+      setError(t('changePasswordErrorMinLength'));
       return;
     }
 
     if (newPassword !== confirmPassword) {
-      setError('New passwords do not match.');
+      setError(t('changePasswordErrorMismatch'));
       return;
     }
 
     if (currentPassword === newPassword) {
-      setError('New password must be different from current password.');
+      setError(t('changePasswordErrorSameAsCurrent'));
       return;
     }
 
     if (!apiToken) {
-      setError('You must be logged in.');
+      setError(t('changePasswordErrorNotLoggedIn'));
       return;
     }
 
@@ -59,7 +60,7 @@ export default function ChangePasswordScreen() {
       setConfirmPassword('');
       setTimeout(() => router.back(), 2000);
     } catch (e) {
-      setError(e instanceof Error ? e.message : 'Failed to change password. Please check your current password.');
+      setError(e instanceof Error ? e.message : t('changePasswordErrorFailed'));
     } finally {
       setIsLoading(false);
     }
@@ -69,13 +70,15 @@ export default function ChangePasswordScreen() {
     return (
       <>
         <Header showBackButton />
-        <View className="flex-1 items-center justify-center px-6 bg-light-primary dark:bg-dark-primary">
-          <View className="w-20 h-20 rounded-full bg-green-100 dark:bg-green-900/30 items-center justify-center mb-6">
+        <View className="flex-1 items-center justify-center bg-light-primary px-6 dark:bg-dark-primary">
+          <View className="mb-6 h-20 w-20 items-center justify-center rounded-full bg-green-100 dark:bg-green-900/30">
             <Icon name="Check" size={40} color="#22c55e" />
           </View>
-          <ThemedText className="text-xl font-semibold text-center mb-2">Password changed</ThemedText>
-          <ThemedText className="text-base text-light-subtext dark:text-dark-subtext text-center">
-            Your password has been changed successfully. You can now use your new password to sign in.
+          <ThemedText className="mb-2 text-center text-xl font-semibold">
+            {t('changePasswordSuccessTitle')}
+          </ThemedText>
+          <ThemedText className="text-center text-base text-light-subtext dark:text-dark-subtext">
+            {t('changePasswordSuccessMessage')}
           </ThemedText>
         </View>
       </>
@@ -87,15 +90,14 @@ export default function ChangePasswordScreen() {
       <Header showBackButton />
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-        className="flex-1 bg-light-primary dark:bg-dark-primary"
-      >
+        className="flex-1 bg-light-primary dark:bg-dark-primary">
         <ThemedScroller keyboardShouldPersistTaps="handled" className="flex-1">
           <Section title={t('changePasswordTitle')} titleSize="lg" className="mt-2 px-global">
             <Input
               label={t('changePasswordCurrent')}
               value={currentPassword}
               onChangeText={setCurrentPassword}
-              placeholder="Enter current password"
+              placeholder={t('changePasswordPlaceholderCurrent')}
               isPassword
               variant="classic"
               containerClassName="mb-4"
@@ -105,27 +107,29 @@ export default function ChangePasswordScreen() {
               label={t('changePasswordNew')}
               value={newPassword}
               onChangeText={setNewPassword}
-              placeholder="Enter new password (min. 6 characters)"
+              placeholder={t('changePasswordPlaceholderNew')}
               isPassword
               variant="classic"
               containerClassName="mb-1"
               editable={!isLoading}
             />
-            <ThemedText className="text-xs text-light-subtext dark:text-dark-subtext mb-4">
-              Password must be at least 6 characters.
+            <ThemedText className="mb-4 text-xs text-light-subtext dark:text-dark-subtext">
+              {t('changePasswordHintMinLength')}
             </ThemedText>
             <Input
               label={t('changePasswordConfirmNew')}
               value={confirmPassword}
               onChangeText={setConfirmPassword}
-              placeholder="Enter new password again"
+              placeholder={t('changePasswordPlaceholderConfirm')}
               isPassword
               variant="classic"
               containerClassName="mb-4"
               editable={!isLoading}
             />
             {error ? (
-              <ThemedText className="text-red-500 dark:text-red-400 text-sm mb-4 text-center">{error}</ThemedText>
+              <ThemedText className="mb-4 text-center text-sm text-red-500 dark:text-red-400">
+                {error}
+              </ThemedText>
             ) : null}
             <Button
               title={t('changePasswordTitle')}
@@ -135,8 +139,10 @@ export default function ChangePasswordScreen() {
               className="mb-6"
             />
             <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext">
-              <ThemedText className="font-semibold text-light-text dark:text-dark-text">Tip:</ThemedText> Use a
-              strong password with letters, numbers and special characters.
+              <ThemedText className="font-semibold text-light-text dark:text-dark-text">
+                {t('changePasswordTipLabel')}
+              </ThemedText>{' '}
+              {t('changePasswordTipText')}
             </ThemedText>
           </Section>
         </ThemedScroller>

@@ -34,7 +34,8 @@ export const cs: Record<TranslationKey, string> = {
   settingsCommunicationPrefs: 'Komunikační preference',
   settingsCommunicationPrefsDesc: 'Kanály a typy zpráv od aplikace',
   communicationSettingsTitle: 'Komunikační preference',
-  communicationSettingsSubtitle: 'Vyberte, jak vás můžeme kontaktovat a o čem chcete dostávat informace.',
+  communicationSettingsSubtitle:
+    'Vyberte, jak vás můžeme kontaktovat a o čem chcete dostávat informace.',
   communicationSettingsChannelsSection: 'Kanály',
   communicationSettingsContentSection: 'Typy obsahu',
   communicationSettingsLoadError: 'Nepodařilo se načíst nastavení.',
@@ -182,7 +183,8 @@ export const cs: Record<TranslationKey, string> = {
 
   // Experience
   experienceNewBarbers: 'Noví barbeři',
-  experienceNewBarbersDesc: 'Barbeři, kteří se nedávno přidali a jsou připraveni se o vás postarat.',
+  experienceNewBarbersDesc:
+    'Barbeři, kteří se nedávno přidali a jsou připraveni se o vás postarat.',
   experienceSchedule: 'Rozvrh',
   experiencePopularToday: 'Dnes dostupní oblíbení barbeři',
   experienceAllBarbers: 'Všichni barbeři',
@@ -292,6 +294,7 @@ export const cs: Record<TranslationKey, string> = {
   // Trip detail / Booking detail
   bookingDetailTitle: 'Detail rezervace',
   bookingInCareOf: 'V péči u',
+  bookingOpenEmployeeProfile: 'Profil holiče',
   bookingMessage: 'Zpráva',
   bookingSendRbcTip: 'Poslat RBC jako spropitné',
   bookingYourAppointment: 'Vaše návštěva',
@@ -462,7 +465,8 @@ export const cs: Record<TranslationKey, string> = {
   transferTheySentYouRbc: 'Odeslali vám',
   transferSearching: 'Vyhledávám…',
   transferNoResults: 'Žádné výsledky. Zadejte jméno nebo telefon (min. 2 znaky).',
-  transferNoEmployeesHint: 'Žádní zaměstnanci. Pro odeslání klientovi zadejte do vyhledávání jeho telefon (min. 2 znaky).',
+  transferNoEmployeesHint:
+    'Žádní zaměstnanci. Pro odeslání klientovi zadejte do vyhledávání jeho telefon (min. 2 znaky).',
   transferChatAmountPlaceholder: 'Částka (RBC)',
   transferChatNoteOptional: 'Poznámka (nepovinná)',
   transferChatBalance: 'Zůstatek',
@@ -552,6 +556,21 @@ export const cs: Record<TranslationKey, string> = {
   changePasswordCurrent: 'Aktuální heslo',
   changePasswordNew: 'Nové heslo',
   changePasswordConfirmNew: 'Potvrdit nové heslo',
+  changePasswordErrorFillAll: 'Vyplňte prosím všechna pole.',
+  changePasswordErrorMinLength: 'Nové heslo musí mít alespoň 6 znaků.',
+  changePasswordErrorMismatch: 'Nová hesla se neshodují.',
+  changePasswordErrorSameAsCurrent: 'Nové heslo musí být jiné než aktuální.',
+  changePasswordErrorNotLoggedIn: 'Musíte být přihlášeni.',
+  changePasswordErrorFailed: 'Změna hesla se nepodařila. Zkontrolujte prosím své aktuální heslo.',
+  changePasswordSuccessTitle: 'Heslo změněno',
+  changePasswordSuccessMessage:
+    'Vaše heslo bylo úspěšně změněno. Nyní se můžete přihlásit novým heslem.',
+  changePasswordPlaceholderCurrent: 'Zadejte aktuální heslo',
+  changePasswordPlaceholderNew: 'Zadejte nové heslo (min. 6 znaků)',
+  changePasswordPlaceholderConfirm: 'Zadejte nové heslo znovu',
+  changePasswordHintMinLength: 'Heslo musí mít alespoň 6 znaků.',
+  changePasswordTipLabel: 'Tip:',
+  changePasswordTipText: 'Použijte silné heslo s písmeny, čísly a speciálními znaky.',
 
   // Profile notifications settings
   notifSettingsBookingTravel: 'Rezervace a cesty',
@@ -906,9 +925,12 @@ export const cs: Record<TranslationKey, string> = {
   guidesNoGuides: 'Zatím žádní průvodci.',
 
   // Návod „K čemu je Moje střihy“
-  guideMyHaircutsStep1: 'Kdykoli máš nápad na účes, vytvoř si ho – dej mu název a ulož. Pak ho u pobočky ukaž holiči a bude přesně vědět, co chceš.',
-  guideMyHaircutsStep2: 'U pobočky stačí holiči ukázat uložený účes. Nemusíš nic vysvětlovat – holič vidí přesně, co chceš.',
-  guideMyHaircutsStep3: 'Všechny své účesy máš na jednom místě. Můžeš přidávat další kdykoli nebo je ukázat při příští návštěvě.',
+  guideMyHaircutsStep1:
+    'Kdykoli máš nápad na účes, vytvoř si ho – dej mu název a ulož. Pak ho u pobočky ukaž holiči a bude přesně vědět, co chceš.',
+  guideMyHaircutsStep2:
+    'U pobočky stačí holiči ukázat uložený účes. Nemusíš nic vysvětlovat – holič vidí přesně, co chceš.',
+  guideMyHaircutsStep3:
+    'Všechny své účesy máš na jednom místě. Můžeš přidávat další kdykoli nebo je ukázat při příští návštěvě.',
   guideMyHaircutsNext: 'Další',
   guideMyHaircutsGotIt: 'Rozumím',
 

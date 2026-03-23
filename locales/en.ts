@@ -290,6 +290,7 @@ export const en = {
   // Trip detail / Booking detail
   bookingDetailTitle: 'Booking Detail',
   bookingInCareOf: 'In care of',
+  bookingOpenEmployeeProfile: 'Barber profile',
   bookingMessage: 'Message',
   bookingSendRbcTip: 'Send RBC as tip',
   bookingYourAppointment: 'Your appointment',
@@ -460,7 +461,8 @@ export const en = {
   transferTheySentYouRbc: 'They sent you',
   transferSearching: 'Searching…',
   transferNoResults: 'No results. Enter name or phone (min. 2 characters).',
-  transferNoEmployeesHint: 'No employees. To send to a client, enter their phone in the search (min. 2 characters).',
+  transferNoEmployeesHint:
+    'No employees. To send to a client, enter their phone in the search (min. 2 characters).',
   transferChatAmountPlaceholder: 'Amount (RBC)',
   transferChatNoteOptional: 'Note (optional)',
   transferChatBalance: 'Balance',
@@ -550,6 +552,21 @@ export const en = {
   changePasswordCurrent: 'Current password',
   changePasswordNew: 'New password',
   changePasswordConfirmNew: 'Confirm new password',
+  changePasswordErrorFillAll: 'Please fill in all fields.',
+  changePasswordErrorMinLength: 'New password must be at least 6 characters.',
+  changePasswordErrorMismatch: 'New passwords do not match.',
+  changePasswordErrorSameAsCurrent: 'New password must be different from current password.',
+  changePasswordErrorNotLoggedIn: 'You must be logged in.',
+  changePasswordErrorFailed: 'Failed to change password. Please check your current password.',
+  changePasswordSuccessTitle: 'Password changed',
+  changePasswordSuccessMessage:
+    'Your password has been changed successfully. You can now use your new password to sign in.',
+  changePasswordPlaceholderCurrent: 'Enter current password',
+  changePasswordPlaceholderNew: 'Enter new password (min. 6 characters)',
+  changePasswordPlaceholderConfirm: 'Enter new password again',
+  changePasswordHintMinLength: 'Password must be at least 6 characters.',
+  changePasswordTipLabel: 'Tip:',
+  changePasswordTipText: 'Use a strong password with letters, numbers and special characters.',
 
   // Profile notifications settings
   notifSettingsBookingTravel: 'Booking & Travel',
@@ -593,7 +610,8 @@ export const en = {
   rescheduleIntro: 'Pick a new date and time. The branch, barber and service stay the same.',
   rescheduleCurrentTitle: 'Current booking',
   rescheduleCurrentTimeHeading: 'Current time slot',
-  rescheduleCurrentTimeHint: 'The time you are changing — your new choice will replace it after you confirm.',
+  rescheduleCurrentTimeHint:
+    'The time you are changing — your new choice will replace it after you confirm.',
   reschedulePickTitle: 'New date & time',
   rescheduleContinue: 'Continue to summary',
   rescheduleSummaryTitle: 'Reschedule summary',
@@ -750,7 +768,8 @@ export const en = {
   addPropertyHowOftenTrim: 'How often to trim?',
   addPropertyWeeksToComeIn: 'Every how many weeks to come in',
   addPropertyWhatGoesWith: 'What goes with this haircut?',
-  addPropertySelectMultiple: 'Select everything that fits your haircut. You can select multiple options.',
+  addPropertySelectMultiple:
+    'Select everything that fits your haircut. You can select multiple options.',
   addPropertyAddPhotos: 'Add haircut photos',
   addPropertyAtLeastOnePhoto: 'At least one photo helps. You can add more or edit later.',
   addPropertyAddPhoto: 'Add photo',
@@ -760,7 +779,8 @@ export const en = {
   addPropertyStylingDifficulty: 'Styling difficulty and stylist',
   addPropertyHowDemanding: 'How demanding is the haircut to style and who did it for you?',
   addPropertyCongratulations: 'Congratulations!',
-  addPropertySuccessMessage: 'Your haircut was saved successfully. You can find it in the My haircuts section.',
+  addPropertySuccessMessage:
+    'Your haircut was saved successfully. You can find it in the My haircuts section.',
   addPropertyEasyTitle: "It's easy to add your haircut",
   addPropertyStep1Title: 'Create your haircut',
   addPropertyStep1Desc: 'Come up with a name and create.',
@@ -904,9 +924,12 @@ export const en = {
   guidesNoGuides: 'No guides yet.',
 
   // Guide "What's My haircuts for"
-  guideMyHaircutsStep1: "Whenever you have an idea, create your haircut — give it a name and save it. Then show it at the branch and the barber knows exactly what you want.",
-  guideMyHaircutsStep2: "At the branch just show the barber your saved haircut. No need to explain — the barber sees exactly what you want.",
-  guideMyHaircutsStep3: "You have all your haircuts in one place. Add more anytime or show them at your next visit.",
+  guideMyHaircutsStep1:
+    'Whenever you have an idea, create your haircut — give it a name and save it. Then show it at the branch and the barber knows exactly what you want.',
+  guideMyHaircutsStep2:
+    'At the branch just show the barber your saved haircut. No need to explain — the barber sees exactly what you want.',
+  guideMyHaircutsStep3:
+    'You have all your haircuts in one place. Add more anytime or show them at your next visit.',
   guideMyHaircutsNext: 'Next',
   guideMyHaircutsGotIt: 'Got it',
 

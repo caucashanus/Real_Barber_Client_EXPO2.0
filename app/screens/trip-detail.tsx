@@ -1,33 +1,35 @@
+import { useLocalSearchParams, router } from 'expo-router';
 import React, { useEffect, useRef, useState } from 'react';
 import { View, ActivityIndicator, Image, Pressable, Linking, Alert, Animated } from 'react-native';
 import { ActionSheetRef } from 'react-native-actions-sheet';
-import { useLocalSearchParams, router } from 'expo-router';
-import Header from '@/components/Header';
-import ThemedScroller from '@/components/ThemeScroller';
-import ThemedFooter from '@/components/ThemeFooter';
-import Section from '@/components/layout/Section';
-import ImageCarousel from '@/components/ImageCarousel';
-import ThemedText from '@/components/ThemedText';
-import Avatar from '@/components/Avatar';
-import ListLink from '@/components/ListLink';
-import Divider from '@/components/layout/Divider';
-import Icon from '@/components/Icon';
-import { Button } from '@/components/Button';
-import AnimatedView from '@/components/AnimatedView';
-import ConfirmationModal from '@/components/ConfirmationModal';
+
+import { getBookings, cancelBooking, type Booking } from '../../api/bookings';
+
+import { getBranches, type Branch, type BranchService } from '@/api/branches';
+import { getClientOverview, type ClientOverviewReservation } from '@/api/reviews';
 import { useAuth } from '@/app/contexts/AuthContext';
 import { useLanguage } from '@/app/contexts/LanguageContext';
 import { useSetTransferRecipient } from '@/app/contexts/TransferRecipientContext';
-import { getBookings, cancelBooking, type Booking } from '../../api/bookings';
-import { getBranches, type Branch, type BranchService } from '@/api/branches';
-import { getClientOverview, type ClientOverviewReservation } from '@/api/reviews';
 import { useTranslation } from '@/app/hooks/useTranslation';
+import AnimatedView from '@/components/AnimatedView';
+import Avatar from '@/components/Avatar';
+import { Button } from '@/components/Button';
+import ConfirmationModal from '@/components/ConfirmationModal';
+import Header from '@/components/Header';
+import Icon from '@/components/Icon';
+import ImageCarousel from '@/components/ImageCarousel';
+import ListLink from '@/components/ListLink';
+import ThemedFooter from '@/components/ThemeFooter';
+import ThemedScroller from '@/components/ThemeScroller';
+import ThemedText from '@/components/ThemedText';
+import Divider from '@/components/layout/Divider';
+import Section from '@/components/layout/Section';
 
 const BRANCH_IMAGES: Record<string, number> = {
-  'Modřany': require('@/assets/img/branches/Modrany.jpg'),
-  'Kačerov': require('@/assets/img/branches/Kacerov.jpg'),
-  'Hagibor': require('@/assets/img/branches/Hagibor.jpg'),
-  'Barrandov': require('@/assets/img/branches/Barrandov.jpg'),
+  Modřany: require('@/assets/img/branches/Modrany.jpg'),
+  Kačerov: require('@/assets/img/branches/Kacerov.jpg'),
+  Hagibor: require('@/assets/img/branches/Hagibor.jpg'),
+  Barrandov: require('@/assets/img/branches/Barrandov.jpg'),
 };
 
 function getServicesList(branch: Branch): BranchService[] {
@@ -52,7 +54,9 @@ function branchImages(branch: Branch): (string | number)[] {
   mediaUrls.forEach((url) => out.push(url));
   if (branch.imageUrl) out.push(branch.imageUrl);
   const servicesList = getServicesList(branch);
-  servicesList.forEach((svc) => { if (svc.imageUrl) out.push(svc.imageUrl); });
+  servicesList.forEach((svc) => {
+    if (svc.imageUrl) out.push(svc.imageUrl);
+  });
   if (out.length === 0 && branch.name && BRANCH_IMAGES[branch.name] != null) {
     out.push(BRANCH_IMAGES[branch.name]);
   }
@@ -60,15 +64,24 @@ function branchImages(branch: Branch): (string | number)[] {
   return out;
 }
 
-function getPaymentMethodLabel(method: string | null | undefined, t: (key: string) => string): string {
+function getPaymentMethodLabel(
+  method: string | null | undefined,
+  t: (key: string) => string
+): string {
   if (!method) return '—';
   const normalized = method.trim().toUpperCase().replace(/\s+/g, '_');
   if (normalized === 'CASH') return t('paymentMethodCash');
-  if (normalized === 'CARD' || normalized === 'CREDIT_CARD' || normalized === 'DEBIT_CARD') return t('paymentMethodCard');
-  if (normalized === 'RBC' || normalized === 'RB_COINS' || normalized === 'RBCOINS') return t('paymentMethodRbc');
+  if (normalized === 'CARD' || normalized === 'CREDIT_CARD' || normalized === 'DEBIT_CARD')
+    return t('paymentMethodCard');
+  if (normalized === 'RBC' || normalized === 'RB_COINS' || normalized === 'RBCOINS')
+    return t('paymentMethodRbc');
   return method
     .split('_')
-    .map((part) => (part.toLowerCase() === 'rbc' ? 'RBC' : part.charAt(0).toUpperCase() + part.slice(1).toLowerCase()))
+    .map((part) =>
+      part.toLowerCase() === 'rbc'
+        ? 'RBC'
+        : part.charAt(0).toUpperCase() + part.slice(1).toLowerCase()
+    )
     .join(' ');
 }
 
@@ -93,7 +106,10 @@ function getPaymentMethodFromPayments(booking: Booking, t: (key: string) => stri
   return labels.join(' + ');
 }
 
-function formatAppointment(b: Booking, dateLocale: string): { dateStr: string; fromTime: string; toTime: string } {
+function formatAppointment(
+  b: Booking,
+  dateLocale: string
+): { dateStr: string; fromTime: string; toTime: string } {
   const d = new Date(b.date);
   const monthShort = d.toLocaleString(dateLocale, { month: 'short' });
   const dateStr = `${d.getDate()} ${monthShort} ${d.getFullYear()}`;
@@ -179,7 +195,9 @@ const BookingDetailScreen = () => {
     }
     getClientOverview(apiToken)
       .then((overview) => {
-        const withReviews = overview?.data?.reservations?.withReviews as ClientOverviewReservation[] | undefined;
+        const withReviews = overview?.data?.reservations?.withReviews as
+          | ClientOverviewReservation[]
+          | undefined;
         const has = Array.isArray(withReviews) && withReviews.some((r) => r.id === id);
         setHasReview(!!has);
       })
@@ -192,7 +210,9 @@ const BookingDetailScreen = () => {
         <Header title={t('bookingDetailTitle')} showBackButton />
         <View className="flex-1 items-center justify-center bg-light-primary dark:bg-dark-primary">
           <ActivityIndicator size="large" />
-          <ThemedText className="mt-2 text-light-subtext dark:text-dark-subtext">{t('commonLoading')}</ThemedText>
+          <ThemedText className="mt-2 text-light-subtext dark:text-dark-subtext">
+            {t('commonLoading')}
+          </ThemedText>
         </View>
       </>
     );
@@ -202,8 +222,10 @@ const BookingDetailScreen = () => {
     return (
       <>
         <Header title={t('bookingDetailTitle')} showBackButton />
-        <View className="flex-1 items-center justify-center bg-light-primary dark:bg-dark-primary p-6">
-          <ThemedText className="text-center text-red-500 dark:text-red-400">{error ?? t('bookingNotFound')}</ThemedText>
+        <View className="flex-1 items-center justify-center bg-light-primary p-6 dark:bg-dark-primary">
+          <ThemedText className="text-center text-red-500 dark:text-red-400">
+            {error ?? t('bookingNotFound')}
+          </ThemedText>
         </View>
       </>
     );
@@ -211,7 +233,8 @@ const BookingDetailScreen = () => {
 
   const appointment = formatAppointment(booking, dateLocaleTag);
   const location = booking.branch?.address ?? booking.branch?.name ?? '—';
-  const paymentMethodLabel = getPaymentMethodFromPayments(booking, t) ?? getPaymentMethodLabel(booking.paymentMethod, t);
+  const paymentMethodLabel =
+    getPaymentMethodFromPayments(booking, t) ?? getPaymentMethodLabel(booking.paymentMethod, t);
   const status = (booking.status ?? '').toLowerCase();
   const isCancelled = status === 'cancelled' || status === 'canceled';
   const isPast = isBookingPast(booking);
@@ -233,8 +256,7 @@ const BookingDetailScreen = () => {
         onScroll={Animated.event([{ nativeEvent: { contentOffset: { y: heroScrollY } } }], {
           useNativeDriver: false,
         })}
-        scrollEventThrottle={16}
-      >
+        scrollEventThrottle={16}>
         <AnimatedView animation="fadeIn" duration={400} delay={100}>
           <View className="px-global">
             <ImageCarousel
@@ -246,44 +268,64 @@ const BookingDetailScreen = () => {
             />
           </View>
 
-          <View className="px-global pt-6 pb-4">
-            <ThemedText className="text-2xl font-bold mb-2">{booking.branch?.name ?? '—'}</ThemedText>
+          <View className="px-global pb-4 pt-6">
+            <ThemedText className="mb-2 text-2xl font-bold">
+              {booking.branch?.name ?? '—'}
+            </ThemedText>
             <View className="flex-row items-center">
-              <Icon name="MapPin" size={16} className="mr-2 text-light-subtext dark:text-dark-subtext" />
-              <ThemedText className="text-light-subtext dark:text-dark-subtext">{location}</ThemedText>
+              <Icon
+                name="MapPin"
+                size={16}
+                className="mr-2 text-light-subtext dark:text-dark-subtext"
+              />
+              <ThemedText className="text-light-subtext dark:text-dark-subtext">
+                {location}
+              </ThemedText>
             </View>
           </View>
 
           <Divider className="h-2 bg-light-secondary dark:bg-dark-darker" />
 
           <Section title={t('bookingInCareOf')} titleSize="lg" className="px-global pt-4">
-            <View className="flex-row items-center justify-between mt-4 mb-4">
-              <View className="flex-row items-center flex-1">
-                <Avatar src={booking.employee?.avatarUrl ?? undefined} name={booking.employee?.name} size="lg" />
-                <View className="ml-3 flex-1">
-                  <ThemedText className="text-lg font-semibold">{booking.employee?.name ?? '—'}</ThemedText>
+            <View className="mb-4 mt-4 flex-row items-center justify-between">
+              <View className="min-w-0 flex-1 flex-row items-center">
+                <Avatar
+                  src={booking.employee?.avatarUrl ?? undefined}
+                  name={booking.employee?.name}
+                  size="lg"
+                />
+                <View className="ml-3 min-w-0 flex-1">
+                  <ThemedText className="text-lg font-semibold">
+                    {booking.employee?.name ?? '—'}
+                  </ThemedText>
                   {booking.item?.name ? (
-                    <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext mt-1">
+                    <ThemedText className="mt-1 text-sm text-light-subtext dark:text-dark-subtext">
                       {booking.item.name}
                     </ThemedText>
                   ) : null}
                 </View>
               </View>
+              {booking.employee?.id ? (
+                <Pressable
+                  accessibilityRole="button"
+                  accessibilityLabel={t('bookingOpenEmployeeProfile')}
+                  hitSlop={12}
+                  onPress={() =>
+                    router.push(
+                      `/screens/barber-detail?id=${encodeURIComponent(booking.employee!.id)}`
+                    )
+                  }
+                  className="ml-2 shrink-0 rounded-full bg-light-secondary p-2.5 dark:bg-dark-secondary">
+                  <Icon name="CircleUserRound" size={22} />
+                </Pressable>
+              ) : null}
             </View>
-            <ListLink
-              icon="MessageCircle"
-              title={t('bookingMessage')}
-              description={t('bookingMessage')}
-              href="/screens/chat/user"
-              showChevron
-              className="px-4 py-3 bg-light-secondary dark:bg-dark-secondary rounded-xl"
-            />
             <ListLink
               icon="Gift"
               title={t('bookingSendRbcTip')}
               description={t('bookingSendRbcTip')}
               showChevron
-              className="px-4 py-3 bg-light-secondary dark:bg-dark-secondary rounded-xl mt-2"
+              className="rounded-xl bg-light-secondary px-4 py-3 dark:bg-dark-secondary"
               onPress={() => {
                 const emp = booking.employee;
                 if (!emp?.id) return;
@@ -303,19 +345,25 @@ const BookingDetailScreen = () => {
           <Section title={t('bookingYourAppointment')} titleSize="lg" className="px-global pt-4">
             <View className="mt-4 space-y-4">
               <ThemedText className="text-lg font-semibold">{appointment.dateStr}</ThemedText>
-              <View className="flex-row items-center justify-between bg-light-secondary dark:bg-dark-secondary rounded-xl p-4">
+              <View className="flex-row items-center justify-between rounded-xl bg-light-secondary p-4 dark:bg-dark-secondary">
                 <View>
-                  <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext">{t('bookingFrom')}</ThemedText>
+                  <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext">
+                    {t('bookingFrom')}
+                  </ThemedText>
                   <ThemedText className="text-lg font-semibold">{appointment.fromTime}</ThemedText>
                 </View>
                 <View className="items-end">
-                  <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext">{t('bookingTo')}</ThemedText>
+                  <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext">
+                    {t('bookingTo')}
+                  </ThemedText>
                   <ThemedText className="text-lg font-semibold">{appointment.toTime}</ThemedText>
                 </View>
               </View>
               <View className="flex-row items-center justify-between pt-2">
                 <View>
-                  <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext">{t('bookingDuration')}</ThemedText>
+                  <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext">
+                    {t('bookingDuration')}
+                  </ThemedText>
                   <ThemedText className="text-lg font-semibold">
                     {booking.duration} {t('bookingMinutesShort')}
                   </ThemedText>
@@ -329,16 +377,24 @@ const BookingDetailScreen = () => {
           <Section title={t('bookingReservationDetails')} titleSize="lg" className="px-global pt-4">
             <View className="mt-4 space-y-3">
               <Image
-                source={booking.item?.imageUrl ? { uri: booking.item.imageUrl } : require('@/assets/img/barbers.png')}
-                className="w-32 h-32 rounded-xl mb-3"
+                source={
+                  booking.item?.imageUrl
+                    ? { uri: booking.item.imageUrl }
+                    : require('@/assets/img/barbers.png')
+                }
+                className="mb-3 h-32 w-32 rounded-xl"
                 resizeMode="cover"
               />
               <View className="flex-row justify-between">
-                <ThemedText className="text-light-subtext dark:text-dark-subtext">{t('bookingReservationNumber')}</ThemedText>
+                <ThemedText className="text-light-subtext dark:text-dark-subtext">
+                  {t('bookingReservationNumber')}
+                </ThemedText>
                 <ThemedText className="font-medium">#{booking.id.slice(0, 8)}</ThemedText>
               </View>
               <View className="flex-row justify-between">
-                <ThemedText className="text-light-subtext dark:text-dark-subtext">{t('bookingStatus')}</ThemedText>
+                <ThemedText className="text-light-subtext dark:text-dark-subtext">
+                  {t('bookingStatus')}
+                </ThemedText>
                 <ThemedText className="font-medium capitalize">{booking.status}</ThemedText>
               </View>
             </View>
@@ -358,8 +414,8 @@ const BookingDetailScreen = () => {
               </View>
               <Divider className="my-3" />
               <View className="flex-row justify-between">
-                <ThemedText className="font-bold text-lg">{t('bookingTotal')}</ThemedText>
-                <ThemedText className="font-bold text-lg">
+                <ThemedText className="text-lg font-bold">{t('bookingTotal')}</ThemedText>
+                <ThemedText className="text-lg font-bold">
                   {booking.price} {t('reservationCurrencySuffix')}
                 </ThemedText>
               </View>
@@ -369,12 +425,10 @@ const BookingDetailScreen = () => {
           <Divider className="mt-6 h-2 bg-light-secondary dark:bg-dark-darker" />
 
           <Section title={t('bookingPaymentMethod')} titleSize="lg" className="px-global pt-4">
-            <View className="flex-row items-center mt-4">
+            <View className="mt-4 flex-row items-center">
               <Icon name="CreditCard" size={20} className="mr-3" />
               <View>
-                <ThemedText className="font-medium">
-                  {paymentMethodLabel}
-                </ThemedText>
+                <ThemedText className="font-medium">{paymentMethodLabel}</ThemedText>
                 <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext">
                   {booking.price} {t('reservationCurrencySuffix')}
                 </ThemedText>
@@ -387,9 +441,9 @@ const BookingDetailScreen = () => {
           <Section
             title={t('tripDetailLocation')}
             titleSize="lg"
-            className="px-global pt-4 pb-6"
+            className="px-global pb-6 pt-4"
             header={
-              <View className="flex-row items-center justify-between w-full">
+              <View className="w-full flex-row items-center justify-between">
                 <ThemedText className="text-lg font-semibold">{t('tripDetailLocation')}</ThemedText>
                 <Button
                   title={t('tripDetailFullMap')}
@@ -401,22 +455,29 @@ const BookingDetailScreen = () => {
                   className="bg-light-secondary dark:bg-dark-secondary"
                 />
               </View>
-            }
-          >
+            }>
             <View className="mt-4">
               <Pressable
                 onPress={() => {
                   if (location && location !== '—') {
-                    Linking.openURL(`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(location)}`);
+                    Linking.openURL(
+                      `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(location)}`
+                    );
                   }
                 }}
-                className="mb-4"
-              >
-                <ThemedText className="text-light-subtext dark:text-dark-subtext underline">{location}</ThemedText>
+                className="mb-4">
+                <ThemedText className="text-light-subtext underline dark:text-dark-subtext">
+                  {location}
+                </ThemedText>
               </Pressable>
               {booking.branch?.phone ? (
-                <Pressable onPress={() => Linking.openURL(`tel:${booking.branch!.phone!.replace(/\s/g, '')}`)}>
-                  <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext underline">{booking.branch.phone}</ThemedText>
+                <Pressable
+                  onPress={() =>
+                    Linking.openURL(`tel:${booking.branch!.phone!.replace(/\s/g, '')}`)
+                  }>
+                  <ThemedText className="text-sm text-light-subtext underline dark:text-dark-subtext">
+                    {booking.branch.phone}
+                  </ThemedText>
                 </Pressable>
               ) : null}
             </View>
@@ -425,7 +486,7 @@ const BookingDetailScreen = () => {
       </ThemedScroller>
 
       <ThemedFooter>
-        <View className="flex-row bg-light-secondary dark:bg-dark-secondary rounded-2xl overflow-hidden">
+        <View className="flex-row overflow-hidden rounded-2xl bg-light-secondary dark:bg-dark-secondary">
           {isPast && (
             <>
               <Button
@@ -434,9 +495,13 @@ const BookingDetailScreen = () => {
                 title={t('tripDetailRepeatReservation')}
                 iconStart="CalendarPlus"
                 iconSize={16}
-                className="flex-1 py-3.5 px-0 min-w-0 rounded-none"
+                className="min-w-0 flex-1 rounded-none px-0 py-3.5"
                 textClassName="text-sm font-semibold text-neutral-800 dark:text-neutral-200"
-                href={booking.branchId ? `/screens/branch-detail?id=${encodeURIComponent(booking.branchId)}` : undefined}
+                href={
+                  booking.branchId
+                    ? `/screens/branch-detail?id=${encodeURIComponent(booking.branchId)}`
+                    : undefined
+                }
               />
               <View className="w-px self-stretch bg-neutral-200 dark:bg-neutral-700" />
               <Button
@@ -445,7 +510,7 @@ const BookingDetailScreen = () => {
                 title={hasReview ? t('reviewUpdate') : t('branchReview')}
                 iconStart="Star"
                 iconSize={16}
-                className="flex-1 py-3.5 px-0 min-w-0 rounded-none"
+                className="min-w-0 flex-1 rounded-none px-0 py-3.5"
                 textClassName="text-sm font-semibold text-neutral-800 dark:text-neutral-200"
                 href={`/screens/review?entityType=reservation&entityId=${encodeURIComponent(booking.id)}&entityName=${encodeURIComponent(booking.item?.name ?? booking.branch?.name ?? 'Booking')}${booking.item?.imageUrl ? `&entityImage=${encodeURIComponent(booking.item.imageUrl)}` : ''}${booking.employee?.name ? `&entityEmployeeName=${encodeURIComponent(booking.employee.name)}` : ''}${booking.employee?.avatarUrl ? `&entityEmployeeAvatar=${encodeURIComponent(booking.employee.avatarUrl)}` : ''}`}
               />
@@ -459,7 +524,7 @@ const BookingDetailScreen = () => {
                 title={t('tripDetailMoveButton')}
                 iconStart="Calendar"
                 iconSize={16}
-                className="flex-1 py-3.5 px-0 min-w-0 rounded-none"
+                className="min-w-0 flex-1 rounded-none px-0 py-3.5"
                 textClassName="text-sm font-semibold text-neutral-800 dark:text-neutral-200"
                 href={`/screens/reschedule?id=${encodeURIComponent(booking.id)}`}
               />
@@ -470,7 +535,7 @@ const BookingDetailScreen = () => {
                 title={t('tripDetailCancelButton')}
                 iconStart="X"
                 iconSize={16}
-                className="flex-1 py-3.5 px-0 min-w-0 rounded-none"
+                className="min-w-0 flex-1 rounded-none px-0 py-3.5"
                 textClassName="text-sm font-semibold text-red-600 dark:text-red-400"
                 onPress={() => cancelSheetRef.current?.show()}
               />

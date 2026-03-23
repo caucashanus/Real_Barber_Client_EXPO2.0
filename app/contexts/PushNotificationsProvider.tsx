@@ -1,12 +1,13 @@
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import Constants from 'expo-constants';
+import * as Notifications from 'expo-notifications';
 import React, { useEffect, useRef } from 'react';
 import { Platform } from 'react-native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import * as Notifications from 'expo-notifications';
-import Constants from 'expo-constants';
-import { router } from 'expo-router';
-import { useAuth } from '@/app/contexts/AuthContext';
+
 import { unregisterPushToken, registerPushToken } from '@/api/push';
+import { useAuth } from '@/app/contexts/AuthContext';
 import { useLanguage } from '@/app/contexts/LanguageContext';
+import { openFromPushNotificationData } from '@/utils/pushNavigation';
 
 const PUSH_TOKEN_KEY = '@expo_push_token';
 const PUSH_DEVICE_ID_KEY = '@push_device_id';
@@ -21,17 +22,34 @@ Notifications.setNotificationHandler({
   }),
 });
 
-function asString(value: unknown): string | null {
-  if (typeof value !== 'string') return null;
-  const txt = value.trim();
-  return txt.length > 0 ? txt : null;
+function notificationResponseDedupeKey(response: Notifications.NotificationResponse): string {
+  const id = response.notification.request.identifier;
+  try {
+    const data = response.notification.request.content.data;
+    return `${id}:${JSON.stringify(data)}`;
+  } catch {
+    return id;
+  }
 }
 
-function openFromNotification(data: Record<string, unknown> | undefined) {
-  if (!data) return;
-  const deepLink = asString(data.deeplink) ?? asString(data.deepLink) ?? asString(data.route);
-  if (!deepLink) return;
-  router.push(deepLink as never);
+/** Zabrání dvojí navigaci, když cold start i listener doručí stejný tap. */
+const lastHandledRef = { key: '', t: 0 };
+
+function handleNotificationResponse(
+  response: Notifications.NotificationResponse,
+  source: 'cold-start' | 'tap'
+) {
+  const key = notificationResponseDedupeKey(response);
+  const now = Date.now();
+  if (lastHandledRef.key === key && now - lastHandledRef.t < 900) {
+    return;
+  }
+  lastHandledRef.key = key;
+  lastHandledRef.t = now;
+
+  const raw = response.notification.request.content.data;
+  const deferMs = source === 'cold-start' ? 220 : 0;
+  openFromPushNotificationData(raw as Record<string, unknown>, { deferMs });
 }
 
 async function getOrRequestPermission(): Promise<boolean> {
@@ -53,9 +71,7 @@ async function getExpoPushToken(): Promise<string | null> {
   }
 
   const projectId =
-    Constants.expoConfig?.extra?.eas?.projectId ??
-    Constants.easConfig?.projectId ??
-    undefined;
+    Constants.expoConfig?.extra?.eas?.projectId ?? Constants.easConfig?.projectId ?? undefined;
   const token = await Notifications.getExpoPushTokenAsync({ projectId });
   return token.data ?? null;
 }
@@ -76,15 +92,13 @@ export default function PushNotificationsProvider({ children }: { children: Reac
 
   useEffect(() => {
     responseSubRef.current = Notifications.addNotificationResponseReceivedListener((response) => {
-      const raw = response.notification.request.content.data;
-      openFromNotification(raw as Record<string, unknown>);
+      handleNotificationResponse(response, 'tap');
     });
 
     Notifications.getLastNotificationResponseAsync()
       .then((response) => {
         if (!response) return;
-        const raw = response.notification.request.content.data;
-        openFromNotification(raw as Record<string, unknown>);
+        handleNotificationResponse(response, 'cold-start');
       })
       .catch(() => {});
 
@@ -158,4 +172,3 @@ export default function PushNotificationsProvider({ children }: { children: Reac
 
   return <>{children}</>;
 }
-
