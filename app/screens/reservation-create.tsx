@@ -1,27 +1,15 @@
+import { Video, ResizeMode } from 'expo-av';
+import { router, useLocalSearchParams } from 'expo-router';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { View, ScrollView, Pressable, ActivityIndicator, Image } from 'react-native';
-import { router, useLocalSearchParams } from 'expo-router';
-import { Video, ResizeMode } from 'expo-av';
-import MultiStep, { Step } from '@/components/MultiStep';
-import Selectable from '@/components/forms/Selectable';
-import ThemedText from '@/components/ThemedText';
-import Avatar from '@/components/Avatar';
-import { Chip } from '@/components/Chip';
-import { Button } from '@/components/Button';
-import Section from '@/components/layout/Section';
-import Divider from '@/components/layout/Divider';
-import { CardScroller } from '@/components/CardScroller';
-import ShowRating from '@/components/ShowRating';
-import Icon from '@/components/Icon';
-import ActionSheetThemed from '@/components/ActionSheetThemed';
 import { ActionSheetRef } from 'react-native-actions-sheet';
-import { useAuth } from '@/app/contexts/AuthContext';
-import { useLanguage } from '@/app/contexts/LanguageContext';
-import useThemeColors from '@/app/contexts/ThemeColors';
-import { useTranslation } from '@/app/hooks/useTranslation';
+
+import {
+  createBooking,
+  getBookingAvailability,
+  type BookingAvailabilityResponse,
+} from '@/api/bookings';
 import { getBranches, type Branch, type BranchEmployee, type BranchService } from '@/api/branches';
-import { createBooking, getBookingAvailability, type BookingAvailabilityResponse } from '@/api/bookings';
-import Header from '@/components/Header';
 import {
   getEmployeeById,
   getEmployees,
@@ -30,6 +18,23 @@ import {
   type EmployeeBranch,
   type EmployeeService,
 } from '@/api/employees';
+import { useAuth } from '@/app/contexts/AuthContext';
+import { useLanguage } from '@/app/contexts/LanguageContext';
+import useThemeColors from '@/app/contexts/ThemeColors';
+import { useTranslation } from '@/app/hooks/useTranslation';
+import ActionSheetThemed from '@/components/ActionSheetThemed';
+import Avatar from '@/components/Avatar';
+import { Button } from '@/components/Button';
+import { CardScroller } from '@/components/CardScroller';
+import { Chip } from '@/components/Chip';
+import Header from '@/components/Header';
+import Icon from '@/components/Icon';
+import MultiStep, { Step } from '@/components/MultiStep';
+import ShowRating from '@/components/ShowRating';
+import ThemedText from '@/components/ThemedText';
+import Selectable from '@/components/forms/Selectable';
+import Divider from '@/components/layout/Divider';
+import Section from '@/components/layout/Section';
 
 interface ReservationFlowData {
   branchId: string;
@@ -60,7 +65,9 @@ function getEmployeeBranchesList(employee: Pick<EmployeeDetail, 'branches'>): Em
   return Object.values(b);
 }
 
-function getEmployeeServicesList(services: EmployeeService[] | Record<string, EmployeeService> | undefined): EmployeeService[] {
+function getEmployeeServicesList(
+  services: EmployeeService[] | Record<string, EmployeeService> | undefined
+): EmployeeService[] {
   if (!services) return [];
   if (Array.isArray(services)) return services;
   return Object.values(services);
@@ -82,7 +89,9 @@ function branchDescription(branch: Branch): string {
   return raw.replace(/\s+/g, ' ').trim();
 }
 
-function getBranchMedia(branch: Branch): Array<{ url: string; type?: 'image' | 'video'; order?: number }> {
+function getBranchMedia(
+  branch: Branch
+): { url: string; type?: 'image' | 'video'; order?: number }[] {
   const raw = branch.media;
   if (!raw) return [];
   const list = Array.isArray(raw) ? raw : Object.values(raw);
@@ -118,8 +127,7 @@ function getBranchCardImageSource(branch: Branch | null): string | number {
 
 function employeeDescription(employee: BranchEmployee): string {
   const raw =
-    (employee as { description?: unknown }).description ??
-    (employee as { bio?: unknown }).bio;
+    (employee as { description?: unknown }).description ?? (employee as { bio?: unknown }).bio;
   if (typeof raw !== 'string') return '';
   return raw.replace(/\s+/g, ' ').trim();
 }
@@ -154,16 +162,18 @@ function mergeEmployee(base: BranchEmployee, full?: Employee): BranchEmployee {
     description:
       (full as { description?: string | null }).description ??
       (base as { description?: string | null }).description,
-    reviews:
-      (full as { reviews?: unknown }).reviews ??
-      (base as { reviews?: unknown }).reviews,
+    reviews: (full as { reviews?: unknown }).reviews ?? (base as { reviews?: unknown }).reviews,
   } as BranchEmployee;
 }
 
-function getEmployeeMedia(employee: BranchEmployee): Array<{ url: string; type?: 'image' | 'video' }> {
+function getEmployeeMedia(employee: BranchEmployee): { url: string; type?: 'image' | 'video' }[] {
   const raw = (employee as { media?: unknown }).media;
   if (!raw) return [];
-  const list = Array.isArray(raw) ? raw : typeof raw === 'object' ? Object.values(raw as Record<string, unknown>) : [];
+  const list = Array.isArray(raw)
+    ? raw
+    : typeof raw === 'object'
+      ? Object.values(raw as Record<string, unknown>)
+      : [];
   return list
     .map((item) => {
       if (!item || typeof item !== 'object') return null;
@@ -185,13 +195,13 @@ function toIsoDate(date: Date): string {
   return `${y}-${m}-${d}`;
 }
 
-function getMonthDays(offset: number, dateLocale: string): Array<{ value: string; label: string }> {
+function getMonthDays(offset: number, dateLocale: string): { value: string; label: string }[] {
   const now = new Date();
   const year = now.getFullYear();
   const month = now.getMonth() + offset;
   const first = new Date(year, month, 1);
   const last = new Date(year, month + 1, 0);
-  const out: Array<{ value: string; label: string }> = [];
+  const out: { value: string; label: string }[] = [];
   for (let day = 1; day <= last.getDate(); day += 1) {
     const d = new Date(first.getFullYear(), first.getMonth(), day);
     if (d < new Date(now.getFullYear(), now.getMonth(), now.getDate())) continue;
@@ -237,7 +247,7 @@ function isReservationStepValid(stepIndex: number, d: ReservationFlowData): bool
 function groupServicesByCategory(
   services: ServiceOption[],
   otherCategoryLabel: string
-): Array<{ key: string; name: string; services: ServiceOption[] }> {
+): { key: string; name: string; services: ServiceOption[] }[] {
   const map = new Map<string, { key: string; name: string; services: ServiceOption[] }>();
   for (const svc of services) {
     const key = svc.category?.id ?? svc.category?.name ?? 'other';
@@ -257,10 +267,17 @@ function trimParam(v: string | undefined): string | undefined {
 }
 
 export default function ReservationCreateScreen() {
-  const params = useLocalSearchParams<{ employeeId?: string; branchId?: string; itemId?: string }>();
+  const params = useLocalSearchParams<{
+    employeeId?: string;
+    branchId?: string;
+    itemId?: string;
+    /** Volitelný název služby z detailu (zobrazení ve shrnutí, když není v seznamu u holiče). */
+    itemName?: string;
+  }>();
   const presetEmployeeId = trimParam(params.employeeId);
   const presetBranchId = trimParam(params.branchId);
   const presetItemId = trimParam(params.itemId);
+  const presetItemName = trimParam(params.itemName);
 
   const { apiToken } = useAuth();
   const { t } = useTranslation();
@@ -285,7 +302,9 @@ export default function ReservationCreateScreen() {
   const branchDetailsSheetRef = useRef<ActionSheetRef>(null);
   const [isBranchDescriptionExpanded, setIsBranchDescriptionExpanded] = useState(false);
   const [monthOffset, setMonthOffset] = useState(0);
-  const [lastSelectedDateByMonth, setLastSelectedDateByMonth] = useState<Record<string, string>>({});
+  const [lastSelectedDateByMonth, setLastSelectedDateByMonth] = useState<Record<string, string>>(
+    {}
+  );
   const [data, setData] = useState<ReservationFlowData>({
     branchId: '',
     employeeId: '',
@@ -398,18 +417,21 @@ export default function ReservationCreateScreen() {
     [presetEmployeeId, presetItemId, branches]
   );
 
-  const selectEmployee = useCallback((employeeId: string) => {
-    setData((prev) => ({
-      ...prev,
-      employeeId,
-      itemId: presetItemId ? presetItemId : '',
-      date: '',
-      slotStart: '',
-      slotEnd: '',
-      duration: presetItemId ? prev.duration : 0,
-    }));
-    setLastSelectedDateByMonth({});
-  }, [presetItemId]);
+  const selectEmployee = useCallback(
+    (employeeId: string) => {
+      setData((prev) => ({
+        ...prev,
+        employeeId,
+        itemId: presetItemId ? presetItemId : '',
+        date: '',
+        slotStart: '',
+        slotEnd: '',
+        duration: presetItemId ? prev.duration : 0,
+      }));
+      setLastSelectedDateByMonth({});
+    },
+    [presetItemId]
+  );
 
   const selectServiceOption = useCallback((service: ServiceOption) => {
     setData((prev) => ({
@@ -431,7 +453,9 @@ export default function ReservationCreateScreen() {
     setLoadingBranches(true);
     Promise.all([
       getBranches(apiToken, { includeReviews: true, reviewsLimit: 9999 }),
-      getEmployees(apiToken, { includeReviews: true, reviewsLimit: 9999 }).catch(() => [] as Employee[]),
+      getEmployees(apiToken, { includeReviews: true, reviewsLimit: 9999 }).catch(
+        () => [] as Employee[]
+      ),
     ])
       .then(([list, employees]) => {
         setBranches(list);
@@ -525,8 +549,23 @@ export default function ReservationCreateScreen() {
     if (presetBranchId) {
       const exists = branches.some((b) => b.id === presetBranchId);
       if (!exists) {
+        // Fallback: invalid branch deep-link should not block booking flow.
+        setData((prev) => ({
+          ...prev,
+          branchId: '',
+          employeeId: '',
+          itemId: '',
+          date: '',
+          slotStart: '',
+          slotEnd: '',
+          duration: 0,
+        }));
+        setLastSelectedDateByMonth({});
+        setMonthOffset(0);
         setBarberEntryMode('none');
-        setBarberBootstrap('error');
+        setInitialMultiStepIndex(0);
+        setPresetBranchFilterIds(null);
+        setBarberBootstrap('ready');
         return;
       }
       setData((prev) => ({
@@ -549,21 +588,16 @@ export default function ReservationCreateScreen() {
     }
 
     if (presetItemId) {
+      // Služba z detailu itemu: držíme `itemId` a režim `service` i když služba ještě není v datech
+      // žádné pobočky (API katalog vs. vnořené služby u branch) — jinak by se znovu zobrazil výběr služby.
       let duration = 0;
-      let found = false;
       for (const b of branches) {
         const sl = getServicesList(b);
         const svc = sl.find((s) => s.id === presetItemId);
         if (svc) {
           duration = svc.duration;
-          found = true;
           break;
         }
-      }
-      if (!found) {
-        setBarberEntryMode('none');
-        setBarberBootstrap('error');
-        return;
       }
       setData((prev) => ({
         ...prev,
@@ -613,11 +647,16 @@ export default function ReservationCreateScreen() {
   const groupedSlots = useMemo(() => {
     const slots = availability?.availability?.slots ?? [];
     const morning = slots.filter((s) => timeToMinutes(s.start) < 12 * 60);
-    const afternoon = slots.filter((s) => timeToMinutes(s.start) >= 12 * 60 && timeToMinutes(s.start) < 17 * 60);
+    const afternoon = slots.filter(
+      (s) => timeToMinutes(s.start) >= 12 * 60 && timeToMinutes(s.start) < 17 * 60
+    );
     const evening = slots.filter((s) => timeToMinutes(s.start) >= 17 * 60);
     return { morning, afternoon, evening };
   }, [availability]);
-  const monthDays = useMemo(() => getMonthDays(monthOffset, dateLocaleTag), [monthOffset, dateLocaleTag]);
+  const monthDays = useMemo(
+    () => getMonthDays(monthOffset, dateLocaleTag),
+    [monthOffset, dateLocaleTag]
+  );
   const visibleMonthDays = useMemo(
     () => monthDays.filter((day) => availableDatesInMonth.has(day.value)),
     [monthDays, availableDatesInMonth]
@@ -733,7 +772,12 @@ export default function ReservationCreateScreen() {
             };
           });
           setData((prev) => {
-            if (prev.date === nextDate && prev.slotStart === '' && prev.slotEnd === '' && prev.duration === 0) {
+            if (
+              prev.date === nextDate &&
+              prev.slotStart === '' &&
+              prev.slotEnd === '' &&
+              prev.duration === 0
+            ) {
               return prev;
             }
             return {
@@ -746,7 +790,13 @@ export default function ReservationCreateScreen() {
           });
         } else {
           setData((prev) => {
-            if (prev.date === '' && prev.slotStart === '' && prev.slotEnd === '' && prev.duration === 0) return prev;
+            if (
+              prev.date === '' &&
+              prev.slotStart === '' &&
+              prev.slotEnd === '' &&
+              prev.duration === 0
+            )
+              return prev;
             return { ...prev, date: '', slotStart: '', slotEnd: '', duration: 0 };
           });
         }
@@ -776,7 +826,9 @@ export default function ReservationCreateScreen() {
       const created = await createBooking(apiToken, payload);
       const createdId =
         (typeof created.id === 'string' ? created.id : undefined) ??
-        (created.booking && typeof created.booking.id === 'string' ? created.booking.id : undefined);
+        (created.booking && typeof created.booking.id === 'string'
+          ? created.booking.id
+          : undefined);
       if (createdId) {
         router.replace(`/screens/trip-detail?id=${encodeURIComponent(createdId)}`);
       } else {
@@ -819,13 +871,19 @@ export default function ReservationCreateScreen() {
     if (fromList) return fromList;
     const full = data.employeeId ? employeesById[data.employeeId] : undefined;
     if (full) {
-      return mergeEmployee({ id: full.id, name: full.name, isActive: true } as BranchEmployee, full);
+      return mergeEmployee(
+        { id: full.id, name: full.name, isActive: true } as BranchEmployee,
+        full
+      );
     }
     return null;
   }, [employees, data.employeeId, employeesById]);
   const selectedService = services.find((s) => s.id === data.itemId) ?? null;
   const selectedEmployeeName = selectedEmployee?.name ?? '—';
-  const selectedServiceName = selectedService?.name ?? '—';
+  const selectedServiceName =
+    selectedService?.name ??
+    (presetItemName && data.itemId === presetItemId ? presetItemName : null) ??
+    '—';
   const selectedDateLabel = data.date
     ? new Date(data.date).toLocaleDateString(dateLocaleTag, {
         weekday: 'short',
@@ -890,12 +948,9 @@ export default function ReservationCreateScreen() {
     );
   }
 
-  if (
-    barberBootstrap === 'error' &&
-    (presetEmployeeId || presetBranchId || presetItemId)
-  ) {
+  if (barberBootstrap === 'error' && presetEmployeeId) {
     return (
-      <View className="flex-1 bg-light-primary dark:bg-dark-primary px-global pt-2">
+      <View className="flex-1 bg-light-primary px-global pt-2 dark:bg-dark-primary">
         <Header showBackButton />
         <View className="mt-6">
           <ThemedText className="text-base text-light-text dark:text-dark-text">
@@ -923,515 +978,572 @@ export default function ReservationCreateScreen() {
             resetFlowAfterStep(idx);
           }
         }}
-        isNextDisabled={(stepIndex) => !isReservationStepValid(stepIndex, data)}
-      >
-      <Step title={t('reservationStepBranchTitle')}>
-        <ScrollView className="pt-2 pb-4 px-6">
-          <View className="mb-3 items-center">
-            <Image
-              source={require('@/assets/img/reservation-branch.png')}
-              className="h-16 w-16"
-              style={{ width: 64, height: 64 }}
-              resizeMode="contain"
-              accessibilityIgnoresInvertColors
-            />
-          </View>
-          <View className="mb-5">
-            <ThemedText className="text-2xl font-semibold">{t('reservationStepBranchTitle')}</ThemedText>
-            <ThemedText className="text-base text-light-subtext dark:text-dark-subtext">
-              {t('reservationStepBranchSubtitle')}
-            </ThemedText>
-            <Button
-              title={t('reservationShowMap')}
-              variant="outline"
-              size="small"
-              rounded="full"
-              className="self-center mt-2 px-4"
-              href="/screens/map"
-            />
-          </View>
-          {loadingBranches ? (
-            <View className="py-10 items-center">
-              <ActivityIndicator size="small" />
-            </View>
-          ) : (
-            branchesForReservation.map((branch) => (
-              <View key={branch.id} className="mb-2">
-                <Selectable
-                  title={branch.name}
-                  description={branch.address ?? ''}
-                  customIcon={
-                    getBranchImageUrl(branch) ? (
-                      <Image
-                        source={{ uri: getBranchImageUrl(branch)! }}
-                        className="w-12 h-12 rounded-xl"
-                        resizeMode="cover"
-                      />
-                    ) : (
-                      <Avatar size="sm" name={branch.name} />
-                    )
-                  }
-                  className="relative"
-                  selected={data.branchId === branch.id}
-                  showSelectedIndicator={false}
-                  onPress={() => selectBranchId(branch.id)}
-                  style={{ paddingRight: 74 }}
-                />
-                <Pressable
-                  className="absolute right-4 top-4 rounded-full bg-light-secondary dark:bg-dark-secondary px-2 py-1"
-                  onPress={() => {
-                    selectBranchId(branch.id);
-                    setDetailsBranchId(branch.id);
-                    setIsBranchDescriptionExpanded(false);
-                    branchDetailsSheetRef.current?.show();
-                  }}
-                >
-                  <ThemedText className="text-xs text-light-subtext dark:text-dark-subtext">
-                    {t('reservationMore')}
-                  </ThemedText>
-                </Pressable>
-              </View>
-            ))
-          )}
-        </ScrollView>
-      </Step>
-
-      <Step title={t('reservationStepEmployeeTitle')}>
-        <ScrollView className="pt-2 pb-4 px-6">
-          <View className="mb-3 items-center">
-            <Image
-              source={require('@/assets/img/reservation-specialist.png')}
-              className="h-16 w-16"
-              style={{ width: 64, height: 64 }}
-              resizeMode="contain"
-              accessibilityIgnoresInvertColors
-            />
-          </View>
-          <View className="mb-5">
-            <ThemedText className="text-2xl font-semibold">{t('reservationStepEmployeeTitle')}</ThemedText>
-            <ThemedText className="text-base text-light-subtext dark:text-dark-subtext">
-              {t('reservationStepEmployeeSubtitle')}
-            </ThemedText>
-          </View>
-          {employees.map((emp) => (
-            <View key={emp.id} className="mb-2">
-              <Selectable
-                title={emp.name}
-                description={shortEmployeeDescription(emp)}
-                descriptionClassName="text-xs"
-                customIcon={
-                  <View className="h-12 w-12 items-center justify-center">
-                    <Avatar size="sm" src={emp.avatarUrl ?? undefined} name={emp.name} />
-                  </View>
-                }
-                className="relative"
-                selected={data.employeeId === emp.id}
-                showSelectedIndicator={false}
-                onPress={() => selectEmployee(emp.id)}
-                style={{ paddingRight: employeeDescription(emp) ? 74 : undefined }}
+        isNextDisabled={(stepIndex) => !isReservationStepValid(stepIndex, data)}>
+        <Step title={t('reservationStepBranchTitle')}>
+          <ScrollView className="px-6 pb-4 pt-2">
+            <View className="mb-3 items-center">
+              <Image
+                source={require('@/assets/img/reservation-branch.png')}
+                className="h-16 w-16"
+                style={{ width: 64, height: 64 }}
+                resizeMode="contain"
+                accessibilityIgnoresInvertColors
               />
-              {employeeDescription(emp) ? (
-                <Pressable
-                  className="absolute right-4 top-4 rounded-full bg-light-secondary dark:bg-dark-secondary px-2 py-1"
-                  onPress={() => {
-                    selectEmployee(emp.id);
-                    setDetailsEmployeeId(emp.id);
-                    detailsSheetRef.current?.show();
-                  }}
-                >
-                  <ThemedText className="text-xs text-light-subtext dark:text-dark-subtext">
-                    {t('reservationMore')}
-                  </ThemedText>
-                </Pressable>
-              ) : null}
-              {getEmployeeAverageRating(emp) != null ? (
-                <View className="ml-16 mt-1 flex-row items-center gap-2">
-                  <ShowRating rating={getEmployeeAverageRating(emp)!} size="sm" displayMode="stars" />
-                  <View className="bg-light-secondary dark:bg-dark-secondary rounded-full px-2 py-1">
-                    <ThemedText className="text-xs text-light-subtext dark:text-dark-subtext">
-                      {getEmployeeAverageRating(emp)!.toFixed(1)}
-                    </ThemedText>
-                  </View>
-                </View>
-              ) : null}
             </View>
-          ))}
-          {employees.length === 0 ? (
-            <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext">
-              {t('reservationNoBarbers')}
-            </ThemedText>
-          ) : null}
-        </ScrollView>
-      </Step>
-
-      <Step title={t('reservationStepServiceTitle')}>
-        <ScrollView className="pt-2 pb-4 px-6">
-          <View className="mb-3 items-center">
-            <Image
-              source={require('@/assets/img/reservation-service.png')}
-              className="h-16 w-16"
-              style={{ width: 64, height: 64 }}
-              resizeMode="contain"
-              accessibilityIgnoresInvertColors
-            />
-          </View>
-          <View className="mb-5">
-            <ThemedText className="text-2xl font-semibold">{t('reservationStepServiceTitle')}</ThemedText>
-            <ThemedText className="text-base text-light-subtext dark:text-dark-subtext">
-              {t('reservationStepServiceSubtitle')}
-            </ThemedText>
-          </View>
-          {loadingEmployeeServices ? (
-            <View className="py-10 items-center">
-              <ActivityIndicator size="small" />
+            <View className="mb-5">
+              <ThemedText className="text-2xl font-semibold">
+                {t('reservationStepBranchTitle')}
+              </ThemedText>
+              <ThemedText className="text-base text-light-subtext dark:text-dark-subtext">
+                {t('reservationStepBranchSubtitle')}
+              </ThemedText>
+              <Button
+                title={t('reservationShowMap')}
+                variant="outline"
+                size="small"
+                rounded="full"
+                className="mt-2 self-center px-4"
+                href="/screens/map"
+              />
             </View>
-          ) : null}
-          {serviceCategories.map((category, categoryIndex) => (
-            <Section
-              key={`res-svc-cat-${category.key}-${categoryIndex}`}
-              title={category.name}
-              titleSize="lg"
-              className="mb-4"
-            >
-              <CardScroller className="mt-1.5 pb-1" space={12}>
-                {category.services.map((service, serviceIndex) => {
-                  const isSelected = data.itemId === service.id;
-                  return (
-                    <Pressable
-                      key={`res-svc-${category.key}-${service.id}-${serviceIndex}`}
-                      onPress={() => selectServiceOption(service)}
-                      className="w-[160px] active:opacity-80"
-                    >
-                      <View
-                        className="rounded-2xl overflow-hidden"
-                        style={isSelected ? { borderColor: colors.highlight, borderWidth: 2 } : undefined}
-                      >
+            {loadingBranches ? (
+              <View className="items-center py-10">
+                <ActivityIndicator size="small" />
+              </View>
+            ) : (
+              branchesForReservation.map((branch) => (
+                <View key={branch.id} className="mb-2">
+                  <Selectable
+                    title={branch.name}
+                    description={branch.address ?? ''}
+                    customIcon={
+                      getBranchImageUrl(branch) ? (
                         <Image
-                          source={service.imageUrl ? { uri: service.imageUrl } : require('@/assets/img/barbers.png')}
-                          className="w-[160px] h-[140px]"
+                          source={{ uri: getBranchImageUrl(branch)! }}
+                          className="h-12 w-12 rounded-xl"
                           resizeMode="cover"
                         />
-                      </View>
-                      <View className="py-2 w-full flex-row items-center justify-between gap-2">
-                        <ThemedText className="text-sm font-medium flex-1 min-w-0" numberOfLines={1}>{service.name}</ThemedText>
-                        <View className="self-start rounded-full bg-light-secondary dark:bg-dark-secondary px-2 py-1">
-                          <ThemedText className="text-xs text-light-subtext dark:text-dark-subtext">
-                            {service.price} {t('reservationCurrencySuffix')}
-                          </ThemedText>
-                        </View>
-                      </View>
-                    </Pressable>
-                  );
-                })}
-              </CardScroller>
-            </Section>
-          ))}
-          {services.length === 0 ? (
-            <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext">
-              {t('reservationNoServices')}
-            </ThemedText>
-          ) : null}
-        </ScrollView>
-      </Step>
-
-      <Step title={t('reservationStepDatetimeTitle')}>
-        <ScrollView className="pt-2 pb-4 px-6">
-          <View className="mb-3 items-center">
-            <Image
-              source={require('@/assets/img/reservation-time.png')}
-              className="h-16 w-16"
-              style={{ width: 64, height: 64 }}
-              resizeMode="contain"
-              accessibilityIgnoresInvertColors
-            />
-          </View>
-          <View className="mb-5">
-            <ThemedText className="text-2xl font-semibold">{t('reservationStepDatetimeTitle')}</ThemedText>
-            <ThemedText className="text-base text-light-subtext dark:text-dark-subtext">
-              {t('reservationStepDatetimeSubtitle')}
-            </ThemedText>
-          </View>
-          <View className="flex-row gap-2 mb-4">
-            {showTodayChip ? (
-              <Chip
-                size="lg"
-                label={t('reservationToday')}
-                isSelected={data.date === todayIso}
-                onPress={() => {
-                  const target = new Date();
-                  setMonthOffset(Math.max(0, getMonthOffsetFromToday(target)));
-                  selectDate(toIsoDate(target));
-                }}
-              />
-            ) : null}
-            {showTomorrowChip ? (
-              <Chip
-                size="lg"
-                label={t('reservationTomorrow')}
-                isSelected={data.date === tomorrowIso}
-                onPress={() => {
-                  const target = new Date(Date.now() + 24 * 60 * 60 * 1000);
-                  setMonthOffset(Math.max(0, getMonthOffsetFromToday(target)));
-                  selectDate(toIsoDate(target));
-                }}
-              />
-            ) : null}
-          </View>
-          <View className="mb-3 flex-row items-center justify-between">
-            <Pressable
-              disabled={monthOffset === 0}
-              onPress={() => setMonthOffset((prev) => Math.max(0, prev - 1))}
-              className={`rounded-full p-2 ${monthOffset === 0 ? 'opacity-40' : 'opacity-100'}`}
-            >
-              <Icon name="ChevronLeft" size={24} className="-translate-x-px" />
-            </Pressable>
-            <ThemedText className="text-base font-semibold">{monthLabel}</ThemedText>
-            <Pressable
-              onPress={() => setMonthOffset((prev) => prev + 1)}
-              className="rounded-full p-2"
-            >
-              <Icon name="ChevronRight" size={24} className="translate-x-px" />
-            </Pressable>
-          </View>
-          {loadingMonthAvailability ? (
-            <View className="py-4 items-center">
-              <ActivityIndicator size="small" />
-            </View>
-          ) : null}
-          <View className="flex-row flex-wrap gap-2">
-            {visibleMonthDays.map((day) => (
-              <Chip
-                key={day.value}
-                size="lg"
-                label={day.label}
-                isSelected={data.date === day.value}
-                onPress={() => selectDate(day.value)}
-              />
-            ))}
-          </View>
-          {!loadingMonthAvailability && visibleMonthDays.length === 0 ? (
-            <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext mt-2">
-              {t('reservationNoSlotsMonth')}
-            </ThemedText>
-          ) : null}
-          <View className="mt-6 mb-2">
-            <ThemedText className="text-lg font-semibold">{t('reservationAvailableTimes')}</ThemedText>
-            <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext">
-              {t('reservationAvailableTimesSubtitle')}
-            </ThemedText>
-          </View>
-          {loadingAvailability ? (
-            <View className="py-10 items-center">
-              <ActivityIndicator size="small" />
-            </View>
-          ) : availabilityError ? (
-            <ThemedText className="text-red-500">{availabilityError}</ThemedText>
-          ) : (
-            <>
-              {groupedSlots.morning.length > 0 ? (
-                <Section title={t('reservationMorning')} titleSize="md" className="mb-2">
-                  <View className="flex-row flex-wrap gap-2 mt-1">
-                    {groupedSlots.morning.map((slot, index) => (
-                      <Chip
-                        key={`m-${slot.start}-${slot.end}-${slot.branchId ?? 'any'}-${index}`}
-                        size="lg"
-                        label={slot.start}
-                        isSelected={data.slotStart === slot.start && data.slotEnd === slot.end}
-                        onPress={() =>
-                          setData((prev) => ({
-                            ...prev,
-                            slotStart: slot.start,
-                            slotEnd: slot.end,
-                            duration: slot.duration,
-                          }))
-                        }
-                      />
-                    ))}
-                  </View>
-                </Section>
-              ) : null}
-              {groupedSlots.afternoon.length > 0 ? (
-                <Section title={t('reservationAfternoon')} titleSize="md" className="mb-2">
-                  <View className="flex-row flex-wrap gap-2 mt-1">
-                    {groupedSlots.afternoon.map((slot, index) => (
-                      <Chip
-                        key={`a-${slot.start}-${slot.end}-${slot.branchId ?? 'any'}-${index}`}
-                        size="lg"
-                        label={slot.start}
-                        isSelected={data.slotStart === slot.start && data.slotEnd === slot.end}
-                        onPress={() =>
-                          setData((prev) => ({
-                            ...prev,
-                            slotStart: slot.start,
-                            slotEnd: slot.end,
-                            duration: slot.duration,
-                          }))
-                        }
-                      />
-                    ))}
-                  </View>
-                </Section>
-              ) : null}
-              {groupedSlots.evening.length > 0 ? (
-                <Section title={t('reservationEvening')} titleSize="md" className="mb-2">
-                  <View className="flex-row flex-wrap gap-2 mt-1">
-                    {groupedSlots.evening.map((slot, index) => (
-                      <Chip
-                        key={`e-${slot.start}-${slot.end}-${slot.branchId ?? 'any'}-${index}`}
-                        size="lg"
-                        label={slot.start}
-                        isSelected={data.slotStart === slot.start && data.slotEnd === slot.end}
-                        onPress={() =>
-                          setData((prev) => ({
-                            ...prev,
-                            slotStart: slot.start,
-                            slotEnd: slot.end,
-                            duration: slot.duration,
-                          }))
-                        }
-                      />
-                    ))}
-                  </View>
-                </Section>
-              ) : null}
-              {(availability?.availability?.slots?.length ?? 0) === 0 ? (
-                <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext">
-                  {t('reservationNoSlotsSelection')}
-                </ThemedText>
-              ) : null}
-            </>
-          )}
-        </ScrollView>
-      </Step>
-
-      <Step title={t('reservationSummaryTitle')}>
-        <ScrollView className="flex-1 px-global pb-6 pt-2" showsVerticalScrollIndicator={false}>
-          <View className="mb-3 items-center">
-            <Image
-              source={require('@/assets/img/reservation-summary.png')}
-              className="h-16 w-16"
-              style={{ width: 64, height: 64 }}
-              resizeMode="contain"
-              accessibilityIgnoresInvertColors
-            />
-          </View>
-          <ThemedText className="text-2xl font-bold">{t('reservationSummaryTitle')}</ThemedText>
-          <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext mt-1">
-            {t('reservationSummarySubtitle')}
-          </ThemedText>
-
-          <View className="mt-3 p-3 rounded-xl bg-light-accent/10 dark:bg-dark-accent/15 border border-light-accent/25 dark:border-dark-accent/30">
-            <ThemedText className="text-center text-sm font-medium text-light-text dark:text-dark-text">
-              {t('reservationSummaryConfirmHint')}
-            </ThemedText>
-          </View>
-
-          <Divider className="mt-4 h-2 bg-light-secondary dark:bg-dark-darker" />
-
-          <Section title={t('reservationSummaryBranch')} titleSize="lg" className="pt-3 pb-1">
-            <View className="mt-2 rounded-2xl overflow-hidden bg-light-secondary dark:bg-dark-secondary">
-              <Image
-                source={
-                  typeof summaryBranchCardImage === 'number'
-                    ? summaryBranchCardImage
-                    : { uri: summaryBranchCardImage }
-                }
-                className="w-full h-40"
-                resizeMode="cover"
-              />
-              <View className="p-3">
-                <ThemedText className="text-base font-semibold">{selectedBranch?.name ?? '—'}</ThemedText>
-                {selectedBranch?.address ? (
-                  <View className="flex-row items-start mt-1.5">
-                    <Icon name="MapPin" size={14} className="mr-1.5 mt-0.5 text-light-subtext dark:text-dark-subtext" />
-                    <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext flex-1">
-                      {selectedBranch.address}
+                      ) : (
+                        <Avatar size="sm" name={branch.name} />
+                      )
+                    }
+                    className="relative"
+                    selected={data.branchId === branch.id}
+                    showSelectedIndicator={false}
+                    onPress={() => selectBranchId(branch.id)}
+                    style={{ paddingRight: 74 }}
+                  />
+                  <Pressable
+                    className="absolute right-4 top-4 rounded-full bg-light-secondary px-2 py-1 dark:bg-dark-secondary"
+                    onPress={() => {
+                      selectBranchId(branch.id);
+                      setDetailsBranchId(branch.id);
+                      setIsBranchDescriptionExpanded(false);
+                      branchDetailsSheetRef.current?.show();
+                    }}>
+                    <ThemedText className="text-xs text-light-subtext dark:text-dark-subtext">
+                      {t('reservationMore')}
                     </ThemedText>
+                  </Pressable>
+                </View>
+              ))
+            )}
+          </ScrollView>
+        </Step>
+
+        <Step title={t('reservationStepEmployeeTitle')}>
+          <ScrollView className="px-6 pb-4 pt-2">
+            <View className="mb-3 items-center">
+              <Image
+                source={require('@/assets/img/reservation-specialist.png')}
+                className="h-16 w-16"
+                style={{ width: 64, height: 64 }}
+                resizeMode="contain"
+                accessibilityIgnoresInvertColors
+              />
+            </View>
+            <View className="mb-5">
+              <ThemedText className="text-2xl font-semibold">
+                {t('reservationStepEmployeeTitle')}
+              </ThemedText>
+              <ThemedText className="text-base text-light-subtext dark:text-dark-subtext">
+                {t('reservationStepEmployeeSubtitle')}
+              </ThemedText>
+            </View>
+            {employees.map((emp) => (
+              <View key={emp.id} className="mb-2">
+                <Selectable
+                  title={emp.name}
+                  description={shortEmployeeDescription(emp)}
+                  descriptionClassName="text-xs"
+                  customIcon={
+                    <View className="h-12 w-12 items-center justify-center">
+                      <Avatar size="sm" src={emp.avatarUrl ?? undefined} name={emp.name} />
+                    </View>
+                  }
+                  className="relative"
+                  selected={data.employeeId === emp.id}
+                  showSelectedIndicator={false}
+                  onPress={() => selectEmployee(emp.id)}
+                  style={{ paddingRight: employeeDescription(emp) ? 74 : undefined }}
+                />
+                {employeeDescription(emp) ? (
+                  <Pressable
+                    className="absolute right-4 top-4 rounded-full bg-light-secondary px-2 py-1 dark:bg-dark-secondary"
+                    onPress={() => {
+                      selectEmployee(emp.id);
+                      setDetailsEmployeeId(emp.id);
+                      detailsSheetRef.current?.show();
+                    }}>
+                    <ThemedText className="text-xs text-light-subtext dark:text-dark-subtext">
+                      {t('reservationMore')}
+                    </ThemedText>
+                  </Pressable>
+                ) : null}
+                {getEmployeeAverageRating(emp) != null ? (
+                  <View className="ml-16 mt-1 flex-row items-center gap-2">
+                    <ShowRating
+                      rating={getEmployeeAverageRating(emp)!}
+                      size="sm"
+                      displayMode="stars"
+                    />
+                    <View className="rounded-full bg-light-secondary px-2 py-1 dark:bg-dark-secondary">
+                      <ThemedText className="text-xs text-light-subtext dark:text-dark-subtext">
+                        {getEmployeeAverageRating(emp)!.toFixed(1)}
+                      </ThemedText>
+                    </View>
                   </View>
                 ) : null}
               </View>
-            </View>
-          </Section>
-
-          <Divider className="mt-4 h-2 bg-light-secondary dark:bg-dark-darker" />
-
-          <Section title={t('reservationSummaryWithSpecialist')} titleSize="lg" className="pt-3 pb-1">
-            <View className="flex-row items-center mt-2">
-              {selectedEmployee ? (
-                <Avatar size="md" src={selectedEmployee.avatarUrl ?? undefined} name={selectedEmployee.name} />
-              ) : (
-                <View className="w-12 h-12 rounded-full bg-light-secondary dark:bg-dark-secondary items-center justify-center">
-                  <ThemedText className="text-xs text-light-subtext dark:text-dark-subtext">—</ThemedText>
-                </View>
-              )}
-              <View className="ml-3 flex-1 min-w-0">
-                <ThemedText className="text-base font-semibold" numberOfLines={1}>
-                  {selectedEmployeeName}
-                </ThemedText>
-                {selectedServiceName !== '—' ? (
-                  <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext mt-0.5" numberOfLines={2}>
-                    {selectedServiceName}
-                    {selectedService ? ` · ${selectedService.price} ${t('reservationCurrencySuffix')}` : ''}
-                  </ThemedText>
-                ) : (
-                  <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext mt-0.5">—</ThemedText>
-                )}
-              </View>
-            </View>
-          </Section>
-
-          <Divider className="mt-4 h-2 bg-light-secondary dark:bg-dark-darker" />
-
-          <Section title={t('reservationSummaryAppointment')} titleSize="lg" className="pt-3 pb-1">
-            <ThemedText className="text-base font-semibold mt-2">{selectedDateLabel}</ThemedText>
-            <View className="flex-row items-center justify-between bg-light-secondary dark:bg-dark-secondary rounded-xl p-3 mt-2">
-              <View>
-                <ThemedText className="text-xs text-light-subtext dark:text-dark-subtext">{t('reservationSummaryFrom')}</ThemedText>
-                <ThemedText className="text-base font-semibold">{data.slotStart || '—'}</ThemedText>
-              </View>
-              <View className="items-end">
-                <ThemedText className="text-xs text-light-subtext dark:text-dark-subtext">{t('reservationSummaryTo')}</ThemedText>
-                <ThemedText className="text-base font-semibold">{data.slotEnd || '—'}</ThemedText>
-              </View>
-            </View>
-            {data.duration > 0 ? (
-              <View className="flex-row items-center justify-between pt-2.5">
-                <ThemedText className="text-xs text-light-subtext dark:text-dark-subtext">
-                  {t('reservationSummaryEstimatedDuration')}
-                </ThemedText>
-                <ThemedText className="text-sm font-semibold">{data.duration} min</ThemedText>
-              </View>
+            ))}
+            {employees.length === 0 ? (
+              <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext">
+                {t('reservationNoBarbers')}
+              </ThemedText>
             ) : null}
-          </Section>
+          </ScrollView>
+        </Step>
 
-          {creatingBooking ? (
-            <View className="mt-3 flex-row items-center justify-center">
-              <ActivityIndicator size="small" />
-              <ThemedText className="ml-2 text-sm text-light-subtext dark:text-dark-subtext">
-                {t('reservationSummaryCreating')}
+        <Step title={t('reservationStepServiceTitle')}>
+          <ScrollView className="px-6 pb-4 pt-2">
+            <View className="mb-3 items-center">
+              <Image
+                source={require('@/assets/img/reservation-service.png')}
+                className="h-16 w-16"
+                style={{ width: 64, height: 64 }}
+                resizeMode="contain"
+                accessibilityIgnoresInvertColors
+              />
+            </View>
+            <View className="mb-5">
+              <ThemedText className="text-2xl font-semibold">
+                {t('reservationStepServiceTitle')}
+              </ThemedText>
+              <ThemedText className="text-base text-light-subtext dark:text-dark-subtext">
+                {t('reservationStepServiceSubtitle')}
               </ThemedText>
             </View>
-          ) : null}
-          {createBookingError ? (
-            <ThemedText className="mt-3 text-sm text-red-500 dark:text-red-400">{createBookingError}</ThemedText>
-          ) : null}
-        </ScrollView>
-      </Step>
+            {loadingEmployeeServices ? (
+              <View className="items-center py-10">
+                <ActivityIndicator size="small" />
+              </View>
+            ) : null}
+            {serviceCategories.map((category, categoryIndex) => (
+              <Section
+                key={`res-svc-cat-${category.key}-${categoryIndex}`}
+                title={category.name}
+                titleSize="lg"
+                className="mb-4">
+                <CardScroller className="mt-1.5 pb-1" space={12}>
+                  {category.services.map((service, serviceIndex) => {
+                    const isSelected = data.itemId === service.id;
+                    return (
+                      <Pressable
+                        key={`res-svc-${category.key}-${service.id}-${serviceIndex}`}
+                        onPress={() => selectServiceOption(service)}
+                        className="w-[160px] active:opacity-80">
+                        <View
+                          className="overflow-hidden rounded-2xl"
+                          style={
+                            isSelected
+                              ? { borderColor: colors.highlight, borderWidth: 2 }
+                              : undefined
+                          }>
+                          <Image
+                            source={
+                              service.imageUrl
+                                ? { uri: service.imageUrl }
+                                : require('@/assets/img/barbers.png')
+                            }
+                            className="h-[140px] w-[160px]"
+                            resizeMode="cover"
+                          />
+                        </View>
+                        <View className="w-full flex-row items-center justify-between gap-2 py-2">
+                          <ThemedText
+                            className="min-w-0 flex-1 text-sm font-medium"
+                            numberOfLines={1}>
+                            {service.name}
+                          </ThemedText>
+                          <View className="self-start rounded-full bg-light-secondary px-2 py-1 dark:bg-dark-secondary">
+                            <ThemedText className="text-xs text-light-subtext dark:text-dark-subtext">
+                              {service.price} {t('reservationCurrencySuffix')}
+                            </ThemedText>
+                          </View>
+                        </View>
+                      </Pressable>
+                    );
+                  })}
+                </CardScroller>
+              </Section>
+            ))}
+            {services.length === 0 ? (
+              <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext">
+                {t('reservationNoServices')}
+              </ThemedText>
+            ) : null}
+          </ScrollView>
+        </Step>
+
+        <Step title={t('reservationStepDatetimeTitle')}>
+          <ScrollView className="px-6 pb-4 pt-2">
+            <View className="mb-3 items-center">
+              <Image
+                source={require('@/assets/img/reservation-time.png')}
+                className="h-16 w-16"
+                style={{ width: 64, height: 64 }}
+                resizeMode="contain"
+                accessibilityIgnoresInvertColors
+              />
+            </View>
+            <View className="mb-5">
+              <ThemedText className="text-2xl font-semibold">
+                {t('reservationStepDatetimeTitle')}
+              </ThemedText>
+              <ThemedText className="text-base text-light-subtext dark:text-dark-subtext">
+                {t('reservationStepDatetimeSubtitle')}
+              </ThemedText>
+            </View>
+            <View className="mb-4 flex-row gap-2">
+              {showTodayChip ? (
+                <Chip
+                  size="lg"
+                  label={t('reservationToday')}
+                  isSelected={data.date === todayIso}
+                  onPress={() => {
+                    const target = new Date();
+                    setMonthOffset(Math.max(0, getMonthOffsetFromToday(target)));
+                    selectDate(toIsoDate(target));
+                  }}
+                />
+              ) : null}
+              {showTomorrowChip ? (
+                <Chip
+                  size="lg"
+                  label={t('reservationTomorrow')}
+                  isSelected={data.date === tomorrowIso}
+                  onPress={() => {
+                    const target = new Date(Date.now() + 24 * 60 * 60 * 1000);
+                    setMonthOffset(Math.max(0, getMonthOffsetFromToday(target)));
+                    selectDate(toIsoDate(target));
+                  }}
+                />
+              ) : null}
+            </View>
+            <View className="mb-3 flex-row items-center justify-between">
+              <Pressable
+                disabled={monthOffset === 0}
+                onPress={() => setMonthOffset((prev) => Math.max(0, prev - 1))}
+                className={`rounded-full p-2 ${monthOffset === 0 ? 'opacity-40' : 'opacity-100'}`}>
+                <Icon name="ChevronLeft" size={24} className="-translate-x-px" />
+              </Pressable>
+              <ThemedText className="text-base font-semibold">{monthLabel}</ThemedText>
+              <Pressable
+                onPress={() => setMonthOffset((prev) => prev + 1)}
+                className="rounded-full p-2">
+                <Icon name="ChevronRight" size={24} className="translate-x-px" />
+              </Pressable>
+            </View>
+            {loadingMonthAvailability ? (
+              <View className="items-center py-4">
+                <ActivityIndicator size="small" />
+              </View>
+            ) : null}
+            <View className="flex-row flex-wrap gap-2">
+              {visibleMonthDays.map((day) => (
+                <Chip
+                  key={day.value}
+                  size="lg"
+                  label={day.label}
+                  isSelected={data.date === day.value}
+                  onPress={() => selectDate(day.value)}
+                />
+              ))}
+            </View>
+            {!loadingMonthAvailability && visibleMonthDays.length === 0 ? (
+              <ThemedText className="mt-2 text-sm text-light-subtext dark:text-dark-subtext">
+                {t('reservationNoSlotsMonth')}
+              </ThemedText>
+            ) : null}
+            <View className="mb-2 mt-6">
+              <ThemedText className="text-lg font-semibold">
+                {t('reservationAvailableTimes')}
+              </ThemedText>
+              <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext">
+                {t('reservationAvailableTimesSubtitle')}
+              </ThemedText>
+            </View>
+            {loadingAvailability ? (
+              <View className="items-center py-10">
+                <ActivityIndicator size="small" />
+              </View>
+            ) : availabilityError ? (
+              <ThemedText className="text-red-500">{availabilityError}</ThemedText>
+            ) : (
+              <>
+                {groupedSlots.morning.length > 0 ? (
+                  <Section title={t('reservationMorning')} titleSize="md" className="mb-2">
+                    <View className="mt-1 flex-row flex-wrap gap-2">
+                      {groupedSlots.morning.map((slot, index) => (
+                        <Chip
+                          key={`m-${slot.start}-${slot.end}-${slot.branchId ?? 'any'}-${index}`}
+                          size="lg"
+                          label={slot.start}
+                          isSelected={data.slotStart === slot.start && data.slotEnd === slot.end}
+                          onPress={() =>
+                            setData((prev) => ({
+                              ...prev,
+                              slotStart: slot.start,
+                              slotEnd: slot.end,
+                              duration: slot.duration,
+                            }))
+                          }
+                        />
+                      ))}
+                    </View>
+                  </Section>
+                ) : null}
+                {groupedSlots.afternoon.length > 0 ? (
+                  <Section title={t('reservationAfternoon')} titleSize="md" className="mb-2">
+                    <View className="mt-1 flex-row flex-wrap gap-2">
+                      {groupedSlots.afternoon.map((slot, index) => (
+                        <Chip
+                          key={`a-${slot.start}-${slot.end}-${slot.branchId ?? 'any'}-${index}`}
+                          size="lg"
+                          label={slot.start}
+                          isSelected={data.slotStart === slot.start && data.slotEnd === slot.end}
+                          onPress={() =>
+                            setData((prev) => ({
+                              ...prev,
+                              slotStart: slot.start,
+                              slotEnd: slot.end,
+                              duration: slot.duration,
+                            }))
+                          }
+                        />
+                      ))}
+                    </View>
+                  </Section>
+                ) : null}
+                {groupedSlots.evening.length > 0 ? (
+                  <Section title={t('reservationEvening')} titleSize="md" className="mb-2">
+                    <View className="mt-1 flex-row flex-wrap gap-2">
+                      {groupedSlots.evening.map((slot, index) => (
+                        <Chip
+                          key={`e-${slot.start}-${slot.end}-${slot.branchId ?? 'any'}-${index}`}
+                          size="lg"
+                          label={slot.start}
+                          isSelected={data.slotStart === slot.start && data.slotEnd === slot.end}
+                          onPress={() =>
+                            setData((prev) => ({
+                              ...prev,
+                              slotStart: slot.start,
+                              slotEnd: slot.end,
+                              duration: slot.duration,
+                            }))
+                          }
+                        />
+                      ))}
+                    </View>
+                  </Section>
+                ) : null}
+                {(availability?.availability?.slots?.length ?? 0) === 0 ? (
+                  <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext">
+                    {t('reservationNoSlotsSelection')}
+                  </ThemedText>
+                ) : null}
+              </>
+            )}
+          </ScrollView>
+        </Step>
+
+        <Step title={t('reservationSummaryTitle')}>
+          <ScrollView className="flex-1 px-global pb-6 pt-2" showsVerticalScrollIndicator={false}>
+            <View className="mb-3 items-center">
+              <Image
+                source={require('@/assets/img/reservation-summary.png')}
+                className="h-16 w-16"
+                style={{ width: 64, height: 64 }}
+                resizeMode="contain"
+                accessibilityIgnoresInvertColors
+              />
+            </View>
+            <ThemedText className="text-2xl font-bold">{t('reservationSummaryTitle')}</ThemedText>
+            <ThemedText className="mt-1 text-sm text-light-subtext dark:text-dark-subtext">
+              {t('reservationSummarySubtitle')}
+            </ThemedText>
+
+            <View className="bg-light-accent/10 dark:bg-dark-accent/15 border-light-accent/25 dark:border-dark-accent/30 mt-3 rounded-xl border p-3">
+              <ThemedText className="text-center text-sm font-medium text-light-text dark:text-dark-text">
+                {t('reservationSummaryConfirmHint')}
+              </ThemedText>
+            </View>
+
+            <Divider className="mt-4 h-2 bg-light-secondary dark:bg-dark-darker" />
+
+            <Section title={t('reservationSummaryBranch')} titleSize="lg" className="pb-1 pt-3">
+              <View className="mt-2 overflow-hidden rounded-2xl bg-light-secondary dark:bg-dark-secondary">
+                <Image
+                  source={
+                    typeof summaryBranchCardImage === 'number'
+                      ? summaryBranchCardImage
+                      : { uri: summaryBranchCardImage }
+                  }
+                  className="h-40 w-full"
+                  resizeMode="cover"
+                />
+                <View className="p-3">
+                  <ThemedText className="text-base font-semibold">
+                    {selectedBranch?.name ?? '—'}
+                  </ThemedText>
+                  {selectedBranch?.address ? (
+                    <View className="mt-1.5 flex-row items-start">
+                      <Icon
+                        name="MapPin"
+                        size={14}
+                        className="mr-1.5 mt-0.5 text-light-subtext dark:text-dark-subtext"
+                      />
+                      <ThemedText className="flex-1 text-sm text-light-subtext dark:text-dark-subtext">
+                        {selectedBranch.address}
+                      </ThemedText>
+                    </View>
+                  ) : null}
+                </View>
+              </View>
+            </Section>
+
+            <Divider className="mt-4 h-2 bg-light-secondary dark:bg-dark-darker" />
+
+            <Section
+              title={t('reservationSummaryWithSpecialist')}
+              titleSize="lg"
+              className="pb-1 pt-3">
+              <View className="mt-2 flex-row items-center">
+                {selectedEmployee ? (
+                  <Avatar
+                    size="md"
+                    src={selectedEmployee.avatarUrl ?? undefined}
+                    name={selectedEmployee.name}
+                  />
+                ) : (
+                  <View className="h-12 w-12 items-center justify-center rounded-full bg-light-secondary dark:bg-dark-secondary">
+                    <ThemedText className="text-xs text-light-subtext dark:text-dark-subtext">
+                      —
+                    </ThemedText>
+                  </View>
+                )}
+                <View className="ml-3 min-w-0 flex-1">
+                  <ThemedText className="text-base font-semibold" numberOfLines={1}>
+                    {selectedEmployeeName}
+                  </ThemedText>
+                  {selectedServiceName !== '—' ? (
+                    <ThemedText
+                      className="mt-0.5 text-sm text-light-subtext dark:text-dark-subtext"
+                      numberOfLines={2}>
+                      {selectedServiceName}
+                      {selectedService
+                        ? ` · ${selectedService.price} ${t('reservationCurrencySuffix')}`
+                        : ''}
+                    </ThemedText>
+                  ) : (
+                    <ThemedText className="mt-0.5 text-sm text-light-subtext dark:text-dark-subtext">
+                      —
+                    </ThemedText>
+                  )}
+                </View>
+              </View>
+            </Section>
+
+            <Divider className="mt-4 h-2 bg-light-secondary dark:bg-dark-darker" />
+
+            <Section
+              title={t('reservationSummaryAppointment')}
+              titleSize="lg"
+              className="pb-1 pt-3">
+              <ThemedText className="mt-2 text-base font-semibold">{selectedDateLabel}</ThemedText>
+              <View className="mt-2 flex-row items-center justify-between rounded-xl bg-light-secondary p-3 dark:bg-dark-secondary">
+                <View>
+                  <ThemedText className="text-xs text-light-subtext dark:text-dark-subtext">
+                    {t('reservationSummaryFrom')}
+                  </ThemedText>
+                  <ThemedText className="text-base font-semibold">
+                    {data.slotStart || '—'}
+                  </ThemedText>
+                </View>
+                <View className="items-end">
+                  <ThemedText className="text-xs text-light-subtext dark:text-dark-subtext">
+                    {t('reservationSummaryTo')}
+                  </ThemedText>
+                  <ThemedText className="text-base font-semibold">{data.slotEnd || '—'}</ThemedText>
+                </View>
+              </View>
+              {data.duration > 0 ? (
+                <View className="flex-row items-center justify-between pt-2.5">
+                  <ThemedText className="text-xs text-light-subtext dark:text-dark-subtext">
+                    {t('reservationSummaryEstimatedDuration')}
+                  </ThemedText>
+                  <ThemedText className="text-sm font-semibold">{data.duration} min</ThemedText>
+                </View>
+              ) : null}
+            </Section>
+
+            {creatingBooking ? (
+              <View className="mt-3 flex-row items-center justify-center">
+                <ActivityIndicator size="small" />
+                <ThemedText className="ml-2 text-sm text-light-subtext dark:text-dark-subtext">
+                  {t('reservationSummaryCreating')}
+                </ThemedText>
+              </View>
+            ) : null}
+            {createBookingError ? (
+              <ThemedText className="mt-3 text-sm text-red-500 dark:text-red-400">
+                {createBookingError}
+              </ThemedText>
+            ) : null}
+          </ScrollView>
+        </Step>
       </MultiStep>
       <ActionSheetThemed ref={detailsSheetRef} gestureEnabled>
-        <ScrollView className="max-h-[75vh]" contentContainerStyle={{ padding: 16, paddingBottom: 24 }}>
-          <ThemedText className="text-lg font-bold mt-2 mb-2 text-left">
+        <ScrollView
+          className="max-h-[75vh]"
+          contentContainerStyle={{ padding: 16, paddingBottom: 24 }}>
+          <ThemedText className="mb-2 mt-2 text-left text-lg font-bold">
             {detailsEmployee?.name ?? t('sheetSpecialistFallback')}
           </ThemedText>
-          <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext mb-5">
+          <ThemedText className="mb-5 text-sm text-light-subtext dark:text-dark-subtext">
             {detailsDescription || t('sheetNoBio')}
           </ThemedText>
           {detailsMedia.length > 0 ? (
             <View className="mb-5">
-              <ThemedText className="text-sm font-semibold mb-2">{t('sheetPortfolio')}</ThemedText>
-              <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 10 }}>
+              <ThemedText className="mb-2 text-sm font-semibold">{t('sheetPortfolio')}</ThemedText>
+              <ScrollView
+                horizontal
+                showsHorizontalScrollIndicator={false}
+                contentContainerStyle={{ gap: 10 }}>
                 {detailsMedia.map((m, index) => (
-                  <View key={`${m.url}-${index}`} className="w-24 h-24 rounded-xl overflow-hidden bg-light-secondary dark:bg-dark-secondary">
+                  <View
+                    key={`${m.url}-${index}`}
+                    className="h-24 w-24 overflow-hidden rounded-xl bg-light-secondary dark:bg-dark-secondary">
                     {m.type === 'video' ? (
                       <View className="flex-1 items-center justify-center">
                         <ThemedText className="text-xs text-light-subtext dark:text-dark-subtext">
@@ -1439,7 +1551,7 @@ export default function ReservationCreateScreen() {
                         </ThemedText>
                       </View>
                     ) : (
-                      <Image source={{ uri: m.url }} className="w-full h-full" resizeMode="cover" />
+                      <Image source={{ uri: m.url }} className="h-full w-full" resizeMode="cover" />
                     )}
                   </View>
                 ))}
@@ -1454,30 +1566,32 @@ export default function ReservationCreateScreen() {
         </ScrollView>
       </ActionSheetThemed>
       <ActionSheetThemed ref={branchDetailsSheetRef} gestureEnabled>
-        <ScrollView className="max-h-[75vh]" contentContainerStyle={{ padding: 16, paddingBottom: 24 }}>
-          <ThemedText className="text-lg font-bold mt-2 mb-2 text-left">
+        <ScrollView
+          className="max-h-[75vh]"
+          contentContainerStyle={{ padding: 16, paddingBottom: 24 }}>
+          <ThemedText className="mb-2 mt-2 text-left text-lg font-bold">
             {detailsBranch?.name ?? t('sheetBranchFallback')}
           </ThemedText>
           <ThemedText
             numberOfLines={isBranchDescriptionExpanded ? undefined : 3}
-            className="text-sm leading-6 text-light-subtext dark:text-dark-subtext mb-2"
-          >
+            className="mb-2 text-sm leading-6 text-light-subtext dark:text-dark-subtext">
             {detailsBranchDescription || t('sheetBranchNoIntro')}
           </ThemedText>
           {detailsBranchDescription ? (
             <Pressable
-              className="self-start mb-4 rounded-full bg-light-secondary dark:bg-dark-secondary px-2 py-1"
-              onPress={() => setIsBranchDescriptionExpanded((prev) => !prev)}
-            >
+              className="mb-4 self-start rounded-full bg-light-secondary px-2 py-1 dark:bg-dark-secondary"
+              onPress={() => setIsBranchDescriptionExpanded((prev) => !prev)}>
               <ThemedText className="text-xs text-light-subtext dark:text-dark-subtext">
-                {isBranchDescriptionExpanded ? t('sheetHideDescription') : t('sheetShowFullDescription')}
+                {isBranchDescriptionExpanded
+                  ? t('sheetHideDescription')
+                  : t('sheetShowFullDescription')}
               </ThemedText>
             </Pressable>
           ) : (
             <View className="mb-2" />
           )}
           {detailsBranchVideo ? (
-            <View className="mb-4 rounded-xl overflow-hidden bg-black">
+            <View className="mb-4 overflow-hidden rounded-xl bg-black">
               <ThemedText className="text-sm font-semibold">{t('sheetHowToBranch')}</ThemedText>
               <Video
                 source={{ uri: detailsBranchVideo.url }}
@@ -1492,11 +1606,18 @@ export default function ReservationCreateScreen() {
           ) : null}
           {detailsBranchImages.length > 0 ? (
             <View className="mb-5">
-              <ThemedText className="text-sm font-semibold mb-2">{t('sheetBranchInterior')}</ThemedText>
-              <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 10 }}>
+              <ThemedText className="mb-2 text-sm font-semibold">
+                {t('sheetBranchInterior')}
+              </ThemedText>
+              <ScrollView
+                horizontal
+                showsHorizontalScrollIndicator={false}
+                contentContainerStyle={{ gap: 10 }}>
                 {detailsBranchImages.map((m, index) => (
-                  <View key={`${m.url}-${index}`} className="w-24 h-24 rounded-xl overflow-hidden bg-light-secondary dark:bg-dark-secondary">
-                    <Image source={{ uri: m.url }} className="w-full h-full" resizeMode="cover" />
+                  <View
+                    key={`${m.url}-${index}`}
+                    className="h-24 w-24 overflow-hidden rounded-xl bg-light-secondary dark:bg-dark-secondary">
+                    <Image source={{ uri: m.url }} className="h-full w-full" resizeMode="cover" />
                   </View>
                 ))}
               </ScrollView>

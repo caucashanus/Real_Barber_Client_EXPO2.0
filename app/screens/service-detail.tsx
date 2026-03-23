@@ -1,29 +1,51 @@
-import React, { useEffect, useState, useCallback, useRef } from 'react';
 import { useFocusEffect } from '@react-navigation/native';
-import { View, Image, ActivityIndicator, Pressable, ScrollView, Animated, type LayoutChangeEvent } from 'react-native';
 import { useLocalSearchParams, router } from 'expo-router';
+import React, { useEffect, useState, useCallback, useRef } from 'react';
+import {
+  View,
+  Image,
+  ActivityIndicator,
+  Pressable,
+  ScrollView,
+  Animated,
+  type LayoutChangeEvent,
+} from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+
+import { getItemsAll, type Item } from '@/api/items';
+import { getEntityReviews, type EntityReviewItem } from '@/api/reviews';
+import { useAuth } from '@/app/contexts/AuthContext';
+import useThemeColors from '@/app/contexts/ThemeColors';
+import { useTranslation } from '@/app/hooks/useTranslation';
+import Avatar from '@/components/Avatar';
+import { Button } from '@/components/Button';
+import { CardScroller } from '@/components/CardScroller';
+import { Chip } from '@/components/Chip';
+import Favorite from '@/components/Favorite';
 import Header from '@/components/Header';
 import ThemedText from '@/components/ThemedText';
 import ThemedScroller from '@/components/ThemeScroller';
 import Section from '@/components/layout/Section';
 import Divider from '@/components/layout/Divider';
 import ShowRating from '@/components/ShowRating';
-import { CardScroller } from '@/components/CardScroller';
-import Avatar from '@/components/Avatar';
-import { Button } from '@/components/Button';
-import Favorite from '@/components/Favorite';
-import { Chip } from '@/components/Chip';
-import { useAuth } from '@/app/contexts/AuthContext';
-import { getItemsAll, type Item } from '@/api/items';
-import { getEntityReviews, type EntityReviewItem } from '@/api/reviews';
-import { useTranslation } from '@/app/hooks/useTranslation';
-import useThemeColors from '@/app/contexts/ThemeColors';
 
 function formatReviewDate(iso: string): string {
   try {
     const d = new Date(iso);
-    const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+    const months = [
+      'January',
+      'February',
+      'March',
+      'April',
+      'May',
+      'June',
+      'July',
+      'August',
+      'September',
+      'October',
+      'November',
+      'December',
+    ];
     return `${months[d.getMonth()]} ${d.getFullYear()}`;
   } catch {
     return iso;
@@ -50,7 +72,9 @@ function itemImages(item: Item): (string | number)[] {
   if (item.imageUrl) out.push(item.imageUrl);
   const media = item.media;
   if (media && Array.isArray(media)) {
-    media.forEach((m: { url?: string }) => { if (m?.url) out.push(m.url); });
+    media.forEach((m: { url?: string }) => {
+      if (m?.url) out.push(m.url);
+    });
   }
   if (out.length === 0) out.push(require('@/assets/img/barbers.png'));
   return out;
@@ -135,7 +159,9 @@ export default function ServiceDetailScreen() {
         <Header showBackButton />
         <View className="flex-1 items-center justify-center bg-light-primary dark:bg-dark-primary">
           <ActivityIndicator size="large" />
-          <ThemedText className="mt-4 text-light-subtext dark:text-dark-subtext">{t('commonLoading')}</ThemedText>
+          <ThemedText className="mt-4 text-light-subtext dark:text-dark-subtext">
+            {t('commonLoading')}
+          </ThemedText>
         </View>
       </>
     );
@@ -145,40 +171,44 @@ export default function ServiceDetailScreen() {
     return (
       <>
         <Header showBackButton />
-        <View className="flex-1 items-center justify-center bg-light-primary dark:bg-dark-primary p-6">
-          <ThemedText className="text-center text-red-500 dark:text-red-400">{error ?? 'Service not found'}</ThemedText>
+        <View className="flex-1 items-center justify-center bg-light-primary p-6 dark:bg-dark-primary">
+          <ThemedText className="text-center text-red-500 dark:text-red-400">
+            {error ?? 'Service not found'}
+          </ThemedText>
         </View>
       </>
     );
   }
 
   const images = itemImages(item);
-  const itemImageUrl = item.imageUrl ?? (item.media && Array.isArray(item.media) ? item.media[0]?.url : undefined);
+  const itemImageUrl =
+    item.imageUrl ?? (item.media && Array.isArray(item.media) ? item.media[0]?.url : undefined);
   const reviewParams = `entityType=item&entityId=${encodeURIComponent(item.id)}&entityName=${encodeURIComponent(item.name ?? '')}${itemImageUrl ? `&entityImage=${encodeURIComponent(itemImageUrl)}` : ''}`;
-  const rightComponents = item.name ? [
-    <Favorite
-      key="fav"
-      productName={item.name}
-      title={item.name}
-      entityType="item"
-      entityId={item.id}
-      size={25}
-    />,
-  ] : undefined;
+  const rightComponents = item.name
+    ? [
+        <Favorite
+          key="fav"
+          productName={item.name}
+          title={item.name}
+          entityType="item"
+          entityId={item.id}
+          size={25}
+        />,
+      ]
+    : undefined;
 
   return (
     <>
       <Header title="" rightComponents={rightComponents} showBackButton />
       <ThemedScroller
         ref={scrollRef}
-        className="px-0 bg-light-primary dark:bg-dark-primary"
+        className="bg-light-primary px-0 dark:bg-dark-primary"
         onScroll={Animated.event([{ nativeEvent: { contentOffset: { y: heroScrollY } } }], {
           useNativeDriver: false,
         })}
-        scrollEventThrottle={16}
-      >
+        scrollEventThrottle={16}>
         <Animated.View
-          className="bg-light-secondary dark:bg-dark-secondary overflow-hidden"
+          className="overflow-hidden bg-light-secondary dark:bg-dark-secondary"
           style={{
             transform: [
               {
@@ -196,8 +226,7 @@ export default function ServiceDetailScreen() {
                 }),
               },
             ],
-          }}
-        >
+          }}>
           <Image
             source={typeof images[0] === 'string' ? { uri: images[0] } : images[0]}
             className="w-full"
@@ -208,19 +237,27 @@ export default function ServiceDetailScreen() {
 
         <View
           className="p-global"
-          onLayout={(e: LayoutChangeEvent) => { contentYRef.current = e.nativeEvent.layout.y; }}
-        >
+          onLayout={(e: LayoutChangeEvent) => {
+            contentYRef.current = e.nativeEvent.layout.y;
+          }}>
           <ThemedText className="text-2xl font-bold">{item.name}</ThemedText>
-          <View className="flex-row items-center justify-center mt-4">
-            <Pressable onPress={scrollToReviews} className="flex-row items-center active:opacity-70">
-              <ShowRating rating={average} size="lg" className="px-4 py-2 border-r border-neutral-200 dark:border-dark-secondary" />
-              <ThemedText className="text-base px-4">{t('profileReviews')}</ThemedText>
+          <View className="mt-4 flex-row items-center justify-center">
+            <Pressable
+              onPress={scrollToReviews}
+              className="flex-row items-center active:opacity-70">
+              <ShowRating
+                rating={average}
+                size="lg"
+                className="border-r border-neutral-200 px-4 py-2 dark:border-dark-secondary"
+              />
+              <ThemedText className="px-4 text-base">{t('profileReviews')}</ThemedText>
             </Pressable>
             <Pressable
               onPress={() => router.push(`/screens/review?${reviewParams}`)}
-              className="ml-4 px-3 py-2 rounded-lg bg-light-secondary dark:bg-dark-secondary"
-            >
-              <ThemedText className="text-sm font-medium">{hasReviewed ? t('serviceUpdateReview') : t('serviceReview')}</ThemedText>
+              className="ml-4 rounded-lg bg-light-secondary px-3 py-2 dark:bg-dark-secondary">
+              <ThemedText className="text-sm font-medium">
+                {hasReviewed ? t('serviceUpdateReview') : t('serviceReview')}
+              </ThemedText>
             </Pressable>
           </View>
 
@@ -234,13 +271,13 @@ export default function ServiceDetailScreen() {
 
           {item.description ? (
             <Section title={t('serviceAbout')} titleSize="lg" className="mb-6">
-              <ThemedText className="text-light-subtext dark:text-dark-subtext leading-6 mt-2">
+              <ThemedText className="mt-2 leading-6 text-light-subtext dark:text-dark-subtext">
                 {item.description}
               </ThemedText>
             </Section>
           ) : (
             <Section title={t('serviceAbout')} titleSize="lg" className="mb-6">
-              <ThemedText className="text-light-subtext dark:text-dark-subtext italic mt-2">
+              <ThemedText className="mt-2 italic text-light-subtext dark:text-dark-subtext">
                 No description available.
               </ThemedText>
             </Section>
@@ -248,15 +285,17 @@ export default function ServiceDetailScreen() {
 
           <Divider className="mb-4 mt-8" />
 
-          <View onLayout={(e: LayoutChangeEvent) => { reviewsSectionYInContentRef.current = e.nativeEvent.layout.y; }}>
+          <View
+            onLayout={(e: LayoutChangeEvent) => {
+              reviewsSectionYInContentRef.current = e.nativeEvent.layout.y;
+            }}>
             <Section
               title={t('profileReviews')}
               titleSize="lg"
               subtitle={`${displayTotal} ${t('branchReviews')}`}
-              className="mb-6"
-            >
-              <View className="mt-4 bg-light-secondary dark:bg-dark-secondary p-4 rounded-lg">
-                <View className="flex-row items-center mb-4">
+              className="mb-6">
+              <View className="mt-4 rounded-lg bg-light-secondary p-4 dark:bg-dark-secondary">
+                <View className="mb-4 flex-row items-center">
                   <ShowRating rating={average} size="lg" />
                   <ThemedText className="ml-2 text-light-subtext dark:text-dark-subtext">
                     ({displayTotal})
@@ -273,45 +312,69 @@ export default function ServiceDetailScreen() {
                   ))}
                 </View>
               </View>
-              <View className="mt-6 flex-row items-center justify-between mb-3">
-                <ThemedText className="font-semibold text-lg">{t('profileReviews')}</ThemedText>
+              <View className="mb-3 mt-6 flex-row items-center justify-between">
+                <ThemedText className="text-lg font-semibold">{t('profileReviews')}</ThemedText>
                 <Pressable
                   onPress={() => router.push(`/screens/review?${reviewParams}`)}
-                  className="px-3 py-2 rounded-lg bg-light-secondary dark:bg-dark-secondary"
-                >
-                  <ThemedText className="text-sm font-medium">{hasReviewed ? t('serviceUpdateReview') : t('serviceWriteReview')}</ThemedText>
+                  className="rounded-lg bg-light-secondary px-3 py-2 dark:bg-dark-secondary">
+                  <ThemedText className="text-sm font-medium">
+                    {hasReviewed ? t('serviceUpdateReview') : t('serviceWriteReview')}
+                  </ThemedText>
                 </Pressable>
               </View>
               {loadingReviews ? (
-                <View className="py-6 items-center">
+                <View className="items-center py-6">
                   <ActivityIndicator size="small" />
-                  <ThemedText className="mt-2 text-sm text-light-subtext dark:text-dark-subtext">{t('branchLoadingReviews')}</ThemedText>
+                  <ThemedText className="mt-2 text-sm text-light-subtext dark:text-dark-subtext">
+                    {t('branchLoadingReviews')}
+                  </ThemedText>
                 </View>
               ) : (
                 <CardScroller className="mt-1" space={10}>
                   {reviews.map((review) => {
                     const isOwnReview = client?.id != null && review.client?.id === client.id;
                     return (
-                      <View key={review.id} className="w-[280px] bg-light-secondary dark:bg-dark-secondary p-4 rounded-lg">
-                        <View className="flex-row items-center justify-between mb-2">
-                          <View className="flex-row items-center flex-1 min-w-0">
+                      <View
+                        key={review.id}
+                        className="w-[280px] rounded-lg bg-light-secondary p-4 dark:bg-dark-secondary">
+                        <View className="mb-2 flex-row items-center justify-between">
+                          <View className="min-w-0 flex-1 flex-row items-center">
                             {review.isAnonymous ? (
-                              <Image source={require('@/assets/img/wallet/realbarber.png')} className="w-10 h-10 rounded-full mr-2" resizeMode="cover" />
+                              <Image
+                                source={require('@/assets/img/wallet/realbarber.png')}
+                                className="mr-2 h-10 w-10 rounded-full"
+                                resizeMode="cover"
+                              />
                             ) : review.client?.avatarUrl ? (
-                              <Image source={{ uri: review.client.avatarUrl }} className="w-10 h-10 rounded-full mr-2" />
+                              <Image
+                                source={{ uri: review.client.avatarUrl }}
+                                className="mr-2 h-10 w-10 rounded-full"
+                              />
                             ) : (
-                              <Avatar size="sm" name={review.client?.name ?? '?'} className="mr-2" />
+                              <Avatar
+                                size="sm"
+                                name={review.client?.name ?? '?'}
+                                className="mr-2"
+                              />
                             )}
                             <View className="min-w-0">
-                              <ThemedText className="font-medium" numberOfLines={1}>{review.isAnonymous ? 'Anonymous' : (review.client?.name ?? 'Anonymous')}</ThemedText>
+                              <ThemedText className="font-medium" numberOfLines={1}>
+                                {review.isAnonymous
+                                  ? 'Anonymous'
+                                  : (review.client?.name ?? 'Anonymous')}
+                              </ThemedText>
                               <ThemedText className="text-xs text-light-subtext dark:text-dark-subtext">
                                 {formatReviewDate(review.createdAt)}
                               </ThemedText>
                             </View>
                           </View>
                           {isOwnReview && (
-                            <View style={{ backgroundColor: colors.highlight }} className="ml-2 px-2 py-1 rounded-md">
-                              <ThemedText className="text-xs font-medium text-white">{t('commonEdit')}</ThemedText>
+                            <View
+                              style={{ backgroundColor: colors.highlight }}
+                              className="ml-2 rounded-md px-2 py-1">
+                              <ThemedText className="text-xs font-medium text-white">
+                                {t('commonEdit')}
+                              </ThemedText>
                             </View>
                           )}
                         </View>
@@ -333,20 +396,19 @@ export default function ServiceDetailScreen() {
 
       <View
         style={{ paddingBottom: insets.bottom }}
-        className="flex-row items-center justify-start px-global pt-4 border-t border-neutral-200 dark:border-dark-secondary bg-light-primary dark:bg-dark-primary"
-      >
+        className="flex-row items-center justify-start border-t border-neutral-200 bg-light-primary px-global pt-4 dark:border-dark-secondary dark:bg-dark-primary">
         <View>
           <ThemedText className="text-xl font-bold">{t('serviceBookThisService')}</ThemedText>
           <ThemedText className="text-xs opacity-60">{t('serviceChooseBranchBarber')}</ThemedText>
         </View>
-        <View className="flex-row items-center ml-auto">
+        <View className="ml-auto flex-row items-center">
           <Button
             title={t('commonReserve')}
             variant="primary"
             className="ml-6 px-6"
             size="medium"
             rounded="lg"
-            href={`/screens/reservation-create?itemId=${encodeURIComponent(item.id)}`}
+            href={`/screens/reservation-create?itemId=${encodeURIComponent(item.id)}&itemName=${encodeURIComponent(item.name ?? '')}`}
           />
         </View>
       </View>
