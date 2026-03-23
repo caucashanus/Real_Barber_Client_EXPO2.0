@@ -45,49 +45,74 @@ interface StepProps {
     updateData: (updates: Partial<PropertyData>) => void;
 }
 
-// Step 1: Haircut type (propertyType in data = typ účesu)
+// Step 1: Typ účesu – více možností (karty s PNG jako dřív)
 const PropertyTypeStep: React.FC<StepProps> = ({ data, updateData }) => {
     const { t } = useTranslation();
     return (
     <ScrollView className="p-4 px-8">
         <View className='mb-10'>
             <ThemedText className='text-3xl font-semibold mt-auto'>{t('addPropertyWhatDescribes')}</ThemedText>
-            <ThemedText className='text-base text-light-subtext dark:text-dark-subtext'>{t('addPropertyChooseOption')}</ThemedText>
+            <ThemedText className='text-base text-light-subtext dark:text-dark-subtext'>{t('addPropertySelectMultiple')}</ThemedText>
         </View>
-        {PROPERTY_TYPE_OPTIONS.map((option) => (
-            <Selectable
-                key={option.value}
-                title={t(option.labelKey)}
-                customIcon={option.iconImage != null ? <Image source={option.iconImage} className={option.value === 'delsi' ? 'w-14 h-14' : 'w-12 h-12'} resizeMode="contain" /> : undefined}
-                selected={data.propertyType === option.value}
-                onPress={() => updateData({ propertyType: option.value })}
-            />
-        ))}
+        <View className="mt-4">
+            {PROPERTY_TYPE_OPTIONS.map((option) => (
+                <Selectable
+                    key={option.value}
+                    title={t(option.labelKey)}
+                    selected={data.propertyTypes.includes(option.value)}
+                    customIcon={
+                        <Image
+                            source={option.iconImage}
+                            className="h-12 w-12"
+                            resizeMode="contain"
+                        />
+                    }
+                    onPress={() => {
+                        const next = data.propertyTypes.includes(option.value)
+                            ? data.propertyTypes.filter((v) => v !== option.value)
+                            : [...data.propertyTypes, option.value];
+                        updateData({ propertyTypes: next });
+                    }}
+                />
+            ))}
+        </View>
     </ScrollView>
     );
 };
 
-// Step 2: Roční období (guestAccessType in data = období)
+// Step 2: Období – více možností (karty s PNG jako dřív)
 const GuestAccessStep: React.FC<StepProps> = ({ data, updateData }) => {
     const { t } = useTranslation();
     return (
     <ScrollView className="p-4 px-8">
         <View className='mb-10'>
             <ThemedText className='text-3xl font-semibold mt-auto'>{t('addPropertyForWhichSeason')}</ThemedText>
-            <ThemedText className='text-base text-light-subtext dark:text-dark-subtext'>{t('addPropertyChooseSeason')}</ThemedText>
+            <ThemedText className='text-base text-light-subtext dark:text-dark-subtext'>{t('addPropertySelectMultiple')}</ThemedText>
         </View>
 
-        {GUEST_ACCESS_OPTIONS.map((option) => (
-            <View key={option.value} className="mb-1">
+        <View className="mt-4">
+            {GUEST_ACCESS_OPTIONS.map((option) => (
                 <Selectable
+                    key={option.value}
                     title={t(option.labelKey)}
                     description={t(option.descKey)}
-                    customIcon={option.iconImage != null ? <Image source={option.iconImage} className="w-12 h-12" resizeMode="contain" /> : undefined}
-                    selected={data.guestAccessType === option.value}
-                    onPress={() => updateData({ guestAccessType: option.value })}
+                    selected={data.guestAccessTypes.includes(option.value)}
+                    customIcon={
+                        <Image
+                            source={option.iconImage}
+                            className="h-12 w-12"
+                            resizeMode="contain"
+                        />
+                    }
+                    onPress={() => {
+                        const next = data.guestAccessTypes.includes(option.value)
+                            ? data.guestAccessTypes.filter((v) => v !== option.value)
+                            : [...data.guestAccessTypes, option.value];
+                        updateData({ guestAccessTypes: next });
+                    }}
                 />
-            </View>
-        ))}
+            ))}
+        </View>
     </ScrollView>
     );
 };
@@ -385,7 +410,7 @@ const SuccessStep: React.FC<StepProps> = ({ data }) => {
 
                     <View className="flex-1">
                         <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext mb-0">
-                            {PROPERTY_TYPE_OPTIONS.find(p => p.value === data.propertyType)?.label || 'Property'}
+                            {PROPERTY_TYPE_OPTIONS.find((p) => p.value === data.propertyTypes[0])?.label || 'Property'}
                         </ThemedText>
                         <ThemedText className="text-base font-semibold mb-0" numberOfLines={2}>
                             {data.title || 'Your Amazing Place'}
@@ -403,8 +428,8 @@ export default function AddPropertyScreen() {
     const { apiToken } = useAuth();
     const [submitting, setSubmitting] = useState(false);
     const [data, setData] = useState<PropertyData>({
-        propertyType: '',
-        guestAccessType: '',
+        propertyTypes: [],
+        guestAccessTypes: [],
         guests: 0,
         bedrooms: 0,
         beds: 4,
@@ -424,12 +449,12 @@ export default function AddPropertyScreen() {
 
     const isNextDisabled = useCallback(
         (stepIndex: number) => {
-            if (stepIndex === 0) return !data.propertyType.trim();
-            if (stepIndex === 1) return !data.guestAccessType.trim();
+            if (stepIndex === 0) return data.propertyTypes.length === 0;
+            if (stepIndex === 1) return data.guestAccessTypes.length === 0;
             if (stepIndex === 5) return !data.title.trim();
             return false;
         },
-        [data.propertyType, data.guestAccessType, data.title]
+        [data.propertyTypes, data.guestAccessTypes, data.title]
     );
 
     const handleWizardComplete = useCallback(() => {

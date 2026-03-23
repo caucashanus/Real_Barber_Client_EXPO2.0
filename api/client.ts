@@ -126,6 +126,19 @@ export async function uploadClientMedia(
   return media;
 }
 
+/** DELETE /api/client/media/{id} – delete client's own media file. */
+export async function deleteClientMedia(apiToken: string, mediaId: string): Promise<void> {
+  const res = await fetch(`${CRM_BASE}/api/client/media/${encodeURIComponent(mediaId)}`, {
+    method: 'DELETE',
+    headers: { Authorization: `Bearer ${apiToken}` },
+  });
+
+  if (res.status === 401) throw new Error('Unauthorized');
+  if (res.status === 403) throw new Error('Access denied');
+  if (res.status === 404) throw new Error('Media file not found');
+  if (!res.ok) throw new Error(`Media delete failed: ${res.status}`);
+}
+
 /** PATCH /api/client/me – update current client profile (partial). */
 export async function patchClientMe(apiToken: string, body: UpdateClientMeBody): Promise<ClientMe> {
   const res = await fetch(`${CRM_BASE}/api/client/me`, {

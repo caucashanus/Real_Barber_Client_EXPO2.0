@@ -1,8 +1,7 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { View, ScrollView, Image, Pressable, Dimensions } from 'react-native';
+import { View, ScrollView, Pressable, Dimensions } from 'react-native';
 import Slider from '@react-native-community/slider';
 import ActionSheet, { ActionSheetRef } from 'react-native-actions-sheet';
-import Selectable from '@/components/forms/Selectable';
 import ThemedText from '@/components/ThemedText';
 import { Chip } from '@/components/Chip';
 import Icon from '@/components/Icon';
@@ -24,6 +23,7 @@ import {
   parseDescriptionFromNote,
   parseDifficultyPercent,
   parseMeasurementValues,
+  parseOverviewOptionValuesFromNote,
   removeLineWithLabel,
   upsertLabeledLine,
 } from '@/utils/haircut-note-mutate';
@@ -57,6 +57,8 @@ export default function HaircutNoteEditModals({ kind, note, onClose, onApply }: 
   const [amenitySel, setAmenitySel] = useState<string[]>([]);
   const [difficulty, setDifficulty] = useState(50);
   const [descDraft, setDescDraft] = useState('');
+  const [typeValues, setTypeValues] = useState<string[]>([]);
+  const [seasonValues, setSeasonValues] = useState<string[]>([]);
 
   const sheetTitle = useMemo(() => {
     if (!kind) return '';
@@ -86,6 +88,10 @@ export default function HaircutNoteEditModals({ kind, note, onClose, onApply }: 
 
   useEffect(() => {
     if (!visible || !kind) return;
+    if (kind === 'overview') {
+      setTypeValues(parseOverviewOptionValuesFromNote(note, t('addPropertyStepHaircutType'), PROPERTY_TYPE_OPTIONS));
+      setSeasonValues(parseOverviewOptionValuesFromNote(note, t('addPropertyStepSeason'), GUEST_ACCESS_OPTIONS));
+    }
     if (kind === 'measurements') {
       const v = parseMeasurementValues(note, {
         ears: t('addPropertyLengthAtEars'),
@@ -161,17 +167,35 @@ export default function HaircutNoteEditModals({ kind, note, onClose, onApply }: 
     onClose();
   };
 
-  const pickType = (value: string) => {
-    const opt = PROPERTY_TYPE_OPTIONS.find((o) => o.value === value);
-    if (!opt) return;
-    onApply(upsertLabeledLine(note, t('addPropertyStepHaircutType'), t(opt.labelKey)));
-    onClose();
-  };
-
-  const pickSeason = (value: string) => {
-    const opt = GUEST_ACCESS_OPTIONS.find((o) => o.value === value);
-    if (!opt) return;
-    onApply(upsertLabeledLine(note, t('addPropertyStepSeason'), t(opt.labelKey)));
+  const applyOverview = () => {
+    let next = note;
+    const tl = t('addPropertyStepHaircutType');
+    const sl = t('addPropertyStepSeason');
+    if (typeValues.length === 0) {
+      next = removeLineWithLabel(next, tl);
+    } else {
+      const joined = typeValues
+        .map((v) => {
+          const o = PROPERTY_TYPE_OPTIONS.find((x) => x.value === v);
+          return o ? t(o.labelKey) : '';
+        })
+        .filter(Boolean)
+        .join(', ');
+      next = upsertLabeledLine(next, tl, joined);
+    }
+    if (seasonValues.length === 0) {
+      next = removeLineWithLabel(next, sl);
+    } else {
+      const joined = seasonValues
+        .map((v) => {
+          const o = GUEST_ACCESS_OPTIONS.find((x) => x.value === v);
+          return o ? t(o.labelKey) : '';
+        })
+        .filter(Boolean)
+        .join(', ');
+      next = upsertLabeledLine(next, sl, joined);
+    }
+    onApply(next);
     onClose();
   };
 
@@ -184,8 +208,8 @@ export default function HaircutNoteEditModals({ kind, note, onClose, onApply }: 
       onClose={onClose}
       gestureEnabled
       closable
-      initialSnapIndex={1}
-      snapPoints={[16, 92]}
+      initialSnapIndex={0}
+      snapPoints={[100]}
       overdrawEnabled={false}
       containerStyle={{
         borderTopLeftRadius: 20,
@@ -224,39 +248,44 @@ export default function HaircutNoteEditModals({ kind, note, onClose, onApply }: 
             <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext mb-2">
               {t('addPropertyStepHaircutType')}
             </ThemedText>
-            {PROPERTY_TYPE_OPTIONS.map((option) => (
-              <Selectable
-                key={option.value}
-                title={t(option.labelKey)}
-                customIcon={
-                  option.iconImage != null ? (
-                    <Image
-                      source={option.iconImage}
-                      className={option.value === 'delsi' ? 'w-14 h-14' : 'w-12 h-12'}
-                      resizeMode="contain"
-                    />
-                  ) : undefined
-                }
-                onPress={() => pickType(option.value)}
-              />
-            ))}
-            <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext mt-6 mb-2">
+            <View className="flex-row flex-wrap gap-3 mb-6">
+              {PROPERTY_TYPE_OPTIONS.map((option) => (
+                <Chip
+                  size="lg"
+                  key={option.value}
+                  label={t(option.labelKey)}
+                  isSelected={typeValues.includes(option.value)}
+                  onPress={() => {
+                    setTypeValues((prev) =>
+                      prev.includes(option.value)
+                        ? prev.filter((v) => v !== option.value)
+                        : [...prev, option.value]
+                    );
+                  }}
+                />
+              ))}
+            </View>
+            <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext mb-2">
               {t('addPropertyStepSeason')}
             </ThemedText>
-            {GUEST_ACCESS_OPTIONS.map((option) => (
-              <View key={option.value} className="mb-1">
-                <Selectable
-                  title={t(option.labelKey)}
-                  description={t(option.descKey)}
-                  customIcon={
-                    option.iconImage != null ? (
-                      <Image source={option.iconImage} className="w-12 h-12" resizeMode="contain" />
-                    ) : undefined
-                  }
-                  onPress={() => pickSeason(option.value)}
+            <View className="flex-row flex-wrap gap-3">
+              {GUEST_ACCESS_OPTIONS.map((option) => (
+                <Chip
+                  size="lg"
+                  key={option.value}
+                  label={t(option.labelKey)}
+                  isSelected={seasonValues.includes(option.value)}
+                  onPress={() => {
+                    setSeasonValues((prev) =>
+                      prev.includes(option.value)
+                        ? prev.filter((v) => v !== option.value)
+                        : [...prev, option.value]
+                    );
+                  }}
                 />
-              </View>
-            ))}
+              ))}
+            </View>
+            <Button title={t('commonSave')} onPress={applyOverview} className="mt-8" />
           </>
         ) : null}
 

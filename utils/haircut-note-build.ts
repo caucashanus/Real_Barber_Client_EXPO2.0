@@ -7,8 +7,10 @@ import {
 
 /** Stejné pole jako ve wizardu `add-property` – serializuje se do `note` přes `buildHaircutNote`. */
 export interface HaircutWizardPropertyData {
-  propertyType: string;
-  guestAccessType: string;
+  /** Hodnoty z `PROPERTY_TYPE_OPTIONS` (např. `kratsi`) – může jich být víc. */
+  propertyTypes: string[];
+  /** Hodnoty z `GUEST_ACCESS_OPTIONS` (např. `letni`) – může jich být víc. */
+  guestAccessTypes: string[];
   guests: number;
   bedrooms: number;
   beds: number;
@@ -35,10 +37,28 @@ export function buildHaircutNote(
   t: (key: TranslationKey) => string
 ): string {
   const lines: string[] = [];
-  const typeOpt = PROPERTY_TYPE_OPTIONS.find((o) => o.value === data.propertyType);
-  if (typeOpt) lines.push(`${t('addPropertyStepHaircutType')}: ${t(typeOpt.labelKey as TranslationKey)}`);
-  const seasonOpt = GUEST_ACCESS_OPTIONS.find((o) => o.value === data.guestAccessType);
-  if (seasonOpt) lines.push(`${t('addPropertyStepSeason')}: ${t(seasonOpt.labelKey as TranslationKey)}`);
+  if (data.propertyTypes.length > 0) {
+    const labels = data.propertyTypes
+      .map((val) => {
+        const opt = PROPERTY_TYPE_OPTIONS.find((o) => o.value === val);
+        return opt ? t(opt.labelKey as TranslationKey) : val;
+      })
+      .filter(Boolean);
+    if (labels.length > 0) {
+      lines.push(`${t('addPropertyStepHaircutType')}: ${labels.join(', ')}`);
+    }
+  }
+  if (data.guestAccessTypes.length > 0) {
+    const labels = data.guestAccessTypes
+      .map((val) => {
+        const opt = GUEST_ACCESS_OPTIONS.find((o) => o.value === val);
+        return opt ? t(opt.labelKey as TranslationKey) : val;
+      })
+      .filter(Boolean);
+    if (labels.length > 0) {
+      lines.push(`${t('addPropertyStepSeason')}: ${labels.join(', ')}`);
+    }
+  }
   lines.push(
     `${t('addPropertyLengthAtEars')}: ${data.guests} cm`,
     `${t('addPropertyLengthOnTop')}: ${data.bedrooms} cm`,

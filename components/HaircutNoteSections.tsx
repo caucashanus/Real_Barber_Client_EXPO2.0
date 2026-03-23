@@ -13,6 +13,8 @@ import {
 import {
   resolveOverviewRowIcon,
   resolveAmenityIcon,
+  resolvePropertyTypeIcon,
+  resolveSeasonIcon,
   isLongerHaircutTypeLabel,
 } from '@/utils/haircut-wizard-match';
 import {
@@ -127,6 +129,61 @@ function FeaturesBlock({
   );
 }
 
+function OverviewTagsBlock({
+  value,
+  variant,
+  editing,
+  onRemoveTag,
+}: {
+  value: string;
+  variant: 'type' | 'season';
+  editing?: boolean;
+  onRemoveTag?: (tag: string) => void;
+}) {
+  const tags = useMemo(
+    () =>
+      value
+        .split(',')
+        .map((s) => s.trim())
+        .filter(Boolean),
+    [value]
+  );
+  if (tags.length === 0) {
+    return <NoteRow label="" value={value} />;
+  }
+  return (
+    <View className="flex-row flex-wrap gap-2">
+      {tags.map((tag, i) => {
+        const img = variant === 'type' ? resolvePropertyTypeIcon(tag) : resolveSeasonIcon(tag);
+        const big = variant === 'type' && isLongerHaircutTypeLabel(tag);
+        return (
+          <View key={`${tag}-${i}`} className="relative">
+            <View className="flex-row items-center rounded-full bg-light-secondary dark:bg-dark-secondary px-3 py-1.5 pr-8">
+              {img ? (
+                <Image
+                  source={img}
+                  className={big ? 'mr-1.5 h-7 w-7' : 'mr-1.5 h-6 w-6'}
+                  resizeMode="contain"
+                />
+              ) : null}
+              <ThemedText className="text-sm text-light-text dark:text-dark-text">{tag}</ThemedText>
+            </View>
+            {editing && onRemoveTag ? (
+              <Pressable
+                onPress={() => onRemoveTag(tag)}
+                hitSlop={6}
+                className="absolute -top-1 -right-1 h-6 w-6 items-center justify-center rounded-full bg-red-500"
+              >
+                <Icon name="X" size={12} color="white" />
+              </Pressable>
+            ) : null}
+          </View>
+        );
+      })}
+    </View>
+  );
+}
+
 interface HaircutNoteSectionsProps {
   note: string | null | undefined;
   editing?: boolean;
@@ -167,6 +224,9 @@ export default function HaircutNoteSections({ note, editing, onNoteChange }: Hai
     applyNote(removeLineAt(note, idx));
   };
 
+  const typeLineLabel = t('addPropertyStepHaircutType');
+  const seasonLineLabel = t('addPropertyStepSeason');
+
   const sectionAddButton = (sectionId: HaircutNoteSectionId) => {
     if (!editNote || sectionId === 'other') return null;
     const kind = PICKER_BY_SECTION[sectionId];
@@ -174,10 +234,10 @@ export default function HaircutNoteSections({ note, editing, onNoteChange }: Hai
     return (
       <Pressable
         onPress={() => setPickerKind(kind)}
-        hitSlop={8}
-        className="w-9 h-9 rounded-full bg-light-secondary dark:bg-dark-secondary items-center justify-center"
+        hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+        className="h-8 w-8 rounded-full bg-light-secondary dark:bg-dark-secondary items-center justify-center"
       >
-        <Icon name="Plus" size={20} className="text-light-text dark:text-dark-text" />
+        <Icon name="Plus" size={16} className="text-light-text dark:text-dark-text" />
       </Pressable>
     );
   };
@@ -262,22 +322,54 @@ export default function HaircutNoteSections({ note, editing, onNoteChange }: Hai
             titleTrailing={editNote ? sectionAddButton(sectionId) : undefined}
           >
             {buckets[sectionId].length === 0 ? null : (
-            <View className="mt-4 gap-1">
+            <View
+              className={`gap-1 ${sectionId === 'overview' ? 'mt-5' : 'mt-4'}`}
+            >
               {buckets[sectionId].map((row, rowIndex) => {
+                const firstOverviewTag =
+                  sectionId === 'overview'
+                    ? row.value.split(',')[0]?.trim() || row.value
+                    : row.value;
                 const overviewIcon =
-                  sectionId === 'overview' ? resolveOverviewRowIcon(row.value) : undefined;
+                  sectionId === 'overview' ? resolveOverviewRowIcon(firstOverviewTag) : undefined;
                 const overviewTrailing =
                   overviewIcon != null ? (
                     <Image
                       source={overviewIcon}
                       className={
-                        isLongerHaircutTypeLabel(row.value)
+                        isLongerHaircutTypeLabel(firstOverviewTag)
                           ? 'w-14 h-14 shrink-0 translate-y-3'
                           : 'w-12 h-12 shrink-0 translate-y-3'
                       }
                       resizeMode="contain"
                     />
                   ) : undefined;
+
+                if (
+                  sectionId === 'overview' &&
+                  (row.label === typeLineLabel || row.label === seasonLineLabel)
+                ) {
+                  return (
+                    <View key={`${row.label}-${rowIndex}`} className="mb-2">
+                      {row.label ? (
+                        <ThemedText className="text-xs text-light-subtext dark:text-dark-subtext mb-2">
+                          {row.label}
+                        </ThemedText>
+                      ) : null}
+                      <OverviewTagsBlock
+                        value={row.value}
+                        variant={row.label === typeLineLabel ? 'type' : 'season'}
+                        editing={!!editNote}
+                        onRemoveTag={
+                          editNote
+                            ? (tag) =>
+                                applyNote(removeFeatureTagFromNote(note, tag, row.label))
+                            : undefined
+                        }
+                      />
+                    </View>
+                  );
+                }
 
                 if (sectionId === 'features') {
                   return (

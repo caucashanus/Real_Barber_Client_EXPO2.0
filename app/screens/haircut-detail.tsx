@@ -32,7 +32,7 @@ import { useAuth } from '@/app/contexts/AuthContext';
 import { useSetTransferRecipient } from '@/app/contexts/TransferRecipientContext';
 import { useTranslation } from '@/app/hooks/useTranslation';
 import { getClientCut, patchClientCut, deleteClientCut, type ClientCut } from '@/api/cuts';
-import { uploadClientMedia } from '@/api/client';
+import { deleteClientMedia, uploadClientMedia } from '@/api/client';
 import { getEmployees, type Employee } from '@/api/employees';
 
 const PLACEHOLDER_IMAGE = require('@/assets/img/barbers.png');
@@ -200,19 +200,12 @@ export default function HaircutDetailScreen() {
     async (photoIndex: number) => {
       if (!apiToken || !id || !cut) return;
       const sorted = [...cut.photos].sort((a, b) => a.order - b.order);
-      const remaining = sorted
-        .filter((_, i) => i !== photoIndex)
-        .map((p) => p.media?.id)
-        .filter(Boolean) as string[];
+      const mediaId = sorted[photoIndex]?.media?.id;
+      if (!mediaId) return;
       setUploadingPhotos(true);
       try {
-        const pf = patchFieldsForPhotos();
-        const updated = await patchClientCut(apiToken, id, {
-          hairstyle: pf.hairstyle,
-          note: pf.note,
-          barber_id: pf.barber_id,
-          photos: remaining,
-        });
+        await deleteClientMedia(apiToken, mediaId);
+        const updated = await getClientCut(apiToken, id);
         setCut(updated);
       } catch (e) {
         Alert.alert('', e instanceof Error ? e.message : t('haircutDetailPhotoUploadFailed'));
@@ -220,7 +213,7 @@ export default function HaircutDetailScreen() {
         setUploadingPhotos(false);
       }
     },
-    [apiToken, id, cut, patchFieldsForPhotos, t]
+    [apiToken, id, cut, t]
   );
 
   const pickImagesForCut = useCallback(async () => {

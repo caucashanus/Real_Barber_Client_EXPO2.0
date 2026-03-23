@@ -1,4 +1,25 @@
+import type { TranslationKey } from '@/locales';
 import type { HaircutNoteLine } from '@/utils/haircut-note';
+import { matchesWizardLabel } from '@/utils/haircut-wizard-match';
+
+/** Parsuje řádek „Štítek: a, b, c“ do pole `value` z wizard optionů (typ účesu / období). */
+export function parseOverviewOptionValuesFromNote(
+  note: string,
+  lineLabelDisplay: string,
+  options: ReadonlyArray<{ value: string; labelKey: TranslationKey }>
+): string[] {
+  const prefix = `${lineLabelDisplay}:`;
+  const line = getNoteLines(note).find((l) => l.startsWith(prefix));
+  if (!line) return [];
+  const rest = line.slice(prefix.length).trim();
+  const tags = rest.split(',').map((s) => s.trim()).filter(Boolean);
+  const values: string[] = [];
+  for (const tag of tags) {
+    const opt = options.find((o) => matchesWizardLabel(tag, o.labelKey));
+    if (opt) values.push(opt.value);
+  }
+  return values;
+}
 
 export function getNoteLines(note: string): string[] {
   return note.split('\n').map((l) => l.trim()).filter(Boolean);
