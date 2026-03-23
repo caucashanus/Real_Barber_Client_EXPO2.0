@@ -1,5 +1,15 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { View, ActivityIndicator, Alert, Animated } from 'react-native';
+import {
+  View,
+  ActivityIndicator,
+  Alert,
+  Animated,
+  Image,
+  TouchableOpacity,
+  ScrollView,
+} from 'react-native';
+import * as ImagePicker from 'expo-image-picker';
+import type { ImagePickerAsset } from 'expo-image-picker';
 import { useLocalSearchParams, router } from 'expo-router';
 import Header from '@/components/Header';
 import ThemedScroller from '@/components/ThemeScroller';
@@ -21,9 +31,12 @@ import { useAuth } from '@/app/contexts/AuthContext';
 import { useSetTransferRecipient } from '@/app/contexts/TransferRecipientContext';
 import { useTranslation } from '@/app/hooks/useTranslation';
 import { getClientCut, patchClientCut, deleteClientCut, type ClientCut } from '@/api/cuts';
+import { uploadClientMedia } from '@/api/client';
 import { getEmployees, type Employee } from '@/api/employees';
 
 const PLACEHOLDER_IMAGE = require('@/assets/img/barbers.png');
+/** Stejný limit jako ve wizardu `add-property`. */
+const MAX_CUT_PHOTOS = 5;
 
 /** Stejné placeholdery jako v `booking-detail` — sekce později nahradíte reálnými daty střihu. */
 const bookingData = {
@@ -36,19 +49,6 @@ const bookingData = {
   infants: 0,
   pets: 0,
   requestDate: 'Dec 10, 2024',
-  priceBreakdown: {
-    nightlyRate: '$300',
-    nights: 5,
-    subtotal: '$1,500',
-    cleaningFee: '$75',
-    serviceFee: '$125',
-    taxes: '$50',
-    total: '$1,750',
-  },
-  paymentMethod: {
-    type: 'Visa',
-    lastFour: '1234',
-  },
   specialRequests: [] as string[],
 };
 
@@ -89,6 +89,7 @@ export default function HaircutDetailScreen() {
   const [note, setNote] = useState('');
   const [barberId, setBarberId] = useState<string>('');
   const [employees, setEmployees] = useState<Employee[]>([]);
+  const [uploadingPhotos, setUploadingPhotos] = useState(false);
 
   const loadCut = useCallback(() => {
     if (!apiToken || !id) {
@@ -128,6 +129,82 @@ export default function HaircutDetailScreen() {
     if (urls.length > 0) return urls;
     return [PLACEHOLDER_IMAGE];
   }, [cut]);
+
+  const haircutPhotoUrls = useMemo(() => {
+    if (!cut?.photos?.length) return [];
+    return [...cut.photos]
+      .sort((a, b) => a.order - b.order)
+      .map((p) => p.media?.url)
+      .filter(Boolean) as string[];
+  }, [cut]);
+
+  const appendPhotosFromAssets = useCallback(
+    async (assets: ImagePickerAsset[]) => {
+      if (!apiToken || !id || !cut || assets.length === 0) return;
+      const remaining = MAX_CUT_PHOTOS - cut.photos.length;
+      const slice = assets.slice(0, Math.max(0, remaining));
+      if (slice.length === 0) return;
+      setUploadingPhotos(true);
+      try {
+        const label = cut.hairstyle?.trim() || t('haircutTitle');
+        const mediaIds = [...cut.photos]
+          .sort((a, b) => a.order - b.order)
+          .map((p) => p.media?.id)
+          .filter(Boolean) as string[];
+        for (const asset of slice) {
+          const uploaded = await uploadClientMedia(apiToken, {
+            uri: asset.uri,
+            name: asset.fileName ?? undefined,
+            mimeType: asset.mimeType ?? undefined,
+            title: label,
+            alt: label,
+          });
+          mediaIds.push(uploaded.id);
+        }
+        const updated = await patchClientCut(apiToken, id, {
+          hairstyle: cut.hairstyle.trim(),
+          note: cut.note?.trim() || null,
+          barber_id: cut.barber?.id?.trim() || null,
+          photos: mediaIds,
+        });
+        setCut(updated);
+      } catch (e) {
+        Alert.alert('', e instanceof Error ? e.message : t('haircutDetailPhotoUploadFailed'));
+      } finally {
+        setUploadingPhotos(false);
+      }
+    },
+    [apiToken, id, cut, t]
+  );
+
+  const pickImagesForCut = useCallback(async () => {
+    if (!cut || uploadingPhotos || cut.photos.length >= MAX_CUT_PHOTOS) return;
+    const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (status !== 'granted') return;
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: false,
+      allowsMultipleSelection: true,
+      selectionLimit: MAX_CUT_PHOTOS - cut.photos.length,
+      quality: 0.85,
+    });
+    if (!result.canceled && result.assets.length) {
+      await appendPhotosFromAssets(result.assets);
+    }
+  }, [cut, uploadingPhotos, appendPhotosFromAssets]);
+
+  const takePhotoForCut = useCallback(async () => {
+    if (!cut || uploadingPhotos || cut.photos.length >= MAX_CUT_PHOTOS) return;
+    const { status } = await ImagePicker.requestCameraPermissionsAsync();
+    if (status !== 'granted') return;
+    const result = await ImagePicker.launchCameraAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      quality: 0.85,
+    });
+    if (!result.canceled && result.assets[0]) {
+      await appendPhotosFromAssets([result.assets[0]]);
+    }
+  }, [cut, uploadingPhotos, appendPhotosFromAssets]);
 
   const handleSave = async () => {
     if (!apiToken || !id) return;
@@ -361,99 +438,60 @@ export default function HaircutDetailScreen() {
           <Divider className="mt-6 h-2 bg-light-secondary dark:bg-dark-darker" />
 
           <Section
-            title={t('bookingEarningsBreakdown')}
-            titleSize="lg"
-            titleAlign="right"
-            className="px-global pt-4"
-          >
-            <View className="mt-4 gap-3">
-              <View className="flex-row justify-between">
-                <ThemedText className="text-light-subtext dark:text-dark-subtext">
-                  {bookingData.priceBreakdown.nightlyRate} x {bookingData.priceBreakdown.nights} nights
-                </ThemedText>
-                <ThemedText>{bookingData.priceBreakdown.subtotal}</ThemedText>
-              </View>
-
-              <View className="flex-row justify-between">
-                <ThemedText className="text-light-subtext dark:text-dark-subtext">Cleaning fee</ThemedText>
-                <ThemedText>{bookingData.priceBreakdown.cleaningFee}</ThemedText>
-              </View>
-
-              <View className="flex-row justify-between">
-                <ThemedText className="text-light-subtext dark:text-dark-subtext">Service fee (deducted)</ThemedText>
-                <ThemedText className="text-red-600 dark:text-red-400">-{bookingData.priceBreakdown.serviceFee}</ThemedText>
-              </View>
-
-              <View className="flex-row justify-between">
-                <ThemedText className="text-light-subtext dark:text-dark-subtext">Taxes</ThemedText>
-                <ThemedText>{bookingData.priceBreakdown.taxes}</ThemedText>
-              </View>
-
-              <Divider className="my-3" />
-
-              <View className="flex-row justify-between">
-                <ThemedText className="font-bold text-lg">Your earnings</ThemedText>
-                <ThemedText className="font-bold text-lg text-green-600 dark:text-green-400">
-                  $
-                  {(
-                    parseInt(bookingData.priceBreakdown.total.replace('$', '').replace(',', ''), 10) -
-                    parseInt(bookingData.priceBreakdown.serviceFee.replace('$', ''), 10)
-                  ).toLocaleString()}
-                </ThemedText>
-              </View>
-            </View>
-          </Section>
-
-          <Divider className="mt-6 h-2 bg-light-secondary dark:bg-dark-darker" />
-
-          <Section
-            title={t('bookingPaymentMethod')}
-            titleSize="lg"
-            titleAlign="right"
-            className="px-global pt-4"
-          >
-            <View className="flex-row items-center mt-4">
-              <Icon name="CreditCard" size={20} className="mr-3" />
-              <View>
-                <ThemedText className="font-medium">
-                  {bookingData.paymentMethod.type} •••• {bookingData.paymentMethod.lastFour}
-                </ThemedText>
-                <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext">
-                  Payment will be processed upon approval
-                </ThemedText>
-              </View>
-            </View>
-          </Section>
-
-          <Divider className="mt-6 h-2 bg-light-secondary dark:bg-dark-darker" />
-
-          <Section
-            title={t('bookingRequestDetails')}
+            title={t('haircutDetailPhotosSection')}
             titleSize="lg"
             titleAlign="right"
             className="px-global pt-4 pb-6"
           >
-            <View className="mt-4 gap-3">
-              <View className="flex-row justify-between">
-                <ThemedText className="text-light-subtext dark:text-dark-subtext">Status</ThemedText>
-                <View className="bg-green-100 dark:bg-green-900 px-3 py-1 rounded-full">
-                  <ThemedText className="text-xs font-medium text-green-800 dark:text-green-200">Saved</ThemedText>
-                </View>
-              </View>
+            <View className="mt-4">
+              {haircutPhotoUrls.length === 0 ? (
+                <ThemedText className="mb-3 text-center text-sm text-light-subtext dark:text-dark-subtext">
+                  {t('haircutDetailPhotosEmpty')}
+                </ThemedText>
+              ) : null}
 
-              <View className="mt-4 bg-blue-50 dark:bg-blue-900/20 rounded-xl p-4">
-                <View className="flex-row items-start">
-                  <Icon name="Info" size={16} className="mr-3 mt-1 text-blue-600 dark:text-blue-400" />
-                  <View className="flex-1">
-                    <ThemedText className="text-sm font-medium text-blue-800 dark:text-blue-200">
-                      {t('haircutTitle')}
-                    </ThemedText>
-                    <ThemedText className="text-xs text-blue-600 dark:text-blue-300 mt-1">
-                      {cut.photoCount} {cut.photoCount === 1 ? 'photo' : 'photos'}
-                    </ThemedText>
-                  </View>
+              <ScrollView
+                horizontal
+                nestedScrollEnabled
+                showsHorizontalScrollIndicator={false}
+                className={uploadingPhotos ? 'opacity-50' : ''}
+              >
+                <View className="flex-row items-stretch gap-3 pb-1 pr-2">
+                  {haircutPhotoUrls.map((uri, index) => (
+                    <Image
+                      key={`${uri}-${index}`}
+                      source={{ uri }}
+                      className="h-44 w-36 shrink-0 rounded-xl bg-light-secondary dark:bg-dark-secondary"
+                      resizeMode="cover"
+                    />
+                  ))}
+
+                  {cut.photos.length < MAX_CUT_PHOTOS ? (
+                    <View className="shrink-0 flex-row gap-3">
+                      <TouchableOpacity
+                        disabled={uploadingPhotos}
+                        onPress={pickImagesForCut}
+                        className="h-44 w-36 shrink-0 items-center justify-center rounded-lg border-2 border-dashed border-light-subtext dark:border-dark-subtext"
+                      >
+                        <Icon name="Plus" size={24} className="text-light-subtext dark:text-dark-subtext" />
+                        <ThemedText className="mt-1 px-1 text-center text-xs text-light-subtext dark:text-dark-subtext">
+                          {t('addPropertyAddPhoto')}
+                        </ThemedText>
+                      </TouchableOpacity>
+                      <TouchableOpacity
+                        disabled={uploadingPhotos}
+                        onPress={takePhotoForCut}
+                        className="h-44 w-36 shrink-0 items-center justify-center rounded-lg border-2 border-dashed border-light-subtext dark:border-dark-subtext"
+                      >
+                        <Icon name="Plus" size={24} className="text-light-subtext dark:text-dark-subtext" />
+                        <ThemedText className="mt-1 px-1 text-center text-xs text-light-subtext dark:text-dark-subtext">
+                          {t('addPropertyTakePhoto')}
+                        </ThemedText>
+                      </TouchableOpacity>
+                    </View>
+                  ) : null}
                 </View>
-              </View>
+              </ScrollView>
             </View>
           </Section>
         </AnimatedView>
@@ -471,10 +509,8 @@ export default function HaircutDetailScreen() {
           <Button
             title={t('commonEdit')}
             variant="primary"
-            textClassName="text-white"
             iconStart="UserRoundPen"
-            className="flex-1"
-            iconColor="white"
+            className="flex-1 min-w-0"
             onPress={() => setEditing(true)}
           />
         </View>

@@ -168,21 +168,47 @@ export interface PatchClientCutBody {
   hairstyle?: string;
   note?: string | null;
   barber_id?: string | null;
+  /** Volitelné – pokud CRM podporuje doplnění fotek při PATCH. */
+  photos?: string[];
 }
 
-/** PATCH /api/client/cuts/[id] – update a haircut (name, note, barber). */
+/** Dokumentace CRM: PATCH vrací často jen `{ message, status }`; celý `ClientCut` doplníme GET. */
+function responseLooksLikeClientCut(raw: unknown): raw is ClientCut {
+  if (!raw || typeof raw !== 'object') return false;
+  const o = raw as Record<string, unknown>;
+  return typeof o.id === 'string' && typeof o.hairstyle === 'string';
+}
+
+function buildPatchClientCutPayload(body: PatchClientCutBody): Record<string, unknown> {
+  const o: Record<string, unknown> = {};
+  if (body.hairstyle !== undefined) o.hairstyle = body.hairstyle.trim();
+  if (body.note !== undefined) o.note = body.note === null ? '' : String(body.note).trim();
+  if (body.barber_id !== undefined) o.barber_id = (body.barber_id ?? '').trim();
+  if (body.photos !== undefined) o.photos = body.photos;
+  return o;
+}
+
+/**
+ * PATCH /api/client/cuts/[id] – úprava účesu (dokumentované: `hairstyle`, `note`, `barber_id`).
+ * Volitelně lze poslat i `photos` (ID médií), pokud to backend umí.
+ */
 export async function patchClientCut(
   apiToken: string,
   id: string,
   body: PatchClientCutBody
 ): Promise<ClientCut> {
+  const payload = buildPatchClientCutPayload(body);
+  if (Object.keys(payload).length === 0) {
+    return getClientCut(apiToken, id);
+  }
+
   const res = await fetch(`${CRM_BASE}/api/client/cuts/${id}`, {
     method: 'PATCH',
     headers: {
       'Content-Type': 'application/json',
       Authorization: `Bearer ${apiToken}`,
     },
-    body: JSON.stringify(body),
+    body: JSON.stringify(payload),
   });
 
   if (res.status === 400) {
@@ -192,9 +218,15 @@ export async function patchClientCut(
   if (res.status === 401) throw new Error('Unauthorized');
   if (res.status === 403) throw new Error('Forbidden');
   if (res.status === 404) throw new Error('Haircut not found');
+  if (res.status === 500) {
+    const data = await res.json().catch(() => ({}));
+    throw new Error((data as { message?: string }).message ?? 'Failed to update haircut');
+  }
   if (!res.ok) throw new Error(`Error ${res.status}`);
 
-  return res.json() as Promise<ClientCut>;
+  const raw = await res.json().catch(() => null);
+  if (responseLooksLikeClientCut(raw)) return raw;
+  return getClientCut(apiToken, id);
 }
 
 /** DELETE /api/client/cuts/[id] – delete a haircut. */

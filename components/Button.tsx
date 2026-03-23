@@ -1,6 +1,14 @@
 // components/Button.tsx
 import React from 'react';
-import { Text, ActivityIndicator, TouchableOpacity, View, Pressable } from 'react-native';
+import {
+  Text,
+  ActivityIndicator,
+  TouchableOpacity,
+  View,
+  Pressable,
+  type StyleProp,
+  type ViewStyle,
+} from 'react-native';
 import * as Haptics from 'expo-haptics';
 import { Link, router } from 'expo-router';
 import Icon, { IconName } from './Icon';
@@ -28,6 +36,7 @@ interface ButtonProps {
   impactFeedbackStyle?: Haptics.ImpactFeedbackStyle;
   /** Když haptiku vyvoláváš ručně (např. v onPress callbacku). */
   disableHaptic?: boolean;
+  style?: StyleProp<ViewStyle>;
 }
 
 export const Button: React.FC<ButtonProps> = ({
@@ -48,6 +57,7 @@ export const Button: React.FC<ButtonProps> = ({
   iconClassName = '',
   impactFeedbackStyle = Haptics.ImpactFeedbackStyle.Medium,
   disableHaptic = false,
+  style,
   ...props
 }) => {
   const colors = useThemeColors();
@@ -75,6 +85,10 @@ export const Button: React.FC<ButtonProps> = ({
   };
   
   const textColor = 'text-black dark:text-white';
+  const titleClassName =
+    variant === 'primary'
+      ? `font-medium text-white ${textClassName}`.trim()
+      : `${textColor} font-medium ${textClassName}`.trim();
   const disabledStyle = disabled ? 'opacity-50' : '';
 
   // Default icon sizes based on button size
@@ -92,16 +106,14 @@ export const Button: React.FC<ButtonProps> = ({
   // Default icon color based on variant
   const getIconColor = () => {
     if (iconColor) return iconColor;
-    
-    // return variant === 'outline' || variant === 'secondary' || variant === 'ghost' 
-    //   ? '#000000' // highlight color
-    //   : '#FFFFFF'; // white
+    if (variant === 'primary') return '#ffffff';
+    return undefined;
   };
 
   const ButtonContent = (
     <>
       {loading ? (
-        <ActivityIndicator color={variant === 'primary' ? (colors.isDark ? '#fff' : '#000') : '#0EA5E9'} />
+        <ActivityIndicator color={variant === 'primary' ? '#ffffff' : '#0EA5E9'} />
       ) : (
         <View className="flex-row items-center justify-center">
           {iconStart && (
@@ -113,7 +125,7 @@ export const Button: React.FC<ButtonProps> = ({
             />
           )}
           
-          <Text className={`${textColor} font-medium ${textClassName}`}>{title}</Text>
+          <Text className={titleClassName}>{title}</Text>
           
           {iconEnd && (
             <Icon 
@@ -133,14 +145,18 @@ export const Button: React.FC<ButtonProps> = ({
     Haptics.impactAsync(impactFeedbackStyle).catch(() => {});
   };
 
-  const primaryStyle = variant === 'primary' ? { backgroundColor: colors.highlight } : undefined;
+  const primaryBg: ViewStyle | undefined =
+    variant === 'primary' ? { backgroundColor: colors.highlight } : undefined;
+  const mergedStylePieces = [primaryBg, style].filter(Boolean) as ViewStyle[];
+  const mergedStyle: StyleProp<ViewStyle> | undefined =
+    mergedStylePieces.length > 0 ? mergedStylePieces : undefined;
 
   if (href) {
     return (
       <TouchableOpacity
         disabled={loading || disabled}
         activeOpacity={0.8}
-        style={primaryStyle}
+        style={mergedStyle}
         className={`px-4 relative ${buttonStyles[variant]} ${buttonSize[size]} ${roundedStyles[rounded]} items-center justify-center ${disabledStyle} ${className}`}
         {...props}
         onPress={() => {
@@ -161,7 +177,7 @@ export const Button: React.FC<ButtonProps> = ({
       }}
       disabled={loading || disabled}
       activeOpacity={0.8}
-      style={primaryStyle}
+      style={mergedStyle}
       className={`px-4 relative ${buttonStyles[variant]} ${buttonSize[size]} ${roundedStyles[rounded]} items-center justify-center ${disabledStyle} ${className}`}
       {...props}
     >

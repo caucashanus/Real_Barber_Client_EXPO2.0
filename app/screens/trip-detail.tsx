@@ -64,48 +64,6 @@ function branchImages(branch: Branch): (string | number)[] {
   return out;
 }
 
-function getPaymentMethodLabel(
-  method: string | null | undefined,
-  t: (key: string) => string
-): string {
-  if (!method) return '—';
-  const normalized = method.trim().toUpperCase().replace(/\s+/g, '_');
-  if (normalized === 'CASH') return t('paymentMethodCash');
-  if (normalized === 'CARD' || normalized === 'CREDIT_CARD' || normalized === 'DEBIT_CARD')
-    return t('paymentMethodCard');
-  if (normalized === 'RBC' || normalized === 'RB_COINS' || normalized === 'RBCOINS')
-    return t('paymentMethodRbc');
-  return method
-    .split('_')
-    .map((part) =>
-      part.toLowerCase() === 'rbc'
-        ? 'RBC'
-        : part.charAt(0).toUpperCase() + part.slice(1).toLowerCase()
-    )
-    .join(' ');
-}
-
-function getPaymentMethodFromPayments(booking: Booking, t: (key: string) => string): string | null {
-  const normalizedMethod = (booking.paymentMethod ?? '').trim().toUpperCase().replace(/\s+/g, '_');
-  if (normalizedMethod !== 'COMBINED') return null;
-  if (!Array.isArray(booking.payments) || booking.payments.length === 0) return null;
-
-  const seen = new Set<string>();
-  const labels: string[] = [];
-
-  for (const payment of booking.payments) {
-    const methodRaw = (payment?.method ?? '').toString();
-    if (!methodRaw) continue;
-    const methodKey = methodRaw.trim().toUpperCase().replace(/\s+/g, '_');
-    if (!methodKey || seen.has(methodKey)) continue;
-    seen.add(methodKey);
-    labels.push(getPaymentMethodLabel(methodRaw, t));
-  }
-
-  if (labels.length === 0) return null;
-  return labels.join(' + ');
-}
-
 function formatAppointment(
   b: Booking,
   dateLocale: string
@@ -233,8 +191,6 @@ const BookingDetailScreen = () => {
 
   const appointment = formatAppointment(booking, dateLocaleTag);
   const location = booking.branch?.address ?? booking.branch?.name ?? '—';
-  const paymentMethodLabel =
-    getPaymentMethodFromPayments(booking, t) ?? getPaymentMethodLabel(booking.paymentMethod, t);
   const status = (booking.status ?? '').toLowerCase();
   const isCancelled = status === 'cancelled' || status === 'canceled';
   const isPast = isBookingPast(booking);
@@ -416,25 +372,6 @@ const BookingDetailScreen = () => {
               <View className="flex-row justify-between">
                 <ThemedText className="text-lg font-bold">{t('bookingTotal')}</ThemedText>
                 <ThemedText className="text-lg font-bold">
-                  {booking.price} {t('reservationCurrencySuffix')}
-                </ThemedText>
-              </View>
-            </View>
-          </Section>
-
-          <Divider className="mt-6 h-2 bg-light-secondary dark:bg-dark-darker" />
-
-          <Section
-            title={t('bookingPaymentMethod')}
-            titleSize="lg"
-            titleAlign="right"
-            className="px-global pt-4"
-          >
-            <View className="mt-4 flex-row items-center">
-              <Icon name="CreditCard" size={20} className="mr-3" />
-              <View>
-                <ThemedText className="font-medium">{paymentMethodLabel}</ThemedText>
-                <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext">
                   {booking.price} {t('reservationCurrencySuffix')}
                 </ThemedText>
               </View>

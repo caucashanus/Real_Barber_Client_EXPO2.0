@@ -40,19 +40,6 @@ const bookingData = {
     pets: 0,
     requestDate: 'Dec 10, 2024',
     totalPrice: '$1,750',
-    priceBreakdown: {
-        nightlyRate: '$300',
-        nights: 5,
-        subtotal: '$1,500',
-        cleaningFee: '$75',
-        serviceFee: '$125',
-        taxes: '$50',
-        total: '$1,750'
-    },
-    paymentMethod: {
-        type: 'Visa',
-        lastFour: '1234'
-    },
     guestMessage: 'Hi! We\'re a family of 4 looking forward to staying at your beautiful villa. We\'re celebrating our anniversary and would love to experience the local culture. We\'re respectful guests and will take great care of your property.',
     specialRequests: [
         'Early check-in if possible (around 1 PM)',
@@ -221,72 +208,6 @@ const BookingDetailScreen = () => {
                                 ))}
                             </View>
                         )}
-                    </Section>
-
-                    <Divider className="mt-6 h-2 bg-light-secondary dark:bg-dark-darker" />
-
-                    {/* Price Breakdown */}
-                    <Section
-                        title={t('bookingEarningsBreakdown')}
-                        titleSize="lg"
-                        titleAlign="right"
-                        className="px-global pt-4"
-                    >
-                        <View className="mt-4 space-y-3">
-                            <View className="flex-row justify-between">
-                                <ThemedText className="text-light-subtext dark:text-dark-subtext">
-                                    {bookingData.priceBreakdown.nightlyRate} x {bookingData.priceBreakdown.nights} nights
-                                </ThemedText>
-                                <ThemedText>{bookingData.priceBreakdown.subtotal}</ThemedText>
-                            </View>
-
-                            <View className="flex-row justify-between">
-                                <ThemedText className="text-light-subtext dark:text-dark-subtext">Cleaning fee</ThemedText>
-                                <ThemedText>{bookingData.priceBreakdown.cleaningFee}</ThemedText>
-                            </View>
-
-                            <View className="flex-row justify-between">
-                                <ThemedText className="text-light-subtext dark:text-dark-subtext">Service fee (deducted)</ThemedText>
-                                <ThemedText className="text-red-600 dark:text-red-400">-{bookingData.priceBreakdown.serviceFee}</ThemedText>
-                            </View>
-
-                            <View className="flex-row justify-between">
-                                <ThemedText className="text-light-subtext dark:text-dark-subtext">Taxes</ThemedText>
-                                <ThemedText>{bookingData.priceBreakdown.taxes}</ThemedText>
-                            </View>
-
-                            <Divider className="my-3" />
-
-                            <View className="flex-row justify-between">
-                                <ThemedText className="font-bold text-lg">Your earnings</ThemedText>
-                                <ThemedText className="font-bold text-lg text-green-600 dark:text-green-400">
-                                    ${(parseInt(bookingData.priceBreakdown.total.replace('$', '').replace(',', '')) - 
-                                       parseInt(bookingData.priceBreakdown.serviceFee.replace('$', ''))).toLocaleString()}
-                                </ThemedText>
-                            </View>
-                        </View>
-                    </Section>
-
-                    <Divider className="mt-6 h-2 bg-light-secondary dark:bg-dark-darker" />
-
-                    {/* Payment Information */}
-                    <Section
-                        title={t('bookingPaymentMethod')}
-                        titleSize="lg"
-                        titleAlign="right"
-                        className="px-global pt-4"
-                    >
-                        <View className="flex-row items-center mt-4">
-                            <Icon name="CreditCard" size={20} className="mr-3" />
-                            <View>
-                                <ThemedText className="font-medium">
-                                    {bookingData.paymentMethod.type} •••• {bookingData.paymentMethod.lastFour}
-                                </ThemedText>
-                                <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext">
-                                    Payment will be processed upon approval
-                                </ThemedText>
-                            </View>
-                        </View>
                     </Section>
 
                     <Divider className="mt-6 h-2 bg-light-secondary dark:bg-dark-darker" />
