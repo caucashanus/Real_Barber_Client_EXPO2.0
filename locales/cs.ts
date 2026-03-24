@@ -195,6 +195,8 @@ export const cs: Record<TranslationKey, string> = {
   myHaircutsWhatsFor: 'K čemu to je?',
   myHaircutsAddNewA11y: 'Přidat nový střih',
   myHaircutsYours: 'Vaše střihy',
+  myHaircutsBadgeNewest: 'Můj nový účes',
+  myHaircutsBadgeFirst: 'Můj první účes',
   myHaircutsEmpty: 'Zatím nemáte uložený střih. Přidejte si ho níže.',
   myHaircutsLoginToSee: 'Pro zobrazení uložených střihů se přihlaste.',
   myHaircutsLoadError: 'Střihy se nepodařilo načíst.',
@@ -822,7 +824,7 @@ export const cs: Record<TranslationKey, string> = {
   addPropertyHowDemanding: 'Jak náročný je účes na styling a kdo vám ho dělal?',
   addPropertyCongratulations: 'Gratulujeme!',
   addPropertySuccessMessage:
-    'Už jen krok. Klepněte na Dokončit a účes uložíme — případné fotky se nahrají na server.',
+    'Už jen krůček, klikni na Dokončit a prohlédni si svůj účes.',
   addPropertyCutSaveFailed: 'Účes se nepodařilo uložit. Zkuste to prosím znovu.',
   addPropertyLoginRequired: 'Pro uložení účesu se prosím přihlaste.',
   addPropertyEasyTitle: 'Přidat účes je snadné',

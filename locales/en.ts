@@ -191,6 +191,8 @@ export const en = {
   myHaircutsWhatsFor: "What's it for?",
   myHaircutsAddNewA11y: 'Add new haircut',
   myHaircutsYours: 'Your haircuts',
+  myHaircutsBadgeNewest: 'My newest haircut',
+  myHaircutsBadgeFirst: 'My first haircut',
   myHaircutsEmpty: 'No saved haircuts yet. Add one below.',
   myHaircutsLoginToSee: 'Log in to see your saved haircuts.',
   myHaircutsLoadError: 'Could not load haircuts.',
@@ -820,7 +822,7 @@ export const en = {
   addPropertyHowDemanding: 'How demanding is the haircut to style and who did it for you?',
   addPropertyCongratulations: 'Congratulations!',
   addPropertySuccessMessage:
-    'You are almost done. Tap Complete to save your haircut — we will upload photos if you added any.',
+    'Just one more step — tap Complete and take a look at your haircut.',
   addPropertyCutSaveFailed: 'Could not save your haircut. Please try again.',
   addPropertyLoginRequired: 'Log in to save your haircut.',
   addPropertyEasyTitle: "It's easy to add your haircut",

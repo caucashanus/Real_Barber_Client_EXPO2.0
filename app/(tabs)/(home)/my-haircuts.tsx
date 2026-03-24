@@ -1,5 +1,5 @@
 import ThemeScroller from '@/components/ThemeScroller';
-import React, { useCallback, useContext, useState } from 'react';
+import React, { useCallback, useContext, useMemo, useState } from 'react';
 import { View, Image, Animated, Pressable, ActivityIndicator } from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
 import AnimatedView from '@/components/AnimatedView';
@@ -27,6 +27,31 @@ function cutCardImage(cut: ClientCut) {
   return url ? { uri: url } : CUT_PLACEHOLDER;
 }
 
+/** Nejnovější / nejstarší podle `createdAt` (stejný štítek v rohu jako u oblíbených). */
+function cutCreatedAtMs(cut: ClientCut): number {
+  return new Date(cut.createdAt).getTime();
+}
+
+function getNewestAndOldestCutIds(cuts: ClientCut[]): { newestId: string | null; oldestId: string | null } {
+  if (cuts.length === 0) return { newestId: null, oldestId: null };
+  let minCut = cuts[0];
+  let maxCut = cuts[0];
+  let minT = cutCreatedAtMs(cuts[0]);
+  let maxT = minT;
+  for (const c of cuts) {
+    const t = cutCreatedAtMs(c);
+    if (t < minT || (t === minT && c.id < minCut.id)) {
+      minT = t;
+      minCut = c;
+    }
+    if (t > maxT || (t === maxT && c.id > maxCut.id)) {
+      maxT = t;
+      maxCut = c;
+    }
+  }
+  return { newestId: maxCut.id, oldestId: minCut.id };
+}
+
 const MyHaircutsScreen = () => {
   const scrollY = useContext(ScrollContext);
   const { t } = useTranslation();
@@ -36,6 +61,18 @@ const MyHaircutsScreen = () => {
   const [loading, setLoading] = useState(false);
   const [loadError, setLoadError] = useState<string | null>(null);
   const [haircutIntroCooldown, setHaircutIntroCooldown] = useState(false);
+
+  const { newestId, oldestId } = useMemo(() => getNewestAndOldestCutIds(cuts), [cuts]);
+  const cutsForDisplay = useMemo(
+    () =>
+      [...cuts].sort((a, b) => {
+        const aT = cutCreatedAtMs(a);
+        const bT = cutCreatedAtMs(b);
+        if (aT !== bT) return bT - aT;
+        return b.id.localeCompare(a.id);
+      }),
+    [cuts]
+  );
 
   useFocusEffect(
     useCallback(() => {
@@ -153,23 +190,36 @@ const MyHaircutsScreen = () => {
             ) : cuts.length === 0 ? (
               <ThemedText className="py-2 text-light-subtext dark:text-dark-subtext pr-4">{t('myHaircutsEmpty')}</ThemedText>
             ) : (
-              cuts.map((cut) => (
-                <Card
-                  key={cut.id}
-                  title={cut.hairstyle?.trim() || t('haircutTitle')}
-                  description={cut.barber?.name}
-                  descriptionAvatar={
-                    cut.barber?.name
-                      ? cut.barber.avatarUrl?.trim() || CUT_PLACEHOLDER
-                      : undefined
+              cutsForDisplay.map((cut) => {
+                let badge: string | undefined;
+                if (newestId && oldestId) {
+                  if (newestId === oldestId) {
+                    badge = t('myHaircutsBadgeFirst');
+                  } else if (cut.id === newestId) {
+                    badge = t('myHaircutsBadgeNewest');
+                  } else if (cut.id === oldestId) {
+                    badge = t('myHaircutsBadgeFirst');
                   }
-                  rounded="2xl"
-                  href={`/screens/haircut-detail?id=${encodeURIComponent(cut.id)}`}
-                  width={160}
-                  imageHeight={160}
-                  image={cutCardImage(cut)}
-                />
-              ))
+                }
+                return (
+                  <Card
+                    key={cut.id}
+                    title={cut.hairstyle?.trim() || t('haircutTitle')}
+                    description={cut.barber?.name}
+                    descriptionAvatar={
+                      cut.barber?.name
+                        ? cut.barber.avatarUrl?.trim() || CUT_PLACEHOLDER
+                        : undefined
+                    }
+                    badge={badge}
+                    rounded="2xl"
+                    href={`/screens/haircut-detail?id=${encodeURIComponent(cut.id)}`}
+                    width={160}
+                    imageHeight={160}
+                    image={cutCardImage(cut)}
+                  />
+                );
+              })
             )}
           </CardScroller>
         </Section>
