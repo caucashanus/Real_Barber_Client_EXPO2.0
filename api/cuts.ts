@@ -114,6 +114,19 @@ function parseCreateClientCutResponse(raw: unknown, createdHairstyle: string): C
   return sorted[0] ?? null;
 }
 
+/** POST někdy vrátí jen `{ message, status }` nebo `{ id }` bez plného ClientCut – pro doplnění GET. */
+function extractCutIdFromCreateResponse(raw: unknown): string | null {
+  if (!raw || typeof raw !== 'object') return null;
+  const o = raw as Record<string, unknown>;
+  if (typeof o.id === 'string' && o.id.length > 0) return o.id;
+  const nested = o.cut ?? o.createdCut ?? o.data;
+  if (nested && typeof nested === 'object') {
+    const n = nested as Record<string, unknown>;
+    if (typeof n.id === 'string' && n.id.length > 0) return n.id;
+  }
+  return null;
+}
+
 /** POST /api/client/cuts – create a new haircut. */
 export async function createClientCut(
   apiToken: string,
@@ -143,7 +156,39 @@ export async function createClientCut(
   if (!res.ok) throw new Error(`Error ${res.status}`);
 
   const raw = await res.json().catch(() => null);
-  const cut = parseCreateClientCutResponse(raw, hairstyleTrimmed);
+  let cut = parseCreateClientCutResponse(raw, hairstyleTrimmed);
+
+  if (!cut?.id) {
+    const idOnly = extractCutIdFromCreateResponse(raw);
+    if (idOnly) {
+      try {
+        cut = await getClientCut(apiToken, idOnly);
+      } catch {
+        cut = null;
+      }
+    }
+  }
+
+  if (!cut?.id) {
+    try {
+      const listRes = await getClientCuts(apiToken, {
+        limit: 25,
+        orderBy: 'updatedAt',
+        orderDirection: 'desc',
+      });
+      const cuts = listRes.cuts ?? [];
+      const name = hairstyleTrimmed;
+      const matches = cuts.filter((c) => c.hairstyle?.trim() === name);
+      const pool = matches.length > 0 ? matches : cuts;
+      cut =
+        [...pool].sort(
+          (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+        )[0] ?? null;
+    } catch {
+      cut = null;
+    }
+  }
+
   if (!cut?.id) {
     throw new Error('Invalid response from server');
   }

@@ -36,6 +36,10 @@ export interface StepProps {
    * Výchozí: u optional kroků se skip v hlavičce zobrazuje.
    */
   optionalSkipInHeader?: boolean;
+  /** Skryje šipku zpět (např. závěrečná obrazovka jen s Dokončit). */
+  hideHeaderBack?: boolean;
+  /** Skryje křížek zavření vpravo nahoře. */
+  hideHeaderClose?: boolean;
   children: ReactNode;
 }
 
@@ -53,6 +57,8 @@ interface StepData {
   title: string;
   optional?: boolean;
   optionalSkipInHeader?: boolean;
+  hideHeaderBack?: boolean;
+  hideHeaderClose?: boolean;
   component: ReactNode;
 }
 
@@ -108,15 +114,22 @@ const MultiStep = forwardRef<MultiStepHandle, MultiStepProps>(function MultiStep
   
   // Extract step data from children
   const steps: StepData[] = validChildren.map((child, index) => {
-    const { title, optional, optionalSkipInHeader, children: stepContent } = (
-      child as React.ReactElement<StepProps>
-    ).props;
+    const {
+      title,
+      optional,
+      optionalSkipInHeader,
+      hideHeaderBack,
+      hideHeaderClose,
+      children: stepContent,
+    } = (child as React.ReactElement<StepProps>).props;
     return {
       key: `step-${index}`,
       title: title || `Step ${index + 1}`,
       optional,
       optionalSkipInHeader,
-      component: stepContent
+      hideHeaderBack,
+      hideHeaderClose,
+      component: stepContent,
     };
   });
 
@@ -266,7 +279,7 @@ const MultiStep = forwardRef<MultiStepHandle, MultiStepProps>(function MultiStep
       {showHeader && (
         <Header
           rightComponents={[
-            onClose ? (
+            onClose && !currentStep.hideHeaderClose ? (
               <Pressable
                 key="close"
                 onPress={() => onClose()}
@@ -292,7 +305,7 @@ const MultiStep = forwardRef<MultiStepHandle, MultiStepProps>(function MultiStep
                 disableHaptic
               />
             ),
-            !isFirstStep && (
+            !isFirstStep && !currentStep.hideHeaderBack && (
               <Icon
                 name="ArrowLeft"
                 key="back"

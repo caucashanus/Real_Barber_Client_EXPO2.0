@@ -580,7 +580,7 @@ export default function AddPropertyScreen() {
                 <CharacteristicsStep data={data} updateData={updateData} />
             </Step>
 
-            <Step title={t('addPropertyStepSuccess')}>
+            <Step title={t('addPropertyStepSuccess')} hideHeaderBack hideHeaderClose>
                 <SuccessStep data={data} updateData={updateData} />
             </Step>
         </MultiStep>
