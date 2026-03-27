@@ -554,6 +554,7 @@ export const cs: Record<TranslationKey, string> = {
   // Auth
   loginWelcomeBack: 'Vítejte zpět',
   welcomeSubtitle: 'Přihlaste se k účtu a pokračujte',
+  welcomePasswordLoginBadge: 'Přihlášení pomocí hesla',
   welcomeStart: 'Začít',
   welcomeContinueGoogle: 'Pokračovat přes Google',
   welcomeContinueApple: 'Pokračovat přes Apple',

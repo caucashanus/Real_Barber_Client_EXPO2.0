@@ -74,7 +74,19 @@ export default function LoginScreen() {
 
   return (
     <>
-      <Header showBackButton />
+      <Header
+        showBackButton
+        rightComponents={[
+          <View key="password-login-badge" className="rounded-full border border-black dark:border-white px-3 py-1.5">
+            <ThemedText
+              className="text-xs font-medium"
+              onPress={() => router.push('/screens/login-password')}
+            >
+              {t('welcomePasswordLoginBadge')}
+            </ThemedText>
+          </View>,
+        ]}
+      />
       <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
         <View className="flex-1 bg-light-primary dark:bg-dark-primary p-6">
         <View className="mt-8">

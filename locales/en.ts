@@ -550,6 +550,7 @@ export const en = {
   // Auth
   loginWelcomeBack: 'Welcome back',
   welcomeSubtitle: 'Sign in to your account to continue',
+  welcomePasswordLoginBadge: 'Login with password',
   welcomeStart: 'Start',
   welcomeContinueGoogle: 'Continue with Google',
   welcomeContinueApple: 'Continue with Apple',
