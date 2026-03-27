@@ -1,6 +1,6 @@
 import React, { useCallback, useMemo, useState, useRef } from 'react';
 import { View, Pressable } from 'react-native';
-import { Link, router } from 'expo-router';
+import { Link, router, useLocalSearchParams } from 'expo-router';
 import Input from '@/components/forms/Input';
 import Select from '@/components/forms/Select';
 import { DatePicker } from '@/components/forms/DatePicker';
@@ -98,14 +98,23 @@ function avatarRemoteForApiPatch(choice: AvatarChoice): string | undefined {
   return undefined;
 }
 
+function paramString(v: string | string[] | undefined): string {
+  if (v === undefined) return '';
+  return Array.isArray(v) ? (v[0] ?? '') : v;
+}
+
 export default function SignupScreen() {
   const { t } = useTranslation();
   const { setAuth } = useAuth();
+  const signupParams = useLocalSearchParams<{ countryCode?: string | string[]; phoneDigits?: string | string[] }>();
 
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
-  const [countryCode, setCountryCode] = useState('+420');
-  const [phone, setPhone] = useState('');
+  const [countryCode, setCountryCode] = useState(() => paramString(signupParams.countryCode) || '+420');
+  const [phone, setPhone] = useState(() => {
+    const digits = paramString(signupParams.phoneDigits);
+    return digits ? formatPhoneDisplay(digits) : '';
+  });
   const [phoneError, setPhoneError] = useState('');
   const [email, setEmail] = useState('');
   const [emailError, setEmailError] = useState('');

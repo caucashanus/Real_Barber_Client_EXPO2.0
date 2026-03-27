@@ -23,6 +23,85 @@ export interface LoginResponse {
   apiToken: string;
 }
 
+/** POST /api/client/auth/otp/request — zjistí existenci klienta a případně odešle OTP. */
+export interface OtpRequestExisting {
+  exists: true;
+  challengeSent: boolean;
+  displayName?: string;
+  expiresInSeconds?: number;
+}
+
+export interface OtpRequestNewClient {
+  exists: false;
+  requiresRegistration: true;
+}
+
+export type OtpRequestResponse = OtpRequestExisting | OtpRequestNewClient;
+
+export async function requestClientOtp(phone: string): Promise<OtpRequestResponse> {
+  const res = await fetch(`${CRM_BASE}/api/client/auth/otp/request`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ phone: phone.trim() }),
+  });
+
+  if (!res.ok) {
+    const raw = await res.text();
+    let message = `Chyba ${res.status}`;
+    try {
+      const data = JSON.parse(raw) as { message?: string; error?: string };
+      message = data.message || data.error || raw.slice(0, 200) || message;
+    } catch {
+      if (raw) message = raw.slice(0, 200);
+    }
+    throw new Error(message);
+  }
+
+  const data = (await res.json()) as Record<string, unknown>;
+  if (data.exists === true) {
+    return {
+      exists: true,
+      challengeSent: Boolean(data.challengeSent),
+      displayName: typeof data.displayName === 'string' ? data.displayName : undefined,
+      expiresInSeconds:
+        typeof data.expiresInSeconds === 'number' ? data.expiresInSeconds : undefined,
+    };
+  }
+  return { exists: false, requiresRegistration: true };
+}
+
+/** POST /api/client/auth/otp/verify — ověření kódu a přihlášení (stejná odpověď jako login). */
+export async function verifyClientOtp(phone: string, otpCode: string): Promise<LoginResponse> {
+  const platform =
+    Platform.OS === 'ios' ? 'iOS' : Platform.OS === 'android' ? 'Android' : String(Platform.OS);
+  const appVersion = Constants.expoConfig?.version ?? '1.0.0';
+
+  const res = await fetch(`${CRM_BASE}/api/client/auth/otp/verify`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      phone: phone.trim(),
+      otpCode: otpCode.trim(),
+      platform,
+      appVersion,
+    }),
+  });
+
+  if (!res.ok) {
+    const raw = await res.text();
+    let message = `Chyba ${res.status}`;
+    try {
+      const data = JSON.parse(raw) as { message?: string; error?: string };
+      message = data.message || data.error || raw.slice(0, 200) || message;
+    } catch {
+      if (raw) message = raw.slice(0, 200);
+    }
+    throw new Error(message);
+  }
+
+  return res.json() as Promise<LoginResponse>;
+}
+
 export async function loginWithPhone(
   phone: string,
   password: string

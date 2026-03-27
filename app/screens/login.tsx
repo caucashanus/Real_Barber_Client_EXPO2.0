@@ -1,68 +1,72 @@
 import React, { useState } from 'react';
-import { View, Pressable, Keyboard, TouchableWithoutFeedback } from 'react-native';
-import { Link, router } from 'expo-router';
+import { View, Keyboard, TouchableWithoutFeedback } from 'react-native';
+import { router } from 'expo-router';
 import Input from '@/components/forms/Input';
 import Select from '@/components/forms/Select';
 import ThemedText from '@/components/ThemedText';
 import { Button } from '@/components/Button';
 import Header from '@/components/Header';
-import { loginWithPhone } from '@/api/auth';
-import { useAuth } from '@/app/contexts/AuthContext';
+import { requestClientOtp } from '@/api/auth';
 import { useTranslation } from '@/app/hooks/useTranslation';
 import { COUNTRY_CODE_OPTIONS, formatPhoneDisplay } from '@/utils/phone';
 
 export default function LoginScreen() {
   const { t } = useTranslation();
-  const { setAuth } = useAuth();
   const [countryCode, setCountryCode] = useState('+420');
   const [phone, setPhone] = useState('');
-  const [password, setPassword] = useState('');
   const [phoneError, setPhoneError] = useState('');
-  const [passwordError, setPasswordError] = useState('');
   const [apiError, setApiError] = useState('');
   const [isLoading, setLoading] = useState(false);
 
   const validatePhone = (value: string) => {
     const digits = value.replace(/\D/g, '');
     if (digits.length === 0) {
-      setPhoneError('Telefon je povinný');
+      setPhoneError(t('signupPhoneRequired'));
       return false;
     }
     if (digits.length < 9) {
-      setPhoneError('Zadejte platné telefonní číslo');
+      setPhoneError(t('signupPhoneInvalid'));
       return false;
     }
     setPhoneError('');
     return true;
   };
 
-  const validatePassword = (value: string) => {
-    if (!value) {
-      setPasswordError('Password is required');
-      return false;
-    }
-    if (value.length < 6) {
-      setPasswordError('Password must be at least 6 characters');
-      return false;
-    }
-    setPasswordError('');
-    return true;
-  };
-
-  const handleLogin = async () => {
+  const handleContinue = async () => {
     setApiError('');
-    const phoneOk = validatePhone(phone);
-    const passwordOk = validatePassword(password);
-    if (!phoneOk || !passwordOk) return;
+    if (!validatePhone(phone)) return;
     setLoading(true);
     try {
       const digitsOnly = phone.replace(/\D/g, '');
       const fullPhone = `${countryCode}${digitsOnly}`;
-      const data = await loginWithPhone(fullPhone, password);
-      await setAuth(data.token, data.apiToken, data.client);
-      router.replace('/(tabs)/(home)');
+      const data = await requestClientOtp(fullPhone);
+
+      if (data.exists) {
+        if (!data.challengeSent) {
+          setApiError(t('loginOtpChallengeNotSent'));
+          return;
+        }
+        const expiresIn = data.expiresInSeconds ?? 600;
+        router.push({
+          pathname: '/screens/login-otp',
+          params: {
+            phone: fullPhone,
+            displayName: data.displayName ?? '',
+            expiresIn: String(expiresIn),
+          },
+        });
+        return;
+      }
+
+      router.push({
+        pathname: '/screens/signup',
+        params: {
+          countryCode,
+          phoneDigits: digitsOnly,
+        },
+      });
     } catch (e) {
-      setApiError(e instanceof Error ? e.message : 'Přihlášení se nezdařilo');
+      setApiError(e instanceof Error ? e.message : t('loginOtpRequestFailed'));
     } finally {
       setLoading(false);
     }
@@ -76,12 +80,12 @@ export default function LoginScreen() {
         <View className="mt-8">
           <ThemedText className="text-3xl font-bold mb-1">{t('loginWelcomeBack')}</ThemedText>
           <ThemedText className="text-light-subtext dark:text-dark-subtext mb-6">
-            {t('loginSubtitle')}
+            {t('loginPhoneStepSubtitle')}
           </ThemedText>
 
           <View className="mb-4">
             <ThemedText className="mb-1 font-medium text-light-text dark:text-dark-text">
-              Telefonní číslo
+              {t('signupPhoneLabel')}
             </ThemedText>
             <View className="flex-row gap-2 items-stretch">
               <View style={{ width: 100 }}>
@@ -111,46 +115,18 @@ export default function LoginScreen() {
             </View>
           </View>
 
-          <Input
-            label="Password"
-            value={password}
-            onChangeText={(text) => {
-              setPassword(text);
-              if (passwordError) validatePassword(text);
-            }}
-            error={passwordError}
-            isPassword
-            autoCapitalize="none"
-            containerClassName="mb-4"
-          />
-
           {apiError ? (
             <ThemedText className="text-red-500 dark:text-red-400 text-sm mb-4">{apiError}</ThemedText>
           ) : null}
 
-          <Link className="underline text-black dark:text-white text-sm mb-4" href="/screens/forgot-password">
-            {t('loginForgotPassword')}
-          </Link>
-
           <Button
-            title={t('loginTitle')}
-            onPress={handleLogin}
+            title={t('loginContinue')}
+            onPress={() => void handleContinue()}
             loading={isLoading}
             size="large"
             className="mb-6"
             textClassName="font-bold text-lg"
           />
-
-          <View className="flex-row justify-center items-center flex-wrap gap-x-1">
-            <ThemedText className="text-lg text-light-text dark:text-dark-text">{t('loginNoAccount')}</ThemedText>
-            <Link href="/screens/signup" asChild>
-              <Pressable>
-                <ThemedText className="text-lg font-semibold underline text-light-text dark:text-dark-text">
-                  {t('loginSignUp')}
-                </ThemedText>
-              </Pressable>
-            </Link>
-          </View>
         </View>
         </View>
       </TouchableWithoutFeedback>
