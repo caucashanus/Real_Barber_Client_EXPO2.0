@@ -1,14 +1,20 @@
-import React, { useCallback, useMemo, useState, useRef } from 'react';
-import { View, Pressable } from 'react-native';
-import { Link, router, useLocalSearchParams } from 'expo-router';
+import React, { useCallback, useMemo, useState, useRef, type MutableRefObject } from 'react';
+import { View } from 'react-native';
+import { router, useLocalSearchParams } from 'expo-router';
 import Input from '@/components/forms/Input';
 import Select from '@/components/forms/Select';
 import { DatePicker } from '@/components/forms/DatePicker';
 import ThemedText from '@/components/ThemedText';
 import MultiStep, { Step, type MultiStepHandle } from '@/components/MultiStep';
 import { useTranslation } from '@/app/hooks/useTranslation';
-import { registerWithPhone, type CrmClient } from '@/api/auth';
-import { patchClientMe, type ClientMe, type UpdateClientMeBody } from '@/api/client';
+import { registerWithPhone, type CrmClient, type RegisterOptions } from '@/api/auth';
+import {
+  getClientMe,
+  patchClientMe,
+  uploadClientAvatar,
+  type ClientMe,
+  type UpdateClientMeBody,
+} from '@/api/client';
 import { useAuth } from '@/app/contexts/AuthContext';
 import { COUNTRY_CODE_OPTIONS, formatPhoneDisplay } from '@/utils/phone';
 import { formatToYYYYMMDD } from '@/utils/date';
@@ -17,7 +23,8 @@ import { getEmailDomainChipSuggestions } from '@/utils/emailSuggestions';
 import { Chip } from '@/components/Chip';
 import SignupAvatarPicker, { type AvatarChoice } from '@/components/signup/SignupAvatarPicker';
 
-const MIN_PASSWORD_LEN = 4;
+/** Sjednocené výchozí heslo pro nové účty z registrace (backend + případné přihlášení heslem). */
+const DEFAULT_SIGNUP_PASSWORD = '123456';
 
 const MOCK_AUTH_TOKEN = 'mock-signup-token';
 const MOCK_API_TOKEN = 'mock-signup-api-token';
@@ -63,17 +70,6 @@ function clientMeToCrm(me: ClientMe): CrmClient {
   };
 }
 
-function isValidOptionalHttpUrl(s: string): boolean {
-  const t = s.trim();
-  if (!t) return true;
-  try {
-    const u = new URL(t);
-    return u.protocol === 'http:' || u.protocol === 'https:';
-  } catch {
-    return false;
-  }
-}
-
 function emailRequiredValid(emailValue: string): boolean {
   const trimmed = emailValue.trim();
   if (!trimmed) return false;
@@ -92,9 +88,11 @@ function avatarChoiceToStoredUrl(choice: AvatarChoice): string {
   return choice.uri;
 }
 
-/** Jen HTTPS URL pro PATCH na CRM (vlastní fotka z galerie zatím neposíláme). */
-function avatarRemoteForApiPatch(choice: AvatarChoice): string | undefined {
-  if (choice.kind === 'catalog') return choice.url;
+/** HTTPS URL katalogu pro pole avatarUrl při register. */
+function avatarUrlForRegister(choice: AvatarChoice): string | undefined {
+  if (choice.kind !== 'catalog') return undefined;
+  const u = choice.url.trim();
+  if (u.startsWith('https://') || u.startsWith('http://')) return u;
   return undefined;
 }
 
@@ -108,6 +106,13 @@ export default function SignupScreen() {
   const { setAuth } = useAuth();
   const signupParams = useLocalSearchParams<{ countryCode?: string | string[]; phoneDigits?: string | string[] }>();
 
+  const phoneDigitsFromLogin = useMemo(
+    () => paramString(signupParams.phoneDigits).replace(/\D/g, ''),
+    [signupParams.phoneDigits]
+  );
+  /** Z loginu (OTP „neexistuje“) – krok telefonu přeskakujeme. */
+  const phoneLockedFromLogin = phoneDigitsFromLogin.length >= 9;
+
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
   const [countryCode, setCountryCode] = useState(() => paramString(signupParams.countryCode) || '+420');
@@ -118,19 +123,19 @@ export default function SignupScreen() {
   const [phoneError, setPhoneError] = useState('');
   const [email, setEmail] = useState('');
   const [emailError, setEmailError] = useState('');
-  const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
-  const [passwordError, setPasswordError] = useState('');
-  const [confirmPasswordError, setConfirmPasswordError] = useState('');
   const [birthday, setBirthday] = useState<Date | null>(null);
   const [avatarChoice, setAvatarChoice] = useState<AvatarChoice>({ kind: 'none' });
 
   const [apiError, setApiError] = useState('');
   const [submitting, setSubmitting] = useState(false);
-  const [passwordStrength, setPasswordStrength] = useState(0);
-  const [strengthText, setStrengthText] = useState('');
+  const [registerBusy, setRegisterBusy] = useState(false);
 
   const multiStepRef = useRef<MultiStepHandle>(null);
+  const registerDoneRef = useRef(false);
+  const sessionRef: MutableRefObject<{ token: string; apiToken: string } | null> = useRef(null);
+
+  /** Index kroku „Datum narození“ (po něm se volá registrace). */
+  const registerTriggerStepIndex = phoneLockedFromLogin ? 2 : 3;
 
   const maxBirthDate = useMemo(() => new Date(), []);
   const minBirthDate = useMemo(() => {
@@ -170,56 +175,21 @@ export default function SignupScreen() {
     return true;
   };
 
-  const updatePasswordMeter = (pwd: string) => {
-    if (pwd.length === 0) {
-      setPasswordStrength(0);
-      setStrengthText('');
-      return;
-    }
-    if (pwd.length < MIN_PASSWORD_LEN) {
-      const score = Math.round((pwd.length / MIN_PASSWORD_LEN) * 40);
-      setPasswordStrength(score);
-      setStrengthText(t('signupPasswordMeterShort'));
-      return;
-    }
-    let score = 40;
-    if (/[a-z]/.test(pwd)) score += 15;
-    if (/[A-Z]/.test(pwd)) score += 15;
-    if (/[0-9]/.test(pwd)) score += 15;
-    if (/[^A-Za-z0-9]/.test(pwd)) score += 15;
-    score = Math.min(100, score);
-    setPasswordStrength(score);
-    setStrengthText(t('signupPasswordMeterHint'));
-  };
-
-  const validatePassword = (pwd: string) => {
-    if (!pwd) {
-      setPasswordError(t('signupPasswordRequired'));
-      return false;
-    }
-    if (pwd.length < MIN_PASSWORD_LEN) {
-      setPasswordError(t('signupPasswordMinLength'));
-      return false;
-    }
-    setPasswordError('');
-    return true;
-  };
-
-  const validateConfirmPassword = (confirm: string) => {
-    if (!confirm) {
-      setConfirmPasswordError(t('signupConfirmRequired'));
-      return false;
-    }
-    if (confirm !== password) {
-      setConfirmPasswordError(t('signupPasswordMismatch'));
-      return false;
-    }
-    setConfirmPasswordError('');
-    return true;
-  };
-
   const isStepValid = useCallback(
     (idx: number): boolean => {
+      if (phoneLockedFromLogin) {
+        switch (idx) {
+          case 0:
+            return firstName.trim().length > 0 && lastName.trim().length > 0;
+          case 1:
+            return emailRequiredValid(email);
+          case 2:
+          case 3:
+            return true;
+          default:
+            return true;
+        }
+      }
       switch (idx) {
         case 0:
           return firstName.trim().length > 0 && lastName.trim().length > 0;
@@ -228,37 +198,86 @@ export default function SignupScreen() {
         case 2:
           return emailRequiredValid(email);
         case 3:
-          return (
-            password.length >= MIN_PASSWORD_LEN &&
-            confirmPassword.length > 0 &&
-            password === confirmPassword
-          );
         case 4:
-          return true;
-        case 5:
           return true;
         default:
           return true;
       }
     },
-    [firstName, lastName, phone, email, password, confirmPassword, birthday]
+    [phoneLockedFromLogin, firstName, lastName, phone, email]
   );
 
   const isNextDisabled = useCallback(
-    (currentStep: number) => !isStepValid(currentStep) || submitting,
-    [isStepValid, submitting]
+    (currentStep: number) => !isStepValid(currentStep) || submitting || registerBusy,
+    [isStepValid, submitting, registerBusy]
   );
 
-  const handleRegister = async () => {
-    if (submitting) return;
+  const performRegisterAfterBirthday = useCallback(async (): Promise<boolean> => {
     setApiError('');
     const phoneOk = validatePhone(phone);
     const emailOk = validateEmail(email);
-    const pwdOk = validatePassword(password);
-    const confirmOk = validateConfirmPassword(confirmPassword);
-    if (!phoneOk || !emailOk || !pwdOk || !confirmOk) {
+    if (!phoneOk || !emailOk) return false;
+
+    const digitsOnly = phone.replace(/\D/g, '');
+    const fullPhone = `${countryCode}${digitsOnly}`;
+
+    setRegisterBusy(true);
+    try {
+      if (MOCK_SIGNUP) {
+        await new Promise((resolve) => setTimeout(resolve, 450));
+        sessionRef.current = { token: MOCK_AUTH_TOKEN, apiToken: MOCK_API_TOKEN };
+        registerDoneRef.current = true;
+        const client = buildMockCrmClient({
+          firstName,
+          lastName,
+          email,
+          fullPhone,
+          avatarUrl: '',
+          birthday,
+        });
+        await setAuth(MOCK_AUTH_TOKEN, MOCK_API_TOKEN, client);
+        return true;
+      }
+
+      const registerOpts: RegisterOptions = {
+        email: email.trim(),
+        firstName: firstName.trim(),
+        lastName: lastName.trim(),
+      };
+      if (birthday) {
+        registerOpts.birthday = formatToYYYYMMDD(birthday);
+      }
+      const data = await registerWithPhone(fullPhone, DEFAULT_SIGNUP_PASSWORD, registerOpts);
+      sessionRef.current = { token: data.token, apiToken: data.apiToken };
+      registerDoneRef.current = true;
+      await setAuth(data.token, data.apiToken, data.client);
+      return true;
+    } catch (e) {
+      setApiError(e instanceof Error ? e.message : t('signupRegisterFailed'));
+      return false;
+    } finally {
+      setRegisterBusy(false);
+    }
+  }, [birthday, countryCode, email, firstName, lastName, phone, setAuth, t]);
+
+  const onBeforeNext = useCallback(
+    async (currentStepIndex: number) => {
+      if (currentStepIndex !== registerTriggerStepIndex) return true;
+      if (registerDoneRef.current) return true;
+      return performRegisterAfterBirthday();
+    },
+    [registerTriggerStepIndex, performRegisterAfterBirthday]
+  );
+
+  /** Po kroku avatar: vlastní soubor přes /client/avatar, URL přes PATCH /client/me. */
+  const handleFinalizeSignup = async () => {
+    if (submitting || registerBusy) return;
+    setApiError('');
+    if (!sessionRef.current) {
+      setApiError(t('signupRegisterFailed'));
       return;
     }
+    const { token, apiToken } = sessionRef.current;
 
     setSubmitting(true);
     try {
@@ -266,7 +285,7 @@ export default function SignupScreen() {
       const fullPhone = `${countryCode}${digitsOnly}`;
 
       if (MOCK_SIGNUP) {
-        await new Promise((resolve) => setTimeout(resolve, 450));
+        await new Promise((resolve) => setTimeout(resolve, 350));
         const client = buildMockCrmClient({
           firstName,
           lastName,
@@ -280,26 +299,23 @@ export default function SignupScreen() {
         return;
       }
 
-      const data = await registerWithPhone(fullPhone, password, {
-        email: email.trim(),
-        firstName: firstName.trim(),
-        lastName: lastName.trim(),
-      });
-      await setAuth(data.token, data.apiToken, data.client);
+      if (avatarChoice.kind === 'custom' && avatarChoice.uri) {
+        await uploadClientAvatar(apiToken, { uri: avatarChoice.uri });
+      }
 
-      const patchBody: UpdateClientMeBody = {
-        firstName: firstName.trim(),
-        lastName: lastName.trim(),
-      };
-      if (birthday) {
-        patchBody.birthday = formatToYYYYMMDD(birthday);
+      const patchBody: UpdateClientMeBody = {};
+      const catalogUrl = avatarUrlForRegister(avatarChoice);
+      if (catalogUrl) {
+        patchBody.avatarUrl = catalogUrl;
       }
-      const avatarRemote = avatarRemoteForApiPatch(avatarChoice);
-      if (avatarRemote) {
-        patchBody.avatar = avatarRemote;
+
+      if (Object.keys(patchBody).length > 0) {
+        const me = await patchClientMe(apiToken, patchBody);
+        await setAuth(token, apiToken, clientMeToCrm(me));
+      } else {
+        const me = await getClientMe(apiToken);
+        await setAuth(token, apiToken, clientMeToCrm(me));
       }
-      const me = await patchClientMe(data.apiToken, patchBody);
-      await setAuth(data.token, data.apiToken, clientMeToCrm(me));
 
       router.replace('/screens/signup-summary');
     } catch (e) {
@@ -309,22 +325,25 @@ export default function SignupScreen() {
     }
   };
 
-  const barColorClass =
-    passwordStrength < 40
-      ? 'bg-red-500'
-      : passwordStrength < 75
-        ? 'bg-yellow-500'
-        : 'bg-green-500';
-
   return (
     <View className="flex-1 bg-light-primary dark:bg-dark-primary">
       <MultiStep
         ref={multiStepRef}
-        onComplete={() => void handleRegister()}
+        onComplete={() => void handleFinalizeSignup()}
         onClose={() => router.back()}
         isNextDisabled={isNextDisabled}
-        footerLoading={submitting}
-        onStepIndexChange={() => setApiError('')}
+        footerLoading={submitting || registerBusy}
+        onBeforeNext={onBeforeNext}
+        onStepIndexChange={(idx, reason) => {
+          setApiError('');
+          if (
+            reason === 'back' &&
+            (idx === registerTriggerStepIndex - 1 || idx === registerTriggerStepIndex)
+          ) {
+            registerDoneRef.current = false;
+            sessionRef.current = null;
+          }
+        }}
         showStepIndicator
         className="flex-1"
       >
@@ -352,54 +371,48 @@ export default function SignupScreen() {
               autoCapitalize="words"
               containerClassName="mb-4"
             />
-            <View className="flex-row justify-center mt-4">
-              <ThemedText className="text-light-subtext dark:text-dark-subtext">{t('signupAlreadyHave')}</ThemedText>
-              <Link href="/screens/login" asChild>
-                <Pressable>
-                  <ThemedText className="underline text-light-text dark:text-dark-text">{t('signupLogIn')}</ThemedText>
-                </Pressable>
-              </Link>
-            </View>
           </View>
         </Step>
 
-        <Step title={t('signupStepPhoneTitle')}>
-          <View className="px-6 pt-4 pb-8">
-            <ThemedText className="text-2xl font-semibold text-light-text dark:text-dark-text">
-              {t('signupStepPhoneTitle')}
-            </ThemedText>
-            <ThemedText className="text-base text-light-subtext dark:text-dark-subtext mt-1 mb-6">
-              {t('signupStepPhoneSubtitle')}
-            </ThemedText>
-            <ThemedText className="mb-1 font-medium text-light-text dark:text-dark-text">{t('signupPhoneLabel')}</ThemedText>
-            <View className="flex-row gap-2 items-stretch mb-4">
-              <View className="w-[100px]">
-                <Select
-                  options={COUNTRY_CODE_OPTIONS}
-                  value={countryCode}
-                  onChange={(v) => setCountryCode(String(v))}
-                  placeholder="+420"
-                  variant="classic"
-                  className="mb-0"
-                />
-              </View>
-              <View className="flex-1">
-                <Input
-                  value={phone}
-                  onChangeText={(text) => {
-                    setPhone(formatPhoneDisplay(text));
-                    if (phoneError) validatePhone(text);
-                  }}
-                  error={phoneError}
-                  keyboardType="phone-pad"
-                  placeholder="123 456 789"
-                  autoComplete="tel"
-                  containerClassName="mb-0"
-                />
+        {!phoneLockedFromLogin ? (
+          <Step title={t('signupStepPhoneTitle')}>
+            <View className="px-6 pt-4 pb-8">
+              <ThemedText className="text-2xl font-semibold text-light-text dark:text-dark-text">
+                {t('signupStepPhoneTitle')}
+              </ThemedText>
+              <ThemedText className="text-base text-light-subtext dark:text-dark-subtext mt-1 mb-6">
+                {t('signupStepPhoneSubtitle')}
+              </ThemedText>
+              <ThemedText className="mb-1 font-medium text-light-text dark:text-dark-text">{t('signupPhoneLabel')}</ThemedText>
+              <View className="flex-row gap-2 items-stretch mb-4">
+                <View className="w-[100px]">
+                  <Select
+                    options={COUNTRY_CODE_OPTIONS}
+                    value={countryCode}
+                    onChange={(v) => setCountryCode(String(v))}
+                    placeholder="+420"
+                    variant="classic"
+                    className="mb-0"
+                  />
+                </View>
+                <View className="flex-1">
+                  <Input
+                    value={phone}
+                    onChangeText={(text) => {
+                      setPhone(formatPhoneDisplay(text));
+                      if (phoneError) validatePhone(text);
+                    }}
+                    error={phoneError}
+                    keyboardType="phone-pad"
+                    placeholder="123 456 789"
+                    autoComplete="tel"
+                    containerClassName="mb-0"
+                  />
+                </View>
               </View>
             </View>
-          </View>
-        </Step>
+          </Step>
+        ) : null}
 
         <Step title={t('signupStepEmailTitle')}>
           <View className="px-6 pt-4 pb-8">
@@ -445,52 +458,8 @@ export default function SignupScreen() {
                 </View>
               </View>
             ) : null}
-          </View>
-        </Step>
-
-        <Step title={t('signupStepPasswordTitle')}>
-          <View className="px-6 pt-4 pb-8">
-            <ThemedText className="text-2xl font-semibold text-light-text dark:text-dark-text">
-              {t('signupStepPasswordTitle')}
-            </ThemedText>
-            <ThemedText className="text-base text-light-subtext dark:text-dark-subtext mt-1 mb-6">
-              {t('signupStepPasswordSubtitle')}
-            </ThemedText>
-            <Input
-              label={t('signupPassword')}
-              value={password}
-              onChangeText={(text) => {
-                setPassword(text);
-                updatePasswordMeter(text);
-                if (passwordError) validatePassword(text);
-              }}
-              error={passwordError}
-              isPassword
-              autoCapitalize="none"
-              containerClassName="mb-4"
-            />
-            <Input
-              label={t('signupConfirmPassword')}
-              value={confirmPassword}
-              onChangeText={(text) => {
-                setConfirmPassword(text);
-                if (confirmPasswordError) validateConfirmPassword(text);
-              }}
-              error={confirmPasswordError}
-              containerClassName="mb-4"
-              isPassword
-              autoCapitalize="none"
-            />
-            {password.length > 0 ? (
-              <View className="mb-4">
-                <View className="w-full h-1 bg-light-secondary dark:bg-dark-secondary rounded-full overflow-hidden">
-                  <View
-                    className={`h-full rounded-full ${barColorClass}`}
-                    style={{ width: `${passwordStrength}%` }}
-                  />
-                </View>
-                <ThemedText className="text-xs mt-1 text-light-subtext dark:text-dark-subtext">{strengthText}</ThemedText>
-              </View>
+            {apiError ? (
+              <ThemedText className="text-red-500 dark:text-red-400 text-sm mt-2">{apiError}</ThemedText>
             ) : null}
           </View>
         </Step>
@@ -521,6 +490,9 @@ export default function SignupScreen() {
               minDate={minBirthDate}
               variant="classic"
             />
+            {apiError ? (
+              <ThemedText className="text-red-500 dark:text-red-400 text-sm mt-4">{apiError}</ThemedText>
+            ) : null}
           </View>
         </Step>
 

@@ -36,6 +36,7 @@ export async function getClientMe(apiToken: string): Promise<ClientMe> {
 
 export interface UpdateClientMeBody {
   avatar?: string;
+  avatarUrl?: string;
   firstName?: string;
   lastName?: string;
   phone?: string;
@@ -124,6 +125,37 @@ export async function uploadClientMedia(
     throw new Error('Media upload response is missing file url');
   }
   return media;
+}
+
+/** POST /api/client/avatar – nahrání profilové fotky (pouze po přihlášení klienta). */
+export async function uploadClientAvatar(
+  apiToken: string,
+  input: UploadClientMediaInput
+): Promise<void> {
+  const filename = input.name?.trim() || `avatar-${Date.now()}.jpg`;
+  const mimeType = input.mimeType?.trim() || inferMimeTypeFromName(filename);
+
+  const form = new FormData();
+  form.append('file', {
+    uri: input.uri,
+    name: filename,
+    type: mimeType,
+  } as unknown as Blob);
+
+  const res = await fetch(`${CRM_BASE}/api/client/avatar`, {
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${apiToken}`,
+    },
+    body: form,
+  });
+
+  if (res.status === 401) throw new Error('Unauthorized');
+  if (res.status === 413) throw new Error('Soubor je příliš velký');
+  if (!res.ok) {
+    const txt = await res.text().catch(() => '');
+    throw new Error(txt || `Avatar upload failed: ${res.status}`);
+  }
 }
 
 /** DELETE /api/client/media/{id} – delete client's own media file. */

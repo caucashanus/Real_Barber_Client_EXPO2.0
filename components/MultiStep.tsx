@@ -8,6 +8,7 @@ import React, {
   forwardRef,
   Children,
   isValidElement,
+  useMemo,
 } from 'react';
 import {
   View,
@@ -83,6 +84,11 @@ interface MultiStepProps {
   getNextStepIndex?: (currentStepIndex: number, stepsLength: number) => number;
   /** Nelineární „Zpět“; vraťte -1 pro zavření wizardu (`onClose`). */
   getPrevStepIndex?: (currentStepIndex: number) => number;
+  /**
+   * Před přechodem „Další“ z ne-posledního kroku (např. registrace po vyplnění e-mailu).
+   * Vraťte false pro zrušení přechodu (zobrazte chybu v kroku).
+   */
+  onBeforeNext?: (currentStepIndex: number) => Promise<boolean>;
 }
 
 export type MultiStepHandle = {
@@ -105,6 +111,7 @@ const MultiStep = forwardRef<MultiStepHandle, MultiStepProps>(function MultiStep
     initialStepIndex = 0,
     getNextStepIndex,
     getPrevStepIndex,
+    onBeforeNext,
   },
   ref
 ) {
@@ -144,15 +151,26 @@ const MultiStep = forwardRef<MultiStepHandle, MultiStepProps>(function MultiStep
 
   const [currentStepIndex, setCurrentStepIndex] = useState(initialStepIndex);
   const [keyboardVisible, setKeyboardVisible] = useState(false);
-  const currentStep = steps[currentStepIndex];
-  const isLastStep = currentStepIndex === steps.length - 1;
-  const isFirstStep = currentStepIndex === 0;
-  const nextDisabled = isNextDisabled ? isNextDisabled(currentStepIndex) : false;
+  const colors = useThemeColors();
+  const safeStepIndex = Math.min(Math.max(0, currentStepIndex), Math.max(0, steps.length - 1));
+  const currentStep = steps[safeStepIndex]!;
+  const isLastStep = safeStepIndex === steps.length - 1;
+  const isFirstStep = safeStepIndex === 0;
+  const nextDisabled = isNextDisabled ? isNextDisabled(safeStepIndex) : false;
 
   // Animation values
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const slideAnim = useRef(new Animated.Value(50)).current;
-  const progressAnims = useRef(steps.map(() => new Animated.Value(0))).current;
+  const progressAnims = useMemo(
+    () => steps.map(() => new Animated.Value(0)),
+    [steps.length]
+  );
+
+  useEffect(() => {
+    if (currentStepIndex >= steps.length && steps.length > 0) {
+      setCurrentStepIndex(Math.max(0, steps.length - 1));
+    }
+  }, [steps.length, currentStepIndex]);
 
   useEffect(() => {
     // Reset and start fade/slide animations
@@ -174,13 +192,15 @@ const MultiStep = forwardRef<MultiStepHandle, MultiStepProps>(function MultiStep
 
     // Animate progress indicators
     steps.forEach((_, index) => {
-      Animated.timing(progressAnims[index], {
-        toValue: index <= currentStepIndex ? 1 : 0,
+      const anim = progressAnims[index];
+      if (!anim) return;
+      Animated.timing(anim, {
+        toValue: index <= safeStepIndex ? 1 : 0,
         duration: 300,
         useNativeDriver: false,
       }).start();
     });
-  }, [currentStepIndex]);
+  }, [currentStepIndex, safeStepIndex, steps.length, progressAnims]);
 
   useEffect(() => {
     const showEvent = Platform.OS === 'ios' ? 'keyboardWillShow' : 'keyboardDidShow';
@@ -193,21 +213,25 @@ const MultiStep = forwardRef<MultiStepHandle, MultiStepProps>(function MultiStep
     };
   }, []);
 
-  const handleNext = () => {
+  const handleNext = async () => {
     if (nextDisabled || footerLoading) return;
     if (isLastStep) {
       onComplete();
-    } else {
-      const nextStep = getNextStepIndex
-        ? getNextStepIndex(currentStepIndex, steps.length)
-        : currentStepIndex + 1;
-      if (nextStep < 0 || nextStep >= steps.length) return;
-      const canProceed = onStepChange ? onStepChange(nextStep) : true;
+      return;
+    }
+    if (onBeforeNext) {
+      const ok = await onBeforeNext(safeStepIndex);
+      if (!ok) return;
+    }
+    const nextStep = getNextStepIndex
+      ? getNextStepIndex(currentStepIndex, steps.length)
+      : currentStepIndex + 1;
+    if (nextStep < 0 || nextStep >= steps.length) return;
+    const canProceed = onStepChange ? onStepChange(nextStep) : true;
 
-      if (canProceed) {
-        setCurrentStepIndex(nextStep);
-        onStepIndexChange?.(nextStep, 'next');
-      }
+    if (canProceed) {
+      setCurrentStepIndex(nextStep);
+      onStepIndexChange?.(nextStep, 'next');
     }
   };
 
@@ -263,7 +287,6 @@ const MultiStep = forwardRef<MultiStepHandle, MultiStepProps>(function MultiStep
 
   const insets = useSafeAreaInsets();
   const { t } = useTranslation();
-  const colors = useThemeColors();
 
   /** Nad klávesnicí nepotřebujeme plný safe-area inset (jinak vzniká zbytečná mezera). */
   const bottomInset = keyboardVisible ? 4 : insets.bottom;
@@ -336,29 +359,38 @@ const MultiStep = forwardRef<MultiStepHandle, MultiStepProps>(function MultiStep
         </ScrollView>
       </Animated.View>
 
-      {/* Step Indicators */}
+      {/* Step Indicators – počet segmentů = počet kroků; aktivní krok zvýrazněn (viditelné i v dark módu). */}
       {showStepIndicator && (
-        <View className={`px-4 ${bottomPadClass} flex-row justify-center`}>
-          {steps.map((_, index) => (
-            <Animated.View
-              key={index}
-              className="h-1 rounded-full flex-1 mx-1 overflow-hidden bg-neutral-500 dark:bg-dark-secondary"
-              style={{
-                width: 20,
-                opacity: index === currentStepIndex ? 1 : 0.5,
-              }}
-            >
+        <View className={`px-4 ${bottomPadClass} flex-row justify-center items-center gap-1.5`}>
+          {steps.map((_, index) => {
+            const isCurrent = index === safeStepIndex;
+            const anim = progressAnims[index];
+            return (
               <Animated.View
-                className="h-full bg-light-accent dark:bg-dark-accent"
+                key={index}
+                className="flex-1 rounded-full overflow-hidden max-w-[56px]"
                 style={{
-                  width: progressAnims[index].interpolate({
-                    inputRange: [0, 1],
-                    outputRange: ['0%', '100%'],
-                  }),
+                  height: isCurrent ? 8 : 5,
+                  backgroundColor: colors.secondary,
+                  borderWidth: isCurrent ? 2 : 0,
+                  borderColor: colors.highlight,
+                  opacity: isCurrent ? 1 : 0.55,
                 }}
-              />
-            </Animated.View>
-          ))}
+              >
+                <Animated.View
+                  style={{
+                    height: '100%',
+                    backgroundColor: colors.highlight,
+                    width:
+                      anim?.interpolate({
+                        inputRange: [0, 1],
+                        outputRange: ['0%', '100%'],
+                      }) ?? '0%',
+                  }}
+                />
+              </Animated.View>
+            );
+          })}
         </View>
       )}
 
@@ -369,7 +401,7 @@ const MultiStep = forwardRef<MultiStepHandle, MultiStepProps>(function MultiStep
           size="large"
           rounded="full"
           title={isLastStep ? t('multiStepComplete') : t('multiStepNext')}
-          onPress={handleNext}
+          onPress={() => void handleNext()}
           impactFeedbackStyle={Haptics.ImpactFeedbackStyle.Heavy}
           className="w-full"
           textClassName="text-white font-semibold"

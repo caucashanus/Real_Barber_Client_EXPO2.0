@@ -133,6 +133,10 @@ export interface RegisterOptions {
   email?: string;
   firstName?: string;
   lastName?: string;
+  /** Veřejná URL (např. výběr z katalogu) – lze poslat už při registraci. */
+  avatarUrl?: string;
+  /** Datum narození (YYYY-MM-DD), pokud uživatel vyplnil krok před registrací. */
+  birthday?: string;
 }
 
 /** POST /api/client/auth/register – nový klientský účet (telefon + heslo). Odpověď stejná jako u loginu. */
@@ -141,7 +145,8 @@ export async function registerWithPhone(
   password: string,
   options?: RegisterOptions
 ): Promise<LoginResponse> {
-  const platform = Platform.OS as string;
+  const platform =
+    Platform.OS === 'ios' ? 'iOS' : Platform.OS === 'android' ? 'Android' : String(Platform.OS);
   const appVersion = Constants.expoConfig?.version ?? '1.0.0';
 
   const body: Record<string, unknown> = {
@@ -156,6 +161,12 @@ export async function registerWithPhone(
   const ln = options?.lastName?.trim();
   if (fn) body.firstName = fn;
   if (ln) body.lastName = ln;
+  const fullName = [fn, ln].filter(Boolean).join(' ').trim();
+  if (fullName) body.name = fullName;
+  const avatarUrl = options?.avatarUrl?.trim();
+  if (avatarUrl) body.avatarUrl = avatarUrl;
+  const birthday = options?.birthday?.trim();
+  if (birthday) body.birthday = birthday;
 
   const res = await fetch(`${CRM_BASE}/api/client/auth/register`, {
     method: 'POST',
