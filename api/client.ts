@@ -190,3 +190,38 @@ export async function patchClientMe(apiToken: string, body: UpdateClientMeBody):
 
   return res.json() as Promise<ClientMe>;
 }
+
+export interface DeleteClientAccountResponse {
+  success: boolean;
+  message: string;
+  deletedAt: string;
+}
+
+/** DELETE /api/client/account – anonymize and disable current client account. */
+export async function deleteClientAccount(
+  apiToken: string,
+  reason?: string
+): Promise<DeleteClientAccountResponse> {
+  const payload =
+    reason && reason.trim()
+      ? JSON.stringify({ reason: reason.trim() })
+      : undefined;
+
+  const res = await fetch(`${CRM_BASE}/api/client/account`, {
+    method: 'DELETE',
+    headers: {
+      Authorization: `Bearer ${apiToken}`,
+      ...(payload ? { 'Content-Type': 'application/json' } : {}),
+    },
+    ...(payload ? { body: payload } : {}),
+  });
+
+  if (res.status === 401) throw new Error('Unauthorized');
+  if (res.status === 500) throw new Error('Failed to delete account');
+  if (!res.ok) {
+    const txt = await res.text().catch(() => '');
+    throw new Error(txt || `Error ${res.status}`);
+  }
+
+  return res.json() as Promise<DeleteClientAccountResponse>;
+}

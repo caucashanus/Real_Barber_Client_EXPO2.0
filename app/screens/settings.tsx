@@ -1,5 +1,4 @@
 import { View, Pressable, Text } from 'react-native';
-
 import { useLanguage } from '@/app/contexts/LanguageContext';
 import { useTranslation } from '@/app/hooks/useTranslation';
 import AnimatedView from '@/components/AnimatedView';
@@ -91,6 +90,12 @@ export default function SettingsScreen() {
             description={t('settingsChangePasswordDesc')}
             icon="KeyRound"
             href="/screens/change-password"
+          />
+          <ListLink
+            title={t('settingsDeleteAccount')}
+            description={t('settingsDeleteAccountSectionDesc')}
+            icon="X"
+            href="/screens/delete-account"
           />
           {SHOW_SETTINGS_HELP_SECTION ? (
             <ListLink

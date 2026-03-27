@@ -33,6 +33,41 @@ export const cs: Record<TranslationKey, string> = {
   settingsAccentDesc: 'Barva zvýraznění v aplikaci',
   settingsCommunicationPrefs: 'Komunikační preference',
   settingsCommunicationPrefsDesc: 'Kanály a typy zpráv od aplikace',
+  settingsDeleteAccount: 'Smazat účet',
+  settingsDeleteAccountSectionDesc: 'Nevratné smazání a anonymizace klientského účtu',
+  settingsDeleteAccountDeleting: 'Mazání účtu…',
+  settingsDeleteAccountConfirmTitle: 'Smazat účet',
+  settingsDeleteAccountConfirmMessage:
+    'Tento krok je nevratný. Budou odebrány veškeré RBC coiny, média, věrnostní body, recenze, výhody i status klienta. Vaše identifikační údaje budou anonymizovány, aktivní tokeny zneplatněny a přístup k účtu trvale ukončen.',
+  settingsDeleteAccountReasonPlaceholder: 'Volitelný důvod (pomůže nám se zlepšit)',
+  settingsDeleteAccountReasonNoNeed: 'Aplikaci už nepotřebuji',
+  settingsDeleteAccountReasonPrivacy: 'Obavy o soukromí',
+  settingsDeleteAccountReasonBranchService: 'Nejsem spokojený/á se službami na vašich provozovnách.',
+  settingsDeleteAccountReasonAppButClient: 'Nejsem spokojený/á s fungováním aplikace, ale vaším klientem zůstávám.',
+  settingsDeleteAccountReasonOther: 'Jiný důvod',
+  settingsDeleteAccountConfirm: 'Smazat natrvalo',
+  settingsDeleteAccountCancel: 'Ponechat účet',
+  settingsDeleteAccountNeedLogin: 'Pro smazání účtu musíte být přihlášen/a.',
+  settingsDeleteAccountError: 'Smazání účtu se nezdařilo. Zkuste to znovu.',
+  settingsDeleteAccountDetailsButton: 'Detailní vysvětlení smazání účtu',
+  settingsDeleteAccountDetailsTitle: 'Detailní vysvětlení smazání účtu',
+  settingsDeleteAccountDetailsSubtitle: 'Co přesně se po potvrzení stane',
+  settingsDeleteAccountDetailsIntro:
+    'Smazání účtu je nevratný krok. Níže najdete praktické vysvětlení, co se v systému změní, napsané srozumitelně i pro ne-technické uživatele.',
+  settingsDeleteAccountDetailsAccessTitle: 'Okamžité zneplatnění přístupu',
+  settingsDeleteAccountDetailsAccessBody:
+    'Ihned se zneplatní všechny aktivní přístupové tokeny, odstraní se tokeny pro obnovu hesla a účet už nebude možné použít pro další přihlášení. Prakticky to znamená, že přestanou fungovat i aktuálně otevřené relace.',
+  settingsDeleteAccountDetailsAnonymizationTitle: 'Anonymizace osobních údajů',
+  settingsDeleteAccountDetailsAnonymizationBody:
+    'Profil klienta se zbaví identifikačních údajů. Jméno a další identifikační pole se nahradí anonymními hodnotami, e-mail a telefon se převedou na technické anonymizované identifikátory a osobní profilová data (např. avatar, bio, adresa, WhatsApp, datum narození, poznámky či metadata aplikace) se vymažou. Součástí procesu je také odebrání RBC coinů, médií, věrnostních bodů, recenzí, výhod a statusu klienta.',
+  settingsDeleteAccountDetailsAuditTitle: 'Auditní stopa',
+  settingsDeleteAccountDetailsAuditBody:
+    'Do interní administrativní poznámky se uloží auditní záznam s časem smazání. Pokud uvedete důvod, připojí se také do této auditní poznámky.',
+  settingsDeleteAccountDetailsKeepTitle: 'Co se nemaže',
+  settingsDeleteAccountDetailsKeepBody:
+    'Provozní business záznamy navázané na klienta (například historie rezervací, plateb a reportingu) zůstávají zachovány z provozních a evidenčních důvodů. Samotný účet však zůstává anonymizovaný a nepoužitelný pro další přihlášení.',
+  settingsDeleteAccountDetailsSummary:
+    'Jednou větou: smazání účtu trvale ukončí přístup a anonymizuje osobní údaje, zatímco nezbytná provozní historie zůstane zachována.',
   communicationSettingsTitle: 'Komunikační preference',
   communicationSettingsSubtitle:
     'Vyberte, jak vás můžeme kontaktovat a o čem chcete dostávat informace.',

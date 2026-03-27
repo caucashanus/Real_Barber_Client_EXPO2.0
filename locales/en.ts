@@ -31,6 +31,41 @@ export const en = {
   settingsAccentDesc: 'Highlight color used across the app',
   settingsCommunicationPrefs: 'Communication preferences',
   settingsCommunicationPrefsDesc: 'Channels and message types from the app',
+  settingsDeleteAccount: 'Delete account',
+  settingsDeleteAccountSectionDesc: 'Permanent deletion and anonymization of your client account',
+  settingsDeleteAccountDeleting: 'Deleting account…',
+  settingsDeleteAccountConfirmTitle: 'Delete account',
+  settingsDeleteAccountConfirmMessage:
+    'This action is irreversible. All RBC coins, media, loyalty points, reviews, benefits, and client status will be removed. Your identity data will be anonymized, active access tokens revoked, and your account access permanently disabled.',
+  settingsDeleteAccountReasonPlaceholder: 'Optional reason (helps us improve)',
+  settingsDeleteAccountReasonNoNeed: 'I no longer need the app',
+  settingsDeleteAccountReasonPrivacy: 'Privacy concerns',
+  settingsDeleteAccountReasonBranchService: 'I am not satisfied with services at your branches.',
+  settingsDeleteAccountReasonAppButClient: 'I am not satisfied with app performance, but I remain your client.',
+  settingsDeleteAccountReasonOther: 'Other reason',
+  settingsDeleteAccountConfirm: 'Delete permanently',
+  settingsDeleteAccountCancel: 'Keep account',
+  settingsDeleteAccountNeedLogin: 'You need to be signed in to delete your account.',
+  settingsDeleteAccountError: 'Account deletion failed. Please try again.',
+  settingsDeleteAccountDetailsButton: 'Detailed account deletion explanation',
+  settingsDeleteAccountDetailsTitle: 'Detailed account deletion explanation',
+  settingsDeleteAccountDetailsSubtitle: 'What exactly happens after confirmation',
+  settingsDeleteAccountDetailsIntro:
+    'Deleting your account is an irreversible step. Below is a practical explanation of what changes in the system, written in plain language.',
+  settingsDeleteAccountDetailsAccessTitle: 'Immediate loss of access',
+  settingsDeleteAccountDetailsAccessBody:
+    'All active sign-in tokens are revoked immediately, password-reset tokens are removed, and your password is invalidated. In practice, this means your current sessions stop working and you cannot sign in again with this account.',
+  settingsDeleteAccountDetailsAnonymizationTitle: 'Anonymization of personal data',
+  settingsDeleteAccountDetailsAnonymizationBody:
+    'Your profile is stripped of identifying data. Name fields are replaced with anonymous values, email and phone are converted to technical anonymized identifiers, and profile data such as avatar, bio, address, WhatsApp, birthday, notes, app metadata, and similar personal details are cleared. RBC coins, media, loyalty points, reviews, benefits, and client status are removed as part of this process.',
+  settingsDeleteAccountDetailsAuditTitle: 'Audit record',
+  settingsDeleteAccountDetailsAuditBody:
+    'An internal audit note with the deletion timestamp is stored for administrative traceability. If you provide a reason, it is included in this audit note.',
+  settingsDeleteAccountDetailsKeepTitle: 'What is not deleted',
+  settingsDeleteAccountDetailsKeepBody:
+    'Operational business records connected to the client (for example bookings, payments, and reporting history) are retained for legitimate operational and accounting purposes. The account itself remains anonymized and unusable for future sign-in.',
+  settingsDeleteAccountDetailsSummary:
+    'In one sentence: account deletion permanently removes access and anonymizes personal identity data, while necessary operational history remains preserved.',
   communicationSettingsTitle: 'Communication preferences',
   communicationSettingsSubtitle: 'Choose how we can reach you and what you want to hear about.',
   communicationSettingsChannelsSection: 'Channels',
