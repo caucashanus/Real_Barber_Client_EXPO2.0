@@ -7,76 +7,52 @@ import Section from '@/components/layout/Section';
 import Icon from '@/components/Icon';
 import { Button } from '@/components/Button';
 import AnimatedView from '@/components/AnimatedView';
-import Divider from '@/components/layout/Divider';
 import { useTranslation } from '@/app/hooks/useTranslation';
+import type { TranslationKey } from '@/locales';
 
-// FAQ data
-const faqData = [
-  {
-    id: '1',
-    question: 'How do I check in to my accommodation?',
-    answer: 'Check-in instructions will be provided by your host before your arrival. This typically includes key pickup location, door codes, or meeting arrangements. You can find these details in your booking confirmation email or in the app under your trip details.'
-  },
-  {
-    id: '2',
-    question: 'What is the cancellation policy?',
-    answer: 'Cancellation policies vary by property and host. You can view the specific policy for your booking in your trip details. Most properties offer free cancellation up to a certain date, with varying refund amounts after that period.'
-  },
-  {
-    id: '3',
-    question: 'How do I contact my host?',
-    answer: 'You can message your host directly through the app once your booking is confirmed. Go to your trip details and tap "Contact Host" to send a message. For urgent matters, some hosts also provide phone numbers.'
-  },
-  {
-    id: '4',
-    question: 'What should I do if there\'s an issue with my accommodation?',
-    answer: 'First, try to resolve the issue by contacting your host directly. If the problem cannot be resolved, contact our customer support team immediately. We\'re available 24/7 to help with any accommodation issues during your stay.'
-  },
-  {
-    id: '5',
-    question: 'How do I modify or cancel my booking?',
-    answer: 'You can modify or cancel your booking by going to "Your Trips" in the app and selecting the booking you want to change. Keep in mind that changes may be subject to the host\'s availability and cancellation policy.'
-  },
-  {
-    id: '6',
-    question: 'How does payment work?',
-    answer: 'Payment is processed securely through our platform. You\'ll be charged when your booking is confirmed, with some properties requiring a deposit upfront and the balance closer to your stay date. You can view all payment details in your booking confirmation.'
-  },
-  {
-    id: '7',
-    question: 'What amenities are included in my stay?',
-    answer: 'Amenities vary by property and are listed in each property\'s description. Common amenities include WiFi, kitchen access, and parking. Check your specific booking details to see what\'s included with your accommodation.'
-  },
-  {
-    id: '8',
-    question: 'How do I leave a review?',
-    answer: 'After your stay, you\'ll receive a notification to review your experience. You can also leave a review by going to your completed trips and selecting "Write a Review". Reviews help other travelers and improve the quality of our platform.'
-  }
+const FAQ_KEYS: { q: TranslationKey; a: TranslationKey }[] = [
+  { q: 'helpFaq1Q', a: 'helpFaq1A' },
+  { q: 'helpFaq2Q', a: 'helpFaq2A' },
+  { q: 'helpFaq3Q', a: 'helpFaq3A' },
+  { q: 'helpFaq4Q', a: 'helpFaq4A' },
+  { q: 'helpFaq5Q', a: 'helpFaq5A' },
+  { q: 'helpFaq6Q', a: 'helpFaq6A' },
+  { q: 'helpFaq7Q', a: 'helpFaq7A' },
+  { q: 'helpFaq8Q', a: 'helpFaq8A' },
+  { q: 'helpFaq9Q', a: 'helpFaq9A' },
+  { q: 'helpFaq10Q', a: 'helpFaq10A' },
 ];
 
-// Contact information
-const contactInfo = [
+const HELP_EMAIL = 'info@realbarber.cz';
+const HELP_TEL_URI = 'tel:+420608332881';
+
+const CONTACT_ROWS: {
+  id: string;
+  typeKey: TranslationKey;
+  valueKey: TranslationKey;
+  icon: 'Mail' | 'Phone' | 'Clock';
+  action?: () => void;
+}[] = [
   {
     id: 'email',
-    type: 'Email Support',
-    value: 'support@propia.com',
-    icon: 'Mail' as const,
-    action: () => Linking.openURL('mailto:support@propia.com')
+    typeKey: 'helpContactEmailType',
+    valueKey: 'helpContactEmailValue',
+    icon: 'Mail',
+    action: () => Linking.openURL(`mailto:${HELP_EMAIL}`),
   },
   {
     id: 'phone',
-    type: 'Emergency Hotline',
-    value: '+1 (800) 555-STAY',
-    icon: 'Phone' as const,
-    action: () => Linking.openURL('tel:+18005557829')
+    typeKey: 'helpContactPhoneType',
+    valueKey: 'helpContactPhoneValue',
+    icon: 'Phone',
+    action: () => Linking.openURL(HELP_TEL_URI),
   },
   {
     id: 'hours',
-    type: 'Support Hours',
-    value: '24/7 Customer Support',
-    icon: 'Clock' as const,
-    action: undefined
-  }
+    typeKey: 'helpContactHoursType',
+    valueKey: 'helpContactHoursValue',
+    icon: 'Clock',
+  },
 ];
 
 export default function HelpScreen() {
@@ -95,14 +71,14 @@ export default function HelpScreen() {
           />
           
           <View className="px-global">
-            {faqData.map((faq) => (
-              <Expandable 
-                key={faq.id}
-                title={faq.question}
+            {FAQ_KEYS.map((keys) => (
+              <Expandable
+                key={keys.q}
+                title={t(keys.q)}
                 className="py-1"
               >
                 <ThemedText className="text-light-text dark:text-dark-text leading-6">
-                  {faq.answer}
+                  {t(keys.a)}
                 </ThemedText>
               </Expandable>
             ))}
@@ -117,7 +93,7 @@ export default function HelpScreen() {
           />
           
           <View className="px-global pb-8">
-            {contactInfo.map((contact) => (
+            {CONTACT_ROWS.map((contact) => (
               <TouchableOpacity 
                 key={contact.id}
                 onPress={contact.action}
@@ -127,12 +103,12 @@ export default function HelpScreen() {
                 <View className="w-10 h-10 rounded-full bg-light-secondary dark:bg-dark-secondary items-center justify-center mr-4">
                   <Icon name={contact.icon} size={20} />
                 </View>
-                <View>
+                <View className="flex-1 pr-2">
                   <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext">
-                    {contact.type}
+                    {t(contact.typeKey)}
                   </ThemedText>
                   <ThemedText className="font-medium">
-                    {contact.value}
+                    {t(contact.valueKey)}
                   </ThemedText>
                 </View>
                 {contact.action && (
@@ -145,7 +121,7 @@ export default function HelpScreen() {
               title={t('helpContactSupport')} 
               iconStart="MessageCircle"
               className="mt-8"
-              onPress={() => Linking.openURL('mailto:support@propia.com')}
+              onPress={() => Linking.openURL(`mailto:${HELP_EMAIL}`)}
             />
           </View>
         </AnimatedView>

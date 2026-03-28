@@ -19,8 +19,8 @@ const SHOW_SETTINGS_PAYMENTS_SECTION = false;
 /** Nastavení → Měna (`/screens/profile/currency`). Nastav na `true`, až bude znovu potřeba. */
 const SHOW_SETTINGS_CURRENCY_SECTION = false;
 
-/** Nastavení → Nápověda (`/screens/help`). Nastav na `true`, až bude znovu potřeba. */
-const SHOW_SETTINGS_HELP_SECTION = false;
+/** Nastavení → Nápověda (`/screens/help`). Obsah stránky lze dál doladit. */
+const SHOW_SETTINGS_HELP_SECTION = true;
 
 /** Nastavení → Oznámení (`/screens/profile/notifications`). */
 const SHOW_SETTINGS_NOTIFICATIONS_SECTION = false;

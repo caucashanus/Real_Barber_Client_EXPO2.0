@@ -199,8 +199,45 @@ export const cs: Record<TranslationKey, string> = {
   helpTitle: 'Nápověda a podpora',
   helpFaq: 'Časté dotazy',
   helpContactUs: 'Kontaktujte nás',
-  helpContactSubtitle: 'Jsme tu, abychom pomohli s rezervacemi a cestováním',
+  helpContactSubtitle:
+    'Jsme tu kvůli rezervacím, pobočkám, barberům a čemukoli v aplikaci',
   helpContactSupport: 'Kontaktovat podporu',
+  helpContactEmailType: 'Podpora e-mailem',
+  helpContactEmailValue: 'info@realbarber.cz',
+  helpContactPhoneType: 'Živá podpora',
+  helpContactPhoneValue: '+420 608 332 881',
+  helpContactHoursType: 'Hodiny podpory',
+  helpContactHoursValue: 'Po–Pá 8:30–21:30, So–Ne 9:30–18:30',
+  helpFaq1Q: 'Jak si rezervuji návštěvu u barbera?',
+  helpFaq1A:
+    'Otevřete Rozvrh z úvodní oblasti aplikace nebo profil pobočky či barbera. Vyberte službu, datum a volný čas a pokračujte v průvodci rezervací (pobočka, barber, služba, čas). Rezervaci dokončíte jen po přihlášení.',
+  helpFaq2Q: 'Mohu změnit nebo zrušit rezervaci?',
+  helpFaq2A:
+    'Ano. V záložce Rezervace (spodní lišta) uvidíte své návštěvy. U konkrétní rezervace může být možnost přeplánovat nebo zrušit — záleží na pravidlech pobočky a dostupnosti. Když to v aplikaci nejde, obraťte se přímo na provozovnu nebo na podporu níže.',
+  helpFaq3Q: 'Proč mě aplikace žádá o přihlášení?',
+  helpFaq3A:
+    'Osobní údaje, rezervace, oblíbené, „Můj styl“ a další funkce patří k vašemu účtu. Bez přihlášení můžete prohlížet veřejné části (např. mapu a vyhledávání), ale rezervace a osobní obsah vyžadují bezpečné přihlášení.',
+  helpFaq4Q: 'Jak fungují oblíbené?',
+  helpFaq4A:
+    'U karet poboček a barberů klepněte na srdce a uložíte si je mezi oblíbené. Vše najdete na záložce Oblíbené. Oblíbené zůstávají navázané na váš účet.',
+  helpFaq5Q: 'Mohu si produkt z katalogu koupit přímo v aplikaci?',
+  helpFaq5A:
+    'Přímý online nákup produktů připravujeme. Katalog teď ukazuje dostupnost kusů na jednotlivých pobočkách — samotný nákup proběhne osobně při návštěvě vybrané provozovny. Více je i u tlačítka nákupu u produktu.',
+  helpFaq6Q: 'Co je sekce „Můj styl“?',
+  helpFaq6A:
+    'Slouží k ukládání fotek střihů nebo inspirace, abyste je měli po ruce u další návštěvy. Po přihlášení styly přidáváte a spravujete — je to váš vizuální archív účesu.',
+  helpFaq7Q: 'Kde najdu pobočku na mapě?',
+  helpFaq7A:
+    'Z úvodní stránky použijte kartu „Pokračovat v hledání holičství“ nebo globální vyhledávání. Na mapě uvidíte pobočky, otevřete detail té, která vám vyhovuje.',
+  helpFaq8Q: 'Co znamená „Kudy k nám“?',
+  helpFaq8A:
+    'U některých poboček zobrazíme krátké video nebo obrázek s orientací, jak se k nám dostanete. Po klepnutí otevřete detail s přehráním videa nebo náhledem — praktické před návštěvou.',
+  helpFaq9Q: 'Jak napíšu recenzi na pobočku nebo barbera?',
+  helpFaq9A:
+    'Z detailu pobočky, barbera nebo služby otevřete recenze a zvolte napsání recenze. Přidáte text a hodnocení; někdy je k dispozici anonymní zveřejnění. Recenze pomáhají ostatním klientům.',
+  helpFaq10Q: 'Kde změním oznámení nebo jazyk?',
+  helpFaq10A:
+    'Profil → Nastavení účtu: Oznámení (push a e-mail), měna, barevnost, komunikační preference a přepínač čeština / angličtina.',
 
   // Common
   commonLoading: 'Načítání…',

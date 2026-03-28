@@ -196,8 +196,44 @@ export const en = {
   helpTitle: 'Help & Support',
   helpFaq: 'Frequently Asked Questions',
   helpContactUs: 'Contact Us',
-  helpContactSubtitle: "We're here to help with your booking and travel needs",
+  helpContactSubtitle: "We're here for reservations, branches, barbers, and anything in the app",
   helpContactSupport: 'Contact Support',
+  helpContactEmailType: 'Email support',
+  helpContactEmailValue: 'info@realbarber.cz',
+  helpContactPhoneType: 'Live support',
+  helpContactPhoneValue: '+420 608 332 881',
+  helpContactHoursType: 'Support hours',
+  helpContactHoursValue: 'Mon–Fri 8:30–21:30, Sat–Sun 9:30–18:30',
+  helpFaq1Q: 'How do I book an appointment?',
+  helpFaq1A:
+    'Open Schedule from the home area or go to a branch or barber profile. Pick a service, date, and a free time slot, then follow the booking steps (branch, barber, service, time). You need to be signed in to complete a booking.',
+  helpFaq2Q: 'Can I change or cancel a booking?',
+  helpFaq2A:
+    'Yes. Under Bookings in the bottom tab bar you will see your visits. For a specific booking you may see options to reschedule or cancel, depending on branch rules and availability. If something is not available in the app, contact the branch directly or use the support options below.',
+  helpFaq3Q: 'Why does the app ask me to sign in?',
+  helpFaq3A:
+    'Personal data, bookings, favorites, “My style”, and other features are tied to your account. Without signing in you can still browse public areas (e.g. map and discovery), but reservations and personal content require a secure login.',
+  helpFaq4Q: 'How do favorites work?',
+  helpFaq4A:
+    'On branch and barber cards, tap the heart to save them to Favorites. You will find everything under the Favorites tab for quick access. Favorites stay linked to your account.',
+  helpFaq5Q: 'Can I buy a product from the catalogue in the app?',
+  helpFaq5A:
+    'Direct online checkout for products is in development. The catalogue shows how many units are in stock at each branch—you buy the item in person on your next visit. More detail is also on the product screen when you tap buy.',
+  helpFaq6Q: 'What is “My style”?',
+  helpFaq6A:
+    'It is where you save photos of your cuts or inspiration so you have them handy for your next visit. After signing in you can add and manage your styles—your personal visual reference for your hair.',
+  helpFaq7Q: 'Where do I find branches on the map?',
+  helpFaq7A:
+    'From home, use “Continue searching for barbershops” or global search. The map shows branches so you can pick one that suits you and open its detail.',
+  helpFaq8Q: 'What does “How to get to us” mean?',
+  helpFaq8A:
+    'For some branches we show a short video or image with directions. Tap the card to open a detail where you can play the video or view the preview—handy before your appointment.',
+  helpFaq9Q: 'How do I leave a review for a branch or barber?',
+  helpFaq9A:
+    'From a branch, barber, or service detail, open reviews and choose to write one. You can add text and a rating; anonymous posting may be available. Reviews help other clients choose.',
+  helpFaq10Q: 'Where do I change notifications or language?',
+  helpFaq10A:
+    'Profile → Account settings: Notifications (push and email), currency, accent color, communication preferences, and Czech/English language switch.',
 
   // Common
   commonLoading: 'Loading…',

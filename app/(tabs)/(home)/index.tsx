@@ -152,11 +152,6 @@ const HomeScreen = () => {
                         image={branchCardImage(branch)}
                       />
                     ))}
-                    {!apiToken && !popularBranches &&
-                      [require('@/assets/img/barbers.png'), require('@/assets/img/barbers.png'), require('@/assets/img/barbers.png'), require('@/assets/img/barbers.png')].map((img, i) => (
-                        <Card key={i} title={`Barbershop ${i + 1}`} rounded="2xl" hasFavorite rating={4.5} href="/screens/login" price="from 0 Kč" width={160} imageHeight={160} image={img} />
-                      ))
-                    }
                   </CardScroller>
                 </Section>
 
@@ -233,11 +228,6 @@ const HomeScreen = () => {
                         image={branchCardImage(branch)}
                       />
                     ))}
-                    {!apiToken && !popularBranches && !branchesLoading && (
-                      [require('@/assets/img/barbers.png'), require('@/assets/img/barbers.png'), require('@/assets/img/barbers.png')].map((img, i) => (
-                        <Card key={i} title="" rounded="2xl" width={160} imageHeight={160} image={img} />
-                      ))
-                    )}
                   </CardScroller>
                 </Section>
 
