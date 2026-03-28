@@ -1163,7 +1163,7 @@ export default function ReservationCreateScreen() {
                         onPress={() => selectServiceOption(service)}
                         className="w-[160px] active:opacity-80">
                         <View
-                          className="overflow-hidden rounded-2xl"
+                          className="relative overflow-hidden rounded-2xl"
                           style={
                             isSelected
                               ? { borderColor: colors.highlight, borderWidth: 2 }
@@ -1178,18 +1178,18 @@ export default function ReservationCreateScreen() {
                             className="h-[140px] w-[160px]"
                             resizeMode="cover"
                           />
-                        </View>
-                        <View className="w-full flex-row items-center justify-between gap-2 py-2">
-                          <ThemedText
-                            className="min-w-0 flex-1 text-sm font-medium"
-                            numberOfLines={1}>
-                            {service.name}
-                          </ThemedText>
-                          <View className="self-start rounded-full bg-light-secondary px-2 py-1 dark:bg-dark-secondary">
+                          <View className="absolute right-2 top-2 z-10 rounded-full bg-light-secondary px-2 py-1 dark:bg-dark-secondary">
                             <ThemedText className="text-xs text-light-subtext dark:text-dark-subtext">
                               {service.price} {t('reservationCurrencySuffix')}
                             </ThemedText>
                           </View>
+                        </View>
+                        <View className="w-full py-2">
+                          <ThemedText
+                            className="min-w-0 text-sm font-medium"
+                            numberOfLines={1}>
+                            {service.name}
+                          </ThemedText>
                         </View>
                       </Pressable>
                     );

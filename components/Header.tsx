@@ -10,6 +10,8 @@ import { BlurView } from 'expo-blur';
 
 type HeaderProps = {
   title?: string;
+  /** Druhý řádek pod titulkem (např. dlouhý název entity u recenze). */
+  subtitle?: string;
   children?: React.ReactNode;
   showBackButton?: boolean;
   onBackPress?: () => void;
@@ -33,6 +35,7 @@ type HeaderProps = {
 
 const Header: React.FC<HeaderProps> = ({
   title,
+  subtitle,
   children,
   showBackButton = false,
   onBackPress,
@@ -287,21 +290,36 @@ const Header: React.FC<HeaderProps> = ({
       className={`w-full flex-row justify-between px-global bg-light-primary dark:bg-dark-primary relative z-50 ${className}`}
     >
 
-      {(showBackButton || leftComponent || title) && (
-        <View className='flex-row items-center'>
+      {(showBackButton || leftComponent || title || subtitle) && (
+        <View
+          className={`flex-row items-center ${middleComponent ? '' : 'min-w-0 flex-1 pr-2'}`}>
           {showBackButton && (
-            <TouchableOpacity onPress={handleBackPress} className='mr-global relative z-50 py-4'>
+            <TouchableOpacity onPress={handleBackPress} className='mr-global relative z-50 py-4 shrink-0'>
               <Icon name="ArrowLeft" size={24} color={isTransparent ? 'white' : colors.icon} />
             </TouchableOpacity>
           )}
 
-          {leftComponent || title && (
-            <View className='flex-row items-center relative z-50 py-4  '>
+          {(leftComponent || title || subtitle) && (
+            <View
+              className={`relative z-50 py-4 min-w-0 ${middleComponent ? '' : 'flex-1'}`}>
               {leftComponent}
 
-              {title && (
-                <Text className='dark:text-white text-lg font-bold'>{title}</Text>
-              )}
+              {title ? (
+                <Text
+                  className="text-lg font-bold text-black dark:text-white"
+                  numberOfLines={subtitle ? 2 : 3}
+                  ellipsizeMode="tail">
+                  {title}
+                </Text>
+              ) : null}
+              {subtitle ? (
+                <Text
+                  className="mt-1 text-sm font-medium leading-5 text-neutral-600 dark:text-neutral-300"
+                  numberOfLines={5}
+                  ellipsizeMode="tail">
+                  {subtitle}
+                </Text>
+              ) : null}
             </View>
           )}
         </View>

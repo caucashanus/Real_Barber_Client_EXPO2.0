@@ -27,7 +27,7 @@ import {
 } from '@/app/contexts/SelectedPurchaseContext';
 import { useAuth } from '@/app/contexts/AuthContext';
 import { getEntityReviews, type EntityReviewItem } from '@/api/reviews';
-import type { ClientCatalogProductReview } from '@/api/products';
+import type { ClientCatalogProduct, ClientCatalogProductReview } from '@/api/products';
 import { useTranslation } from '@/app/hooks/useTranslation';
 import type { Locale } from '@/app/contexts/LanguageContext';
 import type { TranslationKey } from '@/locales';
@@ -190,6 +190,117 @@ function catalogReviewBody(review: ClientCatalogProductReview): string {
     return '—';
 }
 
+const PRODUCT_SHARE_DESC_MAX = 400;
+
+function truncateForShare(text: string, max: number): string {
+    const s = text.replace(/\s+/g, ' ').trim();
+    if (s.length <= max) return s;
+    return `${s.slice(0, max - 1)}…`;
+}
+
+function warehouseShareAddressLines(warehouse: { address?: string; location?: string }): string[] {
+    const addr = warehouse.address?.trim();
+    const loc = warehouse.location?.trim();
+    const out: string[] = [];
+    if (addr) out.push(addr);
+    if (loc && (!addr || loc !== addr)) out.push(loc);
+    return out;
+}
+
+function appendPrimaryImageUrlToShare(
+    lines: string[],
+    primaryImageUrl: string | undefined,
+    t: (key: TranslationKey) => string
+): void {
+    const u = primaryImageUrl?.trim();
+    if (!u) return;
+    lines.push('', `${t('productSharePrimaryImage')}:`, u);
+}
+
+function appendProductShareFooter(lines: string[]): void {
+    lines.push('', 'https://realbarber.cz', 'tel:+420608332881');
+}
+
+function buildProductShareMessage(params: {
+    t: (key: TranslationKey) => string;
+    catalogWarehouseLabel: string;
+    catalog: ClientCatalogProduct | null;
+    purchase: ClientProductPurchase | null;
+    productTitle: string;
+    totalPriceLabel: string;
+    propertyTitle: string;
+    propertyPriceLabel: string;
+    primaryImageUrl?: string;
+}): string {
+    const {
+        t,
+        catalogWarehouseLabel,
+        catalog,
+        purchase,
+        productTitle,
+        totalPriceLabel,
+        propertyTitle,
+        propertyPriceLabel,
+        primaryImageUrl,
+    } = params;
+    const lines: string[] = [];
+
+    if (catalog) {
+        lines.push(t('productShareIntroRealBarber'), '', productTitle);
+        const desc = catalog.description?.trim();
+        if (desc) {
+            lines.push('', truncateForShare(desc, PRODUCT_SHARE_DESC_MAX));
+        }
+        lines.push(
+            '',
+            `${t('productSharePrice')}: ${totalPriceLabel}`,
+            `${t('productStock')}: ${catalog.totalStock}`,
+            `${t('productAvailability')}: ${catalog.inStock ? t('productsCatalogInStock') : t('productsCatalogOutOfStock')}`
+        );
+        if (catalog.stockByWarehouse && catalog.stockByWarehouse.length > 0) {
+            lines.push('', t('productStockByWarehouse'));
+            for (const row of [...catalog.stockByWarehouse].sort((a, b) =>
+                compareCatalogStockWarehouseRows(a, b, catalogWarehouseLabel)
+            )) {
+                const wh = warehouseUiName(row.warehouse.name, catalogWarehouseLabel);
+                const pcs = t('productPiecesAbbr');
+                lines.push(`• ${wh}: ${row.quantity} ${pcs}`);
+                for (const addrLine of warehouseShareAddressLines(row.warehouse)) {
+                    lines.push(`  ${addrLine}`);
+                }
+            }
+        }
+        appendPrimaryImageUrlToShare(lines, primaryImageUrl, t);
+        appendProductShareFooter(lines);
+        return lines.join('\n');
+    }
+
+    if (purchase) {
+        lines.push(t('productShareIntroRealBarber'), '', productTitle);
+        const desc = purchase.product.description?.trim();
+        if (desc) {
+            lines.push('', truncateForShare(desc, PRODUCT_SHARE_DESC_MAX));
+        }
+        lines.push('', `${t('productSharePrice')}: ${totalPriceLabel}`);
+        lines.push(`${t('productSharePurchaseQuantity')}: ${purchase.quantity}`);
+        const whName = purchase.warehouse?.name?.trim();
+        if (whName) {
+            lines.push(`${t('productSharePickupWarehouse')}: ${whName}`);
+            for (const addrLine of warehouseShareAddressLines(purchase.warehouse ?? {})) {
+                lines.push(`  ${addrLine}`);
+            }
+        }
+        appendPrimaryImageUrlToShare(lines, primaryImageUrl, t);
+        appendProductShareFooter(lines);
+        return lines.join('\n');
+    }
+
+    lines.push(t('productShareIntroRealBarber'), '', propertyTitle, '', `${t('productSharePrice')}: ${propertyPriceLabel}`);
+    appendPrimaryImageUrlToShare(lines, primaryImageUrl, t);
+    appendProductShareFooter(lines);
+    return lines.join('\n');
+}
+
 const similarProperties = [
     {
         id: 2,
@@ -252,20 +363,24 @@ const PropertyDetail = () => {
     const description =
         purchase?.product.description ??
         (catalog != null ? (catalog.description ?? '') : property.description);
-    const images = purchase
-        ? (purchase.product.images?.length
-            ? purchase.product.images.map((img) => img.url)
-            : purchase.product.primaryImage
-                ? [purchase.product.primaryImage.url]
-                : [])
+    const productImageUrl = purchase
+        ? (purchase.product.primaryImage?.url ??
+              purchase.product.images?.find((i) => i.isPrimary)?.url ??
+              purchase.product.images?.[0]?.url ??
+              '')
         : catalog
-          ? (catalog.images?.length
-              ? catalog.images.map((img) => img.url)
-              : catalog.primaryImage
-                ? [catalog.primaryImage.url]
-                : [])
-          : property.images;
-    const displayImages = images.length > 0 ? images : [require('@/assets/img/barbers.png')];
+          ? (catalog.primaryImage?.url ??
+              catalog.images?.find((i) => i.isPrimary)?.url ??
+              catalog.images?.[0]?.url ??
+              '')
+          : '';
+
+    const displayImages =
+        purchase != null || catalog != null
+            ? productImageUrl
+                ? [productImageUrl]
+                : [require('@/assets/img/barbers.png')]
+            : property.images;
     const totalPrice =
         purchase != null ? `${purchase.totalPrice} Kč` : catalog != null ? `${catalog.price} Kč` : property.price;
     const priceLabel =
@@ -277,15 +392,6 @@ const PropertyDetail = () => {
         : property.host.location;
     /** Prodejce jen u skutečného nákupu; u katalogu bez nákupu neukazovat mock hostitele. */
     const showSellerSection = purchase != null || catalog == null;
-
-    const productImageUrl = purchase
-        ? (purchase.product.primaryImage?.url ?? purchase.product.images?.find((i) => i.isPrimary)?.url ?? purchase.product.images?.[0]?.url ?? '')
-        : catalog
-          ? (catalog.primaryImage?.url ??
-              catalog.images?.find((i) => i.isPrimary)?.url ??
-              catalog.images?.[0]?.url ??
-              '')
-          : '';
 
     const reviewParams = purchase
         ? `entityType=sale_log&entityId=${encodeURIComponent(purchase.purchaseId)}&entityName=${encodeURIComponent(title)}${productImageUrl ? `&entityImage=${encodeURIComponent(productImageUrl)}` : ''}`
@@ -353,13 +459,23 @@ const PropertyDetail = () => {
 
     const handleShare = async () => {
         try {
-            const message =
-                purchase != null
-                    ? `${title}\n${t('productSharePrice')}: ${totalPrice} ${t('productPricePerProduct')}`
-                    : catalog != null
-                      ? `${title}\n${t('productSharePrice')}: ${totalPrice}`
-                      : `Check out this amazing property: ${property.title}\n${t('productSharePrice')}: ${property.price} ${t('productPricePerNight')}`;
-            await Share.share({ message, title });
+            const message = buildProductShareMessage({
+                t,
+                catalogWarehouseLabel,
+                catalog,
+                purchase,
+                productTitle: title,
+                totalPriceLabel:
+                    purchase != null
+                        ? `${totalPrice} ${t('productPricePerProduct')}`
+                        : catalog != null
+                          ? totalPrice
+                          : `${property.price} ${t('productPricePerNight')}`,
+                propertyTitle: property.title,
+                propertyPriceLabel: `${property.price} ${t('productPricePerNight')}`,
+                primaryImageUrl: productImageUrl || undefined,
+            });
+            await Share.share({ message, title: t('productShareDialogTitle') });
         } catch (error) {
             console.error('Error sharing:', error);
         }
@@ -936,11 +1052,15 @@ const PropertyDetail = () => {
                         </View>
                         <View className='flex-row items-center ml-auto'>
                             <Button
-                                title={purchase || catalog ? 'Buy' : 'Reserve'}
+                                title={purchase || catalog ? t('productBuy') : t('commonReserve')}
                                 variant="primary" className="ml-6 px-6"
                                 textClassName='text-white'
                                 size='medium'
-                                href='/screens/order-detail?id=1'
+                                href={
+                                    purchase || catalog
+                                        ? '/screens/product-purchase-info'
+                                        : '/screens/order-detail?id=1'
+                                }
                                 rounded='lg'
                             />
                         </View>

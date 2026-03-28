@@ -23,7 +23,7 @@ const SHOW_SETTINGS_CURRENCY_SECTION = false;
 const SHOW_SETTINGS_HELP_SECTION = false;
 
 /** Nastavení → Oznámení (`/screens/profile/notifications`). */
-const SHOW_SETTINGS_NOTIFICATIONS_SECTION = true;
+const SHOW_SETTINGS_NOTIFICATIONS_SECTION = false;
 
 export default function SettingsScreen() {
   const { locale, toggleLocale } = useLanguage();

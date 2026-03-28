@@ -179,6 +179,14 @@ export const cs: Record<TranslationKey, string> = {
   productRecenzovat: 'Recenzovat',
   productNapsatRecenzi: 'Napsat recenzi',
   productBuyerReviews: 'Recenze kupujících',
+  productBuy: 'Koupit',
+  productPurchaseInfoTitle: 'Online nákup produktů',
+  productPurchaseInfoP1: 'Na přímém online prodeji produktů právě pracujeme.',
+  productPurchaseInfoP2:
+    'Aktuálně tento katalog produktů slouží k tomu, abyste viděli, kolik kusů jakého produktu máme na kterých pobočkách, a při vaší další návštěvě jej můžete zakoupit.',
+  productPurchaseInfoP3:
+    'Mimo to již pracujeme na dalších funkcích, které zlepší chod aplikace a výhody jejího používání.',
+  productPurchaseInfoThanks: 'Děkujeme, že jste s námi.',
 
   // Schedule
   scheduleTitle: 'Rozvrh',
@@ -220,6 +228,11 @@ export const cs: Record<TranslationKey, string> = {
   experienceNewBarbers: 'Noví barbeři',
   experienceNewBarbersDesc:
     'Barbeři, kteří se nedávno přidali a jsou připraveni se o vás postarat.',
+  experienceNewBarbersInfoP1:
+    'Tady najdete kolegy, kteří nedávno vstoupili do našeho týmu. V této sekci se zobrazují 30 dní od přidání profilu, abyste mohli poznat nejnovější členy.',
+  experienceNewBarbersInfoP2:
+    '„Nový“ u nás znamená, že jsou noví u nás — nemusí jít o nováčky v oboru. Mnoho z nich jsou zkušení holiči, kteří se právě přidali k naší firmě.',
+  experienceNewBarbersBadge: 'Nový',
   experienceSchedule: 'Rozvrh',
   experiencePopularToday: 'Dnes dostupní oblíbení barbeři',
   experienceAllBarbers: 'Všichni barbeři',
@@ -241,6 +254,8 @@ export const cs: Record<TranslationKey, string> = {
   // Products (home)
   productsMyPurchased: 'Moje zakoupené produkty',
   productsTitle: 'Produkty',
+  productsGiftsTitle: 'Dárky',
+  productsGiftsEmpty: 'V katalogu dárků zatím nic není.',
   productsPromoTitle: 'Doporučené produkty',
   productsPromoSubtitle: 'Vybrané přípravky a styling pro váš účes.',
   productsPromoTitle2: 'Novinky',
@@ -413,6 +428,11 @@ export const cs: Record<TranslationKey, string> = {
   productPricePerProduct: 'za produkt',
   productPricePerNight: 'za noc',
   productSharePrice: 'Cena',
+  productShareIntroRealBarber: 'Podívej se, co mají v Real Barberu:',
+  productSharePurchaseQuantity: 'Množství',
+  productSharePickupWarehouse: 'Sklad / vyzvednutí',
+  productShareDialogTitle: 'Real Barber',
+  productSharePrimaryImage: 'Zde máš obrázek jak to vypadá',
   productDetails: 'Detaily produktu',
   productGuests: 'Hosté',
   productBedrooms: 'Ložnice',

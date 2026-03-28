@@ -3,6 +3,9 @@ const CRM_BASE = 'https://crm.xrb.cz';
 /** Flag „Prodejní“ – katalog produktů v aplikaci (GET …/by-flag). */
 export const CLIENT_PRODUCTS_CATALOG_FLAG_ID = 'fde9d7f6-b299-4824-80f8-2f6f4a3df2c7';
 
+/** Flag „Dárky“ – sekce dárků na obrazovce Produktů. */
+export const CLIENT_PRODUCTS_GIFTS_FLAG_ID = 'b971ec56-060e-434a-b49e-6e70bcfbb6bd';
+
 export interface ProductImage {
   id: string;
   url: string;

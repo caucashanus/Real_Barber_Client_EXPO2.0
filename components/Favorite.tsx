@@ -149,11 +149,11 @@ const Favorite: React.FC<FavoriteProps> = ({
             }
           </ThemedText>
 
-          <View className="flex-row w-full justify-center">
+          <View className="w-full flex-col gap-3">
             {isFavorite && (
               <Button
                 title={t('favoritesSheetViewFavourites')}
-                className="flex-1"
+                className="w-full"
                 onPress={handleViewFavorites}
               />
             )}
@@ -161,7 +161,7 @@ const Favorite: React.FC<FavoriteProps> = ({
             <Button
               title={t('favoritesSheetContinueBrowsing')}
               variant="outline"
-              className={isFavorite ? "ml-3 px-6" : "px-6"}
+              className="w-full"
               onPress={() => actionSheetRef.current?.hide()}
             />
           </View>

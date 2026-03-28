@@ -366,7 +366,7 @@ const ExperienceScreen = () => {
                                                 width={160}
                                                 imageHeight={160}
                                                 image={emp.avatarUrl ?? require('@/assets/img/barbers.png')}
-                                                badge="New"
+                                                badge={t('experienceNewBarbersBadge')}
                                             />
                                         ))}
                                     </>
@@ -480,10 +480,10 @@ const ExperienceScreen = () => {
                 <View className="p-4 pb-8">
                     <ThemedText className="text-lg font-semibold mb-3">{t('experienceNewBarbers')}</ThemedText>
                     <ThemedText className="text-base text-light-subtext dark:text-dark-subtext leading-6">
-                        Here you’ll find colleagues who have recently joined our team. They appear in this section for 30 days after their profile is added, so you can get to know the newest members.
+                        {t('experienceNewBarbersInfoP1')}
                     </ThemedText>
                     <ThemedText className="text-base text-light-subtext dark:text-dark-subtext leading-6 mt-3">
-                        “New” simply means they’re new with us—not necessarily new to the profession. Many are experienced barbers who have just joined our company.
+                        {t('experienceNewBarbersInfoP2')}
                     </ThemedText>
                 </View>
             </ActionSheetThemed>

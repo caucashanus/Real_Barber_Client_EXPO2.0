@@ -168,7 +168,8 @@ const ReviewScreen = () => {
 
 
             <Header
-                title={entityName ? `${t('reviewWriteTo')} ${displayName}` : t('reviewWriteFallback')}
+                title={entityName ? t('reviewWriteTo') : t('reviewWriteFallback')}
+                subtitle={entityName ? displayName : undefined}
                 showBackButton
             />
             <ThemedScroller

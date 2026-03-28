@@ -14,11 +14,13 @@ import { useRouter } from 'expo-router';
 import { useAuth } from '@/app/contexts/AuthContext';
 import { useSetSelectedCatalogProduct, useSetSelectedPurchase } from '@/app/contexts/SelectedPurchaseContext';
 import {
+  CLIENT_PRODUCTS_GIFTS_FLAG_ID,
   getClientProducts,
   getClientProductsByFlag,
   type ClientCatalogProduct,
   type ClientProductPurchase,
 } from '@/api/products';
+import type { TranslationKey } from '@/locales';
 import { useTranslation } from '@/app/hooks/useTranslation';
 
 function catalogProductImageUrl(product: ClientCatalogProduct): string {
@@ -54,6 +56,8 @@ const ProductsScreen = () => {
   const [purchasedProducts, setPurchasedProducts] = useState<ClientProductPurchase[]>([]);
   const [catalogLoading, setCatalogLoading] = useState(true);
   const [catalogProducts, setCatalogProducts] = useState<ClientCatalogProduct[]>([]);
+  const [giftsLoading, setGiftsLoading] = useState(true);
+  const [giftProducts, setGiftProducts] = useState<ClientCatalogProduct[]>([]);
   const [dismissedPromoAt, setDismissedPromoAt] = useState<Record<number, number>>({});
 
   useEffect(() => {
@@ -107,6 +111,67 @@ const ProductsScreen = () => {
       .catch(() => setCatalogProducts([]))
       .finally(() => setCatalogLoading(false));
   }, [apiToken]);
+
+  useEffect(() => {
+    if (!apiToken) {
+      setGiftsLoading(false);
+      setGiftProducts([]);
+      return;
+    }
+    setGiftsLoading(true);
+    getClientProductsByFlag(apiToken, { flagId: CLIENT_PRODUCTS_GIFTS_FLAG_ID })
+      .then((res) => setGiftProducts(shuffled(res.products ?? [])))
+      .catch(() => setGiftProducts([]))
+      .finally(() => setGiftsLoading(false));
+  }, [apiToken]);
+
+  const renderFlagCatalogCards = (loading: boolean, items: ClientCatalogProduct[], emptyKey: TranslationKey) => {
+    if (loading) {
+      return (
+        <View className="py-8 items-center">
+          <ActivityIndicator size="small" />
+          <ThemedText className="py-2 text-light-subtext dark:text-dark-subtext">{t('commonLoading')}</ThemedText>
+        </View>
+      );
+    }
+    if (items.length === 0) {
+      return (
+        <ThemedText className="py-4 text-light-subtext dark:text-dark-subtext">{t(emptyKey)}</ThemedText>
+      );
+    }
+    return items.map((item) => {
+      const imgUrl = catalogProductImageUrl(item);
+      const catalogOutOfStock = !item.inStock || item.totalStock <= 0;
+      return (
+        <Card
+          key={item.id}
+          title={item.name}
+          rounded="2xl"
+          price={`${item.price} Kč`}
+          topLeftBadge={
+            catalogOutOfStock ? (
+              <View className="px-2 py-1.5 rounded-lg bg-red-500 dark:bg-red-600 shadow-sm">
+                <ThemedText className="text-[10px] font-bold text-white text-center leading-tight">
+                  {t('productsCatalogOutOfStockBadge')}
+                </ThemedText>
+              </View>
+            ) : undefined
+          }
+          hasFavorite
+          favoriteEntityType="product"
+          favoriteEntityId={item.id}
+          width={160}
+          imageHeight={160}
+          image={imgUrl || require('@/assets/img/barbers.png')}
+          onPress={() => {
+            setSelectedPurchase(null);
+            setSelectedCatalogProduct(item);
+            router.push(`/screens/product-detail?id=${item.id}`);
+          }}
+        />
+      );
+    });
+  };
 
   return (
     <ThemeScroller
@@ -192,47 +257,13 @@ const ProductsScreen = () => {
 
         <Section title={t('productsTitle')} titleSize="lg" link="/screens/map" linkText={t('commonViewAll')}>
           <CardScroller space={15} className="mt-1.5 pb-4">
-            {catalogLoading ? (
-              <View className="py-8 items-center">
-                <ActivityIndicator size="small" />
-                <ThemedText className="py-2 text-light-subtext dark:text-dark-subtext">{t('commonLoading')}</ThemedText>
-              </View>
-            ) : catalogProducts.length === 0 ? (
-              <ThemedText className="py-4 text-light-subtext dark:text-dark-subtext">{t('productsCatalogEmpty')}</ThemedText>
-            ) : (
-              catalogProducts.map((item) => {
-                const imgUrl = catalogProductImageUrl(item);
-                const catalogOutOfStock = !item.inStock || item.totalStock <= 0;
-                return (
-                  <Card
-                    key={item.id}
-                    title={item.name}
-                    rounded="2xl"
-                    price={`${item.price} Kč`}
-                    topLeftBadge={
-                      catalogOutOfStock ? (
-                        <View className="px-2 py-1.5 rounded-lg bg-red-500 dark:bg-red-600 shadow-sm">
-                          <ThemedText className="text-[10px] font-bold text-white text-center leading-tight">
-                            {t('productsCatalogOutOfStockBadge')}
-                          </ThemedText>
-                        </View>
-                      ) : undefined
-                    }
-                    hasFavorite
-                    favoriteEntityType="product"
-                    favoriteEntityId={item.id}
-                    width={160}
-                    imageHeight={160}
-                    image={imgUrl || require('@/assets/img/barbers.png')}
-                    onPress={() => {
-                      setSelectedPurchase(null);
-                      setSelectedCatalogProduct(item);
-                      router.push(`/screens/product-detail?id=${item.id}`);
-                    }}
-                  />
-                );
-              })
-            )}
+            {renderFlagCatalogCards(catalogLoading, catalogProducts, 'productsCatalogEmpty')}
+          </CardScroller>
+        </Section>
+
+        <Section title={t('productsGiftsTitle')} titleSize="lg" link="/screens/map" linkText={t('commonViewAll')}>
+          <CardScroller space={15} className="mt-1.5 pb-4">
+            {renderFlagCatalogCards(giftsLoading, giftProducts, 'productsGiftsEmpty')}
           </CardScroller>
         </Section>
       </AnimatedView>

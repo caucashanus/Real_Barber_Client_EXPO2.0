@@ -176,6 +176,14 @@ export const en = {
   productRecenzovat: 'Recenzovat',
   productNapsatRecenzi: 'Napsat recenzi',
   productBuyerReviews: 'Buyer reviews',
+  productBuy: 'Buy',
+  productPurchaseInfoTitle: 'Buying products online',
+  productPurchaseInfoP1: 'We’re working on direct online sales of products.',
+  productPurchaseInfoP2:
+    'For now, this product catalogue helps you see how many units we have of each item at each branch—you can buy them on your next visit.',
+  productPurchaseInfoP3:
+    'We’re also building more features to make the app smoother and more rewarding to use.',
+  productPurchaseInfoThanks: 'Thank you for being with us.',
 
   // Schedule
   scheduleTitle: 'Schedule',
@@ -216,6 +224,11 @@ export const en = {
   // Experience
   experienceNewBarbers: 'New barbers',
   experienceNewBarbersDesc: 'Barbers who have recently joined and are ready to take care of you.',
+  experienceNewBarbersInfoP1:
+    "Here you'll find colleagues who have recently joined our team. They appear in this section for 30 days after their profile is added, so you can get to know the newest members.",
+  experienceNewBarbersInfoP2:
+    '"New" simply means they\'re new with us—not necessarily new to the profession. Many are experienced barbers who have just joined our company.',
+  experienceNewBarbersBadge: 'New',
   experienceSchedule: 'Schedule',
   experiencePopularToday: 'Popular barbers available today',
   experienceAllBarbers: 'All barbers',
@@ -237,6 +250,8 @@ export const en = {
   // Products (home)
   productsMyPurchased: 'My purchased products',
   productsTitle: 'Products',
+  productsGiftsTitle: 'Gifts',
+  productsGiftsEmpty: 'No gift items in the catalog.',
   productsPromoTitle: 'Recommended products',
   productsPromoSubtitle: 'Selected styling and care products for your look.',
   productsPromoTitle2: 'New arrivals',
@@ -409,6 +424,11 @@ export const en = {
   productPricePerProduct: 'per product',
   productPricePerNight: 'per night',
   productSharePrice: 'Price',
+  productShareIntroRealBarber: 'See what they have at Real Barber:',
+  productSharePurchaseQuantity: 'Quantity',
+  productSharePickupWarehouse: 'Pickup warehouse',
+  productShareDialogTitle: 'Real Barber',
+  productSharePrimaryImage: "Here's what it looks like",
   productDetails: 'Product details',
   productGuests: 'Guests',
   productBedrooms: 'Bedrooms',
