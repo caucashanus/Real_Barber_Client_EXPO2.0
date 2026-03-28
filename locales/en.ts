@@ -118,7 +118,7 @@ export const en = {
 
   // Home tabs (horizontal scroll under home)
   tabWallet: 'Wallet',
-  tabMyHaircuts: 'My haircuts',
+  tabMyHaircuts: 'My style',
   tabBranches: 'Branches',
   tabBarbers: 'Barbers',
   tabServices: 'Services',
@@ -237,15 +237,16 @@ export const en = {
 
   // My haircuts
   myHaircutsWhatsFor: "What's it for?",
-  myHaircutsAddNewA11y: 'Add new haircut',
-  myHaircutsYours: 'Your haircuts',
+  myHaircutsAddNewA11y: 'Add new style',
+  myHaircutsYours: 'Your styles',
   myHaircutsBadgeNewest: 'My newest haircut',
   myHaircutsBadgeFirst: 'My first haircut',
-  myHaircutsEmpty: 'No saved haircuts yet. Add one below.',
-  myHaircutsLoginToSee: 'Log in to see your saved haircuts.',
+  myHaircutsEmpty: 'No saved styles yet. Create one below.',
+  myHaircutsLoginToSee: 'Log in to see your saved styles.',
   myHaircutsLoadError: 'Could not load haircuts.',
-  myHaircutsCreate: 'Create your haircut',
-  myHaircutsCreateDesc: 'Discover how to add your style and get the cut you want',
+  myHaircutsCreate: 'Create your own style',
+  myHaircutsCreateDesc:
+    'Give your style a name, add the details, and include photos for inspiration. Describing a cut only in words often misses what you really want—a reference image or your own gallery is clearer for your barber. Photograph looks you like or save inspiration from the web. On your next visit, just show your saved style and we know exactly what you mean.',
 
   // Products (home)
   productsMyPurchased: 'My purchased products',
@@ -418,6 +419,10 @@ export const en = {
 
   // Map
   mapLoadingBranches: 'Loading branches…',
+  mapCentralWarehouseCalloutBeforePhone:
+    'This location is our central warehouse, not a retail shop. Purchases and in-person collection are available here only by prior telephone arrangement. To coordinate, please contact us at',
+  mapCentralWarehousePhoneDisplay: '+420 774 522 114',
+  mapCentralWarehousePhoneA11y: 'Call to arrange purchase or pickup at the central warehouse',
 
   // Product detail
   productSeller: 'Seller',
@@ -430,6 +435,9 @@ export const en = {
   productShareDialogTitle: 'Real Barber',
   productSharePrimaryImage: "Here's what it looks like",
   productDetails: 'Product details',
+  productDetailNotFound:
+    'This product could not be loaded. It may no longer be in the catalogue, or you may not have access.',
+  commonBack: 'Back',
   productGuests: 'Guests',
   productBedrooms: 'Bedrooms',
   productBathrooms: 'Bathrooms',
@@ -1038,13 +1046,13 @@ export const en = {
   guidesLoading: 'Loading guides…',
   guidesNoGuides: 'No guides yet.',
 
-  // Guide "What's My haircuts for"
+  // Guide "What's My style for"
   guideMyHaircutsStep1:
-    'Whenever you have an idea, create your haircut — give it a name and save it. Then show it at the branch and the barber knows exactly what you want.',
+    'Whenever you have an idea, create your own style — name it, save the details and photos. Show it at the branch and your barber knows exactly what you want.',
   guideMyHaircutsStep2:
-    'At the branch just show the barber your saved haircut. No need to explain — the barber sees exactly what you want.',
+    'At the branch, show your saved style. You do not need a long verbal explanation — your barber sees exactly what you mean.',
   guideMyHaircutsStep3:
-    'You have all your haircuts in one place. Add more anytime or show them at your next visit.',
+    'All your styles are in one place. Add more anytime or show them on your next visit.',
   guideMyHaircutsNext: 'Next',
   guideMyHaircutsGotIt: 'Got it',
 

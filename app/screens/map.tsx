@@ -1,7 +1,17 @@
 import React, { useRef, useEffect, useState, useMemo } from 'react';
-import { View, Text, Image, Pressable, Dimensions, TouchableOpacity, ActivityIndicator, Platform } from 'react-native';
+import {
+    View,
+    Text,
+    Image,
+    Pressable,
+    Dimensions,
+    TouchableOpacity,
+    ActivityIndicator,
+    Platform,
+    Linking,
+} from 'react-native';
 import * as Location from 'expo-location';
-import MapView, { MapStyleElement, Marker } from 'react-native-maps';
+import MapView, { Callout, MapStyleElement, Marker } from 'react-native-maps';
 import useThemeColors from '@/app/contexts/ThemeColors';
 import Header, { HeaderIcon } from '@/components/Header';
 import ThemedText from '@/components/ThemedText';
@@ -25,6 +35,8 @@ import { getBranches, type Branch, type BranchService } from '@/api/branches';
 import { BRANCH_FILTER_DATA } from '@/constants/branch-filter-data';
 import type { BranchFilterState } from '@/app/contexts/BranchFilterContext';
 import { useTranslation } from '@/app/hooks/useTranslation';
+
+const CENTRAL_WAREHOUSE_TEL = '+420774522114';
 
 type IconName = Exclude<keyof typeof LucideIcons, 'createLucideIcon' | 'default'>;
 
@@ -146,9 +158,16 @@ const MapScreen = () => {
     const colors = useThemeColors();
     const { apiToken } = useAuth();
     const { t } = useTranslation();
-    const params = useLocalSearchParams<{ mapQuery?: string; mapLabel?: string }>();
+    const params = useLocalSearchParams<{
+        mapQuery?: string;
+        mapLabel?: string;
+        mapCentralWarehouse?: string;
+    }>();
     const mapQuery = stringSearchParam(params.mapQuery);
     const mapLabel = stringSearchParam(params.mapLabel);
+    const mapCentralWarehouse =
+        stringSearchParam(params.mapCentralWarehouse) === '1' ||
+        stringSearchParam(params.mapCentralWarehouse)?.toLowerCase() === 'true';
     const { filter, resetFilter } = useBranchFilter();
     const [mapFocus, setMapFocus] = useState<{ lat: number; lng: number; title: string } | null>(null);
 
@@ -270,11 +289,41 @@ const MapScreen = () => {
                         />
                     ))}
                     {mapFocus ? (
-                        <Marker
-                            coordinate={{ latitude: mapFocus.lat, longitude: mapFocus.lng }}
-                            title={mapFocus.title}
-                            pinColor={colors.highlight}
-                        />
+                        mapCentralWarehouse ? (
+                            <Marker
+                                coordinate={{ latitude: mapFocus.lat, longitude: mapFocus.lng }}
+                                pinColor={colors.highlight}>
+                                <Callout>
+                                    <View className="max-w-[300px] px-1 py-1">
+                                        <ThemedText className="text-base font-bold text-black dark:text-white mb-2">
+                                            {mapFocus.title}
+                                        </ThemedText>
+                                        <View className="flex-row flex-wrap items-baseline">
+                                            <ThemedText className="text-sm leading-5 text-neutral-800 dark:text-neutral-200 shrink">
+                                                {t('mapCentralWarehouseCalloutBeforePhone')}{' '}
+                                            </ThemedText>
+                                            <Pressable
+                                                accessibilityRole="link"
+                                                accessibilityLabel={t('mapCentralWarehousePhoneA11y')}
+                                                onPress={() => Linking.openURL(`tel:${CENTRAL_WAREHOUSE_TEL}`)}
+                                                hitSlop={{ top: 6, bottom: 6, left: 4, right: 4 }}>
+                                                <ThemedText
+                                                    className="text-sm font-semibold leading-5 underline"
+                                                    style={{ color: colors.highlight }}>
+                                                    {t('mapCentralWarehousePhoneDisplay')}
+                                                </ThemedText>
+                                            </Pressable>
+                                        </View>
+                                    </View>
+                                </Callout>
+                            </Marker>
+                        ) : (
+                            <Marker
+                                coordinate={{ latitude: mapFocus.lat, longitude: mapFocus.lng }}
+                                title={mapFocus.title}
+                                pinColor={colors.highlight}
+                            />
+                        )
                     ) : null}
                 </MapView>
 

@@ -121,7 +121,7 @@ export const cs: Record<TranslationKey, string> = {
 
   // Home tabs (horizontal scroll under home)
   tabWallet: 'Peněženka',
-  tabMyHaircuts: 'Moje střihy',
+  tabMyHaircuts: 'Můj styl',
   tabBranches: 'Pobočky',
   tabBarbers: 'Barbeři',
   tabServices: 'Služby',
@@ -241,15 +241,16 @@ export const cs: Record<TranslationKey, string> = {
 
   // My haircuts
   myHaircutsWhatsFor: 'K čemu to je?',
-  myHaircutsAddNewA11y: 'Přidat nový střih',
-  myHaircutsYours: 'Vaše střihy',
+  myHaircutsAddNewA11y: 'Přidat nový styl',
+  myHaircutsYours: 'Vaše styly',
   myHaircutsBadgeNewest: 'Můj nový účes',
   myHaircutsBadgeFirst: 'Můj první účes',
-  myHaircutsEmpty: 'Zatím nemáte uložený střih. Přidejte si ho níže.',
-  myHaircutsLoginToSee: 'Pro zobrazení uložených střihů se přihlaste.',
+  myHaircutsEmpty: 'Zatím nemáte uložený styl. Vytvořte si ho níže.',
+  myHaircutsLoginToSee: 'Pro zobrazení uložených stylů se přihlaste.',
   myHaircutsLoadError: 'Střihy se nepodařilo načíst.',
-  myHaircutsCreate: 'Vytvořte si svůj střih',
-  myHaircutsCreateDesc: 'Objevte, jak přidat svůj styl a získat střih, který chcete',
+  myHaircutsCreate: 'Vytvořte si vlastní styl',
+  myHaircutsCreateDesc:
+    'Dejte svému stylu jméno, doplňte pravidla a inspiraci ve fotkách. Popis účesu jen slovy se často výrazně liší od toho, co ve skutečnosti chcete — obrázek nebo vlastní galerie je pro holiče srozumitelnější. Nafotíte, co se vám líbí, nebo si uložíte inspiraci z internetu. Při další návštěvě stačí ukázat uložený styl a hned víme přesně, jak to myslíte.',
 
   // Products (home)
   productsMyPurchased: 'Moje zakoupené produkty',
@@ -422,6 +423,10 @@ export const cs: Record<TranslationKey, string> = {
 
   // Map
   mapLoadingBranches: 'Načítání poboček…',
+  mapCentralWarehouseCalloutBeforePhone:
+    'Zobrazená adresa odpovídá centrálnímu skladu, nikoli kamenné prodejně. Nákup i osobní vyzvednutí zboží je na tomto místě možné výhradně po předchozí telefonické domluvě. Pro koordinaci nás prosím kontaktujte na',
+  mapCentralWarehousePhoneDisplay: '+420 774 522 114',
+  mapCentralWarehousePhoneA11y: 'Zavolat pro domluvu nákupu nebo vyzvednutí na centrálním skladě',
 
   // Product detail
   productSeller: 'Prodejce',
@@ -434,6 +439,9 @@ export const cs: Record<TranslationKey, string> = {
   productShareDialogTitle: 'Real Barber',
   productSharePrimaryImage: 'Zde máš obrázek jak to vypadá',
   productDetails: 'Detaily produktu',
+  productDetailNotFound:
+    'Produkt se nepodařilo načíst. Možná už není v katalogu, nebo nemáte oprávnění k jeho zobrazení.',
+  commonBack: 'Zpět',
   productGuests: 'Hosté',
   productBedrooms: 'Ložnice',
   productBathrooms: 'Koupelny',
@@ -1038,13 +1046,13 @@ export const cs: Record<TranslationKey, string> = {
   guidesLoading: 'Načítání průvodců…',
   guidesNoGuides: 'Zatím žádní průvodci.',
 
-  // Návod „K čemu je Moje střihy“
+  // Návod „K čemu je Můj styl“
   guideMyHaircutsStep1:
-    'Kdykoli máš nápad na účes, vytvoř si ho – dej mu název a ulož. Pak ho u pobočky ukaž holiči a bude přesně vědět, co chceš.',
+    'Kdykoli máš nápad, vytvoř si vlastní styl – pojmenuj ho, ulož pravidla a fotky. U pobočky ho ukaž holiči a bude přesně vědět, co chceš.',
   guideMyHaircutsStep2:
-    'U pobočky stačí holiči ukázat uložený účes. Nemusíš nic vysvětlovat – holič vidí přesně, co chceš.',
+    'U pobočky stačí ukázat uložený styl. Nemusíš vše dlouze popisovat slovy – holič vidí přesně, co myslíš.',
   guideMyHaircutsStep3:
-    'Všechny své účesy máš na jednom místě. Můžeš přidávat další kdykoli nebo je ukázat při příští návštěvě.',
+    'Všechny styly máš na jednom místě. Můžeš přidávat další kdykoli nebo je ukázat při příští návštěvě.',
   guideMyHaircutsNext: 'Další',
   guideMyHaircutsGotIt: 'Rozumím',
 

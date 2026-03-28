@@ -136,7 +136,9 @@ const MyHaircutsScreen = () => {
               </View>
             </View>
             <ThemedText className="text-2xl font-semibold mt-4">{t('myHaircutsCreate')}</ThemedText>
-            <ThemedText className="text-sm font-light text-center px-4">{t('myHaircutsCreateDesc')}</ThemedText>
+            <ThemedText className="text-sm font-light text-center px-4 leading-6">
+              {t('myHaircutsCreateDesc')}
+            </ThemedText>
             <Button
               title={t('profileGetStarted')}
               className="mt-4"

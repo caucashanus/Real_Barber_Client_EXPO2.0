@@ -23,6 +23,8 @@ function favoriteHref(fav: Favorite): string {
       return `/screens/barber-detail?id=${fav.entityId}`;
     case 'item':
       return `/screens/service-detail?id=${fav.entityId}`;
+    case 'product':
+      return `/screens/product-detail?id=${encodeURIComponent(fav.entityId)}`;
     default:
       return '/screens/favorite-list';
   }

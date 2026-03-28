@@ -27,14 +27,19 @@ import {
 } from '@/app/contexts/SelectedPurchaseContext';
 import { useAuth } from '@/app/contexts/AuthContext';
 import { getEntityReviews, type EntityReviewItem } from '@/api/reviews';
-import type { ClientCatalogProduct, ClientCatalogProductReview } from '@/api/products';
+import {
+    resolveClientProductForDetail,
+    type ClientCatalogProduct,
+    type ClientCatalogProductReview,
+    type ClientProductPurchase,
+} from '@/api/products';
 import { useTranslation } from '@/app/hooks/useTranslation';
 import type { Locale } from '@/app/contexts/LanguageContext';
 import type { TranslationKey } from '@/locales';
-import type { ClientProductPurchase } from '@/api/products';
 import useThemeColors from '@/app/contexts/ThemeColors';
 import {
     compareCatalogStockWarehouseRows,
+    isMainCentralWarehouse,
     warehouseGeocodeQuery,
     warehouseUiName,
 } from '@/utils/catalogWarehouse';
@@ -346,11 +351,71 @@ const PropertyDetail = () => {
     const actionSheetRef = useRef<ActionSheetRef>(null);
     const insets = useSafeAreaInsets();
 
-    const isFromPurchased = Boolean(productId && selectedPurchase && selectedPurchase.product.id === productId);
+    const idTrimmed = typeof productId === 'string' ? productId.trim() : '';
+
+    const isFromPurchased = Boolean(idTrimmed && selectedPurchase && selectedPurchase.product.id === idTrimmed);
     const purchase = isFromPurchased ? selectedPurchase : null;
     const isFromCatalog = Boolean(
-        productId && !purchase && selectedCatalogProduct && selectedCatalogProduct.id === productId
+        idTrimmed && !purchase && selectedCatalogProduct && selectedCatalogProduct.id === idTrimmed
     );
+
+    const hasProductContext = Boolean(
+        idTrimmed && (isFromPurchased || (selectedCatalogProduct && selectedCatalogProduct.id === idTrimmed))
+    );
+    const [detailHydrate, setDetailHydrate] = useState<'pending' | 'ready' | 'missing'>(() =>
+        idTrimmed ? 'pending' : 'ready'
+    );
+
+    useEffect(() => {
+        if (!idTrimmed) {
+            setDetailHydrate('ready');
+            return;
+        }
+        if (hasProductContext) {
+            setDetailHydrate('ready');
+            return;
+        }
+        if (!apiToken) {
+            setDetailHydrate('missing');
+            return;
+        }
+        let cancelled = false;
+        setDetailHydrate('pending');
+        resolveClientProductForDetail(apiToken, idTrimmed)
+            .then((r) => {
+                if (cancelled) return;
+                if (r?.kind === 'catalog') {
+                    setSelectedCatalogProduct(r.product);
+                    setSelectedPurchase(null);
+                    setDetailHydrate('ready');
+                } else if (r?.kind === 'purchase') {
+                    setSelectedPurchase(r.purchase);
+                    setSelectedCatalogProduct(null);
+                    setDetailHydrate('ready');
+                } else {
+                    setDetailHydrate('missing');
+                }
+            })
+            .catch(() => {
+                if (!cancelled) setDetailHydrate('missing');
+            });
+        return () => {
+            cancelled = true;
+        };
+    }, [
+        apiToken,
+        idTrimmed,
+        hasProductContext,
+        isFromPurchased,
+        selectedCatalogProduct?.id,
+        selectedPurchase?.product.id,
+        setSelectedCatalogProduct,
+        setSelectedPurchase,
+    ]);
+
+    const showHydrateLoading = Boolean(idTrimmed && !hasProductContext && detailHydrate === 'pending');
+    const showHydrateMissing = Boolean(idTrimmed && detailHydrate === 'missing');
+
     const catalog = isFromCatalog ? selectedCatalogProduct : null;
     const catalogWarehouseLabel = catalog != null ? t('warehouseDisplayCentral') : '';
     const catalogReviewsList = catalog?.reviews ?? [];
@@ -456,6 +521,34 @@ const PropertyDetail = () => {
         const y = roundedViewYRef.current + reviewsSectionYInRoundedRef.current;
         scrollRef.current?.scrollTo({ y: Math.max(0, y - 16), animated: true });
     }, []);
+
+    if (showHydrateLoading) {
+        return (
+            <View className="flex-1 bg-light-primary dark:bg-dark-primary">
+                <Header showBackButton title="" />
+                <View className="flex-1 items-center justify-center px-global">
+                    <ActivityIndicator size="large" />
+                    <ThemedText className="mt-3 text-light-subtext dark:text-dark-subtext">
+                        {t('commonLoading')}
+                    </ThemedText>
+                </View>
+            </View>
+        );
+    }
+
+    if (showHydrateMissing) {
+        return (
+            <View className="flex-1 bg-light-primary dark:bg-dark-primary">
+                <Header showBackButton title="" />
+                <View className="flex-1 items-center justify-center px-global gap-4">
+                    <ThemedText className="text-center text-base text-light-text dark:text-dark-text">
+                        {t('productDetailNotFound')}
+                    </ThemedText>
+                    <Button title={t('commonBack')} variant="outline" onPress={() => router.back()} rounded="lg" />
+                </View>
+            </View>
+        );
+    }
 
     const handleShare = async () => {
         try {
@@ -689,8 +782,13 @@ const PropertyDetail = () => {
                                                                 disabled={!canOpenMap}
                                                                 onPress={() => {
                                                                     if (!canOpenMap) return;
+                                                                    const centralParam = isMainCentralWarehouse(
+                                                                        row.warehouse.name
+                                                                    )
+                                                                        ? '&mapCentralWarehouse=1'
+                                                                        : '';
                                                                     router.push(
-                                                                        `/screens/map?mapQuery=${encodeURIComponent(mapQuery)}&mapLabel=${encodeURIComponent(whDisplayName)}`
+                                                                        `/screens/map?mapQuery=${encodeURIComponent(mapQuery)}&mapLabel=${encodeURIComponent(whDisplayName)}${centralParam}`
                                                                     );
                                                                 }}
                                                                 className={`flex-1 pr-3 min-w-0 ${canOpenMap ? 'active:opacity-70' : ''}`}

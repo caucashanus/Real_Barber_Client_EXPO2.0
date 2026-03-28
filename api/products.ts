@@ -196,3 +196,31 @@ export async function getClientProducts(apiToken: string): Promise<ClientProduct
 
   return res.json() as Promise<ClientProductsResponse>;
 }
+
+export type ResolvedClientProduct =
+  | { kind: 'catalog'; product: ClientCatalogProduct }
+  | { kind: 'purchase'; purchase: ClientProductPurchase };
+
+/**
+ * Najde produkt podle ID pro otevření detailu bez předchozího výběru z katalogu (např. z oblíbených).
+ * Prohledá katalogové flagy, poté zakoupené produkty klienta.
+ */
+export async function resolveClientProductForDetail(
+  apiToken: string,
+  productId: string
+): Promise<ResolvedClientProduct | null> {
+  const flags = [CLIENT_PRODUCTS_CATALOG_FLAG_ID, CLIENT_PRODUCTS_GIFTS_FLAG_ID];
+  for (const flagId of flags) {
+    const res = await getClientProductsByFlag(apiToken, { flagId, limit: 500, offset: 0 });
+    const found = res.products?.find((p) => p.id === productId);
+    if (found) return { kind: 'catalog', product: found };
+  }
+  try {
+    const owned = await getClientProducts(apiToken);
+    const purchase = owned.products?.find((p) => p.product.id === productId);
+    if (purchase) return { kind: 'purchase', purchase };
+  } catch {
+    /* ignore */
+  }
+  return null;
+}
