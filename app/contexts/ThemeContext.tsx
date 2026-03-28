@@ -1,5 +1,8 @@
-import React, { createContext, useContext, useEffect, useState, useCallback } from 'react';
+import React, { createContext, useContext, useEffect, useCallback } from 'react';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useColorScheme } from 'nativewind';
+
+const THEME_STORAGE_KEY = '@app_color_scheme';
 
 type ThemeContextType = {
   isDark: boolean;
@@ -10,32 +13,33 @@ const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
 export const ThemeProvider = ({ children }: { children: React.ReactNode }) => {
   const { colorScheme, setColorScheme } = useColorScheme();
-  const [isDark, setIsDark] = useState(false);
 
-  // Initialize theme on mount
   useEffect(() => {
-    // Set initial theme
-    setColorScheme('light');
-    setIsDark(false);
-  }, []);
+    AsyncStorage.getItem(THEME_STORAGE_KEY).then((stored) => {
+      const next = stored === 'dark' || stored === 'light' ? stored : 'light';
+      try {
+        if (typeof setColorScheme === 'function') {
+          setColorScheme(next);
+        }
+      } catch {
+        // nativewind setColorScheme may be read-only in some environments
+      }
+    });
+  }, [setColorScheme]);
 
-  // Sync isDark state with colorScheme changes
-  useEffect(() => {
-    setIsDark(colorScheme === 'dark');
-  }, [colorScheme]);
+  const isDark = colorScheme === 'dark';
 
-  // Create a stable toggleTheme function with useCallback
   const toggleTheme = useCallback(() => {
-    const nextTheme = isDark ? 'light' : 'dark';
-    setIsDark(!isDark);
+    const next = colorScheme === 'dark' ? 'light' : 'dark';
     try {
       if (typeof setColorScheme === 'function') {
-        setColorScheme(nextTheme);
+        setColorScheme(next);
       }
+      AsyncStorage.setItem(THEME_STORAGE_KEY, next).catch(() => {});
     } catch {
       // nativewind setColorScheme may be read-only in some environments
     }
-  }, [isDark]);
+  }, [colorScheme, setColorScheme]);
 
   return (
     <ThemeContext.Provider value={{ isDark, toggleTheme }}>

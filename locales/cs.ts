@@ -228,7 +228,7 @@ export const cs: Record<TranslationKey, string> = {
     'Slouží k ukládání fotek střihů nebo inspirace, abyste je měli po ruce u další návštěvy. Po přihlášení styly přidáváte a spravujete — je to váš vizuální archív účesu.',
   helpFaq7Q: 'Kde najdu pobočku na mapě?',
   helpFaq7A:
-    'Z úvodní stránky použijte kartu „Pokračovat v hledání holičství“ nebo globální vyhledávání. Na mapě uvidíte pobočky, otevřete detail té, která vám vyhovuje.',
+    'Na záložce Pobočky klepněte na kartu „Najít pobočku na mapě“ nebo použijte vyhledávání nahoře. Otevře se mapa s pobočkami a můžete otevřít detail vybrané provozovny.',
   helpFaq8Q: 'Co znamená „Kudy k nám“?',
   helpFaq8A:
     'U některých poboček zobrazíme krátké video nebo obrázek s orientací, jak se k nám dostanete. Po klepnutí otevřete detail s přehráním videa nebo náhledem — praktické před návštěvou.',
@@ -249,7 +249,7 @@ export const cs: Record<TranslationKey, string> = {
   commonNo: 'Ne',
   commonViewAll: 'Zobrazit vše',
   popularBarbershops: 'Oblíbené holičství v Praze',
-  homeContinueSearchBarbershops: 'Pokračovat v hledání holičství v Praze',
+  homeContinueSearchBarbershops: 'Najít pobočku na mapě',
   howToGetToUs: 'Kudy k nám?',
   topPicks: 'Top výběr',
 

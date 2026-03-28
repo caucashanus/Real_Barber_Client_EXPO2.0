@@ -224,7 +224,7 @@ export const en = {
     'It is where you save photos of your cuts or inspiration so you have them handy for your next visit. After signing in you can add and manage your styles—your personal visual reference for your hair.',
   helpFaq7Q: 'Where do I find branches on the map?',
   helpFaq7A:
-    'From home, use “Continue searching for barbershops” or global search. The map shows branches so you can pick one that suits you and open its detail.',
+    'On the Branches tab, tap “Find a branch on the map” or use search at the top. The map opens with branches so you can open the one you want.',
   helpFaq8Q: 'What does “How to get to us” mean?',
   helpFaq8A:
     'For some branches we show a short video or image with directions. Tap the card to open a detail where you can play the video or view the preview—handy before your appointment.',
@@ -245,7 +245,7 @@ export const en = {
   commonNo: 'No',
   commonViewAll: 'View all',
   popularBarbershops: 'Popular barbershops in Prague',
-  homeContinueSearchBarbershops: 'Continue searching for barbershops in Prague',
+  homeContinueSearchBarbershops: 'Find a branch on the map',
   howToGetToUs: 'How to get to us?',
   topPicks: 'Top picks',
 

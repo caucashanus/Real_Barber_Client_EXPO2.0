@@ -76,13 +76,6 @@ function branchCarouselImages(branch: Branch): (string | number)[] {
   return out;
 }
 
-function branchMinPrice(branch: Branch): number | null {
-  const servicesList = getServicesList(branch);
-  const prices = servicesList.map((s) => s.price).filter((p) => p != null);
-  if (prices.length === 0) return null;
-  return Math.min(...prices);
-}
-
 /** Marker logos per branch name (same as map markers). */
 const BRANCH_MARKER_IMAGES: Record<string, import('react-native').ImageSourcePropType> = {
   Hagibor: require('@/assets/img/markers/hagiborbarrandov.png'),
@@ -254,7 +247,6 @@ export default function BranchDetailScreen() {
   }
 
   const images = branchCarouselImages(branch).map((img) => (typeof img === 'string' ? img : img));
-  const minPrice = branchMinPrice(branch);
   const employeesList = getEmployeesList(branch);
   const vrTourUrl = getVrTourUrl(branch.name);
   const webUrl = branch.webUrl ?? null;
@@ -507,25 +499,16 @@ export default function BranchDetailScreen() {
 
       <View
         style={{ paddingBottom: insets.bottom }}
-        className="flex-row items-center justify-start px-global pt-4 border-t border-neutral-200 dark:border-dark-secondary bg-light-primary dark:bg-dark-primary"
+        className="px-global pt-4 border-t border-neutral-200 dark:border-dark-secondary bg-light-primary dark:bg-dark-primary"
       >
-        <View>
-          <ThemedText className="text-xl font-bold">
-            {minPrice != null ? `From ${minPrice} Kč` : '—'}
-          </ThemedText>
-          <ThemedText className="text-xs opacity-60">{t('branchServices')}</ThemedText>
-          <ThemedText className="text-xs opacity-60 mt-1">{t('branchReview')}</ThemedText>
-        </View>
-        <View className="flex-row items-center ml-auto">
-          <Button
-            title={t('branchReserve')}
-            variant="primary"
-            className="ml-6 px-6"
-            size="medium"
-            rounded="lg"
-            href={`/screens/reservation-create?branchId=${encodeURIComponent(branch.id)}`}
-          />
-        </View>
+        <Button
+          title={t('branchReserve')}
+          variant="primary"
+          className="w-full"
+          size="medium"
+          rounded="lg"
+          href={`/screens/reservation-create?branchId=${encodeURIComponent(branch.id)}`}
+        />
       </View>
 
       <Modal visible={descriptionModalVisible} transparent animationType="fade">
