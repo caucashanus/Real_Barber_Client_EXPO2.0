@@ -578,13 +578,16 @@ export const en = {
   transferNewPayment: 'New payment',
   transferAvailable: 'Available',
   transferRecipient: 'Recipient',
-  transferSearchPlaceholder: 'Employee name or client phone',
+  transferSearchPlaceholder: 'Employee name or client’s full phone number',
   transferYouSentRbc: 'You sent',
   transferTheySentYouRbc: 'They sent you',
   transferSearching: 'Searching…',
-  transferNoResults: 'No results. Enter name or phone (min. 2 characters).',
+  transferNoResults:
+    'No match. For a client, check the full number. For an employee, search by name.',
+  transferEnterFullClientPhone:
+    'To find a client, enter their full phone number. Spaces and +420 / 420 prefix are fine.',
   transferNoEmployeesHint:
-    'No employees. To send to a client, enter their phone in the search (min. 2 characters).',
+    'Search employees by name. Clients appear only after you enter their complete phone number.',
   transferChatAmountPlaceholder: 'Amount (RBC)',
   transferChatNoteOptional: 'Note (optional)',
   transferChatBalance: 'Balance',

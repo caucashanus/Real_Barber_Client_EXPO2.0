@@ -21,6 +21,11 @@ import { getEmployees } from '@/api/employees';
 import { searchClients } from '@/api/clients';
 import { useSetTransferRecipient } from '@/app/contexts/TransferRecipientContext';
 import { useTranslation } from '@/app/hooks/useTranslation';
+import {
+  normalizePhoneDigitsForLookup,
+  isCompleteCzPhoneForClientLookup,
+  toClientSearchPhoneQuery,
+} from '@/utils/clientPhoneSearch';
 
 function formatBalance(value: number): string {
   return value.toLocaleString('cs-CZ', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
@@ -100,6 +105,33 @@ function mergeEmployeesWithHistory(
   return [...withRecent.sort(sortByDate), ...withoutRecent.sort((a, b) => a.name.localeCompare(b.name))];
 }
 
+/** Zaměstnanci + klienti z RBC historie (bez duplicit vůči zaměstnaneckým ID). */
+function buildRecipientListFromEmployeesAndHistory(
+  employees: { id: string; name: string; avatarUrl?: string | null }[],
+  historyRecipients: TransferRecipient[]
+): TransferRecipient[] {
+  const employeeIds = new Set(employees.map((e) => e.id));
+  const employeeRows = mergeEmployeesWithHistory(employees, historyRecipients);
+  const fromHistoryNotEmployees = historyRecipients.filter((r) => !employeeIds.has(r.id));
+  const byId = new Map<string, TransferRecipient>();
+  employeeRows.forEach((r) => byId.set(r.id, r));
+  fromHistoryNotEmployees.forEach((r) => {
+    if (!byId.has(r.id)) byId.set(r.id, r);
+  });
+  const list = Array.from(byId.values());
+  const withDate = list.filter((r) => r.lastTransactionDate);
+  const withoutDate = list.filter((r) => !r.lastTransactionDate);
+  const sortByDate = (a: TransferRecipient, b: TransferRecipient) => {
+    const da = a.lastTransactionDate ? new Date(a.lastTransactionDate).getTime() : 0;
+    const db = b.lastTransactionDate ? new Date(b.lastTransactionDate).getTime() : 0;
+    return db - da;
+  };
+  return [
+    ...withDate.sort(sortByDate),
+    ...withoutDate.sort((a, b) => a.name.localeCompare(b.name)),
+  ];
+}
+
 function recipientAvatarSrc(r: TransferRecipient): string | import('react-native').ImageSourcePropType {
   if (r.avatarUrl) return r.avatarUrl;
   return require('@/assets/img/wallet/realbarber.png');
@@ -137,7 +169,7 @@ export default function TransferSelectRecipientScreen() {
         setHistory(historyData);
         const fromHistory = buildRecipientsFromHistory(historyData, tRef.current);
         const employees = Array.isArray(employeesList) ? employeesList : [];
-        setRecipients(mergeEmployeesWithHistory(employees, fromHistory));
+        setRecipients(buildRecipientListFromEmployeesAndHistory(employees, fromHistory));
       })
       .catch(() => {
         setBalance(0);
@@ -153,11 +185,13 @@ export default function TransferSelectRecipientScreen() {
       clearTimeout(searchDebounceRef.current);
       searchDebounceRef.current = null;
     }
-    if (q.length < 2) {
+    const digits = normalizePhoneDigitsForLookup(q);
+    if (!isCompleteCzPhoneForClientLookup(digits)) {
       setClientSearchResults([]);
       setClientSearchLoading(false);
       return;
     }
+    const phoneQuery = toClientSearchPhoneQuery(digits);
     setClientSearchLoading(true);
     searchDebounceRef.current = setTimeout(() => {
       searchDebounceRef.current = null;
@@ -165,7 +199,7 @@ export default function TransferSelectRecipientScreen() {
         setClientSearchLoading(false);
         return;
       }
-      searchClients(apiToken, q, { limit: 10 })
+      searchClients(apiToken, phoneQuery, { limit: 10 })
         .then((res) => {
           const list: TransferRecipient[] = (res.clients || []).map((c) => ({
             id: c.id,
@@ -183,13 +217,13 @@ export default function TransferSelectRecipientScreen() {
     };
   }, [apiToken, searchQuery]);
 
-  const employeesFiltered = searchQuery.trim()
+  const recipientsFiltered = searchQuery.trim()
     ? recipientsList.filter((r) =>
         r.name.toLowerCase().includes(searchQuery.trim().toLowerCase())
       )
     : recipientsList;
   const seenIds = new Set<string>();
-  const filtered = [...employeesFiltered, ...clientSearchResults].filter((r) => {
+  const filtered = [...recipientsFiltered, ...clientSearchResults].filter((r) => {
     if (seenIds.has(r.id)) return false;
     seenIds.add(r.id);
     return true;
@@ -259,11 +293,18 @@ export default function TransferSelectRecipientScreen() {
         ) : filtered.length === 0 ? (
           <View className="py-8 px-4">
             <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext text-center">
-              {searchQuery.trim()
-                ? clientSearchLoading
+              {!searchQuery.trim()
+                ? t('transferNoEmployeesHint')
+                : clientSearchLoading
                   ? t('transferSearching')
-                  : t('transferNoResults')
-                : t('transferNoEmployeesHint')}
+                  : (() => {
+                      const d = normalizePhoneDigitsForLookup(searchQuery);
+                      const incompletePhone =
+                        d.length >= 2 && !isCompleteCzPhoneForClientLookup(d);
+                      return incompletePhone
+                        ? t('transferEnterFullClientPhone')
+                        : t('transferNoResults');
+                    })()}
             </ThemedText>
           </View>
         ) : (

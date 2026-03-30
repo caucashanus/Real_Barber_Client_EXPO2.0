@@ -583,13 +583,16 @@ export const cs: Record<TranslationKey, string> = {
   transferNewPayment: 'Nová platba',
   transferAvailable: 'K dispozici',
   transferRecipient: 'Příjemce',
-  transferSearchPlaceholder: 'Jméno zaměstnance nebo telefon klienta',
+  transferSearchPlaceholder: 'Jméno zaměstnance nebo celé číslo klienta',
   transferYouSentRbc: 'Odeslali jste',
   transferTheySentYouRbc: 'Odeslali vám',
   transferSearching: 'Vyhledávám…',
-  transferNoResults: 'Žádné výsledky. Zadejte jméno nebo telefon (min. 2 znaky).',
+  transferNoResults:
+    'Nenalezeno. U klienta zkontrolujte celé číslo. U zaměstnance hledejte podle jména.',
+  transferEnterFullClientPhone:
+    'Pro vyhledání klienta zadejte celé telefonní číslo. Mezery ani předvolba (+420 / 420) nevadí.',
   transferNoEmployeesHint:
-    'Žádní zaměstnanci. Pro odeslání klientovi zadejte do vyhledávání jeho telefon (min. 2 znaky).',
+    'Zaměstnance najdete podle jména. Klienta jen po zadání celého jeho telefonního čísla.',
   transferChatAmountPlaceholder: 'Částka (RBC)',
   transferChatNoteOptional: 'Poznámka (nepovinná)',
   transferChatBalance: 'Zůstatek',

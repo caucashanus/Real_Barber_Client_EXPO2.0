@@ -22,8 +22,8 @@ export interface ClientSearchResponse {
 }
 
 /**
- * GET /api/client/clients/search – search other clients by name, display name, or phone.
- * Min 2 characters. Excludes current user. Use for RBC recipient lookup by phone.
+ * GET /api/client/clients/search – CRM hledání klientů (jméno / telefon podle backendu).
+ * V aplikaci (Nová platba) se pro klienty volá jen s kompletním normalizovaným telefonem (420…).
  */
 export async function searchClients(
   apiToken: string,
