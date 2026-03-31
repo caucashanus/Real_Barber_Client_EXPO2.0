@@ -1,7 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { View, ActivityIndicator, ImageBackground } from 'react-native';
-import { useLocalSearchParams } from 'expo-router';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import { View, ActivityIndicator, ImageBackground, Share } from 'react-native';
+import { useLocalSearchParams, useRouter } from 'expo-router';
 import Header from '@/components/Header';
 import ThemedScroller from '@/components/ThemeScroller';
 import ThemedText from '@/components/ThemedText';
@@ -9,60 +8,49 @@ import Section from '@/components/layout/Section';
 import { Button } from '@/components/Button';
 import { useAuth } from '@/app/contexts/AuthContext';
 import { useTranslation } from '@/app/hooks/useTranslation';
-import { generateReferral, getReferrals, type ReferralActiveProgram, type ReferralGenerated } from '@/api/referrals';
+import { generateReferral, getReferrals, type ClientReferralItem, type ReferralActiveProgram } from '@/api/referrals';
 
-const REFERRAL_BY_PROGRAM_STORAGE_KEY = '@referral_generated_by_program';
+const REFERRAL_SHARE_BASE = 'https://crm.xrb.cz/ref/';
 
-async function loadReferralMap(): Promise<Record<string, ReferralGenerated>> {
+function formatValidUntil(iso: string, locale: string): string {
+  const d = new Date(iso);
+  if (!Number.isFinite(d.getTime())) return iso;
   try {
-    const raw = await AsyncStorage.getItem(REFERRAL_BY_PROGRAM_STORAGE_KEY);
-    if (!raw) return {};
-    const parsed = JSON.parse(raw) as Record<string, ReferralGenerated>;
-    if (!parsed || typeof parsed !== 'object') return {};
-    return parsed;
+    return new Intl.DateTimeFormat(locale === 'cs' ? 'cs-CZ' : 'en-GB', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric',
+    }).format(d);
   } catch {
-    return {};
-  }
-}
-
-async function saveReferral(programId: string, referral: ReferralGenerated): Promise<void> {
-  const current = await loadReferralMap();
-  const next = { ...current, [programId]: referral };
-  try {
-    await AsyncStorage.setItem(REFERRAL_BY_PROGRAM_STORAGE_KEY, JSON.stringify(next));
-  } catch {
-    // ignore
+    return d.toISOString().slice(0, 10);
   }
 }
 
 export default function ReferralProgramDetailScreen() {
   const { id } = useLocalSearchParams<{ id?: string }>();
   const programId = (Array.isArray(id) ? id[0] : id) ?? '';
+  const router = useRouter();
   const { apiToken } = useAuth();
-  const { t } = useTranslation();
+  const { t, locale } = useTranslation();
 
   const [programs, setPrograms] = useState<ReferralActiveProgram[]>([]);
+  const [referralsMade, setReferralsMade] = useState<ClientReferralItem[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [joining, setJoining] = useState(false);
-  const [generated, setGenerated] = useState<ReferralGenerated | null>(null);
 
   useEffect(() => {
     if (!apiToken || !programId) return;
     setLoading(true);
     setError(null);
-    getReferrals(apiToken)
-      .then((r) => setPrograms(r.activePrograms || []))
+    getReferrals(apiToken, { includeProgress: true })
+      .then((r) => {
+        setPrograms(r.activePrograms || []);
+        setReferralsMade(r.referralsMade || []);
+      })
       .catch((e) => setError(e instanceof Error ? e.message : 'Failed to load'))
       .finally(() => setLoading(false));
   }, [apiToken, programId]);
-
-  useEffect(() => {
-    if (!programId) return;
-    loadReferralMap().then((m) => {
-      setGenerated(m[programId] ?? null);
-    });
-  }, [programId]);
 
   const program = useMemo(
     () => programs.find((p) => p.id === programId) ?? null,
@@ -70,20 +58,28 @@ export default function ReferralProgramDetailScreen() {
   );
 
   const coverUri = program?.coverImageUrl?.trim() || null;
+  const programReferrals = useMemo(
+    () => referralsMade.filter((r) => r.programId === programId),
+    [programId, referralsMade]
+  );
+  const validUntilText = program?.validUntil?.trim()
+    ? formatValidUntil(program.validUntil, locale)
+    : null;
 
   const onJoinProgram = async () => {
-    if (!apiToken || !program) return;
+    if (!apiToken || !programId || !program) return;
     setJoining(true);
     setError(null);
     try {
-      const referral = await generateReferral(apiToken, {
+      const res = await generateReferral(apiToken, {
         programId: program.id,
         coverImageUrl: program.coverImageUrl ?? null,
       });
-      setGenerated(referral);
-      await saveReferral(program.id, referral);
+      const referral = res.referral;
+      const shareUrl = `${REFERRAL_SHARE_BASE}${encodeURIComponent(referral.code)}`;
+      await Share.share({ message: shareUrl });
     } catch (e) {
-      setError(e instanceof Error ? e.message : 'Failed to generate');
+      setError(e instanceof Error ? e.message : 'Failed to share');
     } finally {
       setJoining(false);
     }
@@ -140,6 +136,14 @@ export default function ReferralProgramDetailScreen() {
 
             <Section title={t('referralProgramDetails')} titleSize="lg" className="px-global mt-8">
               <View className="rounded-2xl bg-light-secondary dark:bg-dark-secondary p-5">
+                {validUntilText ? (
+                  <View className="flex-row items-baseline justify-between">
+                    <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext">
+                      {t('referralProgramValidUntil')}
+                    </ThemedText>
+                    <ThemedText className="text-base font-semibold">{validUntilText}</ThemedText>
+                  </View>
+                ) : null}
                 <View className="flex-row items-baseline justify-between">
                   <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext">
                     {t('referralProgramReferrerReward')}
@@ -170,19 +174,21 @@ export default function ReferralProgramDetailScreen() {
             </Section>
 
             <View className="px-global mt-6 pb-10">
-              {generated?.code ? (
-                <View className="mb-4 rounded-2xl bg-light-secondary dark:bg-dark-secondary p-5">
-                  <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext">
-                    {t('referralProgramYourCode')}
-                  </ThemedText>
-                  <ThemedText className="text-xl font-bold mt-1">{generated.code}</ThemedText>
-                </View>
-              ) : null}
               <Button
-                title={generated?.code ? t('referralProgramRegenerate') : t('referralProgramJoin')}
+                title={t('referralProgramJoin')}
                 loading={joining}
                 onPress={onJoinProgram}
               />
+              {programReferrals.length > 0 ? (
+                <Button
+                  title={t('referralProgramTrackInvites')}
+                  variant="secondary"
+                  className="mt-3"
+                  onPress={() =>
+                    router.push(`/screens/referral-program/${encodeURIComponent(programId)}/invites`)
+                  }
+                />
+              ) : null}
             </View>
           </>
         )}
