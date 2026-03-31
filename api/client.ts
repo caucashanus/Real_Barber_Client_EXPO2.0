@@ -19,6 +19,8 @@ export interface ClientMe {
   lastVisit: string | null;
   createdAt: string;
   updatedAt: string;
+  /** Status zákazníka z CRM (např. segment věrnosti); může být null. */
+  customerStatus: string | null;
 }
 
 /** GET /api/client/me – current client information. */

@@ -10,13 +10,27 @@ export interface ClientReferralsStats {
   pendingRequests: number;
 }
 
+/** Aktivní doporučovací program z GET /api/client/referrals. */
+export interface ReferralActiveProgram {
+  id: string;
+  name: string;
+  description: string | null;
+  /** Banner / poster programu (pozadí karty v peněžence). */
+  coverImageUrl?: string | null;
+  referrerRewardType: string;
+  referrerRewardAmount: number;
+  refereeRewardType: string;
+  refereeRewardAmount: number | null;
+  minPurchaseAmount: number;
+}
+
 export interface ClientReferralsResponse {
   client: { id: string; name: string; email: string };
   stats: ClientReferralsStats;
   referralsMade: unknown[];
   referralsReceived: unknown[];
   requests: unknown[];
-  activePrograms: unknown[];
+  activePrograms: ReferralActiveProgram[];
   progressEnabled: boolean;
 }
 

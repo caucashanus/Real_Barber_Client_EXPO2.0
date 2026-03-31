@@ -1,11 +1,14 @@
-import React from 'react';
+import React, { type ReactNode } from 'react';
 import { View, Pressable, ViewStyle } from 'react-native';
 import { Link } from 'expo-router';
 import Icon, { IconName } from './Icon';
 import ThemedText from './ThemedText';
 
 interface ListLinkProps {
+  /** Ikona vlevo; pokud je `leading`, použije se místo ní. */
   icon?: IconName;
+  /** Vlastní obsah vlevo (např. avatar). */
+  leading?: ReactNode;
   title: string;
   description?: string;
   href?: string;
@@ -21,6 +24,7 @@ interface ListLinkProps {
 
 const ListLink: React.FC<ListLinkProps> = ({
   icon,
+  leading,
   title,
   description,
   href,
@@ -36,11 +40,12 @@ const ListLink: React.FC<ListLinkProps> = ({
   // Component for the actual content
   const Content = () => (
     <View className={`flex-row items-center py-4 ${className} ${disabled ? 'opacity-50' : ''}`} style={style}>
-      {icon && (
+      {leading ? <View className="mr-4">{leading}</View> : null}
+      {!leading && icon ? (
         <View className="mr-4">
           <Icon name={icon} size={iconSize} strokeWidth={1.3} />
         </View>
-      )}
+      ) : null}
       <View className="flex-1">
         <ThemedText className="text-base font-normal">{title}</ThemedText>
         {description && (

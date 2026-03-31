@@ -97,6 +97,7 @@ export const cs: Record<TranslationKey, string> = {
   profileReservations: 'Rezervace',
   profileReviews: 'Recenze',
   profileMemberDays: 'Členem (dní)',
+  profileCustomerStatus: 'Status zákazníka',
   profileAccountSettings: 'Nastavení účtu',
   profileEditProfile: 'Upravit profil',
   profileGetHelp: 'Nápověda',

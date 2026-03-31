@@ -1,7 +1,7 @@
 import ThemeScroller from '@/components/ThemeScroller';
 import React, { useCallback, useContext, useEffect, useRef, useState } from 'react';
 import { useFocusEffect } from '@react-navigation/native';
-import { View, Animated, Pressable, ActivityIndicator, ScrollView } from 'react-native';
+import { View, Animated, Pressable, ActivityIndicator, ScrollView, ImageBackground } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import AnimatedView from '@/components/AnimatedView';
 
@@ -34,6 +34,7 @@ import useThemeColors from '@/app/contexts/ThemeColors';
 import { shadowPresets } from '@/utils/useShadow';
 import { useAuth } from '@/app/contexts/AuthContext';
 import { getRbCoinsBalance, getRbCoinsHistory, type RbCoinsHistoryItem } from '@/api/rb-coins';
+import { getReferrals, type ReferralActiveProgram } from '@/api/referrals';
 import { useTranslation } from '@/app/hooks/useTranslation';
 import { Link, useRouter } from 'expo-router';
 import TransactionDetailModal from '@/components/TransactionDetailModal';
@@ -64,17 +65,29 @@ function transactionAvatarSrc(item: RbCoinsHistoryItem): string | import('react-
 }
 
 const ANIM_DURATION_MS = 500;
-const WALLET_PROMO_DISMISSED_KEY = 'wallet_promo_dismissed';
+/** Skrytí referral karty podle ID programu (24 h). */
+const WALLET_REFERRAL_PROMO_DISMISSED_KEY = 'wallet_referral_promo_dismissed';
 const WALLET_PROMO_HIDE_MS = 24 * 60 * 60 * 1000; // 24 h
 
-/** Peněženka: „Více“ (tlačítko pod zůstatkem + akce v řádku) → `/screens/rbc`. Nastav na `true`, až bude znovu potřeba. */
+function normalizeActivePrograms(raw: unknown): ReferralActiveProgram[] {
+  if (!Array.isArray(raw)) return [];
+  return raw.filter(
+    (p): p is ReferralActiveProgram =>
+      typeof p === 'object' &&
+      p !== null &&
+      typeof (p as ReferralActiveProgram).id === 'string' &&
+      typeof (p as ReferralActiveProgram).name === 'string'
+  );
+}
+
+/** Peněženka: „Více“ (tlačítko pod zůstatkem + akce v řádku) → `/screens/rbc`. */
 const SHOW_WALLET_MORE_RBC = false;
 
-/** Peněženka: akce „Přidat peníze“ a „Detail“. Nastav na `true`, až bude znovu potřeba. */
+/** Peněženka: akce „Přidat peníze“ a „Detail“. */
 const SHOW_WALLET_ADD_MONEY_AND_DETAILS = false;
 
-/** Peněženka: horizontálně posuvné promo karty pod akcemi. Nastav na `true`, až bude znovu potřeba. */
-const SHOW_WALLET_HORIZONTAL_PROMO_CARDS = false;
+/** Peněženka: horizontálně posuvné promo karty pod akcemi. */
+const SHOW_WALLET_HORIZONTAL_PROMO_CARDS = true;
 
 const WalletScreen = () => {
   const router = useRouter();
@@ -91,31 +104,34 @@ const WalletScreen = () => {
   const [displayAmount, setDisplayAmount] = useState(0);
   const countAnim = useRef(new Animated.Value(0)).current;
   const lastAnimatedBalanceRef = useRef<number | null>(null);
-  const [dismissedPromoAt, setDismissedPromoAt] = useState<Record<number, number>>({});
+  const [dismissedReferralPromoAt, setDismissedReferralPromoAt] = useState<Record<string, number>>({});
+  const [referralPrograms, setReferralPrograms] = useState<ReferralActiveProgram[]>([]);
+  const [referralsLoading, setReferralsLoading] = useState(false);
 
   useEffect(() => {
-    AsyncStorage.getItem(WALLET_PROMO_DISMISSED_KEY).then((raw) => {
+    AsyncStorage.getItem(WALLET_REFERRAL_PROMO_DISMISSED_KEY).then((raw) => {
       if (!raw) return;
       try {
         const parsed: Record<string, number> = JSON.parse(raw);
         const now = Date.now();
-        const next: Record<number, number> = {};
-        Object.entries(parsed).forEach(([k, ts]) => {
-          const idx = Number(k);
-          if (now - ts < WALLET_PROMO_HIDE_MS) next[idx] = ts;
+        const next: Record<string, number> = {};
+        Object.entries(parsed).forEach(([programId, ts]) => {
+          if (typeof programId === 'string' && now - ts < WALLET_PROMO_HIDE_MS) {
+            next[programId] = ts;
+          }
         });
-        setDismissedPromoAt(next);
+        setDismissedReferralPromoAt(next);
       } catch {
         /* ignore */
       }
     });
   }, []);
 
-  const handleDismissPromo = (index: number) => {
+  const handleDismissReferralPromo = (programId: string) => {
     const now = Date.now();
-    setDismissedPromoAt((prev) => {
-      const next = { ...prev, [index]: now };
-      AsyncStorage.setItem(WALLET_PROMO_DISMISSED_KEY, JSON.stringify(next)).catch(() => {});
+    setDismissedReferralPromoAt((prev) => {
+      const next = { ...prev, [programId]: now };
+      AsyncStorage.setItem(WALLET_REFERRAL_PROMO_DISMISSED_KEY, JSON.stringify(next)).catch(() => {});
       return next;
     });
   };
@@ -131,8 +147,10 @@ const WalletScreen = () => {
       setBalance(null);
       setDisplayAmount(0);
       setHistory([]);
+      setReferralPrograms([]);
       setBalanceLoading(false);
       setHistoryLoading(false);
+      setReferralsLoading(false);
       lastAnimatedBalanceRef.current = null;
       return;
     }
@@ -148,6 +166,12 @@ const WalletScreen = () => {
       .then((r) => setHistory(r.data.slice(0, 3)))
       .catch(() => setHistory([]))
       .finally(() => setHistoryLoading(false));
+
+    setReferralsLoading(true);
+    getReferrals(apiToken)
+      .then((r) => setReferralPrograms(normalizeActivePrograms(r.activePrograms)))
+      .catch(() => setReferralPrograms([]))
+      .finally(() => setReferralsLoading(false));
   }, [apiToken]);
 
   useFocusEffect(
@@ -158,6 +182,9 @@ const WalletScreen = () => {
         .catch((e) => setBalanceError(e instanceof Error ? e.message : 'Error'));
       getRbCoinsHistory(apiToken)
         .then((r) => setHistory(r.data.slice(0, 3)))
+        .catch(() => {});
+      getReferrals(apiToken)
+        .then((r) => setReferralPrograms(normalizeActivePrograms(r.activePrograms)))
         .catch(() => {});
     }, [apiToken])
   );
@@ -187,6 +214,14 @@ const WalletScreen = () => {
       });
     });
   }, [balance]);
+
+  const visibleReferralPrograms = referralPrograms.filter(
+    (p) =>
+      !dismissedReferralPromoAt[p.id] ||
+      Date.now() - dismissedReferralPromoAt[p.id] >= WALLET_PROMO_HIDE_MS
+  );
+  const showReferralPromoStrip =
+    SHOW_WALLET_HORIZONTAL_PROMO_CARDS && (referralsLoading || visibleReferralPrograms.length > 0);
 
   return (
     <ThemeScroller
@@ -248,40 +283,78 @@ const WalletScreen = () => {
           ) : null}
         </View>
 
-        {/* 3. Reklamní karty – horizontální scroll, X skryje na 24 h */}
-        {SHOW_WALLET_HORIZONTAL_PROMO_CARDS ? (
+        {/* 3. Karty aktivních referral programů z GET /api/client/referrals – X skryje na 24 h */}
+        {showReferralPromoStrip ? (
           <ScrollView
             horizontal
             showsHorizontalScrollIndicator={false}
             className="-mx-global mt-4 mb-0"
             contentContainerStyle={{ paddingHorizontal: 16, paddingRight: 24, paddingVertical: 18 }}
           >
-            {[
-              { titleKey: 'walletFlexiFondy', subtitleKey: 'walletFlexiFondySubtitle' },
-              { titleKey: 'walletPromoTitle2', subtitleKey: 'walletPromoSubtitle2' },
-              { titleKey: 'walletPromoTitle3', subtitleKey: 'walletPromoSubtitle3' },
-            ]
-              .map((item, index) => ({ item, index }))
-              .filter(({ index }) => !dismissedPromoAt[index] || Date.now() - dismissedPromoAt[index] >= WALLET_PROMO_HIDE_MS)
-              .map(({ item, index }) => (
+            {referralsLoading && visibleReferralPrograms.length === 0 ? (
+              <View
+                style={{ ...shadowPresets.large, width: 280, marginRight: 15 }}
+                className="p-5 rounded-2xl bg-light-secondary dark:bg-dark-secondary flex-shrink-0 items-center justify-center min-h-[120px]"
+              >
+                <ActivityIndicator size="small" />
+              </View>
+            ) : null}
+            {visibleReferralPrograms.map((program) => {
+              const coverUri = program.coverImageUrl?.trim();
+              const cardInner = (
+                <View className="flex-row justify-between items-start">
+                  <View className="flex-1 pr-2">
+                    <ThemedText
+                      className={`text-lg font-bold ${coverUri ? 'text-white' : 'text-light-text dark:text-dark-text'}`}
+                    >
+                      {program.name}
+                    </ThemedText>
+                    <ThemedText
+                      className={`text-sm mt-1 ${coverUri ? 'text-white/90' : 'text-light-subtext dark:text-dark-subtext'}`}
+                    >
+                      {program.description?.trim() ? program.description : '—'}
+                    </ThemedText>
+                  </View>
+                  <Pressable className="p-1" onPress={() => handleDismissReferralPromo(program.id)}>
+                    <Icon
+                      name="X"
+                      size={18}
+                      color={coverUri ? '#ffffff' : undefined}
+                      className={coverUri ? '' : 'text-light-subtext dark:text-dark-subtext'}
+                    />
+                  </Pressable>
+                </View>
+              );
+
+              if (coverUri) {
+                return (
+                  <ImageBackground
+                    key={program.id}
+                    source={{ uri: coverUri }}
+                    style={[{ ...shadowPresets.large, width: 280, marginRight: 15 }, { minHeight: 140 }]}
+                    className="rounded-2xl overflow-hidden flex-shrink-0"
+                    imageStyle={{ borderRadius: 16 }}
+                  >
+                    <View
+                      className="flex-1 p-5 justify-center rounded-2xl"
+                      style={{ backgroundColor: 'rgba(0,0,0,0.45)' }}
+                    >
+                      {cardInner}
+                    </View>
+                  </ImageBackground>
+                );
+              }
+
+              return (
                 <View
-                  key={index}
+                  key={program.id}
                   style={{ ...shadowPresets.large, width: 280, marginRight: 15 }}
                   className="p-5 rounded-2xl bg-light-secondary dark:bg-dark-secondary flex-shrink-0"
                 >
-                  <View className="flex-row justify-between items-start">
-                    <View className="flex-1 pr-2">
-                      <ThemedText className="text-lg font-bold text-light-text dark:text-dark-text">{t(item.titleKey)}</ThemedText>
-                      <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext mt-1">
-                        {t(item.subtitleKey)}
-                      </ThemedText>
-                    </View>
-                    <Pressable className="p-1" onPress={() => handleDismissPromo(index)}>
-                      <Icon name="X" size={18} className="text-light-subtext dark:text-dark-subtext" />
-                    </Pressable>
-                  </View>
+                  {cardInner}
                 </View>
-              ))}
+              );
+            })}
           </ScrollView>
         ) : null}
 
