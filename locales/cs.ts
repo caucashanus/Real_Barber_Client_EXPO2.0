@@ -610,6 +610,17 @@ export const cs: Record<TranslationKey, string> = {
   transferChatMenuReportUser: 'Nahlásit uživatele',
   commonRecipient: 'Příjemce',
 
+  // Referral program detail
+  referralProgramTitle: 'Doporučovací program',
+  referralProgramNotFound: 'Program se nepodařilo najít.',
+  referralProgramDetails: 'Detail programu',
+  referralProgramReferrerReward: 'Odměna za doporučení',
+  referralProgramRefereeReward: 'Odměna pro doporučeného',
+  referralProgramMinPurchase: 'Minimální nákup',
+  referralProgramJoin: 'Zapojit do programu',
+  referralProgramYourCode: 'Váš referral kód',
+  referralProgramRegenerate: 'Vygenerovat nový kód',
+
   // Insights
   insightsTitle: 'Přehledy',
   insightsLongerStays: 'Dlouhodobé pobyty',

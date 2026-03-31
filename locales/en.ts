@@ -605,6 +605,17 @@ export const en = {
   transferChatMenuReportUser: 'Report user',
   commonRecipient: 'Recipient',
 
+  // Referral program detail
+  referralProgramTitle: 'Referral program',
+  referralProgramNotFound: 'Program not found.',
+  referralProgramDetails: 'Program details',
+  referralProgramReferrerReward: 'Reward for referring',
+  referralProgramRefereeReward: 'Reward for referred friend',
+  referralProgramMinPurchase: 'Minimum purchase',
+  referralProgramJoin: 'Join program',
+  referralProgramYourCode: 'Your referral code',
+  referralProgramRegenerate: 'Generate a new code',
+
   // Insights
   insightsTitle: 'Insights',
   insightsLongerStays: 'Longer Stays',

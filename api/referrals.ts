@@ -46,3 +46,35 @@ export async function getReferrals(apiToken: string): Promise<ClientReferralsRes
 
   return res.json() as Promise<ClientReferralsResponse>;
 }
+
+export interface GenerateReferralBody {
+  programId: string;
+  coverImageUrl?: string | null;
+}
+
+export interface ReferralGenerated {
+  id: string;
+  programId: string;
+  code: string;
+  coverImageUrl?: string | null;
+  createdAt?: string;
+}
+
+/** POST /api/client/referrals/generate – generate referral code for given program. */
+export async function generateReferral(
+  apiToken: string,
+  body: GenerateReferralBody
+): Promise<ReferralGenerated> {
+  const res = await fetch(`${CRM_BASE}/api/client/referrals/generate`, {
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${apiToken}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(body),
+  });
+
+  if (res.status === 401) throw new Error('Unauthorized');
+  if (!res.ok) throw new Error(`Error ${res.status}`);
+  return res.json() as Promise<ReferralGenerated>;
+}

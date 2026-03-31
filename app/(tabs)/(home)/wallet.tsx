@@ -301,9 +301,12 @@ const WalletScreen = () => {
             ) : null}
             {visibleReferralPrograms.map((program) => {
               const coverUri = program.coverImageUrl?.trim();
+              const openProgramDetail = () => {
+                router.push(`/screens/referral-program/${encodeURIComponent(program.id)}`);
+              };
               const cardInner = (
                 <View className="flex-row justify-between items-start">
-                  <View className="flex-1 pr-2">
+                  <Pressable className="flex-1 pr-2" onPress={openProgramDetail}>
                     <ThemedText
                       className={`text-lg font-bold ${coverUri ? 'text-white' : 'text-light-text dark:text-dark-text'}`}
                     >
@@ -314,7 +317,7 @@ const WalletScreen = () => {
                     >
                       {program.description?.trim() ? program.description : '—'}
                     </ThemedText>
-                  </View>
+                  </Pressable>
                   <Pressable className="p-1" onPress={() => handleDismissReferralPromo(program.id)}>
                     <Icon
                       name="X"
