@@ -94,6 +94,7 @@ export const en = {
   profileReservations: 'Reservations',
   profileReviews: 'Reviews',
   profileMemberDays: 'Member for (days)',
+  profileMemberDaysFirstDay: 'First day',
   profileCustomerStatus: 'Customer status',
   profileAccountSettings: 'Account settings',
   profileEditProfile: 'Edit profile',

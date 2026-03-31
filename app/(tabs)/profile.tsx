@@ -16,7 +16,6 @@ import { router } from 'expo-router';
 import { useAuth } from '@/app/contexts/AuthContext';
 import { getClientMe, type ClientMe } from '@/api/client';
 import { getBookings } from '@/api/bookings';
-import { getClientReviewsList } from '@/api/reviews';
 import { useTranslation } from '@/app/hooks/useTranslation';
 
 /** Profil → Doporučení (`/screens/referrals`). */
@@ -100,13 +99,11 @@ const PersonalProfile = () => {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [reservationsCount, setReservationsCount] = useState<number>(0);
-    const [reviewsCount, setReviewsCount] = useState<number>(0);
 
     useEffect(() => {
         if (!apiToken) {
             setClient(null);
             setReservationsCount(0);
-            setReviewsCount(0);
             return;
         }
         setLoading(true);
@@ -119,10 +116,6 @@ const PersonalProfile = () => {
         getBookings(apiToken, { limit: 1 })
             .then((res) => setReservationsCount(res.pagination?.total ?? res.bookings?.length ?? 0))
             .catch(() => setReservationsCount(0));
-
-        getClientReviewsList(apiToken, { limit: 1, page: 1 })
-            .then((res) => setReviewsCount(res.pagination?.total ?? res.reviews?.length ?? 0))
-            .catch(() => setReviewsCount(0));
     }, [apiToken]);
 
     useFocusEffect(
@@ -144,6 +137,8 @@ const PersonalProfile = () => {
     const avatarSrc = client?.avatarUrl ?? require('@/assets/img/wallet/RB.avatar.jpg');
     const addressLine = [client?.address?.trim(), client?.city?.trim()].filter(Boolean).join(', ') || null;
     const daysMember = daysSinceCreatedAt(client?.createdAt);
+    const memberDaysDisplay =
+      daysMember === null ? '—' : daysMember === 0 ? t('profileMemberDaysFirstDay') : String(daysMember);
 
     return (
         <AnimatedView className='pt-4' animation='scaleIn'>
@@ -174,14 +169,10 @@ const PersonalProfile = () => {
                         <ThemedText className="text-xs">{t('profileReservations')}</ThemedText>
                     </View>
                     <View className='w-full py-3 my-3 border-y border-neutral-300 dark:border-dark-primary'>
-                        <ThemedText className="text-xl font-bold">{reviewsCount}</ThemedText>
-                        <ThemedText className="text-xs">{t('profileReviews')}</ThemedText>
-                    </View>
-                    <View className='w-full'>
-                        <ThemedText className="text-xl font-bold">{daysMember ?? '—'}</ThemedText>
+                        <ThemedText className="text-xl font-bold">{memberDaysDisplay}</ThemedText>
                         <ThemedText className="text-xs">{t('profileMemberDays')}</ThemedText>
                     </View>
-                    <View className='w-full pt-3 mt-3 border-t border-neutral-300 dark:border-dark-primary'>
+                    <View className='w-full'>
                         <ThemedText className="text-xl font-bold">
                             {client?.customerStatus?.trim() ? client.customerStatus.trim() : '—'}
                         </ThemedText>
