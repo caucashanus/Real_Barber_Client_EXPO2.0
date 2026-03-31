@@ -10,7 +10,7 @@ import ListItem from '@/components/layout/ListItem';
 import Avatar from '@/components/Avatar';
 import { useAuth } from '@/app/contexts/AuthContext';
 import { useTranslation } from '@/app/hooks/useTranslation';
-import { getReferrals, type ClientReferralItem } from '@/api/referrals';
+import { getReferrals, type ClientReferralItem, type PendingAttributionItem } from '@/api/referrals';
 
 function inviteStatusLabel(status: string, t: (k: any) => string): string {
   const s = String(status || '').toUpperCase();
@@ -40,13 +40,17 @@ export default function ReferralInvitesScreen() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [referralsMade, setReferralsMade] = useState<ClientReferralItem[]>([]);
+  const [pendingAttributions, setPendingAttributions] = useState<PendingAttributionItem[]>([]);
 
   useEffect(() => {
     if (!apiToken || !pid) return;
     setLoading(true);
     setError(null);
     getReferrals(apiToken, { includeProgress: true })
-      .then((r) => setReferralsMade(r.referralsMade || []))
+      .then((r) => {
+        setReferralsMade(r.referralsMade || []);
+        setPendingAttributions(r.pendingAttributions || []);
+      })
       .catch((e) => setError(e instanceof Error ? e.message : 'Failed to load'))
       .finally(() => setLoading(false));
   }, [apiToken, pid]);
@@ -55,6 +59,29 @@ export default function ReferralInvitesScreen() {
     () => referralsMade.filter((r) => r.programId === pid),
     [pid, referralsMade]
   );
+
+  const pending = useMemo(
+    () => pendingAttributions.filter((a) => a.program?.id === pid),
+    [pid, pendingAttributions]
+  );
+
+  const rows = useMemo(() => {
+    const inviteRows = invites.map((invite) => ({
+      key: `invite:${invite.id}`,
+      title: refereeTitle(invite),
+      subtitle: inviteStatusLabel(invite.status, t),
+      avatar: refereeAvatar(invite),
+      onPress: () => router.push(`/screens/referral-invite/${encodeURIComponent(invite.id)}`),
+    }));
+    const pendingRows = pending.map((a) => ({
+      key: `pending:${a.id}`,
+      title: a.phone,
+      subtitle: t('referralInviteLeadPhoneEntered'),
+      avatar: require('@/assets/img/wallet/realbarber.png') as import('react-native').ImageSourcePropType,
+      onPress: () => router.push(`/screens/referral-attribution/${encodeURIComponent(a.id)}`),
+    }));
+    return [...pendingRows, ...inviteRows];
+  }, [invites, pending, router, t]);
 
   return (
     <>
@@ -75,7 +102,7 @@ export default function ReferralInvitesScreen() {
               {error}
             </ThemedText>
           </View>
-        ) : invites.length === 0 ? (
+        ) : rows.length === 0 ? (
           <View className="py-8">
             <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext text-center">
               {t('referralInvitesEmpty')}
@@ -84,14 +111,14 @@ export default function ReferralInvitesScreen() {
         ) : (
           <View className="rounded-2xl bg-light-secondary dark:bg-dark-secondary overflow-hidden">
             <List variant="divided" spacing={12} className="px-4">
-              {invites.map((invite) => (
+              {rows.map((row) => (
                 <ListItem
-                  key={invite.id}
+                  key={row.key}
                   className="py-2"
-                  leading={<Avatar src={refereeAvatar(invite)} size="sm" />}
-                  title={refereeTitle(invite)}
-                  subtitle={inviteStatusLabel(invite.status, t)}
-                  onPress={() => router.push(`/screens/referral-invite/${encodeURIComponent(invite.id)}`)}
+                  leading={<Avatar src={row.avatar} size="sm" />}
+                  title={row.title}
+                  subtitle={row.subtitle}
+                  onPress={row.onPress}
                 />
               ))}
             </List>

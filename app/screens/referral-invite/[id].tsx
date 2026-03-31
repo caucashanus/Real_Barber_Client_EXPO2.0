@@ -16,11 +16,35 @@ function safeText(v: unknown): string {
   return s.length ? s : '—';
 }
 
+function formatDateTime(iso: string, locale: string): string {
+  const d = new Date(iso);
+  if (!Number.isFinite(d.getTime())) return iso;
+  try {
+    return new Intl.DateTimeFormat(locale === 'cs' ? 'cs-CZ' : 'en-GB', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+    }).format(d);
+  } catch {
+    return d.toISOString();
+  }
+}
+
+function statusHeadline(status: string, t: (k: any) => string): string {
+  const s = String(status || '').toUpperCase();
+  if (s === 'REWARDED') return t('referralInviteHeadlineRewarded');
+  if (s === 'QUALIFIED') return t('referralInviteHeadlineQualified');
+  if (s === 'LIMIT_REACHED') return t('referralInviteHeadlineLimitReached');
+  return t('referralInviteHeadlinePending');
+}
+
 export default function ReferralInviteDetailScreen() {
   const { id } = useLocalSearchParams<{ id?: string }>();
   const inviteId = (Array.isArray(id) ? id[0] : id) ?? '';
   const { apiToken } = useAuth();
-  const { t } = useTranslation();
+  const { t, locale } = useTranslation();
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -40,6 +64,9 @@ export default function ReferralInviteDetailScreen() {
     () => referralsMade.find((r) => r.id === inviteId) ?? null,
     [inviteId, referralsMade]
   );
+
+  const attribution = invite?.attribution ?? null;
+  const spend = invite?.spendProgress ?? null;
 
   return (
     <View className="flex-1 bg-light-primary dark:bg-dark-primary">
@@ -84,37 +111,71 @@ export default function ReferralInviteDetailScreen() {
 
             <Divider className="my-6" />
 
-            <Section title={t('referralInviteProgress')} titleSize="lg" />
+            <Section title={t('referralInviteTimeline')} titleSize="lg" />
             <View className="rounded-2xl bg-light-secondary dark:bg-dark-secondary p-5">
-              <View className="flex-row justify-between">
-                <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext">
-                  {t('referralInviteNextStep')}
-                </ThemedText>
-                <ThemedText className="text-sm font-semibold">{safeText(invite.progress?.nextStepName)}</ThemedText>
-              </View>
-              <View className="flex-row justify-between mt-3">
-                <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext">
-                  {t('referralInvitePercentage')}
-                </ThemedText>
-                <ThemedText className="text-sm font-semibold">
-                  {invite.progress?.percentage != null ? `${invite.progress.percentage}%` : '—'}
-                </ThemedText>
-              </View>
-              <View className="flex-row justify-between mt-3">
-                <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext">
-                  {t('referralInviteSteps')}
-                </ThemedText>
-                <ThemedText className="text-sm font-semibold">
-                  {invite.progress?.completedSteps != null && invite.progress?.totalSteps != null
-                    ? `${invite.progress.completedSteps}/${invite.progress.totalSteps}`
-                    : '—'}
-                </ThemedText>
-              </View>
-              {invite.progress?.error ? (
-                <ThemedText className="text-xs text-red-500 dark:text-red-400 mt-4">
-                  {invite.progress.error}
-                </ThemedText>
+              <ThemedText className="text-base font-semibold mb-4">
+                {statusHeadline(invite.status, t)}
+              </ThemedText>
+
+              {/* Step 1: phone entered on landing */}
+              {attribution?.status ? (
+                <View className="mb-4">
+                  <ThemedText className="text-sm font-semibold">{t('referralStepPhoneEntered')}</ThemedText>
+                  <ThemedText className="text-xs text-light-subtext dark:text-dark-subtext mt-1">
+                    {attribution.createdAt ? formatDateTime(attribution.createdAt, locale) : '—'}
+                  </ThemedText>
+                </View>
               ) : null}
+
+              {/* Step 2: paired in app */}
+              {attribution?.status && String(attribution.status).toUpperCase() === 'CONSUMED' ? (
+                <View className="mb-4">
+                  <ThemedText className="text-sm font-semibold">{t('referralStepPairedInApp')}</ThemedText>
+                  <ThemedText className="text-xs text-light-subtext dark:text-dark-subtext mt-1">
+                    {attribution.consumedAt ? formatDateTime(attribution.consumedAt, locale) : '—'}
+                  </ThemedText>
+                </View>
+              ) : null}
+
+              {/* Step 3: spend progress */}
+              {spend ? (
+                <View className="mb-4">
+                  <ThemedText className="text-sm font-semibold">{t('referralStepSpendProgress')}</ThemedText>
+                  <ThemedText className="text-xs text-light-subtext dark:text-dark-subtext mt-1">
+                    {t('referralSpendLine')
+                      .replace('{spent}', String(spend.spentCashCard))
+                      .replace('{required}', String(spend.requiredAmount))
+                      .replace('{remaining}', String(spend.remaining))}
+                  </ThemedText>
+                  {spend.startAt ? (
+                    <ThemedText className="text-xs text-light-subtext dark:text-dark-subtext mt-1">
+                      {t('referralSpendSince')}{' '}
+                      {formatDateTime(spend.startAt, locale)}
+                    </ThemedText>
+                  ) : null}
+                </View>
+              ) : null}
+
+              {/* Step 4: reward state */}
+              <View>
+                <ThemedText className="text-sm font-semibold">{t('referralStepReward')}</ThemedText>
+                <ThemedText className="text-xs text-light-subtext dark:text-dark-subtext mt-1">
+                  {t('referralRewardStatusLine')
+                    .replace('{status}', safeText(invite.status))}
+                </ThemedText>
+                {invite.rewardedAt ? (
+                  <ThemedText className="text-xs text-light-subtext dark:text-dark-subtext mt-1">
+                    {t('referralRewardedAt')}{' '}
+                    {formatDateTime(invite.rewardedAt, locale)}
+                  </ThemedText>
+                ) : null}
+                {invite.referrerReward != null ? (
+                  <ThemedText className="text-xs text-light-subtext dark:text-dark-subtext mt-1">
+                    {t('referralRewardAmount')}{' '}
+                    {invite.referrerReward} RBC
+                  </ThemedText>
+                ) : null}
+              </View>
             </View>
           </>
         )}

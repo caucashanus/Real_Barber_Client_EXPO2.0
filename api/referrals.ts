@@ -19,6 +19,9 @@ export interface ReferralActiveProgram {
   validUntil?: string | null;
   /** Banner / poster programu (pozadí karty v peněžence). */
   coverImageUrl?: string | null;
+  rewardedCount?: number | null;
+  maxRewards?: number | null;
+  rewardProgressText?: string | null;
   referrerRewardType: string;
   referrerRewardAmount: number;
   refereeRewardType: string;
@@ -31,9 +34,19 @@ export interface ClientReferralsResponse {
   stats: ClientReferralsStats;
   referralsMade: ClientReferralItem[];
   referralsReceived: ClientReferralItem[];
+  pendingAttributions?: PendingAttributionItem[];
   requests: unknown[];
   activePrograms: ReferralActiveProgram[];
   progressEnabled: boolean;
+}
+
+export interface PendingAttributionItem {
+  id: string;
+  status: string; // PENDING
+  phone: string;
+  createdAt: string;
+  referralLink: { code: string; coverImageUrl?: string | null };
+  program: { id: string; name: string; coverImageUrl?: string | null; referrerRewardType?: string; referrerRewardAmount?: number };
 }
 
 export interface ReferralPerson {
@@ -65,6 +78,19 @@ export interface ClientReferralItem {
   referralCode: string | null;
   referralLinkId: string | null;
   coverImageUrl: string | null;
+  qualifiedAt?: string | null;
+  rewardedAt?: string | null;
+  triggerAmount?: number | null;
+  referrerReward?: number | null;
+  refereeReward?: number | null;
+  referralLink?: { code?: string | null; coverImageUrl?: string | null } | null;
+  attribution?: { status: string; createdAt: string; consumedAt?: string | null } | null;
+  spendProgress?: {
+    spentCashCard: number;
+    requiredAmount: number;
+    remaining: number;
+    startAt?: string | null;
+  } | null;
   createdAt: string;
   updatedAt: string;
   program?: { id: string; name: string; coverImageUrl?: string | null; referrerRewardType?: string; referrerRewardAmount?: number } | null;
