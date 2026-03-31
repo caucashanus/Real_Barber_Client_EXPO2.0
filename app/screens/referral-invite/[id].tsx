@@ -4,11 +4,12 @@ import { useLocalSearchParams } from 'expo-router';
 import Header from '@/components/Header';
 import ThemedScroller from '@/components/ThemeScroller';
 import ThemedText from '@/components/ThemedText';
-import Section from '@/components/layout/Section';
 import Divider from '@/components/layout/Divider';
 import { useAuth } from '@/app/contexts/AuthContext';
 import { useTranslation } from '@/app/hooks/useTranslation';
 import { getReferrals, type ClientReferralItem } from '@/api/referrals';
+import Avatar from '@/components/Avatar';
+import Icon from '@/components/Icon';
 
 function safeText(v: unknown): string {
   if (v == null) return '—';
@@ -40,6 +41,41 @@ function statusHeadline(status: string, t: (k: any) => string): string {
   return t('referralInviteHeadlinePending');
 }
 
+type ChecklistState = 'done' | 'current' | 'pending';
+
+function checklistIcon(state: ChecklistState): { name: 'Check'; bg: string; fg: string; ring: string } {
+  if (state === 'done') return { name: 'Check', bg: 'bg-emerald-600', fg: '#ffffff', ring: 'border-emerald-600' };
+  if (state === 'current') return { name: 'Check', bg: 'bg-light-secondary dark:bg-dark-secondary', fg: '#16a34a', ring: 'border-emerald-600' };
+  return { name: 'Check', bg: 'bg-light-secondary dark:bg-dark-secondary', fg: '#9ca3af', ring: 'border-light-border dark:border-dark-border' };
+}
+
+function ChecklistRow({
+  title,
+  subtitle,
+  state,
+}: {
+  title: string;
+  subtitle?: string | null;
+  state: ChecklistState;
+}) {
+  const icon = checklistIcon(state);
+  return (
+    <View className="flex-row items-start gap-3 py-3">
+      <View className={`w-9 h-9 rounded-full items-center justify-center border ${icon.ring} ${icon.bg}`}>
+        <Icon name={icon.name} size={18} color={icon.fg} />
+      </View>
+      <View className="flex-1">
+        <ThemedText className="text-base font-semibold">{title}</ThemedText>
+        {subtitle ? (
+          <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext mt-1">
+            {subtitle}
+          </ThemedText>
+        ) : null}
+      </View>
+    </View>
+  );
+}
+
 export default function ReferralInviteDetailScreen() {
   const { id } = useLocalSearchParams<{ id?: string }>();
   const inviteId = (Array.isArray(id) ? id[0] : id) ?? '';
@@ -67,6 +103,22 @@ export default function ReferralInviteDetailScreen() {
 
   const attribution = invite?.attribution ?? null;
   const spend = invite?.spendProgress ?? null;
+  const inviteCreatedAt = invite?.createdAt ?? null;
+  const invitedOn = inviteCreatedAt ? formatDateTime(inviteCreatedAt, locale) : null;
+
+  const acceptedDone = Boolean(attribution?.createdAt);
+  const pairedDone = String(attribution?.status || '').toUpperCase() === 'CONSUMED';
+  const requiredAmount = spend?.requiredAmount ?? null;
+  const spentAmount = spend?.spentCashCard ?? null;
+  const paidDone =
+    requiredAmount != null && spentAmount != null
+      ? spentAmount >= requiredAmount
+      : ['QUALIFIED', 'REWARDED', 'LIMIT_REACHED'].includes(String(invite?.status || '').toUpperCase());
+
+  const acceptedState: ChecklistState = acceptedDone ? 'done' : 'current';
+  const pairedState: ChecklistState = pairedDone ? 'done' : acceptedDone ? 'current' : 'pending';
+  const paidState: ChecklistState =
+    paidDone ? 'done' : pairedDone ? 'current' : 'pending';
 
   return (
     <View className="flex-1 bg-light-primary dark:bg-dark-primary">
@@ -93,90 +145,75 @@ export default function ReferralInviteDetailScreen() {
           </View>
         ) : (
           <>
-            <Section title={t('referralInvitePerson')} titleSize="lg" />
-            <View className="rounded-2xl bg-light-secondary dark:bg-dark-secondary p-5">
-              <View className="flex-row justify-between">
-                <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext">
-                  {t('referralInviteName')}
+            {/* Header block */}
+            <View className="items-center pt-4 pb-3">
+              <Avatar src={require('@/assets/img/wallet/RB.avatar.jpg')} size="xl" border />
+              <ThemedText className="text-2xl font-bold mt-3 text-center">
+                {safeText(invite.referee?.name)}
+              </ThemedText>
+              {invitedOn ? (
+                <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext mt-1">
+                  {t('referralInviteInvitedOn')} {invitedOn}
                 </ThemedText>
-                <ThemedText className="text-sm font-semibold">{safeText(invite.referee?.name)}</ThemedText>
-              </View>
-              <View className="flex-row justify-between mt-3">
-                <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext">
-                  {t('referralInviteStatus')}
-                </ThemedText>
-                <ThemedText className="text-sm font-semibold">{safeText(invite.status)}</ThemedText>
-              </View>
-            </View>
-
-            <Divider className="my-6" />
-
-            <Section title={t('referralInviteTimeline')} titleSize="lg" />
-            <View className="rounded-2xl bg-light-secondary dark:bg-dark-secondary p-5">
-              <ThemedText className="text-base font-semibold mb-4">
+              ) : null}
+              <ThemedText className="text-sm font-semibold mt-4 text-center">
                 {statusHeadline(invite.status, t)}
               </ThemedText>
+            </View>
 
-              {/* Step 1: phone entered on landing */}
-              {attribution?.status ? (
-                <View className="mb-4">
-                  <ThemedText className="text-sm font-semibold">{t('referralStepPhoneEntered')}</ThemedText>
-                  <ThemedText className="text-xs text-light-subtext dark:text-dark-subtext mt-1">
-                    {attribution.createdAt ? formatDateTime(attribution.createdAt, locale) : '—'}
-                  </ThemedText>
-                </View>
-              ) : null}
+            <Divider className="my-4" />
 
-              {/* Step 2: paired in app */}
-              {attribution?.status && String(attribution.status).toUpperCase() === 'CONSUMED' ? (
-                <View className="mb-4">
-                  <ThemedText className="text-sm font-semibold">{t('referralStepPairedInApp')}</ThemedText>
-                  <ThemedText className="text-xs text-light-subtext dark:text-dark-subtext mt-1">
-                    {attribution.consumedAt ? formatDateTime(attribution.consumedAt, locale) : '—'}
-                  </ThemedText>
-                </View>
-              ) : null}
+            {/* Checklist */}
+            <View className="rounded-2xl bg-light-secondary dark:bg-dark-secondary p-5">
+              <ChecklistRow
+                title={t('referralChecklistAccepted')}
+                subtitle={attribution?.createdAt ? formatDateTime(attribution.createdAt, locale) : null}
+                state={acceptedState}
+              />
+              <Divider className="my-1" />
+              <ChecklistRow
+                title={t('referralChecklistPaired')}
+                subtitle={attribution?.consumedAt ? formatDateTime(attribution.consumedAt, locale) : null}
+                state={pairedState}
+              />
+              <Divider className="my-1" />
+              <ChecklistRow
+                title={t('referralChecklistPaid')}
+                subtitle={
+                  spend
+                    ? t('referralSpendLine')
+                        .replace('{spent}', String(spend.spentCashCard))
+                        .replace('{required}', String(spend.requiredAmount))
+                        .replace('{remaining}', String(spend.remaining))
+                    : null
+                }
+                state={paidState}
+              />
+            </View>
 
-              {/* Step 3: spend progress */}
-              {spend ? (
-                <View className="mb-4">
-                  <ThemedText className="text-sm font-semibold">{t('referralStepSpendProgress')}</ThemedText>
-                  <ThemedText className="text-xs text-light-subtext dark:text-dark-subtext mt-1">
-                    {t('referralSpendLine')
-                      .replace('{spent}', String(spend.spentCashCard))
-                      .replace('{required}', String(spend.requiredAmount))
-                      .replace('{remaining}', String(spend.remaining))}
-                  </ThemedText>
-                  {spend.startAt ? (
-                    <ThemedText className="text-xs text-light-subtext dark:text-dark-subtext mt-1">
-                      {t('referralSpendSince')}{' '}
-                      {formatDateTime(spend.startAt, locale)}
-                    </ThemedText>
-                  ) : null}
-                </View>
-              ) : null}
-
-              {/* Step 4: reward state */}
-              <View>
-                <ThemedText className="text-sm font-semibold">{t('referralStepReward')}</ThemedText>
-                <ThemedText className="text-xs text-light-subtext dark:text-dark-subtext mt-1">
-                  {t('referralRewardStatusLine')
-                    .replace('{status}', safeText(invite.status))}
-                </ThemedText>
+            {/* Reward meta (only when present) */}
+            {invite.rewardedAt || invite.referrerReward != null ? (
+              <View className="rounded-2xl bg-light-secondary dark:bg-dark-secondary p-5 mt-4">
                 {invite.rewardedAt ? (
-                  <ThemedText className="text-xs text-light-subtext dark:text-dark-subtext mt-1">
-                    {t('referralRewardedAt')}{' '}
-                    {formatDateTime(invite.rewardedAt, locale)}
-                  </ThemedText>
+                  <View className="flex-row justify-between">
+                    <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext">
+                      {t('referralRewardedAt')}
+                    </ThemedText>
+                    <ThemedText className="text-sm font-semibold">
+                      {formatDateTime(invite.rewardedAt, locale)}
+                    </ThemedText>
+                  </View>
                 ) : null}
                 {invite.referrerReward != null ? (
-                  <ThemedText className="text-xs text-light-subtext dark:text-dark-subtext mt-1">
-                    {t('referralRewardAmount')}{' '}
-                    {invite.referrerReward} RBC
-                  </ThemedText>
+                  <View className={`flex-row justify-between ${invite.rewardedAt ? 'mt-3' : ''}`}>
+                    <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext">
+                      {t('referralRewardAmount')}
+                    </ThemedText>
+                    <ThemedText className="text-sm font-semibold">{invite.referrerReward} RBC</ThemedText>
+                  </View>
                 ) : null}
               </View>
-            </View>
+            ) : null}
           </>
         )}
       </ThemedScroller>

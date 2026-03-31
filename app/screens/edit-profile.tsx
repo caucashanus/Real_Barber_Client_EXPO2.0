@@ -19,7 +19,7 @@ import { DatePicker } from '@/components/forms/DatePicker';
 import Input from '@/components/forms/Input';
 import Select from '@/components/forms/Select';
 import Section from '@/components/layout/Section';
-import { formatToYYYYMMDD } from '@/utils/date';
+import { formatBirthdayToIsoUtcMidnight, formatToYYYYMMDD } from '@/utils/date';
 import { COUNTRY_OPTIONS } from '@/utils/phone';
 
 export default function EditProfileScreen() {
@@ -123,7 +123,9 @@ export default function EditProfileScreen() {
         firstName: firstName.trim() || undefined,
         lastName: lastName.trim() || undefined,
         email: email.trim() || undefined,
-        birthday: birthday.trim() || undefined,
+        birthday: birthday.trim()
+          ? formatBirthdayToIsoUtcMidnight(new Date(`${birthday.trim()}T12:00:00`))
+          : undefined,
         address: street.trim() || undefined,
         city: city.trim() || undefined,
         zip: zip.trim() || undefined,

@@ -17,7 +17,7 @@ function paramString(v: string | string[] | undefined): string {
 export default function LoginOtpScreen() {
   const { t } = useTranslation();
   const { setAuth } = useAuth();
-  const params = useLocalSearchParams<{ phone?: string | string[]; displayName?: string | string[]; expiresIn?: string | string[] }>();
+  const params = useLocalSearchParams<{ phone?: string | string[]; displayName?: string | string[]; expiresIn?: string | string[]; requiresRegistration?: string | string[] }>();
 
   const phone = paramString(params.phone);
   const displayNameFromParams = paramString(params.displayName).trim();
@@ -45,12 +45,26 @@ export default function LoginOtpScreen() {
   const [apiError, setApiError] = useState('');
   const [loading, setLoading] = useState(false);
   const [resendLoading, setResendLoading] = useState(false);
+  const [resendCooldownSec, setResendCooldownSec] = useState(30);
 
   useEffect(() => {
     if (!phone) {
       router.replace('/screens/login');
     }
   }, [phone]);
+
+  useEffect(() => {
+    // Start 30s cooldown on screen entry.
+    setResendCooldownSec(30);
+  }, [phone]);
+
+  useEffect(() => {
+    if (resendCooldownSec <= 0) return;
+    const id = setInterval(() => {
+      setResendCooldownSec((prev) => Math.max(0, prev - 1));
+    }, 1000);
+    return () => clearInterval(id);
+  }, [resendCooldownSec]);
 
   const minutesLabel = Math.max(1, Math.ceil(expiresSec / 60));
 
@@ -71,6 +85,20 @@ export default function LoginOtpScreen() {
     try {
       const digits = otp.replace(/\D/g, '');
       const data = await verifyClientOtp(phone, digits);
+      if ('requiresRegistration' in data && data.requiresRegistration === true) {
+        if (!data.registrationToken) {
+          setApiError(t('signupRegisterFailed'));
+          return;
+        }
+        router.replace({
+          pathname: '/screens/signup',
+          params: {
+            phone,
+            registrationToken: data.registrationToken,
+          },
+        });
+        return;
+      }
       await setAuth(data.token, data.apiToken, data.client);
       router.replace('/(tabs)/(home)');
     } catch (e) {
@@ -93,6 +121,8 @@ export default function LoginOtpScreen() {
       if (data.exists && data.displayName?.trim()) {
         setWelcomeName(data.displayName.trim());
       }
+      // Restart cooldown after a successful resend.
+      setResendCooldownSec(30);
     } catch (e) {
       setApiError(e instanceof Error ? e.message : t('loginOtpRequestFailed'));
     } finally {
@@ -147,10 +177,14 @@ export default function LoginOtpScreen() {
             />
 
             <Button
-              title={t('loginOtpResend')}
+              title={
+                resendCooldownSec > 0
+                  ? `${t('loginOtpResend')} (${resendCooldownSec}s)`
+                  : t('loginOtpResend')
+              }
               onPress={() => void handleResend()}
               loading={resendLoading}
-              disabled={loading}
+              disabled={loading || resendLoading || resendCooldownSec > 0}
               variant="secondary"
               size="large"
               className="mb-6"

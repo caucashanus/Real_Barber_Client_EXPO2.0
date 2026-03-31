@@ -21,6 +21,7 @@ export interface LoginResponse {
   client: CrmClient;
   token: string;
   apiToken: string;
+  verified?: boolean;
 }
 
 /** POST /api/client/auth/otp/request — zjistí existenci klienta a případně odešle OTP. */
@@ -34,6 +35,8 @@ export interface OtpRequestExisting {
 export interface OtpRequestNewClient {
   exists: false;
   requiresRegistration: true;
+  challengeSent: boolean;
+  expiresInSeconds?: number;
 }
 
 export type OtpRequestResponse = OtpRequestExisting | OtpRequestNewClient;
@@ -67,11 +70,25 @@ export async function requestClientOtp(phone: string): Promise<OtpRequestRespons
         typeof data.expiresInSeconds === 'number' ? data.expiresInSeconds : undefined,
     };
   }
-  return { exists: false, requiresRegistration: true };
+  return {
+    exists: false,
+    requiresRegistration: true,
+    challengeSent: Boolean(data.challengeSent),
+    expiresInSeconds: typeof data.expiresInSeconds === 'number' ? data.expiresInSeconds : undefined,
+  };
 }
 
-/** POST /api/client/auth/otp/verify — ověření kódu a přihlášení (stejná odpověď jako login). */
-export async function verifyClientOtp(phone: string, otpCode: string): Promise<LoginResponse> {
+export interface OtpVerifyRequiresRegistration {
+  verified: true;
+  requiresRegistration: true;
+  registrationToken: string;
+  expiresInSeconds?: number;
+}
+
+export type OtpVerifyResponse = LoginResponse | OtpVerifyRequiresRegistration;
+
+/** POST /api/client/auth/otp/verify — ověření kódu; buď rovnou přihlásí, nebo vrátí registrationToken. */
+export async function verifyClientOtp(phone: string, otpCode: string): Promise<OtpVerifyResponse> {
   const platform =
     Platform.OS === 'ios' ? 'iOS' : Platform.OS === 'android' ? 'Android' : String(Platform.OS);
   const appVersion = Constants.expoConfig?.version ?? '1.0.0';
@@ -99,7 +116,16 @@ export async function verifyClientOtp(phone: string, otpCode: string): Promise<L
     throw new Error(message);
   }
 
-  return res.json() as Promise<LoginResponse>;
+  const json = (await res.json()) as Record<string, unknown>;
+  if (json.requiresRegistration === true) {
+    return {
+      verified: true,
+      requiresRegistration: true,
+      registrationToken: String(json.registrationToken ?? ''),
+      expiresInSeconds: typeof json.expiresInSeconds === 'number' ? json.expiresInSeconds : undefined,
+    };
+  }
+  return json as unknown as LoginResponse;
 }
 
 export async function loginWithPhone(
@@ -135,7 +161,7 @@ export interface RegisterOptions {
   lastName?: string;
   /** Veřejná URL (např. výběr z katalogu) – lze poslat už při registraci. */
   avatarUrl?: string;
-  /** Datum narození (YYYY-MM-DD), pokud uživatel vyplnil krok před registrací. */
+  /** Datum narození (ISO 8601, např. …T00:00:00.000Z), pokud uživatel vyplnil krok před registrací. */
   birthday?: string;
 }
 
@@ -172,6 +198,58 @@ export async function registerWithPhone(
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(body),
+  });
+
+  if (!res.ok) {
+    const raw = await res.text();
+    let message = `Chyba ${res.status}`;
+    try {
+      const data = JSON.parse(raw) as { message?: string; error?: string };
+      message = data.message || data.error || raw.slice(0, 200) || message;
+    } catch {
+      if (raw) message = raw.slice(0, 200);
+    }
+    throw new Error(message);
+  }
+
+  return res.json() as Promise<LoginResponse>;
+}
+
+export interface RegisterWithOtpTokenBody extends RegisterOptions {
+  phone: string;
+  registrationToken: string;
+  password: string;
+  platform?: string;
+  appVersion?: string;
+  name?: string;
+  address?: string;
+  city?: string;
+  country?: string;
+  whatsapp?: string;
+}
+
+/** POST /api/client/auth/register – registrace po OTP verify (vyžaduje registrationToken). */
+export async function registerWithOtpToken(body: RegisterWithOtpTokenBody): Promise<LoginResponse> {
+  const platform =
+    Platform.OS === 'ios' ? 'iOS' : Platform.OS === 'android' ? 'Android' : String(Platform.OS);
+  const appVersion = Constants.expoConfig?.version ?? '1.0.0';
+
+  const fn = body.firstName?.trim();
+  const ln = body.lastName?.trim();
+  const fullName = [fn, ln].filter(Boolean).join(' ').trim();
+
+  const res = await fetch(`${CRM_BASE}/api/client/auth/register`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      ...body,
+      phone: body.phone.trim(),
+      registrationToken: body.registrationToken.trim(),
+      password: body.password,
+      name: body.name?.trim() || fullName || undefined,
+      platform,
+      appVersion,
+    }),
   });
 
   if (!res.ok) {

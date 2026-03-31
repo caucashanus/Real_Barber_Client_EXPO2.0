@@ -5,6 +5,14 @@ export function formatToYYYYMMDD(date: Date): string {
   return `${year}-${month}-${day}`;
 }
 
+/**
+ * Narozeniny pro API: ISO 8601 v UTC půlnoci pro kalendářní den zadaný v lokálním Date (např. „15. 5. 1990“).
+ * Příklad: `1990-05-15T00:00:00.000Z`
+ */
+export function formatBirthdayToIsoUtcMidnight(date: Date): string {
+  return new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate())).toISOString();
+}
+
 /** Měsíce ve 2. pádu (genitiv) pro datum typu „7. ledna 2000“. */
 const CS_MONTHS_LONG = [
   'ledna',

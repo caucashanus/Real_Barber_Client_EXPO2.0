@@ -46,6 +46,7 @@ export interface UpdateClientMeBody {
   bio?: string;
   displayName?: string;
   language?: string;
+  /** ISO 8601, např. `1990-05-15T00:00:00.000Z` */
   birthday?: string;
   /** Street / address line (API uses flat shape: address, city, zip, country) */
   address?: string;

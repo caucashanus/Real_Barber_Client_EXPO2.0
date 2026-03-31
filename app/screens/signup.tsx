@@ -7,7 +7,7 @@ import { DatePicker } from '@/components/forms/DatePicker';
 import ThemedText from '@/components/ThemedText';
 import MultiStep, { Step, type MultiStepHandle } from '@/components/MultiStep';
 import { useTranslation } from '@/app/hooks/useTranslation';
-import { registerWithPhone, type CrmClient, type RegisterOptions } from '@/api/auth';
+import { registerWithOtpToken, registerWithPhone, type CrmClient, type RegisterOptions } from '@/api/auth';
 import {
   getClientMe,
   patchClientMe,
@@ -17,7 +17,7 @@ import {
 } from '@/api/client';
 import { useAuth } from '@/app/contexts/AuthContext';
 import { COUNTRY_CODE_OPTIONS, formatPhoneDisplay } from '@/utils/phone';
-import { formatToYYYYMMDD } from '@/utils/date';
+import { formatBirthdayToIsoUtcMidnight, formatToYYYYMMDD } from '@/utils/date';
 import { MOCK_SIGNUP } from '@/constants/mockSignup';
 import { getEmailDomainChipSuggestions } from '@/utils/emailSuggestions';
 import { Chip } from '@/components/Chip';
@@ -104,20 +104,32 @@ function paramString(v: string | string[] | undefined): string {
 export default function SignupScreen() {
   const { t } = useTranslation();
   const { setAuth } = useAuth();
-  const signupParams = useLocalSearchParams<{ countryCode?: string | string[]; phoneDigits?: string | string[] }>();
+  const signupParams = useLocalSearchParams<{ countryCode?: string | string[]; phoneDigits?: string | string[]; phone?: string | string[]; registrationToken?: string | string[] }>();
 
-  const phoneDigitsFromLogin = useMemo(
-    () => paramString(signupParams.phoneDigits).replace(/\D/g, ''),
-    [signupParams.phoneDigits]
+  const fullPhoneFromOtp = useMemo(() => paramString(signupParams.phone).trim(), [signupParams.phone]);
+  const registrationTokenFromOtp = useMemo(
+    () => paramString(signupParams.registrationToken).trim(),
+    [signupParams.registrationToken]
   );
+  const phoneDigitsFromLogin = useMemo(() => {
+    const fromDigits = paramString(signupParams.phoneDigits).replace(/\D/g, '');
+    if (fromDigits) return fromDigits;
+    if (fullPhoneFromOtp) return fullPhoneFromOtp.replace(/\D/g, '');
+    return '';
+  }, [signupParams.phoneDigits, fullPhoneFromOtp]);
   /** Z loginu (OTP „neexistuje“) – krok telefonu přeskakujeme. */
   const phoneLockedFromLogin = phoneDigitsFromLogin.length >= 9;
 
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
-  const [countryCode, setCountryCode] = useState(() => paramString(signupParams.countryCode) || '+420');
+  const [countryCode, setCountryCode] = useState(() => {
+    const fromParams = paramString(signupParams.countryCode);
+    if (fromParams) return fromParams;
+    if (fullPhoneFromOtp.startsWith('+420') || fullPhoneFromOtp.startsWith('420')) return '+420';
+    return '+420';
+  });
   const [phone, setPhone] = useState(() => {
-    const digits = paramString(signupParams.phoneDigits);
+    const digits = paramString(signupParams.phoneDigits) || (fullPhoneFromOtp ? fullPhoneFromOtp.replace(/\D/g, '') : '');
     return digits ? formatPhoneDisplay(digits) : '';
   });
   const [phoneError, setPhoneError] = useState('');
@@ -134,8 +146,12 @@ export default function SignupScreen() {
   const registerDoneRef = useRef(false);
   const sessionRef: MutableRefObject<{ token: string; apiToken: string } | null> = useRef(null);
 
-  /** Index kroku „Datum narození“ (po něm se volá registrace). */
-  const registerTriggerStepIndex = phoneLockedFromLogin ? 2 : 3;
+  /** Index kroku, po kterém registrujeme účet. Pro OTP registraci hned po jménu. */
+  const registerTriggerStepIndex = registrationTokenFromOtp
+    ? 0
+    : phoneLockedFromLogin
+      ? 2
+      : 3;
 
   const maxBirthDate = useMemo(() => new Date(), []);
   const minBirthDate = useMemo(() => {
@@ -215,11 +231,11 @@ export default function SignupScreen() {
   const performRegisterAfterBirthday = useCallback(async (): Promise<boolean> => {
     setApiError('');
     const phoneOk = validatePhone(phone);
-    const emailOk = validateEmail(email);
+    const emailOk = registrationTokenFromOtp ? true : validateEmail(email);
     if (!phoneOk || !emailOk) return false;
 
     const digitsOnly = phone.replace(/\D/g, '');
-    const fullPhone = `${countryCode}${digitsOnly}`;
+    const fullPhone = fullPhoneFromOtp || `${countryCode}${digitsOnly}`;
 
     setRegisterBusy(true);
     try {
@@ -240,14 +256,22 @@ export default function SignupScreen() {
       }
 
       const registerOpts: RegisterOptions = {
-        email: email.trim(),
+        // pro OTP registraci není e-mail/birthday nutný v této fázi – doženeme přes PATCH /client/me
+        email: registrationTokenFromOtp ? undefined : email.trim(),
         firstName: firstName.trim(),
         lastName: lastName.trim(),
       };
-      if (birthday) {
-        registerOpts.birthday = formatToYYYYMMDD(birthday);
+      if (!registrationTokenFromOtp && birthday) {
+        registerOpts.birthday = formatBirthdayToIsoUtcMidnight(birthday);
       }
-      const data = await registerWithPhone(fullPhone, DEFAULT_SIGNUP_PASSWORD, registerOpts);
+      const data = registrationTokenFromOtp
+        ? await registerWithOtpToken({
+            phone: fullPhone,
+            registrationToken: registrationTokenFromOtp,
+            password: DEFAULT_SIGNUP_PASSWORD,
+            ...registerOpts,
+          })
+        : await registerWithPhone(fullPhone, DEFAULT_SIGNUP_PASSWORD, registerOpts);
       sessionRef.current = { token: data.token, apiToken: data.apiToken };
       registerDoneRef.current = true;
       await setAuth(data.token, data.apiToken, data.client);
@@ -258,7 +282,7 @@ export default function SignupScreen() {
     } finally {
       setRegisterBusy(false);
     }
-  }, [birthday, countryCode, email, firstName, lastName, phone, setAuth, t]);
+  }, [birthday, countryCode, email, firstName, fullPhoneFromOtp, lastName, phone, registrationTokenFromOtp, setAuth, t]);
 
   const onBeforeNext = useCallback(
     async (currentStepIndex: number) => {
@@ -273,9 +297,15 @@ export default function SignupScreen() {
   const handleFinalizeSignup = async () => {
     if (submitting || registerBusy) return;
     setApiError('');
+    // Pokud uživatel přeskočil volitelný krok (např. datum narození),
+    // MultiStep může dokončit flow bez zavolání onBeforeNext na registerTriggerStepIndex.
+    // V tom případě registraci doplníme tady, než začneme nahrávat avatar / patchovat profil.
     if (!sessionRef.current) {
-      setApiError(t('signupRegisterFailed'));
-      return;
+      const ok = await performRegisterAfterBirthday();
+      if (!ok || !sessionRef.current) {
+        setApiError(t('signupRegisterFailed'));
+        return;
+      }
     }
     const { token, apiToken } = sessionRef.current;
 
@@ -304,9 +334,20 @@ export default function SignupScreen() {
       }
 
       const patchBody: UpdateClientMeBody = {};
+      const fn = firstName.trim();
+      const ln = lastName.trim();
+      if (fn) patchBody.firstName = fn;
+      if (ln) patchBody.lastName = ln;
       const catalogUrl = avatarUrlForRegister(avatarChoice);
       if (catalogUrl) {
         patchBody.avatarUrl = catalogUrl;
+      }
+      const trimmedEmail = email.trim();
+      if (trimmedEmail && emailRequiredValid(trimmedEmail)) {
+        patchBody.email = trimmedEmail;
+      }
+      if (birthday) {
+        patchBody.birthday = formatBirthdayToIsoUtcMidnight(birthday);
       }
 
       if (Object.keys(patchBody).length > 0) {
@@ -351,12 +392,6 @@ export default function SignupScreen() {
           <View className="px-6 pt-4 pb-8">
             <ThemedText className="text-3xl font-bold text-light-text dark:text-dark-text mb-1">{t('signupCreateAccount')}</ThemedText>
             <ThemedText className="text-light-subtext dark:text-dark-subtext mb-6">{t('signupCreateAccountDesc')}</ThemedText>
-            <ThemedText className="text-2xl font-semibold text-light-text dark:text-dark-text">
-              {t('signupStepNameTitle')}
-            </ThemedText>
-            <ThemedText className="text-base text-light-subtext dark:text-dark-subtext mt-1 mb-6">
-              {t('signupStepNameSubtitle')}
-            </ThemedText>
             <Input
               label={t('editProfileFirstName')}
               value={firstName}

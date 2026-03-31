@@ -41,28 +41,18 @@ export default function LoginScreen() {
       const fullPhone = `${countryCode}${digitsOnly}`;
       const data = await requestClientOtp(fullPhone);
 
-      if (data.exists) {
-        if (!data.challengeSent) {
-          setApiError(t('loginOtpChallengeNotSent'));
-          return;
-        }
-        const expiresIn = data.expiresInSeconds ?? 600;
-        router.push({
-          pathname: '/screens/login-otp',
-          params: {
-            phone: fullPhone,
-            displayName: data.displayName ?? '',
-            expiresIn: String(expiresIn),
-          },
-        });
+      if (!data.challengeSent) {
+        setApiError(t('loginOtpChallengeNotSent'));
         return;
       }
-
+      const expiresIn = data.expiresInSeconds ?? 600;
       router.push({
-        pathname: '/screens/signup',
+        pathname: '/screens/login-otp',
         params: {
-          countryCode,
-          phoneDigits: digitsOnly,
+          phone: fullPhone,
+          displayName: data.exists ? (data.displayName ?? '') : '',
+          expiresIn: String(expiresIn),
+          requiresRegistration: data.exists ? '0' : '1',
         },
       });
     } catch (e) {
