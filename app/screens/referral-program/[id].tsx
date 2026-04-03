@@ -5,6 +5,7 @@ import Header from '@/components/Header';
 import ThemedScroller from '@/components/ThemeScroller';
 import ThemedText from '@/components/ThemedText';
 import Section from '@/components/layout/Section';
+import Divider from '@/components/layout/Divider';
 import { Button } from '@/components/Button';
 import { useAuth } from '@/app/contexts/AuthContext';
 import { useTranslation } from '@/app/hooks/useTranslation';
@@ -115,7 +116,7 @@ export default function ReferralProgramDetailScreen() {
               <ImageBackground
                 source={{ uri: coverUri }}
                 className="mx-global mt-4 rounded-3xl overflow-hidden"
-                style={{ minHeight: 200 }}
+                style={{ minHeight: 500 }}
                 imageStyle={{ borderRadius: 24 }}
               >
                 <View className="flex-1 p-6 justify-end" style={{ backgroundColor: 'rgba(0,0,0,0.40)' }}>
@@ -134,39 +135,47 @@ export default function ReferralProgramDetailScreen() {
               </View>
             )}
 
-            <Section title={t('referralProgramDetails')} titleSize="lg" className="px-global mt-8">
-              <View className="rounded-2xl bg-light-secondary dark:bg-dark-secondary p-5">
+            <Section title={t('referralProgramDetails')} titleSize="lg" className="px-global mt-8 mb-6">
+              <View className="rounded-3xl bg-light-secondary dark:bg-dark-secondary overflow-hidden">
                 {validUntilText ? (
-                  <View className="flex-row items-baseline justify-between">
-                    <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext">
-                      {t('referralProgramValidUntil')}
-                    </ThemedText>
-                    <ThemedText className="text-base font-semibold">{validUntilText}</ThemedText>
-                  </View>
+                  <>
+                    <View className="flex-row items-center justify-between px-5 py-4">
+                      <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext">
+                        {t('referralProgramValidUntil')}
+                      </ThemedText>
+                      <ThemedText className="text-base font-semibold text-light-text dark:text-dark-text">
+                        {validUntilText}
+                      </ThemedText>
+                    </View>
+                    <Divider />
+                  </>
                 ) : null}
-                <View className="flex-row items-baseline justify-between">
+
+                <View className="flex-row items-center justify-between px-5 py-4">
                   <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext">
                     {t('referralProgramReferrerReward')}
                   </ThemedText>
-                  <ThemedText className="text-base font-semibold">
+                  <ThemedText className="text-base font-semibold text-light-text dark:text-dark-text">
                     {program.referrerRewardAmount} RBC
                   </ThemedText>
                 </View>
+                <Divider />
 
-                <View className="flex-row items-baseline justify-between mt-4">
+                <View className="flex-row items-center justify-between px-5 py-4">
                   <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext">
                     {t('referralProgramRefereeReward')}
                   </ThemedText>
-                  <ThemedText className="text-base font-semibold">
+                  <ThemedText className="text-base font-semibold text-light-text dark:text-dark-text">
                     {program.refereeRewardAmount ?? 0} RBC
                   </ThemedText>
                 </View>
+                <Divider />
 
-                <View className="flex-row items-baseline justify-between mt-4">
+                <View className="flex-row items-center justify-between px-5 py-4">
                   <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext">
                     {t('referralProgramMinPurchase')}
                   </ThemedText>
-                  <ThemedText className="text-base font-semibold">
+                  <ThemedText className="text-base font-semibold text-light-text dark:text-dark-text">
                     {program.minPurchaseAmount} Kč
                   </ThemedText>
                 </View>

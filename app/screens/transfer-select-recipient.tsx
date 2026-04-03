@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { View, ActivityIndicator, TextInput, Pressable } from 'react-native';
 import { useRouter } from 'expo-router';
+import { ActionSheetRef } from 'react-native-actions-sheet';
 import Header from '@/components/Header';
 import ThemedScroller from '@/components/ThemeScroller';
 import ThemedText from '@/components/ThemedText';
@@ -11,6 +12,8 @@ import Avatar from '@/components/Avatar';
 import Icon from '@/components/Icon';
 import { shadowPresets } from '@/utils/useShadow';
 import { useAuth } from '@/app/contexts/AuthContext';
+import ActionSheetThemed from '@/components/ActionSheetThemed';
+import { Button } from '@/components/Button';
 import {
   getRbCoinsBalance,
   getRbCoinsHistory,
@@ -144,6 +147,7 @@ export default function TransferSelectRecipientScreen() {
   tRef.current = t;
   const { apiToken } = useAuth();
   const setTransferRecipient = useSetTransferRecipient();
+  const helpSheetRef = useRef<ActionSheetRef>(null);
   const [balance, setBalance] = useState<number>(0);
   const [history, setHistory] = useState<RbCoinsHistoryItem[]>([]);
   const [recipientsList, setRecipients] = useState<TransferRecipient[]>([]);
@@ -306,6 +310,14 @@ export default function TransferSelectRecipientScreen() {
                         : t('transferNoResults');
                     })()}
             </ThemedText>
+            <Pressable
+              onPress={() => helpSheetRef.current?.show()}
+              className="mt-4 self-center px-3 py-2 rounded-full bg-light-secondary dark:bg-dark-secondary active:opacity-80"
+            >
+              <ThemedText className="text-sm font-semibold text-light-text dark:text-dark-text">
+                {t('transferHelpCta')}
+              </ThemedText>
+            </Pressable>
           </View>
         ) : (
           <View style={{ ...shadowPresets.large }} className="rounded-2xl bg-light-secondary dark:bg-dark-secondary overflow-hidden">
@@ -324,6 +336,22 @@ export default function TransferSelectRecipientScreen() {
           </View>
         )}
       </ThemedScroller>
+
+      <ActionSheetThemed ref={helpSheetRef}>
+        <View className="p-5 pb-7">
+          <ThemedText className="text-lg font-bold text-light-text dark:text-dark-text">
+            {t('transferHelpTitle')}
+          </ThemedText>
+          <ThemedText className="text-sm mt-2 text-light-subtext dark:text-dark-subtext">
+            {t('transferHelpBody')}
+          </ThemedText>
+          <Button
+            title={t('transferHelpClose')}
+            className="mt-5"
+            onPress={() => helpSheetRef.current?.hide()}
+          />
+        </View>
+      </ActionSheetThemed>
     </>
   );
 }

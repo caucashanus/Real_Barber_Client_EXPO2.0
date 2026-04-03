@@ -580,16 +580,21 @@ export const en = {
   transferNewPayment: 'New payment',
   transferAvailable: 'Available',
   transferRecipient: 'Recipient',
-  transferSearchPlaceholder: 'Employee name or client’s full phone number',
+  transferSearchPlaceholder: 'Colleague name or recipient’s full phone number',
   transferYouSentRbc: 'You sent',
   transferTheySentYouRbc: 'They sent you',
   transferSearching: 'Searching…',
   transferNoResults:
-    'No match. For a client, check the full number. For an employee, search by name.',
+    'No match. Check the recipient’s full phone number, or search colleagues by name.',
   transferEnterFullClientPhone:
-    'To find a client, enter their full phone number. Spaces and +420 / 420 prefix are fine.',
+    'Tip: You can send RB coins to other recipients too. To protect anonymity and privacy, recipients outside our team can only be found by entering their full phone number (spaces and +420 / 420 prefix are fine). You can only send to people who have an account with us and have had at least one booking. After your first transfer, the recipient will also appear in your history.',
   transferNoEmployeesHint:
-    'Search employees by name. Clients appear only after you enter their complete phone number.',
+    'Did you know you can send RB coins outside our team? Colleagues are always searchable by name. For other recipients, we require the full phone number to protect anonymity—and you can only send to people who have an account with us and have had at least one booking. After your first transfer, the recipient will appear in your history.',
+  transferHelpCta: 'Help',
+  transferHelpTitle: 'How search works',
+  transferHelpBody:
+    'You can always find Real Barber colleagues by name.\n\nRecipients outside our team can only be found by entering their full phone number—this protects anonymity and privacy (spaces and +420 / 420 prefix are fine). Only recipients who have an account with us and have had at least one booking will appear.\n\nAfter your first transfer, the recipient will appear in your history and you’ll be able to search them by name as well. The recipient will see your name immediately after you send the transfer.\n\nSo, ready to send some RB coins to a friend?',
+  transferHelpClose: 'Got it',
   transferChatAmountPlaceholder: 'Amount (RBC)',
   transferChatNoteOptional: 'Note (optional)',
   transferChatBalance: 'Balance',

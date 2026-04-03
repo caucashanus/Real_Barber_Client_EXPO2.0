@@ -585,16 +585,21 @@ export const cs: Record<TranslationKey, string> = {
   transferNewPayment: 'Nová platba',
   transferAvailable: 'K dispozici',
   transferRecipient: 'Příjemce',
-  transferSearchPlaceholder: 'Jméno zaměstnance nebo celé číslo klienta',
+  transferSearchPlaceholder: 'Jméno kolegy nebo celé telefonní číslo příjemce',
   transferYouSentRbc: 'Odeslali jste',
   transferTheySentYouRbc: 'Odeslali vám',
   transferSearching: 'Vyhledávám…',
   transferNoResults:
-    'Nenalezeno. U klienta zkontrolujte celé číslo. U zaměstnance hledejte podle jména.',
+    'Nenalezeno. Zkontrolujte celé telefonní číslo příjemce, případně u kolegů hledejte podle jména.',
   transferEnterFullClientPhone:
-    'Pro vyhledání klienta zadejte celé telefonní číslo. Mezery ani předvolba (+420 / 420) nevadí.',
+    'Tip: RB coiny můžete poslat i dalším příjemcům. Kvůli anonymitě a ochraně soukromí je u příjemců mimo náš tým potřeba zadat celé telefonní číslo (mezery i předvolba +420 / 420 nevadí). Lze posílat jen lidem, kteří u nás mají účet a měli alespoň 1 rezervaci. Jakmile provedete první platbu, příjemce se vám pak zobrazí i v historii.',
   transferNoEmployeesHint:
-    'Zaměstnance najdete podle jména. Klienta jen po zadání celého jeho telefonního čísla.',
+    'Věděli jste, že RB coiny můžete posílat i mimo náš tým? Kolegy najdete vždy podle jména. U ostatních příjemců je z důvodu anonymity nutné zadat celé telefonní číslo — a posílat lze jen lidem, kteří u nás mají účet a měli alespoň 1 rezervaci. Po první platbě se příjemce uloží do vaší historie.',
+  transferHelpCta: 'Nápověda',
+  transferHelpTitle: 'Jak vyhledávání funguje',
+  transferHelpBody:
+    'Kolegy z Real Barberu můžete vyhledat podle jména a uvidíte je vždy.\n\nU ostatních příjemců vyhledáváme pouze podle celého telefonního čísla — je to z důvodu anonymity a ochrany soukromí (mezery i předvolba +420 / 420 nevadí). Zobrazí se jen příjemci, kteří u nás mají účet a měli alespoň 1 rezervaci.\n\nPo první platbě se příjemce objeví i ve vaší historii a následně ho můžete vyhledávat i podle jména. Příjemce vaše jméno uvidí okamžitě po odeslání platby.\n\nTak co, pošlete nějaké RB coiny přátelům?',
+  transferHelpClose: 'Rozumím',
   transferChatAmountPlaceholder: 'Částka (RBC)',
   transferChatNoteOptional: 'Poznámka (nepovinná)',
   transferChatBalance: 'Zůstatek',
