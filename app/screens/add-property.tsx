@@ -270,27 +270,31 @@ const PhotosStep: React.FC<StepProps> = ({ data, updateData }) => {
                         </TouchableOpacity>
                     </View>
                 ))}
-
-                {data.photoAssets.length < MAX_CUT_PHOTOS ? (
-                    <>
-                        <TouchableOpacity
-                            onPress={pickImage}
-                            className="w-full h-44 rounded-lg border-2 border-dashed border-light-subtext dark:border-dark-subtext items-center justify-center"
-                        >
-                            <Icon name="Plus" size={24} className="text-light-subtext dark:text-dark-subtext" />
-                            <ThemedText className="text-xs text-light-subtext dark:text-dark-subtext mt-1">{t('addPropertyAddPhoto')}</ThemedText>
-                        </TouchableOpacity>
-
-                        <TouchableOpacity
-                            onPress={takePhoto}
-                            className="w-full h-44 rounded-lg border-2 border-dashed border-light-subtext dark:border-dark-subtext items-center justify-center"
-                        >
-                            <Icon name="Plus" size={24} className="text-light-subtext dark:text-dark-subtext" />
-                            <ThemedText className="text-xs text-light-subtext dark:text-dark-subtext mt-1">{t('addPropertyTakePhoto')}</ThemedText>
-                        </TouchableOpacity>
-                    </>
-                ) : null}
             </Grid>
+
+            {data.photoAssets.length < MAX_CUT_PHOTOS ? (
+                <View className={`flex-row gap-3 w-full ${data.photoAssets.length > 0 ? 'mt-3' : 'mt-0'}`}>
+                    <TouchableOpacity
+                        onPress={pickImage}
+                        className="flex-1 h-32 rounded-xl border-2 border-dashed border-light-subtext dark:border-dark-subtext items-center justify-center px-1 py-2"
+                    >
+                        <Icon name="Plus" size={22} className="text-light-subtext dark:text-dark-subtext" />
+                        <ThemedText className="text-xs text-light-subtext dark:text-dark-subtext mt-1 text-center" numberOfLines={2}>
+                            {t('addPropertyAddPhoto')}
+                        </ThemedText>
+                    </TouchableOpacity>
+
+                    <TouchableOpacity
+                        onPress={takePhoto}
+                        className="flex-1 h-32 rounded-xl border-2 border-dashed border-light-subtext dark:border-dark-subtext items-center justify-center px-1 py-2"
+                    >
+                        <Icon name="Plus" size={22} className="text-light-subtext dark:text-dark-subtext" />
+                        <ThemedText className="text-xs text-light-subtext dark:text-dark-subtext mt-1 text-center" numberOfLines={2}>
+                            {t('addPropertyTakePhoto')}
+                        </ThemedText>
+                    </TouchableOpacity>
+                </View>
+            ) : null}
         </ScrollView>
     );
 };

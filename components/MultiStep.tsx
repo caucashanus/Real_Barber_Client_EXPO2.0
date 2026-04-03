@@ -317,27 +317,29 @@ const MultiStep = forwardRef<MultiStepHandle, MultiStepProps>(function MultiStep
               </Pressable>
             ) : undefined
           ]}
-          leftComponent={[
-            showHeaderSkip && (
-              <Button
-                key="skip"
-                title={t('multiStepSkip')}
-                variant="ghost"
-                onPress={handleSkip}
-                size="small"
-                disableHaptic
-              />
-            ),
-            !isFirstStep && !currentStep.hideHeaderBack && (
-              <Icon
-                name="ArrowLeft"
-                key="back"
-                size={24}
-                className="text-light-text dark:text-dark-text"
-                onPress={handleBack}
-              />
-            ),
-          ]}
+          leftComponent={
+            <View className="flex-row items-center gap-2 shrink-0">
+              {showHeaderSkip ? (
+                <Button
+                  key="skip"
+                  title={t('multiStepSkip')}
+                  variant="ghost"
+                  onPress={handleSkip}
+                  size="small"
+                  disableHaptic
+                />
+              ) : null}
+              {!isFirstStep && !currentStep.hideHeaderBack ? (
+                <Icon
+                  name="ArrowLeft"
+                  key="back"
+                  size={24}
+                  className="text-light-text dark:text-dark-text"
+                  onPress={handleBack}
+                />
+              ) : null}
+            </View>
+          }
         />
       )}
 

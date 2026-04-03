@@ -12,7 +12,7 @@ import {
 } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import ActionSheet, { ActionSheetRef } from 'react-native-actions-sheet';
+import { ActionSheetRef } from 'react-native-actions-sheet';
 import Header, { HeaderIcon } from '@/components/Header';
 import Avatar from '@/components/Avatar';
 import ThemedText from '@/components/ThemedText';
@@ -162,6 +162,19 @@ export default function TransferChatScreen() {
   const displayName = name || transactions[0]?.otherParty?.name || t('commonRecipient');
   const avatarSrc = transactions[0] ? recipientAvatarUrl(transactions[0]) : (avatarUrlParam && avatarUrlParam.trim() ? avatarUrlParam.trim() : undefined);
 
+  const headerRight =
+    receiverType === 'EMPLOYEE'
+      ? [
+          <Avatar key="avatar" size="sm" src={avatarSrc} name={displayName} />,
+          <HeaderIcon
+            key="menu"
+            icon="MoreVertical"
+            href="0"
+            onPress={() => actionSheetRef.current?.show()}
+          />,
+        ]
+      : [<Avatar key="avatar" size="sm" src={avatarSrc} name={displayName} />];
+
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
@@ -172,15 +185,7 @@ export default function TransferChatScreen() {
           showBackButton
           onBackPress={() => router.back()}
           middleComponent={<ThemedText className="text-lg font-semibold">{displayName}</ThemedText>}
-          rightComponents={[
-            <Avatar key="avatar" size="sm" src={avatarSrc} name={displayName} />,
-            <HeaderIcon
-              key="menu"
-              icon="MoreVertical"
-              href="0"
-              onPress={() => actionSheetRef.current?.show()}
-            />,
-          ]}
+          rightComponents={headerRight}
         />
 
         <ScrollView
@@ -275,27 +280,29 @@ export default function TransferChatScreen() {
           />
         </View>
 
-        <ActionSheetThemed
-          ref={actionSheetRef}
-          gestureEnabled
-          containerStyle={{
-            borderTopLeftRadius: 20,
-            borderTopRightRadius: 20,
-          }}
-        >
-          <View className="p-4">
-            <TouchableOpacity
-              className="py-4 flex-row items-center"
-              onPress={() => {
-                actionSheetRef.current?.hide();
-                router.push(`/screens/barber-detail?id=${encodeURIComponent(id)}`);
-              }}
-            >
-              <Icon name="User" size={20} className="mr-3" />
-              <ThemedText>{t('transferChatMenuViewProfile')}</ThemedText>
-            </TouchableOpacity>
-          </View>
-        </ActionSheetThemed>
+        {receiverType === 'EMPLOYEE' ? (
+          <ActionSheetThemed
+            ref={actionSheetRef}
+            gestureEnabled
+            containerStyle={{
+              borderTopLeftRadius: 20,
+              borderTopRightRadius: 20,
+            }}
+          >
+            <View className="p-4">
+              <TouchableOpacity
+                className="py-4 flex-row items-center"
+                onPress={() => {
+                  actionSheetRef.current?.hide();
+                  router.push(`/screens/barber-detail?id=${encodeURIComponent(id)}`);
+                }}
+              >
+                <Icon name="User" size={20} className="mr-3" />
+                <ThemedText>{t('transferChatMenuViewProfile')}</ThemedText>
+              </TouchableOpacity>
+            </View>
+          </ActionSheetThemed>
+        ) : null}
       </View>
     </KeyboardAvoidingView>
   );

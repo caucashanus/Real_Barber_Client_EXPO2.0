@@ -279,6 +279,8 @@ const Header: React.FC<HeaderProps> = ({
     );
   }
 
+  const hasTitleOrSubtitle = !!(title || subtitle);
+
   return (
 
     <AnimatedView
@@ -301,7 +303,7 @@ const Header: React.FC<HeaderProps> = ({
 
           {(leftComponent || title || subtitle) && (
             <View
-              className={`relative z-50 py-4 min-w-0 ${middleComponent ? '' : 'flex-1'}`}>
+              className={`relative z-50 py-4 min-w-0 ${middleComponent ? '' : hasTitleOrSubtitle ? 'flex-1' : 'shrink-0'}`}>
               {leftComponent}
 
               {title ? (
