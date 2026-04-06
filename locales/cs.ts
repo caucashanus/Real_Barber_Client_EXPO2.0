@@ -90,6 +90,8 @@ export const cs: Record<TranslationKey, string> = {
   accentHexPlaceholder: 'např. #FF2056',
   accentHueSlider: 'Odstín',
   accentReset: 'Výchozí barva',
+  accentExplanation:
+    'Změní se zvýrazňovací barva aplikace – tlačítka, aktivní prvky a klíčové akcenty napříč aplikací.',
   settingsSwitchToCzech: 'Přepnout do češtiny',
   settingsSwitchToEnglish: 'Přepnout do angličtiny',
 

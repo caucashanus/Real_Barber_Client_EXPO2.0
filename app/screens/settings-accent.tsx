@@ -6,9 +6,10 @@ import Header from '@/components/Header';
 import ThemedScroller from '@/components/ThemeScroller';
 import ThemedText from '@/components/ThemedText';
 import Section from '@/components/layout/Section';
-import { Button } from '@/components/Button';
 import { useAccentColor, DEFAULT_ACCENT } from '@/app/contexts/AccentColorContext';
 import { useTranslation } from '@/app/hooks/useTranslation';
+import useThemeColors from '@/app/contexts/ThemeColors';
+import Icon from '@/components/Icon';
 
 const SAT = 0.85;
 const LIGHT = 0.5;
@@ -75,6 +76,7 @@ function hexToHue(hex: string): number {
 export default function SettingsAccentScreen() {
   const { t } = useTranslation();
   const { accentColor, setAccentColor } = useAccentColor();
+  const colors = useThemeColors();
   const [hue, setHue] = useState(() => hexToHue(accentColor));
   const lastHapticStepRef = useRef<number | null>(null);
 
@@ -100,6 +102,9 @@ export default function SettingsAccentScreen() {
       <Header title={t('accentTitle')} showBackButton />
       <ThemedScroller className="flex-1">
         <Section titleSize="lg" className="px-global pt-4">
+          <ThemedText className="mb-5 text-sm leading-6 text-light-subtext dark:text-dark-subtext">
+            {t('accentExplanation')}
+          </ThemedText>
           <View className="mb-6 h-24 rounded-2xl border border-light-border dark:border-dark-border items-center justify-center" style={{ backgroundColor: accentColor }}>
             <ThemedText
               className="text-lg font-medium"
@@ -123,11 +128,49 @@ export default function SettingsAccentScreen() {
             maximumTrackTintColor="#ccc"
             thumbTintColor={accentColor}
           />
-          <View className="mt-8">
-            <Button title={t('accentReset')} variant="outline" onPress={() => setAccentColor(DEFAULT_ACCENT)} />
+
+          <View
+            pointerEvents="none"
+            className="mt-8 rounded-2xl overflow-hidden border border-light-border dark:border-dark-border"
+          >
+            <View
+              className="flex-row items-center justify-around py-3"
+              style={{
+                backgroundColor: colors.bg,
+                borderTopColor: colors.secondary,
+                borderTopWidth: 1,
+              }}
+            >
+              <PreviewTabItem label={t('navHome')} icon="Search" focused />
+              <PreviewTabItem label={t('navFavorites')} icon="Heart" focused={false} />
+              <PreviewTabItem label={t('navBookings')} icon="CalendarPlus" focused={false} />
+              <PreviewTabItem label={t('navProfile')} icon="CircleUser" focused={false} />
+            </View>
           </View>
         </Section>
       </ThemedScroller>
     </>
+  );
+}
+
+function PreviewTabItem(props: { label: string; icon: React.ComponentProps<typeof Icon>['name']; focused: boolean }) {
+  const colors = useThemeColors();
+  return (
+    <View className="items-center justify-center px-2">
+      <View className={props.focused ? 'opacity-100' : 'opacity-40'}>
+        <Icon
+          name={props.icon}
+          size={26}
+          strokeWidth={props.focused ? 2.1 : 1.7}
+          color={props.focused ? colors.highlight : colors.icon}
+        />
+      </View>
+      <ThemedText
+        style={props.focused ? { color: colors.highlight } : undefined}
+        className={`text-[9px] mt-px ${!props.focused ? 'text-neutral-500' : ''}`}
+      >
+        {props.label}
+      </ThemedText>
+    </View>
   );
 }

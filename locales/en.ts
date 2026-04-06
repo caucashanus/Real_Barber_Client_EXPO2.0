@@ -87,6 +87,8 @@ export const en = {
   accentHexPlaceholder: 'e.g. #FF2056',
   accentHueSlider: 'Hue',
   accentReset: 'Default color',
+  accentExplanation:
+    'This changes the app highlight color used for buttons, active elements, and key accents across the app.',
   settingsSwitchToCzech: 'Switch to Czech',
   settingsSwitchToEnglish: 'Switch to English',
 
