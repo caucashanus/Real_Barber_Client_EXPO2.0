@@ -6,6 +6,8 @@ import Divider from '@/components/layout/Divider';
 import ThemedText from '@/components/ThemedText';
 import { Button } from '@/components/Button';
 import { useTranslation } from '@/app/hooks/useTranslation';
+import { router } from 'expo-router';
+import { setReservationIntroCooldown24h } from '@/utils/reservation-intro-cooldown';
 
 export default function ReservationCreateStartScreen() {
   const insets = useSafeAreaInsets();
@@ -47,7 +49,10 @@ export default function ReservationCreateStartScreen() {
             textClassName="text-white"
             rounded="full"
             title={t('reservationStartCta')}
-            href="/screens/reservation-create"
+            onPress={async () => {
+              await setReservationIntroCooldown24h();
+              router.push('/screens/reservation-create');
+            }}
           />
         </View>
       </View>

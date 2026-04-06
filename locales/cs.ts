@@ -917,6 +917,7 @@ export const cs: Record<TranslationKey, string> = {
   chatMessages: 'Zprávy',
 
   // Wallet
+  walletPersonalRbcCaption: 'Osobní · RBC',
   walletAddMoney: 'Přidat peníze',
   walletTransfer: 'Převod',
   walletDetails: 'Detail',

@@ -915,6 +915,7 @@ export const en = {
   chatMessages: 'Messages',
 
   // Wallet
+  walletPersonalRbcCaption: 'Personal · RBC',
   walletAddMoney: 'Add money',
   walletTransfer: 'Transfer',
   walletDetails: 'Details',

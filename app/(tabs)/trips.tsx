@@ -19,6 +19,7 @@ import Avatar from '@/components/Avatar';
 import { Button } from '@/components/Button';
 import { useRouter } from 'expo-router';
 import { useTranslation } from '@/app/hooks/useTranslation';
+import { isReservationIntroCooldownActive } from '@/utils/reservation-intro-cooldown';
 
 type BookingFilter = 'all' | 'current' | 'upcoming' | 'past' | 'cancelled' | 'rated' | 'pending_review';
 
@@ -321,7 +322,16 @@ const TripsScreen = () => {
         collapsibleTitleExpandedFontSize={36}
         collapsibleTitleCollapsedFontSize={20}
         rightComponents={[
-          <HeaderIcon key="add-booking" icon="PlusCircle" href="/screens/reservation-create-start" iconSize={28} />,
+          <HeaderIcon
+            key="add-booking"
+            icon="PlusCircle"
+            href="/screens/reservation-create-start"
+            iconSize={28}
+            onPress={async () => {
+              const skip = await isReservationIntroCooldownActive();
+              router.push(skip ? '/screens/reservation-create' : '/screens/reservation-create-start');
+            }}
+          />,
         ]}
       />
       <AnimatedView animation="scaleIn" className="flex-1">

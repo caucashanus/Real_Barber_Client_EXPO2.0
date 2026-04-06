@@ -93,7 +93,7 @@ function daysSinceCreatedAt(createdAt: string | null | undefined): number | null
 }
 
 const PersonalProfile = () => {
-    const { apiToken } = useAuth();
+    const { apiToken, clearAuth } = useAuth();
     const { t } = useTranslation();
     const [client, setClient] = useState<ClientMe | null>(null);
     const [loading, setLoading] = useState(false);
@@ -128,12 +128,6 @@ const PersonalProfile = () => {
     );
 
     const displayName = client?.firstName?.trim() || client?.name?.trim() || null;
-    const fullNameForHub =
-      [client?.firstName, client?.lastName].filter(Boolean).join(' ').trim() ||
-      client?.displayName?.trim() ||
-      client?.name?.trim() ||
-      '';
-    const profileHubTitle = fullNameForHub || t('profileGuest');
     const avatarSrc = client?.avatarUrl ?? require('@/assets/img/wallet/RB.avatar.jpg');
     const addressLine = [client?.address?.trim(), client?.city?.trim()].filter(Boolean).join(', ') || null;
     const daysMember = daysSinceCreatedAt(client?.createdAt);
@@ -168,35 +162,15 @@ const PersonalProfile = () => {
                         <ThemedText className="text-xl font-bold">{reservationsCount}</ThemedText>
                         <ThemedText className="text-xs">{t('profileReservations')}</ThemedText>
                     </View>
-                    <View className='w-full py-3 my-3 border-y border-neutral-300 dark:border-dark-primary'>
+                    <View className='w-full pt-3 mt-3 border-t border-neutral-300 dark:border-dark-primary'>
                         <ThemedText className="text-xl font-bold">{memberDaysDisplay}</ThemedText>
                         <ThemedText className="text-xs">{t('profileMemberDays')}</ThemedText>
-                    </View>
-                    <View className='w-full'>
-                        <ThemedText className="text-xl font-bold">
-                            {client?.customerStatus?.trim() ? client.customerStatus.trim() : '—'}
-                        </ThemedText>
-                        <ThemedText className="text-xs">{t('profileCustomerStatus')}</ThemedText>
                     </View>
                 </View>
 
             </View>
 
             <View className='gap-1 px-4'>
-                <ListLink
-                    showChevron
-                    title={profileHubTitle}
-                    href="/screens/edit-profile"
-                    leading={
-                        loading ? (
-                            <View className="w-10 h-10 rounded-full bg-light-secondary dark:bg-dark-secondary items-center justify-center">
-                                <ActivityIndicator size="small" />
-                            </View>
-                        ) : (
-                            <Avatar src={avatarSrc} size="sm" border name={fullNameForHub || displayName || undefined} />
-                        )
-                    }
-                />
                 <ListLink showChevron title={t('profileAccountSettings')} icon="Settings" href="/screens/settings" />
                 <ListLink showChevron title={t('profileEditProfile')} icon="UserRoundPen" href="/screens/edit-profile" />
                 {SHOW_PROFILE_HELP_SECTION ? (
@@ -206,7 +180,15 @@ const PersonalProfile = () => {
                     <ListLink showChevron title={t('profileReferrals')} icon="Gift" href="/screens/referrals" />
                 ) : null}
                 <Divider />
-                <ListLink showChevron title={t('profileLogout')} icon="LogOut" href="/screens/welcome" />
+                <ListLink
+                    showChevron
+                    title={t('profileLogout')}
+                    icon="LogOut"
+                    onPress={async () => {
+                        await clearAuth();
+                        router.replace('/screens/welcome');
+                    }}
+                />
             </View>
         </AnimatedView>
 

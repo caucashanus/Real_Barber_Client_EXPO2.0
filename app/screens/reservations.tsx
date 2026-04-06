@@ -13,6 +13,7 @@ import { useTranslation } from '@/app/hooks/useTranslation';
 import { CardScroller } from '@/components/CardScroller';
 import { Chip } from '@/components/Chip';
 import { router } from 'expo-router';
+import { isReservationIntroCooldownActive } from '@/utils/reservation-intro-cooldown';
 
 interface Reservation {
     id: number;
@@ -107,8 +108,12 @@ const ReservationsScreen = () => {
                 rightComponents={[
                     <HeaderIcon
                         key="add-reservation"
-                        href="/screens/reservation-create-start"
                         icon="Plus"
+                        href="/screens/reservation-create-start"
+                        onPress={async () => {
+                          const skip = await isReservationIntroCooldownActive();
+                          router.push(skip ? '/screens/reservation-create' : '/screens/reservation-create-start');
+                        }}
                     />,
                 ]}
             />

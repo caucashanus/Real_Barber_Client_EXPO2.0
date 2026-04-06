@@ -234,7 +234,7 @@ const WalletScreen = () => {
       <AnimatedView animation="scaleIn" className="flex-1 mt-4">
         {/* 1. Stav RBC – ve light mode tmavě šedé (ne černé), v dark mode jako dřív */}
         <View className="bg-slate-600 dark:bg-neutral-900 rounded-t-3xl px-6 pt-8 pb-6 mb-0 items-center">
-          <ThemedText className="text-sm text-white/80 text-center">Personal · RBC</ThemedText>
+          <ThemedText className="text-sm text-white/80 text-center">{t('walletPersonalRbcCaption')}</ThemedText>
           {balanceLoading ? (
             <ActivityIndicator color="white" size="small" className="mt-2" />
           ) : balanceError ? (
