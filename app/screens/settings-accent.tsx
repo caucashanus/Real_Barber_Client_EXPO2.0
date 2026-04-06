@@ -1,6 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import { View } from 'react-native';
 import Slider from '@react-native-community/slider';
+import * as Haptics from 'expo-haptics';
 import Header from '@/components/Header';
 import ThemedScroller from '@/components/ThemeScroller';
 import ThemedText from '@/components/ThemedText';
@@ -75,12 +76,20 @@ export default function SettingsAccentScreen() {
   const { t } = useTranslation();
   const { accentColor, setAccentColor } = useAccentColor();
   const [hue, setHue] = useState(() => hexToHue(accentColor));
+  const lastHapticStepRef = useRef<number | null>(null);
 
   useEffect(() => {
     setHue(hexToHue(accentColor));
   }, [accentColor]);
 
   const applyHue = (value: number) => {
+    // Gentle haptic "ticks" while sliding (throttled by step).
+    const step = Math.round(value / 6); // ~60 ticks across full range
+    if (lastHapticStepRef.current !== step) {
+      lastHapticStepRef.current = step;
+      Haptics.selectionAsync().catch(() => {});
+    }
+
     const h = hueToHex(value);
     setHue(value);
     setAccentColor(h);
