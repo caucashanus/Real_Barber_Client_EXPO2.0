@@ -46,6 +46,7 @@ export default function EditProfileScreen() {
   const [zip, setZip] = useState('');
   const [country, setCountry] = useState('');
   const phoneInfoSheetRef = useRef<ActionSheetRef>(null);
+  const photoSourceSheetRef = useRef<ActionSheetRef>(null);
 
   const phoneChangeRequestMessage = useMemo(() => {
     const name = `${firstName.trim()} ${lastName.trim()}`.trim() || '—';
@@ -88,17 +89,45 @@ export default function EditProfileScreen() {
       .finally(() => setLoading(false));
   }, [apiToken]);
 
-  const pickImage = async () => {
+  const setPickedAvatar = (asset: ImagePickerAsset) => {
+    setAvatarLocalUri(asset.uri);
+    setAvatarAsset(asset);
+  };
+
+  const pickFromLibrary = async () => {
+    const perm = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (!perm.granted) return;
     const result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
       allowsEditing: true,
       aspect: [1, 1],
       quality: 0.8,
     });
-    if (!result.canceled) {
-      setAvatarLocalUri(result.assets[0].uri);
-      setAvatarAsset(result.assets[0]);
-    }
+    if (!result.canceled) setPickedAvatar(result.assets[0]);
+  };
+
+  const takePhoto = async () => {
+    const perm = await ImagePicker.requestCameraPermissionsAsync();
+    if (!perm.granted) return;
+    const result = await ImagePicker.launchCameraAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: true,
+      aspect: [1, 1],
+      quality: 0.8,
+    });
+    if (!result.canceled) setPickedAvatar(result.assets[0]);
+  };
+
+  const openPhotoSourceSheet = () => photoSourceSheetRef.current?.show();
+
+  const onChooseLibrary = async () => {
+    photoSourceSheetRef.current?.hide();
+    await pickFromLibrary();
+  };
+
+  const onChooseCamera = async () => {
+    photoSourceSheetRef.current?.hide();
+    await takePhoto();
   };
 
   const saveChanges = async () => {
@@ -203,7 +232,7 @@ export default function EditProfileScreen() {
                 {t('editProfilePhoto')}
               </ThemedText>
               <View className="flex-row items-center gap-4">
-                <TouchableOpacity onPress={pickImage} activeOpacity={0.8} className="relative">
+                <TouchableOpacity onPress={openPhotoSourceSheet} activeOpacity={0.8} className="relative">
                   {avatarSrc ? (
                     <Image
                       source={avatarSrc}
@@ -223,7 +252,7 @@ export default function EditProfileScreen() {
                   <Button
                     title={avatarSrc ? t('editProfileChangePhoto') : t('editProfileUploadPhoto')}
                     variant="outline"
-                    onPress={pickImage}
+                    onPress={openPhotoSourceSheet}
                   />
                   {avatarSrc && (
                     <Button
@@ -239,6 +268,15 @@ export default function EditProfileScreen() {
                 </View>
               </View>
             </View>
+
+            <ActionSheetThemed ref={photoSourceSheetRef} gestureEnabled>
+              <View className="p-5 pb-7">
+                <View className="mt-4 gap-2">
+                  <Button title={t('editProfilePhotoSourceCamera')} onPress={onChooseCamera} />
+                  <Button title={t('editProfilePhotoSourceLibrary')} variant="outline" onPress={onChooseLibrary} />
+                </View>
+              </View>
+            </ActionSheetThemed>
 
             <View className="mb-8">
               <ThemedText className="mb-4 text-lg font-bold text-light-primary dark:text-dark-primary">
