@@ -1,4 +1,3 @@
-import * as ImagePicker from 'expo-image-picker';
 import type { ImagePickerAsset } from 'expo-image-picker';
 import { router } from 'expo-router';
 import React, { useState, useEffect, useRef, useMemo } from 'react';
@@ -21,6 +20,7 @@ import Select from '@/components/forms/Select';
 import Section from '@/components/layout/Section';
 import { formatBirthdayToIsoUtcMidnight, formatToYYYYMMDD } from '@/utils/date';
 import { COUNTRY_OPTIONS } from '@/utils/phone';
+import { pickSquareAvatarFromLibrary, takeSquareAvatarPhoto } from '@/utils/avatar-picker';
 
 export default function EditProfileScreen() {
   const { apiToken } = useAuth();
@@ -95,27 +95,13 @@ export default function EditProfileScreen() {
   };
 
   const pickFromLibrary = async () => {
-    const perm = await ImagePicker.requestMediaLibraryPermissionsAsync();
-    if (!perm.granted) return;
-    const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
-      allowsEditing: true,
-      aspect: [1, 1],
-      quality: 0.8,
-    });
-    if (!result.canceled) setPickedAvatar(result.assets[0]);
+    const asset = await pickSquareAvatarFromLibrary();
+    if (asset) setPickedAvatar(asset);
   };
 
   const takePhoto = async () => {
-    const perm = await ImagePicker.requestCameraPermissionsAsync();
-    if (!perm.granted) return;
-    const result = await ImagePicker.launchCameraAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
-      allowsEditing: true,
-      aspect: [1, 1],
-      quality: 0.8,
-    });
-    if (!result.canceled) setPickedAvatar(result.assets[0]);
+    const asset = await takeSquareAvatarPhoto();
+    if (asset) setPickedAvatar(asset);
   };
 
   const openPhotoSourceSheet = () => photoSourceSheetRef.current?.show();
