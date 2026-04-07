@@ -487,6 +487,49 @@ export default function ReservationCreateScreen() {
     }
     if (loadingBranches) return;
 
+    if (presetEmployeeId && presetBranchId && presetItemId) {
+      const branch = branches.find((b) => b.id === presetBranchId) ?? null;
+      if (!branch) {
+        setData((prev) => ({
+          ...prev,
+          branchId: '',
+          employeeId: '',
+          itemId: '',
+          date: '',
+          slotStart: '',
+          slotEnd: '',
+          duration: 0,
+        }));
+        setLastSelectedDateByMonth({});
+        setMonthOffset(0);
+        setBarberEntryMode('none');
+        setInitialMultiStepIndex(0);
+        setPresetBranchFilterIds(null);
+        setBarberBootstrap('ready');
+        return;
+      }
+
+      const svc = getServicesList(branch).find((s) => s.id === presetItemId);
+      const duration = svc?.duration ?? 0;
+      setData((prev) => ({
+        ...prev,
+        branchId: presetBranchId,
+        employeeId: presetEmployeeId,
+        itemId: presetItemId,
+        date: '',
+        slotStart: '',
+        slotEnd: '',
+        duration,
+      }));
+      setLastSelectedDateByMonth({});
+      setMonthOffset(0);
+      setBarberEntryMode('single');
+      setInitialMultiStepIndex(3);
+      setPresetBranchFilterIds(null);
+      setBarberBootstrap('ready');
+      return;
+    }
+
     if (presetEmployeeId) {
       let cancelled = false;
       setBarberBootstrap('pending');

@@ -439,11 +439,7 @@ const BookingDetailScreen = () => {
                 iconSize={16}
                 className="min-w-0 flex-1 rounded-none px-0 py-3.5"
                 textClassName="text-sm font-semibold text-neutral-800 dark:text-neutral-200"
-                href={
-                  booking.branchId
-                    ? `/screens/branch-detail?id=${encodeURIComponent(booking.branchId)}`
-                    : undefined
-                }
+                href={`/screens/reservation-create?branchId=${encodeURIComponent(booking.branchId)}&employeeId=${encodeURIComponent(booking.employeeId)}&itemId=${encodeURIComponent(booking.itemId)}&itemName=${encodeURIComponent(booking.item?.name ?? '')}`}
               />
               <View className="w-px self-stretch bg-neutral-200 dark:bg-neutral-700" />
               <Button
