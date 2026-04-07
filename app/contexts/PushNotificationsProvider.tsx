@@ -2,7 +2,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import Constants from 'expo-constants';
 import * as Notifications from 'expo-notifications';
 import React, { useEffect, useRef } from 'react';
-import { Platform } from 'react-native';
+import { AppState, Platform } from 'react-native';
 
 import { unregisterPushToken, registerPushToken } from '@/api/push';
 import { useAuth } from '@/app/contexts/AuthContext';
@@ -11,6 +11,7 @@ import { openFromPushNotificationData } from '@/utils/pushNavigation';
 
 const PUSH_TOKEN_KEY = '@expo_push_token';
 const PUSH_DEVICE_ID_KEY = '@push_device_id';
+const PUSH_META_KEY = '@expo_push_token_meta';
 
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
@@ -89,6 +90,7 @@ export default function PushNotificationsProvider({ children }: { children: Reac
   const { locale } = useLanguage();
   const responseSubRef = useRef<Notifications.EventSubscription | null>(null);
   const prevApiTokenRef = useRef<string | null>(null);
+  const appStateRef = useRef(AppState.currentState);
 
   useEffect(() => {
     responseSubRef.current = Notifications.addNotificationResponseReceivedListener((response) => {
@@ -107,6 +109,47 @@ export default function PushNotificationsProvider({ children }: { children: Reac
       responseSubRef.current = null;
     };
   }, []);
+
+  async function ensureRegistered(currentApiToken: string): Promise<void> {
+    if (Platform.OS !== 'ios' && Platform.OS !== 'android') return;
+
+    const token = await getExpoPushToken();
+    if (!token) return;
+
+    const platform = Platform.OS === 'ios' ? 'iOS' : 'Android';
+    const appVersion = Constants.expoConfig?.version ?? '1.0.0';
+    const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+
+    const cachedToken = await AsyncStorage.getItem(PUSH_TOKEN_KEY).catch(() => null);
+    const cachedMetaRaw = await AsyncStorage.getItem(PUSH_META_KEY).catch(() => null);
+    const cachedMeta =
+      cachedMetaRaw && typeof cachedMetaRaw === 'string'
+        ? (() => {
+            try {
+              return JSON.parse(cachedMetaRaw) as { appVersion?: string };
+            } catch {
+              return null;
+            }
+          })()
+        : null;
+
+    const sameToken = cachedToken === token;
+    const sameVersion = (cachedMeta?.appVersion ?? null) === appVersion;
+    if (sameToken && sameVersion) return;
+
+    const deviceId = await getOrCreateDeviceId();
+    await registerPushToken(currentApiToken, {
+      token,
+      platform,
+      appVersion,
+      deviceId,
+      locale,
+      timezone,
+    });
+
+    await AsyncStorage.setItem(PUSH_TOKEN_KEY, token).catch(() => {});
+    await AsyncStorage.setItem(PUSH_META_KEY, JSON.stringify({ appVersion })).catch(() => {});
+  }
 
   useEffect(() => {
     const previousApiToken = prevApiTokenRef.current;
@@ -128,6 +171,7 @@ export default function PushNotificationsProvider({ children }: { children: Reac
             // ignore backend errors on logout
           } finally {
             await AsyncStorage.removeItem(PUSH_TOKEN_KEY).catch(() => {});
+            await AsyncStorage.removeItem(PUSH_META_KEY).catch(() => {});
           }
         })
         .catch(() => {});
@@ -139,21 +183,7 @@ export default function PushNotificationsProvider({ children }: { children: Reac
     let cancelled = false;
     (async () => {
       try {
-        if (Platform.OS !== 'ios' && Platform.OS !== 'android') return;
-        const token = await getExpoPushToken();
-        if (cancelled || !token) return;
-        const cached = await AsyncStorage.getItem(PUSH_TOKEN_KEY).catch(() => null);
-        if (cached === token) return;
-        const deviceId = await getOrCreateDeviceId();
-        await registerPushToken(apiToken, {
-          token,
-          platform: Platform.OS,
-          appVersion: Constants.expoConfig?.version,
-          deviceId,
-          locale,
-          timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
-        });
-        await AsyncStorage.setItem(PUSH_TOKEN_KEY, token).catch(() => {});
+        await ensureRegistered(apiToken);
         if (__DEV__) {
           console.log('[push] register ok');
         }
@@ -168,6 +198,20 @@ export default function PushNotificationsProvider({ children }: { children: Reac
     return () => {
       cancelled = true;
     };
+  }, [apiToken, locale]);
+
+  useEffect(() => {
+    if (!apiToken) return;
+
+    const sub = AppState.addEventListener('change', (nextState) => {
+      const prev = appStateRef.current;
+      appStateRef.current = nextState;
+      if (prev !== 'active' && nextState === 'active') {
+        ensureRegistered(apiToken).catch(() => {});
+      }
+    });
+
+    return () => sub.remove();
   }, [apiToken, locale]);
 
   return <>{children}</>;
