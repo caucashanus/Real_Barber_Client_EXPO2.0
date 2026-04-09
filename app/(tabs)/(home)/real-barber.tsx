@@ -71,7 +71,7 @@ export default function RealBarberHomeTab() {
         {/* Search row */}
         <View className="-mx-global mt-4 px-0">
           <Pressable
-            onPress={actions[0]?.onPress}
+            onPress={() => router.push('/screens/reservation-quick-branch')}
             className="flex-row items-center gap-2 rounded-full bg-light-secondary px-4 py-3 dark:bg-dark-secondary">
             <Icon name="Search" size={18} className="text-light-subtext dark:text-dark-subtext" />
             <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext">

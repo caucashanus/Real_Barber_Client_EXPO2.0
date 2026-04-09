@@ -25,6 +25,10 @@ import { RealBarberLiveActivity } from '@/widgets';
 
 type BookingFilter = 'all' | 'current' | 'upcoming' | 'past' | 'cancelled' | 'rated' | 'pending_review';
 
+// During design/debug, prevent auto-start from creating extra instances.
+// Live Activities should be started from Dev Live Activity screen in __DEV__.
+const ENABLE_AUTO_LIVE_ACTIVITY = !__DEV__;
+
 function formatBookingDate(b: Booking, locale: string = 'en'): string {
   const d = new Date(b.date);
   const dateLocale = locale === 'cs' ? 'cs-CZ' : 'en-GB';
@@ -296,6 +300,7 @@ const TripsScreen = () => {
 
   useEffect(() => {
     if (Platform.OS !== 'ios') return;
+    if (!ENABLE_AUTO_LIVE_ACTIVITY) return;
 
     const current = bookings.find((b) => isBookingCurrent(b)) ?? null;
     const upcomingInHour =
