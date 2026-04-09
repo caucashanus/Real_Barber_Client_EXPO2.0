@@ -105,6 +105,14 @@ export default function SettingsScreen() {
               href="/screens/help"
             />
           ) : null}
+          {__DEV__ ? (
+            <ListLink
+              title="Live Activity (Dev)"
+              description="Start / Update / End test"
+              icon="Activity"
+              href="/screens/dev-live-activity"
+            />
+          ) : null}
         </View>
 
         <View className="items-center justify-center pb-8 pt-6">

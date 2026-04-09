@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useState, useRef } from 'react';
 import { useFocusEffect } from '@react-navigation/native';
-import { View, TouchableOpacity, ActivityIndicator, Animated, Pressable } from 'react-native';
+import { View, TouchableOpacity, ActivityIndicator, Animated, Pressable, Platform } from 'react-native';
 import ThemedText from '@/components/ThemedText';
 import { shadowPresets } from '@/utils/useShadow';
 import ThemeScroller from '@/components/ThemeScroller';
@@ -20,6 +20,8 @@ import { Button } from '@/components/Button';
 import { useRouter } from 'expo-router';
 import { useTranslation } from '@/app/hooks/useTranslation';
 import { isReservationIntroCooldownActive } from '@/utils/reservation-intro-cooldown';
+import type { LiveActivity } from 'expo-widgets';
+import { RealBarberLiveActivity } from '@/widgets';
 
 type BookingFilter = 'all' | 'current' | 'upcoming' | 'past' | 'cancelled' | 'rated' | 'pending_review';
 
@@ -231,6 +233,13 @@ const TripsScreen = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [selectedFilter, setSelectedFilter] = useState<BookingFilter>('all');
+  const liveInstanceRef = useRef<LiveActivity<{
+    title: string;
+    startAt: string;
+    endAt: string;
+    branchName?: string;
+  }> | null>(null);
+  const liveBookingIdRef = useRef<string | null>(null);
 
   const counts = countByFilter(bookings, bookingReviewMap);
 
@@ -284,6 +293,51 @@ const TripsScreen = () => {
       .catch((e) => setError(e instanceof Error ? e.message : 'Failed to load'))
       .finally(() => setLoading(false));
   }, [apiToken, refreshBookingsBadge]);
+
+  useEffect(() => {
+    if (Platform.OS !== 'ios') return;
+
+    const current = bookings.find((b) => isBookingCurrent(b)) ?? null;
+    const upcomingInHour =
+      bookings
+        .filter((b) => isBookingUpcoming(b))
+        .map((b) => ({ b, t: getTargetDate(b).getTime() }))
+        .filter(({ t }) => t - Date.now() <= 60 * 60_000 && t - Date.now() > 0)
+        .sort((a, c) => a.t - c.t)[0]?.b ?? null;
+
+    const target = current ?? upcomingInHour;
+    if (!target) {
+      liveInstanceRef.current = null;
+      liveBookingIdRef.current = null;
+      return;
+    }
+
+    const start = getTargetDate(target);
+    const end = getBookingEndDate(target);
+    const bookingId = target.id;
+
+    try {
+      if (!liveInstanceRef.current || liveBookingIdRef.current !== bookingId) {
+        liveBookingIdRef.current = bookingId;
+        liveInstanceRef.current = RealBarberLiveActivity.start(
+          {
+            title: 'Real Barber',
+            startAt: start.toISOString(),
+            endAt: end.toISOString(),
+            branchName: target.branch?.name ?? undefined,
+          },
+          `realbarber://screens/trip-detail?id=${encodeURIComponent(bookingId)}`
+        );
+      } else {
+        liveInstanceRef.current.update({
+          title: 'Real Barber',
+          startAt: start.toISOString(),
+          endAt: end.toISOString(),
+          branchName: target.branch?.name ?? undefined,
+        });
+      }
+    } catch {}
+  }, [bookings]);
 
   useFocusEffect(
     useCallback(() => {
