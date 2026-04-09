@@ -1,4 +1,4 @@
-import { Video, ResizeMode } from 'expo-av';
+import VideoPlayer from '@/components/VideoPlayer';
 import { router, useLocalSearchParams } from 'expo-router';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { View, ScrollView, Pressable, ActivityIndicator, Image } from 'react-native';
@@ -1636,11 +1636,11 @@ export default function ReservationCreateScreen() {
           {detailsBranchVideo ? (
             <View className="mb-4 overflow-hidden rounded-xl bg-black">
               <ThemedText className="text-sm font-semibold">{t('sheetHowToBranch')}</ThemedText>
-              <Video
-                source={{ uri: detailsBranchVideo.url }}
+              <VideoPlayer
+                uri={detailsBranchVideo.url}
                 style={{ width: '100%', height: 220 }}
-                resizeMode={ResizeMode.COVER}
-                useNativeControls
+                contentFit="cover"
+                nativeControls
                 shouldPlay
                 isLooping
                 isMuted

@@ -4,7 +4,7 @@ import { View, Image, ActivityIndicator, Pressable, ScrollView, Modal, Animated,
 import { useLocalSearchParams } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
-import { Video, ResizeMode } from 'expo-av';
+import VideoPlayer from '@/components/VideoPlayer';
 import Header from '@/components/Header';
 import ThemedText from '@/components/ThemedText';
 import ThemedScroller from '@/components/ThemeScroller';
@@ -275,14 +275,13 @@ export default function BarberDetailScreen() {
             renderItem={({ item, index }) => (
               <View style={{ width: carouselWidth, height: CAROUSEL_HEIGHT }}>
                 {item.type === 'video' ? (
-                  <Video
-                    source={{ uri: item.uri }}
+                  <VideoPlayer
+                    uri={item.uri}
                     style={{ width: carouselWidth, height: CAROUSEL_HEIGHT }}
-                    resizeMode={ResizeMode.COVER}
+                    contentFit="cover"
                     shouldPlay={activeCarouselIndex === index}
                     isMuted
                     isLooping
-                    useNativeControls={false}
                   />
                 ) : (
                   <Image
@@ -356,14 +355,13 @@ export default function BarberDetailScreen() {
                       style={{ width: 160, height: 160 }}
                     >
                       {item.type === 'video' ? (
-                        <Video
-                          source={{ uri: item.url }}
+                        <VideoPlayer
+                          uri={item.url}
                           style={{ width: 160, height: 160 }}
-                          resizeMode={ResizeMode.COVER}
+                          contentFit="cover"
                           shouldPlay
                           isMuted
                           isLooping
-                          useNativeControls={false}
                         />
                       ) : (
                         <Image source={{ uri: item.url }} className="w-full h-full" resizeMode="cover" />
@@ -576,13 +574,12 @@ export default function BarberDetailScreen() {
             <Icon name="X" size={24} className="text-white" />
           </Pressable>
           {fullscreenMedia?.type === 'video' ? (
-            <Video
-              source={{ uri: fullscreenMedia.url }}
+            <VideoPlayer
+              uri={fullscreenMedia.url}
               style={{ width: winWidth, height: winHeight }}
-              resizeMode={ResizeMode.CONTAIN}
-              useNativeControls
+              contentFit="contain"
+              nativeControls
               shouldPlay
-              isLooping={false}
             />
           ) : fullscreenMedia ? (
             <Pressable style={{ flex: 1 }} onPress={() => setFullscreenMedia(null)}>

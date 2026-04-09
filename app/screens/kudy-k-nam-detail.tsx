@@ -3,7 +3,7 @@ import { View, Pressable, Linking, ActivityIndicator } from 'react-native';
 import Header from '@/components/Header';
 import ThemedText from '@/components/ThemedText';
 import ThemedScroller from '@/components/ThemeScroller';
-import { Video, ResizeMode } from 'expo-av';
+import VideoPlayer from '@/components/VideoPlayer';
 import { StatusBar } from 'expo-status-bar';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useLocalSearchParams } from 'expo-router';
@@ -31,7 +31,6 @@ const KudyKNamDetail = () => {
   const { t, locale } = useTranslation();
   const colors = useThemeColors();
   const { apiToken } = useAuth();
-  const videoRef = useRef<Video>(null);
   const { id: branchId } = useLocalSearchParams<{ id?: string }>();
   const [branch, setBranch] = useState<Branch | null>(null);
   const [loading, setLoading] = useState(true);
@@ -56,13 +55,7 @@ const KudyKNamDetail = () => {
   const title = branch ? `${t('howToGetToUs')} – ${branch.name}` : t('howToGetToUs');
   const videoUrl = branch ? getKudyVideoUrl(branch) : null;
 
-  const handleShowFullscreenVideo = async () => {
-    try {
-      await videoRef.current?.setStatusAsync({ isMuted: false });
-      await videoRef.current?.presentFullscreenPlayer();
-      await videoRef.current?.playAsync();
-    } catch (_) {}
-  };
+  const handleShowFullscreenVideo = async () => {};
 
   if (loading) {
     return (
@@ -99,16 +92,15 @@ const KudyKNamDetail = () => {
       <ThemedScroller className="px-0 bg-light-primary dark:bg-dark-primary">
         {hasVideo && videoUrl && (
           <View className="bg-black" style={{ height: 500 }}>
-            <Video
-              ref={videoRef}
-              pointerEvents="none"
-              source={{ uri: videoUrl }}
+            <VideoPlayer
+              uri={videoUrl}
               style={{ width: '100%', height: 500 }}
-              resizeMode={ResizeMode.COVER}
-              useNativeControls
+              contentFit="cover"
+              nativeControls
               shouldPlay
               isLooping
-              isMuted={true}
+              isMuted
+              fullscreenEnabled
             />
           </View>
         )}

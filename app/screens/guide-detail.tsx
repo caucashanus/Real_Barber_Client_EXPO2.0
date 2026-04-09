@@ -7,7 +7,7 @@ import {
   Dimensions,
   Pressable,
 } from 'react-native';
-import { Video, ResizeMode } from 'expo-av';
+import VideoPlayer from '@/components/VideoPlayer';
 import { useLocalSearchParams, router } from 'expo-router';
 import Header from '@/components/Header';
 import ThemedScroller from '@/components/ThemeScroller';
@@ -51,12 +51,11 @@ function MediaItem({ item }: { item: GuideMedia }) {
   if (file.fileType === 'video') {
     return (
       <View className="mr-3 rounded-xl overflow-hidden bg-black">
-        <Video
-          source={{ uri: file.url }}
+        <VideoPlayer
+          uri={file.url}
           style={{ width: screenWidth * 0.6, height: 220 }}
-          resizeMode={ResizeMode.CONTAIN}
-          useNativeControls
-          isLooping={false}
+          contentFit="contain"
+          nativeControls
         />
       </View>
     );

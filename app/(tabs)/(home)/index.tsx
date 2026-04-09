@@ -12,7 +12,7 @@ import { router } from 'expo-router';
 import { useAuth } from '@/app/contexts/AuthContext';
 import { getBranches, type Branch, type BranchService } from '@/api/branches';
 import { getClientReviewsList, type ClientReviewListItem } from '@/api/reviews';
-import { Video, ResizeMode } from 'expo-av';
+import VideoPlayer from '@/components/VideoPlayer';
 import Icon from '@/components/Icon';
 import { useTranslation } from '@/app/hooks/useTranslation';
 
@@ -173,12 +173,11 @@ const HomeScreen = () => {
                           <View className="relative rounded-2xl overflow-hidden bg-light-secondary dark:bg-dark-secondary" style={{ width: 160, height: 160 }}>
                             {kudyVideoUrl != null ? (
                               <>
-                                <Video
-                                  pointerEvents="none"
-                                  source={{ uri: kudyVideoUrl }}
+                                <VideoPlayer
+                                  uri={kudyVideoUrl}
                                   style={{ width: 160, height: 160 }}
-                                  resizeMode={ResizeMode.COVER}
-                                  useNativeControls
+                                  contentFit="cover"
+                                  nativeControls
                                   isLooping
                                   shouldPlay={false}
                                 />
