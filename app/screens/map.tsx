@@ -32,6 +32,7 @@ import { router, useLocalSearchParams } from 'expo-router';
 import { useAuth } from '@/app/contexts/AuthContext';
 import { useBranchFilter } from '@/app/contexts/BranchFilterContext';
 import { getBranches, type Branch, type BranchService } from '@/api/branches';
+import { BRANCH_MARKER_IMAGES } from '@/constants/branch-marker-images';
 import { BRANCH_FILTER_DATA } from '@/constants/branch-filter-data';
 import type { BranchFilterState } from '@/app/contexts/BranchFilterContext';
 import { useTranslation } from '@/app/hooks/useTranslation';
@@ -50,14 +51,6 @@ const BRANCH_COORDINATES: Record<string, { lat: number; lng: number }> = {
   Hagibor: { lat: 50.07850819920388, lng: 14.48365959725635 },
   Modřany: { lat: 50.00477408096832, lng: 14.416534741433177 },
   Barrandov: { lat: 50.030533187365194, lng: 14.361240910745531 },
-};
-
-/** Hardcoded marker logos per branch name (local PNGs). */
-const BRANCH_MARKER_IMAGES: Record<string, import('react-native').ImageSourcePropType> = {
-  Hagibor: require('@/assets/img/markers/hagiborbarrandov.png'),
-  Kačerov: require('@/assets/img/markers/kacerovbarbershop.png'),
-  Modřany: require('@/assets/img/markers/modranybarbershop.png'),
-  Barrandov: require('@/assets/img/markers/barrandovbarbershop.png'),
 };
 
 function getServicesList(branch: Branch): BranchService[] {

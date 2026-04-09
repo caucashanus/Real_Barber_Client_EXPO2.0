@@ -1,7 +1,7 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { router } from 'expo-router';
 import React, { useEffect, useMemo, useState } from 'react';
-import { ActivityIndicator, Pressable, TextInput, View } from 'react-native';
+import { ActivityIndicator, Image, Pressable, TextInput, View } from 'react-native';
 
 import { getBranches, type Branch } from '@/api/branches';
 import { useAuth } from '@/app/contexts/AuthContext';
@@ -79,14 +79,7 @@ export default function ReservationQuickBranchScreen() {
 
   return (
     <View className="flex-1 bg-light-primary dark:bg-dark-primary">
-      <Header
-        title="Vyberte pobočku"
-        leftComponent={
-          <Pressable onPress={() => router.back()} className="mr-2">
-            <Icon name="X" size={22} />
-          </Pressable>
-        }
-      />
+      <Header title="Vyberte pobočku" showBackButton onBackPress={() => router.back()} />
 
       <ThemeScroller className="flex-1" contentContainerStyle={{ paddingTop: 8 }}>
         <View className="px-global">
@@ -148,12 +141,22 @@ export default function ReservationQuickBranchScreen() {
                     <ListItem
                       key={b.id}
                       leading={
-                        <View className="h-10 w-10 items-center justify-center rounded-xl bg-light-primary dark:bg-dark-primary">
-                          <Icon
-                            name="Clock"
-                            size={18}
-                            className="text-light-subtext dark:text-dark-subtext"
-                          />
+                        <View className="h-10 w-10 overflow-hidden rounded-xl bg-light-primary dark:bg-dark-primary">
+                          {b.imageUrl ? (
+                            <Image
+                              source={{ uri: b.imageUrl }}
+                              className="h-10 w-10"
+                              resizeMode="cover"
+                            />
+                          ) : (
+                            <View className="h-10 w-10 items-center justify-center">
+                              <Icon
+                                name="MapPin"
+                                size={18}
+                                className="text-light-subtext dark:text-dark-subtext"
+                              />
+                            </View>
+                          )}
                         </View>
                       }
                       title={b.name}
