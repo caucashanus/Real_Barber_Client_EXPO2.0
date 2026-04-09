@@ -1,6 +1,5 @@
 {
   "expo": {
-    "newArchEnabled": true,
     "name": "Real Barber",
     "slug": "realbarber",
     "version": "1.0.1",
@@ -24,7 +23,39 @@
           "photosPermission": "Aplikace potřebuje přístup ke galerii pro výběr profilové fotky.",
           "cameraPermission": "Aplikace potřebuje přístup ke fotoaparátu pro profilovou fotku."
         }
-      ]
+      ],
+      [
+        "expo-widgets",
+        {
+          "bundleIdentifier": "com.realbarber.client.widgets",
+          "groupIdentifier": "group.com.realbarber.client",
+          "enablePushNotifications": true,
+          "widgets": [
+            {
+              "name": "RealBarberWidget",
+              "displayName": "Real Barber",
+              "description": "Rychlý přehled v aplikaci Real Barber",
+              "supportedFamilies": [
+                "systemSmall",
+                "systemMedium",
+                "accessoryRectangular"
+              ]
+            },
+            {
+              "name": "RealBarberLiveActivity",
+              "displayName": "Real Barber Aktivita",
+              "description": "Live Activity pro Real Barber",
+              "supportedFamilies": [
+                "systemSmall"
+              ]
+            }
+          ]
+        }
+      ],
+      "@react-native-community/datetimepicker",
+      "expo-asset",
+      "expo-image",
+      "expo-sharing"
     ],
     "orientation": "portrait",
     "icon": "./assets/icon.png",
