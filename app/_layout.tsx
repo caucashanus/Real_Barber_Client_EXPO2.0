@@ -1,5 +1,5 @@
 import '../global.css';
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Stack } from 'expo-router';
 import { NativeWindStyleSheet } from 'nativewind';
 import { ThemeProvider } from './contexts/ThemeContext';
@@ -15,6 +15,7 @@ import { LanguageProvider } from './contexts/LanguageContext';
 import { AccentColorProvider } from './contexts/AccentColorContext';
 import { FavoritesSyncProvider } from './contexts/FavoritesSyncContext';
 import PushNotificationsProvider from './contexts/PushNotificationsProvider';
+import { RealBarberWidget } from '@/widgets';
 
 NativeWindStyleSheet.setOutput({
   default: 'native',
@@ -22,6 +23,14 @@ NativeWindStyleSheet.setOutput({
 
 function ThemedLayout() {
   const { ThemedStatusBar, screenOptions } = useThemedNavigation();
+
+  useEffect(() => {
+    if (Platform.OS !== 'ios') return;
+    RealBarberWidget.updateSnapshot({
+      title: 'Real Barber',
+      subtitle: 'Dev widget is working',
+    });
+  }, []);
 
   return (
     <>
