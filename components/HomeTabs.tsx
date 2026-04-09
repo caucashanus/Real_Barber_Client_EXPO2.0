@@ -4,12 +4,18 @@ import { router, usePathname } from 'expo-router';
 import { Animated, Image, ScrollView, TouchableOpacity, View } from 'react-native';
 
 import { useTranslation } from '@/app/hooks/useTranslation';
+import { useTheme } from '@/app/contexts/ThemeContext';
 
 import ThemedText from './ThemedText';
 
 const HomeTabs = (props: any) => {
     const currentPath = usePathname();
     const { t } = useTranslation();
+    const { isDark } = useTheme();
+    const realBarberIcon =
+        isDark
+            ? require('@/assets/img/wallet/realbarber-dark.png')
+            : require('@/assets/img/wallet/realbarber-light.png');
 
     return (
         <View
@@ -25,7 +31,7 @@ const HomeTabs = (props: any) => {
                     href="/real-barber"
                     active={currentPath === '/real-barber'}
                     label={t('tabRealBarber')}
-                    icon={require('@/assets/img/wallet/realbarber.png')}
+                    icon={realBarberIcon}
                     scrollY={props.scrollY}
                 />
                 <TabItem
