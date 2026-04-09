@@ -27,7 +27,7 @@
       [
         "expo-widgets",
         {
-          "bundleIdentifier": "com.realbarber.client.widgets",
+          "bundleIdentifier": "com.realbarber.client.ExpoWidgetsTarget",
           "groupIdentifier": "group.com.realbarber.client",
           "enablePushNotifications": true,
           "widgets": [
