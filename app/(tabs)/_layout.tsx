@@ -3,7 +3,7 @@ import { useThemeColors } from 'app/contexts/ThemeColors';
 import { TabButton } from 'components/TabButton';
 import { router, usePathname } from 'expo-router';
 import { Tabs, TabList, TabSlot, TabTrigger } from 'expo-router/ui';
-import { NativeTabs, Badge, Icon, Label } from 'expo-router/unstable-native-tabs';
+import { NativeTabs } from 'expo-router/unstable-native-tabs';
 import React, { useEffect, useRef } from 'react';
 import { AppState, Platform } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -71,21 +71,21 @@ function TabsContent() {
     return (
       <NativeTabs tintColor={colors.highlight}>
         <NativeTabs.Trigger name="(home)">
-          <Icon sf={{ default: 'magnifyingglass', selected: 'magnifyingglass' }} />
-          <Label>{t('navHome')}</Label>
+          <NativeTabs.Trigger.Icon sf="magnifyingglass" />
+          <NativeTabs.Trigger.Label>{t('navHome')}</NativeTabs.Trigger.Label>
         </NativeTabs.Trigger>
         <NativeTabs.Trigger name="favorites">
-          <Icon sf={{ default: 'heart', selected: 'heart.fill' }} />
-          <Label>{t('navFavorites')}</Label>
+          <NativeTabs.Trigger.Icon sf="heart" />
+          <NativeTabs.Trigger.Label>{t('navFavorites')}</NativeTabs.Trigger.Label>
         </NativeTabs.Trigger>
         <NativeTabs.Trigger name="trips">
-          <Icon sf={{ default: 'calendar', selected: 'calendar' }} />
-          <Label>{t('navBookings')}</Label>
-          {hasUpcomingBookings ? <Badge>1</Badge> : null}
+          <NativeTabs.Trigger.Icon sf="calendar" />
+          <NativeTabs.Trigger.Label>{t('navBookings')}</NativeTabs.Trigger.Label>
+          {hasUpcomingBookings ? <NativeTabs.Trigger.Badge>1</NativeTabs.Trigger.Badge> : null}
         </NativeTabs.Trigger>
         <NativeTabs.Trigger name="profile">
-          <Icon sf={{ default: 'person.circle', selected: 'person.circle.fill' }} />
-          <Label>{t('navProfile')}</Label>
+          <NativeTabs.Trigger.Icon sf="person.circle" />
+          <NativeTabs.Trigger.Label>{t('navProfile')}</NativeTabs.Trigger.Label>
         </NativeTabs.Trigger>
       </NativeTabs>
     );
