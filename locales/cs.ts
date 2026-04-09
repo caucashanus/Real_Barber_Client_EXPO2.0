@@ -124,6 +124,7 @@ export const cs: Record<TranslationKey, string> = {
   navProfile: 'Profil',
 
   // Home tabs (horizontal scroll under home)
+  tabRealBarber: 'Real Barber',
   tabWallet: 'Peněženka',
   tabMyHaircuts: 'Můj styl',
   tabBranches: 'Pobočky',

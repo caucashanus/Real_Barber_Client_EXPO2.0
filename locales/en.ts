@@ -121,6 +121,7 @@ export const en = {
   navProfile: 'Profile',
 
   // Home tabs (horizontal scroll under home)
+  tabRealBarber: 'Real Barber',
   tabWallet: 'Wallet',
   tabMyHaircuts: 'My style',
   tabBranches: 'Branches',
