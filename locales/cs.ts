@@ -149,6 +149,9 @@ export const cs: Record<TranslationKey, string> = {
   tripsMinutes: 'min',
   tripsSeconds: 's',
   tripsIn: 'Za',
+  liveActivityCurrentTitle: 'Návštěva probíhá',
+  liveActivityStartsInLabel: 'Začátek za',
+  liveActivityEndsInLabel: 'Končí za',
 
   // Review
   reviewWriteTo: 'Napsat recenzi pro',

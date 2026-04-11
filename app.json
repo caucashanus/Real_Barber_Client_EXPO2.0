@@ -24,34 +24,8 @@
           "cameraPermission": "Aplikace potřebuje přístup ke fotoaparátu pro profilovou fotku."
         }
       ],
-      [
-        "expo-widgets",
-        {
-          "bundleIdentifier": "com.realbarber.client.ExpoWidgetsTarget",
-          "groupIdentifier": "group.com.realbarber.client",
-          "enablePushNotifications": true,
-          "widgets": [
-            {
-              "name": "RealBarberWidget",
-              "displayName": "Real Barber",
-              "description": "Rychlý přehled v aplikaci Real Barber",
-              "supportedFamilies": [
-                "systemSmall",
-                "systemMedium",
-                "accessoryRectangular"
-              ]
-            },
-            {
-              "name": "RealBarberLiveActivity",
-              "displayName": "Real Barber Aktivita",
-              "description": "Live Activity pro Real Barber",
-              "supportedFamilies": [
-                "systemSmall"
-              ]
-            }
-          ]
-        }
-      ],
+      "@bacons/apple-targets",
+      "./plugins/with-rb-live-activity-bridge.js",
       "@react-native-community/datetimepicker",
       "expo-asset",
       "expo-image",
@@ -70,11 +44,18 @@
       "**/*"
     ],
     "ios": {
+      "appleTeamId": "VK8YT9654D",
       "bundleIdentifier": "com.realbarber.client",
       "buildNumber": "2",
       "supportsTablet": false,
       "infoPlist": {
-        "ITSAppUsesNonExemptEncryption": false
+        "ITSAppUsesNonExemptEncryption": false,
+        "NSSupportsLiveActivities": true
+      },
+      "entitlements": {
+        "com.apple.security.application-groups": [
+          "group.com.realbarber.client"
+        ]
       }
     },
     "android": {

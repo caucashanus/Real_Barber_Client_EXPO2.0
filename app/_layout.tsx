@@ -1,5 +1,5 @@
 import '../global.css';
-import { Asset } from 'expo-asset';
+import { ExtensionStorage } from '@bacons/apple-targets';
 import { Stack } from 'expo-router';
 import { NativeWindStyleSheet } from 'nativewind';
 import React, { useEffect } from 'react';
@@ -18,7 +18,7 @@ import { ThemeProvider } from './contexts/ThemeContext';
 import { TransferRecipientProvider } from './contexts/TransferRecipientContext';
 import useThemedNavigation from './hooks/useThemedNavigation';
 
-import { RealBarberWidget } from '@/widgets';
+import { RB_APP_GROUP, RB_HOME_WIDGET_KIND, RB_WIDGET_KEYS } from '@/lib/widget-app-group';
 
 NativeWindStyleSheet.setOutput({
   default: 'native',
@@ -29,24 +29,17 @@ function ThemedLayout() {
 
   useEffect(() => {
     if (Platform.OS !== 'ios') return;
-    (async () => {
-      const asset = Asset.fromModule(require('@/assets/icon.png'));
-      try {
-        await asset.downloadAsync();
-      } catch {
-        // ignore
-      }
-      RealBarberWidget.updateSnapshot({
-        title: 'Real Barber',
-        subtitle: `Widget test: updated (${new Date().toLocaleTimeString()})`,
-        logoUri: asset.localUri ?? asset.uri,
-      });
-      try {
-        RealBarberWidget.reload();
-      } catch {
-        // ignore
-      }
-    })();
+    try {
+      const storage = new ExtensionStorage(RB_APP_GROUP);
+      storage.set(RB_WIDGET_KEYS.title, 'Real Barber');
+      storage.set(
+        RB_WIDGET_KEYS.subtitle,
+        `Widget: ${new Date().toLocaleTimeString()}`
+      );
+      ExtensionStorage.reloadWidget(RB_HOME_WIDGET_KIND);
+    } catch {
+      // ignore (e.g. native module not linked yet)
+    }
   }, []);
 
   return (

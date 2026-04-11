@@ -11,8 +11,8 @@
     "format": "eslint \"**/*.{js,jsx,ts,tsx}\" --fix && prettier \"**/*.{js,jsx,ts,tsx,json}\" --write"
   },
   "dependencies": {
+    "@bacons/apple-targets": "^4.0.6",
     "@expo-google-fonts/outfit": "^0.3.0",
-    "@expo/ui": "~55.0.10",
     "@expo/vector-icons": "^15.0.2",
     "@react-native-async-storage/async-storage": "2.2.0",
     "@react-native-community/datetimepicker": "8.6.0",
@@ -44,7 +44,6 @@
     "expo-updates": "~55.0.19",
     "expo-video": "~55.0.14",
     "expo-web-browser": "~55.0.13",
-    "expo-widgets": "^55.0.12",
     "lottie-react-native": "~7.3.1",
     "lucide-react-native": "^0.511.0",
     "react": "19.2.0",

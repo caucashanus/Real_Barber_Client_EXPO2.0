@@ -11,6 +11,7 @@ import { useAuth } from '@/app/contexts/AuthContext';
 import { useBookingsBadge } from '@/app/contexts/BookingsBadgeContext';
 import { getBookings, type Booking } from '@/api/bookings';
 import { getClientOverview, type ClientOverviewReservation } from '@/api/reviews';
+import { type RBLiveActivityHandle, rbLiveActivityStart } from '@/lib/rb-live-activity';
 import { Chip } from '@/components/Chip';
 import { CardScroller } from '@/components/CardScroller';
 import ShowRating from '@/components/ShowRating';
@@ -20,8 +21,7 @@ import { Button } from '@/components/Button';
 import { useRouter } from 'expo-router';
 import { useTranslation } from '@/app/hooks/useTranslation';
 import { isReservationIntroCooldownActive } from '@/utils/reservation-intro-cooldown';
-import type { LiveActivity } from 'expo-widgets';
-import { RealBarberLiveActivity } from '@/widgets';
+import { useAccentColor } from '@/app/contexts/AccentColorContext';
 
 type BookingFilter = 'all' | 'current' | 'upcoming' | 'past' | 'cancelled' | 'rated' | 'pending_review';
 
@@ -81,6 +81,32 @@ function getTargetDate(booking: Booking): Date {
     0,
     0
   );
+}
+
+/** Readable slot line for Live Activity (today → only times, else short weekday + date). */
+function formatLiveActivityTimeLine(booking: Booking, locale: string): string {
+  const dateStr = (booking.date || '').slice(0, 10);
+  const [y, m, d] = dateStr.split('-').map(Number);
+  const dateLocale = locale === 'cs' ? 'cs-CZ' : 'en-GB';
+  const bookingDay = new Date(
+    Number.isFinite(y) ? y : 0,
+    Number.isFinite(m) ? m - 1 : 0,
+    Number.isFinite(d) ? d : 1
+  );
+  const now = new Date();
+  const sameCalendarDay =
+    bookingDay.getFullYear() === now.getFullYear() &&
+    bookingDay.getMonth() === now.getMonth() &&
+    bookingDay.getDate() === now.getDate();
+  const timePart = `${booking.slotStart}–${booking.slotEnd}`;
+  if (sameCalendarDay) return timePart;
+  const dayLabel = bookingDay.toLocaleString(dateLocale, { weekday: 'short', day: 'numeric', month: 'short' });
+  return `${dayLabel} · ${timePart}`;
+}
+
+function clamp01(n: number): number {
+  if (!Number.isFinite(n)) return 0;
+  return Math.min(1, Math.max(0, n));
 }
 
 function isBookingPast(booking: Booking): boolean {
@@ -229,6 +255,7 @@ const CountdownDisplay = ({ target }: { target: Date }) => {
 const TripsScreen = () => {
   const router = useRouter();
   const { t, locale } = useTranslation();
+  const { accentColor } = useAccentColor();
   const { scrollY, scrollHandler, scrollEventThrottle } = useCollapsibleTitle();
   const { apiToken } = useAuth();
   const { refresh: refreshBookingsBadge } = useBookingsBadge();
@@ -237,12 +264,7 @@ const TripsScreen = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [selectedFilter, setSelectedFilter] = useState<BookingFilter>('all');
-  const liveInstanceRef = useRef<LiveActivity<{
-    title: string;
-    startAt: string;
-    endAt: string;
-    branchName?: string;
-  }> | null>(null);
+  const liveInstanceRef = useRef<RBLiveActivityHandle | null>(null);
   const liveBookingIdRef = useRef<string | null>(null);
 
   const counts = countByFilter(bookings, bookingReviewMap);
@@ -312,37 +334,64 @@ const TripsScreen = () => {
 
     const target = current ?? upcomingInHour;
     if (!target) {
+      const prev = liveInstanceRef.current;
       liveInstanceRef.current = null;
       liveBookingIdRef.current = null;
+      if (prev) void prev.end().catch(() => {});
       return;
     }
 
     const start = getTargetDate(target);
     const end = getBookingEndDate(target);
     const bookingId = target.id;
+    const now = Date.now();
+    const startMs = start.getTime();
+    const endMs = end.getTime();
+    const isCurrent = isBookingCurrent(target);
+    const detailLine = formatLiveActivityTimeLine(target, locale);
+    const branchName = target.branch?.name ?? '';
 
-    try {
-      if (!liveInstanceRef.current || liveBookingIdRef.current !== bookingId) {
-        liveBookingIdRef.current = bookingId;
-        liveInstanceRef.current = RealBarberLiveActivity.start(
-          {
-            title: 'Real Barber',
-            startAt: start.toISOString(),
-            endAt: end.toISOString(),
-            branchName: target.branch?.name ?? undefined,
-          },
-          `realbarber://screens/trip-detail?id=${encodeURIComponent(bookingId)}`
-        );
-      } else {
-        liveInstanceRef.current.update({
-          title: 'Real Barber',
+    let subtitle: string;
+    let title: string;
+    let progress01: number;
+
+    if (isCurrent) {
+      const slotMs = Math.max(60_000, endMs - startMs);
+      const minutesLeft = Math.max(1, Math.ceil((endMs - now) / 60_000));
+      subtitle = t('liveActivityEndsInLabel');
+      title = `${minutesLeft} ${t('tripsMinutes')}`;
+      progress01 = clamp01((now - startMs) / slotMs);
+    } else {
+      const minutesUntil = Math.max(1, Math.ceil((startMs - now) / 60_000));
+      subtitle = t('liveActivityStartsInLabel');
+      title = `${minutesUntil} ${t('tripsMinutes')}`;
+      progress01 = clamp01(1 - (startMs - now) / (60 * 60 * 1000));
+    }
+
+    void (async () => {
+      try {
+        const payload = {
+          subtitle,
+          title,
+          detailLine,
+          branchName: branchName || undefined,
           startAt: start.toISOString(),
           endAt: end.toISOString(),
-          branchName: target.branch?.name ?? undefined,
-        });
+          progress01,
+          accentHex: accentColor,
+        };
+        const deepLink = `realbarber://screens/trip-detail?id=${encodeURIComponent(bookingId)}`;
+        if (!liveInstanceRef.current || liveBookingIdRef.current !== bookingId) {
+          liveBookingIdRef.current = bookingId;
+          liveInstanceRef.current = await rbLiveActivityStart(payload, deepLink);
+        } else {
+          await liveInstanceRef.current.update(payload);
+        }
+      } catch {
+        // Live Activity optional / permissions / simulator
       }
-    } catch {}
-  }, [bookings]);
+    })();
+  }, [bookings, locale, t, accentColor]);
 
   useFocusEffect(
     useCallback(() => {
