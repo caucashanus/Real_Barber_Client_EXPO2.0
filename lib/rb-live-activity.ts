@@ -32,6 +32,7 @@ type NativePayload = {
 
 type Bridge = {
   startReservationActivity: (payload: NativePayload, deepLink: string) => Promise<string>;
+  getLiveActivityPushToken: (activityId: string) => Promise<string | null>;
   updateReservationActivity: (activityId: string, payload: NativePayload) => Promise<void>;
   endReservationActivity: (activityId: string) => Promise<void>;
   endAllReservationActivities: () => Promise<void>;
@@ -105,4 +106,34 @@ export async function rbLiveActivityGetCount(): Promise<number> {
   const bridge = getBridge();
   if (!bridge) return 0;
   return bridge.getReservationActivityCount();
+}
+
+/**
+ * ActivityKit push token (hex) pro APNs `apns-push-type: liveactivity`.
+ * Po `start` může pár set ms chybět — použij {@link rbLiveActivityWaitForPushToken}.
+ */
+export async function rbLiveActivityGetPushToken(activityId: string): Promise<string | null> {
+  const bridge = getBridge();
+  if (!bridge?.getLiveActivityPushToken) return null;
+  const raw = await bridge.getLiveActivityPushToken(activityId);
+  return typeof raw === 'string' && raw.length > 0 ? raw : null;
+}
+
+const sleep = (ms: number) => new Promise<void>((r) => setTimeout(r, ms));
+
+/**
+ * Čeká na první ActivityKit push token po startu aktivity (polling).
+ */
+export async function rbLiveActivityWaitForPushToken(
+  activityId: string,
+  options?: { maxAttempts?: number; intervalMs?: number }
+): Promise<string | null> {
+  const maxAttempts = options?.maxAttempts ?? 80;
+  const intervalMs = options?.intervalMs ?? 200;
+  for (let i = 0; i < maxAttempts; i++) {
+    const t = await rbLiveActivityGetPushToken(activityId);
+    if (t) return t;
+    await sleep(intervalMs);
+  }
+  return null;
 }

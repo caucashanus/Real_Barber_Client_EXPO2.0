@@ -7,6 +7,10 @@ RCT_EXTERN_METHOD(startReservationActivity:(NSDictionary *)payload
                   resolver:(RCTPromiseResolveBlock)resolve
                   rejecter:(RCTPromiseRejectBlock)reject)
 
+RCT_EXTERN_METHOD(getLiveActivityPushToken:(NSString *)activityId
+                  resolver:(RCTPromiseResolveBlock)resolve
+                  rejecter:(RCTPromiseRejectBlock)reject)
+
 RCT_EXTERN_METHOD(updateReservationActivity:(NSString *)activityId
                   payload:(NSDictionary *)payload
                   resolver:(RCTPromiseResolveBlock)resolve

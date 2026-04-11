@@ -11,7 +11,8 @@ import { useAuth } from '@/app/contexts/AuthContext';
 import { useBookingsBadge } from '@/app/contexts/BookingsBadgeContext';
 import { getBookings, type Booking } from '@/api/bookings';
 import { getClientOverview, type ClientOverviewReservation } from '@/api/reviews';
-import { type RBLiveActivityHandle, rbLiveActivityStart } from '@/lib/rb-live-activity';
+import { registerActivityKitPushToken } from '@/api/live-activity-push';
+import { type RBLiveActivityHandle, rbLiveActivityStart, rbLiveActivityWaitForPushToken } from '@/lib/rb-live-activity';
 import { Chip } from '@/components/Chip';
 import { CardScroller } from '@/components/CardScroller';
 import ShowRating from '@/components/ShowRating';
@@ -381,17 +382,36 @@ const TripsScreen = () => {
           accentHex: accentColor,
         };
         const deepLink = `realbarber://screens/trip-detail?id=${encodeURIComponent(bookingId)}`;
-        if (!liveInstanceRef.current || liveBookingIdRef.current !== bookingId) {
+        const isNewForBooking =
+          !liveInstanceRef.current || liveBookingIdRef.current !== bookingId;
+        if (isNewForBooking) {
           liveBookingIdRef.current = bookingId;
           liveInstanceRef.current = await rbLiveActivityStart(payload, deepLink);
+          const handle = liveInstanceRef.current;
+          if (apiToken && handle) {
+            const activityId = handle.id;
+            void (async () => {
+              const pushToken = await rbLiveActivityWaitForPushToken(activityId);
+              if (!pushToken) return;
+              try {
+                await registerActivityKitPushToken(apiToken, {
+                  bookingId,
+                  activityId,
+                  pushToken,
+                });
+              } catch {
+                // CRM může endpoint ještě nemít — Live Activity v appce funguje i bez registrace.
+              }
+            })();
+          }
         } else {
-          await liveInstanceRef.current.update(payload);
+          await liveInstanceRef.current!.update(payload);
         }
       } catch {
         // Live Activity optional / permissions / simulator
       }
     })();
-  }, [bookings, locale, t, accentColor]);
+  }, [bookings, locale, t, accentColor, apiToken]);
 
   useFocusEffect(
     useCallback(() => {

@@ -49,6 +49,56 @@ private func contentState(from payload: NSDictionary) -> RBReservationAttributes
   )
 }
 
+// MARK: - ActivityKit push token (hex) pro APNs `liveactivity`
+
+private enum RBPushTokenRegistry {
+  private static let lock = NSLock()
+  private static var hexByActivity: [String: String] = [:]
+  private static var observationTasks: [String: Task<Void, Never>] = [:]
+
+  static func hex(for activityId: String) -> String? {
+    lock.lock()
+    defer { lock.unlock() }
+    return hexByActivity[activityId]
+  }
+
+  static func cancelObservation(activityId: String) {
+    lock.lock()
+    observationTasks[activityId]?.cancel()
+    observationTasks[activityId] = nil
+    hexByActivity.removeValue(forKey: activityId)
+    lock.unlock()
+  }
+
+  static func cancelAllObservations() {
+    lock.lock()
+    for (_, t) in observationTasks { t.cancel() }
+    observationTasks.removeAll()
+    hexByActivity.removeAll()
+    lock.unlock()
+  }
+
+  @MainActor
+  static func startObservingPushToken(for activity: Activity<RBReservationAttributes>) {
+    let activityId = activity.id
+    lock.lock()
+    observationTasks[activityId]?.cancel()
+    let task = Task {
+      for await pushToken in activity.pushTokenUpdates {
+        let hex = pushToken.reduce(into: "") { $0.append(String(format: "%02x", $1)) }
+        lock.lock()
+        hexByActivity[activityId] = hex
+        lock.unlock()
+      }
+      lock.lock()
+      observationTasks[activityId] = nil
+      lock.unlock()
+    }
+    observationTasks[activityId] = task
+    lock.unlock()
+  }
+}
+
 @available(iOS 16.2, *)
 private enum RBActivityStore {
   static var activities: [String: Activity<RBReservationAttributes>] = [:]
@@ -63,6 +113,7 @@ private enum RBActivityStore {
 
   static func remove(id: String) {
     activities.removeValue(forKey: id)
+    RBPushTokenRegistry.cancelObservation(activityId: id)
   }
 
   static func endAll() async {
@@ -71,6 +122,7 @@ private enum RBActivityStore {
       await act.end(nil, dismissalPolicy: .immediate)
     }
     activities.removeAll()
+    RBPushTokenRegistry.cancelAllObservations()
   }
 
   static var trackedCount: Int {
@@ -105,13 +157,31 @@ class RBActivityBridge: NSObject {
         let activity = try Activity<RBReservationAttributes>.request(
           attributes: attributes,
           content: content,
-          pushType: nil
+          pushType: .token
         )
         RBActivityStore.remember(activity)
+        RBPushTokenRegistry.startObservingPushToken(for: activity)
         resolve(activity.id)
       } catch {
         reject("E_START", error.localizedDescription, error)
       }
+    }
+  }
+
+  @objc
+  func getLiveActivityPushToken(
+    _ activityId: String,
+    resolver resolve: @escaping RCTPromiseResolveBlock,
+    rejecter reject: @escaping RCTPromiseRejectBlock
+  ) {
+    guard #available(iOS 16.2, *) else {
+      resolve(NSNull())
+      return
+    }
+    if let hex = RBPushTokenRegistry.hex(for: activityId) {
+      resolve(hex)
+    } else {
+      resolve(NSNull())
     }
   }
 
