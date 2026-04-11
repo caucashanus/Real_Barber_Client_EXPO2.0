@@ -66,13 +66,9 @@ export class RBLiveActivityHandle {
     return rbLiveActivityUpdate(this.id, props);
   }
 
-  end(_policy?: string, _final?: RBLiveActivityProps, _at?: Date) {
+  end() {
     return rbLiveActivityEnd(this.id);
   }
-}
-
-export function rbLiveActivityAvailable(): boolean {
-  return getBridge() != null;
 }
 
 export async function rbLiveActivityStart(

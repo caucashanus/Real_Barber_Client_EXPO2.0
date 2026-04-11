@@ -146,7 +146,6 @@ export const en = {
   tripsMinutes: 'min',
   tripsSeconds: 's',
   tripsIn: 'In',
-  liveActivityCurrentTitle: 'Visit in progress',
   liveActivityStartsInLabel: 'Starts in',
   liveActivityEndsInLabel: 'Ends in',
 
