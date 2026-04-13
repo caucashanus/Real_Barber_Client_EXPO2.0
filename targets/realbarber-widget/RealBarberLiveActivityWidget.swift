@@ -15,6 +15,12 @@ private func rbParseISODate(_ s: String) -> Date? {
   return iso.date(from: s)
 }
 
+private func rbMinutesRemainingCeil(target: Date, now: Date) -> Int {
+  let diff = target.timeIntervalSince(now)
+  if !diff.isFinite { return 0 }
+  return max(0, Int(ceil(diff / 60)))
+}
+
 private func rbProgressFillColor(accentHex: String) -> Color {
   var s = accentHex.trimmingCharacters(in: .whitespacesAndNewlines)
   if s.hasPrefix("#") { s.removeFirst() }
@@ -191,6 +197,8 @@ struct RealBarberLiveActivityWidget: Widget {
       let countdownTarget = (startDate != nil && now < startDate!) ? startDate : endDate
       let subtitleLc = context.state.subtitle.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
       let isReview = subtitleLc.contains("ohodno") || subtitleLc.contains("hodnoc")
+      let isCancelled =
+        subtitleLc.contains("zruš") || subtitleLc.contains("zrus") || subtitleLc.contains("cancel")
 
       return DynamicIsland {
         DynamicIslandExpandedRegion(.leading) {
@@ -243,7 +251,22 @@ struct RealBarberLiveActivityWidget: Widget {
       } compactLeading: {
         RBBrandLogo(size: 30)
       } compactTrailing: {
-        RBBrandLogo(size: 30)
+        if isCancelled {
+          Image(systemName: "xmark")
+            .font(.system(size: 16, weight: .bold))
+            .foregroundStyle(Color.red.opacity(0.95))
+        } else if isReview {
+          Image(systemName: "star")
+            .font(.system(size: 16, weight: .bold))
+            .foregroundStyle(Color.white.opacity(0.8))
+        } else if let target = countdownTarget {
+          let m = rbMinutesRemainingCeil(target: target, now: now)
+          Text("\(m) min")
+            .font(.system(size: 12, weight: .bold, design: .rounded))
+            .monospacedDigit()
+        } else {
+          RBBrandLogo(size: 30)
+        }
       } minimal: {
         RBBrandLogo(size: 24)
       }
