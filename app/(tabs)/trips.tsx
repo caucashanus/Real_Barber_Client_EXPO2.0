@@ -412,6 +412,8 @@ const TripsScreen = () => {
           branchName: branchName || undefined,
           startAt: start.toISOString(),
           endAt: end.toISOString(),
+          employeeName: target.employee?.name ?? '',
+          employeeAvatarUrl: target.employee?.avatarUrl ?? undefined,
           progress01,
           accentHex: accentColor,
         };

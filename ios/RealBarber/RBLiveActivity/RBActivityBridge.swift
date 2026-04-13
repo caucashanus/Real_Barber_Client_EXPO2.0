@@ -12,6 +12,8 @@ struct RBReservationAttributes: ActivityAttributes {
     public var detailLine: String
     public var startAt: String
     public var endAt: String
+    public var employeeName: String
+    public var employeeAvatarUrl: String?
     public var progress01: Double
     /// `#RRGGBB`; nil / chybějící při decode → černobílý progress ve widgetu.
     public var accentHex: String?
@@ -41,6 +43,11 @@ private func contentState(from payload: NSDictionary) -> RBReservationAttributes
     detailLine: rbString(payload["detailLine"]),
     startAt: rbString(payload["startAt"]),
     endAt: rbString(payload["endAt"]),
+    employeeName: rbString(payload["employeeName"]),
+    employeeAvatarUrl: {
+      let u = rbString(payload["employeeAvatarUrl"])
+      return u.isEmpty ? nil : u
+    }(),
     progress01: rbProgress01(payload["progress"]),
     accentHex: {
       let h = rbString(payload["accentHex"])

@@ -10,6 +10,8 @@ export type RBLiveActivityProps = {
   title: string;
   startAt: string;
   endAt: string;
+  employeeName?: string;
+  employeeAvatarUrl?: string;
   branchName?: string;
   /** Line under branch (e.g. "10:30–10:45"). */
   detailLine?: string;
@@ -26,6 +28,8 @@ type NativePayload = {
   detailLine: string;
   startAt: string;
   endAt: string;
+  employeeName: string;
+  employeeAvatarUrl: string;
   progress: number;
   accentHex: string;
 };
@@ -49,6 +53,8 @@ function toNativePayload(props: RBLiveActivityProps): NativePayload {
     detailLine: props.detailLine ?? '',
     startAt: props.startAt,
     endAt: props.endAt,
+    employeeName: props.employeeName ?? '',
+    employeeAvatarUrl: props.employeeAvatarUrl ?? '',
     progress: props.progress01 ?? -1,
     accentHex,
   };

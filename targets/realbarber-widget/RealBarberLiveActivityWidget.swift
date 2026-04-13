@@ -60,6 +60,30 @@ private struct RBBrandLogo: View {
   }
 }
 
+private struct RBPulsingDot: View {
+  let color: Color
+  var size: CGFloat = 10
+  var duration: Double = 1.6
+
+  var body: some View {
+    // Prefer system symbol effects on iOS 17+ (better chance to animate in Live Activities).
+    // Fallback to a static "glow" dot for iOS 16.x.
+    let dot = Image(systemName: "circle.fill")
+      .font(.system(size: size, weight: .bold))
+      .foregroundStyle(color)
+      .shadow(color: color.opacity(0.85), radius: size * 0.65, x: 0, y: 0)
+      .shadow(color: color.opacity(0.45), radius: size * 1.25, x: 0, y: 0)
+      .accessibilityHidden(true)
+
+    if #available(iOS 17.0, *) {
+      dot
+        .symbolEffect(.pulse, options: .repeating)
+    } else {
+      dot
+    }
+  }
+}
+
 private struct RBLiveActivityProgressBar: View {
   var progress01: Double
   var accentHex: String
@@ -103,8 +127,11 @@ private struct RBLiveActivityCard: View {
     let countdownTarget = (startDate != nil && now < startDate!) ? startDate : endDate
     let subtitleLc = state.subtitle.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
     let isReview = subtitleLc.contains("ohodno") || subtitleLc.contains("hodnoc")
+    let isCancelled =
+      subtitleLc.contains("zruš") || subtitleLc.contains("zrus") || subtitleLc.contains("cancel")
     let isActive =
       !isReview &&
+      !isCancelled &&
       startDate != nil &&
       endDate != nil &&
       now >= startDate! &&
@@ -114,62 +141,99 @@ private struct RBLiveActivityCard: View {
       VStack(alignment: .leading, spacing: 8) {
         VStack(alignment: .leading, spacing: 8) {
           if isActive {
-            Text("Odhadovaný konec")
-              .font(.subheadline)
-              .foregroundStyle(.secondary)
-          } else if !state.subtitle.isEmpty {
-            Text(state.subtitle)
-              .font(.subheadline)
-              .foregroundStyle(.secondary)
-          }
-          if isReview {
-            Text(state.title)
-              .font(.title2)
-              .fontWeight(.bold)
-            HStack(spacing: 8) {
-              ForEach(0..<5, id: \.self) { _ in
-                Image(systemName: "star")
-                  .font(.title3)
-                  .foregroundStyle(Color.white.opacity(0.65))
+            HStack(spacing: 10) {
+              if let url = URL(string: state.employeeAvatarUrl ?? ""), !url.absoluteString.isEmpty {
+                AsyncImage(url: url) { phase in
+                  switch phase {
+                  case .success(let img):
+                    img.resizable().scaledToFill()
+                  default:
+                    Color.white.opacity(0.08)
+                  }
+                }
+                .frame(width: 32, height: 32)
+                .clipShape(Circle())
+              }
+              VStack(alignment: .leading, spacing: 2) {
+                if !state.employeeName.isEmpty {
+                  Text(state.employeeName)
+                    .font(.headline)
+                    .fontWeight(.bold)
+                }
+                HStack(spacing: 8) {
+                  RBPulsingDot(
+                    color: Color(red: 0.43, green: 0.87, blue: 0.37),
+                    size: 16,
+                    duration: 1.6
+                  )
+                  Text("Probíhá")
+                    .font(.footnote)
+                    .foregroundStyle(.secondary)
+                }
               }
             }
-            .padding(.top, 2)
-          } else if let target = countdownTarget {
-            // Pozn.: ActivityKit timer formát řídí systém (typicky MM:SS / HH:MM:SS).
-            // Nejde spolehlivě vynutit "jen minuty" bez vlastních update pushů.
-            Text(target, style: .timer)
-              .font(.title2)
-              .fontWeight(.bold)
-              .monospacedDigit()
+            .frame(maxWidth: .infinity, alignment: .leading)
           } else {
-            Text(state.title)
-              .font(.title2)
-              .fontWeight(.bold)
+            if !state.subtitle.isEmpty {
+              Text(state.subtitle)
+                .font(.subheadline)
+                .foregroundStyle(.secondary)
+            }
+
+            if isReview {
+              Text(state.title)
+                .font(.title2)
+                .fontWeight(.bold)
+              HStack(spacing: 8) {
+                ForEach(0..<5, id: \.self) { _ in
+                  Image(systemName: "star")
+                    .font(.title3)
+                    .foregroundStyle(Color.white.opacity(0.65))
+                }
+              }
+              .padding(.top, 2)
+            } else if isCancelled {
+              HStack(alignment: .center, spacing: 10) {
+                Text(state.title)
+                  .font(.title2)
+                  .fontWeight(.bold)
+                RBPulsingDot(color: Color.red, size: 20, duration: 1.6)
+              }
+            } else if let target = countdownTarget {
+              // Pozn.: ActivityKit timer formát řídí systém (typicky MM:SS / HH:MM:SS).
+              // Nejde spolehlivě vynutit "jen minuty" bez vlastních update pushů.
+              Text(target, style: .timer)
+                .font(.title2)
+                .fontWeight(.bold)
+                .monospacedDigit()
+            } else {
+              Text(state.title)
+                .font(.title2)
+                .fontWeight(.bold)
+            }
           }
         }
 
-        if !isReview, state.progress01 >= 0 {
+        if !isReview, !isCancelled, !isActive, state.progress01 >= 0 {
           RBLiveActivityProgressBar(
             progress01: state.progress01,
             accentHex: state.accentHex ?? "",
             maxWidth: 240
           )
         }
-        if !isReview, isActive {
-          Text("Konec služby se může lišit")
-            .font(.footnote)
-            .foregroundStyle(.secondary)
-        } else if !isReview, !state.branchName.isEmpty {
+        if !isReview, !isCancelled, !isActive, !state.branchName.isEmpty {
           Text(state.branchName)
             .font(.footnote)
             .foregroundStyle(.secondary)
         }
-        if !isReview, !state.detailLine.isEmpty {
+        if !isReview, !isCancelled, !isActive, !state.detailLine.isEmpty {
           Text(state.detailLine)
             .font(.caption)
             .foregroundStyle(.tertiary)
         }
       }
+      .frame(maxWidth: .infinity, alignment: .leading)
+      .frame(minHeight: isActive ? 128 : nil, alignment: .topLeading)
       // Reserve space so the logo never overlaps content.
       .padding(.trailing, 62)
 
@@ -199,6 +263,13 @@ struct RealBarberLiveActivityWidget: Widget {
       let isReview = subtitleLc.contains("ohodno") || subtitleLc.contains("hodnoc")
       let isCancelled =
         subtitleLc.contains("zruš") || subtitleLc.contains("zrus") || subtitleLc.contains("cancel")
+      let isActive =
+        !isReview &&
+        !isCancelled &&
+        startDate != nil &&
+        endDate != nil &&
+        now >= startDate! &&
+        now < endDate!
 
       return DynamicIsland {
         DynamicIslandExpandedRegion(.leading) {
@@ -212,6 +283,24 @@ struct RealBarberLiveActivityWidget: Widget {
               Text(context.state.title)
                 .font(.headline)
                 .fontWeight(.bold)
+            } else if isCancelled {
+              HStack(spacing: 8) {
+                Text(context.state.title)
+                  .font(.headline)
+                  .fontWeight(.bold)
+                RBPulsingDot(color: Color.red, size: 16, duration: 1.6)
+              }
+            } else if isActive {
+              HStack(spacing: 8) {
+                RBPulsingDot(
+                  color: Color(red: 0.43, green: 0.87, blue: 0.37),
+                  size: 16,
+                  duration: 1.6
+                )
+                Text("Probíhá")
+                  .font(.headline)
+                  .fontWeight(.bold)
+              }
             } else if let target = countdownTarget {
               Text(target, style: .timer)
                 .font(.title3)
@@ -229,7 +318,9 @@ struct RealBarberLiveActivityWidget: Widget {
         }
         DynamicIslandExpandedRegion(.bottom) {
           VStack(alignment: .leading, spacing: 6) {
-            if context.state.progress01 >= 0 {
+            if isActive {
+              EmptyView()
+            } else if context.state.progress01 >= 0 {
               RBLiveActivityProgressBar(
                 progress01: context.state.progress01,
                 accentHex: context.state.accentHex ?? "",
@@ -252,13 +343,17 @@ struct RealBarberLiveActivityWidget: Widget {
         RBBrandLogo(size: 30)
       } compactTrailing: {
         if isCancelled {
-          Image(systemName: "xmark")
-            .font(.system(size: 16, weight: .bold))
-            .foregroundStyle(Color.red.opacity(0.95))
+          RBPulsingDot(color: Color.red, size: 20, duration: 1.6)
         } else if isReview {
           Image(systemName: "star")
             .font(.system(size: 16, weight: .bold))
             .foregroundStyle(Color.white.opacity(0.8))
+        } else if isActive {
+          RBPulsingDot(
+            color: Color(red: 0.43, green: 0.87, blue: 0.37),
+            size: 20,
+            duration: 1.6
+          )
         } else if let target = countdownTarget {
           let m = rbMinutesRemainingCeil(target: target, now: now)
           Text("\(m) min")

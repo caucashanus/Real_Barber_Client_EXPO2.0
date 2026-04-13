@@ -14,6 +14,8 @@ struct RBReservationAttributes: ActivityAttributes {
     public var detailLine: String
     public var startAt: String
     public var endAt: String
+    public var employeeName: String
+    public var employeeAvatarUrl: String?
     /// 0…1 fill for progress bar; negative hides the bar.
     public var progress01: Double
     /// `#RRGGBB` from app accent; nil / missing → monochrome (white) progress fill.

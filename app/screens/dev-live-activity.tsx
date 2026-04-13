@@ -22,6 +22,8 @@ type Props = {
   progress01: number;
   startAt: string;
   endAt: string;
+  employeeName?: string;
+  employeeAvatarUrl?: string;
   branchName?: string;
   accentHex: string;
 };
@@ -110,6 +112,8 @@ export default function DevLiveActivityScreen() {
       progress01,
       startAt,
       endAt,
+      employeeName: 'Martin',
+      employeeAvatarUrl: 'https://randomuser.me/api/portraits/men/32.jpg',
       branchName: 'Test pobočka',
       accentHex: accentColor,
     };
@@ -136,11 +140,11 @@ export default function DevLiveActivityScreen() {
     return {
       subtitle: 'Rezervace zrušena',
       title: 'Zrušeno',
-      detailLine: 'Změna se projeví do 5 min',
+      detailLine: 'Klepněte pro detail rezervace',
       progress01: -1,
       startAt,
       endAt,
-      branchName: 'Test pobočka',
+      branchName: 'Zobrazit informace',
       accentHex: accentColor,
     };
   };
