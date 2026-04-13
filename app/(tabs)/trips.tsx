@@ -10,7 +10,8 @@ import {
   Platform,
 } from 'react-native';
 
-import { getBookings, type Booking } from '@/api/bookings';
+import { CRM_BASE, getBookings, type Booking } from '@/api/bookings';
+import { getEmployeeById } from '@/api/employees';
 import { registerActivityKitPushToken } from '@/api/live-activity-push';
 import { getClientOverview, type ClientOverviewReservation } from '@/api/reviews';
 import { useAccentColor } from '@/app/contexts/AccentColorContext';
@@ -45,9 +46,54 @@ type BookingFilter =
   | 'rated'
   | 'pending_review';
 
-// During design/debug, prevent auto-start from creating extra instances.
-// Live Activities should be started from Dev Live Activity screen in __DEV__.
-const ENABLE_AUTO_LIVE_ACTIVITY = !__DEV__;
+// Zapnuto i v __DEV__, aby šlo testovat auto-start s reálnými rezervacemi (lock screen).
+// Pro čistý design-only režim bez instancí z tabu Trips nastav na `!__DEV__`.
+const ENABLE_AUTO_LIVE_ACTIVITY = true;
+
+/** Absolutní URL pro stažení avatara (CRM často vrací relativní cesty). */
+function resolveCrmMediaUrl(raw: string | null | undefined): string {
+  const s = raw?.trim() ?? '';
+  if (!s) return '';
+  if (/^https?:\/\//i.test(s)) return s;
+  if (s.startsWith('//')) return `https:${s}`;
+  if (s.startsWith('/')) return `${CRM_BASE}${s}`;
+  return s;
+}
+
+/**
+ * GET /bookings často neobsahuje `employee.avatarUrl`; detail zaměstnance ho má.
+ * Výsledek cachujeme pod `employeeId`, aby se effect při každém ticku netrefil do API.
+ */
+async function resolveLiveActivityEmployeeAvatarUrl(
+  apiToken: string | null,
+  target: Booking,
+  cache: Record<string, string>
+): Promise<string | undefined> {
+  const fromList = resolveCrmMediaUrl(target.employee?.avatarUrl);
+  if (fromList) return fromList;
+
+  const empId = target.employeeId;
+  if (!empId || !apiToken) return undefined;
+  const cached = cache[empId];
+  if (cached) return cached;
+
+  try {
+    const emp = await getEmployeeById(apiToken, empId);
+    let url = resolveCrmMediaUrl(emp.avatarUrl ?? undefined);
+    if (!url && emp.media) {
+      const items = Array.isArray(emp.media) ? emp.media : Object.values(emp.media);
+      const firstWithUrl = items.find(
+        (m): m is { url: string } =>
+          Boolean(m && typeof m === 'object' && typeof (m as { url?: string }).url === 'string')
+      );
+      if (firstWithUrl) url = resolveCrmMediaUrl(firstWithUrl.url);
+    }
+    if (url) cache[empId] = url;
+    return url || undefined;
+  } catch {
+    return undefined;
+  }
+}
 
 function formatBookingDate(b: Booking, locale: string = 'en'): string {
   const d = new Date(b.date);
@@ -128,6 +174,17 @@ function formatLiveActivityTimeLine(booking: Booking, locale: string): string {
     month: 'short',
   });
   return `${dayLabel} · ${timePart}`;
+}
+
+function formatLiveActivityPrice(booking: Booking, locale: string): string {
+  const n = Number(booking.price);
+  if (!Number.isFinite(n)) return '';
+  const loc = locale === 'cs' ? 'cs-CZ' : 'en-GB';
+  return new Intl.NumberFormat(loc, {
+    style: 'currency',
+    currency: 'CZK',
+    maximumFractionDigits: n % 1 === 0 ? 0 : 2,
+  }).format(n);
 }
 
 function clamp01(n: number): number {
@@ -299,6 +356,7 @@ const TripsScreen = () => {
   const [selectedFilter, setSelectedFilter] = useState<BookingFilter>('all');
   const liveInstanceRef = useRef<RBLiveActivityHandle | null>(null);
   const liveBookingIdRef = useRef<string | null>(null);
+  const liveActivityAvatarCacheRef = useRef<Record<string, string>>({});
 
   const counts = countByFilter(bookings, bookingReviewMap);
 
@@ -405,6 +463,11 @@ const TripsScreen = () => {
 
     void (async () => {
       try {
+        const employeeAvatarUrl = await resolveLiveActivityEmployeeAvatarUrl(
+          apiToken,
+          target,
+          liveActivityAvatarCacheRef.current
+        );
         const payload = {
           subtitle,
           title,
@@ -413,7 +476,9 @@ const TripsScreen = () => {
           startAt: start.toISOString(),
           endAt: end.toISOString(),
           employeeName: target.employee?.name ?? '',
-          employeeAvatarUrl: target.employee?.avatarUrl ?? undefined,
+          employeeAvatarUrl,
+          employeeAvatarAuthToken: apiToken ?? undefined,
+          priceFormatted: formatLiveActivityPrice(target, locale),
           progress01,
           accentHex: accentColor,
         };

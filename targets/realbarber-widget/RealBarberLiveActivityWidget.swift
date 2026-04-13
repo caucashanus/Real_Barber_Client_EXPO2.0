@@ -15,6 +15,10 @@ private func rbParseISODate(_ s: String) -> Date? {
   return iso.date(from: s)
 }
 
+private func rbTrim(_ s: String) -> String {
+  s.trimmingCharacters(in: .whitespacesAndNewlines)
+}
+
 private func rbMinutesRemainingCeil(target: Date, now: Date) -> Int {
   let diff = target.timeIntervalSince(now)
   if !diff.isFinite { return 0 }
@@ -57,6 +61,108 @@ private struct RBBrandLogo: View {
       .scaledToFit()
       .frame(width: size, height: size)
       .clipShape(RoundedRectangle(cornerRadius: size * 0.22, style: .continuous))
+  }
+}
+
+private struct RBEmployeeAvatarView: View {
+  let filePath: String?
+  var size: CGFloat = 32
+
+  var body: some View {
+    if let path = filePath, !path.isEmpty, let ui = UIImage(contentsOfFile: path) {
+      Image(uiImage: ui)
+        .resizable()
+        .scaledToFill()
+        .frame(width: size, height: size)
+        .clipShape(Circle())
+    } else {
+      EmptyView()
+    }
+  }
+}
+
+/// Upcoming vpravo: logo + avatar přes sebe (avatar navrch).
+private struct RBUpcomingBrandLogoCluster: View {
+  let avatarFilePath: String?
+  var logoSize: CGFloat = 52
+  var avatarSize: CGFloat = 34
+
+  var body: some View {
+    ZStack(alignment: .center) {
+      RBBrandLogo(size: logoSize)
+      RBEmployeeAvatarView(filePath: avatarFilePath, size: avatarSize)
+        .offset(x: -10, y: 8)
+        .shadow(color: .black.opacity(0.4), radius: 3, x: 0, y: 1)
+    }
+    .frame(width: logoSize + 4, height: logoSize + 4)
+  }
+}
+
+private struct RBUpcomingBranchEmployeeRow: View {
+  let state: RBReservationAttributes.ContentState
+  var compact: Bool = false
+
+  var body: some View {
+    let branch = rbTrim(state.branchName)
+    let emp = rbTrim(state.employeeName)
+    HStack(spacing: 0) {
+      if !branch.isEmpty {
+        Text(branch)
+      }
+      if !branch.isEmpty && !emp.isEmpty {
+        Text(" · ")
+          .foregroundStyle(.tertiary)
+      }
+      if !emp.isEmpty {
+        Text(emp)
+      }
+      Spacer(minLength: 0)
+    }
+    .font(compact ? .caption2 : .footnote)
+    .foregroundStyle(.secondary)
+    .lineLimit(1)
+    .minimumScaleFactor(0.78)
+  }
+}
+
+/// Čas začátek–konec (`detailLine`) v pill.
+private struct RBTimeRangePill: View {
+  let text: String
+  var compact: Bool = false
+
+  var body: some View {
+    Text(text)
+      .font(compact ? .caption2 : .caption)
+      .foregroundStyle(.secondary)
+      .padding(.horizontal, compact ? 10 : 12)
+      .padding(.vertical, compact ? 5 : 7)
+      .background(
+        Capsule(style: .continuous)
+          .fill(Color.white.opacity(0.18))
+      )
+  }
+}
+
+/// Cena — odlišný od pillu času (zaoblený obdélník + jemný okraj).
+private struct RBPriceBag: View {
+  let text: String
+  var compact: Bool = false
+
+  var body: some View {
+    Text(text)
+      .font(compact ? .caption2 : .caption)
+      .fontWeight(.semibold)
+      .foregroundStyle(.secondary)
+      .padding(.horizontal, compact ? 10 : 12)
+      .padding(.vertical, compact ? 5 : 7)
+      .background(
+        RoundedRectangle(cornerRadius: compact ? 8 : 11, style: .continuous)
+          .fill(Color.white.opacity(0.09))
+      )
+      .overlay(
+        RoundedRectangle(cornerRadius: compact ? 8 : 11, style: .continuous)
+          .stroke(Color.white.opacity(0.24), lineWidth: 1)
+      )
   }
 }
 
@@ -136,24 +242,18 @@ private struct RBLiveActivityCard: View {
       endDate != nil &&
       now >= startDate! &&
       now < endDate!
+    let isUpcoming: Bool = {
+      guard let s = startDate else { return false }
+      return !isReview && !isCancelled && !isActive && now < s
+    }()
+    let upcomingPriceStr = rbTrim(state.priceFormatted ?? "")
 
     ZStack(alignment: .trailing) {
       VStack(alignment: .leading, spacing: 8) {
         VStack(alignment: .leading, spacing: 8) {
           if isActive {
             HStack(spacing: 10) {
-              if let url = URL(string: state.employeeAvatarUrl ?? ""), !url.absoluteString.isEmpty {
-                AsyncImage(url: url) { phase in
-                  switch phase {
-                  case .success(let img):
-                    img.resizable().scaledToFill()
-                  default:
-                    Color.white.opacity(0.08)
-                  }
-                }
-                .frame(width: 32, height: 32)
-                .clipShape(Circle())
-              }
+              RBEmployeeAvatarView(filePath: state.employeeAvatarFilePath, size: 32)
               VStack(alignment: .leading, spacing: 2) {
                 if !state.employeeName.isEmpty {
                   Text(state.employeeName)
@@ -221,12 +321,20 @@ private struct RBLiveActivityCard: View {
             maxWidth: 240
           )
         }
-        if !isReview, !isCancelled, !isActive, !state.branchName.isEmpty {
+        if isUpcoming {
+          RBUpcomingBranchEmployeeRow(state: state, compact: false)
+          if !state.detailLine.isEmpty {
+            RBTimeRangePill(text: state.detailLine, compact: false)
+          }
+          if !upcomingPriceStr.isEmpty {
+            RBPriceBag(text: upcomingPriceStr, compact: false)
+          }
+        } else if !isReview, !isCancelled, !isActive, !state.branchName.isEmpty {
           Text(state.branchName)
             .font(.footnote)
             .foregroundStyle(.secondary)
         }
-        if !isReview, !isCancelled, !isActive, !state.detailLine.isEmpty {
+        if !isReview, !isCancelled, !isActive, !isUpcoming, !state.detailLine.isEmpty {
           Text(state.detailLine)
             .font(.caption)
             .foregroundStyle(.tertiary)
@@ -240,10 +348,14 @@ private struct RBLiveActivityCard: View {
       // Keep logo vertically centered relative to the whole card content (not just the top row).
       VStack {
         Spacer(minLength: 0)
-        RBBrandLogo(size: 52)
+        if isUpcoming {
+          RBUpcomingBrandLogoCluster(avatarFilePath: state.employeeAvatarFilePath, logoSize: 52, avatarSize: 34)
+        } else {
+          RBBrandLogo(size: 52)
+        }
         Spacer(minLength: 0)
       }
-      .frame(width: 52)
+      .frame(width: 56)
     }
     .padding()
   }
@@ -270,6 +382,11 @@ struct RealBarberLiveActivityWidget: Widget {
         endDate != nil &&
         now >= startDate! &&
         now < endDate!
+      let isUpcoming: Bool = {
+        guard let s = startDate else { return false }
+        return !isReview && !isCancelled && !isActive && now < s
+      }()
+      let islandUpcomingPriceStr = rbTrim(context.state.priceFormatted ?? "")
 
       return DynamicIsland {
         DynamicIslandExpandedRegion(.leading) {
@@ -314,7 +431,15 @@ struct RealBarberLiveActivityWidget: Widget {
           }
         }
         DynamicIslandExpandedRegion(.trailing) {
-          RBBrandLogo(size: 44)
+          if isUpcoming {
+            RBUpcomingBrandLogoCluster(
+              avatarFilePath: context.state.employeeAvatarFilePath,
+              logoSize: 44,
+              avatarSize: 28
+            )
+          } else {
+            RBBrandLogo(size: 44)
+          }
         }
         DynamicIslandExpandedRegion(.bottom) {
           VStack(alignment: .leading, spacing: 6) {
@@ -327,12 +452,20 @@ struct RealBarberLiveActivityWidget: Widget {
                 maxWidth: 200
               )
             }
-            if !context.state.branchName.isEmpty {
+            if isUpcoming {
+              RBUpcomingBranchEmployeeRow(state: context.state, compact: true)
+              if !context.state.detailLine.isEmpty {
+                RBTimeRangePill(text: context.state.detailLine, compact: true)
+              }
+              if !islandUpcomingPriceStr.isEmpty {
+                RBPriceBag(text: islandUpcomingPriceStr, compact: true)
+              }
+            } else if !context.state.branchName.isEmpty {
               Text(context.state.branchName)
                 .font(.caption)
                 .foregroundStyle(.secondary)
             }
-            if !context.state.detailLine.isEmpty {
+            if !isUpcoming, !context.state.detailLine.isEmpty {
               Text(context.state.detailLine)
                 .font(.caption2)
                 .foregroundStyle(.tertiary)

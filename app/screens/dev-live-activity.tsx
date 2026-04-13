@@ -25,6 +25,7 @@ type Props = {
   employeeName?: string;
   employeeAvatarUrl?: string;
   branchName?: string;
+  priceFormatted?: string;
   accentHex: string;
 };
 
@@ -56,7 +57,10 @@ export default function DevLiveActivityScreen() {
       progress01,
       startAt,
       endAt,
-      branchName: 'Test pobočka',
+      branchName: 'Hagibor',
+      employeeName: 'Bára',
+      employeeAvatarUrl: 'https://randomuser.me/api/portraits/women/44.jpg',
+      priceFormatted: '450 Kč',
       accentHex: accentColor,
     };
   }, [minutes, accentColor]);
@@ -91,7 +95,10 @@ export default function DevLiveActivityScreen() {
       progress01,
       startAt,
       endAt,
-      branchName: 'Test pobočka',
+      branchName: 'Hagibor',
+      employeeName: 'Bára',
+      employeeAvatarUrl: 'https://randomuser.me/api/portraits/women/44.jpg',
+      priceFormatted: '450 Kč',
       accentHex: accentColor,
     };
   };
@@ -115,6 +122,7 @@ export default function DevLiveActivityScreen() {
       employeeName: 'Martin',
       employeeAvatarUrl: 'https://randomuser.me/api/portraits/men/32.jpg',
       branchName: 'Test pobočka',
+      priceFormatted: '450 Kč',
       accentHex: accentColor,
     };
   };
@@ -220,7 +228,10 @@ export default function DevLiveActivityScreen() {
                       progress01,
                       startAt: startIso,
                       endAt: endIso,
-                      branchName: 'Test pobočka',
+                      branchName: 'Hagibor',
+                      employeeName: 'Bára',
+                      employeeAvatarUrl: 'https://randomuser.me/api/portraits/women/44.jpg',
+                      priceFormatted: '450 Kč',
                       accentHex: accentColor,
                     });
                     refreshInstances();

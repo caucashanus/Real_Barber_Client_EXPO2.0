@@ -1,4 +1,4 @@
-const CRM_BASE = 'https://crm.xrb.cz';
+export const CRM_BASE = 'https://crm.xrb.cz';
 
 export interface BookingEmployee {
   id: string;

@@ -12,9 +12,15 @@ export type RBLiveActivityProps = {
   endAt: string;
   employeeName?: string;
   employeeAvatarUrl?: string;
+  /** PNG/JPEG bytes as standard base64; fallback, když nestačí stažení z URL (malé soubory). */
+  employeeAvatarBase64?: string;
+  /** Bearer pro stažení `employeeAvatarUrl` na native straně (neukládá se do ActivityKit state). */
+  employeeAvatarAuthToken?: string;
   branchName?: string;
   /** Line under branch (e.g. "10:30–10:45"). */
   detailLine?: string;
+  /** Např. „450 Kč“ pro upcoming řádek pobočka · jméno · … · cena */
+  priceFormatted?: string;
   /** 0…1 fill; values &lt; 0 hide the progress bar. */
   progress01?: number;
   /** `#RRGGBB` z nastavení barevnosti; prázdné = černobílý fallback na Live Activity. */
@@ -30,8 +36,11 @@ type NativePayload = {
   endAt: string;
   employeeName: string;
   employeeAvatarUrl: string;
+  employeeAvatarBase64: string;
+  employeeAvatarAuthToken: string;
   progress: number;
   accentHex: string;
+  priceFormatted: string;
 };
 
 type Bridge = {
@@ -55,8 +64,11 @@ function toNativePayload(props: RBLiveActivityProps): NativePayload {
     endAt: props.endAt,
     employeeName: props.employeeName ?? '',
     employeeAvatarUrl: props.employeeAvatarUrl ?? '',
+    employeeAvatarBase64: props.employeeAvatarBase64 ?? '',
+    employeeAvatarAuthToken: props.employeeAvatarAuthToken ?? '',
     progress: props.progress01 ?? -1,
     accentHex,
+    priceFormatted: props.priceFormatted ?? '',
   };
 }
 

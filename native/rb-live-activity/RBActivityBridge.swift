@@ -1,6 +1,8 @@
 import ActivityKit
+import CryptoKit
 import Foundation
 import React
+import UIKit
 
 // MARK: - Keep in sync with targets/realbarber-widget/RBReservationAttributes.swift
 
@@ -14,9 +16,11 @@ struct RBReservationAttributes: ActivityAttributes {
     public var endAt: String
     public var employeeName: String
     public var employeeAvatarUrl: String?
+    public var employeeAvatarFilePath: String?
     public var progress01: Double
     /// `#RRGGBB`; nil / chybějící při decode → černobílý progress ve widgetu.
     public var accentHex: String?
+    public var priceFormatted: String?
   }
 
   public var deepLink: String
@@ -35,7 +39,125 @@ private func rbProgress01(_ value: Any?) -> Double {
   return -1
 }
 
-private func contentState(from payload: NSDictionary) -> RBReservationAttributes.ContentState {
+private let kRBAppGroup = "group.com.realbarber.client"
+private let kRBCrmOrigin = "https://crm.xrb.cz"
+
+private func rbResolvedAvatarRemoteURL(from raw: String) -> URL? {
+  let t = raw.trimmingCharacters(in: .whitespacesAndNewlines)
+  if t.isEmpty { return nil }
+  if let u = URL(string: t), let scheme = u.scheme?.lowercased(), scheme == "http" || scheme == "https" {
+    return u
+  }
+  if t.hasPrefix("//"), let u = URL(string: "https:\(t)") { return u }
+  if t.hasPrefix("/"), let base = URL(string: kRBCrmOrigin) {
+    return URL(string: t, relativeTo: base)?.absoluteURL
+  }
+  return URL(string: t)
+}
+
+private func rbSHA256Hex(_ s: String) -> String {
+  let digest = SHA256.hash(data: Data(s.utf8))
+  return digest.map { String(format: "%02x", $0) }.joined()
+}
+
+private func rbAvatarDirURL() -> URL? {
+  FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: kRBAppGroup)?
+    .appendingPathComponent("rb-live-activity", isDirectory: true)
+    .appendingPathComponent("avatars", isDirectory: true)
+}
+
+private func rbEnsureDir(_ url: URL) {
+  try? FileManager.default.createDirectory(at: url, withIntermediateDirectories: true)
+}
+
+private func rbNormalizeAvatarImageData(_ data: Data) -> Data? {
+  guard let image = UIImage(data: data) else {
+    return data.count <= 400_000 ? data : nil
+  }
+  let maxSide: CGFloat = 256
+  let size = image.size
+  guard size.width > 0, size.height > 0 else {
+    return image.jpegData(compressionQuality: 0.82)
+  }
+  let scale = min(1, min(maxSide / size.width, maxSide / size.height))
+  let newW = max(1, floor(size.width * scale))
+  let newH = max(1, floor(size.height * scale))
+  let newSize = CGSize(width: newW, height: newH)
+  let format = UIGraphicsImageRendererFormat()
+  format.scale = 1
+  let renderer = UIGraphicsImageRenderer(size: newSize, format: format)
+  let rendered = renderer.image { _ in
+    image.draw(in: CGRect(origin: .zero, size: newSize))
+  }
+  return rendered.jpegData(compressionQuality: 0.82)
+}
+
+private func rbWriteAvatarDataToAppGroup(data: Data) -> String? {
+  guard let dir = rbAvatarDirURL() else { return nil }
+  rbEnsureDir(dir)
+  guard let jpeg = rbNormalizeAvatarImageData(data) else { return nil }
+  let fileURL = dir.appendingPathComponent(UUID().uuidString + ".jpg", isDirectory: false)
+  do {
+    try jpeg.write(to: fileURL, options: [.atomic])
+    return fileURL.path
+  } catch {
+    return nil
+  }
+}
+
+private func rbResolveEmployeeAvatarFilePath(from payload: NSDictionary) async -> String? {
+  let avatarRemote = rbString(payload["employeeAvatarUrl"]).trimmingCharacters(in: .whitespacesAndNewlines)
+  let token = rbString(payload["employeeAvatarAuthToken"]).trimmingCharacters(in: .whitespacesAndNewlines)
+  if let avatarURL = rbResolvedAvatarRemoteURL(from: avatarRemote) {
+    if !token.isEmpty {
+      if let p = await rbWriteAvatarToAppGroup(fromRemoteURL: avatarURL, bearerToken: token) { return p }
+    }
+    if let p = await rbWriteAvatarToAppGroup(fromRemoteURL: avatarURL, bearerToken: nil) { return p }
+  }
+  let b64 = rbString(payload["employeeAvatarBase64"]).trimmingCharacters(in: .whitespacesAndNewlines)
+  if !b64.isEmpty {
+    if let data = Data(base64Encoded: b64), !data.isEmpty {
+      return rbWriteAvatarDataToAppGroup(data: data)
+    }
+    if let data = Data(base64Encoded: b64, options: [.ignoreUnknownCharacters]), !data.isEmpty {
+      return rbWriteAvatarDataToAppGroup(data: data)
+    }
+  }
+  return nil
+}
+
+private func rbWriteAvatarToAppGroup(fromRemoteURL remote: URL, bearerToken: String?) async -> String? {
+  guard let scheme = remote.scheme?.lowercased(), scheme == "http" || scheme == "https" else { return nil }
+  guard let dir = rbAvatarDirURL() else { return nil }
+  rbEnsureDir(dir)
+
+  let key = rbSHA256Hex(remote.absoluteString)
+  let fileURL = dir.appendingPathComponent("\(key).jpg", isDirectory: false)
+  let path = fileURL.path
+  if FileManager.default.fileExists(atPath: path) { return path }
+
+  do {
+    var request = URLRequest(url: remote)
+    request.setValue(
+      "Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Mobile/15E148 Safari/604.1",
+      forHTTPHeaderField: "User-Agent"
+    )
+    request.setValue(remote.absoluteString, forHTTPHeaderField: "Referer")
+    if let t = bearerToken?.trimmingCharacters(in: .whitespacesAndNewlines), !t.isEmpty {
+      request.setValue("Bearer \(t)", forHTTPHeaderField: "Authorization")
+    }
+    let (data, resp) = try await URLSession.shared.data(for: request)
+    if let http = resp as? HTTPURLResponse, http.statusCode >= 400 { return nil }
+    if data.isEmpty { return nil }
+    guard let normalized = rbNormalizeAvatarImageData(data) else { return nil }
+    try normalized.write(to: fileURL, options: [.atomic])
+    return path
+  } catch {
+    return nil
+  }
+}
+
+private func contentState(from payload: NSDictionary, employeeAvatarFilePath: String?) -> RBReservationAttributes.ContentState {
   RBReservationAttributes.ContentState(
     subtitle: rbString(payload["subtitle"]),
     title: rbString(payload["title"]),
@@ -48,10 +170,15 @@ private func contentState(from payload: NSDictionary) -> RBReservationAttributes
       let u = rbString(payload["employeeAvatarUrl"])
       return u.isEmpty ? nil : u
     }(),
+    employeeAvatarFilePath: employeeAvatarFilePath,
     progress01: rbProgress01(payload["progress"]),
     accentHex: {
       let h = rbString(payload["accentHex"])
       return h.isEmpty ? nil : h
+    }(),
+    priceFormatted: {
+      let p = rbString(payload["priceFormatted"])
+      return p.isEmpty ? nil : p
     }()
   )
 }
@@ -109,6 +236,7 @@ private enum RBPushTokenRegistry {
 @available(iOS 16.2, *)
 private enum RBActivityStore {
   static var activities: [String: Activity<RBReservationAttributes>] = [:]
+  static var avatarPathByActivityId: [String: String] = [:]
 
   static func remember(_ activity: Activity<RBReservationAttributes>) {
     activities[activity.id] = activity
@@ -121,6 +249,9 @@ private enum RBActivityStore {
   static func remove(id: String) {
     activities.removeValue(forKey: id)
     RBPushTokenRegistry.cancelObservation(activityId: id)
+    if let p = avatarPathByActivityId.removeValue(forKey: id), !p.isEmpty {
+      try? FileManager.default.removeItem(atPath: p)
+    }
   }
 
   static func endAll() async {
@@ -130,6 +261,11 @@ private enum RBActivityStore {
     }
     activities.removeAll()
     RBPushTokenRegistry.cancelAllObservations()
+    let paths = Array(avatarPathByActivityId.values)
+    avatarPathByActivityId.removeAll()
+    for p in paths where !p.isEmpty {
+      try? FileManager.default.removeItem(atPath: p)
+    }
   }
 
   static var trackedCount: Int {
@@ -156,19 +292,26 @@ class RBActivityBridge: NSObject {
       reject("E_DISABLED", "Live Activities are disabled for this app", nil)
       return
     }
-    Task { @MainActor in
+    Task {
       do {
-        let attributes = RBReservationAttributes(deepLink: deepLink)
-        let state = contentState(from: payload)
-        let content = ActivityContent(state: state, staleDate: nil)
-        let activity = try Activity<RBReservationAttributes>.request(
-          attributes: attributes,
-          content: content,
-          pushType: .token
-        )
-        RBActivityStore.remember(activity)
-        RBPushTokenRegistry.startObservingPushToken(for: activity)
-        resolve(activity.id)
+        let avatarPath = await rbResolveEmployeeAvatarFilePath(from: payload)
+
+        try await MainActor.run {
+          let attributes = RBReservationAttributes(deepLink: deepLink)
+          let state = contentState(from: payload, employeeAvatarFilePath: avatarPath)
+          let content = ActivityContent(state: state, staleDate: nil)
+          let activity = try Activity<RBReservationAttributes>.request(
+            attributes: attributes,
+            content: content,
+            pushType: .token
+          )
+          RBActivityStore.remember(activity)
+          if let p = avatarPath, !p.isEmpty {
+            RBActivityStore.avatarPathByActivityId[activity.id] = p
+          }
+          RBPushTokenRegistry.startObservingPushToken(for: activity)
+          resolve(activity.id)
+        }
       } catch {
         reject("E_START", error.localizedDescription, error)
       }
@@ -203,15 +346,35 @@ class RBActivityBridge: NSObject {
       reject("E_UNSUPPORTED", "Live Activity requires iOS 16.2+", nil)
       return
     }
-    Task { @MainActor in
-      guard let activity = RBActivityStore.activity(for: activityId) else {
+    Task {
+      guard #available(iOS 16.2, *) else {
+        reject("E_UNSUPPORTED", "Live Activity requires iOS 16.2+", nil)
+        return
+      }
+
+      guard let activity = await MainActor.run(body: { RBActivityStore.activity(for: activityId) }) else {
         reject("E_MISSING", "No Live Activity for id \(activityId)", nil)
         return
       }
-      let state = contentState(from: payload)
-      let content = ActivityContent(state: state, staleDate: nil)
+
+      let avatarPath = await rbResolveEmployeeAvatarFilePath(from: payload)
+
+      let content: ActivityContent<RBReservationAttributes.ContentState> = await MainActor.run {
+        if let newPath = avatarPath, !newPath.isEmpty {
+          let old = RBActivityStore.avatarPathByActivityId[activityId]
+          if let old, old != newPath {
+            try? FileManager.default.removeItem(atPath: old)
+          }
+          RBActivityStore.avatarPathByActivityId[activityId] = newPath
+        }
+
+        let effectivePath = avatarPath ?? RBActivityStore.avatarPathByActivityId[activityId]
+        let state = contentState(from: payload, employeeAvatarFilePath: effectivePath)
+        return ActivityContent(state: state, staleDate: nil)
+      }
+
       await activity.update(content)
-      resolve(nil)
+      await MainActor.run { resolve(nil) }
     }
   }
 
