@@ -66,4 +66,3 @@ export async function registerPushToken(
 export async function unregisterPushToken(apiToken: string, token: string): Promise<void> {
   await postJson(apiToken, '/api/client/push/unregister-token', { token });
 }
-

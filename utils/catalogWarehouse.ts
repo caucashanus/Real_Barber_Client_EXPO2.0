@@ -13,9 +13,11 @@ export function warehouseUiName(name: string | undefined, centralDisplayLabel: s
   return name;
 }
 
-export function compareCatalogStockWarehouseRows<
-  T extends { warehouse: { name: string } },
->(a: T, b: T, centralDisplayLabel: string): number {
+export function compareCatalogStockWarehouseRows<T extends { warehouse: { name: string } }>(
+  a: T,
+  b: T,
+  centralDisplayLabel: string
+): number {
   const aCentral = isMainCentralWarehouse(a.warehouse.name);
   const bCentral = isMainCentralWarehouse(b.warehouse.name);
   if (aCentral !== bCentral) return aCentral ? 1 : -1;
@@ -25,7 +27,12 @@ export function compareCatalogStockWarehouseRows<
 }
 
 /** Řetězec pro geokódování (adresa → mapa). */
-export function warehouseGeocodeQuery(warehouse: ClientCatalogWarehouse, displayName: string): string {
-  const parts = [warehouse.address, warehouse.location, displayName].filter((p) => p && String(p).trim());
+export function warehouseGeocodeQuery(
+  warehouse: ClientCatalogWarehouse,
+  displayName: string
+): string {
+  const parts = [warehouse.address, warehouse.location, displayName].filter(
+    (p) => p && String(p).trim()
+  );
   return parts.join(', ');
 }

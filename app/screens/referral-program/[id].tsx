@@ -1,15 +1,21 @@
+import { useLocalSearchParams, useRouter } from 'expo-router';
 import React, { useEffect, useMemo, useState } from 'react';
 import { View, ActivityIndicator, ImageBackground, Share } from 'react-native';
-import { useLocalSearchParams, useRouter } from 'expo-router';
+
+import {
+  generateReferral,
+  getReferrals,
+  type ClientReferralItem,
+  type ReferralActiveProgram,
+} from '@/api/referrals';
+import { useAuth } from '@/app/contexts/AuthContext';
+import { useTranslation } from '@/app/hooks/useTranslation';
+import { Button } from '@/components/Button';
 import Header from '@/components/Header';
 import ThemedScroller from '@/components/ThemeScroller';
 import ThemedText from '@/components/ThemedText';
-import Section from '@/components/layout/Section';
 import Divider from '@/components/layout/Divider';
-import { Button } from '@/components/Button';
-import { useAuth } from '@/app/contexts/AuthContext';
-import { useTranslation } from '@/app/hooks/useTranslation';
-import { generateReferral, getReferrals, type ClientReferralItem, type ReferralActiveProgram } from '@/api/referrals';
+import Section from '@/components/layout/Section';
 
 const REFERRAL_SHARE_BASE = 'https://crm.xrb.cz/ref/';
 
@@ -92,21 +98,21 @@ export default function ReferralProgramDetailScreen() {
 
       <ThemedScroller className="flex-1">
         {loading ? (
-          <View className="py-10 items-center">
+          <View className="items-center py-10">
             <ActivityIndicator size="small" />
-            <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext mt-2">
+            <ThemedText className="mt-2 text-sm text-light-subtext dark:text-dark-subtext">
               {t('commonLoading')}
             </ThemedText>
           </View>
         ) : error ? (
-          <View className="py-10 px-global">
-            <ThemedText className="text-sm text-red-500 dark:text-red-400 text-center">
+          <View className="px-global py-10">
+            <ThemedText className="text-center text-sm text-red-500 dark:text-red-400">
               {error}
             </ThemedText>
           </View>
         ) : !program ? (
-          <View className="py-10 px-global">
-            <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext text-center">
+          <View className="px-global py-10">
+            <ThemedText className="text-center text-sm text-light-subtext dark:text-dark-subtext">
               {t('referralProgramNotFound')}
             </ThemedText>
           </View>
@@ -115,28 +121,32 @@ export default function ReferralProgramDetailScreen() {
             {coverUri ? (
               <ImageBackground
                 source={{ uri: coverUri }}
-                className="mx-global mt-4 rounded-3xl overflow-hidden"
+                className="mx-global mt-4 overflow-hidden rounded-3xl"
                 style={{ minHeight: 500 }}
-                imageStyle={{ borderRadius: 24 }}
-              >
-                <View className="flex-1 p-6 justify-end" style={{ backgroundColor: 'rgba(0,0,0,0.40)' }}>
+                imageStyle={{ borderRadius: 24 }}>
+                <View
+                  className="flex-1 justify-end p-6"
+                  style={{ backgroundColor: 'rgba(0,0,0,0.40)' }}>
                   <ThemedText className="text-2xl font-bold text-white">{program.name}</ThemedText>
-                  <ThemedText className="text-base text-white/90 mt-2">
+                  <ThemedText className="mt-2 text-base text-white/90">
                     {program.description?.trim() ? program.description : '—'}
                   </ThemedText>
                 </View>
               </ImageBackground>
             ) : (
-              <View className="mx-global mt-4 p-6 rounded-3xl bg-light-secondary dark:bg-dark-secondary">
+              <View className="mx-global mt-4 rounded-3xl bg-light-secondary p-6 dark:bg-dark-secondary">
                 <ThemedText className="text-2xl font-bold">{program.name}</ThemedText>
-                <ThemedText className="text-base text-light-subtext dark:text-dark-subtext mt-2">
+                <ThemedText className="mt-2 text-base text-light-subtext dark:text-dark-subtext">
                   {program.description?.trim() ? program.description : '—'}
                 </ThemedText>
               </View>
             )}
 
-            <Section title={t('referralProgramDetails')} titleSize="lg" className="px-global mt-8 mb-6">
-              <View className="rounded-3xl bg-light-secondary dark:bg-dark-secondary overflow-hidden">
+            <Section
+              title={t('referralProgramDetails')}
+              titleSize="lg"
+              className="mb-6 mt-8 px-global">
+              <View className="overflow-hidden rounded-3xl bg-light-secondary dark:bg-dark-secondary">
                 {validUntilText ? (
                   <>
                     <View className="flex-row items-center justify-between px-5 py-4">
@@ -182,19 +192,17 @@ export default function ReferralProgramDetailScreen() {
               </View>
             </Section>
 
-            <View className="px-global mt-6 pb-10">
-              <Button
-                title={t('referralProgramJoin')}
-                loading={joining}
-                onPress={onJoinProgram}
-              />
+            <View className="mt-6 px-global pb-10">
+              <Button title={t('referralProgramJoin')} loading={joining} onPress={onJoinProgram} />
               {programReferrals.length > 0 ? (
                 <Button
                   title={t('referralProgramTrackInvites')}
                   variant="secondary"
                   className="mt-3"
                   onPress={() =>
-                    router.push(`/screens/referral-program/${encodeURIComponent(programId)}/invites`)
+                    router.push(
+                      `/screens/referral-program/${encodeURIComponent(programId)}/invites`
+                    )
                   }
                 />
               ) : null}
@@ -205,4 +213,3 @@ export default function ReferralProgramDetailScreen() {
     </View>
   );
 }
-

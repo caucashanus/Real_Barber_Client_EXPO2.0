@@ -1,26 +1,27 @@
+import { router } from 'expo-router';
 import React, { useEffect, useState, useMemo, useRef } from 'react';
 import { View, Image, Pressable } from 'react-native';
-import { router } from 'expo-router';
-import Header from '@/components/Header';
-import Icon from '@/components/Icon';
-import ThemedScroller from '@/components/ThemeScroller';
+import { ActionSheetRef } from 'react-native-actions-sheet';
+
+import { getBranches, type Branch } from '@/api/branches';
+import { getEmployees, type Employee, type EmployeeBranch } from '@/api/employees';
+import { useAuth } from '@/app/contexts/AuthContext';
+import useThemeColors from '@/app/contexts/ThemeColors';
+import { useTranslation } from '@/app/hooks/useTranslation';
 import ActionSheetThemed from '@/components/ActionSheetThemed';
 import { Button } from '@/components/Button';
-import { ActionSheetRef } from 'react-native-actions-sheet';
-import Section from '@/components/layout/Section';
-import { useTranslation } from '@/app/hooks/useTranslation';
-import useThemeColors from '@/app/contexts/ThemeColors';
-import ThemedText from '@/components/ThemedText';
-import { shadowPresets } from '@/utils/useShadow';
-import Grid from '@/components/layout/Grid';
 import { Chip } from '@/components/Chip';
-import { CardScroller } from '@/components/CardScroller';
-import { DatePicker } from '@/components/forms/DatePicker';
-import { useAuth } from '@/app/contexts/AuthContext';
-import { getEmployees, type Employee } from '@/api/employees';
-import type { EmployeeBranch } from '@/api/employees';
-import { getBranches, type Branch } from '@/api/branches';
+import Header from '@/components/Header';
+import Icon from '@/components/Icon';
 import LiveIndicator from '@/components/LiveIndicator';
+import ThemedScroller from '@/components/ThemeScroller';
+
+import ThemedText from '@/components/ThemedText';
+import { DatePicker } from '@/components/forms/DatePicker';
+import Grid from '@/components/layout/Grid';
+import Section from '@/components/layout/Section';
+import { shadowPresets } from '@/utils/useShadow';
+import { CardScroller } from '@/components/CardScroller';
 
 /** API uses Cyrillic day names: Sun .. Sat */
 const WEEKDAY_API_KEYS = [
@@ -42,7 +43,9 @@ type WorkScheduleSlot = {
 };
 
 function hasShiftOnDate(emp: Employee, date: Date): boolean {
-  const ws = emp.workSchedule as { weeklySchedule?: Record<string, WorkScheduleSlot[]> } | undefined;
+  const ws = emp.workSchedule as
+    | { weeklySchedule?: Record<string, WorkScheduleSlot[]> }
+    | undefined;
   const weekly = ws?.weeklySchedule;
   if (!weekly || typeof weekly !== 'object') return false;
   const dayIndex = date.getDay();
@@ -60,7 +63,9 @@ function hasShiftOnDate(emp: Employee, date: Date): boolean {
 
 /** Pro dané datum vrací názvy poboček z těch slotů (směn), které padnou na tento den – z slot.branch.name. */
 function getBranchNamesFromShiftsOnDate(emp: Employee, date: Date): string[] {
-  const ws = emp.workSchedule as { weeklySchedule?: Record<string, WorkScheduleSlot[]> } | undefined;
+  const ws = emp.workSchedule as
+    | { weeklySchedule?: Record<string, WorkScheduleSlot[]> }
+    | undefined;
   const weekly = ws?.weeklySchedule;
   if (!weekly || typeof weekly !== 'object') return [];
   const dayIndex = date.getDay();
@@ -91,7 +96,12 @@ function getEmployeeBranchIds(emp: Employee): string[] {
 }
 
 /** Názvy poboček pro indikátor na kartě: pouze pobočky konkrétních směn v daný den (ze slot.branch.name). Fallback: při filtru pobočky její název, jinak všechny pobočky zaměstnance. */
-function getBranchNamesForDate(emp: Employee, date: Date, branches: Branch[], selectedBranchId: string | null): string[] {
+function getBranchNamesForDate(
+  emp: Employee,
+  date: Date,
+  branches: Branch[],
+  selectedBranchId: string | null
+): string[] {
   const namesFromSlots = getBranchNamesFromShiftsOnDate(emp, date);
   if (namesFromSlots.length > 0) return namesFromSlots;
   if (selectedBranchId !== null) {
@@ -118,10 +128,7 @@ const ScheduleScreen = () => {
   useEffect(() => {
     if (!apiToken) return;
     setLoading(true);
-    Promise.all([
-      getEmployees(apiToken, {}),
-      getBranches(apiToken, {}),
-    ])
+    Promise.all([getEmployees(apiToken, {}), getBranches(apiToken, {})])
       .then(([empList, branchList]) => {
         setEmployees(Array.isArray(empList) ? empList : Object.values(empList));
         setBranches(Array.isArray(branchList) ? branchList : []);
@@ -143,13 +150,21 @@ const ScheduleScreen = () => {
 
   const isToday = useMemo(() => {
     const d = new Date();
-    return selectedDate.getDate() === d.getDate() && selectedDate.getMonth() === d.getMonth() && selectedDate.getFullYear() === d.getFullYear();
+    return (
+      selectedDate.getDate() === d.getDate() &&
+      selectedDate.getMonth() === d.getMonth() &&
+      selectedDate.getFullYear() === d.getFullYear()
+    );
   }, [selectedDate]);
 
   const isTomorrow = useMemo(() => {
     const d = new Date();
     d.setDate(d.getDate() + 1);
-    return selectedDate.getDate() === d.getDate() && selectedDate.getMonth() === d.getMonth() && selectedDate.getFullYear() === d.getFullYear();
+    return (
+      selectedDate.getDate() === d.getDate() &&
+      selectedDate.getMonth() === d.getMonth() &&
+      selectedDate.getFullYear() === d.getFullYear()
+    );
   }, [selectedDate]);
 
   const dateVariant = isToday ? 'today' : isTomorrow ? 'tomorrow' : null;
@@ -172,20 +187,18 @@ const ScheduleScreen = () => {
   };
 
   const scheduleArrows = (
-    <View className="flex-row items-center ml-auto">
+    <View className="ml-auto flex-row items-center">
       <Pressable
         onPress={goToPrevDay}
         disabled={isToday}
-        className={`w-10 h-10 items-center justify-center mr-2 rounded-full border border-neutral-300 dark:border-neutral-600 ${
+        className={`mr-2 h-10 w-10 items-center justify-center rounded-full border border-neutral-300 dark:border-neutral-600 ${
           isToday ? 'opacity-30' : 'opacity-100'
-        }`}
-      >
+        }`}>
         <Icon name="ChevronLeft" size={24} className="-translate-x-px" />
       </Pressable>
       <Pressable
         onPress={goToNextDay}
-        className="w-10 h-10 items-center justify-center rounded-full border border-neutral-300 dark:border-neutral-600"
-      >
+        className="h-10 w-10 items-center justify-center rounded-full border border-neutral-300 dark:border-neutral-600">
         <Icon name="ChevronRight" size={24} className="translate-x-px" />
       </Pressable>
     </View>
@@ -195,7 +208,12 @@ const ScheduleScreen = () => {
     <>
       <Header title=" " showBackButton rightComponents={headerIndicator} />
       <ThemedScroller className="flex-1" keyboardShouldPersistTaps="handled">
-        <Section title={t('scheduleTitle')} titleSize="3xl" className="py-10" titleTrailing={scheduleArrows} />
+        <Section
+          title={t('scheduleTitle')}
+          titleSize="3xl"
+          className="py-10"
+          titleTrailing={scheduleArrows}
+        />
 
         <DatePicker
           label={t('scheduleDate')}
@@ -225,7 +243,9 @@ const ScheduleScreen = () => {
         </CardScroller>
 
         {loading ? (
-          <ThemedText className="py-4 text-light-subtext dark:text-dark-subtext">{t('commonLoading')}</ThemedText>
+          <ThemedText className="py-4 text-light-subtext dark:text-dark-subtext">
+            {t('commonLoading')}
+          </ThemedText>
         ) : filteredEmployees.length === 0 ? (
           <ThemedText className="py-4 text-light-subtext dark:text-dark-subtext">
             No employees with a shift on this date{selectedBranchId ? ' at this branch' : ''}.
@@ -233,7 +253,12 @@ const ScheduleScreen = () => {
         ) : (
           <Grid columns={2} spacing={10}>
             {filteredEmployees.map((emp) => {
-              const branchNames = getBranchNamesForDate(emp, selectedDate, branches, selectedBranchId);
+              const branchNames = getBranchNamesForDate(
+                emp,
+                selectedDate,
+                branches,
+                selectedBranchId
+              );
               return (
                 <Pressable
                   key={emp.id}
@@ -241,8 +266,7 @@ const ScheduleScreen = () => {
                     setSelectedEmployee(emp);
                     employeeSheetRef.current?.show();
                   }}
-                  className="active:opacity-90"
-                >
+                  className="active:opacity-90">
                   <ScheduleCard
                     name={emp.name}
                     image={emp.avatarUrl ?? require('@/assets/img/barbers.png')}
@@ -269,7 +293,8 @@ const ScheduleScreen = () => {
               title={t('scheduleProfil')}
               onPress={() => {
                 employeeSheetRef.current?.hide();
-                if (selectedEmployee) router.push(`/screens/barber-detail?id=${selectedEmployee.id}`);
+                if (selectedEmployee)
+                  router.push(`/screens/barber-detail?id=${selectedEmployee.id}`);
               }}
               variant="outline"
               className="w-full"
@@ -293,26 +318,27 @@ interface ScheduleCardProps {
 const ScheduleCard = ({ name, image, branchNames, dateVariant }: ScheduleCardProps) => {
   const colors = useThemeColors();
   return (
-    <View style={{ ...shadowPresets.large }} className="bg-light-primary dark:bg-dark-secondary rounded-3xl overflow-hidden">
-      <View className="w-full aspect-[3/4] bg-neutral-200 dark:bg-neutral-800">
+    <View
+      style={{ ...shadowPresets.large }}
+      className="overflow-hidden rounded-3xl bg-light-primary dark:bg-dark-secondary">
+      <View className="aspect-[3/4] w-full bg-neutral-200 dark:bg-neutral-800">
         <Image
           source={typeof image === 'string' ? { uri: image } : image}
-          className="w-full h-full"
+          className="h-full w-full"
           resizeMode="cover"
         />
         {dateVariant !== null && (
-          <View className="absolute top-2 right-3">
+          <View className="absolute right-3 top-2">
             <LiveIndicator variant={dateVariant === 'tomorrow' ? 'orange' : 'green'} />
           </View>
         )}
         {branchNames.length > 0 && (
-          <View className="absolute top-2 left-2 right-2 flex-row flex-wrap gap-1">
+          <View className="absolute left-2 right-2 top-2 flex-row flex-wrap gap-1">
             {branchNames.map((branchName) => (
               <View
                 key={branchName}
-                className="bg-black/50 dark:bg-white/20 rounded-full px-2 py-1"
-              >
-                <ThemedText className="text-[10px] text-white font-medium" numberOfLines={1}>
+                className="rounded-full bg-black/50 px-2 py-1 dark:bg-white/20">
+                <ThemedText className="text-[10px] font-medium text-white" numberOfLines={1}>
                   {branchName}
                 </ThemedText>
               </View>
@@ -321,10 +347,15 @@ const ScheduleCard = ({ name, image, branchNames, dateVariant }: ScheduleCardPro
         )}
       </View>
       <View className="p-3">
-        <ThemedText className="text-base font-semibold mb-2" numberOfLines={1}>{name}</ThemedText>
-        <View className="flex-row items-center w-full">
-          <View className="h-1.5 rounded-full bg-neutral-200 dark:bg-neutral-800 flex-1 mr-2">
-            <View style={{ backgroundColor: colors.highlight, width: '50%' }} className="h-full rounded-full" />
+        <ThemedText className="mb-2 text-base font-semibold" numberOfLines={1}>
+          {name}
+        </ThemedText>
+        <View className="w-full flex-row items-center">
+          <View className="mr-2 h-1.5 flex-1 rounded-full bg-neutral-200 dark:bg-neutral-800">
+            <View
+              style={{ backgroundColor: colors.highlight, width: '50%' }}
+              className="h-full rounded-full"
+            />
           </View>
           <ThemedText className="text-xs text-light-subtext dark:text-dark-subtext">2/4</ThemedText>
         </View>

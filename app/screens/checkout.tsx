@@ -1,23 +1,26 @@
+import AntDesign from '@expo/vector-icons/AntDesign';
+import Fontisto from '@expo/vector-icons/Fontisto';
+import { useRouter, useLocalSearchParams } from 'expo-router';
 import React, { useState, useEffect } from 'react';
 import { View, Image, ScrollView, TouchableOpacity, ActivityIndicator, Alert } from 'react-native';
-import { useRouter, useLocalSearchParams } from 'expo-router';
-import ThemedText from '@/components/ThemedText';
+
+import useThemeColors from '../contexts/ThemeColors';
+
+import { getBookingAvailability } from '@/api/bookings';
+import { getBranches, type Branch, type BranchEmployee } from '@/api/branches';
+import { useAuth } from '@/app/contexts/AuthContext';
+import { useTranslation } from '@/app/hooks/useTranslation';
+import Avatar from '@/components/Avatar';
 import { Button } from '@/components/Button';
+import ThemedText from '@/components/ThemedText';
+import Toggle from '@/components/Toggle';
 import Input from '@/components/forms/Input';
 import Icon, { IconName } from '@/components/Icon';
 import MultiStep, { Step } from '@/components/MultiStep';
-import Section from '@/components/layout/Section';
 import Selectable from '@/components/forms/Selectable';
-import Avatar from '@/components/Avatar';
-import useThemeColors from '../contexts/ThemeColors';
-import Toggle from '@/components/Toggle';
-import AntDesign from '@expo/vector-icons/AntDesign';
-import Fontisto from '@expo/vector-icons/Fontisto';
+import Section from '@/components/layout/Section';
+
 import ShowRating from '@/components/ShowRating';
-import { useAuth } from '@/app/contexts/AuthContext';
-import { useTranslation } from '@/app/hooks/useTranslation';
-import { getBranches, type Branch, type BranchEmployee } from '@/api/branches';
-import { getBookingAvailability } from '@/api/bookings';
 
 function getEmployeesList(branch: Branch): BranchEmployee[] {
   const e = branch.employees;
@@ -28,353 +31,397 @@ function getEmployeesList(branch: Branch): BranchEmployee[] {
 
 // Mock data for UI display
 const PACKAGE_OPTIONS = [
-    {
-        id: 'basic',
-        name: 'I want a specific barber',
-        price: '$99',
-        deliveryTime: '3 days',
-        icon: 'Pen',
-        revisions: '2 revisions',
-        features: ['2 initial concepts', 'High resolution files', 'Logo transparency']
-    },
-    {
-        id: 'standard',
-        name: 'I want the earliest available appointment',
-        price: '$199',
-        icon: 'Star',
-        deliveryTime: '5 days',
-        revisions: '5 revisions',
-        features: ['4 initial concepts', 'High resolution files', 'Logo transparency', 'Source files', 'Social media kit']
-    },
-    {
-        id: 'premium',
-        name: 'Show all options',
-        price: '$349',
-        icon: 'Gem',
-        deliveryTime: '7 days',
-        revisions: 'Unlimited revisions',
-        features: ['6 initial concepts', 'High resolution files', 'Logo transparency', 'Source files', 'Social media kit', 'Brand guidelines', 'Stationery design']
-    }
+  {
+    id: 'basic',
+    name: 'I want a specific barber',
+    price: '$99',
+    deliveryTime: '3 days',
+    icon: 'Pen',
+    revisions: '2 revisions',
+    features: ['2 initial concepts', 'High resolution files', 'Logo transparency'],
+  },
+  {
+    id: 'standard',
+    name: 'I want the earliest available appointment',
+    price: '$199',
+    icon: 'Star',
+    deliveryTime: '5 days',
+    revisions: '5 revisions',
+    features: [
+      '4 initial concepts',
+      'High resolution files',
+      'Logo transparency',
+      'Source files',
+      'Social media kit',
+    ],
+  },
+  {
+    id: 'premium',
+    name: 'Show all options',
+    price: '$349',
+    icon: 'Gem',
+    deliveryTime: '7 days',
+    revisions: 'Unlimited revisions',
+    features: [
+      '6 initial concepts',
+      'High resolution files',
+      'Logo transparency',
+      'Source files',
+      'Social media kit',
+      'Brand guidelines',
+      'Stationery design',
+    ],
+  },
 ];
 
 // Step Components
 const ProjectDetailsStep = () => {
-    const [selectedPackage, setSelectedPackage] = useState('standard');
-    const { t } = useTranslation();
-    return (
-        <ScrollView className="flex-1 p-4">
-            <Section title={t('checkoutChooseMethod')} titleSize='2xl' subtitle={t('checkoutSelectMethodSubtitle')} className='mt-4 mb-8' />
-            
-            {PACKAGE_OPTIONS.map(pkg => (
-                <Selectable
-                    key={pkg.id}
-                    title={pkg.name}
-                    description={`${pkg.price} • ${pkg.deliveryTime} • ${pkg.revisions}`}
-                    icon={pkg.icon as IconName}
-                    selected={selectedPackage === pkg.id}
-                    onPress={() => setSelectedPackage(pkg.id)}
-                    containerClassName="mb-4"
-                />
-            ))}
-        </ScrollView>
-    );
-}
+  const [selectedPackage, setSelectedPackage] = useState('standard');
+  const { t } = useTranslation();
+  return (
+    <ScrollView className="flex-1 p-4">
+      <Section
+        title={t('checkoutChooseMethod')}
+        titleSize="2xl"
+        subtitle={t('checkoutSelectMethodSubtitle')}
+        className="mb-8 mt-4"
+      />
+
+      {PACKAGE_OPTIONS.map((pkg) => (
+        <Selectable
+          key={pkg.id}
+          title={pkg.name}
+          description={`${pkg.price} • ${pkg.deliveryTime} • ${pkg.revisions}`}
+          icon={pkg.icon as IconName}
+          selected={selectedPackage === pkg.id}
+          onPress={() => setSelectedPackage(pkg.id)}
+          containerClassName="mb-4"
+        />
+      ))}
+    </ScrollView>
+  );
+};
 
 const SelectSpecialistStep = () => {
-    const { branchId } = useLocalSearchParams<{ branchId?: string }>();
-    const { t } = useTranslation();
-    const { apiToken } = useAuth();
-    const [selectedBarber, setSelectedBarber] = useState<string | null>(null);
-    const [employees, setEmployees] = useState<BranchEmployee[]>([]);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState<string | null>(null);
+  const { branchId } = useLocalSearchParams<{ branchId?: string }>();
+  const { t } = useTranslation();
+  const { apiToken } = useAuth();
+  const [selectedBarber, setSelectedBarber] = useState<string | null>(null);
+  const [employees, setEmployees] = useState<BranchEmployee[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-    useEffect(() => {
-        if (!apiToken || !branchId) {
-            setLoading(false);
-            return;
+  useEffect(() => {
+    if (!apiToken || !branchId) {
+      setLoading(false);
+      return;
+    }
+    setLoading(true);
+    setError(null);
+    getBranches(apiToken, { includeReviews: true, reviewsLimit: 1 })
+      .then((list) => {
+        const branch = list.find((b) => b.id === branchId) ?? null;
+        if (!branch) {
+          setError('Branch not found');
+          setEmployees([]);
+        } else {
+          setEmployees(getEmployeesList(branch));
         }
-        setLoading(true);
-        setError(null);
-        getBranches(apiToken, { includeReviews: true, reviewsLimit: 1 })
-            .then((list) => {
-                const branch = list.find((b) => b.id === branchId) ?? null;
-                if (!branch) {
-                    setError('Branch not found');
-                    setEmployees([]);
-                } else {
-                    setEmployees(getEmployeesList(branch));
-                }
-            })
-            .catch((e) => {
-                setError(e instanceof Error ? e.message : 'Failed to load');
-                setEmployees([]);
-            })
-            .finally(() => setLoading(false));
-    }, [apiToken, branchId]);
+      })
+      .catch((e) => {
+        setError(e instanceof Error ? e.message : 'Failed to load');
+        setEmployees([]);
+      })
+      .finally(() => setLoading(false));
+  }, [apiToken, branchId]);
 
-    const descriptionForEmployee = (emp: BranchEmployee): string => {
-        const bio = (emp as { bio?: string }).bio;
-        return bio?.trim() ?? '';
-    };
+  const descriptionForEmployee = (emp: BranchEmployee): string => {
+    const bio = (emp as { bio?: string }).bio;
+    return bio?.trim() ?? '';
+  };
 
-    const handleSelectSpecialist = async (empId: string) => {
-        setSelectedBarber(empId);
-        if (!apiToken || !branchId) return;
-        const today = new Date();
-        const dateStr = today.toISOString().slice(0, 10); // YYYY-MM-DD
-        try {
-            const response = await getBookingAvailability(apiToken, {
-                employeeId: empId,
-                date: dateStr,
-                branchId,
-            });
-            const fullJson = JSON.stringify(response, null, 2);
-            console.log('[BOOKING AVAILABILITY] Full response:', fullJson);
-            Alert.alert('Availability – full response', fullJson);
-        } catch (e) {
-            console.warn('[BOOKING AVAILABILITY] Error:', e);
-            Alert.alert('Availability error', e instanceof Error ? e.message : 'Request failed');
-        }
-    };
+  const handleSelectSpecialist = async (empId: string) => {
+    setSelectedBarber(empId);
+    if (!apiToken || !branchId) return;
+    const today = new Date();
+    const dateStr = today.toISOString().slice(0, 10); // YYYY-MM-DD
+    try {
+      const response = await getBookingAvailability(apiToken, {
+        employeeId: empId,
+        date: dateStr,
+        branchId,
+      });
+      const fullJson = JSON.stringify(response, null, 2);
+      console.log('[BOOKING AVAILABILITY] Full response:', fullJson);
+      Alert.alert('Availability – full response', fullJson);
+    } catch (e) {
+      console.warn('[BOOKING AVAILABILITY] Error:', e);
+      Alert.alert('Availability error', e instanceof Error ? e.message : 'Request failed');
+    }
+  };
 
-    return (
-        <View className="flex-1 p-4">
-            <Section
-                title={t('checkoutSelectSpecialist')}
-                titleSize="2xl"
-                subtitle={t('checkoutSelectSpecialistSubtitle')}
-                className="mt-4 mb-8"
-            />
-            {loading ? (
-                <View className="py-12 items-center">
-                    <ActivityIndicator size="small" />
-                    <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext mt-2">{t('commonLoading')}</ThemedText>
-                </View>
-            ) : error ? (
-                <ThemedText className="text-sm text-red-600 dark:text-red-400 text-center">{error}</ThemedText>
-            ) : employees.length === 0 ? (
-                <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext text-center">{t('checkoutNoSpecialists')}</ThemedText>
-            ) : (
-                employees
-                    .filter((emp) => emp.isActive !== false)
-                    .map((emp) => (
-                        <Selectable
-                            key={emp.id}
-                            title={emp.name}
-                            description={descriptionForEmployee(emp)}
-                            customIcon={<Avatar size="sm" src={emp.avatarUrl ?? undefined} name={emp.name} />}
-                            selected={selectedBarber === emp.id}
-                            onPress={() => handleSelectSpecialist(emp.id)}
-                            containerClassName="mb-4"
-                        />
-                    ))
-            )}
+  return (
+    <View className="flex-1 p-4">
+      <Section
+        title={t('checkoutSelectSpecialist')}
+        titleSize="2xl"
+        subtitle={t('checkoutSelectSpecialistSubtitle')}
+        className="mb-8 mt-4"
+      />
+      {loading ? (
+        <View className="items-center py-12">
+          <ActivityIndicator size="small" />
+          <ThemedText className="mt-2 text-sm text-light-subtext dark:text-dark-subtext">
+            {t('commonLoading')}
+          </ThemedText>
         </View>
-    );
+      ) : error ? (
+        <ThemedText className="text-center text-sm text-red-600 dark:text-red-400">
+          {error}
+        </ThemedText>
+      ) : employees.length === 0 ? (
+        <ThemedText className="text-center text-sm text-light-subtext dark:text-dark-subtext">
+          {t('checkoutNoSpecialists')}
+        </ThemedText>
+      ) : (
+        employees
+          .filter((emp) => emp.isActive !== false)
+          .map((emp) => (
+            <Selectable
+              key={emp.id}
+              title={emp.name}
+              description={descriptionForEmployee(emp)}
+              customIcon={<Avatar size="sm" src={emp.avatarUrl ?? undefined} name={emp.name} />}
+              selected={selectedBarber === emp.id}
+              onPress={() => handleSelectSpecialist(emp.id)}
+              containerClassName="mb-4"
+            />
+          ))
+      )}
+    </View>
+  );
 };
 
 const PaymentStep = () => {
-    const [selectedPayment, setSelectedPayment] = useState('1');
-    const colors = useThemeColors();
-    const { t } = useTranslation();
-    // Simple mock payment methods
-    const paymentMethods = [
-        { id: '1', type: 'visa', label: 'Visa', lastFour: '4242', expiryDate: '05/25' },
-        { id: '2', type: 'mastercard', label: 'Mastercard', lastFour: '5678', expiryDate: '08/24' },
-    ];
+  const [selectedPayment, setSelectedPayment] = useState('1');
+  const colors = useThemeColors();
+  const { t } = useTranslation();
+  // Simple mock payment methods
+  const paymentMethods = [
+    { id: '1', type: 'visa', label: 'Visa', lastFour: '4242', expiryDate: '05/25' },
+    { id: '2', type: 'mastercard', label: 'Mastercard', lastFour: '5678', expiryDate: '08/24' },
+  ];
 
-    return (
-        <View className="flex-1 p-4">
-            <Section title={t('checkoutPaymentMethod')} titleSize='2xl' subtitle={t('checkoutPaymentSubtitle')} className='mt-4 mb-8' />
-            
-            {paymentMethods.map(method => (
-                <Selectable
-                    key={method.id}
-                    title={`${method.label} ending in ${method.lastFour}`}
-                    description={`Expires ${method.expiryDate}`}
-                    customIcon={<Icon name="CreditCard" size={24} />}
-                    selected={selectedPayment === method.id}
-                    onPress={() => setSelectedPayment(method.id)}
-                    containerClassName="mb-4"
-                />
-            ))}
-            
-            <Selectable
-                title={t('checkoutApplePay')}
-                customIcon={<AntDesign name="apple-o" size={24} color={colors.text} />}
-                description={t('checkoutApplePayDescription')}
-                selected={selectedPayment === 'apple'}
-                onPress={() => setSelectedPayment('apple')}
-                containerClassName="mb-4"
-            />
-            
-            <Selectable
-                title={t('checkoutGooglePay')}
-                customIcon={<AntDesign name="google" size={24} color={colors.text} />}
-                description={t('checkoutGooglePayDescription')}
-                selected={selectedPayment === 'google'}
-                onPress={() => setSelectedPayment('google')}
-                containerClassName='mb-4'
-            />
-            
-            <Button
-                title={t('checkoutAddNewCard')}
-                iconStart="Plus"
-                variant="ghost"
-                className="mb-8"
-                onPress={() => {}}
-            />
-        </View>
-    );
+  return (
+    <View className="flex-1 p-4">
+      <Section
+        title={t('checkoutPaymentMethod')}
+        titleSize="2xl"
+        subtitle={t('checkoutPaymentSubtitle')}
+        className="mb-8 mt-4"
+      />
+
+      {paymentMethods.map((method) => (
+        <Selectable
+          key={method.id}
+          title={`${method.label} ending in ${method.lastFour}`}
+          description={`Expires ${method.expiryDate}`}
+          customIcon={<Icon name="CreditCard" size={24} />}
+          selected={selectedPayment === method.id}
+          onPress={() => setSelectedPayment(method.id)}
+          containerClassName="mb-4"
+        />
+      ))}
+
+      <Selectable
+        title={t('checkoutApplePay')}
+        customIcon={<AntDesign name="apple-o" size={24} color={colors.text} />}
+        description={t('checkoutApplePayDescription')}
+        selected={selectedPayment === 'apple'}
+        onPress={() => setSelectedPayment('apple')}
+        containerClassName="mb-4"
+      />
+
+      <Selectable
+        title={t('checkoutGooglePay')}
+        customIcon={<AntDesign name="google" size={24} color={colors.text} />}
+        description={t('checkoutGooglePayDescription')}
+        selected={selectedPayment === 'google'}
+        onPress={() => setSelectedPayment('google')}
+        containerClassName="mb-4"
+      />
+
+      <Button
+        title={t('checkoutAddNewCard')}
+        iconStart="Plus"
+        variant="ghost"
+        className="mb-8"
+        onPress={() => {}}
+      />
+    </View>
+  );
 };
 
 const ReviewStep = () => {
-    const { t } = useTranslation();
-    return (
+  const { t } = useTranslation();
+  return (
     <ScrollView className="flex-1">
-        <Section title={t('checkoutOrderReview')} titleSize='2xl' subtitle={t('checkoutOrderReviewSubtitle')} className='mt-4 mb-4 px-global' />
-        {/* Service Provider */}
-        <View className="px-global py-7 border-b-8 mb-4 border-light-secondary dark:border-dark-darker">
-            <View className="rounded-lg flex-row items-center">
-                <Image source={require('@/assets/img/wallet/RB.avatar.jpg')} className="w-12 h-12 rounded-full" />
-                <View className="ml-4 flex-1">
-                    <View className="flex-row items-center justify-between flex-1">
-                        <ThemedText className="font-bold text-lg">Sarah Miller</ThemedText>
-                        <ShowRating rating={4.9} />
-                    </View>
-                    <ThemedText className="text-light-subtext dark:text-dark-subtext">Professional Logo Designer</ThemedText>
-
-                </View>
+      <Section
+        title={t('checkoutOrderReview')}
+        titleSize="2xl"
+        subtitle={t('checkoutOrderReviewSubtitle')}
+        className="mb-4 mt-4 px-global"
+      />
+      {/* Service Provider */}
+      <View className="mb-4 border-b-8 border-light-secondary px-global py-7 dark:border-dark-darker">
+        <View className="flex-row items-center rounded-lg">
+          <Image
+            source={require('@/assets/img/wallet/RB.avatar.jpg')}
+            className="h-12 w-12 rounded-full"
+          />
+          <View className="ml-4 flex-1">
+            <View className="flex-1 flex-row items-center justify-between">
+              <ThemedText className="text-lg font-bold">Sarah Miller</ThemedText>
+              <ShowRating rating={4.9} />
             </View>
+            <ThemedText className="text-light-subtext dark:text-dark-subtext">
+              Professional Logo Designer
+            </ThemedText>
+          </View>
         </View>
-        {/* Service Package */}
-        <View className='px-global'>
-            <View className="p-global bg-light-secondary dark:bg-dark-secondary rounded-lg">
-                <View className="flex-row mb-2">
-                    <View className="flex-1">
-                        <View className="flex-row items-center justify-between">
-                            <ThemedText className="font-bold text-lg">I want the earliest available appointment</ThemedText>
-                            <Icon name="Gem" size={24} className="mr-3" />
-                        </View>
-                        <ThemedText className="text-light-subtext dark:text-dark-subtext mt-1">
-                            4 initial concepts {'\n'}
-                            High resolution files {'\n'}
-                            Logo transparency {'\n'}
-                            Source files {'\n'}
-                            Social media kit
-                        </ThemedText>
-                        <ThemedText className="font-bold mt-2">$199.00</ThemedText>
-                    </View>
-                </View>
+      </View>
+      {/* Service Package */}
+      <View className="px-global">
+        <View className="rounded-lg bg-light-secondary p-global dark:bg-dark-secondary">
+          <View className="mb-2 flex-row">
+            <View className="flex-1">
+              <View className="flex-row items-center justify-between">
+                <ThemedText className="text-lg font-bold">
+                  I want the earliest available appointment
+                </ThemedText>
+                <Icon name="Gem" size={24} className="mr-3" />
+              </View>
+              <ThemedText className="mt-1 text-light-subtext dark:text-dark-subtext">
+                4 initial concepts {'\n'}
+                High resolution files {'\n'}
+                Logo transparency {'\n'}
+                Source files {'\n'}
+                Social media kit
+              </ThemedText>
+              <ThemedText className="mt-2 font-bold">$199.00</ThemedText>
             </View>
-
-            {/* Project Requirements */}
-            <View className="p-global bg-light-secondary dark:bg-dark-secondary rounded-lg mt-4">
-                <ThemedText className="text-lg font-bold mb-4">Project Requirements</ThemedText>
-                <View className="">
-                    <View className="flex-row mb-2">
-                        <ThemedText className="font-bold w-1/3">Brand:</ThemedText>
-                        <ThemedText className="flex-1">Horizon Tech</ThemedText>
-                    </View>
-                    <View className="flex-row mb-2">
-                        <ThemedText className="font-bold w-1/3">Industry:</ThemedText>
-                        <ThemedText className="flex-1">Technology</ThemedText>
-                    </View>
-                    <View className="flex-row mb-2">
-                        <ThemedText className="font-bold w-1/3">Style:</ThemedText>
-                        <ThemedText className="flex-1">Modern, Minimalist</ThemedText>
-                    </View>
-                    <View className="flex-row mb-2">
-                        <ThemedText className="font-bold w-1/3">Colors:</ThemedText>
-                        <ThemedText className="flex-1">Blue, White, Gray</ThemedText>
-                    </View>
-                </View>
-            </View>
-
-            {/* Payment Method */}
-            <View className="p-global bg-light-secondary dark:bg-dark-secondary rounded-lg mt-4">
-                <ThemedText className="text-lg font-bold mb-4">Payment Method</ThemedText>
-                <View className="rounded-lg flex-row items-center">
-                    <Icon name="CreditCard" size={24} />
-                    <View className="ml-4">
-                        <ThemedText className="font-bold">Visa ending in 4242</ThemedText>
-                        <ThemedText className="text-light-subtext dark:text-dark-subtext">Expires 12/25</ThemedText>
-                    </View>
-                </View>
-            </View>
-
-            {/* Timeline */}
-            <View className="p-global bg-light-secondary dark:bg-dark-secondary rounded-lg mt-4">
-                <ThemedText className="text-lg font-bold mb-4">Delivery Timeline</ThemedText>
-                <View className="rounded-lg flex-row items-center">
-                    <Icon name="Clock" size={24} />
-                    <View className="ml-4">
-                        <ThemedText className="font-bold">5 business days</ThemedText>
-                        <ThemedText className="text-light-subtext dark:text-dark-subtext">First draft delivery by Dec 20, 2023</ThemedText>
-                    </View>
-                </View>
-            </View>
-
-            {/* Order Summary */}
-            <View className="px-global py-7">
-                <ThemedText className="text-lg font-bold mb-4">Order Summary</ThemedText>
-                <View className=" rounded-lg">
-                    <View className="flex-row justify-between mb-2">
-                        <ThemedText>Service Package</ThemedText>
-                        <ThemedText>$199.00</ThemedText>
-                    </View>
-                    <View className="flex-row justify-between mb-2">
-                        <ThemedText>Platform Fee</ThemedText>
-                        <ThemedText>$19.90</ThemedText>
-                    </View>
-                    <View className="h-[1px] bg-light-secondary dark:bg-dark-secondary my-4" />
-                    <View className="flex-row justify-between mb-10">
-                        <ThemedText className="font-bold text-lg">Total</ThemedText>
-                        <ThemedText className="font-bold text-lg">$218.90</ThemedText>
-                    </View>
-                </View>
-            </View>
+          </View>
         </View>
+
+        {/* Project Requirements */}
+        <View className="mt-4 rounded-lg bg-light-secondary p-global dark:bg-dark-secondary">
+          <ThemedText className="mb-4 text-lg font-bold">Project Requirements</ThemedText>
+          <View className="">
+            <View className="mb-2 flex-row">
+              <ThemedText className="w-1/3 font-bold">Brand:</ThemedText>
+              <ThemedText className="flex-1">Horizon Tech</ThemedText>
+            </View>
+            <View className="mb-2 flex-row">
+              <ThemedText className="w-1/3 font-bold">Industry:</ThemedText>
+              <ThemedText className="flex-1">Technology</ThemedText>
+            </View>
+            <View className="mb-2 flex-row">
+              <ThemedText className="w-1/3 font-bold">Style:</ThemedText>
+              <ThemedText className="flex-1">Modern, Minimalist</ThemedText>
+            </View>
+            <View className="mb-2 flex-row">
+              <ThemedText className="w-1/3 font-bold">Colors:</ThemedText>
+              <ThemedText className="flex-1">Blue, White, Gray</ThemedText>
+            </View>
+          </View>
+        </View>
+
+        {/* Payment Method */}
+        <View className="mt-4 rounded-lg bg-light-secondary p-global dark:bg-dark-secondary">
+          <ThemedText className="mb-4 text-lg font-bold">Payment Method</ThemedText>
+          <View className="flex-row items-center rounded-lg">
+            <Icon name="CreditCard" size={24} />
+            <View className="ml-4">
+              <ThemedText className="font-bold">Visa ending in 4242</ThemedText>
+              <ThemedText className="text-light-subtext dark:text-dark-subtext">
+                Expires 12/25
+              </ThemedText>
+            </View>
+          </View>
+        </View>
+
+        {/* Timeline */}
+        <View className="mt-4 rounded-lg bg-light-secondary p-global dark:bg-dark-secondary">
+          <ThemedText className="mb-4 text-lg font-bold">Delivery Timeline</ThemedText>
+          <View className="flex-row items-center rounded-lg">
+            <Icon name="Clock" size={24} />
+            <View className="ml-4">
+              <ThemedText className="font-bold">5 business days</ThemedText>
+              <ThemedText className="text-light-subtext dark:text-dark-subtext">
+                First draft delivery by Dec 20, 2023
+              </ThemedText>
+            </View>
+          </View>
+        </View>
+
+        {/* Order Summary */}
+        <View className="px-global py-7">
+          <ThemedText className="mb-4 text-lg font-bold">Order Summary</ThemedText>
+          <View className=" rounded-lg">
+            <View className="mb-2 flex-row justify-between">
+              <ThemedText>Service Package</ThemedText>
+              <ThemedText>$199.00</ThemedText>
+            </View>
+            <View className="mb-2 flex-row justify-between">
+              <ThemedText>Platform Fee</ThemedText>
+              <ThemedText>$19.90</ThemedText>
+            </View>
+            <View className="my-4 h-[1px] bg-light-secondary dark:bg-dark-secondary" />
+            <View className="mb-10 flex-row justify-between">
+              <ThemedText className="text-lg font-bold">Total</ThemedText>
+              <ThemedText className="text-lg font-bold">$218.90</ThemedText>
+            </View>
+          </View>
+        </View>
+      </View>
     </ScrollView>
-    );
+  );
 };
 
 const CheckoutScreen = () => {
-    const router = useRouter();
-    const { t } = useTranslation();
-    const [currentStep, setCurrentStep] = useState(0);
+  const router = useRouter();
+  const { t } = useTranslation();
+  const [currentStep, setCurrentStep] = useState(0);
 
-    return (
-        <>
-            <MultiStep
-                onComplete={() => router.push('/screens/order-detail?id=1&fromCheckout=true')}
-                onClose={() => router.back()}
-                showHeader={true}
-                showStepIndicator={false}
-                onStepChange={(nextStep) => {
-                    setCurrentStep(nextStep);
-                    return true;
-                }}
-            >
-                <Step title={t('checkoutProjectDetails')}>
-                    <ProjectDetailsStep />
-                </Step>
+  return (
+    <>
+      <MultiStep
+        onComplete={() => router.push('/screens/order-detail?id=1&fromCheckout=true')}
+        onClose={() => router.back()}
+        showHeader
+        showStepIndicator={false}
+        onStepChange={(nextStep) => {
+          setCurrentStep(nextStep);
+          return true;
+        }}>
+        <Step title={t('checkoutProjectDetails')}>
+          <ProjectDetailsStep />
+        </Step>
 
-                <Step title={t('checkoutSelectSpecialist')}>
-                    <SelectSpecialistStep />
-                </Step>
+        <Step title={t('checkoutSelectSpecialist')}>
+          <SelectSpecialistStep />
+        </Step>
 
-                <Step title={t('checkoutPayment')}>
-                    <PaymentStep />
-                </Step>
+        <Step title={t('checkoutPayment')}>
+          <PaymentStep />
+        </Step>
 
-                <Step title={t('checkoutReview')}>
-                    <ReviewStep />
-                </Step>
-            </MultiStep>
-        </>
-    );
+        <Step title={t('checkoutReview')}>
+          <ReviewStep />
+        </Step>
+      </MultiStep>
+    </>
+  );
 };
 
 export default CheckoutScreen;

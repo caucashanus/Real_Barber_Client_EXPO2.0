@@ -1,17 +1,22 @@
+import { router } from 'expo-router';
 import React from 'react';
 import { View, Image, Pressable } from 'react-native';
-import { router } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import ThemedText from '@/components/ThemedText';
-import { Button } from '@/components/Button';
+
 import { useTranslation } from '@/app/hooks/useTranslation';
+import { Button } from '@/components/Button';
+import ThemedText from '@/components/ThemedText';
 
 const GUIDE_STEP_IMAGES = [
   require('@/assets/img/guide-step-1.png'),
   require('@/assets/img/guide-step-2.jpg'),
   require('@/assets/img/guide-step-3.jpg'),
 ];
-const GUIDE_STEP_KEYS = ['guideMyHaircutsStep1', 'guideMyHaircutsStep2', 'guideMyHaircutsStep3'] as const;
+const GUIDE_STEP_KEYS = [
+  'guideMyHaircutsStep1',
+  'guideMyHaircutsStep2',
+  'guideMyHaircutsStep3',
+] as const;
 
 export default function GuideMyHaircutsScreen() {
   const insets = useSafeAreaInsets();
@@ -20,7 +25,8 @@ export default function GuideMyHaircutsScreen() {
   const isLastStep = step === GUIDE_STEP_KEYS.length - 1;
   const stepImage = GUIDE_STEP_IMAGES[step];
   const stepTextKey = GUIDE_STEP_KEYS[step];
-  const current = stepImage && stepTextKey ? { image: stepImage, buttonText: t(stepTextKey) } : null;
+  const current =
+    stepImage && stepTextKey ? { image: stepImage, buttonText: t(stepTextKey) } : null;
 
   const onButtonPress = () => {
     if (isLastStep) {
@@ -37,7 +43,7 @@ export default function GuideMyHaircutsScreen() {
       <Pressable className="flex-1" onPress={onButtonPress}>
         <Image
           source={current.image}
-          className="w-full h-full"
+          className="h-full w-full"
           resizeMode="cover"
           accessibilityLabel={`Guide step ${step + 1}`}
         />
@@ -47,9 +53,8 @@ export default function GuideMyHaircutsScreen() {
         style={{
           paddingBottom: insets.bottom + 24,
           backgroundColor: 'rgba(0,0,0,0.55)',
-        }}
-      >
-        <ThemedText className="text-sm text-center text-white mt-1 px-2">
+        }}>
+        <ThemedText className="mt-1 px-2 text-center text-sm text-white">
           {current.buttonText}
         </ThemedText>
         <Button

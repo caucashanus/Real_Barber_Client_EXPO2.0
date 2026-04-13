@@ -1,11 +1,12 @@
 import React, { useMemo } from 'react';
 import { View, Image } from 'react-native';
-import ThemedText from '@/components/ThemedText';
-import Icon from '@/components/Icon';
-import Avatar from '@/components/Avatar';
+
+import type { Booking } from '@/api/bookings';
 import { useLanguage } from '@/app/contexts/LanguageContext';
 import { useTranslation } from '@/app/hooks/useTranslation';
-import type { Booking } from '@/api/bookings';
+import Avatar from '@/components/Avatar';
+import Icon from '@/components/Icon';
+import ThemedText from '@/components/ThemedText';
 
 interface CurrentBookingCardProps {
   booking: Booking;
@@ -28,23 +29,23 @@ export default function CurrentBookingCard({ booking }: CurrentBookingCardProps)
   }, [booking.date, dateLocaleTag]);
 
   return (
-    <View className="mt-2 rounded-2xl border border-neutral-200 dark:border-neutral-700 bg-light-secondary dark:bg-dark-secondary overflow-hidden">
-      <View className="p-4 gap-4">
+    <View className="mt-2 overflow-hidden rounded-2xl border border-neutral-200 bg-light-secondary dark:border-neutral-700 dark:bg-dark-secondary">
+      <View className="gap-4 p-4">
         <View>
-          <ThemedText className="text-xs font-semibold uppercase tracking-wide text-light-subtext dark:text-dark-subtext mb-1.5">
+          <ThemedText className="mb-1.5 text-xs font-semibold uppercase tracking-wide text-light-subtext dark:text-dark-subtext">
             {t('reservationSummaryBranch')}
           </ThemedText>
           <ThemedText className="text-lg font-bold text-light-text dark:text-dark-text">
             {booking.branch?.name ?? '—'}
           </ThemedText>
           {booking.branch?.address ? (
-            <View className="flex-row items-start mt-2">
+            <View className="mt-2 flex-row items-start">
               <Icon
                 name="MapPin"
                 size={16}
-                className="mr-2 mt-0.5 text-light-subtext dark:text-dark-subtext shrink-0"
+                className="mr-2 mt-0.5 shrink-0 text-light-subtext dark:text-dark-subtext"
               />
-              <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext flex-1 leading-5">
+              <ThemedText className="flex-1 text-sm leading-5 text-light-subtext dark:text-dark-subtext">
                 {booking.branch.address}
               </ThemedText>
             </View>
@@ -54,23 +55,31 @@ export default function CurrentBookingCard({ booking }: CurrentBookingCardProps)
         <View className="h-px bg-neutral-200 dark:bg-neutral-700" />
 
         <View>
-          <ThemedText className="text-xs font-semibold uppercase tracking-wide text-light-subtext dark:text-dark-subtext mb-2">
+          <ThemedText className="mb-2 text-xs font-semibold uppercase tracking-wide text-light-subtext dark:text-dark-subtext">
             {t('bookingInCareOf')}
           </ThemedText>
           <View className="flex-row items-center">
-            <Avatar size="md" src={booking.employee?.avatarUrl ?? undefined} name={booking.employee?.name} />
-            <View className="ml-3 flex-1 min-w-0">
-              <ThemedText className="text-base font-semibold text-light-text dark:text-dark-text" numberOfLines={1}>
+            <Avatar
+              size="md"
+              src={booking.employee?.avatarUrl ?? undefined}
+              name={booking.employee?.name}
+            />
+            <View className="ml-3 min-w-0 flex-1">
+              <ThemedText
+                className="text-base font-semibold text-light-text dark:text-dark-text"
+                numberOfLines={1}>
                 {booking.employee?.name ?? '—'}
               </ThemedText>
-              <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext mt-1" numberOfLines={2}>
+              <ThemedText
+                className="mt-1 text-sm text-light-subtext dark:text-dark-subtext"
+                numberOfLines={2}>
                 {booking.item?.name ?? '—'}
               </ThemedText>
             </View>
             {booking.item?.imageUrl ? (
               <Image
                 source={{ uri: booking.item.imageUrl }}
-                className="w-14 h-14 rounded-xl ml-2 shrink-0"
+                className="ml-2 h-14 w-14 shrink-0 rounded-xl"
                 resizeMode="cover"
               />
             ) : null}
@@ -79,30 +88,30 @@ export default function CurrentBookingCard({ booking }: CurrentBookingCardProps)
 
         <View className="h-px bg-neutral-200 dark:bg-neutral-700" />
 
-        <View className="rounded-xl bg-light-primary/60 dark:bg-dark-darker/40 border border-dashed border-neutral-300 dark:border-neutral-600 p-3">
-          <ThemedText className="text-xs font-semibold uppercase tracking-wide text-light-subtext dark:text-dark-subtext mb-1">
+        <View className="rounded-xl border border-dashed border-neutral-300 bg-light-primary/60 p-3 dark:border-neutral-600 dark:bg-dark-darker/40">
+          <ThemedText className="mb-1 text-xs font-semibold uppercase tracking-wide text-light-subtext dark:text-dark-subtext">
             {t('rescheduleCurrentTimeHeading')}
           </ThemedText>
-          <ThemedText className="text-xs text-light-subtext dark:text-dark-subtext leading-5 mb-3">
+          <ThemedText className="mb-3 text-xs leading-5 text-light-subtext dark:text-dark-subtext">
             {t('rescheduleCurrentTimeHint')}
           </ThemedText>
-          <ThemedText className="text-base font-semibold text-light-subtext dark:text-dark-subtext line-through decoration-2 decoration-neutral-400 dark:decoration-neutral-500 mb-2">
+          <ThemedText className="mb-2 text-base font-semibold text-light-subtext line-through decoration-neutral-400 decoration-2 dark:text-dark-subtext dark:decoration-neutral-500">
             {dateLabel}
           </ThemedText>
-          <View className="flex-row items-center justify-between rounded-lg bg-light-secondary/80 dark:bg-dark-secondary/80 border border-neutral-200/80 dark:border-neutral-600/80 p-3">
+          <View className="flex-row items-center justify-between rounded-lg border border-neutral-200/80 bg-light-secondary/80 p-3 dark:border-neutral-600/80 dark:bg-dark-secondary/80">
             <View>
-              <ThemedText className="text-xs text-light-subtext dark:text-dark-subtext opacity-80">
+              <ThemedText className="text-xs text-light-subtext opacity-80 dark:text-dark-subtext">
                 {t('reservationSummaryFrom')}
               </ThemedText>
-              <ThemedText className="text-base font-semibold text-light-subtext dark:text-dark-subtext line-through decoration-2 decoration-neutral-400 dark:decoration-neutral-500">
+              <ThemedText className="text-base font-semibold text-light-subtext line-through decoration-neutral-400 decoration-2 dark:text-dark-subtext dark:decoration-neutral-500">
                 {booking.slotStart ?? '—'}
               </ThemedText>
             </View>
             <View className="items-end">
-              <ThemedText className="text-xs text-light-subtext dark:text-dark-subtext opacity-80">
+              <ThemedText className="text-xs text-light-subtext opacity-80 dark:text-dark-subtext">
                 {t('reservationSummaryTo')}
               </ThemedText>
-              <ThemedText className="text-base font-semibold text-light-subtext dark:text-dark-subtext line-through decoration-2 decoration-neutral-400 dark:decoration-neutral-500">
+              <ThemedText className="text-base font-semibold text-light-subtext line-through decoration-neutral-400 decoration-2 dark:text-dark-subtext dark:decoration-neutral-500">
                 {booking.slotEnd ?? '—'}
               </ThemedText>
             </View>

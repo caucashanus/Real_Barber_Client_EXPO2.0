@@ -1,5 +1,5 @@
-import { Platform } from 'react-native';
 import Constants from 'expo-constants';
+import { Platform } from 'react-native';
 
 const CRM_BASE = 'https://crm.xrb.cz';
 
@@ -122,16 +122,14 @@ export async function verifyClientOtp(phone: string, otpCode: string): Promise<O
       verified: true,
       requiresRegistration: true,
       registrationToken: String(json.registrationToken ?? ''),
-      expiresInSeconds: typeof json.expiresInSeconds === 'number' ? json.expiresInSeconds : undefined,
+      expiresInSeconds:
+        typeof json.expiresInSeconds === 'number' ? json.expiresInSeconds : undefined,
     };
   }
   return json as unknown as LoginResponse;
 }
 
-export async function loginWithPhone(
-  phone: string,
-  password: string
-): Promise<LoginResponse> {
+export async function loginWithPhone(phone: string, password: string): Promise<LoginResponse> {
   const platform = Platform.OS as string;
   const appVersion = Constants.expoConfig?.version ?? '1.0.0';
 

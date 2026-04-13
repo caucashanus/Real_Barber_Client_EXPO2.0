@@ -1,4 +1,5 @@
 import { View, Pressable, Text } from 'react-native';
+
 import { useLanguage } from '@/app/contexts/LanguageContext';
 import { useTranslation } from '@/app/hooks/useTranslation';
 import AnimatedView from '@/components/AnimatedView';

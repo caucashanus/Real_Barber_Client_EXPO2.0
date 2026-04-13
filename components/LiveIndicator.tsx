@@ -11,7 +11,11 @@ interface LiveIndicatorProps {
   animated?: boolean;
 }
 
-const LiveIndicator = ({ variant = 'green', size = 'default', animated = true }: LiveIndicatorProps) => {
+const LiveIndicator = ({
+  variant = 'green',
+  size = 'default',
+  animated = true,
+}: LiveIndicatorProps) => {
   const opacity = useRef(new Animated.Value(1)).current;
   useEffect(() => {
     if (!animated) return;
@@ -24,22 +28,18 @@ const LiveIndicator = ({ variant = 'green', size = 'default', animated = true }:
     blink.start();
     return () => blink.stop();
   }, [opacity, animated]);
-  const colorClass = variant === 'red'
-    ? 'bg-gray-400 dark:bg-gray-500'
-    : variant === 'orange'
-      ? 'bg-amber-500 dark:bg-amber-400'
-      : 'bg-emerald-500 dark:bg-emerald-400';
+  const colorClass =
+    variant === 'red'
+      ? 'bg-gray-400 dark:bg-gray-500'
+      : variant === 'orange'
+        ? 'bg-amber-500 dark:bg-amber-400'
+        : 'bg-emerald-500 dark:bg-emerald-400';
   const sizeClass = size === 'sm' ? 'w-2 h-2' : size === 'lg' ? 'w-4 h-4' : 'w-3 h-3';
   const className = `rounded-full ${sizeClass} ${colorClass}`;
   if (!animated) {
     return <View className={className} />;
   }
-  return (
-    <Animated.View
-      style={{ opacity }}
-      className={className}
-    />
-  );
+  return <Animated.View style={{ opacity }} className={className} />;
 };
 
 export default LiveIndicator;

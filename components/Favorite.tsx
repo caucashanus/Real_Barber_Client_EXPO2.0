@@ -1,21 +1,23 @@
+import { router } from 'expo-router';
 import React, { useState, useRef, useEffect } from 'react';
 import { Pressable, View } from 'react-native';
-import Icon from './Icon';
-import { Button } from './Button';
-import { useThemeColors } from '@/app/contexts/ThemeColors';
-import ActionSheetThemed from './ActionSheetThemed';
 import { ActionSheetRef } from 'react-native-actions-sheet';
+
+import ActionSheetThemed from './ActionSheetThemed';
+import { Button } from './Button';
+import Icon from './Icon';
 import ThemedText from './ThemedText';
-import { router } from 'expo-router';
-import { useAuth } from '@/app/contexts/AuthContext';
-import { useTranslation } from '@/app/hooks/useTranslation';
-import { useFavoritesSync } from '@/app/contexts/FavoritesSyncContext';
+
 import {
   getFavorites,
   addFavorite,
   deleteFavorite,
   type FavoriteEntityType,
 } from '@/api/favorites';
+import { useAuth } from '@/app/contexts/AuthContext';
+import { useFavoritesSync } from '@/app/contexts/FavoritesSyncContext';
+import { useThemeColors } from '@/app/contexts/ThemeColors';
+import { useTranslation } from '@/app/hooks/useTranslation';
 
 interface FavoriteProps {
   initialState?: boolean;
@@ -66,7 +68,9 @@ const Favorite: React.FC<FavoriteProps> = ({
         }
       })
       .catch(() => {});
-    return () => { cancelled = true; };
+    return () => {
+      cancelled = true;
+    };
   }, [useApi, apiToken, entityType, entityId, favoritesVersion]);
 
   const handleToggle = async () => {
@@ -133,20 +137,16 @@ const Favorite: React.FC<FavoriteProps> = ({
         )}
       </Pressable>
 
-      <ActionSheetThemed
-        ref={actionSheetRef}
-        gestureEnabled
-      >
+      <ActionSheetThemed ref={actionSheetRef} gestureEnabled>
         <View className="p-4 pb-6">
-          <ThemedText className="text-lg font-bold mt-4 mb-1 text-left">
+          <ThemedText className="mb-1 mt-4 text-left text-lg font-bold">
             {isFavorite ? t('favoritesSheetTitleAdded') : t('favoritesSheetTitleRemoved')}
           </ThemedText>
 
-          <ThemedText className="text-left mb-6">
+          <ThemedText className="mb-6 text-left">
             {isFavorite
               ? `${displayTitle} ${t('favoritesSheetMessageAdded')}`
-              : `${displayTitle} ${t('favoritesSheetMessageRemoved')}`
-            }
+              : `${displayTitle} ${t('favoritesSheetMessageRemoved')}`}
           </ThemedText>
 
           <View className="w-full flex-col gap-3">
@@ -171,4 +171,4 @@ const Favorite: React.FC<FavoriteProps> = ({
   );
 };
 
-export default Favorite; 
+export default Favorite;

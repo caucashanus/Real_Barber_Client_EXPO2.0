@@ -1,13 +1,14 @@
+import { router, useLocalSearchParams } from 'expo-router';
 import React, { useEffect, useMemo, useState } from 'react';
 import { View, Keyboard, TouchableWithoutFeedback, Pressable } from 'react-native';
-import { router, useLocalSearchParams } from 'expo-router';
-import Input from '@/components/forms/Input';
-import ThemedText from '@/components/ThemedText';
-import { Button } from '@/components/Button';
-import Header from '@/components/Header';
+
 import { requestClientOtp, verifyClientOtp } from '@/api/auth';
 import { useAuth } from '@/app/contexts/AuthContext';
 import { useTranslation } from '@/app/hooks/useTranslation';
+import { Button } from '@/components/Button';
+import Header from '@/components/Header';
+import ThemedText from '@/components/ThemedText';
+import Input from '@/components/forms/Input';
 
 function paramString(v: string | string[] | undefined): string {
   if (v === undefined) return '';
@@ -17,7 +18,12 @@ function paramString(v: string | string[] | undefined): string {
 export default function LoginOtpScreen() {
   const { t } = useTranslation();
   const { setAuth } = useAuth();
-  const params = useLocalSearchParams<{ phone?: string | string[]; displayName?: string | string[]; expiresIn?: string | string[]; requiresRegistration?: string | string[] }>();
+  const params = useLocalSearchParams<{
+    phone?: string | string[];
+    displayName?: string | string[];
+    expiresIn?: string | string[];
+    requiresRegistration?: string | string[];
+  }>();
 
   const phone = paramString(params.phone);
   const displayNameFromParams = paramString(params.displayName).trim();
@@ -138,14 +144,14 @@ export default function LoginOtpScreen() {
     <>
       <Header showBackButton />
       <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
-        <View className="flex-1 bg-light-primary dark:bg-dark-primary p-6">
+        <View className="flex-1 bg-light-primary p-6 dark:bg-dark-primary">
           <View className="mt-8">
-            <ThemedText className="text-3xl font-bold text-light-text dark:text-dark-text mb-3">
+            <ThemedText className="mb-3 text-3xl font-bold text-light-text dark:text-dark-text">
               {welcomeName
                 ? t('loginOtpGreetingWithName').replace('{name}', welcomeName)
                 : t('loginOtpGreetingNoName')}
             </ThemedText>
-            <ThemedText className="text-light-subtext dark:text-dark-subtext mb-6">
+            <ThemedText className="mb-6 text-light-subtext dark:text-dark-subtext">
               {t('loginOtpSubtitle').replace('{minutes}', String(minutesLabel))}
             </ThemedText>
 
@@ -164,7 +170,9 @@ export default function LoginOtpScreen() {
             />
 
             {apiError ? (
-              <ThemedText className="text-red-500 dark:text-red-400 text-sm mb-4">{apiError}</ThemedText>
+              <ThemedText className="mb-4 text-sm text-red-500 dark:text-red-400">
+                {apiError}
+              </ThemedText>
             ) : null}
 
             <Button
@@ -191,7 +199,7 @@ export default function LoginOtpScreen() {
             />
 
             <Pressable onPress={() => router.replace('/screens/login')} className="self-center">
-              <ThemedText className="text-center text-light-subtext dark:text-dark-subtext underline">
+              <ThemedText className="text-center text-light-subtext underline dark:text-dark-subtext">
                 {t('loginOtpChangePhone')}
               </ThemedText>
             </Pressable>

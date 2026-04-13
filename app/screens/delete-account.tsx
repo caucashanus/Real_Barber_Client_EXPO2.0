@@ -1,6 +1,6 @@
+import { router } from 'expo-router';
 import React, { useRef, useState } from 'react';
 import { Alert, View } from 'react-native';
-import { router } from 'expo-router';
 import { ActionSheetRef } from 'react-native-actions-sheet';
 
 import { deleteClientAccount } from '@/api/client';
@@ -45,13 +45,13 @@ export default function DeleteAccountScreen() {
       <ThemedScroller>
         <Section
           titleSize="3xl"
-          className="px-4 pt-4 pb-6"
+          className="px-4 pb-6 pt-4"
           title={t('settingsDeleteAccount')}
           subtitle={t('settingsDeleteAccountSectionDesc')}
         />
 
         <View className="px-4 pb-4">
-          <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext leading-6">
+          <ThemedText className="text-sm leading-6 text-light-subtext dark:text-dark-subtext">
             {t('settingsDeleteAccountConfirmMessage')}
           </ThemedText>
         </View>

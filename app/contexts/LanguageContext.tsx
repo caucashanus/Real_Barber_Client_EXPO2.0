@@ -1,5 +1,5 @@
-import React, { createContext, useCallback, useContext, useEffect, useState } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import React, { createContext, useCallback, useContext, useEffect, useState } from 'react';
 
 const LOCALE_KEY = '@app_locale';
 
@@ -46,11 +46,7 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
 
   const value: LanguageContextType = { locale, setLocale, toggleLocale };
 
-  return (
-    <LanguageContext.Provider value={value}>
-      {children}
-    </LanguageContext.Provider>
-  );
+  return <LanguageContext.Provider value={value}>{children}</LanguageContext.Provider>;
 }
 
 export function useLanguage() {

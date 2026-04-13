@@ -47,10 +47,30 @@ export interface GetClientCutsOptions {
 }
 
 export interface GetClientCutsResponse {
-  client: { id: string; name: string; firstName?: string; lastName?: string; email?: string; phone?: string; avatarUrl?: string | null };
+  client: {
+    id: string;
+    name: string;
+    firstName?: string;
+    lastName?: string;
+    email?: string;
+    phone?: string;
+    avatarUrl?: string | null;
+  };
   cuts: ClientCut[];
-  stats?: { totalCuts: number; cutsWithPhotos: number; cutsWithoutPhotos: number; totalPhotos: number };
-  pagination?: { limit: number; offset: number; total: number; hasMore: boolean; currentPage: number; totalPages: number };
+  stats?: {
+    totalCuts: number;
+    cutsWithPhotos: number;
+    cutsWithoutPhotos: number;
+    totalPhotos: number;
+  };
+  pagination?: {
+    limit: number;
+    offset: number;
+    total: number;
+    hasMore: boolean;
+    currentPage: number;
+    totalPages: number;
+  };
 }
 
 /** GET /api/client/cuts – list all haircuts for the current client. */
@@ -275,7 +295,10 @@ export async function patchClientCut(
 }
 
 /** DELETE /api/client/cuts/[id] – delete a haircut. */
-export async function deleteClientCut(apiToken: string, id: string): Promise<{ message: string; deletedPhotos?: number }> {
+export async function deleteClientCut(
+  apiToken: string,
+  id: string
+): Promise<{ message: string; deletedPhotos?: number }> {
   const res = await fetch(`${CRM_BASE}/api/client/cuts/${id}`, {
     method: 'DELETE',
     headers: { Authorization: `Bearer ${apiToken}` },

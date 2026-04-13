@@ -1,7 +1,8 @@
 import React, { createContext, useCallback, useContext, useEffect, useState } from 'react';
+
+import { getBookings } from '@/api/bookings';
 import { useAuth } from '@/app/contexts/AuthContext';
 import { useBusinessMode } from '@/app/contexts/BusinesModeContext';
-import { getBookings } from '@/api/bookings';
 import { isBookingUpcoming } from '@/utils/bookingHelpers';
 
 type BookingsBadgeContextType = {

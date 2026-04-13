@@ -1,10 +1,11 @@
+import { router } from 'expo-router';
 import React from 'react';
 import { View } from 'react-native';
-import { router } from 'expo-router';
-import ThemedText from '@/components/ThemedText';
+
+import { useTranslation } from '@/app/hooks/useTranslation';
 import { Button } from '@/components/Button';
 import Icon from '@/components/Icon';
-import { useTranslation } from '@/app/hooks/useTranslation';
+import ThemedText from '@/components/ThemedText';
 
 export default function NotificationPermissionScreen() {
   const { t } = useTranslation();
@@ -13,22 +14,19 @@ export default function NotificationPermissionScreen() {
   };
 
   return (
-    <View className="flex-1 bg-light-primary dark:bg-dark-primary p-6">
+    <View className="flex-1 bg-light-primary p-6 dark:bg-dark-primary">
       <View className="flex-1 items-center justify-center">
         <Icon name="BellDot" size={80} strokeWidth={0.7} />
-        <ThemedText className="text-3xl font-bold text-center mb-4 mt-8">
+        <ThemedText className="mb-4 mt-8 text-center text-3xl font-bold">
           {t('permissionAllowNotifications')}
         </ThemedText>
-        <ThemedText className="text-light-subtext dark:text-dark-subtext text-center mb-12">
+        <ThemedText className="mb-12 text-center text-light-subtext dark:text-dark-subtext">
           Stay updated with property alerts, messages, and important updates
         </ThemedText>
       </View>
-      
+
       <View className="gap-1">
-        <Button
-          title={t('permissionAllowNotifications')}
-          size="large"
-        />
+        <Button title={t('permissionAllowNotifications')} size="large" />
         <Button
           title={t('permissionSkipForNow')}
           onPress={handleSkip}

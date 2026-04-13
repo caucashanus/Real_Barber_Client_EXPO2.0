@@ -53,7 +53,9 @@ function normalizeSettings(data: CommunicationSettingsResponse): CommunicationSe
 }
 
 /** GET /api/client/communication-settings */
-export async function getCommunicationSettings(apiToken: string): Promise<CommunicationSettingsResponse> {
+export async function getCommunicationSettings(
+  apiToken: string
+): Promise<CommunicationSettingsResponse> {
   const res = await fetch(`${CRM_BASE}/api/client/communication-settings`, {
     method: 'GET',
     headers: { Authorization: `Bearer ${apiToken}` },

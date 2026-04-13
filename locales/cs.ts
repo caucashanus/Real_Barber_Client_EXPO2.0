@@ -42,8 +42,10 @@ export const cs: Record<TranslationKey, string> = {
   settingsDeleteAccountReasonPlaceholder: 'Volitelný důvod (pomůže nám se zlepšit)',
   settingsDeleteAccountReasonNoNeed: 'Aplikaci už nepotřebuji',
   settingsDeleteAccountReasonPrivacy: 'Obavy o soukromí',
-  settingsDeleteAccountReasonBranchService: 'Nejsem spokojený/á se službami na vašich provozovnách.',
-  settingsDeleteAccountReasonAppButClient: 'Nejsem spokojený/á s fungováním aplikace, ale vaším klientem zůstávám.',
+  settingsDeleteAccountReasonBranchService:
+    'Nejsem spokojený/á se službami na vašich provozovnách.',
+  settingsDeleteAccountReasonAppButClient:
+    'Nejsem spokojený/á s fungováním aplikace, ale vaším klientem zůstávám.',
   settingsDeleteAccountReasonOther: 'Jiný důvod',
   settingsDeleteAccountConfirm: 'Smazat natrvalo',
   settingsDeleteAccountCancel: 'Ponechat účet',
@@ -206,8 +208,7 @@ export const cs: Record<TranslationKey, string> = {
   helpTitle: 'Nápověda a podpora',
   helpFaq: 'Časté dotazy',
   helpContactUs: 'Kontaktujte nás',
-  helpContactSubtitle:
-    'Jsme tu kvůli rezervacím, pobočkám, barberům a čemukoli v aplikaci',
+  helpContactSubtitle: 'Jsme tu kvůli rezervacím, pobočkám, barberům a čemukoli v aplikaci',
   helpContactSupport: 'Kontaktovat podporu',
   helpContactEmailType: 'Podpora e-mailem',
   helpContactEmailValue: 'info@realbarber.cz',
@@ -1011,8 +1012,7 @@ export const cs: Record<TranslationKey, string> = {
   addPropertyStylingDifficulty: 'Náročnost stylingu a holič',
   addPropertyHowDemanding: 'Jak náročný je účes na styling a kdo vám ho dělal?',
   addPropertyCongratulations: 'Gratulujeme!',
-  addPropertySuccessMessage:
-    'Už jen krůček, klikni na Dokončit a prohlédni si svůj účes.',
+  addPropertySuccessMessage: 'Už jen krůček, klikni na Dokončit a prohlédni si svůj účes.',
   addPropertyCutSaveFailed: 'Účes se nepodařilo uložit. Zkuste to prosím znovu.',
   addPropertyLoginRequired: 'Pro uložení účesu se prosím přihlaste.',
   addPropertyEasyTitle: 'Přidat účes je snadné',

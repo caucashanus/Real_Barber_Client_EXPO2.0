@@ -1,18 +1,18 @@
-import React, { useEffect, useRef } from 'react';
-import { View, StyleSheet, Dimensions, Alert, Animated } from 'react-native';
-import { useRouter, useLocalSearchParams } from 'expo-router';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Image } from 'expo-image';
 import { LinearGradient } from 'expo-linear-gradient';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useRouter, useLocalSearchParams } from 'expo-router';
+import React, { useEffect, useRef } from 'react';
+import { View, StyleSheet, Dimensions, Alert, Animated } from 'react-native';
 
-import Header from '@/components/Header';
-import ThemedScroller from '@/components/ThemeScroller';
-import ThemedText from '@/components/ThemedText';
-import { Button } from '@/components/Button';
-import { cardDesigns, RBC_SELECTED_CARD_KEY, type CardDesign } from '@/constants/card-designs';
 import { useAuth } from '@/app/contexts/AuthContext';
 import { useTranslation } from '@/app/hooks/useTranslation';
+import { Button } from '@/components/Button';
+import Header from '@/components/Header';
 import RBLogo from '@/components/RBLogo';
+import ThemedScroller from '@/components/ThemeScroller';
+import ThemedText from '@/components/ThemedText';
+import { cardDesigns, RBC_SELECTED_CARD_KEY, type CardDesign } from '@/constants/card-designs';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 const CARD_ASPECT_RATIO = 1.625;
@@ -72,9 +72,16 @@ export default function CardDesignDetailScreen() {
     return (
       <>
         <Header showBackButton />
-        <View className="flex-1 items-center justify-center px-6 bg-light-primary dark:bg-dark-primary">
-          <ThemedText className="text-base text-light-subtext dark:text-dark-subtext text-center">Design not found.</ThemedText>
-          <Button title={t('rbcBack')} onPress={() => router.back()} className="mt-4" variant="outline" />
+        <View className="flex-1 items-center justify-center bg-light-primary px-6 dark:bg-dark-primary">
+          <ThemedText className="text-center text-base text-light-subtext dark:text-dark-subtext">
+            Design not found.
+          </ThemedText>
+          <Button
+            title={t('rbcBack')}
+            onPress={() => router.back()}
+            className="mt-4"
+            variant="outline"
+          />
         </View>
       </>
     );
@@ -121,10 +128,12 @@ export default function CardDesignDetailScreen() {
     <>
       <Header showBackButton />
       <ThemedScroller className="flex-1 bg-light-primary dark:bg-dark-primary">
-        <View className="px-6 pt-4 pb-8">
-          <View className="items-center mb-6">
-            <ThemedText className="text-xl font-semibold text-light-text dark:text-dark-text">{design.name}</ThemedText>
-            <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext mt-1 text-center max-w-xs">
+        <View className="px-6 pb-8 pt-4">
+          <View className="mb-6 items-center">
+            <ThemedText className="text-xl font-semibold text-light-text dark:text-dark-text">
+              {design.name}
+            </ThemedText>
+            <ThemedText className="mt-1 max-w-xs text-center text-sm text-light-subtext dark:text-dark-subtext">
               Minimalist style. Use this design for your RBC card.
             </ThemedText>
           </View>
@@ -148,19 +157,14 @@ export default function CardDesignDetailScreen() {
                   colors={design.gradientColors ?? ['#667eea', '#764ba2']}
                   start={design.gradientStart ?? { x: 0, y: 0 }}
                   end={design.gradientEnd ?? { x: 1, y: 1 }}
-                  style={[styles.card, cardSize]}
-                >
+                  style={[styles.card, cardSize]}>
                   {cardContentEl}
                 </LinearGradient>
               )}
             </Animated.View>
           </View>
 
-          <Button
-            title={t('rbcUseThisDesign')}
-            onPress={handleUseDesign}
-            className="mt-6"
-          />
+          <Button title={t('rbcUseThisDesign')} onPress={handleUseDesign} className="mt-6" />
         </View>
       </ThemedScroller>
     </>

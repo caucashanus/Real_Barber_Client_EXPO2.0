@@ -102,7 +102,7 @@ function isBookingPast(booking: Booking): boolean {
 }
 
 const BookingDetailScreen = () => {
-  const { id } = useLocalSearchParams<{ id: string }>();
+  const { id, openReview } = useLocalSearchParams<{ id: string; openReview?: string }>();
   const { apiToken } = useAuth();
   const { locale } = useLanguage();
   const { t } = useTranslation();
@@ -115,6 +115,7 @@ const BookingDetailScreen = () => {
   const [hasReview, setHasReview] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const didAutoReviewRef = useRef(false);
 
   useEffect(() => {
     if (!apiToken || !id) {
@@ -161,6 +162,33 @@ const BookingDetailScreen = () => {
       })
       .catch(() => setHasReview(false));
   }, [apiToken, id]);
+
+  useEffect(() => {
+    if (!booking) return;
+    if (didAutoReviewRef.current) return;
+    if (openReview !== '1') return;
+    if (hasReview) return;
+    const status = (booking.status ?? '').toLowerCase();
+    if (status !== 'completed') return;
+
+    didAutoReviewRef.current = true;
+    const entityName = encodeURIComponent(booking.item?.name ?? booking.branch?.name ?? 'Booking');
+    const imageParam = booking.item?.imageUrl
+      ? `&entityImage=${encodeURIComponent(booking.item.imageUrl)}`
+      : '';
+    const employeeNameParam = booking.employee?.name
+      ? `&entityEmployeeName=${encodeURIComponent(booking.employee.name)}`
+      : '';
+    const employeeAvatarParam = booking.employee?.avatarUrl
+      ? `&entityEmployeeAvatar=${encodeURIComponent(booking.employee.avatarUrl)}`
+      : '';
+
+    router.replace(
+      `/screens/review?entityType=reservation&entityId=${encodeURIComponent(
+        booking.id
+      )}&entityName=${entityName}${imageParam}${employeeNameParam}${employeeAvatarParam}`
+    );
+  }, [booking, openReview, hasReview]);
 
   if (loading) {
     return (

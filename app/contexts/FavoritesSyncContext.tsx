@@ -32,4 +32,3 @@ export function useFavoritesSync(): FavoritesSyncContextType {
   }
   return ctx;
 }
-

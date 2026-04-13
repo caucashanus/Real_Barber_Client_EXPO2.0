@@ -1,3 +1,6 @@
+import * as ImagePicker from 'expo-image-picker';
+import type { ImagePickerAsset } from 'expo-image-picker';
+import { useLocalSearchParams, router } from 'expo-router';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   View,
@@ -9,31 +12,29 @@ import {
   ScrollView,
   Pressable,
 } from 'react-native';
-import * as ImagePicker from 'expo-image-picker';
-import type { ImagePickerAsset } from 'expo-image-picker';
-import { useLocalSearchParams, router } from 'expo-router';
+
+import { deleteClientMedia, uploadClientMedia } from '@/api/client';
+import { getClientCut, patchClientCut, deleteClientCut, type ClientCut } from '@/api/cuts';
+import { getEmployees, type Employee } from '@/api/employees';
+import { useAuth } from '@/app/contexts/AuthContext';
+import { useSetTransferRecipient } from '@/app/contexts/TransferRecipientContext';
+import { useTranslation } from '@/app/hooks/useTranslation';
+import AnimatedView from '@/components/AnimatedView';
+import Avatar from '@/components/Avatar';
+import BarberPicker from '@/components/BarberPicker';
+import { Button } from '@/components/Button';
 import Header from '@/components/Header';
 import ThemedScroller from '@/components/ThemeScroller';
 import ThemedFooter from '@/components/ThemeFooter';
 import ThemedText from '@/components/ThemedText';
 import Input from '@/components/forms/Input';
-import BarberPicker from '@/components/BarberPicker';
 import Section from '@/components/layout/Section';
-import { Button } from '@/components/Button';
-import AnimatedView from '@/components/AnimatedView';
 import ImageCarousel from '@/components/ImageCarousel';
-import Avatar from '@/components/Avatar';
 import ShowRating from '@/components/ShowRating';
 import ListLink from '@/components/ListLink';
 import Divider from '@/components/layout/Divider';
 import HaircutNoteSections from '@/components/HaircutNoteSections';
 import Icon from '@/components/Icon';
-import { useAuth } from '@/app/contexts/AuthContext';
-import { useSetTransferRecipient } from '@/app/contexts/TransferRecipientContext';
-import { useTranslation } from '@/app/hooks/useTranslation';
-import { getClientCut, patchClientCut, deleteClientCut, type ClientCut } from '@/api/cuts';
-import { deleteClientMedia, uploadClientMedia } from '@/api/client';
-import { getEmployees, type Employee } from '@/api/employees';
 
 const PLACEHOLDER_IMAGE = require('@/assets/img/barbers.png');
 /** Stejný limit jako ve wizardu `add-property`. */
@@ -303,7 +304,9 @@ export default function HaircutDetailScreen() {
         <Header title={t('haircutTitle')} showBackButton />
         <View className="flex-1 items-center justify-center bg-light-primary dark:bg-dark-primary">
           <ActivityIndicator size="large" />
-          <ThemedText className="mt-2 text-light-subtext dark:text-dark-subtext">{t('commonLoading')}</ThemedText>
+          <ThemedText className="mt-2 text-light-subtext dark:text-dark-subtext">
+            {t('commonLoading')}
+          </ThemedText>
         </View>
       </>
     );
@@ -313,7 +316,7 @@ export default function HaircutDetailScreen() {
     return (
       <>
         <Header title={t('haircutTitle')} showBackButton />
-        <View className="flex-1 items-center justify-center bg-light-primary dark:bg-dark-primary p-6">
+        <View className="flex-1 items-center justify-center bg-light-primary p-6 dark:bg-dark-primary">
           <ThemedText className="text-center text-red-500 dark:text-red-400">{error}</ThemedText>
         </View>
       </>
@@ -339,8 +342,7 @@ export default function HaircutDetailScreen() {
         onScroll={Animated.event([{ nativeEvent: { contentOffset: { y: heroScrollY } } }], {
           useNativeDriver: false,
         })}
-        scrollEventThrottle={16}
-      >
+        scrollEventThrottle={16}>
         <AnimatedView animation="fadeIn" duration={400} delay={100}>
           <View className="px-global">
             <ImageCarousel
@@ -352,7 +354,7 @@ export default function HaircutDetailScreen() {
             />
           </View>
 
-          <View className="px-global pt-6 pb-4">
+          <View className="px-global pb-4 pt-6">
             {editing ? (
               <>
                 <Input
@@ -367,7 +369,9 @@ export default function HaircutDetailScreen() {
                 ) : null}
               </>
             ) : (
-              <ThemedText className="text-2xl font-bold">{cut.hairstyle || t('haircutTitle')}</ThemedText>
+              <ThemedText className="text-2xl font-bold">
+                {cut.hairstyle || t('haircutTitle')}
+              </ThemedText>
             )}
           </View>
 
@@ -383,14 +387,20 @@ export default function HaircutDetailScreen() {
               />
             ) : (
               <>
-                <View className="flex-row items-center justify-between mt-4 mb-4">
-                  <View className="flex-row items-center flex-1">
-                    <Avatar src={barberAvatar ?? PLACEHOLDER_IMAGE} size="lg" name={barberName !== '—' ? barberName : undefined} />
+                <View className="mb-4 mt-4 flex-row items-center justify-between">
+                  <View className="flex-1 flex-row items-center">
+                    <Avatar
+                      src={barberAvatar ?? PLACEHOLDER_IMAGE}
+                      size="lg"
+                      name={barberName !== '—' ? barberName : undefined}
+                    />
                     <View className="ml-3 flex-1">
                       <ThemedText className="text-lg font-semibold">{barberName}</ThemedText>
-                      <View className="flex-row items-center mt-px">
+                      <View className="mt-px flex-row items-center">
                         <ShowRating rating={5} size="sm" />
-                        <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext ml-2">(0 reviews)</ThemedText>
+                        <ThemedText className="ml-2 text-sm text-light-subtext dark:text-dark-subtext">
+                          (0 reviews)
+                        </ThemedText>
                       </View>
                     </View>
                   </View>
@@ -422,9 +432,12 @@ export default function HaircutDetailScreen() {
 
           <Divider className="mt-6 h-2 bg-light-secondary dark:bg-dark-darker" />
 
-          <Section title={t('haircutDetailCreatedAtPrefix')} titleSize="lg" className="px-global pt-4">
+          <Section
+            title={t('haircutDetailCreatedAtPrefix')}
+            titleSize="lg"
+            className="px-global pt-4">
             <View className="mt-4">
-              <View className="flex-row items-center justify-between bg-light-secondary dark:bg-dark-secondary rounded-xl p-4">
+              <View className="flex-row items-center justify-between rounded-xl bg-light-secondary p-4 dark:bg-dark-secondary">
                 <View>
                   <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext">
                     {t('haircutDetailCreatedDateLabel')}
@@ -455,8 +468,7 @@ export default function HaircutDetailScreen() {
             title={t('haircutDetailPhotosSection')}
             titleSize="lg"
             titleAlign="right"
-            className="px-global pt-4 pb-6"
-          >
+            className="px-global pb-6 pt-4">
             <View className="mt-4">
               {haircutPhotoUrls.length === 0 ? (
                 <ThemedText className="mb-3 text-center text-sm text-light-subtext dark:text-dark-subtext">
@@ -468,8 +480,7 @@ export default function HaircutDetailScreen() {
                 horizontal
                 nestedScrollEnabled
                 showsHorizontalScrollIndicator={false}
-                className={uploadingPhotos ? 'opacity-50' : ''}
-              >
+                className={uploadingPhotos ? 'opacity-50' : ''}>
                 <View className="flex-row items-stretch gap-3 pb-1 pr-2">
                   {editing
                     ? sortedCutPhotos.map((p, index) => {
@@ -485,8 +496,7 @@ export default function HaircutDetailScreen() {
                             <Pressable
                               onPress={() => removePhotoAt(index)}
                               disabled={uploadingPhotos}
-                              className="absolute -top-1 -right-1 w-7 h-7 rounded-full bg-red-500 items-center justify-center"
-                            >
+                              className="absolute -right-1 -top-1 h-7 w-7 items-center justify-center rounded-full bg-red-500">
                               <Icon name="X" size={14} color="white" />
                             </Pressable>
                           </View>
@@ -506,9 +516,12 @@ export default function HaircutDetailScreen() {
                       <TouchableOpacity
                         disabled={uploadingPhotos}
                         onPress={pickImagesForCut}
-                        className="h-44 w-36 shrink-0 items-center justify-center rounded-lg border-2 border-dashed border-light-subtext dark:border-dark-subtext"
-                      >
-                        <Icon name="Plus" size={24} className="text-light-subtext dark:text-dark-subtext" />
+                        className="h-44 w-36 shrink-0 items-center justify-center rounded-lg border-2 border-dashed border-light-subtext dark:border-dark-subtext">
+                        <Icon
+                          name="Plus"
+                          size={24}
+                          className="text-light-subtext dark:text-dark-subtext"
+                        />
                         <ThemedText className="mt-1 px-1 text-center text-xs text-light-subtext dark:text-dark-subtext">
                           {t('addPropertyAddPhoto')}
                         </ThemedText>
@@ -516,9 +529,12 @@ export default function HaircutDetailScreen() {
                       <TouchableOpacity
                         disabled={uploadingPhotos}
                         onPress={takePhotoForCut}
-                        className="h-44 w-36 shrink-0 items-center justify-center rounded-lg border-2 border-dashed border-light-subtext dark:border-dark-subtext"
-                      >
-                        <Icon name="Plus" size={24} className="text-light-subtext dark:text-dark-subtext" />
+                        className="h-44 w-36 shrink-0 items-center justify-center rounded-lg border-2 border-dashed border-light-subtext dark:border-dark-subtext">
+                        <Icon
+                          name="Plus"
+                          size={24}
+                          className="text-light-subtext dark:text-dark-subtext"
+                        />
                         <ThemedText className="mt-1 px-1 text-center text-xs text-light-subtext dark:text-dark-subtext">
                           {t('addPropertyTakePhoto')}
                         </ThemedText>
@@ -535,7 +551,12 @@ export default function HaircutDetailScreen() {
       <ThemedFooter>
         {editing ? (
           <View className="flex-row gap-3">
-            <Button title={t('commonCancel')} variant="outline" className="flex-1" onPress={cancelEdit} />
+            <Button
+              title={t('commonCancel')}
+              variant="outline"
+              className="flex-1"
+              onPress={cancelEdit}
+            />
             <Button
               title={saving ? 'Saving…' : t('commonSave')}
               variant="primary"
@@ -558,7 +579,7 @@ export default function HaircutDetailScreen() {
               title={t('commonEdit')}
               variant="primary"
               iconStart="UserRoundPen"
-              className="flex-1 min-w-0"
+              className="min-w-0 flex-1"
               onPress={() => {
                 syncDraftsFromCut();
                 setEditing(true);

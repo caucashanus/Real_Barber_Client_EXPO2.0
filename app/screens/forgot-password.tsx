@@ -1,16 +1,17 @@
+import { Link, router, useLocalSearchParams } from 'expo-router';
 import React, { useState, useEffect } from 'react';
 import { View, Pressable } from 'react-native';
-import { Link, router, useLocalSearchParams } from 'expo-router';
-import Input from '@/components/forms/Input';
-import Select from '@/components/forms/Select';
-import ThemedText from '@/components/ThemedText';
-import { Button } from '@/components/Button';
-import Icon from '@/components/Icon';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import Header from '@/components/Header';
-import { COUNTRY_CODE_OPTIONS, formatPhoneDisplay } from '@/utils/phone';
+
 import { forgotPassword } from '@/api/auth';
 import { useTranslation } from '@/app/hooks/useTranslation';
+import { Button } from '@/components/Button';
+import Header from '@/components/Header';
+import Icon from '@/components/Icon';
+import ThemedText from '@/components/ThemedText';
+import Input from '@/components/forms/Input';
+import Select from '@/components/forms/Select';
+import { COUNTRY_CODE_OPTIONS, formatPhoneDisplay } from '@/utils/phone';
 
 type ResetMode = 'email' | 'phone';
 
@@ -86,21 +87,25 @@ export default function ForgotPasswordScreen() {
       <>
         <Header showBackButton />
         <View
-          className="flex-1 bg-light-primary dark:bg-dark-primary p-6"
-          style={{ paddingTop: insets.top }}
-        >
+          className="flex-1 bg-light-primary p-6 dark:bg-dark-primary"
+          style={{ paddingTop: insets.top }}>
           <View className="mt-8 items-center">
-            <View className="w-20 h-20 rounded-full bg-green-500/20 items-center justify-center mb-4">
+            <View className="mb-4 h-20 w-20 items-center justify-center rounded-full bg-green-500/20">
               <Icon name="Check" size={40} className="text-green-600 dark:text-green-400" />
             </View>
-            <ThemedText className="text-xl font-semibold text-light-text dark:text-dark-text text-center mb-2">
+            <ThemedText className="mb-2 text-center text-xl font-semibold text-light-text dark:text-dark-text">
               Žádost odeslána
             </ThemedText>
-            <ThemedText className="text-light-subtext dark:text-dark-subtext text-center mb-6">
-              Zkontrolujte svou emailovou schránku nebo SMS. Pokud zpráva nedorazí do několika minut,
-              zkontrolujte složku se spamem.
+            <ThemedText className="mb-6 text-center text-light-subtext dark:text-dark-subtext">
+              Zkontrolujte svou emailovou schránku nebo SMS. Pokud zpráva nedorazí do několika
+              minut, zkontrolujte složku se spamem.
             </ThemedText>
-            <Button title={t('forgotPasswordBackToLogin')} onPress={() => router.back()} size="large" className="mt-4" />
+            <Button
+              title={t('forgotPasswordBackToLogin')}
+              onPress={() => router.back()}
+              size="large"
+              className="mt-4"
+            />
           </View>
         </View>
       </>
@@ -111,36 +116,33 @@ export default function ForgotPasswordScreen() {
     <>
       <Header showBackButton />
       <View
-        className="flex-1 bg-light-primary dark:bg-dark-primary p-6"
-        style={{ paddingTop: insets.top }}
-      >
+        className="flex-1 bg-light-primary p-6 dark:bg-dark-primary"
+        style={{ paddingTop: insets.top }}>
         <View className="mt-8">
-          <ThemedText className="text-3xl font-bold mb-1">Zapomenuté heslo</ThemedText>
-          <ThemedText className="text-light-subtext dark:text-dark-subtext mb-6">
+          <ThemedText className="mb-1 text-3xl font-bold">Zapomenuté heslo</ThemedText>
+          <ThemedText className="mb-6 text-light-subtext dark:text-dark-subtext">
             {resetMode === 'email'
-              ? "Zadejte email a pošleme vám odkaz pro obnovení hesla."
+              ? 'Zadejte email a pošleme vám odkaz pro obnovení hesla.'
               : 'Zadejte telefonní číslo a pošleme vám odkaz pro obnovení hesla.'}
           </ThemedText>
 
-          <View className="flex-row gap-2 mb-6">
+          <View className="mb-6 flex-row gap-2">
             <Pressable
               onPress={() => setResetMode('email')}
-              className={`flex-1 py-3 rounded-xl border ${
+              className={`flex-1 rounded-xl border py-3 ${
                 resetMode === 'email'
-                  ? 'border-black dark:border-white bg-light-secondary dark:bg-dark-secondary'
+                  ? 'border-black bg-light-secondary dark:border-white dark:bg-dark-secondary'
                   : 'border-light-secondary dark:border-dark-secondary'
-              }`}
-            >
+              }`}>
               <ThemedText className="text-center font-medium">Email</ThemedText>
             </Pressable>
             <Pressable
               onPress={() => setResetMode('phone')}
-              className={`flex-1 py-3 rounded-xl border ${
+              className={`flex-1 rounded-xl border py-3 ${
                 resetMode === 'phone'
-                  ? 'border-black dark:border-white bg-light-secondary dark:bg-dark-secondary'
+                  ? 'border-black bg-light-secondary dark:border-white dark:bg-dark-secondary'
                   : 'border-light-secondary dark:border-dark-secondary'
-              }`}
-            >
+              }`}>
               <ThemedText className="text-center font-medium">Pomocí tel. čísla</ThemedText>
             </Pressable>
           </View>
@@ -164,7 +166,7 @@ export default function ForgotPasswordScreen() {
               <ThemedText className="mb-1 font-medium text-light-text dark:text-dark-text">
                 Telefonní číslo
               </ThemedText>
-              <View className="flex-row gap-2 items-stretch">
+              <View className="flex-row items-stretch gap-2">
                 <View style={{ width: 100 }}>
                   <Select
                     options={COUNTRY_CODE_OPTIONS}
@@ -194,7 +196,9 @@ export default function ForgotPasswordScreen() {
           )}
 
           {apiError ? (
-            <ThemedText className="text-red-500 dark:text-red-400 text-sm mb-4">{apiError}</ThemedText>
+            <ThemedText className="mb-4 text-sm text-red-500 dark:text-red-400">
+              {apiError}
+            </ThemedText>
           ) : null}
 
           <Button
@@ -205,7 +209,7 @@ export default function ForgotPasswordScreen() {
             className="mb-6"
           />
 
-          <View className="flex-row justify-center mt-8">
+          <View className="mt-8 flex-row justify-center">
             <ThemedText className="text-light-subtext dark:text-dark-subtext">
               Pamatujete si heslo?{' '}
             </ThemedText>

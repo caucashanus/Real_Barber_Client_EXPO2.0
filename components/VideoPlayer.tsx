@@ -1,7 +1,7 @@
+import { useVideoPlayer, VideoView, type VideoContentFit } from 'expo-video';
 import React, { useMemo, useRef } from 'react';
 import type { StyleProp, ViewStyle } from 'react-native';
 import { View } from 'react-native';
-import { useVideoPlayer, VideoView, type VideoContentFit } from 'expo-video';
 
 export type VideoPlayerContentFit = 'contain' | 'cover';
 
@@ -54,4 +54,3 @@ export default function VideoPlayer(props: VideoPlayerProps) {
     </View>
   );
 }
-

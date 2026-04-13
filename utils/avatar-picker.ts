@@ -3,9 +3,7 @@ import type { ImagePickerAsset } from 'expo-image-picker';
 
 type PickResult = ImagePickerAsset | null;
 
-async function ensureGranted(
-  req: () => Promise<ImagePicker.PermissionResponse>
-): Promise<boolean> {
+async function ensureGranted(req: () => Promise<ImagePicker.PermissionResponse>): Promise<boolean> {
   const perm = await req();
   return perm.granted;
 }
@@ -18,7 +16,7 @@ export async function pickSquareAvatarFromLibrary(): Promise<PickResult> {
     aspect: [1, 1],
     quality: 0.8,
   });
-  return result.canceled ? null : result.assets[0] ?? null;
+  return result.canceled ? null : (result.assets[0] ?? null);
 }
 
 export async function takeSquareAvatarPhoto(): Promise<PickResult> {
@@ -29,6 +27,5 @@ export async function takeSquareAvatarPhoto(): Promise<PickResult> {
     aspect: [1, 1],
     quality: 0.8,
   });
-  return result.canceled ? null : result.assets[0] ?? null;
+  return result.canceled ? null : (result.assets[0] ?? null);
 }
-

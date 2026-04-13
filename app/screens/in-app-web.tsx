@@ -1,7 +1,8 @@
+import { useLocalSearchParams } from 'expo-router';
 import React from 'react';
 import { View, ActivityIndicator } from 'react-native';
-import { useLocalSearchParams } from 'expo-router';
 import { WebView } from 'react-native-webview';
+
 import Header from '@/components/Header';
 
 export default function InAppWebScreen() {

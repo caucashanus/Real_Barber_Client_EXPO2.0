@@ -1,20 +1,19 @@
-import React, { useEffect, useState } from 'react';
-import {
-  View,
-  Image,
-  ScrollView,
-  ActivityIndicator,
-  Dimensions,
-  Pressable,
-} from 'react-native';
-import VideoPlayer from '@/components/VideoPlayer';
 import { useLocalSearchParams, router } from 'expo-router';
+import React, { useEffect, useState } from 'react';
+import { View, Image, ScrollView, ActivityIndicator, Dimensions, Pressable } from 'react-native';
+
+import {
+  getCachedGuide,
+  getCachedGuidesList,
+  type ClientGuide,
+  type GuideMedia,
+} from '@/api/guides';
+import Favorite from '@/components/Favorite';
 import Header from '@/components/Header';
+import Icon from '@/components/Icon';
 import ThemedScroller from '@/components/ThemeScroller';
 import ThemedText from '@/components/ThemedText';
-import { getCachedGuide, getCachedGuidesList, type ClientGuide, type GuideMedia } from '@/api/guides';
-import Icon from '@/components/Icon';
-import Favorite from '@/components/Favorite';
+import VideoPlayer from '@/components/VideoPlayer';
 
 const screenWidth = Dimensions.get('window').width;
 
@@ -38,7 +37,7 @@ function MediaItem({ item }: { item: GuideMedia }) {
 
   if (file.fileType === 'image') {
     return (
-      <View className="mr-3 rounded-xl overflow-hidden bg-light-secondary dark:bg-dark-secondary">
+      <View className="mr-3 overflow-hidden rounded-xl bg-light-secondary dark:bg-dark-secondary">
         <Image
           source={{ uri: file.url }}
           style={{ width: screenWidth * 0.6, height: 220 }}
@@ -50,7 +49,7 @@ function MediaItem({ item }: { item: GuideMedia }) {
 
   if (file.fileType === 'video') {
     return (
-      <View className="mr-3 rounded-xl overflow-hidden bg-black">
+      <View className="mr-3 overflow-hidden rounded-xl bg-black">
         <VideoPlayer
           uri={file.url}
           style={{ width: screenWidth * 0.6, height: 220 }}
@@ -70,10 +69,13 @@ function MediaItem({ item }: { item: GuideMedia }) {
             params: { url: encodeURIComponent(file.url) },
           })
         }
-        className="mr-3 p-4 rounded-xl bg-light-secondary dark:bg-dark-secondary flex-row items-center justify-center"
-        style={{ width: screenWidth * 0.6, minHeight: 80 }}
-      >
-        <Icon name="FileText" size={28} className="text-light-subtext dark:text-dark-subtext mr-3" />
+        className="mr-3 flex-row items-center justify-center rounded-xl bg-light-secondary p-4 dark:bg-dark-secondary"
+        style={{ width: screenWidth * 0.6, minHeight: 80 }}>
+        <Icon
+          name="FileText"
+          size={28}
+          className="mr-3 text-light-subtext dark:text-dark-subtext"
+        />
         <ThemedText className="text-sm font-medium">Otevřít</ThemedText>
       </Pressable>
     );
@@ -112,7 +114,9 @@ export default function GuideDetailScreen() {
         <Header title="" showBackButton />
         <View className="flex-1 items-center justify-center bg-light-primary dark:bg-dark-primary">
           <ActivityIndicator size="large" />
-          <ThemedText className="mt-2 text-light-subtext dark:text-dark-subtext">Loading…</ThemedText>
+          <ThemedText className="mt-2 text-light-subtext dark:text-dark-subtext">
+            Loading…
+          </ThemedText>
         </View>
       </>
     );
@@ -122,8 +126,10 @@ export default function GuideDetailScreen() {
     return (
       <>
         <Header title="" showBackButton />
-        <View className="flex-1 items-center justify-center bg-light-primary dark:bg-dark-primary p-6">
-          <ThemedText className="text-center text-red-500 dark:text-red-400">{error || 'Guide not found'}</ThemedText>
+        <View className="flex-1 items-center justify-center bg-light-primary p-6 dark:bg-dark-primary">
+          <ThemedText className="text-center text-red-500 dark:text-red-400">
+            {error || 'Guide not found'}
+          </ThemedText>
         </View>
       </>
     );
@@ -133,10 +139,15 @@ export default function GuideDetailScreen() {
   const list = getCachedGuidesList();
   const currentIndex = list.findIndex((g) => g.id === guide.id);
   const prevGuide = currentIndex > 0 ? list[currentIndex - 1] : null;
-  const nextGuide = currentIndex >= 0 && currentIndex < list.length - 1 ? list[currentIndex + 1] : null;
+  const nextGuide =
+    currentIndex >= 0 && currentIndex < list.length - 1 ? list[currentIndex + 1] : null;
 
-  const goToPrev = () => prevGuide && router.replace({ pathname: '/screens/guide-detail', params: { id: prevGuide.id } });
-  const goToNext = () => nextGuide && router.replace({ pathname: '/screens/guide-detail', params: { id: nextGuide.id } });
+  const goToPrev = () =>
+    prevGuide &&
+    router.replace({ pathname: '/screens/guide-detail', params: { id: prevGuide.id } });
+  const goToNext = () =>
+    nextGuide &&
+    router.replace({ pathname: '/screens/guide-detail', params: { id: nextGuide.id } });
 
   return (
     <>
@@ -154,31 +165,29 @@ export default function GuideDetailScreen() {
         ]}
       />
       <ThemedScroller className="flex-1 px-0" keyboardShouldPersistTaps="handled">
-        <View className="mt-0 mb-6 px-global">
-          <View className="flex-row justify-end mb-4">
+        <View className="mb-6 mt-0 px-global">
+          <View className="mb-4 flex-row justify-end">
             <Pressable
               onPress={goToPrev}
-              className={`w-10 h-10 items-center justify-center mr-2 rounded-full border border-neutral-300 dark:border-neutral-600 ${
+              className={`mr-2 h-10 w-10 items-center justify-center rounded-full border border-neutral-300 dark:border-neutral-600 ${
                 prevGuide ? 'opacity-100' : 'opacity-30'
               }`}
-              disabled={!prevGuide}
-            >
+              disabled={!prevGuide}>
               <Icon name="ChevronLeft" size={24} className="-translate-x-px" />
             </Pressable>
             <Pressable
               onPress={goToNext}
-              className={`w-10 h-10 items-center justify-center rounded-full border border-neutral-300 dark:border-neutral-600 ${
+              className={`h-10 w-10 items-center justify-center rounded-full border border-neutral-300 dark:border-neutral-600 ${
                 nextGuide ? 'opacity-100' : 'opacity-30'
               }`}
-              disabled={!nextGuide}
-            >
+              disabled={!nextGuide}>
               <Icon name="ChevronRight" size={24} className="translate-x-px" />
             </Pressable>
           </View>
           <ThemedText className="text-4xl font-semibold" numberOfLines={5}>
             {guide.title}
           </ThemedText>
-          <ThemedText className="text-lg text-light-subtext dark:text-dark-subtext mt-2">
+          <ThemedText className="mt-2 text-lg text-light-subtext dark:text-dark-subtext">
             {formatAddedAt(guide.createdAt)}
           </ThemedText>
         </View>
@@ -188,8 +197,7 @@ export default function GuideDetailScreen() {
             <ScrollView
               horizontal
               showsHorizontalScrollIndicator={false}
-              contentContainerStyle={{ paddingHorizontal: 20 }}
-            >
+              contentContainerStyle={{ paddingHorizontal: 20 }}>
               {[...guide.media]
                 .sort((a, b) => a.order - b.order)
                 .map((item) => (
@@ -199,33 +207,31 @@ export default function GuideDetailScreen() {
           </View>
         ) : null}
 
-        <View className="px-global border-t-8 pt-global border-light-secondary dark:border-dark-secondary">
-          <ThemedText className="text-2xl font-semibold mb-4">Popis</ThemedText>
+        <View className="border-t-8 border-light-secondary px-global pt-global dark:border-dark-secondary">
+          <ThemedText className="mb-4 text-2xl font-semibold">Popis</ThemedText>
           <ThemedText className="text-base text-light-text dark:text-dark-text">
             {guide.content || '—'}
           </ThemedText>
 
-          <View className="flex-row items-center justify-between mt-6 py-3 border-t border-light-secondary dark:border-dark-secondary">
+          <View className="mt-6 flex-row items-center justify-between border-t border-light-secondary py-3 dark:border-dark-secondary">
             <ThemedText className="text-base opacity-50">Aktualizováno</ThemedText>
             <ThemedText className="text-lg">{formatUpdatedAt(guide.updatedAt)}</ThemedText>
           </View>
-          <View className="flex-row justify-center items-center py-6">
+          <View className="flex-row items-center justify-center py-6">
             <Pressable
               onPress={goToPrev}
-              className={`w-10 h-10 items-center justify-center mr-2 rounded-full border border-neutral-300 dark:border-neutral-600 ${
+              className={`mr-2 h-10 w-10 items-center justify-center rounded-full border border-neutral-300 dark:border-neutral-600 ${
                 prevGuide ? 'opacity-100' : 'opacity-30'
               }`}
-              disabled={!prevGuide}
-            >
+              disabled={!prevGuide}>
               <Icon name="ChevronLeft" size={24} className="-translate-x-px" />
             </Pressable>
             <Pressable
               onPress={goToNext}
-              className={`w-10 h-10 items-center justify-center rounded-full border border-neutral-300 dark:border-neutral-600 ${
+              className={`h-10 w-10 items-center justify-center rounded-full border border-neutral-300 dark:border-neutral-600 ${
                 nextGuide ? 'opacity-100' : 'opacity-30'
               }`}
-              disabled={!nextGuide}
-            >
+              disabled={!nextGuide}>
               <Icon name="ChevronRight" size={24} className="translate-x-px" />
             </Pressable>
           </View>

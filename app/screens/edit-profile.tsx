@@ -18,9 +18,9 @@ import { DatePicker } from '@/components/forms/DatePicker';
 import Input from '@/components/forms/Input';
 import Select from '@/components/forms/Select';
 import Section from '@/components/layout/Section';
+import { pickSquareAvatarFromLibrary, takeSquareAvatarPhoto } from '@/utils/avatar-picker';
 import { formatBirthdayToIsoUtcMidnight, formatToYYYYMMDD } from '@/utils/date';
 import { COUNTRY_OPTIONS } from '@/utils/phone';
-import { pickSquareAvatarFromLibrary, takeSquareAvatarPhoto } from '@/utils/avatar-picker';
 
 export default function EditProfileScreen() {
   const { apiToken } = useAuth();
@@ -218,7 +218,10 @@ export default function EditProfileScreen() {
                 {t('editProfilePhoto')}
               </ThemedText>
               <View className="flex-row items-center gap-4">
-                <TouchableOpacity onPress={openPhotoSourceSheet} activeOpacity={0.8} className="relative">
+                <TouchableOpacity
+                  onPress={openPhotoSourceSheet}
+                  activeOpacity={0.8}
+                  className="relative">
                   {avatarSrc ? (
                     <Image
                       source={avatarSrc}
@@ -259,7 +262,11 @@ export default function EditProfileScreen() {
               <View className="p-5 pb-7">
                 <View className="mt-4 gap-2">
                   <Button title={t('editProfilePhotoSourceCamera')} onPress={onChooseCamera} />
-                  <Button title={t('editProfilePhotoSourceLibrary')} variant="outline" onPress={onChooseLibrary} />
+                  <Button
+                    title={t('editProfilePhotoSourceLibrary')}
+                    variant="outline"
+                    onPress={onChooseLibrary}
+                  />
                 </View>
               </View>
             </ActionSheetThemed>

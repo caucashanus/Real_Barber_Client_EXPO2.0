@@ -1,5 +1,5 @@
-import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 
 const ACCENT_STORAGE_KEY = '@app_accent_color';
 const DEFAULT_ACCENT = '#FF2056';
@@ -44,13 +44,12 @@ export function AccentColorProvider({ children }: { children: React.ReactNode })
     AsyncStorage.setItem(ACCENT_STORAGE_KEY, parsed).catch(() => {});
   }, []);
 
-  const value: AccentColorContextType = { accentColor: loaded ? accentColor : DEFAULT_ACCENT, setAccentColor };
+  const value: AccentColorContextType = {
+    accentColor: loaded ? accentColor : DEFAULT_ACCENT,
+    setAccentColor,
+  };
 
-  return (
-    <AccentColorContext.Provider value={value}>
-      {children}
-    </AccentColorContext.Provider>
-  );
+  return <AccentColorContext.Provider value={value}>{children}</AccentColorContext.Provider>;
 }
 
 export function useAccentColor(): AccentColorContextType {

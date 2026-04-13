@@ -1,6 +1,13 @@
-import React from 'react';
-import { ScrollView, ScrollViewProps, View, Animated, NativeSyntheticEvent, NativeScrollEvent } from 'react-native';
 import { styled } from 'nativewind';
+import React from 'react';
+import {
+  ScrollView,
+  ScrollViewProps,
+  View,
+  Animated,
+  NativeSyntheticEvent,
+  NativeScrollEvent,
+} from 'react-native';
 
 interface ThemeScrollerProps extends ScrollViewProps {
   children: React.ReactNode;
@@ -13,31 +20,33 @@ interface ThemeScrollerProps extends ScrollViewProps {
 // Use basic ScrollView instead of styled for better compatibility with Animated
 const StyledScrollView = styled(ScrollView);
 
-const ThemedScroller = React.forwardRef<ScrollView, ThemeScrollerProps>(function ThemedScroller({
-  children,
-  className,
-  onScroll,
-  contentContainerStyle,
-  scrollEventThrottle = 16,
-  headerSpace = false,
-  ...props
-}, ref) {
+const ThemedScroller = React.forwardRef<ScrollView, ThemeScrollerProps>(function ThemedScroller(
+  {
+    children,
+    className,
+    onScroll,
+    contentContainerStyle,
+    scrollEventThrottle = 16,
+    headerSpace = false,
+    ...props
+  },
+  ref
+) {
   return (
     <StyledScrollView
       ref={ref}
       showsVerticalScrollIndicator={false}
-      style={{ width: "100%" }}
+      style={{ width: '100%' }}
       //bounces={false}
-      overScrollMode='never'
-      className={`bg-light-primary dark:bg-dark-primary flex-1 px-global ${className || ''}`}
+      overScrollMode="never"
+      className={`flex-1 bg-light-primary px-global dark:bg-dark-primary ${className || ''}`}
       onScroll={onScroll}
       scrollEventThrottle={scrollEventThrottle}
       contentContainerStyle={[
-        headerSpace && { paddingTop: 70 }, // Add space for fixed header 
-        contentContainerStyle
+        headerSpace && { paddingTop: 70 }, // Add space for fixed header
+        contentContainerStyle,
       ]}
-      {...props}
-    >
+      {...props}>
       {children}
       <View className="h-20 w-full" />
     </StyledScrollView>

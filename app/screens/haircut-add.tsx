@@ -1,21 +1,22 @@
-import React, { useEffect, useState } from 'react';
-import { View, Image, Pressable, Alert } from 'react-native';
 import * as ImagePicker from 'expo-image-picker';
 import type { ImagePickerAsset } from 'expo-image-picker';
 import { router } from 'expo-router';
+import React, { useEffect, useState } from 'react';
+import { View, Image, Pressable, Alert } from 'react-native';
+
 import { uploadClientMedia } from '@/api/client';
+import { createClientCut } from '@/api/cuts';
+import { getEmployees, type Employee } from '@/api/employees';
+import { useAuth } from '@/app/contexts/AuthContext';
+import { useTranslation } from '@/app/hooks/useTranslation';
+import BarberPicker from '@/components/BarberPicker';
+import { Button } from '@/components/Button';
 import Header from '@/components/Header';
+import Icon from '@/components/Icon';
 import ThemedScroller from '@/components/ThemeScroller';
 import ThemedText from '@/components/ThemedText';
 import Input from '@/components/forms/Input';
-import BarberPicker from '@/components/BarberPicker';
 import Section from '@/components/layout/Section';
-import { Button } from '@/components/Button';
-import Icon from '@/components/Icon';
-import { useAuth } from '@/app/contexts/AuthContext';
-import { useTranslation } from '@/app/hooks/useTranslation';
-import { createClientCut } from '@/api/cuts';
-import { getEmployees, type Employee } from '@/api/employees';
 
 const MAX_PHOTOS = 5;
 
@@ -40,7 +41,10 @@ export default function HaircutAddScreen() {
   const pickFromGallery = async () => {
     const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (status !== 'granted') {
-      Alert.alert('Permission', 'To pick photos from the gallery you need to allow access to photos.');
+      Alert.alert(
+        'Permission',
+        'To pick photos from the gallery you need to allow access to photos.'
+      );
       return;
     }
     const result = await ImagePicker.launchImageLibraryAsync({
@@ -114,17 +118,20 @@ export default function HaircutAddScreen() {
       <Header title={t('haircutAdd')} showBackButton />
       <ThemedScroller className="flex-1" keyboardShouldPersistTaps="handled">
         <Section title={t('haircutPhotos')} titleSize="md" className="mt-2">
-          <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext mb-3">
+          <ThemedText className="mb-3 text-sm text-light-subtext dark:text-dark-subtext">
             {t('haircutPhotosHint')}
           </ThemedText>
           <View className="flex-row flex-wrap gap-3">
             {photoAssets.map((asset, index) => (
               <View key={`${asset.uri}-${index}`} className="relative">
-                <Image source={{ uri: asset.uri }} className="w-20 h-20 rounded-xl bg-light-secondary dark:bg-dark-secondary" resizeMode="cover" />
+                <Image
+                  source={{ uri: asset.uri }}
+                  className="h-20 w-20 rounded-xl bg-light-secondary dark:bg-dark-secondary"
+                  resizeMode="cover"
+                />
                 <Pressable
                   onPress={() => removePhoto(index)}
-                  className="absolute -top-1 -right-1 w-6 h-6 rounded-full bg-red-500 items-center justify-center"
-                >
+                  className="absolute -right-1 -top-1 h-6 w-6 items-center justify-center rounded-full bg-red-500">
                   <Icon name="X" size={14} color="white" />
                 </Pressable>
               </View>
@@ -133,17 +140,27 @@ export default function HaircutAddScreen() {
               <>
                 <Pressable
                   onPress={pickFromGallery}
-                  className="w-20 h-20 rounded-xl border-2 border-dashed border-light-secondary dark:border-dark-secondary items-center justify-center bg-light-secondary/50 dark:bg-dark-secondary/50"
-                >
-                  <Icon name="Image" size={28} className="text-light-subtext dark:text-dark-subtext" />
-                  <ThemedText className="text-xs text-light-subtext dark:text-dark-subtext mt-1">Gallery</ThemedText>
+                  className="h-20 w-20 items-center justify-center rounded-xl border-2 border-dashed border-light-secondary bg-light-secondary/50 dark:border-dark-secondary dark:bg-dark-secondary/50">
+                  <Icon
+                    name="Image"
+                    size={28}
+                    className="text-light-subtext dark:text-dark-subtext"
+                  />
+                  <ThemedText className="mt-1 text-xs text-light-subtext dark:text-dark-subtext">
+                    Gallery
+                  </ThemedText>
                 </Pressable>
                 <Pressable
                   onPress={takePhoto}
-                  className="w-20 h-20 rounded-xl border-2 border-dashed border-light-secondary dark:border-dark-secondary items-center justify-center bg-light-secondary/50 dark:bg-dark-secondary/50"
-                >
-                  <Icon name="Camera" size={28} className="text-light-subtext dark:text-dark-subtext" />
-                  <ThemedText className="text-xs text-light-subtext dark:text-dark-subtext mt-1">Camera</ThemedText>
+                  className="h-20 w-20 items-center justify-center rounded-xl border-2 border-dashed border-light-secondary bg-light-secondary/50 dark:border-dark-secondary dark:bg-dark-secondary/50">
+                  <Icon
+                    name="Camera"
+                    size={28}
+                    className="text-light-subtext dark:text-dark-subtext"
+                  />
+                  <ThemedText className="mt-1 text-xs text-light-subtext dark:text-dark-subtext">
+                    Camera
+                  </ThemedText>
                 </Pressable>
               </>
             )}
@@ -175,11 +192,7 @@ export default function HaircutAddScreen() {
           {error ? (
             <ThemedText className="mb-3 text-red-500 dark:text-red-400">{error}</ThemedText>
           ) : null}
-          <Button
-            title={saving ? 'Saving…' : 'Save'}
-            onPress={handleSave}
-            disabled={saving}
-          />
+          <Button title={saving ? 'Saving…' : 'Save'} onPress={handleSave} disabled={saving} />
         </Section>
       </ThemedScroller>
     </>

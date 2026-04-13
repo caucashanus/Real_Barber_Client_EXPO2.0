@@ -1,14 +1,15 @@
 import React, { useEffect, useState } from 'react';
 import { View, Pressable, Share, ActivityIndicator } from 'react-native';
+
+import { getReferrals, type ClientReferralsResponse } from '@/api/referrals';
+import { useAuth } from '@/app/contexts/AuthContext';
+import useThemeColors from '@/app/contexts/ThemeColors';
+import { useTranslation } from '@/app/hooks/useTranslation';
 import Header from '@/components/Header';
+import Icon from '@/components/Icon';
 import ThemedScroller from '@/components/ThemeScroller';
 import ThemedText from '@/components/ThemedText';
-import Icon from '@/components/Icon';
 import Divider from '@/components/layout/Divider';
-import { useAuth } from '@/app/contexts/AuthContext';
-import { useTranslation } from '@/app/hooks/useTranslation';
-import useThemeColors from '@/app/contexts/ThemeColors';
-import { getReferrals, type ClientReferralsResponse } from '@/api/referrals';
 
 const ReferralsScreen = () => {
   const { apiToken } = useAuth();
@@ -50,45 +51,55 @@ const ReferralsScreen = () => {
       <Header title="" showBackButton />
       <ThemedScroller className="flex-1 px-0" keyboardShouldPersistTaps="handled">
         {/* Hero block – same layout as Earnings */}
-        <View className="mt-14 mb-20 px-global">
+        <View className="mb-20 mt-14 px-global">
           <ThemedText className="text-5xl font-semibold">{t('referralsInvited')}</ThemedText>
           <ThemedText style={{ color: colors.highlight }} className="text-5xl font-semibold">
             {loading ? '…' : invited}
           </ThemedText>
           <ThemedText className="text-5xl font-semibold">{t('referralsFriends')}</ThemedText>
-          <ThemedText className="text-lg mt-2">
-            Rewards earned <ThemedText className="text-lg font-semibold">{rewardsRbc} RBC</ThemedText>
+          <ThemedText className="mt-2 text-lg">
+            Rewards earned{' '}
+            <ThemedText className="text-lg font-semibold">{rewardsRbc} RBC</ThemedText>
           </ThemedText>
           {error && (
-            <ThemedText className="text-sm text-red-500 dark:text-red-400 mt-2">{error}</ThemedText>
+            <ThemedText className="mt-2 text-sm text-red-500 dark:text-red-400">{error}</ThemedText>
           )}
         </View>
 
         {/* Content block – same border/section style as Earnings */}
-        <View className="px-global border-t-8 pt-global border-light-secondary dark:border-dark-secondary">
-          <ThemedText className="text-2xl font-semibold mb-2">{t('referralsInviteFriends')}</ThemedText>
-          <ThemedText className="text-base text-light-subtext dark:text-dark-subtext mb-4">
+        <View className="border-t-8 border-light-secondary px-global pt-global dark:border-dark-secondary">
+          <ThemedText className="mb-2 text-2xl font-semibold">
+            {t('referralsInviteFriends')}
+          </ThemedText>
+          <ThemedText className="mb-4 text-base text-light-subtext dark:text-dark-subtext">
             Share your link — you both earn RBC when they join and book.
           </ThemedText>
           <Pressable
             onPress={handleShare}
-            className="flex-row items-center justify-center py-4 px-6 rounded-xl bg-light-secondary dark:bg-dark-secondary"
-          >
+            className="flex-row items-center justify-center rounded-xl bg-light-secondary px-6 py-4 dark:bg-dark-secondary">
             <Icon name="Share2" size={22} />
-            <ThemedText className="text-base font-semibold ml-3">{t('referralsShareLink')}</ThemedText>
+            <ThemedText className="ml-3 text-base font-semibold">
+              {t('referralsShareLink')}
+            </ThemedText>
           </Pressable>
 
           {referrals && referrals.referralsMade.length > 0 && (
             <>
-              <ThemedText className="text-2xl font-semibold mt-8 mb-4">{t('referralsInvitedList')}</ThemedText>
-              {referrals.referralsMade.map((r: { id?: string; referee?: { name?: string }; status?: string }) => (
-                <View key={r.id ?? String(r)} className="flex-row items-center justify-between my-3">
-                  <ThemedText className="text-lg">{r.referee?.name ?? '—'}</ThemedText>
-                  <ThemedText className="text-base text-light-subtext dark:text-dark-subtext capitalize">
-                    {r.status ?? '—'}
-                  </ThemedText>
-                </View>
-              ))}
+              <ThemedText className="mb-4 mt-8 text-2xl font-semibold">
+                {t('referralsInvitedList')}
+              </ThemedText>
+              {referrals.referralsMade.map(
+                (r: { id?: string; referee?: { name?: string }; status?: string }) => (
+                  <View
+                    key={r.id ?? String(r)}
+                    className="my-3 flex-row items-center justify-between">
+                    <ThemedText className="text-lg">{r.referee?.name ?? '—'}</ThemedText>
+                    <ThemedText className="text-base capitalize text-light-subtext dark:text-dark-subtext">
+                      {r.status ?? '—'}
+                    </ThemedText>
+                  </View>
+                )
+              )}
             </>
           )}
         </View>

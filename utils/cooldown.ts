@@ -16,4 +16,3 @@ export async function isCooldownActive(storageKey: string): Promise<boolean> {
   }
   return true;
 }
-

@@ -78,11 +78,7 @@ export function BranchFilterProvider({ children }: { children: ReactNode }) {
     hasActiveFilter,
   };
 
-  return (
-    <BranchFilterContext.Provider value={value}>
-      {children}
-    </BranchFilterContext.Provider>
-  );
+  return <BranchFilterContext.Provider value={value}>{children}</BranchFilterContext.Provider>;
 }
 
 export function useBranchFilter() {

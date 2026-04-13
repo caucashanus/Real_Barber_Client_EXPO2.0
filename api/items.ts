@@ -40,7 +40,8 @@ export async function getItems(
   const params = new URLSearchParams();
   if (options.category !== undefined) params.set('category', options.category);
   if (options.includeMedia !== undefined) params.set('includeMedia', String(options.includeMedia));
-  if (options.includeEmployees !== undefined) params.set('includeEmployees', String(options.includeEmployees));
+  if (options.includeEmployees !== undefined)
+    params.set('includeEmployees', String(options.includeEmployees));
   if (options.limit !== undefined) params.set('limit', String(options.limit));
   if (options.offset !== undefined) params.set('offset', String(options.offset));
   const qs = params.toString();

@@ -1,15 +1,16 @@
+import * as Haptics from 'expo-haptics';
+import { Stack, router } from 'expo-router';
+import LottieView from 'lottie-react-native';
 import React, { useEffect } from 'react';
 import { View, Image, ActivityIndicator, useWindowDimensions } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Stack, router } from 'expo-router';
-import LottieView from 'lottie-react-native';
-import * as Haptics from 'expo-haptics';
+
 import { useAuth } from '@/app/contexts/AuthContext';
 import useThemeColors from '@/app/contexts/ThemeColors';
 import { useTranslation } from '@/app/hooks/useTranslation';
 import { Button } from '@/components/Button';
-import ThemedText from '@/components/ThemedText';
 import Icon from '@/components/Icon';
+import ThemedText from '@/components/ThemedText';
 
 const REGISTRATION_SUMMARY_LOTTIE = require('@/assets/lottie/registrationsummary.json');
 
@@ -35,7 +36,8 @@ export default function SignupSummaryScreen() {
 
   const raw = client.avatarUrl?.trim() ?? '';
   const showAvatar =
-    raw.length > 0 && (raw.startsWith('http://') || raw.startsWith('https://') || raw.startsWith('file:'));
+    raw.length > 0 &&
+    (raw.startsWith('http://') || raw.startsWith('https://') || raw.startsWith('file:'));
 
   return (
     <>
@@ -50,9 +52,8 @@ export default function SignupSummaryScreen() {
         <View className="flex-1">
           <View
             pointerEvents="none"
-            className="absolute left-0 right-0 top-0 bottom-0 items-center justify-center bg-light-primary dark:bg-dark-primary"
-            style={{ zIndex: 0 }}
-          >
+            className="absolute bottom-0 left-0 right-0 top-0 items-center justify-center bg-light-primary dark:bg-dark-primary"
+            style={{ zIndex: 0 }}>
             <LottieView
               source={REGISTRATION_SUMMARY_LOTTIE}
               autoPlay
@@ -62,12 +63,11 @@ export default function SignupSummaryScreen() {
             />
           </View>
 
-          <View className="flex-1 px-global justify-between py-8" style={{ zIndex: 1 }}>
-            <View className="flex-1 justify-center items-center">
+          <View className="flex-1 justify-between px-global py-8" style={{ zIndex: 1 }}>
+            <View className="flex-1 items-center justify-center">
               <View
-                className="rounded-full overflow-hidden border-4 border-light-secondary dark:border-dark-secondary bg-light-secondary dark:bg-dark-secondary mb-8"
-                style={{ width: 160, height: 160 }}
-              >
+                className="mb-8 overflow-hidden rounded-full border-4 border-light-secondary bg-light-secondary dark:border-dark-secondary dark:bg-dark-secondary"
+                style={{ width: 160, height: 160 }}>
                 {showAvatar ? (
                   <Image
                     source={{ uri: raw }}
@@ -79,13 +79,13 @@ export default function SignupSummaryScreen() {
                     <Icon
                       name="User"
                       size={72}
-                      className="text-light-subtext dark:text-dark-subtext opacity-60"
+                      className="text-light-subtext opacity-60 dark:text-dark-subtext"
                     />
                   </View>
                 )}
               </View>
 
-              <ThemedText className="text-2xl font-bold text-light-text dark:text-dark-text text-center px-4">
+              <ThemedText className="px-4 text-center text-2xl font-bold text-light-text dark:text-dark-text">
                 {client.name}
               </ThemedText>
             </View>

@@ -2,16 +2,13 @@
   "expo": {
     "name": "Real Barber",
     "slug": "realbarber",
-    "version": "1.0.1",
+    "version": "1.0.2",
     "runtimeVersion": "1.0.0",
     "scheme": "realbarber",
     "experiments": {
       "tsconfigPaths": true
     },
-    "platforms": [
-      "ios",
-      "android"
-    ],
+    "platforms": ["ios", "android"],
     "plugins": [
       "expo-router",
       "expo-font",
@@ -40,9 +37,7 @@
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
-    "assetBundlePatterns": [
-      "**/*"
-    ],
+    "assetBundlePatterns": ["**/*"],
     "ios": {
       "deploymentTarget": "16.2",
       "appleTeamId": "VK8YT9654D",
@@ -54,9 +49,7 @@
         "NSSupportsLiveActivities": true
       },
       "entitlements": {
-        "com.apple.security.application-groups": [
-          "group.com.realbarber.client"
-        ]
+        "com.apple.security.application-groups": ["group.com.realbarber.client"]
       }
     },
     "android": {

@@ -29,7 +29,7 @@ export interface Branch {
   name: string;
   description?: string | null;
   imageUrl?: string | null;
-  media?: Array<{ url: string; order?: number; type?: string }>;
+  media?: { url: string; order?: number; type?: string }[];
   address?: string;
   webUrl?: string | null;
   services?: BranchService[];
@@ -48,7 +48,8 @@ export async function getBranches(
   options: GetBranchesOptions = {}
 ): Promise<Branch[]> {
   const params = new URLSearchParams();
-  if (options.includeReviews !== undefined) params.set('includeReviews', String(options.includeReviews));
+  if (options.includeReviews !== undefined)
+    params.set('includeReviews', String(options.includeReviews));
   if (options.reviewsLimit !== undefined) params.set('reviewsLimit', String(options.reviewsLimit));
   const qs = params.toString();
   const url = `${CRM_BASE}/api/client/branches${qs ? `?${qs}` : ''}`;

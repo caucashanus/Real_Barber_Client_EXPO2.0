@@ -1,15 +1,16 @@
-import React, { useRef, useState, useEffect } from 'react';
-import { View } from 'react-native';
 import Slider from '@react-native-community/slider';
 import * as Haptics from 'expo-haptics';
+import React, { useRef, useState, useEffect } from 'react';
+import { View } from 'react-native';
+
+import { useAccentColor, DEFAULT_ACCENT } from '@/app/contexts/AccentColorContext';
+import useThemeColors from '@/app/contexts/ThemeColors';
+import { useTranslation } from '@/app/hooks/useTranslation';
 import Header from '@/components/Header';
+import Icon from '@/components/Icon';
 import ThemedScroller from '@/components/ThemeScroller';
 import ThemedText from '@/components/ThemedText';
 import Section from '@/components/layout/Section';
-import { useAccentColor, DEFAULT_ACCENT } from '@/app/contexts/AccentColorContext';
-import { useTranslation } from '@/app/hooks/useTranslation';
-import useThemeColors from '@/app/contexts/ThemeColors';
-import Icon from '@/components/Icon';
 
 const SAT = 0.85;
 const LIGHT = 0.5;
@@ -25,9 +26,13 @@ function hexToRgb(hex: string): { r: number; g: number; b: number } {
 }
 
 function rgbToHsl(r: number, g: number, b: number): { h: number; s: number; l: number } {
-  r /= 255; g /= 255; b /= 255;
-  const max = Math.max(r, g, b), min = Math.min(r, g, b);
-  let h = 0, s = 0;
+  r /= 255;
+  g /= 255;
+  b /= 255;
+  const max = Math.max(r, g, b),
+    min = Math.min(r, g, b);
+  let h = 0,
+    s = 0;
   const l = (max + min) / 2;
   if (max !== min) {
     const d = max - min;
@@ -65,7 +70,9 @@ function hue2rgb(p: number, q: number, t: number): number {
 
 function hueToHex(hue: number): string {
   const { r, g, b } = hslToRgb(hue, SAT, LIGHT);
-  return '#' + [r, g, b].map((x) => Math.max(0, Math.min(255, x)).toString(16).padStart(2, '0')).join('');
+  return (
+    '#' + [r, g, b].map((x) => Math.max(0, Math.min(255, x)).toString(16).padStart(2, '0')).join('')
+  );
 }
 
 function hexToHue(hex: string): number {
@@ -105,7 +112,9 @@ export default function SettingsAccentScreen() {
           <ThemedText className="mb-5 text-sm leading-6 text-light-subtext dark:text-dark-subtext">
             {t('accentExplanation')}
           </ThemedText>
-          <View className="mb-6 h-24 rounded-2xl border border-light-border dark:border-dark-border items-center justify-center" style={{ backgroundColor: accentColor }}>
+          <View
+            className="border-light-border dark:border-dark-border mb-6 h-24 items-center justify-center rounded-2xl border"
+            style={{ backgroundColor: accentColor }}>
             <ThemedText
               className="text-lg font-medium"
               style={{
@@ -113,12 +122,13 @@ export default function SettingsAccentScreen() {
                   const { r, g, b } = hexToRgb(accentColor);
                   return r * 0.299 + g * 0.587 + b * 0.114 > 128 ? '#000' : '#fff';
                 })(),
-              }}
-            >
+              }}>
               {accentColor}
             </ThemedText>
           </View>
-          <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext mb-2">{t('accentHueSlider')}</ThemedText>
+          <ThemedText className="mb-2 text-sm text-light-subtext dark:text-dark-subtext">
+            {t('accentHueSlider')}
+          </ThemedText>
           <Slider
             minimumValue={0}
             maximumValue={360}
@@ -131,16 +141,14 @@ export default function SettingsAccentScreen() {
 
           <View
             pointerEvents="none"
-            className="mt-8 rounded-2xl overflow-hidden border border-light-border dark:border-dark-border"
-          >
+            className="border-light-border dark:border-dark-border mt-8 overflow-hidden rounded-2xl border">
             <View
               className="flex-row items-center justify-around py-3"
               style={{
                 backgroundColor: colors.bg,
                 borderTopColor: colors.secondary,
                 borderTopWidth: 1,
-              }}
-            >
+              }}>
               <PreviewTabItem label={t('navHome')} icon="Search" focused />
               <PreviewTabItem label={t('navFavorites')} icon="Heart" focused={false} />
               <PreviewTabItem label={t('navBookings')} icon="CalendarPlus" focused={false} />
@@ -153,7 +161,11 @@ export default function SettingsAccentScreen() {
   );
 }
 
-function PreviewTabItem(props: { label: string; icon: React.ComponentProps<typeof Icon>['name']; focused: boolean }) {
+function PreviewTabItem(props: {
+  label: string;
+  icon: React.ComponentProps<typeof Icon>['name'];
+  focused: boolean;
+}) {
   const colors = useThemeColors();
   return (
     <View className="items-center justify-center px-2">
@@ -167,8 +179,7 @@ function PreviewTabItem(props: { label: string; icon: React.ComponentProps<typeo
       </View>
       <ThemedText
         style={props.focused ? { color: colors.highlight } : undefined}
-        className={`text-[9px] mt-px ${!props.focused ? 'text-neutral-500' : ''}`}
-      >
+        className={`mt-px text-[9px] ${!props.focused ? 'text-neutral-500' : ''}`}>
         {props.label}
       </ThemedText>
     </View>

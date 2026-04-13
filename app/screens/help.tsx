@@ -1,13 +1,14 @@
 import React from 'react';
 import { View, ScrollView, TouchableOpacity, Linking } from 'react-native';
-import Header from '@/components/Header';
-import ThemedText from '@/components/ThemedText';
-import Expandable from '@/components/Expandable';
-import Section from '@/components/layout/Section';
-import Icon from '@/components/Icon';
-import { Button } from '@/components/Button';
-import AnimatedView from '@/components/AnimatedView';
+
 import { useTranslation } from '@/app/hooks/useTranslation';
+import AnimatedView from '@/components/AnimatedView';
+import { Button } from '@/components/Button';
+import Expandable from '@/components/Expandable';
+import Header from '@/components/Header';
+import Icon from '@/components/Icon';
+import ThemedText from '@/components/ThemedText';
+import Section from '@/components/layout/Section';
 import type { TranslationKey } from '@/locales';
 
 const FAQ_KEYS: { q: TranslationKey; a: TranslationKey }[] = [
@@ -60,65 +61,58 @@ export default function HelpScreen() {
   return (
     <View className="flex-1 bg-light-primary dark:bg-dark-primary">
       <Header title={t('helpTitle')} showBackButton />
-      
+
       <ScrollView showsVerticalScrollIndicator={false}>
         <AnimatedView animation="fadeIn" duration={400}>
           {/* FAQ Section */}
-          <Section 
-            title={t('helpFaq')} 
-            titleSize="xl" 
-            className="px-global pt-6 pb-2"
-          />
-          
+          <Section title={t('helpFaq')} titleSize="xl" className="px-global pb-2 pt-6" />
+
           <View className="px-global">
             {FAQ_KEYS.map((keys) => (
-              <Expandable
-                key={keys.q}
-                title={t(keys.q)}
-                className="py-1"
-              >
-                <ThemedText className="text-light-text dark:text-dark-text leading-6">
+              <Expandable key={keys.q} title={t(keys.q)} className="py-1">
+                <ThemedText className="leading-6 text-light-text dark:text-dark-text">
                   {t(keys.a)}
                 </ThemedText>
               </Expandable>
             ))}
           </View>
-          
+
           {/* Contact Section */}
-          <Section 
-            title={t('helpContactUs')} 
-            titleSize="xl" 
-            className="px-global pb-2 mt-14"
+          <Section
+            title={t('helpContactUs')}
+            titleSize="xl"
+            className="mt-14 px-global pb-2"
             subtitle={t('helpContactSubtitle')}
           />
-          
+
           <View className="px-global pb-8">
             {CONTACT_ROWS.map((contact) => (
-              <TouchableOpacity 
+              <TouchableOpacity
                 key={contact.id}
                 onPress={contact.action}
                 disabled={!contact.action}
-                className="flex-row items-center py-4 border-b border-light-secondary dark:border-dark-secondary"
-              >
-                <View className="w-10 h-10 rounded-full bg-light-secondary dark:bg-dark-secondary items-center justify-center mr-4">
+                className="flex-row items-center border-b border-light-secondary py-4 dark:border-dark-secondary">
+                <View className="mr-4 h-10 w-10 items-center justify-center rounded-full bg-light-secondary dark:bg-dark-secondary">
                   <Icon name={contact.icon} size={20} />
                 </View>
                 <View className="flex-1 pr-2">
                   <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext">
                     {t(contact.typeKey)}
                   </ThemedText>
-                  <ThemedText className="font-medium">
-                    {t(contact.valueKey)}
-                  </ThemedText>
+                  <ThemedText className="font-medium">{t(contact.valueKey)}</ThemedText>
                 </View>
                 {contact.action && (
-                  <Icon name="ChevronRight" size={20} className="ml-auto text-light-subtext dark:text-dark-subtext" />
+                  <Icon
+                    name="ChevronRight"
+                    size={20}
+                    className="ml-auto text-light-subtext dark:text-dark-subtext"
+                  />
                 )}
               </TouchableOpacity>
             ))}
-            
-            <Button 
-              title={t('helpContactSupport')} 
+
+            <Button
+              title={t('helpContactSupport')}
               iconStart="MessageCircle"
               className="mt-8"
               onPress={() => Linking.openURL(`mailto:${HELP_EMAIL}`)}

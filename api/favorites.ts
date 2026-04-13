@@ -34,10 +34,7 @@ export interface Favorite {
 }
 
 /** POST /api/client/favorites – add a new favorite. Returns 200 with created favorite, 409 if already exists. */
-export async function addFavorite(
-  apiToken: string,
-  body: AddFavoriteBody
-): Promise<Favorite> {
+export async function addFavorite(apiToken: string, body: AddFavoriteBody): Promise<Favorite> {
   const res = await fetch(`${CRM_BASE}/api/client/favorites`, {
     method: 'POST',
     headers: {

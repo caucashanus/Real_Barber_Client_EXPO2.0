@@ -1,14 +1,15 @@
+import { useRouter } from 'expo-router';
 import React from 'react';
 import { View, Modal, Pressable, ScrollView, StyleSheet } from 'react-native';
-import { useRouter } from 'expo-router';
-import { useSetTransferRecipient } from '@/app/contexts/TransferRecipientContext';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+
+import type { RbCoinsHistoryItem } from '@/api/rb-coins';
+import useThemeColors from '@/app/contexts/ThemeColors';
+import { useSetTransferRecipient } from '@/app/contexts/TransferRecipientContext';
+import { useTranslation } from '@/app/hooks/useTranslation';
+import Avatar from '@/components/Avatar';
 import Icon from '@/components/Icon';
 import ThemedText from '@/components/ThemedText';
-import Avatar from '@/components/Avatar';
-import type { RbCoinsHistoryItem } from '@/api/rb-coins';
-import { useTranslation } from '@/app/hooks/useTranslation';
-import useThemeColors from '@/app/contexts/ThemeColors';
 
 function formatBalance(value: number): string {
   return value.toLocaleString('cs-CZ', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
@@ -34,7 +35,9 @@ function getDetailDescription(tx: RbCoinsHistoryItem, t: (key: string) => string
   return '–';
 }
 
-function transactionAvatarSrc(item: RbCoinsHistoryItem): string | import('react-native').ImageSourcePropType {
+function transactionAvatarSrc(
+  item: RbCoinsHistoryItem
+): string | import('react-native').ImageSourcePropType {
   if (item.otherParty?.avatarUrl) return item.otherParty.avatarUrl;
   if (item.type === 'TRANSFER') return require('@/assets/img/wallet/RB.avatar.jpg');
   return require('@/assets/img/wallet/realbarber.png');
@@ -61,11 +64,16 @@ export default function TransactionDetailModal({
 
   const getTypeLabel = (type: string): string => {
     switch (type) {
-      case 'TRANSFER': return t('walletDetailTransfer');
-      case 'CASHBACK': return t('walletDetailCashback');
-      case 'DEPOSIT': return t('walletDetailLoyaltyReward');
-      case 'WITHDRAWAL': return t('walletDetailPayment');
-      default: return t('walletDetailTransaction');
+      case 'TRANSFER':
+        return t('walletDetailTransfer');
+      case 'CASHBACK':
+        return t('walletDetailCashback');
+      case 'DEPOSIT':
+        return t('walletDetailLoyaltyReward');
+      case 'WITHDRAWAL':
+        return t('walletDetailPayment');
+      default:
+        return t('walletDetailTransaction');
     }
   };
   const getDirectionLabel = (direction: string): string =>
@@ -75,7 +83,7 @@ export default function TransactionDetailModal({
   const handleOdeslat = () => {
     if (!transaction.otherParty) return;
     const { id, name, type, avatarUrl } = transaction.otherParty;
-    const recType = (type && String(type).toUpperCase() === 'EMPLOYEE') ? 'EMPLOYEE' : 'CLIENT';
+    const recType = type && String(type).toUpperCase() === 'EMPLOYEE' ? 'EMPLOYEE' : 'CLIENT';
     setTransferRecipient({
       id: String(id),
       name: name ?? '',
@@ -95,16 +103,17 @@ export default function TransactionDetailModal({
   const isSent = transaction.direction === 'sent';
   const amountStr = `${isSent ? '-' : '+'}${formatBalance(transaction.amount)} RBC`;
   const dateTime = formatDateTime(transaction.createdAt, locale);
-  const updatedDateTime = transaction.updatedAt && transaction.updatedAt !== transaction.createdAt
-    ? formatDateTime(transaction.updatedAt, locale)
-    : null;
+  const updatedDateTime =
+    transaction.updatedAt && transaction.updatedAt !== transaction.createdAt
+      ? formatDateTime(transaction.updatedAt, locale)
+      : null;
 
   return (
     <Modal visible={visible} transparent animationType="slide">
       <View style={styles.wrapper}>
         <Pressable style={StyleSheet.absoluteFill} onPress={onClose} />
         <View
-          className="bg-light-primary dark:bg-dark-primary rounded-t-2xl overflow-hidden"
+          className="overflow-hidden rounded-t-2xl bg-light-primary dark:bg-dark-primary"
           style={[
             styles.sheet,
             {
@@ -112,45 +121,56 @@ export default function TransactionDetailModal({
               paddingHorizontal: 20,
               paddingTop: 16,
             },
-          ]}
-        >
+          ]}>
           <Pressable onPress={onClose} style={styles.closeButton}>
             <Icon name="X" size={24} />
           </Pressable>
           <ScrollView
             showsVerticalScrollIndicator={false}
             contentContainerStyle={styles.scrollContent}
-            keyboardShouldPersistTaps="handled"
-          >
-            <View className="flex-row items-center mb-4">
+            keyboardShouldPersistTaps="handled">
+            <View className="mb-4 flex-row items-center">
               <Avatar src={transactionAvatarSrc(transaction)} size="md" />
               <View className="ml-3 flex-1">
-                <ThemedText className="text-base font-semibold">{getTypeLabel(transaction.type)}</ThemedText>
-                <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext">{getDirectionLabel(transaction.direction)}</ThemedText>
+                <ThemedText className="text-base font-semibold">
+                  {getTypeLabel(transaction.type)}
+                </ThemedText>
+                <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext">
+                  {getDirectionLabel(transaction.direction)}
+                </ThemedText>
               </View>
             </View>
             <ThemedText
-              className={`text-2xl font-bold text-center my-4 ${isSent ? 'text-light-text dark:text-dark-text' : 'text-green-600 dark:text-green-400'}`}
-            >
+              className={`my-4 text-center text-2xl font-bold ${isSent ? 'text-light-text dark:text-dark-text' : 'text-green-600 dark:text-green-400'}`}>
               {amountStr}
             </ThemedText>
 
-            <View className="gap-4 pt-2 border-t border-light-secondary dark:border-dark-secondary">
+            <View className="gap-4 border-t border-light-secondary pt-2 dark:border-dark-secondary">
               <View>
-                <ThemedText className="text-xs text-light-subtext dark:text-dark-subtext uppercase tracking-wide mb-1">{t('walletDetailPaymentNote')}</ThemedText>
-                <ThemedText className="text-base">{getDetailDescription(transaction, t)}</ThemedText>
+                <ThemedText className="mb-1 text-xs uppercase tracking-wide text-light-subtext dark:text-dark-subtext">
+                  {t('walletDetailPaymentNote')}
+                </ThemedText>
+                <ThemedText className="text-base">
+                  {getDetailDescription(transaction, t)}
+                </ThemedText>
               </View>
               {transaction.otherParty && (
                 <View>
-                  <ThemedText className="text-xs text-light-subtext dark:text-dark-subtext uppercase tracking-wide mb-1">
-                    {transaction.direction === 'sent' ? t('walletDetailRecipient') : t('walletDetailSender')}
+                  <ThemedText className="mb-1 text-xs uppercase tracking-wide text-light-subtext dark:text-dark-subtext">
+                    {transaction.direction === 'sent'
+                      ? t('walletDetailRecipient')
+                      : t('walletDetailSender')}
                   </ThemedText>
                   <View className="flex-row items-center gap-2">
                     <Avatar src={transactionAvatarSrc(transaction)} size="sm" />
                     <View>
-                      <ThemedText className="text-base font-medium">{transaction.otherParty.name}</ThemedText>
+                      <ThemedText className="text-base font-medium">
+                        {transaction.otherParty.name}
+                      </ThemedText>
                       {transaction.otherParty.identifier && (
-                        <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext">{transaction.otherParty.identifier}</ThemedText>
+                        <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext">
+                          {transaction.otherParty.identifier}
+                        </ThemedText>
                       )}
                     </View>
                   </View>
@@ -158,33 +178,48 @@ export default function TransactionDetailModal({
               )}
               {transaction.performedBy && (
                 <View>
-                  <ThemedText className="text-xs text-light-subtext dark:text-dark-subtext uppercase tracking-wide mb-1">{t('walletDetailPerformedBy')}</ThemedText>
+                  <ThemedText className="mb-1 text-xs uppercase tracking-wide text-light-subtext dark:text-dark-subtext">
+                    {t('walletDetailPerformedBy')}
+                  </ThemedText>
                   <ThemedText className="text-base">{transaction.performedBy.name}</ThemedText>
                 </View>
               )}
               <View>
-                <ThemedText className="text-xs text-light-subtext dark:text-dark-subtext uppercase tracking-wide mb-1">{t('walletDetailDateAndTime')}</ThemedText>
+                <ThemedText className="mb-1 text-xs uppercase tracking-wide text-light-subtext dark:text-dark-subtext">
+                  {t('walletDetailDateAndTime')}
+                </ThemedText>
                 <ThemedText className="text-base">{dateTime.date}</ThemedText>
-                <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext">{dateTime.time}</ThemedText>
+                <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext">
+                  {dateTime.time}
+                </ThemedText>
               </View>
               {updatedDateTime && (
                 <View>
-                  <ThemedText className="text-xs text-light-subtext dark:text-dark-subtext uppercase tracking-wide mb-1">{t('walletDetailUpdated')}</ThemedText>
+                  <ThemedText className="mb-1 text-xs uppercase tracking-wide text-light-subtext dark:text-dark-subtext">
+                    {t('walletDetailUpdated')}
+                  </ThemedText>
                   <ThemedText className="text-base">{updatedDateTime.date}</ThemedText>
-                  <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext">{updatedDateTime.time}</ThemedText>
+                  <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext">
+                    {updatedDateTime.time}
+                  </ThemedText>
                 </View>
               )}
               <View>
-                <ThemedText className="text-xs text-light-subtext dark:text-dark-subtext uppercase tracking-wide mb-1">{t('walletDetailTransactionId')}</ThemedText>
-                <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext">{transaction.id}</ThemedText>
+                <ThemedText className="mb-1 text-xs uppercase tracking-wide text-light-subtext dark:text-dark-subtext">
+                  {t('walletDetailTransactionId')}
+                </ThemedText>
+                <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext">
+                  {transaction.id}
+                </ThemedText>
               </View>
               {isTransfer && (
                 <Pressable
                   onPress={handleOdeslat}
                   style={{ backgroundColor: colors.highlight }}
-                  className="mt-4 py-3 rounded-xl items-center active:opacity-80"
-                >
-                  <ThemedText className="text-base font-semibold text-white">{t('walletDetailSend')}</ThemedText>
+                  className="mt-4 items-center rounded-xl py-3 active:opacity-80">
+                  <ThemedText className="text-base font-semibold text-white">
+                    {t('walletDetailSend')}
+                  </ThemedText>
                 </Pressable>
               )}
             </View>

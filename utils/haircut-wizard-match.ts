@@ -1,11 +1,11 @@
 import type { IconName } from '@/components/Icon';
-import type { TranslationKey } from '@/locales';
-import { getTranslation } from '@/locales';
 import {
   AMENITY_OPTIONS,
   GUEST_ACCESS_OPTIONS,
   PROPERTY_TYPE_OPTIONS,
 } from '@/constants/haircutWizardOptions';
+import type { TranslationKey } from '@/locales';
+import { getTranslation } from '@/locales';
 
 /** Porovná uložený přeložený text s oběma locale (poznámka může být v CS i EN). */
 export function matchesWizardLabel(value: string, labelKey: TranslationKey): boolean {

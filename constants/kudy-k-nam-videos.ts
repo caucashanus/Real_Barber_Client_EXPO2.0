@@ -28,16 +28,59 @@ const KACEROV_DESCRIPTION_CS = `Pobočka se nachází v srdci Prahy 4, před sta
 const HAGIBOR_DESCRIPTION = `is located in the new Hagibor residence complex. The nearest metro station is Želivského on line A; you can also use tram lines stopping at Krematorium Strašnice and Vinohradské hřbitovy, from where it is a short walk to us. For customers arriving by car, there is convenient parking in the white zone right in front of the salon.`;
 const HAGIBOR_DESCRIPTION_CS = `Pobočka se nachází v rezidenčním komplexu Hagibor. Nejblíže je stanice metra Želivského (linka A); lze využít i tramvaje zastávky Krematorium Strašnice a Vinohradské hřbitovy, odtud je to k nám pár minut pěšky. Pro zákazníky autem je pohodlné parkování v bílé zóně přímo před salónem.`;
 
-const UBER_MODRANY = 'https://m.uber.com/looking?drop[0]={"addressLine1":"Barbershop v Praze - Real Barber Modřany / mens grooming","addressLine2":"Čs. exilu 40, Praha 12","id":"ChIJ6Q_nzAaRC0cR4EJPg5U9Glo","source":"SEARCH","latitude":50.0046293,"longitude":14.4164811,"provider":"google_places"}&effect=';
-const UBER_KACEROV = 'https://m.uber.com/looking?drop[0]={"addressLine1":"Barbershop v Praze - Real Barber Kačerov / mens grooming","addressLine2":"Budějovická 615/47, Praha 4","id":"ChIJIx7FF5CTC0cR0uT54costJI","source":"SEARCH","latitude":50.0420162,"longitude":14.4597433,"provider":"google_places"}&effect=';
-const UBER_HAGIBOR = 'https://m.uber.com/looking?drop[0]={"addressLine1":"Barbershop v Praze - Real Barber Hagibor / mens grooming","addressLine2":"Strašnice 10, Praha 10","id":"ChIJbQLiTIaTC0cRKaiGOPFx2nk","source":"SEARCH","latitude":50.07833609999999,"longitude":14.4836596,"provider":"google_places"}&effect=';
-const UBER_BARRANDOV = 'https://m.uber.com/go/home?drop[0]={"addressLine1":"Barbershop v Praze - Real Barber Barrandov / mens grooming","addressLine2":"nám. O. Scheinpflugové 1293/4, Praha 5-Hlubočepy","id":"ChIJBZGxYziXC0cRL0mQgxS4CzM","source":"SEARCH","latitude":50.030374699999996,"longitude":14.3612731,"provider":"google_places"}&effect=';
+const UBER_MODRANY =
+  'https://m.uber.com/looking?drop[0]={"addressLine1":"Barbershop v Praze - Real Barber Modřany / mens grooming","addressLine2":"Čs. exilu 40, Praha 12","id":"ChIJ6Q_nzAaRC0cR4EJPg5U9Glo","source":"SEARCH","latitude":50.0046293,"longitude":14.4164811,"provider":"google_places"}&effect=';
+const UBER_KACEROV =
+  'https://m.uber.com/looking?drop[0]={"addressLine1":"Barbershop v Praze - Real Barber Kačerov / mens grooming","addressLine2":"Budějovická 615/47, Praha 4","id":"ChIJIx7FF5CTC0cR0uT54costJI","source":"SEARCH","latitude":50.0420162,"longitude":14.4597433,"provider":"google_places"}&effect=';
+const UBER_HAGIBOR =
+  'https://m.uber.com/looking?drop[0]={"addressLine1":"Barbershop v Praze - Real Barber Hagibor / mens grooming","addressLine2":"Strašnice 10, Praha 10","id":"ChIJbQLiTIaTC0cRKaiGOPFx2nk","source":"SEARCH","latitude":50.07833609999999,"longitude":14.4836596,"provider":"google_places"}&effect=';
+const UBER_BARRANDOV =
+  'https://m.uber.com/go/home?drop[0]={"addressLine1":"Barbershop v Praze - Real Barber Barrandov / mens grooming","addressLine2":"nám. O. Scheinpflugové 1293/4, Praha 5-Hlubočepy","id":"ChIJBZGxYziXC0cRL0mQgxS4CzM","source":"SEARCH","latitude":50.030374699999996,"longitude":14.3612731,"provider":"google_places"}&effect=';
 
 const BARRANDOV_DESCRIPTION_CS = `Pobočka na nám. O. Scheinpflugové na Praze 5-Hlubočepy. MHD i autem dobře dostupná; v okolí jsou možnosti parkování.`;
 
 export const KUDY_K_NAM_VIDEOS: KudyKNamVideoItem[] = [
-  { id: 'modrany', title: 'Modřany', source: null, mapsUrl: 'https://maps.app.goo.gl/7Qf76jRtVHv8nsvj9', wazeUrl: 'https://www.waze.com/en/live-map/directions/cz/hlavni-mesto-praha/barbershop-v-praze-real-barber-modrany-mens-grooming?to=place.ChIJ6Q_nzAaRC0cR4EJPg5U9Glo', uberUrl: UBER_MODRANY, description: MODRANY_DESCRIPTION, descriptionCs: MODRANY_DESCRIPTION_CS },
-  { id: 'kacerov', title: 'Kačerov', source: null, mapsUrl: 'https://maps.app.goo.gl/q8L2ukJKsfvD3BYz6', wazeUrl: 'https://www.waze.com/en/live-map/directions/cz/hlavni-mesto-praha/barbershop-v-praze-real-barber-kacerov-mens-grooming?place=ChIJIx7FF5CTC0cR0uT54costJI', uberUrl: UBER_KACEROV, description: KACEROV_DESCRIPTION, descriptionCs: KACEROV_DESCRIPTION_CS },
-  { id: 'hagibor', title: 'Hagibor', source: null, mapsUrl: 'https://maps.app.goo.gl/TY9ptGK7P2qv7j1A7', wazeUrl: 'https://www.waze.com/en/live-map/directions/cz/hlavni-mesto-praha/barbershop-v-praze-real-barber-hagibor-mens-grooming?place=ChIJbQLiTIaTC0cRKaiGOPFx2nk', uberUrl: UBER_HAGIBOR, description: HAGIBOR_DESCRIPTION, descriptionCs: HAGIBOR_DESCRIPTION_CS },
-  { id: 'barrandov', title: 'Barrandov', source: null, mapsUrl: 'https://maps.app.goo.gl/WYLrkp582cbsPUyK6', wazeUrl: 'https://www.waze.com/en/live-map/directions/cz/hlavni-mesto-praha/barbershop-v-praze-real-barber-barrandov-mens-grooming?to=place.ChIJBZGxYziXC0cRL0mQgxS4CzM', uberUrl: UBER_BARRANDOV, descriptionCs: BARRANDOV_DESCRIPTION_CS },
+  {
+    id: 'modrany',
+    title: 'Modřany',
+    source: null,
+    mapsUrl: 'https://maps.app.goo.gl/7Qf76jRtVHv8nsvj9',
+    wazeUrl:
+      'https://www.waze.com/en/live-map/directions/cz/hlavni-mesto-praha/barbershop-v-praze-real-barber-modrany-mens-grooming?to=place.ChIJ6Q_nzAaRC0cR4EJPg5U9Glo',
+    uberUrl: UBER_MODRANY,
+    description: MODRANY_DESCRIPTION,
+    descriptionCs: MODRANY_DESCRIPTION_CS,
+  },
+  {
+    id: 'kacerov',
+    title: 'Kačerov',
+    source: null,
+    mapsUrl: 'https://maps.app.goo.gl/q8L2ukJKsfvD3BYz6',
+    wazeUrl:
+      'https://www.waze.com/en/live-map/directions/cz/hlavni-mesto-praha/barbershop-v-praze-real-barber-kacerov-mens-grooming?place=ChIJIx7FF5CTC0cR0uT54costJI',
+    uberUrl: UBER_KACEROV,
+    description: KACEROV_DESCRIPTION,
+    descriptionCs: KACEROV_DESCRIPTION_CS,
+  },
+  {
+    id: 'hagibor',
+    title: 'Hagibor',
+    source: null,
+    mapsUrl: 'https://maps.app.goo.gl/TY9ptGK7P2qv7j1A7',
+    wazeUrl:
+      'https://www.waze.com/en/live-map/directions/cz/hlavni-mesto-praha/barbershop-v-praze-real-barber-hagibor-mens-grooming?place=ChIJbQLiTIaTC0cRKaiGOPFx2nk',
+    uberUrl: UBER_HAGIBOR,
+    description: HAGIBOR_DESCRIPTION,
+    descriptionCs: HAGIBOR_DESCRIPTION_CS,
+  },
+  {
+    id: 'barrandov',
+    title: 'Barrandov',
+    source: null,
+    mapsUrl: 'https://maps.app.goo.gl/WYLrkp582cbsPUyK6',
+    wazeUrl:
+      'https://www.waze.com/en/live-map/directions/cz/hlavni-mesto-praha/barbershop-v-praze-real-barber-barrandov-mens-grooming?to=place.ChIJBZGxYziXC0cRL0mQgxS4CzM',
+    uberUrl: UBER_BARRANDOV,
+    descriptionCs: BARRANDOV_DESCRIPTION_CS,
+  },
 ];

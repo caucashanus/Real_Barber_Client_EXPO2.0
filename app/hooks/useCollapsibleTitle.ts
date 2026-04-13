@@ -4,10 +4,9 @@ import { Animated } from 'react-native';
 export const useCollapsibleTitle = () => {
   const scrollY = useRef(new Animated.Value(0)).current;
 
-  const scrollHandler = Animated.event(
-    [{ nativeEvent: { contentOffset: { y: scrollY } } }],
-    { useNativeDriver: false }
-  );
+  const scrollHandler = Animated.event([{ nativeEvent: { contentOffset: { y: scrollY } } }], {
+    useNativeDriver: false,
+  });
 
   return {
     scrollY,
@@ -16,4 +15,4 @@ export const useCollapsibleTitle = () => {
     // For FlatList compatibility
     onScroll: scrollHandler,
   };
-}; 
+};

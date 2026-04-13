@@ -1,6 +1,6 @@
+const { createRunOncePlugin, withXcodeProject, IOSConfig } = require('@expo/config-plugins');
 const fs = require('fs');
 const path = require('path');
-const { createRunOncePlugin, withXcodeProject, IOSConfig } = require('@expo/config-plugins');
 
 /**
  * Copies ActivityKit + RCT bridge into the iOS *application* target only (not the widget extension).

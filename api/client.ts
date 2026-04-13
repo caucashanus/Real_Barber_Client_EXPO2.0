@@ -205,10 +205,7 @@ export async function deleteClientAccount(
   apiToken: string,
   reason?: string
 ): Promise<DeleteClientAccountResponse> {
-  const payload =
-    reason && reason.trim()
-      ? JSON.stringify({ reason: reason.trim() })
-      : undefined;
+  const payload = reason && reason.trim() ? JSON.stringify({ reason: reason.trim() }) : undefined;
 
   const res = await fetch(`${CRM_BASE}/api/client/account`, {
     method: 'DELETE',

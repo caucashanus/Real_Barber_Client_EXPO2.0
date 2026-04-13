@@ -1,4 +1,6 @@
 // components/Button.tsx
+import * as Haptics from 'expo-haptics';
+import { Link, router } from 'expo-router';
 import React from 'react';
 import {
   Text,
@@ -9,9 +11,9 @@ import {
   type StyleProp,
   type ViewStyle,
 } from 'react-native';
-import * as Haptics from 'expo-haptics';
-import { Link, router } from 'expo-router';
+
 import Icon, { IconName } from './Icon';
+
 import useThemeColors from '@/app/contexts/ThemeColors';
 
 type RoundedOption = 'none' | 'xs' | 'sm' | 'md' | 'lg' | 'xl' | 'full';
@@ -67,13 +69,13 @@ export const Button: React.FC<ButtonProps> = ({
     outline: 'border border-black dark:border-white bg-transparent',
     ghost: 'bg-transparent',
   };
-  
+
   const buttonSize = {
     small: 'py-2',
     medium: 'py-3',
     large: 'py-5',
   };
-  
+
   const roundedStyles = {
     none: 'rounded-none',
     xs: 'rounded-xs',
@@ -83,7 +85,7 @@ export const Button: React.FC<ButtonProps> = ({
     xl: 'rounded-xl',
     full: 'rounded-full',
   };
-  
+
   const textColor = 'text-black dark:text-white';
   const titleClassName =
     variant === 'primary'
@@ -94,12 +96,16 @@ export const Button: React.FC<ButtonProps> = ({
   // Default icon sizes based on button size
   const getIconSize = () => {
     if (iconSize) return iconSize;
-    
+
     switch (size) {
-      case 'small': return 16;
-      case 'medium': return 18;
-      case 'large': return 20;
-      default: return 18;
+      case 'small':
+        return 16;
+      case 'medium':
+        return 18;
+      case 'large':
+        return 20;
+      default:
+        return 18;
     }
   };
 
@@ -117,22 +123,22 @@ export const Button: React.FC<ButtonProps> = ({
       ) : (
         <View className="flex-row items-center justify-center">
           {iconStart && (
-            <Icon 
-              name={iconStart} 
-              size={getIconSize()} 
-              color={getIconColor()} 
-              className={`mr-2 ${iconClassName} `} 
+            <Icon
+              name={iconStart}
+              size={getIconSize()}
+              color={getIconColor()}
+              className={`mr-2 ${iconClassName} `}
             />
           )}
-          
+
           <Text className={titleClassName}>{title}</Text>
-          
+
           {iconEnd && (
-            <Icon 
-              name={iconEnd} 
-              size={getIconSize()} 
-              color={getIconColor()} 
-              className={`ml-2 ${iconClassName}`} 
+            <Icon
+              name={iconEnd}
+              size={getIconSize()}
+              color={getIconColor()}
+              className={`ml-2 ${iconClassName}`}
             />
           )}
         </View>
@@ -157,13 +163,12 @@ export const Button: React.FC<ButtonProps> = ({
         disabled={loading || disabled}
         activeOpacity={0.8}
         style={mergedStyle}
-        className={`px-4 relative ${buttonStyles[variant]} ${buttonSize[size]} ${roundedStyles[rounded]} items-center justify-center ${disabledStyle} ${className}`}
+        className={`relative px-4 ${buttonStyles[variant]} ${buttonSize[size]} ${roundedStyles[rounded]} items-center justify-center ${disabledStyle} ${className}`}
         {...props}
         onPress={() => {
           triggerHaptic();
           router.push(href);
-        }}
-      >
+        }}>
         {ButtonContent}
       </TouchableOpacity>
     );
@@ -178,9 +183,8 @@ export const Button: React.FC<ButtonProps> = ({
       disabled={loading || disabled}
       activeOpacity={0.8}
       style={mergedStyle}
-      className={`px-4 relative ${buttonStyles[variant]} ${buttonSize[size]} ${roundedStyles[rounded]} items-center justify-center ${disabledStyle} ${className}`}
-      {...props}
-    >
+      className={`relative px-4 ${buttonStyles[variant]} ${buttonSize[size]} ${roundedStyles[rounded]} items-center justify-center ${disabledStyle} ${className}`}
+      {...props}>
       {ButtonContent}
     </TouchableOpacity>
   );

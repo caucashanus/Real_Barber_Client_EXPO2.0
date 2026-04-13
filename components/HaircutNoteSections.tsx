@@ -1,9 +1,16 @@
 import React, { useMemo, useState } from 'react';
 import { View, Image, Pressable } from 'react-native';
-import Section from '@/components/layout/Section';
-import Divider from '@/components/layout/Divider';
-import ThemedText from '@/components/ThemedText';
+
+import { useTranslation } from '@/app/hooks/useTranslation';
+import HaircutNoteEditModals, {
+  type HaircutNotePickerKind,
+} from '@/components/HaircutNoteEditModals';
 import Icon from '@/components/Icon';
+import ThemedText from '@/components/ThemedText';
+import Selectable from '@/components/forms/Selectable';
+import Divider from '@/components/layout/Divider';
+import Section from '@/components/layout/Section';
+import type { TranslationKey } from '@/locales';
 import {
   parseHaircutNoteLines,
   bucketHaircutNoteLines,
@@ -11,21 +18,17 @@ import {
   type HaircutNoteSectionId,
 } from '@/utils/haircut-note';
 import {
+  findParsedLineIndex,
+  removeFeatureTagFromNote,
+  removeLineAt,
+} from '@/utils/haircut-note-mutate';
+import {
   resolveOverviewRowIcon,
   resolveAmenityIcon,
   resolvePropertyTypeIcon,
   resolveSeasonIcon,
   isLongerHaircutTypeLabel,
 } from '@/utils/haircut-wizard-match';
-import {
-  findParsedLineIndex,
-  removeFeatureTagFromNote,
-  removeLineAt,
-} from '@/utils/haircut-note-mutate';
-import { useTranslation } from '@/app/hooks/useTranslation';
-import type { TranslationKey } from '@/locales';
-import HaircutNoteEditModals, { type HaircutNotePickerKind } from '@/components/HaircutNoteEditModals';
-import Selectable from '@/components/forms/Selectable';
 
 const SECTION_TITLE_KEY: Record<HaircutNoteSectionId, TranslationKey> = {
   overview: 'haircutNoteSectionOverview',
@@ -59,20 +62,23 @@ function NoteRow({
   onRemove?: () => void;
 }) {
   return (
-    <View className="relative rounded-xl bg-light-secondary dark:bg-dark-secondary p-3 mb-2 last:mb-0 flex-row items-center">
-      <View className={`flex-1 min-w-0 ${editing && onRemove ? 'pr-10' : 'pr-2'}`}>
+    <View className="relative mb-2 flex-row items-center rounded-xl bg-light-secondary p-3 last:mb-0 dark:bg-dark-secondary">
+      <View className={`min-w-0 flex-1 ${editing && onRemove ? 'pr-10' : 'pr-2'}`}>
         {label ? (
-          <ThemedText className="text-xs text-light-subtext dark:text-dark-subtext mb-1">{label}</ThemedText>
+          <ThemedText className="mb-1 text-xs text-light-subtext dark:text-dark-subtext">
+            {label}
+          </ThemedText>
         ) : null}
-        <ThemedText className="text-base font-medium text-light-text dark:text-dark-text">{value}</ThemedText>
+        <ThemedText className="text-base font-medium text-light-text dark:text-dark-text">
+          {value}
+        </ThemedText>
       </View>
       {trailing}
       {editing && onRemove ? (
         <Pressable
           onPress={onRemove}
           hitSlop={8}
-          className="absolute -top-1 -right-1 w-7 h-7 rounded-full bg-red-500 items-center justify-center"
-        >
+          className="absolute -right-1 -top-1 h-7 w-7 items-center justify-center rounded-full bg-red-500">
           <Icon name="X" size={14} color="white" />
         </Pressable>
       ) : null}
@@ -104,7 +110,7 @@ function FeaturesBlock({
         const amenityIcon = resolveAmenityIcon(tag);
         return (
           <View key={`${tag}-${i}`} className="relative">
-            <View className="flex-row items-center rounded-full bg-light-secondary dark:bg-dark-secondary px-3 py-1.5 pr-8">
+            <View className="flex-row items-center rounded-full bg-light-secondary px-3 py-1.5 pr-8 dark:bg-dark-secondary">
               {amenityIcon ? (
                 <Icon
                   name={amenityIcon}
@@ -118,8 +124,7 @@ function FeaturesBlock({
               <Pressable
                 onPress={() => onRemoveTag(tag)}
                 hitSlop={6}
-                className="absolute -top-1 -right-1 w-6 h-6 rounded-full bg-red-500 items-center justify-center"
-              >
+                className="absolute -right-1 -top-1 h-6 w-6 items-center justify-center rounded-full bg-red-500">
                 <Icon name="X" size={12} color="white" />
               </Pressable>
             ) : null}
@@ -163,17 +168,14 @@ function OverviewTagsBlock({
               selected
               showSelectedIndicator={!editing}
               customIcon={
-                img ? (
-                  <Image source={img} className="h-12 w-12" resizeMode="contain" />
-                ) : undefined
+                img ? <Image source={img} className="h-12 w-12" resizeMode="contain" /> : undefined
               }
             />
             {editing && onRemoveTag ? (
               <Pressable
                 onPress={() => onRemoveTag(tag)}
                 hitSlop={6}
-                className="absolute -top-1 -right-1 z-10 h-7 w-7 items-center justify-center rounded-full bg-red-500"
-              >
+                className="absolute -right-1 -top-1 z-10 h-7 w-7 items-center justify-center rounded-full bg-red-500">
                 <Icon name="X" size={12} color="white" />
               </Pressable>
             ) : null}
@@ -193,7 +195,11 @@ interface HaircutNoteSectionsProps {
 /**
  * Rozparsuje strukturovaný text z API (`Typ účesu: …\\nObdobí: …`) do sekcí.
  */
-export default function HaircutNoteSections({ note, editing, onNoteChange }: HaircutNoteSectionsProps) {
+export default function HaircutNoteSections({
+  note,
+  editing,
+  onNoteChange,
+}: HaircutNoteSectionsProps) {
   const { t } = useTranslation();
   const [pickerKind, setPickerKind] = useState<HaircutNotePickerKind>(null);
 
@@ -235,8 +241,7 @@ export default function HaircutNoteSections({ note, editing, onNoteChange }: Hai
       <Pressable
         onPress={() => setPickerKind(kind)}
         hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
-        className="h-8 w-8 rounded-full bg-light-secondary dark:bg-dark-secondary items-center justify-center"
-      >
+        className="h-8 w-8 items-center justify-center rounded-full bg-light-secondary dark:bg-dark-secondary">
         <Icon name="Plus" size={16} className="text-light-text dark:text-dark-text" />
       </Pressable>
     );
@@ -246,7 +251,7 @@ export default function HaircutNoteSections({ note, editing, onNoteChange }: Hai
     if (!editNote) {
       return (
         <Section title={t('haircutDetailNoteTitle')} titleSize="lg" className="px-global pt-4">
-          <View className="mt-4 bg-light-secondary dark:bg-dark-secondary rounded-xl p-4">
+          <View className="mt-4 rounded-xl bg-light-secondary p-4 dark:bg-dark-secondary">
             <ThemedText className="text-sm text-light-text dark:text-dark-text">—</ThemedText>
           </View>
         </Section>
@@ -262,7 +267,9 @@ export default function HaircutNoteSections({ note, editing, onNoteChange }: Hai
         />
         {HAIRCUT_NOTE_SECTION_ORDER.filter((id) => id !== 'other').map((sectionId, index) => (
           <React.Fragment key={sectionId}>
-            {index > 0 ? <Divider className="mt-6 h-2 bg-light-secondary dark:bg-dark-darker" /> : null}
+            {index > 0 ? (
+              <Divider className="mt-6 h-2 bg-light-secondary dark:bg-dark-darker" />
+            ) : null}
             <Section
               title={t(SECTION_TITLE_KEY[sectionId])}
               titleSize="lg"
@@ -285,17 +292,16 @@ export default function HaircutNoteSections({ note, editing, onNoteChange }: Hai
           onApply={(next) => applyNote(next)}
         />
         <Section title={t('haircutDetailNoteTitle')} titleSize="lg" className="px-global pt-4">
-          <View className="mt-4 bg-light-secondary dark:bg-dark-secondary rounded-xl p-4 relative">
+          <View className="relative mt-4 rounded-xl bg-light-secondary p-4 dark:bg-dark-secondary">
             {editNote ? (
               <Pressable
                 onPress={() => applyNote('')}
                 hitSlop={8}
-                className="absolute top-2 right-2 w-7 h-7 rounded-full bg-red-500 items-center justify-center z-10"
-              >
+                className="absolute right-2 top-2 z-10 h-7 w-7 items-center justify-center rounded-full bg-red-500">
                 <Icon name="X" size={14} color="white" />
               </Pressable>
             ) : null}
-            <ThemedText className="text-sm leading-6 text-light-text dark:text-dark-text pr-8">
+            <ThemedText className="pr-8 text-sm leading-6 text-light-text dark:text-dark-text">
               {note.trim()}
             </ThemedText>
           </View>
@@ -314,162 +320,162 @@ export default function HaircutNoteSections({ note, editing, onNoteChange }: Hai
       />
       {sectionOrderList.map((sectionId, index) => (
         <React.Fragment key={sectionId}>
-          {index > 0 ? <Divider className="mt-6 h-2 bg-light-secondary dark:bg-dark-darker" /> : null}
+          {index > 0 ? (
+            <Divider className="mt-6 h-2 bg-light-secondary dark:bg-dark-darker" />
+          ) : null}
           <Section
             title={t(SECTION_TITLE_KEY[sectionId])}
             titleSize="lg"
             className="px-global pt-4"
-            titleTrailing={editNote ? sectionAddButton(sectionId) : undefined}
-          >
+            titleTrailing={editNote ? sectionAddButton(sectionId) : undefined}>
             {buckets[sectionId].length === 0 ? null : (
-            <View
-              className={`gap-1 ${sectionId === 'overview' ? 'mt-5' : 'mt-4'}`}
-            >
-              {buckets[sectionId].map((row, rowIndex) => {
-                const firstOverviewTag =
-                  sectionId === 'overview'
-                    ? row.value.split(',')[0]?.trim() || row.value
-                    : row.value;
-                const overviewIcon =
-                  sectionId === 'overview' ? resolveOverviewRowIcon(firstOverviewTag) : undefined;
-                const overviewTrailing =
-                  overviewIcon != null ? (
-                    <Image
-                      source={overviewIcon}
-                      className={
-                        isLongerHaircutTypeLabel(firstOverviewTag)
-                          ? 'w-14 h-14 shrink-0 translate-y-3'
-                          : 'w-12 h-12 shrink-0 translate-y-3'
-                      }
-                      resizeMode="contain"
-                    />
-                  ) : undefined;
-
-                if (
-                  sectionId === 'overview' &&
-                  (row.label === typeLineLabel || row.label === seasonLineLabel)
-                ) {
-                  return (
-                    <View key={`${row.label}-${rowIndex}`} className="mb-2">
-                      {row.label ? (
-                        <ThemedText className="text-xs text-light-subtext dark:text-dark-subtext mb-2">
-                          {row.label}
-                        </ThemedText>
-                      ) : null}
-                      <OverviewTagsBlock
-                        value={row.value}
-                        variant={row.label === typeLineLabel ? 'type' : 'season'}
-                        editing={!!editNote}
-                        onRemoveTag={
-                          editNote
-                            ? (tag) =>
-                                applyNote(removeFeatureTagFromNote(note, tag, row.label))
-                            : undefined
+              <View className={`gap-1 ${sectionId === 'overview' ? 'mt-5' : 'mt-4'}`}>
+                {buckets[sectionId].map((row, rowIndex) => {
+                  const firstOverviewTag =
+                    sectionId === 'overview'
+                      ? row.value.split(',')[0]?.trim() || row.value
+                      : row.value;
+                  const overviewIcon =
+                    sectionId === 'overview' ? resolveOverviewRowIcon(firstOverviewTag) : undefined;
+                  const overviewTrailing =
+                    overviewIcon != null ? (
+                      <Image
+                        source={overviewIcon}
+                        className={
+                          isLongerHaircutTypeLabel(firstOverviewTag)
+                            ? 'h-14 w-14 shrink-0 translate-y-3'
+                            : 'h-12 w-12 shrink-0 translate-y-3'
                         }
+                        resizeMode="contain"
                       />
-                    </View>
-                  );
-                }
+                    ) : undefined;
 
-                if (sectionId === 'features') {
-                  return (
-                    <View key={`${row.label}-${rowIndex}`} className="mb-2">
-                      {row.label ? (
-                        <ThemedText className="text-xs text-light-subtext dark:text-dark-subtext mb-2">
-                          {row.label}
-                        </ThemedText>
-                      ) : null}
-                      <FeaturesBlock
-                        value={row.value}
-                        editing={!!editNote}
-                        onRemoveTag={
-                          editNote
-                            ? (tag) =>
-                                applyNote(
-                                  removeFeatureTagFromNote(
-                                    note,
-                                    tag,
-                                    row.label || t('addPropertyStepFeatures')
+                  if (
+                    sectionId === 'overview' &&
+                    (row.label === typeLineLabel || row.label === seasonLineLabel)
+                  ) {
+                    return (
+                      <View key={`${row.label}-${rowIndex}`} className="mb-2">
+                        {row.label ? (
+                          <ThemedText className="mb-2 text-xs text-light-subtext dark:text-dark-subtext">
+                            {row.label}
+                          </ThemedText>
+                        ) : null}
+                        <OverviewTagsBlock
+                          value={row.value}
+                          variant={row.label === typeLineLabel ? 'type' : 'season'}
+                          editing={!!editNote}
+                          onRemoveTag={
+                            editNote
+                              ? (tag) => applyNote(removeFeatureTagFromNote(note, tag, row.label))
+                              : undefined
+                          }
+                        />
+                      </View>
+                    );
+                  }
+
+                  if (sectionId === 'features') {
+                    return (
+                      <View key={`${row.label}-${rowIndex}`} className="mb-2">
+                        {row.label ? (
+                          <ThemedText className="mb-2 text-xs text-light-subtext dark:text-dark-subtext">
+                            {row.label}
+                          </ThemedText>
+                        ) : null}
+                        <FeaturesBlock
+                          value={row.value}
+                          editing={!!editNote}
+                          onRemoveTag={
+                            editNote
+                              ? (tag) =>
+                                  applyNote(
+                                    removeFeatureTagFromNote(
+                                      note,
+                                      tag,
+                                      row.label || t('addPropertyStepFeatures')
+                                    )
                                   )
-                                )
-                            : undefined
-                        }
-                      />
-                    </View>
-                  );
-                }
-                if (sectionId === 'description') {
-                  return (
-                    <View
-                      key={`${row.label}-${rowIndex}`}
-                      className="bg-light-secondary dark:bg-dark-secondary rounded-xl p-4 relative"
-                    >
-                      {editNote ? (
-                        <Pressable
-                          onPress={() => removeRow(row)}
-                          hitSlop={8}
-                          className="absolute top-2 right-2 w-7 h-7 rounded-full bg-red-500 items-center justify-center z-10"
-                        >
-                          <Icon name="X" size={14} color="white" />
-                        </Pressable>
-                      ) : null}
-                      {row.label ? (
-                        <ThemedText className="text-xs text-light-subtext dark:text-dark-subtext mb-2">
-                          {row.label}
-                        </ThemedText>
-                      ) : null}
-                      <ThemedText className="text-sm leading-6 text-light-text dark:text-dark-text pr-8">
-                        {row.value}
-                      </ThemedText>
-                    </View>
-                  );
-                }
-                if (sectionId === 'difficulty') {
-                  return (
-                    <View
-                      key={`${row.label}-${rowIndex}`}
-                      className="relative flex-row items-center rounded-xl bg-light-secondary dark:bg-dark-secondary p-4 pr-12"
-                    >
-                      <View className="flex-1 min-w-0 flex-row items-center justify-between pr-2">
-                        <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext flex-1 pr-2">
-                          {row.label}
-                        </ThemedText>
-                        <ThemedText className="text-xl font-bold text-light-text dark:text-dark-text shrink-0">
+                              : undefined
+                          }
+                        />
+                      </View>
+                    );
+                  }
+                  if (sectionId === 'description') {
+                    return (
+                      <View
+                        key={`${row.label}-${rowIndex}`}
+                        className="relative rounded-xl bg-light-secondary p-4 dark:bg-dark-secondary">
+                        {editNote ? (
+                          <Pressable
+                            onPress={() => removeRow(row)}
+                            hitSlop={8}
+                            className="absolute right-2 top-2 z-10 h-7 w-7 items-center justify-center rounded-full bg-red-500">
+                            <Icon name="X" size={14} color="white" />
+                          </Pressable>
+                        ) : null}
+                        {row.label ? (
+                          <ThemedText className="mb-2 text-xs text-light-subtext dark:text-dark-subtext">
+                            {row.label}
+                          </ThemedText>
+                        ) : null}
+                        <ThemedText className="pr-8 text-sm leading-6 text-light-text dark:text-dark-text">
                           {row.value}
                         </ThemedText>
                       </View>
-                      {editNote ? (
-                        <Pressable
-                          onPress={() => removeRow(row)}
-                          hitSlop={8}
-                          className="absolute top-2 right-2 w-7 h-7 rounded-full bg-red-500 items-center justify-center"
-                        >
-                          <Icon name="X" size={14} color="white" />
-                        </Pressable>
-                      ) : null}
-                    </View>
-                  );
-                }
-                if (sectionId === 'other' && !row.label) {
+                    );
+                  }
+                  if (sectionId === 'difficulty') {
+                    return (
+                      <View
+                        key={`${row.label}-${rowIndex}`}
+                        className="relative flex-row items-center rounded-xl bg-light-secondary p-4 pr-12 dark:bg-dark-secondary">
+                        <View className="min-w-0 flex-1 flex-row items-center justify-between pr-2">
+                          <ThemedText className="flex-1 pr-2 text-sm text-light-subtext dark:text-dark-subtext">
+                            {row.label}
+                          </ThemedText>
+                          <ThemedText className="shrink-0 text-xl font-bold text-light-text dark:text-dark-text">
+                            {row.value}
+                          </ThemedText>
+                        </View>
+                        {editNote ? (
+                          <Pressable
+                            onPress={() => removeRow(row)}
+                            hitSlop={8}
+                            className="absolute right-2 top-2 h-7 w-7 items-center justify-center rounded-full bg-red-500">
+                            <Icon name="X" size={14} color="white" />
+                          </Pressable>
+                        ) : null}
+                      </View>
+                    );
+                  }
+                  if (sectionId === 'other' && !row.label) {
+                    return (
+                      <View key={`other-${rowIndex}`} className="flex-row items-start gap-2">
+                        <Icon
+                          name="Circle"
+                          size={6}
+                          className="mt-2 text-light-subtext dark:text-dark-subtext"
+                        />
+                        <ThemedText className="flex-1 text-sm text-light-text dark:text-dark-text">
+                          {row.value}
+                        </ThemedText>
+                      </View>
+                    );
+                  }
                   return (
-                    <View key={`other-${rowIndex}`} className="flex-row items-start gap-2">
-                      <Icon name="Circle" size={6} className="mt-2 text-light-subtext dark:text-dark-subtext" />
-                      <ThemedText className="text-sm flex-1 text-light-text dark:text-dark-text">{row.value}</ThemedText>
-                    </View>
+                    <NoteRow
+                      key={`${row.label}-${rowIndex}`}
+                      label={row.label}
+                      value={row.value}
+                      trailing={overviewTrailing}
+                      editing={!!editNote}
+                      onRemove={editNote ? () => removeRow(row) : undefined}
+                    />
                   );
-                }
-                return (
-                  <NoteRow
-                    key={`${row.label}-${rowIndex}`}
-                    label={row.label}
-                    value={row.value}
-                    trailing={overviewTrailing}
-                    editing={!!editNote}
-                    onRemove={editNote ? () => removeRow(row) : undefined}
-                  />
-                );
-              })}
-            </View>
+                })}
+              </View>
             )}
           </Section>
         </React.Fragment>

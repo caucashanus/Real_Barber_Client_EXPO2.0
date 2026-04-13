@@ -1,18 +1,19 @@
+import { router, useLocalSearchParams } from 'expo-router';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { View, ScrollView, ActivityIndicator, Image } from 'react-native';
-import { router, useLocalSearchParams } from 'expo-router';
-import Header from '@/components/Header';
-import ThemedText from '@/components/ThemedText';
-import ThemedFooter from '@/components/ThemeFooter';
-import Section from '@/components/layout/Section';
-import Divider from '@/components/layout/Divider';
-import CurrentBookingCard from '@/components/booking/CurrentBookingCard';
-import { Button } from '@/components/Button';
-import useThemeColors from '@/app/contexts/ThemeColors';
+
+import { getBookingById, updateBooking, type Booking } from '@/api/bookings';
 import { useAuth } from '@/app/contexts/AuthContext';
 import { useLanguage } from '@/app/contexts/LanguageContext';
+import useThemeColors from '@/app/contexts/ThemeColors';
 import { useTranslation } from '@/app/hooks/useTranslation';
-import { getBookingById, updateBooking, type Booking } from '@/api/bookings';
+import { Button } from '@/components/Button';
+import Header from '@/components/Header';
+import ThemedFooter from '@/components/ThemeFooter';
+import ThemedText from '@/components/ThemedText';
+import CurrentBookingCard from '@/components/booking/CurrentBookingCard';
+import Divider from '@/components/layout/Divider';
+import Section from '@/components/layout/Section';
 
 function formatDateLabel(date: string, locale: string): string {
   const parsed = new Date(date);
@@ -108,7 +109,9 @@ export default function RescheduleSummaryScreen() {
         <Header title={t('rescheduleSummaryTitle')} showBackButton />
         <View className="flex-1 items-center justify-center bg-light-primary dark:bg-dark-primary">
           <ActivityIndicator size="large" />
-          <ThemedText className="mt-2 text-light-subtext dark:text-dark-subtext">{t('commonLoading')}</ThemedText>
+          <ThemedText className="mt-2 text-light-subtext dark:text-dark-subtext">
+            {t('commonLoading')}
+          </ThemedText>
         </View>
       </>
     );
@@ -118,8 +121,10 @@ export default function RescheduleSummaryScreen() {
     return (
       <>
         <Header title={t('rescheduleSummaryTitle')} showBackButton />
-        <View className="flex-1 items-center justify-center bg-light-primary dark:bg-dark-primary p-6">
-          <ThemedText className="text-center text-red-500 dark:text-red-400">{fetchError ?? t('rescheduleNotFound')}</ThemedText>
+        <View className="flex-1 items-center justify-center bg-light-primary p-6 dark:bg-dark-primary">
+          <ThemedText className="text-center text-red-500 dark:text-red-400">
+            {fetchError ?? t('rescheduleNotFound')}
+          </ThemedText>
         </View>
       </>
     );
@@ -140,21 +145,25 @@ export default function RescheduleSummaryScreen() {
           </View>
           <Divider className="mt-2 h-2 bg-light-secondary dark:bg-dark-darker" />
 
-          <Section title={t('rescheduleCurrentTitle')} titleSize="lg" className="pt-3 pb-1">
+          <Section title={t('rescheduleCurrentTitle')} titleSize="lg" className="pb-1 pt-3">
             <CurrentBookingCard booking={booking} />
           </Section>
 
           <Divider className="mt-4 h-2 bg-light-secondary dark:bg-dark-darker" />
 
-          <Section title={t('reschedulePickTitle')} titleSize="lg" className="pt-3 pb-1">
-            <ThemedText className="text-base font-semibold mt-2">{nextDateLabel}</ThemedText>
-            <View className="flex-row items-center justify-between bg-light-secondary dark:bg-dark-secondary rounded-xl p-3 mt-2">
+          <Section title={t('reschedulePickTitle')} titleSize="lg" className="pb-1 pt-3">
+            <ThemedText className="mt-2 text-base font-semibold">{nextDateLabel}</ThemedText>
+            <View className="mt-2 flex-row items-center justify-between rounded-xl bg-light-secondary p-3 dark:bg-dark-secondary">
               <View>
-                <ThemedText className="text-xs text-light-subtext dark:text-dark-subtext">{t('reservationSummaryFrom')}</ThemedText>
+                <ThemedText className="text-xs text-light-subtext dark:text-dark-subtext">
+                  {t('reservationSummaryFrom')}
+                </ThemedText>
                 <ThemedText className="text-base font-semibold">{slotStart}</ThemedText>
               </View>
               <View className="items-end">
-                <ThemedText className="text-xs text-light-subtext dark:text-dark-subtext">{t('reservationSummaryTo')}</ThemedText>
+                <ThemedText className="text-xs text-light-subtext dark:text-dark-subtext">
+                  {t('reservationSummaryTo')}
+                </ThemedText>
                 <ThemedText className="text-base font-semibold">{slotEnd}</ThemedText>
               </View>
             </View>
@@ -168,12 +177,16 @@ export default function RescheduleSummaryScreen() {
             ) : null}
           </Section>
 
-          {submitError ? <ThemedText className="mt-3 text-sm text-red-500 dark:text-red-400">{submitError}</ThemedText> : null}
+          {submitError ? (
+            <ThemedText className="mt-3 text-sm text-red-500 dark:text-red-400">
+              {submitError}
+            </ThemedText>
+          ) : null}
           <View className="h-8" />
         </ScrollView>
 
         <ThemedFooter>
-          <View className="flex-row rounded-2xl overflow-hidden bg-light-secondary dark:bg-dark-secondary">
+          <View className="flex-row overflow-hidden rounded-2xl bg-light-secondary dark:bg-dark-secondary">
             <Button
               variant="primary"
               size="small"
@@ -184,7 +197,7 @@ export default function RescheduleSummaryScreen() {
                 void onConfirm();
               }}
               disabled={saving}
-              className="w-full flex-1 py-3.5 px-0 min-w-0 rounded-none"
+              className="w-full min-w-0 flex-1 rounded-none px-0 py-3.5"
               textClassName="text-sm font-semibold text-white"
               style={{ backgroundColor: colors.highlight }}
             />

@@ -31,7 +31,8 @@ export async function getEmployees(
   options: GetEmployeesOptions = {}
 ): Promise<Employee[]> {
   const params = new URLSearchParams();
-  if (options.includeReviews !== undefined) params.set('includeReviews', String(options.includeReviews));
+  if (options.includeReviews !== undefined)
+    params.set('includeReviews', String(options.includeReviews));
   if (options.reviewsLimit !== undefined) params.set('reviewsLimit', String(options.reviewsLimit));
   const qs = params.toString();
   const url = `${CRM_BASE}/api/client/employees${qs ? `?${qs}` : ''}`;
@@ -77,7 +78,10 @@ export interface EmployeeDetail extends Employee {
   availability?: unknown;
 }
 
-export async function getEmployeeById(apiToken: string, employeeId: string): Promise<EmployeeDetail> {
+export async function getEmployeeById(
+  apiToken: string,
+  employeeId: string
+): Promise<EmployeeDetail> {
   const url = `${CRM_BASE}/api/client/employees/${encodeURIComponent(employeeId)}`;
 
   const res = await fetch(url, {

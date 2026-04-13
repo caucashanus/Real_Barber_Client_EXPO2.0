@@ -1,20 +1,21 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { View, ActivityIndicator, Alert } from 'react-native';
-import Header from '@/components/Header';
-import ThemedText from '@/components/ThemedText';
-import Switch from '@/components/forms/Switch';
-import ThemedScroller from '@/components/ThemeScroller';
-import Section from '@/components/layout/Section';
-import Divider from '@/components/layout/Divider';
-import { useTranslation } from '@/app/hooks/useTranslation';
-import type { TranslationKey } from '@/locales';
-import { useAuth } from '@/app/contexts/AuthContext';
+
 import {
   getCommunicationSettings,
   patchCommunicationSettings,
   type CommunicationChannels,
   type CommunicationContentTypes,
 } from '@/api/communication-settings';
+import { useAuth } from '@/app/contexts/AuthContext';
+import { useTranslation } from '@/app/hooks/useTranslation';
+import Header from '@/components/Header';
+import ThemedScroller from '@/components/ThemeScroller';
+import ThemedText from '@/components/ThemedText';
+import Switch from '@/components/forms/Switch';
+import Divider from '@/components/layout/Divider';
+import Section from '@/components/layout/Section';
+import type { TranslationKey } from '@/locales';
 
 const CHANNEL_ROWS: { key: keyof CommunicationChannels; label: TranslationKey }[] = [
   { key: 'phoneCall', label: 'communicationChannel_phoneCall' },
@@ -116,15 +117,17 @@ export default function CommunicationSettingsScreen() {
       <ThemedScroller className="pb-10">
         <Section
           titleSize="3xl"
-          className="pt-4 pb-6"
+          className="pb-6 pt-4"
           title={t('communicationSettingsTitle')}
           subtitle={t('communicationSettingsSubtitle')}
         />
 
         {!apiToken ? (
-          <ThemedText className="text-light-subtext dark:text-dark-subtext">{t('communicationSettingsNeedLogin')}</ThemedText>
+          <ThemedText className="text-light-subtext dark:text-dark-subtext">
+            {t('communicationSettingsNeedLogin')}
+          </ThemedText>
         ) : loading ? (
-          <View className="py-12 items-center">
+          <View className="items-center py-12">
             <ActivityIndicator size="small" />
             <ThemedText className="mt-3 text-sm text-light-subtext dark:text-dark-subtext">
               {t('commonLoading')}
@@ -134,7 +137,7 @@ export default function CommunicationSettingsScreen() {
           <ThemedText className="text-light-subtext dark:text-dark-subtext">{error}</ThemedText>
         ) : channels && contentTypes ? (
           <>
-            <ThemedText className="text-lg font-semibold mb-3 text-light-text dark:text-dark-text">
+            <ThemedText className="mb-3 text-lg font-semibold text-light-text dark:text-dark-text">
               {t('communicationSettingsChannelsSection')}
             </ThemedText>
             {CHANNEL_ROWS.map(({ key, label }) => (
@@ -149,7 +152,7 @@ export default function CommunicationSettingsScreen() {
 
             <Divider className="my-6" />
 
-            <ThemedText className="text-lg font-semibold mb-3 text-light-text dark:text-dark-text">
+            <ThemedText className="mb-3 text-lg font-semibold text-light-text dark:text-dark-text">
               {t('communicationSettingsContentSection')}
             </ThemedText>
             {CONTENT_ROWS.map(({ key, label }) => (

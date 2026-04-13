@@ -1,30 +1,19 @@
-import React, { useCallback, useRef, useState } from 'react';
-import {
-  View,
-  Pressable,
-  Animated,
-  Dimensions,
-  StyleSheet,
-  ActivityIndicator,
-} from 'react-native';
-import { Image } from 'expo-image';
-import { useFocusEffect, useRouter } from 'expo-router';
-import { LinearGradient } from 'expo-linear-gradient';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { Image } from 'expo-image';
+import { LinearGradient } from 'expo-linear-gradient';
+import { useFocusEffect, useRouter } from 'expo-router';
+import React, { useCallback, useRef, useState } from 'react';
+import { View, Pressable, Animated, Dimensions, StyleSheet, ActivityIndicator } from 'react-native';
 
+import { getRbCoinsBalance, getRbCoinsHistory } from '@/api/rb-coins';
+import { useAuth } from '@/app/contexts/AuthContext';
+import { useTranslation } from '@/app/hooks/useTranslation';
 import Header from '@/components/Header';
+import Icon from '@/components/Icon';
+import RBLogo from '@/components/RBLogo';
 import ThemedScroller from '@/components/ThemeScroller';
 import ThemedText from '@/components/ThemedText';
-import Icon from '@/components/Icon';
-import { useAuth } from '@/app/contexts/AuthContext';
-import { getRbCoinsBalance, getRbCoinsHistory } from '@/api/rb-coins';
-import {
-  cardDesigns,
-  RBC_SELECTED_CARD_KEY,
-  type CardDesign,
-} from '@/constants/card-designs';
-import RBLogo from '@/components/RBLogo';
-import { useTranslation } from '@/app/hooks/useTranslation';
+import { cardDesigns, RBC_SELECTED_CARD_KEY, type CardDesign } from '@/constants/card-designs';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 const CARD_ASPECT_RATIO = 1.625;
@@ -103,9 +92,10 @@ export default function RBCScreen() {
   const toggleShowDetails = () => setShowDetails((p) => !p);
 
   const cardNumberMasked = `${clientId.substring(0, 4) || '0000'} **** **** ${clientId.substring(Math.max(0, clientId.length - 4)) || '0000'}`;
-  const cardNumberFull = clientId.length >= 16
-    ? `${clientId.slice(0, 4)} ${clientId.slice(4, 8)} ${clientId.slice(8, 12)} ${clientId.slice(12, 16)}`
-    : `${clientId.substring(0, 4) || '0000'} 0000 0000 ${clientId.substring(Math.max(0, clientId.length - 4)) || '0000'}`;
+  const cardNumberFull =
+    clientId.length >= 16
+      ? `${clientId.slice(0, 4)} ${clientId.slice(4, 8)} ${clientId.slice(8, 12)} ${clientId.slice(12, 16)}`
+      : `${clientId.substring(0, 4) || '0000'} 0000 0000 ${clientId.substring(Math.max(0, clientId.length - 4)) || '0000'}`;
 
   const frontOpacity = flipAnimation.interpolate({
     inputRange: [0, 0.5, 1],
@@ -172,14 +162,18 @@ export default function RBCScreen() {
     );
   };
 
-  const renderCardSide = (design: CardDesign, isBack: boolean, opacity: Animated.AnimatedInterpolation<number>, rotateY: Animated.AnimatedInterpolation<string | number>) => {
+  const renderCardSide = (
+    design: CardDesign,
+    isBack: boolean,
+    opacity: Animated.AnimatedInterpolation<number>,
+    rotateY: Animated.AnimatedInterpolation<string | number>
+  ) => {
     const cardSize = { width: CARD_WIDTH, height: CARD_HEIGHT };
-    const animatedStyle = [
-      styles.cardSide,
-      { opacity, transform: [{ rotateY }] },
-    ];
+    const animatedStyle = [styles.cardSide, { opacity, transform: [{ rotateY }] }];
     if (design.type === 'image') {
-      const source = isBack ? (design.backImage ?? design.frontImage) : (design.frontImage ?? design.backImage);
+      const source = isBack
+        ? (design.backImage ?? design.frontImage)
+        : (design.frontImage ?? design.backImage);
       return (
         <Animated.View style={animatedStyle} pointerEvents="none">
           <View style={[styles.card, cardSize]}>
@@ -187,7 +181,9 @@ export default function RBCScreen() {
               <Image source={source} style={StyleSheet.absoluteFillObject} contentFit="cover" />
             )}
             <View style={styles.cardImageOverlay} />
-            <View style={[StyleSheet.absoluteFillObject, styles.cardImageContentWrap]} pointerEvents="none">
+            <View
+              style={[StyleSheet.absoluteFillObject, styles.cardImageContentWrap]}
+              pointerEvents="none">
               {cardContent(design, isBack)}
             </View>
           </View>
@@ -199,12 +195,7 @@ export default function RBCScreen() {
     const end = design.gradientEnd ?? { x: 1, y: 1 };
     return (
       <Animated.View style={animatedStyle} pointerEvents="none">
-        <LinearGradient
-          colors={colors}
-          start={start}
-          end={end}
-          style={[styles.card, cardSize]}
-        >
+        <LinearGradient colors={colors} start={start} end={end} style={[styles.card, cardSize]}>
           {cardContent(design, isBack)}
         </LinearGradient>
       </Animated.View>
@@ -215,33 +206,43 @@ export default function RBCScreen() {
     <>
       <Header showBackButton />
       <ThemedScroller className="flex-1 bg-light-primary dark:bg-dark-primary">
-        <View className="px-6 pt-4 pb-6">
+        <View className="px-6 pb-6 pt-4">
           {/* Balance */}
           <View className="mb-6">
-            <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext">{t('rbcYourBalance')}</ThemedText>
+            <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext">
+              {t('rbcYourBalance')}
+            </ThemedText>
             {loading ? (
               <ActivityIndicator size="small" className="mt-2" />
             ) : error ? (
-              <ThemedText className="text-lg text-red-500 dark:text-red-400 mt-1">{error}</ThemedText>
+              <ThemedText className="mt-1 text-lg text-red-500 dark:text-red-400">
+                {error}
+              </ThemedText>
             ) : (
-              <View className="flex-row items-baseline mt-1">
+              <View className="mt-1 flex-row items-baseline">
                 <ThemedText className="text-3xl font-bold text-light-text dark:text-dark-text">
                   {formatBalance(balance ?? 0)}
                 </ThemedText>
-                <ThemedText className="text-lg font-semibold text-light-subtext dark:text-dark-subtext ml-2">RBC</ThemedText>
+                <ThemedText className="ml-2 text-lg font-semibold text-light-subtext dark:text-dark-subtext">
+                  RBC
+                </ThemedText>
               </View>
             )}
           </View>
 
           {/* Card */}
           <View style={styles.cardContainer}>
-            <Pressable onPress={handleFlipCard} style={[styles.cardFlipContainer, { height: CARD_HEIGHT }]}>
+            <Pressable
+              onPress={handleFlipCard}
+              style={[styles.cardFlipContainer, { height: CARD_HEIGHT }]}>
               <View style={styles.cardFlipInner}>
                 {renderCardSide(selectedCardDesign, false, frontOpacity, frontRotateY)}
                 {renderCardSide(selectedCardDesign, true, backOpacity, backRotateY)}
               </View>
             </Pressable>
-            <Pressable onPress={toggleShowDetails} className="mt-3 flex-row items-center justify-center gap-2">
+            <Pressable
+              onPress={toggleShowDetails}
+              className="mt-3 flex-row items-center justify-center gap-2">
               <Icon name={showDetails ? 'EyeOff' : 'Eye'} size={18} />
               <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext">
                 {showDetails ? t('rbcHideDetails') : t('rbcShowDetails')}
@@ -250,33 +251,34 @@ export default function RBCScreen() {
           </View>
 
           {/* Actions */}
-          <View className="flex-row justify-around mt-8 py-4 border-t border-light-secondary dark:border-dark-secondary">
+          <View className="mt-8 flex-row justify-around border-t border-light-secondary py-4 dark:border-dark-secondary">
             <Pressable
               onPress={() => router.push('/screens/transfer-select-recipient')}
-              className="items-center"
-            >
-              <View className="w-14 h-14 rounded-full bg-light-secondary dark:bg-dark-secondary items-center justify-center">
+              className="items-center">
+              <View className="h-14 w-14 items-center justify-center rounded-full bg-light-secondary dark:bg-dark-secondary">
                 <Icon name="Send" size={22} color="#0EA5E9" />
               </View>
-              <ThemedText className="text-xs mt-2 text-light-text dark:text-dark-text">{t('rbcSend')}</ThemedText>
+              <ThemedText className="mt-2 text-xs text-light-text dark:text-dark-text">
+                {t('rbcSend')}
+              </ThemedText>
             </Pressable>
             <Pressable
               onPress={() => router.push('/screens/rbc/historie')}
-              className="items-center"
-            >
-              <View className="w-14 h-14 rounded-full bg-light-secondary dark:bg-dark-secondary items-center justify-center">
+              className="items-center">
+              <View className="h-14 w-14 items-center justify-center rounded-full bg-light-secondary dark:bg-dark-secondary">
                 <Icon name="Clock" size={22} />
               </View>
-              <ThemedText className="text-xs mt-2 text-light-text dark:text-dark-text">{t('rbcHistory')}</ThemedText>
+              <ThemedText className="mt-2 text-xs text-light-text dark:text-dark-text">
+                {t('rbcHistory')}
+              </ThemedText>
             </Pressable>
-            <Pressable
-              onPress={() => router.push('/screens/rbc/design')}
-              className="items-center"
-            >
-              <View className="w-14 h-14 rounded-full bg-light-secondary dark:bg-dark-secondary items-center justify-center">
+            <Pressable onPress={() => router.push('/screens/rbc/design')} className="items-center">
+              <View className="h-14 w-14 items-center justify-center rounded-full bg-light-secondary dark:bg-dark-secondary">
                 <Icon name="Palette" size={22} />
               </View>
-              <ThemedText className="text-xs mt-2 text-light-text dark:text-dark-text">{t('rbcDesign')}</ThemedText>
+              <ThemedText className="mt-2 text-xs text-light-text dark:text-dark-text">
+                {t('rbcDesign')}
+              </ThemedText>
             </Pressable>
           </View>
         </View>
@@ -316,7 +318,12 @@ const styles = StyleSheet.create({
   cardContent: { flex: 1, justifyContent: 'space-between' },
   cardHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start' },
   cardDebit: { fontSize: 10, letterSpacing: 1, opacity: 0.9 },
-  cardLogo: { paddingHorizontal: 6, paddingVertical: 2, justifyContent: 'center', alignItems: 'center' },
+  cardLogo: {
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
   cardNumberContainer: { marginVertical: 12 },
   cardNumber: { fontSize: 16, fontWeight: '600', letterSpacing: 2 },
   cardFooter: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-end' },
@@ -327,6 +334,13 @@ const styles = StyleSheet.create({
   cardBackMagnetic: { height: 48, borderRadius: 4, marginTop: 12, marginBottom: 16 },
   cardBackCVV: { alignItems: 'flex-end' },
   cardBackLabel: { fontSize: 10, opacity: 0.75, marginBottom: 4 },
-  cardBackCVVBox: { paddingHorizontal: 12, paddingVertical: 6, borderRadius: 4, minWidth: 72, alignItems: 'center', backgroundColor: 'rgba(255,255,255,0.2)' },
+  cardBackCVVBox: {
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 4,
+    minWidth: 72,
+    alignItems: 'center',
+    backgroundColor: 'rgba(255,255,255,0.2)',
+  },
   cardBackCVVText: { fontSize: 16, fontWeight: '600' },
 });

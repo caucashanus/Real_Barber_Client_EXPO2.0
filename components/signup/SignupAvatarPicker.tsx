@@ -1,3 +1,4 @@
+import * as ImagePicker from 'expo-image-picker';
 import React, { useCallback, useEffect, useState } from 'react';
 import {
   View,
@@ -7,11 +8,11 @@ import {
   useWindowDimensions,
   ActivityIndicator,
 } from 'react-native';
-import * as ImagePicker from 'expo-image-picker';
-import ThemedText from '@/components/ThemedText';
-import Icon from '@/components/Icon';
+
 import { getAllPublicMediaByFlag, type MediaFile } from '@/api/media';
 import { useTranslation } from '@/app/hooks/useTranslation';
+import Icon from '@/components/Icon';
+import ThemedText from '@/components/ThemedText';
 
 export type AvatarChoice =
   | { kind: 'none' }
@@ -101,40 +102,46 @@ export default function SignupAvatarPicker({
   return (
     <View className="items-center">
       <View
-        className="rounded-full overflow-hidden border-4 border-light-secondary dark:border-dark-secondary bg-light-secondary dark:bg-dark-secondary mb-6"
-        style={{ width: 140, height: 140 }}
-      >
+        className="mb-6 overflow-hidden rounded-full border-4 border-light-secondary bg-light-secondary dark:border-dark-secondary dark:bg-dark-secondary"
+        style={{ width: 140, height: 140 }}>
         {previewSource ? (
-          <Image source={previewSource} style={{ width: '100%', height: '100%' }} resizeMode="cover" />
+          <Image
+            source={previewSource}
+            style={{ width: '100%', height: '100%' }}
+            resizeMode="cover"
+          />
         ) : (
           <View className="flex-1 items-center justify-center">
-            <Icon name="User" size={56} className="text-light-subtext dark:text-dark-subtext opacity-60" />
+            <Icon
+              name="User"
+              size={56}
+              className="text-light-subtext opacity-60 dark:text-dark-subtext"
+            />
           </View>
         )}
       </View>
 
-      <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext mb-3 text-center px-2">
+      <ThemedText className="mb-3 px-2 text-center text-sm text-light-subtext dark:text-dark-subtext">
         {carouselHint}
       </ThemedText>
 
       {loading ? (
         <View className="py-8">
           <ActivityIndicator size="small" />
-          <ThemedText className="text-xs text-light-subtext dark:text-dark-subtext mt-2 text-center">
+          <ThemedText className="mt-2 text-center text-xs text-light-subtext dark:text-dark-subtext">
             {t('signupAvatarLoading')}
           </ThemedText>
         </View>
       ) : (
         <>
           {loadError ? (
-            <View className="items-center py-2 px-4 mb-2">
-              <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext text-center mb-2">
+            <View className="mb-2 items-center px-4 py-2">
+              <ThemedText className="mb-2 text-center text-sm text-light-subtext dark:text-dark-subtext">
                 {loadError}
               </ThemedText>
               <Pressable
                 onPress={() => void loadCatalog()}
-                className="px-4 py-2 rounded-full bg-light-secondary dark:bg-dark-secondary active:opacity-80"
-              >
+                className="rounded-full bg-light-secondary px-4 py-2 active:opacity-80 dark:bg-dark-secondary">
                 <ThemedText className="text-sm font-medium text-light-text dark:text-dark-text">
                   {t('signupAvatarRetry')}
                 </ThemedText>
@@ -151,16 +158,18 @@ export default function SignupAvatarPicker({
               paddingHorizontal: Math.max(16, (windowWidth - slotWidth) / 2),
               paddingVertical: 8,
               gap: THUMB_GAP,
-            }}
-          >
+            }}>
             <Pressable
               onPress={pickFromLibrary}
-              className="rounded-full border-2 border-dashed border-neutral-400 dark:border-neutral-500 items-center justify-center bg-light-primary dark:bg-dark-primary"
+              className="items-center justify-center rounded-full border-2 border-dashed border-neutral-400 bg-light-primary dark:border-neutral-500 dark:bg-dark-primary"
               style={{ width: THUMB, height: THUMB }}
               accessibilityRole="button"
-              accessibilityLabel={t('signupAvatarAddHint')}
-            >
-              <Icon name="Plus" size={THUMB_PLUS_ICON} className="text-light-text dark:text-dark-text" />
+              accessibilityLabel={t('signupAvatarAddHint')}>
+              <Icon
+                name="Plus"
+                size={THUMB_PLUS_ICON}
+                className="text-light-text dark:text-dark-text"
+              />
             </Pressable>
 
             {catalog.map((item) => {
@@ -169,11 +178,10 @@ export default function SignupAvatarPicker({
                 <Pressable
                   key={item.id}
                   onPress={() => selectCatalog(item)}
-                  className={`rounded-full overflow-hidden border-2 ${
+                  className={`overflow-hidden rounded-full border-2 ${
                     selected ? 'border-light-accent dark:border-dark-accent' : 'border-transparent'
                   }`}
-                  style={{ width: THUMB, height: THUMB }}
-                >
+                  style={{ width: THUMB, height: THUMB }}>
                   <Image
                     source={{ uri: item.url }}
                     style={{ width: '100%', height: '100%' }}

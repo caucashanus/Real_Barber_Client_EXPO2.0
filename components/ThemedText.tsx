@@ -1,7 +1,7 @@
 // components/ThemedText.tsx
+import { styled } from 'nativewind';
 import React from 'react';
 import { Text, TextProps } from 'react-native';
-import { styled } from 'nativewind';
 
 interface ThemedTextProps extends TextProps {
   children: React.ReactNode;
@@ -12,10 +12,7 @@ const StyledText = styled(Text);
 
 export default function ThemedText({ children, className, ...props }: ThemedTextProps) {
   return (
-    <StyledText
-      className={`text-black dark:text-white ${className || ''}`}
-      {...props}
-    >
+    <StyledText className={`text-black dark:text-white ${className || ''}`} {...props}>
       {children}
     </StyledText>
   );

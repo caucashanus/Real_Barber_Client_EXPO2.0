@@ -12,23 +12,20 @@ interface ShadowProps {
 }
 
 /**
- * Hook to generate consistent shadow styles across the app
- * @param options - Shadow configuration options
- * @returns Shadow style object for React Native components
+ * Vrací konzistentní stíny pro iOS / Android (není to React hook — nepoužívej prefix `use`).
  */
-export const useShadow = (options?: ShadowProps): ViewStyle => {
+export function getShadowStyle(options?: ShadowProps): ViewStyle {
   const {
     elevation = 5,
     shadowColor = '#000',
     shadowOpacity = 0.15,
     shadowRadius = 3.84,
-    shadowOffset = { 
-      width: 0, 
-      height: 2 
-    }
+    shadowOffset = {
+      width: 0,
+      height: 2,
+    },
   } = options || {};
 
-  // iOS shadows
   const iosShadow: ViewStyle = {
     shadowColor,
     shadowOpacity,
@@ -36,44 +33,37 @@ export const useShadow = (options?: ShadowProps): ViewStyle => {
     shadowOffset,
   };
 
-  // Android elevation
   const androidShadow: ViewStyle = {
     elevation,
   };
 
-  // Return platform-specific shadow styles
-  return Platform.OS === 'ios' 
-    ? iosShadow 
-    : { ...iosShadow, ...androidShadow };
-};
+  return Platform.OS === 'ios' ? iosShadow : { ...iosShadow, ...androidShadow };
+}
 
-/**
- * Preset shadow styles for common use cases
- */
 export const shadowPresets = {
-  small: useShadow({
+  small: getShadowStyle({
     elevation: 3,
     shadowRadius: 2.5,
-    shadowOffset: { width: 0, height: 1 }
+    shadowOffset: { width: 0, height: 1 },
   }),
-  
-  medium: useShadow({
+
+  medium: getShadowStyle({
     elevation: 8,
     shadowRadius: 5,
-    shadowOffset: { width: 0, height: 3 }
+    shadowOffset: { width: 0, height: 3 },
   }),
-  
-  large: useShadow({
+
+  large: getShadowStyle({
     elevation: 15,
     shadowRadius: 10.84,
-    shadowOffset: { width: 0, height: 10 }
+    shadowOffset: { width: 0, height: 10 },
   }),
-  
-  card: useShadow({
+
+  card: getShadowStyle({
     elevation: 4,
     shadowRadius: 3.84,
-    shadowOffset: { width: 0, height: 2 }
-  })
+    shadowOffset: { width: 0, height: 2 },
+  }),
 };
 
-export default useShadow; 
+export default getShadowStyle;

@@ -1,17 +1,18 @@
 import React, { useEffect, useState } from 'react';
 import { View, ActivityIndicator } from 'react-native';
+
+import { getRbCoinsHistory, type RbCoinsHistoryItem } from '@/api/rb-coins';
+import { useAuth } from '@/app/contexts/AuthContext';
+import { useTranslation } from '@/app/hooks/useTranslation';
+import Avatar from '@/components/Avatar';
 import Header from '@/components/Header';
 import ThemedScroller from '@/components/ThemeScroller';
 import ThemedText from '@/components/ThemedText';
-import Section from '@/components/layout/Section';
+import TransactionDetailModal from '@/components/TransactionDetailModal';
 import { List } from '@/components/layout/List';
 import ListItem from '@/components/layout/ListItem';
-import Avatar from '@/components/Avatar';
+import Section from '@/components/layout/Section';
 import { shadowPresets } from '@/utils/useShadow';
-import { useAuth } from '@/app/contexts/AuthContext';
-import { getRbCoinsHistory, type RbCoinsHistoryItem } from '@/api/rb-coins';
-import TransactionDetailModal from '@/components/TransactionDetailModal';
-import { useTranslation } from '@/app/hooks/useTranslation';
 
 function formatBalance(value: number): string {
   return value.toLocaleString('en-GB', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
@@ -46,7 +47,9 @@ function getSectionTitle(dateKey: string, t: (key: string) => string, locale: st
   return d.toLocaleDateString(dateLocale, { day: 'numeric', month: 'long' });
 }
 
-function groupByDate(history: RbCoinsHistoryItem[]): { dateKey: string; items: RbCoinsHistoryItem[] }[] {
+function groupByDate(
+  history: RbCoinsHistoryItem[]
+): { dateKey: string; items: RbCoinsHistoryItem[] }[] {
   const map: Record<string, RbCoinsHistoryItem[]> = {};
   history.forEach((tx) => {
     const key = toDateKey(tx.createdAt);
@@ -65,7 +68,9 @@ function transactionListTitle(item: RbCoinsHistoryItem, t: (key: string) => stri
   return 'RealBarber';
 }
 
-function transactionAvatarSrc(item: RbCoinsHistoryItem): string | import('react-native').ImageSourcePropType {
+function transactionAvatarSrc(
+  item: RbCoinsHistoryItem
+): string | import('react-native').ImageSourcePropType {
   if (item.otherParty?.avatarUrl) return item.otherParty.avatarUrl;
   if (item.type === 'TRANSFER') return require('@/assets/img/wallet/RB.avatar.jpg');
   return require('@/assets/img/wallet/realbarber.png');
@@ -98,26 +103,40 @@ export default function WalletHistoryScreen() {
       <Header title={t('walletHistoryTitle')} showBackButton />
       <ThemedScroller>
         {loading ? (
-          <View className="py-12 items-center">
+          <View className="items-center py-12">
             <ActivityIndicator size="large" />
-            <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext mt-2">{t('walletHistoryLoading')}</ThemedText>
+            <ThemedText className="mt-2 text-sm text-light-subtext dark:text-dark-subtext">
+              {t('walletHistoryLoading')}
+            </ThemedText>
           </View>
         ) : error ? (
-          <View className="py-6 px-4">
-            <ThemedText className="text-sm text-red-600 dark:text-red-400 text-center">{error}</ThemedText>
+          <View className="px-4 py-6">
+            <ThemedText className="text-center text-sm text-red-600 dark:text-red-400">
+              {error}
+            </ThemedText>
           </View>
         ) : history.length === 0 ? (
-          <View className="py-12 px-4">
-            <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext text-center">{t('walletNoTransactions')}</ThemedText>
+          <View className="px-4 py-12">
+            <ThemedText className="text-center text-sm text-light-subtext dark:text-dark-subtext">
+              {t('walletNoTransactions')}
+            </ThemedText>
           </View>
         ) : (
           groupByDate(history).map(({ dateKey, items }) => (
-            <Section key={dateKey} title={getSectionTitle(dateKey, t, locale)} titleSize="lg" className="pt-4 pb-2">
-              <View style={{ ...shadowPresets.large }} className="p-global rounded-2xl bg-light-secondary dark:bg-dark-secondary overflow-hidden">
+            <Section
+              key={dateKey}
+              title={getSectionTitle(dateKey, t, locale)}
+              titleSize="lg"
+              className="pb-2 pt-4">
+              <View
+                style={{ ...shadowPresets.large }}
+                className="overflow-hidden rounded-2xl bg-light-secondary p-global dark:bg-dark-secondary">
                 <List variant="divided" spacing={12}>
                   {items.map((tx) => {
                     const isSent = tx.direction === 'sent';
-                    const amountStr = isSent ? `-${formatBalance(tx.amount)} RBC` : `+${formatBalance(tx.amount)} RBC`;
+                    const amountStr = isSent
+                      ? `-${formatBalance(tx.amount)} RBC`
+                      : `+${formatBalance(tx.amount)} RBC`;
                     return (
                       <ListItem
                         key={tx.id}
@@ -126,7 +145,8 @@ export default function WalletHistoryScreen() {
                         title={transactionListTitle(tx, t)}
                         subtitle={formatTransactionTime(tx.createdAt)}
                         trailing={
-                          <ThemedText className={`text-base font-semibold ${isSent ? 'text-light-text dark:text-dark-text' : 'text-green-600 dark:text-green-400'}`}>
+                          <ThemedText
+                            className={`text-base font-semibold ${isSent ? 'text-light-text dark:text-dark-text' : 'text-green-600 dark:text-green-400'}`}>
                             {amountStr}
                           </ThemedText>
                         }

@@ -1,17 +1,18 @@
+import { useLocalSearchParams } from 'expo-router';
 import React, { useState } from 'react';
 import { View, ScrollView, Image, Pressable } from 'react-native';
-import { useLocalSearchParams } from 'expo-router';
-import Header from '@/components/Header';
-import ThemedText from '@/components/ThemedText';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+
+import useThemeColors from '@/app/contexts/ThemeColors';
+import { useTranslation } from '@/app/hooks/useTranslation';
 import AnimatedView from '@/components/AnimatedView';
-import Icon from '@/components/Icon';
 import { Button } from '@/components/Button';
+import Header from '@/components/Header';
+import Icon from '@/components/Icon';
+import ShowRating from '@/components/ShowRating';
+import ThemedText from '@/components/ThemedText';
 import Divider from '@/components/layout/Divider';
 import Section from '@/components/layout/Section';
-import ShowRating from '@/components/ShowRating';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { useTranslation } from '@/app/hooks/useTranslation';
-import useThemeColors from '@/app/contexts/ThemeColors';
 
 // Property interface
 interface Property {
@@ -65,7 +66,7 @@ const tripDetails: TripDetails = {
   checkIn: 'Jun 5, 2024',
   checkOut: 'Jun 12, 2024',
   guests: 4,
-  nights: 7
+  nights: 7,
 };
 
 // Sample payment methods
@@ -75,22 +76,22 @@ const paymentMethods: PaymentMethod[] = [
     type: 'credit_card',
     name: 'Visa ending in 1234',
     details: '•••• •••• •••• 1234',
-    icon: 'CreditCard'
+    icon: 'CreditCard',
   },
   {
     id: '2',
     type: 'credit_card',
     name: 'Mastercard ending in 5678',
     details: '•••• •••• •••• 5678',
-    icon: 'CreditCard'
+    icon: 'CreditCard',
   },
   {
     id: '3',
     type: 'online_banking',
     name: 'Online Banking',
     details: 'Pay with your bank account',
-    icon: 'Building2'
-  }
+    icon: 'Building2',
+  },
 ];
 
 // Sample price breakdown
@@ -100,7 +101,7 @@ const priceBreakdown: PriceBreakdown = {
   serviceFee: 95,
   cleaningFee: 75,
   taxes: 142,
-  total: 6107
+  total: 6107,
 };
 
 export default function OrderDetailScreen() {
@@ -111,27 +112,21 @@ export default function OrderDetailScreen() {
   const [selectedPaymentMethod, setSelectedPaymentMethod] = useState('1');
 
   return (
-
     <View className="flex-1 bg-light-primary dark:bg-dark-primary">
-      <Header 
-        showBackButton 
-        title={t('orderConfirmAndPay')}
-      />
+      <Header showBackButton title={t('orderConfirmAndPay')} />
 
       <ScrollView
         className="flex-1"
         showsVerticalScrollIndicator={false}
-        contentContainerStyle={{ paddingBottom: 120 }}
-      >
+        contentContainerStyle={{ paddingBottom: 120 }}>
         <AnimatedView animation="fadeIn" duration={400} delay={100}>
-          
           {/* Property Card */}
           <View className="px-global pt-4">
-            <View className="border-neutral-300 border dark:border-dark-neutral-500 rounded-lg p-2">
+            <View className="dark:border-dark-neutral-500 rounded-lg border border-neutral-300 p-2">
               <View className="flex-row items-center">
                 <Image
                   source={propertyData.image}
-                  className="w-20 h-20 rounded-lg mr-4"
+                  className="mr-4 h-20 w-20 rounded-lg"
                   resizeMode="cover"
                 />
                 <View className="flex-1">
@@ -140,7 +135,7 @@ export default function OrderDetailScreen() {
                   </ThemedText>
                   <View className="flex-row items-center">
                     <ShowRating rating={propertyData.rating} size="sm" />
-                    <ThemedText className="text-xs text-light-subtext dark:text-dark-subtext ml-2">
+                    <ThemedText className="ml-2 text-xs text-light-subtext dark:text-dark-subtext">
                       ({propertyData.reviews} reviews)
                     </ThemedText>
                   </View>
@@ -158,16 +153,11 @@ export default function OrderDetailScreen() {
               <View className="flex-row items-center justify-between py-4">
                 <View>
                   <ThemedText className="font-semibold">Dates</ThemedText>
-                  <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext mt-1">
+                  <ThemedText className="mt-1 text-sm text-light-subtext dark:text-dark-subtext">
                     {tripDetails.checkIn} - {tripDetails.checkOut}
                   </ThemedText>
                 </View>
-                <Button
-                  title={t('orderChange')}
-                  variant='outline'
-                  size="small"
-                  rounded="lg"
-                />
+                <Button title={t('orderChange')} variant="outline" size="small" rounded="lg" />
               </View>
 
               <Divider />
@@ -176,16 +166,11 @@ export default function OrderDetailScreen() {
               <View className="flex-row items-center justify-between py-4">
                 <View>
                   <ThemedText className="font-semibold">Guests</ThemedText>
-                  <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext mt-1">
+                  <ThemedText className="mt-1 text-sm text-light-subtext dark:text-dark-subtext">
                     {tripDetails.guests} guests
                   </ThemedText>
                 </View>
-                <Button
-                  title={t('orderChange')}
-                  variant='outline'
-                  size="small"
-                  rounded="lg"
-                />
+                <Button title={t('orderChange')} variant="outline" size="small" rounded="lg" />
               </View>
             </View>
           </Section>
@@ -200,8 +185,9 @@ export default function OrderDetailScreen() {
                 <ThemedText className="font-semibold text-green-600 dark:text-green-400">
                   Free cancellation before Jun 3
                 </ThemedText>
-                <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext mt-1">
-                  Cancel before Jun 3 for a full refund. After that, cancel before check-in and get a 50% refund.
+                <ThemedText className="mt-1 text-sm text-light-subtext dark:text-dark-subtext">
+                  Cancel before Jun 3 for a full refund. After that, cancel before check-in and get
+                  a 50% refund.
                 </ThemedText>
               </View>
             </View>
@@ -216,13 +202,16 @@ export default function OrderDetailScreen() {
                 <Pressable
                   key={method.id}
                   onPress={() => setSelectedPaymentMethod(method.id)}
-                  style={selectedPaymentMethod === method.id ? { borderColor: colors.highlight } : undefined}
-                  className={`flex-row items-center p-4 rounded-lg border ${
+                  style={
+                    selectedPaymentMethod === method.id
+                      ? { borderColor: colors.highlight }
+                      : undefined
+                  }
+                  className={`flex-row items-center rounded-lg border p-4 ${
                     selectedPaymentMethod !== method.id
                       ? 'border-light-secondary dark:border-dark-secondary'
                       : ''
-                  }`}
-                >
+                  }`}>
                   <Icon name={method.icon as any} size={24} className="mr-4" />
                   <View className="flex-1">
                     <ThemedText className="font-medium">{method.name}</ThemedText>
@@ -231,15 +220,18 @@ export default function OrderDetailScreen() {
                     </ThemedText>
                   </View>
                   <View
-                    style={selectedPaymentMethod === method.id ? { borderColor: colors.highlight, backgroundColor: colors.highlight } : undefined}
-                    className={`w-5 h-5 rounded-full border-2 ${
+                    style={
+                      selectedPaymentMethod === method.id
+                        ? { borderColor: colors.highlight, backgroundColor: colors.highlight }
+                        : undefined
+                    }
+                    className={`h-5 w-5 rounded-full border-2 ${
                       selectedPaymentMethod !== method.id
                         ? 'border-light-subtext dark:border-dark-subtext'
                         : ''
-                    } items-center justify-center`}
-                  >
+                    } items-center justify-center`}>
                     {selectedPaymentMethod === method.id && (
-                      <View className="w-2 h-2 rounded-full bg-white" />
+                      <View className="h-2 w-2 rounded-full bg-white" />
                     )}
                   </View>
                 </Pressable>
@@ -247,8 +239,12 @@ export default function OrderDetailScreen() {
             </View>
 
             {/* Add payment method */}
-            <Pressable className="flex-row items-center p-4 mt-3 border border-dashed border-light-subtext dark:border-dark-subtext rounded-lg">
-              <Icon name="Plus" size={24} className="mr-4 text-light-subtext dark:text-dark-subtext" />
+            <Pressable className="mt-3 flex-row items-center rounded-lg border border-dashed border-light-subtext p-4 dark:border-dark-subtext">
+              <Icon
+                name="Plus"
+                size={24}
+                className="mr-4 text-light-subtext dark:text-dark-subtext"
+              />
               <ThemedText className="text-light-subtext dark:text-dark-subtext">
                 {t('checkoutAddNewCard')}
               </ThemedText>
@@ -261,20 +257,24 @@ export default function OrderDetailScreen() {
           <Section title={t('orderPriceDetails')} titleSize="lg" className="px-global">
             <View className="mt-4 space-y-3">
               <View className="flex-row justify-between">
-                <ThemedText>${priceBreakdown.basePrice} x {priceBreakdown.nights} nights</ThemedText>
-                <ThemedText>${(priceBreakdown.basePrice * priceBreakdown.nights).toLocaleString()}</ThemedText>
+                <ThemedText>
+                  ${priceBreakdown.basePrice} x {priceBreakdown.nights} nights
+                </ThemedText>
+                <ThemedText>
+                  ${(priceBreakdown.basePrice * priceBreakdown.nights).toLocaleString()}
+                </ThemedText>
               </View>
-              
+
               <View className="flex-row justify-between">
                 <ThemedText>Service fee</ThemedText>
                 <ThemedText>${priceBreakdown.serviceFee}</ThemedText>
               </View>
-              
+
               <View className="flex-row justify-between">
                 <ThemedText>Cleaning fee</ThemedText>
                 <ThemedText>${priceBreakdown.cleaningFee}</ThemedText>
               </View>
-              
+
               <View className="flex-row justify-between">
                 <ThemedText>Taxes</ThemedText>
                 <ThemedText>${priceBreakdown.taxes}</ThemedText>
@@ -283,27 +283,29 @@ export default function OrderDetailScreen() {
               <Divider className="my-3" />
 
               <View className="flex-row justify-between">
-                <ThemedText className="font-bold text-lg">Total (USD)</ThemedText>
-                <ThemedText className="font-bold text-lg">${priceBreakdown.total.toLocaleString()}</ThemedText>
+                <ThemedText className="text-lg font-bold">Total (USD)</ThemedText>
+                <ThemedText className="text-lg font-bold">
+                  ${priceBreakdown.total.toLocaleString()}
+                </ThemedText>
               </View>
             </View>
           </Section>
 
           {/* Terms and conditions */}
-          <View className="px-global mt-6">
-            <ThemedText className="text-xs text-light-subtext dark:text-dark-subtext leading-5">
-              By selecting the button below, I agree to the Host's House Rules, Ground rules for guests, 
-              Airbnb's Rebooking and Refund Policy, and that Airbnb can charge my payment method if I'm responsible for damage.
+          <View className="mt-6 px-global">
+            <ThemedText className="text-xs leading-5 text-light-subtext dark:text-dark-subtext">
+              By selecting the button below, I agree to the Host's House Rules, Ground rules for
+              guests, Airbnb's Rebooking and Refund Policy, and that Airbnb can charge my payment
+              method if I'm responsible for damage.
             </ThemedText>
           </View>
         </AnimatedView>
       </ScrollView>
 
       {/* Bottom Confirm Button */}
-      <View 
-        className="absolute bottom-0 left-0 right-0 px-global py-4 bg-light-primary dark:bg-dark-primary border-t border-light-secondary dark:border-dark-secondary"
-        style={{ paddingBottom: insets.bottom + 16 }}
-      >
+      <View
+        className="absolute bottom-0 left-0 right-0 border-t border-light-secondary bg-light-primary px-global py-4 dark:border-dark-secondary dark:bg-dark-primary"
+        style={{ paddingBottom: insets.bottom + 16 }}>
         <Button
           title={t('orderConfirmAndPay')}
           variant="primary"
@@ -316,4 +318,4 @@ export default function OrderDetailScreen() {
       </View>
     </View>
   );
-} 
+}

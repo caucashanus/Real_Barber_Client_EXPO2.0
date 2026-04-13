@@ -1,9 +1,9 @@
-import type { TranslationKey } from '@/locales';
 import {
   AMENITY_OPTIONS,
   GUEST_ACCESS_OPTIONS,
   PROPERTY_TYPE_OPTIONS,
 } from '@/constants/haircutWizardOptions';
+import type { TranslationKey } from '@/locales';
 
 /** Stejné pole jako ve wizardu `add-property` – serializuje se do `note` přes `buildHaircutNote`. */
 export interface HaircutWizardPropertyData {

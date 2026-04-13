@@ -3,7 +3,7 @@ const CRM_BASE = 'https://crm.xrb.cz';
 /** Reservation/product from client overview with optional reviews. */
 export interface ClientOverviewReservation {
   id: string;
-  reviews?: Array<{ id: string; rating: number; [key: string]: unknown }>;
+  reviews?: { id: string; rating: number; [key: string]: unknown }[];
   [key: string]: unknown;
 }
 
@@ -136,7 +136,13 @@ export interface CreateReviewParams {
 export async function createReview(
   apiToken: string,
   params: CreateReviewParams
-): Promise<{ id: string; rating: number; description: string | null; createdAt: string; [key: string]: unknown }> {
+): Promise<{
+  id: string;
+  rating: number;
+  description: string | null;
+  createdAt: string;
+  [key: string]: unknown;
+}> {
   const res = await fetch(`${CRM_BASE}/api/client/reviews`, {
     method: 'POST',
     headers: {
@@ -174,7 +180,13 @@ export async function updateReview(
   apiToken: string,
   reviewId: string,
   params: UpdateReviewParams
-): Promise<{ id: string; rating: number; description: string | null; updatedAt: string; [key: string]: unknown }> {
+): Promise<{
+  id: string;
+  rating: number;
+  description: string | null;
+  updatedAt: string;
+  [key: string]: unknown;
+}> {
   const res = await fetch(`${CRM_BASE}/api/client/reviews/${reviewId}`, {
     method: 'PATCH',
     headers: {

@@ -1,10 +1,12 @@
+import * as Haptics from 'expo-haptics';
 import React, { ReactNode } from 'react';
 import { View, Pressable, StyleProp, ViewStyle } from 'react-native';
-import * as Haptics from 'expo-haptics';
-import ThemedText from '../ThemedText';
-import Icon, { IconName } from '../Icon';
-import useThemeColors from '@/app/contexts/ThemeColors';
+
 import AnimatedView from '../AnimatedView';
+import Icon, { IconName } from '../Icon';
+import ThemedText from '../ThemedText';
+
+import useThemeColors from '@/app/contexts/ThemeColors';
 
 interface SelectableProps {
   title: string;
@@ -46,51 +48,46 @@ const Selectable: React.FC<SelectableProps> = ({
   };
 
   return (
-    <View className={`mb-2 ${containerClassName}`} >
+    <View className={`mb-2 ${containerClassName}`}>
       <Pressable
         onPress={handlePress}
-        style={style}
-        style={selected ? { borderColor: colors.highlight } : undefined}
+        style={[style, selected ? { borderColor: colors.highlight } : undefined]}
         className={`
-          relative border  dark:border-transparent rounded-2xl p-4 active:opacity-70 y dark:bg-dark-secondary/50
+          y relative  rounded-2xl border p-4 active:opacity-70 dark:border-transparent dark:bg-dark-secondary/50
           ${selected ? ' bg-light-subtext/0 dark:bg-dark-secondary' : ' border-neutral-400 dark:border-transparent'}
           ${error ? 'border-red-500' : ''}
           ${className}
-        `}
-      >
+        `}>
         <View className="flex-row items-center">
           {icon && (
-            <View style={selected ? { backgroundColor: colors.highlight } : undefined} className={`mr-4 h-12 w-12 rounded-xl items-center justify-center bg-light-secondary dark:bg-white/10 ${!selected ? '' : ''}`}>
-              <Icon 
-                name={icon} 
-                size={20} 
+            <View
+              style={selected ? { backgroundColor: colors.highlight } : undefined}
+              className={`mr-4 h-12 w-12 items-center justify-center rounded-xl bg-light-secondary dark:bg-white/10 ${!selected ? '' : ''}`}>
+              <Icon
+                name={icon}
+                size={20}
                 strokeWidth={1.2}
-                color={iconColor || (selected ? "white" : colors.icon)}
+                color={iconColor || (selected ? 'white' : colors.icon)}
               />
             </View>
           )}
           {customIcon && (
-            <View className="mr-4 h-12 w-12 rounded-xl items-center justify-center bg-light-secondary dark:bg-dark-secondary">
+            <View className="mr-4 h-12 w-12 items-center justify-center rounded-xl bg-light-secondary dark:bg-dark-secondary">
               {customIcon}
             </View>
           )}
           <View className="flex-1">
-            <ThemedText className="font-semibold text-base">
-              {title}
-            </ThemedText>
+            <ThemedText className="text-base font-semibold">{title}</ThemedText>
             {description && (
-              <ThemedText className={`text-sm text-light-subtext dark:text-dark-subtext mt-0 ${descriptionClassName}`}>
+              <ThemedText
+                className={`mt-0 text-sm text-light-subtext dark:text-dark-subtext ${descriptionClassName}`}>
                 {description}
               </ThemedText>
             )}
           </View>
           {selected && showSelectedIndicator && selectedIndicatorPosition === 'inline' ? (
             <AnimatedView className="ml-3" animation="bounceIn" duration={500}>
-              <Icon 
-                name="CheckCircle2" 
-                size={24} 
-                color={colors.highlight}
-              />
+              <Icon name="CheckCircle2" size={24} color={colors.highlight} />
             </AnimatedView>
           ) : null}
         </View>
@@ -98,28 +95,19 @@ const Selectable: React.FC<SelectableProps> = ({
           <AnimatedView
             className={
               selectedIndicatorPosition === 'topRight'
-                ? 'absolute top-3 right-3'
+                ? 'absolute right-3 top-3'
                 : 'absolute bottom-3 right-3'
             }
             animation="bounceIn"
-            duration={500}
-          >
-            <Icon
-              name="CheckCircle2"
-              size={20}
-              color={colors.highlight}
-            />
+            duration={500}>
+            <Icon name="CheckCircle2" size={20} color={colors.highlight} />
           </AnimatedView>
         ) : null}
       </Pressable>
 
-      {error && (
-        <ThemedText className="text-red-500 text-xs mt-1">
-          {error}
-        </ThemedText>
-      )}
+      {error && <ThemedText className="mt-1 text-xs text-red-500">{error}</ThemedText>}
     </View>
   );
 };
 
-export default Selectable; 
+export default Selectable;

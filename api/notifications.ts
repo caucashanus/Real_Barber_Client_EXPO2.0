@@ -50,7 +50,10 @@ interface NotificationHistoryResponse {
 export async function getNotificationHistory(
   apiToken: string,
   options: GetNotificationHistoryOptions = {}
-): Promise<{ notifications: NotificationHistoryItem[]; pagination: NotificationHistoryPagination | null }> {
+): Promise<{
+  notifications: NotificationHistoryItem[];
+  pagination: NotificationHistoryPagination | null;
+}> {
   const params = new URLSearchParams();
   if (options.limit != null) params.set('limit', String(options.limit));
   if (options.offset != null) params.set('offset', String(options.offset));

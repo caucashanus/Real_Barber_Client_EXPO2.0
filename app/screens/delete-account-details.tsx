@@ -16,13 +16,13 @@ export default function DeleteAccountDetailsScreen() {
       <ThemedScroller>
         <Section
           titleSize="3xl"
-          className="px-4 pt-4 pb-6"
+          className="px-4 pb-6 pt-4"
           title={t('settingsDeleteAccountDetailsTitle')}
           subtitle={t('settingsDeleteAccountDetailsSubtitle')}
         />
 
-        <View className="px-4 pb-10 gap-5">
-          <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext leading-6">
+        <View className="gap-5 px-4 pb-10">
+          <ThemedText className="text-sm leading-6 text-light-subtext dark:text-dark-subtext">
             {t('settingsDeleteAccountDetailsIntro')}
           </ThemedText>
 
@@ -30,7 +30,7 @@ export default function DeleteAccountDetailsScreen() {
             <ThemedText className="text-base font-semibold text-light-text dark:text-dark-text">
               1) {t('settingsDeleteAccountDetailsAccessTitle')}
             </ThemedText>
-            <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext leading-6">
+            <ThemedText className="text-sm leading-6 text-light-subtext dark:text-dark-subtext">
               {t('settingsDeleteAccountDetailsAccessBody')}
             </ThemedText>
           </View>
@@ -39,7 +39,7 @@ export default function DeleteAccountDetailsScreen() {
             <ThemedText className="text-base font-semibold text-light-text dark:text-dark-text">
               2) {t('settingsDeleteAccountDetailsAnonymizationTitle')}
             </ThemedText>
-            <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext leading-6">
+            <ThemedText className="text-sm leading-6 text-light-subtext dark:text-dark-subtext">
               {t('settingsDeleteAccountDetailsAnonymizationBody')}
             </ThemedText>
           </View>
@@ -48,7 +48,7 @@ export default function DeleteAccountDetailsScreen() {
             <ThemedText className="text-base font-semibold text-light-text dark:text-dark-text">
               3) {t('settingsDeleteAccountDetailsAuditTitle')}
             </ThemedText>
-            <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext leading-6">
+            <ThemedText className="text-sm leading-6 text-light-subtext dark:text-dark-subtext">
               {t('settingsDeleteAccountDetailsAuditBody')}
             </ThemedText>
           </View>
@@ -57,13 +57,13 @@ export default function DeleteAccountDetailsScreen() {
             <ThemedText className="text-base font-semibold text-light-text dark:text-dark-text">
               4) {t('settingsDeleteAccountDetailsKeepTitle')}
             </ThemedText>
-            <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext leading-6">
+            <ThemedText className="text-sm leading-6 text-light-subtext dark:text-dark-subtext">
               {t('settingsDeleteAccountDetailsKeepBody')}
             </ThemedText>
           </View>
 
-          <View className="rounded-xl bg-light-secondary dark:bg-dark-secondary p-4">
-            <ThemedText className="text-sm font-semibold text-light-text dark:text-dark-text leading-6">
+          <View className="rounded-xl bg-light-secondary p-4 dark:bg-dark-secondary">
+            <ThemedText className="text-sm font-semibold leading-6 text-light-text dark:text-dark-text">
               {t('settingsDeleteAccountDetailsSummary')}
             </ThemedText>
           </View>

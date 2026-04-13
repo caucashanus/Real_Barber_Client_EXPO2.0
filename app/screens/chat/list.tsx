@@ -1,11 +1,12 @@
+import { Link } from 'expo-router';
 import React from 'react';
 import { View, Text, FlatList, TouchableOpacity } from 'react-native';
-import { Link } from 'expo-router';
+
+import useThemeColors from '@/app/contexts/ThemeColors';
+import { useTranslation } from '@/app/hooks/useTranslation';
 import Avatar from '@/components/Avatar';
 import Header from '@/components/Header';
 import ThemedText from '@/components/ThemedText';
-import { useTranslation } from '@/app/hooks/useTranslation';
-import useThemeColors from '@/app/contexts/ThemeColors';
 
 interface ChatUser {
   id: string;
@@ -22,7 +23,8 @@ const mockChats: ChatUser[] = [
     id: '1',
     name: 'John Doe',
     avatar: 'https://i.pravatar.cc/150?img=1',
-    lastMessage: 'Hey, how are you doing? Just checking in to see if you received the files I sent.',
+    lastMessage:
+      'Hey, how are you doing? Just checking in to see if you received the files I sent.',
     timestamp: '2m ago',
     unread: true,
   },
@@ -50,32 +52,27 @@ export default function ChatListScreen() {
   const colors = useThemeColors();
   const renderChatItem = ({ item }: { item: ChatUser }) => (
     <Link href={`/screens/chat/${item.id}`} asChild>
-      <TouchableOpacity 
-        className={`flex-row items-center p-4 border-b border-light-secondary dark:border-dark-secondary ${item.unread ? 'bg-light-secondary/10 dark:bg-dark-secondary/10' : ''}`}
-      >
-        <Avatar
-          size="md"
-          src={item.avatar}
-          name={item.name}
-        />
-        <View className="flex-1 ml-3">
-          <View className="flex-row justify-between items-center">
-            <ThemedText className="font-medium text-base">
-              {item.name}
-            </ThemedText>
+      <TouchableOpacity
+        className={`flex-row items-center border-b border-light-secondary p-4 dark:border-dark-secondary ${item.unread ? 'bg-light-secondary/10 dark:bg-dark-secondary/10' : ''}`}>
+        <Avatar size="md" src={item.avatar} name={item.name} />
+        <View className="ml-3 flex-1">
+          <View className="flex-row items-center justify-between">
+            <ThemedText className="text-base font-medium">{item.name}</ThemedText>
             <ThemedText className="text-xs text-light-subtext dark:text-dark-subtext">
               {item.timestamp}
             </ThemedText>
           </View>
-          <View className="flex-row items-center mt-1">
-            <ThemedText 
-              numberOfLines={1} 
-              className={`flex-1 text-sm pr-10 ${item.unread ? 'text-black dark:text-white font-medium' : 'text-light-subtext dark:text-dark-subtext'}`}
-            >
+          <View className="mt-1 flex-row items-center">
+            <ThemedText
+              numberOfLines={1}
+              className={`flex-1 pr-10 text-sm ${item.unread ? 'font-medium text-black dark:text-white' : 'text-light-subtext dark:text-dark-subtext'}`}>
               {item.lastMessage}
             </ThemedText>
             {item.unread && (
-              <View style={{ backgroundColor: colors.highlight }} className="w-2 h-2 rounded-full ml-2" />
+              <View
+                style={{ backgroundColor: colors.highlight }}
+                className="ml-2 h-2 w-2 rounded-full"
+              />
             )}
           </View>
         </View>
@@ -85,10 +82,7 @@ export default function ChatListScreen() {
 
   return (
     <View className="flex-1 bg-light-primary dark:bg-dark-primary">
-      <Header
-        title={t('chatMessages')}
-        showBackButton
-      />
+      <Header title={t('chatMessages')} showBackButton />
       <FlatList
         data={mockChats}
         renderItem={renderChatItem}

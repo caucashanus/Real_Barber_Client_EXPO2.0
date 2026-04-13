@@ -6,6 +6,15 @@ import WidgetKit
 /// Kolejnice progressu (neutrální); výplň = accent nebo černobílý fallback (bílá).
 private let rbProgressTrackColor = Color.white.opacity(0.22)
 
+private func rbParseISODate(_ s: String) -> Date? {
+  // App posílá ISO string přes JS → native. Preferujeme ISO8601 parser.
+  let iso = ISO8601DateFormatter()
+  iso.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
+  if let d = iso.date(from: s) { return d }
+  iso.formatOptions = [.withInternetDateTime]
+  return iso.date(from: s)
+}
+
 private func rbProgressFillColor(accentHex: String) -> Color {
   var s = accentHex.trimmingCharacters(in: .whitespacesAndNewlines)
   if s.hasPrefix("#") { s.removeFirst() }
@@ -48,27 +57,33 @@ private struct RBBrandLogo: View {
 private struct RBLiveActivityProgressBar: View {
   var progress01: Double
   var accentHex: String
+  /// Když je nastavené, progress bude kratší než dostupná šířka.
+  var maxWidth: CGFloat? = nil
 
   var body: some View {
     let p = min(1, max(0, progress01))
     let fill = rbProgressFillColor(accentHex: accentHex)
+    // TEMP: výrazné hodnoty pro snadné ověření, že se UI rebuildnulo.
+    let barHeight: CGFloat = 12
+    let knobSize: CGFloat = 18
     GeometryReader { geo in
       let w = geo.size.width
       ZStack(alignment: .leading) {
         Capsule()
           .fill(rbProgressTrackColor)
-          .frame(height: 5)
+          .frame(height: barHeight)
         Capsule()
           .fill(fill)
-          .frame(width: max(0, w * p), height: 5)
+          .frame(width: max(0, w * p), height: barHeight)
         Circle()
           .fill(fill)
-          .frame(width: 11, height: 11)
+          .frame(width: knobSize, height: knobSize)
           .shadow(color: .black.opacity(0.12), radius: 1, x: 0, y: 1)
-          .offset(x: max(0, w * p - 5.5))
+          .offset(x: max(0, w * p - (knobSize / 2)))
       }
     }
-    .frame(height: 12)
+    .frame(height: max(knobSize, barHeight))
+    .frame(maxWidth: maxWidth, alignment: .leading)
   }
 }
 
@@ -76,35 +91,89 @@ private struct RBLiveActivityCard: View {
   let state: RBReservationAttributes.ContentState
 
   var body: some View {
-    VStack(alignment: .leading, spacing: 8) {
-      HStack(alignment: .top, spacing: 10) {
+    let startDate = rbParseISODate(state.startAt)
+    let endDate = rbParseISODate(state.endAt)
+    let now = Date()
+    let countdownTarget = (startDate != nil && now < startDate!) ? startDate : endDate
+    let subtitleLc = state.subtitle.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
+    let isReview = subtitleLc.contains("ohodno") || subtitleLc.contains("hodnoc")
+    let isActive =
+      !isReview &&
+      startDate != nil &&
+      endDate != nil &&
+      now >= startDate! &&
+      now < endDate!
+
+    ZStack(alignment: .trailing) {
+      VStack(alignment: .leading, spacing: 8) {
         VStack(alignment: .leading, spacing: 8) {
-          if !state.subtitle.isEmpty {
+          if isActive {
+            Text("Odhadovaný konec")
+              .font(.subheadline)
+              .foregroundStyle(.secondary)
+          } else if !state.subtitle.isEmpty {
             Text(state.subtitle)
               .font(.subheadline)
               .foregroundStyle(.secondary)
           }
-          Text(state.title)
-            .font(.title2)
-            .fontWeight(.bold)
+          if isReview {
+            Text(state.title)
+              .font(.title2)
+              .fontWeight(.bold)
+            HStack(spacing: 8) {
+              ForEach(0..<5, id: \.self) { _ in
+                Image(systemName: "star")
+                  .font(.title3)
+                  .foregroundStyle(Color.white.opacity(0.65))
+              }
+            }
+            .padding(.top, 2)
+          } else if let target = countdownTarget {
+            // Pozn.: ActivityKit timer formát řídí systém (typicky MM:SS / HH:MM:SS).
+            // Nejde spolehlivě vynutit "jen minuty" bez vlastních update pushů.
+            Text(target, style: .timer)
+              .font(.title2)
+              .fontWeight(.bold)
+              .monospacedDigit()
+          } else {
+            Text(state.title)
+              .font(.title2)
+              .fontWeight(.bold)
+          }
         }
-        .frame(maxWidth: .infinity, alignment: .leading)
 
-        RBBrandLogo(size: 28)
+        if !isReview, state.progress01 >= 0 {
+          RBLiveActivityProgressBar(
+            progress01: state.progress01,
+            accentHex: state.accentHex ?? "",
+            maxWidth: 240
+          )
+        }
+        if !isReview, isActive {
+          Text("Konec služby se může lišit")
+            .font(.footnote)
+            .foregroundStyle(.secondary)
+        } else if !isReview, !state.branchName.isEmpty {
+          Text(state.branchName)
+            .font(.footnote)
+            .foregroundStyle(.secondary)
+        }
+        if !isReview, !state.detailLine.isEmpty {
+          Text(state.detailLine)
+            .font(.caption)
+            .foregroundStyle(.tertiary)
+        }
       }
-      if state.progress01 >= 0 {
-        RBLiveActivityProgressBar(progress01: state.progress01, accentHex: state.accentHex ?? "")
+      // Reserve space so the logo never overlaps content.
+      .padding(.trailing, 62)
+
+      // Keep logo vertically centered relative to the whole card content (not just the top row).
+      VStack {
+        Spacer(minLength: 0)
+        RBBrandLogo(size: 52)
+        Spacer(minLength: 0)
       }
-      if !state.branchName.isEmpty {
-        Text(state.branchName)
-          .font(.footnote)
-          .foregroundStyle(.secondary)
-      }
-      if !state.detailLine.isEmpty {
-        Text(state.detailLine)
-          .font(.caption)
-          .foregroundStyle(.tertiary)
-      }
+      .frame(width: 52)
     }
     .padding()
   }
@@ -114,9 +183,16 @@ struct RealBarberLiveActivityWidget: Widget {
   var body: some WidgetConfiguration {
     ActivityConfiguration(for: RBReservationAttributes.self) { context in
       RBLiveActivityCard(state: context.state)
-        .activityBackgroundTint(Color.black.opacity(0.55))
+        .activityBackgroundTint(Color.black)
     } dynamicIsland: { context in
-      DynamicIsland {
+      let startDate = rbParseISODate(context.state.startAt)
+      let endDate = rbParseISODate(context.state.endAt)
+      let now = Date()
+      let countdownTarget = (startDate != nil && now < startDate!) ? startDate : endDate
+      let subtitleLc = context.state.subtitle.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
+      let isReview = subtitleLc.contains("ohodno") || subtitleLc.contains("hodnoc")
+
+      return DynamicIsland {
         DynamicIslandExpandedRegion(.leading) {
           VStack(alignment: .leading, spacing: 4) {
             if !context.state.subtitle.isEmpty {
@@ -124,20 +200,32 @@ struct RealBarberLiveActivityWidget: Widget {
                 .font(.caption)
                 .foregroundStyle(.secondary)
             }
-            Text(context.state.title)
-              .font(.title3)
-              .fontWeight(.bold)
+            if isReview {
+              Text(context.state.title)
+                .font(.headline)
+                .fontWeight(.bold)
+            } else if let target = countdownTarget {
+              Text(target, style: .timer)
+                .font(.title3)
+                .fontWeight(.bold)
+                .monospacedDigit()
+            } else {
+              Text(context.state.title)
+                .font(.title3)
+                .fontWeight(.bold)
+            }
           }
         }
         DynamicIslandExpandedRegion(.trailing) {
-          RBBrandLogo(size: 26)
+          RBBrandLogo(size: 44)
         }
         DynamicIslandExpandedRegion(.bottom) {
           VStack(alignment: .leading, spacing: 6) {
             if context.state.progress01 >= 0 {
               RBLiveActivityProgressBar(
                 progress01: context.state.progress01,
-                accentHex: context.state.accentHex ?? ""
+                accentHex: context.state.accentHex ?? "",
+                maxWidth: 200
               )
             }
             if !context.state.branchName.isEmpty {
@@ -153,11 +241,11 @@ struct RealBarberLiveActivityWidget: Widget {
           }
         }
       } compactLeading: {
-        RBBrandLogo(size: 18)
+        RBBrandLogo(size: 30)
       } compactTrailing: {
-        RBBrandLogo(size: 18)
+        RBBrandLogo(size: 30)
       } minimal: {
-        RBBrandLogo(size: 14)
+        RBBrandLogo(size: 24)
       }
     }
   }

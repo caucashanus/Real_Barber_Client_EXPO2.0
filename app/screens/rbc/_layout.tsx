@@ -1,4 +1,5 @@
 import { Stack } from 'expo-router';
+
 import { useTranslation } from '@/app/hooks/useTranslation';
 
 export default function RBCLayout() {
@@ -7,8 +8,7 @@ export default function RBCLayout() {
     <Stack
       screenOptions={{
         headerShown: false,
-      }}
-    >
+      }}>
       <Stack.Screen name="index" options={{ title: t('rbcCardTitle') }} />
       <Stack.Screen name="historie" options={{ title: t('rbcTransactionHistory') }} />
       <Stack.Screen name="design/index" options={{ title: t('rbcCardDesigns') }} />

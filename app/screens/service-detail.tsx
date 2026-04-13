@@ -23,11 +23,11 @@ import { CardScroller } from '@/components/CardScroller';
 import { Chip } from '@/components/Chip';
 import Favorite from '@/components/Favorite';
 import Header from '@/components/Header';
-import ThemedText from '@/components/ThemedText';
-import ThemedScroller from '@/components/ThemeScroller';
-import Section from '@/components/layout/Section';
-import Divider from '@/components/layout/Divider';
 import ShowRating from '@/components/ShowRating';
+import ThemedScroller from '@/components/ThemeScroller';
+import ThemedText from '@/components/ThemedText';
+import Divider from '@/components/layout/Divider';
+import Section from '@/components/layout/Section';
 
 function formatReviewDate(iso: string): string {
   try {

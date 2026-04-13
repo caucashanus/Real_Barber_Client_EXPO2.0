@@ -41,7 +41,8 @@ export const en = {
   settingsDeleteAccountReasonNoNeed: 'I no longer need the app',
   settingsDeleteAccountReasonPrivacy: 'Privacy concerns',
   settingsDeleteAccountReasonBranchService: 'I am not satisfied with services at your branches.',
-  settingsDeleteAccountReasonAppButClient: 'I am not satisfied with app performance, but I remain your client.',
+  settingsDeleteAccountReasonAppButClient:
+    'I am not satisfied with app performance, but I remain your client.',
   settingsDeleteAccountReasonOther: 'Other reason',
   settingsDeleteAccountConfirm: 'Delete permanently',
   settingsDeleteAccountCancel: 'Keep account',
@@ -696,13 +697,11 @@ export const en = {
   loginForgotPassword: 'Forgot Password?',
   loginNoAccount: "Don't have an account? ",
   loginSignUp: 'Sign up',
-  loginPhoneStepSubtitle:
-    'Enter your phone number — we will check if you already have an account.',
+  loginPhoneStepSubtitle: 'Enter your phone number — we will check if you already have an account.',
   loginContinue: 'Continue',
   loginOtpGreetingWithName: 'Welcome to the app, {name}.',
   loginOtpGreetingNoName: 'Welcome to the app.',
-  loginOtpSubtitle:
-    'Enter the code we sent by SMS. The code expires in {minutes} minutes.',
+  loginOtpSubtitle: 'Enter the code we sent by SMS. The code expires in {minutes} minutes.',
   loginOtpCodeLabel: 'SMS code',
   loginOtpVerify: 'Verify and sign in',
   loginOtpResend: 'Resend code',
@@ -1010,8 +1009,7 @@ export const en = {
   addPropertyStylingDifficulty: 'Styling difficulty and stylist',
   addPropertyHowDemanding: 'How demanding is the haircut to style and who did it for you?',
   addPropertyCongratulations: 'Congratulations!',
-  addPropertySuccessMessage:
-    'Just one more step — tap Complete and take a look at your haircut.',
+  addPropertySuccessMessage: 'Just one more step — tap Complete and take a look at your haircut.',
   addPropertyCutSaveFailed: 'Could not save your haircut. Please try again.',
   addPropertyLoginRequired: 'Log in to save your haircut.',
   addPropertyEasyTitle: "It's easy to add your haircut",

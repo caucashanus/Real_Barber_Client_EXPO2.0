@@ -2,10 +2,10 @@
 module.exports = function (api) {
   api.cache(true);
   return {
-    presets: ["babel-preset-expo"],
+    presets: ['babel-preset-expo'],
     plugins: [
-      "nativewind/babel",
-      "react-native-worklets/plugin", // includes Reanimated; do not add react-native-reanimated/plugin
+      'nativewind/babel',
+      'react-native-worklets/plugin', // includes Reanimated; do not add react-native-reanimated/plugin
     ],
   };
 };

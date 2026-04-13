@@ -176,25 +176,25 @@ export interface BookingAvailabilityResponse {
   service: { id: string; name: string; duration: number; price: number } | null;
   schedule?: {
     hasDayOff?: boolean;
-    shifts?: Array<{
+    shifts?: {
       id?: string;
       branchId?: string;
       startTime?: string;
       endTime?: string;
       source?: string;
-    }>;
+    }[];
   };
   workingHours: { start: string; end: string };
-  blockedRanges?: Array<{
+  blockedRanges?: {
     type?: string;
     start: string;
     end: string;
     reservationId?: string;
-  }>;
-  existingBookings: Array<{ id: string; start: string; end: string; service?: string }>;
+  }[];
+  existingBookings: { id: string; start: string; end: string; service?: string }[];
   availability: {
     totalSlots: number;
-    slots: Array<{ branchId?: string; start: string; end: string; duration: number }>;
+    slots: { branchId?: string; start: string; end: string; duration: number }[];
   };
   [key: string]: unknown;
 }
@@ -248,11 +248,15 @@ export async function cancelBooking(
       Authorization: `Bearer ${apiToken}`,
       'Content-Type': 'application/json',
     },
-    body: reason != null && reason.trim() !== '' ? JSON.stringify({ reason: reason.trim() }) : undefined,
+    body:
+      reason != null && reason.trim() !== ''
+        ? JSON.stringify({ reason: reason.trim() })
+        : undefined,
   });
   const text = await res.text();
   if (res.status === 401) throw new Error('Unauthorized');
-  if (res.status === 403) throw new Error('Rezervaci nelze zrušit méně než 2 hodiny před domluveným termínem.');
+  if (res.status === 403)
+    throw new Error('Rezervaci nelze zrušit méně než 2 hodiny před domluveným termínem.');
   if (res.status === 404) throw new Error('Booking not found');
   if (res.status === 500) throw new Error('Failed to cancel booking');
   if (!res.ok) {
@@ -293,11 +297,13 @@ export async function updateBooking(
   body: UpdateBookingBody
 ): Promise<UpdateBookingResponse> {
   const payload: Record<string, string> = {};
-  (Object.entries(body) as [keyof UpdateBookingBody, string | undefined][]).forEach(([key, value]) => {
-    if (value !== undefined && value !== null && String(value).trim() !== '') {
-      payload[key as string] = String(value).trim();
+  (Object.entries(body) as [keyof UpdateBookingBody, string | undefined][]).forEach(
+    ([key, value]) => {
+      if (value !== undefined && value !== null && String(value).trim() !== '') {
+        payload[key as string] = String(value).trim();
+      }
     }
-  });
+  );
 
   const url = `${CRM_BASE}/api/client/bookings/${encodeURIComponent(bookingId)}`;
   const res = await fetch(url, {
@@ -311,7 +317,8 @@ export async function updateBooking(
 
   const text = await res.text();
   if (res.status === 401) throw new Error('Unauthorized');
-  if (res.status === 403) throw new Error('Rezervaci nelze upravit méně než 1 hodinu před domluveným termínem.');
+  if (res.status === 403)
+    throw new Error('Rezervaci nelze upravit méně než 1 hodinu před domluveným termínem.');
   if (res.status === 404) throw new Error('Booking not found');
   if (res.status === 400) throw new Error('Invalid booking data or slot conflict');
   if (res.status === 409) throw new Error('Booking conflict');

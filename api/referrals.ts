@@ -46,7 +46,13 @@ export interface PendingAttributionItem {
   phone: string;
   createdAt: string;
   referralLink: { code: string; coverImageUrl?: string | null };
-  program: { id: string; name: string; coverImageUrl?: string | null; referrerRewardType?: string; referrerRewardAmount?: number };
+  program: {
+    id: string;
+    name: string;
+    coverImageUrl?: string | null;
+    referrerRewardType?: string;
+    referrerRewardAmount?: number;
+  };
 }
 
 export interface ReferralPerson {
@@ -93,7 +99,13 @@ export interface ClientReferralItem {
   } | null;
   createdAt: string;
   updatedAt: string;
-  program?: { id: string; name: string; coverImageUrl?: string | null; referrerRewardType?: string; referrerRewardAmount?: number } | null;
+  program?: {
+    id: string;
+    name: string;
+    coverImageUrl?: string | null;
+    referrerRewardType?: string;
+    referrerRewardAmount?: number;
+  } | null;
   referee?: ReferralPerson | null;
   progress?: ReferralProgress | null;
 }

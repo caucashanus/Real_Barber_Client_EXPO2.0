@@ -1,34 +1,35 @@
+import { useRouter } from 'expo-router';
 import React, { useEffect, useState, useRef } from 'react';
 import { View, ActivityIndicator, TextInput, Pressable } from 'react-native';
-import { useRouter } from 'expo-router';
 import { ActionSheetRef } from 'react-native-actions-sheet';
-import Header from '@/components/Header';
-import ThemedScroller from '@/components/ThemeScroller';
-import ThemedText from '@/components/ThemedText';
-import Section from '@/components/layout/Section';
-import { List } from '@/components/layout/List';
-import ListItem from '@/components/layout/ListItem';
-import Avatar from '@/components/Avatar';
-import Icon from '@/components/Icon';
-import { shadowPresets } from '@/utils/useShadow';
-import { useAuth } from '@/app/contexts/AuthContext';
-import ActionSheetThemed from '@/components/ActionSheetThemed';
-import { Button } from '@/components/Button';
+
+import { searchClients } from '@/api/clients';
+import { getEmployees } from '@/api/employees';
 import {
   getRbCoinsBalance,
   getRbCoinsHistory,
   type RbCoinsHistoryItem,
   type RbCoinsHistoryItemOtherParty,
 } from '@/api/rb-coins';
-import { getEmployees } from '@/api/employees';
-import { searchClients } from '@/api/clients';
+import { useAuth } from '@/app/contexts/AuthContext';
 import { useSetTransferRecipient } from '@/app/contexts/TransferRecipientContext';
 import { useTranslation } from '@/app/hooks/useTranslation';
+import ActionSheetThemed from '@/components/ActionSheetThemed';
+import Avatar from '@/components/Avatar';
+import { Button } from '@/components/Button';
+import Header from '@/components/Header';
+import Icon from '@/components/Icon';
+import ThemedScroller from '@/components/ThemeScroller';
+import ThemedText from '@/components/ThemedText';
+import Section from '@/components/layout/Section';
+import { List } from '@/components/layout/List';
+import ListItem from '@/components/layout/ListItem';
 import {
   normalizePhoneDigitsForLookup,
   isCompleteCzPhoneForClientLookup,
   toClientSearchPhoneQuery,
 } from '@/utils/clientPhoneSearch';
+import { shadowPresets } from '@/utils/useShadow';
 
 function formatBalance(value: number): string {
   return value.toLocaleString('cs-CZ', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
@@ -43,7 +44,10 @@ export interface TransferRecipient {
   lastTransactionDate?: string;
 }
 
-function buildRecipientsFromHistory(history: RbCoinsHistoryItem[], t: (key: string) => string): TransferRecipient[] {
+function buildRecipientsFromHistory(
+  history: RbCoinsHistoryItem[],
+  t: (key: string) => string
+): TransferRecipient[] {
   const byId: Record<string, TransferRecipient> = {};
   history.forEach((tx) => {
     const op = tx.otherParty as RbCoinsHistoryItemOtherParty | null;
@@ -105,7 +109,10 @@ function mergeEmployeesWithHistory(
     const db = b.lastTransactionDate ? new Date(b.lastTransactionDate).getTime() : 0;
     return db - da;
   };
-  return [...withRecent.sort(sortByDate), ...withoutRecent.sort((a, b) => a.name.localeCompare(b.name))];
+  return [
+    ...withRecent.sort(sortByDate),
+    ...withoutRecent.sort((a, b) => a.name.localeCompare(b.name)),
+  ];
 }
 
 /** Zaměstnanci + klienti z RBC historie (bez duplicit vůči zaměstnaneckým ID). */
@@ -135,7 +142,9 @@ function buildRecipientListFromEmployeesAndHistory(
   ];
 }
 
-function recipientAvatarSrc(r: TransferRecipient): string | import('react-native').ImageSourcePropType {
+function recipientAvatarSrc(
+  r: TransferRecipient
+): string | import('react-native').ImageSourcePropType {
   if (r.avatarUrl) return r.avatarUrl;
   return require('@/assets/img/wallet/realbarber.png');
 }
@@ -207,7 +216,8 @@ export default function TransferSelectRecipientScreen() {
         .then((res) => {
           const list: TransferRecipient[] = (res.clients || []).map((c) => ({
             id: c.id,
-            name: c.name || c.displayName || [c.firstName, c.lastName].filter(Boolean).join(' ') || '?',
+            name:
+              c.name || c.displayName || [c.firstName, c.lastName].filter(Boolean).join(' ') || '?',
             type: 'CLIENT',
             avatarUrl: c.avatarUrl ?? undefined,
           }));
@@ -222,9 +232,7 @@ export default function TransferSelectRecipientScreen() {
   }, [apiToken, searchQuery]);
 
   const recipientsFiltered = searchQuery.trim()
-    ? recipientsList.filter((r) =>
-        r.name.toLowerCase().includes(searchQuery.trim().toLowerCase())
-      )
+    ? recipientsList.filter((r) => r.name.toLowerCase().includes(searchQuery.trim().toLowerCase()))
     : recipientsList;
   const seenIds = new Set<string>();
   const filtered = [...recipientsFiltered, ...clientSearchResults].filter((r) => {
@@ -234,7 +242,7 @@ export default function TransferSelectRecipientScreen() {
   });
 
   const onSelect = (r: TransferRecipient) => {
-    const recType = (r.type && String(r.type).toUpperCase() === 'EMPLOYEE') ? 'EMPLOYEE' : 'CLIENT';
+    const recType = r.type && String(r.type).toUpperCase() === 'EMPLOYEE' ? 'EMPLOYEE' : 'CLIENT';
     setTransferRecipient({
       id: r.id,
       name: r.name,
@@ -253,32 +261,34 @@ export default function TransferSelectRecipientScreen() {
 
   return (
     <>
-      <Header
-        showBackButton
-        title={t('transferNewPayment')}
-        onBackPress={() => router.back()}
-      />
+      <Header showBackButton title={t('transferNewPayment')} onBackPress={() => router.back()} />
       <ThemedScroller className="flex-1 p-global">
         {/* Balance */}
         <View
           style={{ ...shadowPresets.large }}
-          className="rounded-2xl bg-light-secondary dark:bg-dark-secondary p-4 mb-4"
-        >
-          <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext">{t('transferAvailable')}</ThemedText>
-          <ThemedText className="text-xl font-bold text-light-text dark:text-dark-text mt-1">
-            {formatBalance(balance)} <ThemedText className="text-base font-semibold">RBC</ThemedText>
+          className="mb-4 rounded-2xl bg-light-secondary p-4 dark:bg-dark-secondary">
+          <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext">
+            {t('transferAvailable')}
+          </ThemedText>
+          <ThemedText className="mt-1 text-xl font-bold text-light-text dark:text-dark-text">
+            {formatBalance(balance)}{' '}
+            <ThemedText className="text-base font-semibold">RBC</ThemedText>
           </ThemedText>
         </View>
 
         {/* Search */}
-        <View className="flex-row items-center rounded-xl bg-light-secondary dark:bg-dark-secondary border border-light-secondary dark:border-dark-secondary px-3 py-2 mb-4">
-          <Icon name="Search" size={20} className="text-light-subtext dark:text-dark-subtext mr-2" />
+        <View className="mb-4 flex-row items-center rounded-xl border border-light-secondary bg-light-secondary px-3 py-2 dark:border-dark-secondary dark:bg-dark-secondary">
+          <Icon
+            name="Search"
+            size={20}
+            className="mr-2 text-light-subtext dark:text-dark-subtext"
+          />
           <TextInput
             placeholder={t('transferSearchPlaceholder')}
             placeholderTextColor="#888"
             value={searchQuery}
             onChangeText={setSearchQuery}
-            className="flex-1 text-base text-light-text dark:text-dark-text py-1"
+            className="flex-1 py-1 text-base text-light-text dark:text-dark-text"
           />
           {searchQuery.length > 0 && (
             <Pressable onPress={() => setSearchQuery('')} className="p-1">
@@ -290,21 +300,22 @@ export default function TransferSelectRecipientScreen() {
         <Section title={t('transferRecipient')} titleSize="lg" />
 
         {loading ? (
-          <View className="py-8 items-center">
+          <View className="items-center py-8">
             <ActivityIndicator size="small" />
-            <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext mt-2">{t('commonLoading')}</ThemedText>
+            <ThemedText className="mt-2 text-sm text-light-subtext dark:text-dark-subtext">
+              {t('commonLoading')}
+            </ThemedText>
           </View>
         ) : filtered.length === 0 ? (
-          <View className="py-8 px-4">
-            <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext text-center">
+          <View className="px-4 py-8">
+            <ThemedText className="text-center text-sm text-light-subtext dark:text-dark-subtext">
               {!searchQuery.trim()
                 ? t('transferNoEmployeesHint')
                 : clientSearchLoading
                   ? t('transferSearching')
                   : (() => {
                       const d = normalizePhoneDigitsForLookup(searchQuery);
-                      const incompletePhone =
-                        d.length >= 2 && !isCompleteCzPhoneForClientLookup(d);
+                      const incompletePhone = d.length >= 2 && !isCompleteCzPhoneForClientLookup(d);
                       return incompletePhone
                         ? t('transferEnterFullClientPhone')
                         : t('transferNoResults');
@@ -312,15 +323,16 @@ export default function TransferSelectRecipientScreen() {
             </ThemedText>
             <Pressable
               onPress={() => helpSheetRef.current?.show()}
-              className="mt-4 self-center px-3 py-2 rounded-full bg-light-secondary dark:bg-dark-secondary active:opacity-80"
-            >
+              className="mt-4 self-center rounded-full bg-light-secondary px-3 py-2 active:opacity-80 dark:bg-dark-secondary">
               <ThemedText className="text-sm font-semibold text-light-text dark:text-dark-text">
                 {t('transferHelpCta')}
               </ThemedText>
             </Pressable>
           </View>
         ) : (
-          <View style={{ ...shadowPresets.large }} className="rounded-2xl bg-light-secondary dark:bg-dark-secondary overflow-hidden">
+          <View
+            style={{ ...shadowPresets.large }}
+            className="overflow-hidden rounded-2xl bg-light-secondary dark:bg-dark-secondary">
             <List variant="divided" spacing={12} className="px-4">
               {filtered.map((r) => (
                 <ListItem
@@ -342,7 +354,7 @@ export default function TransferSelectRecipientScreen() {
           <ThemedText className="text-lg font-bold text-light-text dark:text-dark-text">
             {t('transferHelpTitle')}
           </ThemedText>
-          <ThemedText className="text-sm mt-2 text-light-subtext dark:text-dark-subtext">
+          <ThemedText className="mt-2 text-sm text-light-subtext dark:text-dark-subtext">
             {t('transferHelpBody')}
           </ThemedText>
           <Button

@@ -1,5 +1,6 @@
-import { en } from './en';
 import { cs } from './cs';
+import { en } from './en';
+
 import type { Locale } from '@/app/contexts/LanguageContext';
 
 export type { TranslationKey } from './en';

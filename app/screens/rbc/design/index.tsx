@@ -1,11 +1,13 @@
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { Image } from 'expo-image';
+import { LinearGradient } from 'expo-linear-gradient';
+import { useRouter } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import { View, Pressable, StyleSheet, ScrollView } from 'react-native';
-import { Image } from 'expo-image';
-import { useRouter } from 'expo-router';
-import { LinearGradient } from 'expo-linear-gradient';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 
+import { useAuth } from '@/app/contexts/AuthContext';
 import Header from '@/components/Header';
+import RBLogo from '@/components/RBLogo';
 import ThemedScroller from '@/components/ThemeScroller';
 import ThemedText from '@/components/ThemedText';
 import {
@@ -14,8 +16,6 @@ import {
   RBC_SELECTED_CARD_KEY,
   type CardDesign,
 } from '@/constants/card-designs';
-import { useAuth } from '@/app/contexts/AuthContext';
-import RBLogo from '@/components/RBLogo';
 
 const CARD_WIDTH = 152; // 160 - 5%
 const CARD_HEIGHT = 247; // 260 - 5%
@@ -26,9 +26,11 @@ export default function CardDesignGalleryScreen() {
   const [selectedCardDesignId, setSelectedCardDesignId] = useState<string | null>(null);
 
   useEffect(() => {
-    AsyncStorage.getItem(RBC_SELECTED_CARD_KEY).then((savedId) => {
-      if (savedId) setSelectedCardDesignId(savedId);
-    }).catch(() => {});
+    AsyncStorage.getItem(RBC_SELECTED_CARD_KEY)
+      .then((savedId) => {
+        if (savedId) setSelectedCardDesignId(savedId);
+      })
+      .catch(() => {});
   }, []);
 
   const displayName = (client?.name?.trim() || 'CARDHOLDER').substring(0, 8).toUpperCase();
@@ -58,14 +60,18 @@ export default function CardDesignGalleryScreen() {
       </View>
       <View style={styles.cardPreviewNumber}>
         <View style={styles.cardPreviewVerticalText}>
-          <ThemedText style={[styles.cardPreviewNumberText, { color: textColor }]} numberOfLines={1}>
+          <ThemedText
+            style={[styles.cardPreviewNumberText, { color: textColor }]}
+            numberOfLines={1}>
             **** ****
           </ThemedText>
         </View>
       </View>
       <View style={styles.cardPreviewFooter}>
         <View style={styles.cardPreviewVerticalText}>
-          <ThemedText style={[styles.cardPreviewLabel, { color: textColor }]}>CARDHOLDER</ThemedText>
+          <ThemedText style={[styles.cardPreviewLabel, { color: textColor }]}>
+            CARDHOLDER
+          </ThemedText>
           <ThemedText style={[styles.cardPreviewName, { color: textColor }]} numberOfLines={1}>
             {displayName}
           </ThemedText>
@@ -82,20 +88,25 @@ export default function CardDesignGalleryScreen() {
       <Pressable
         key={design.id}
         onPress={() => router.push(`/screens/rbc/design/${design.id}`)}
-        style={styles.cardPreviewContainer}
-      >
+        style={styles.cardPreviewContainer}>
         {design.type === 'image' ? (
           <View style={[styles.cardPreview, isSelected && styles.cardPreviewSelected]}>
             <View style={styles.cardImageOnSide}>
               {typeof design.frontImage === 'number' && (
-                <Image source={design.frontImage} style={StyleSheet.absoluteFillObject} contentFit="cover" />
+                <Image
+                  source={design.frontImage}
+                  style={StyleSheet.absoluteFillObject}
+                  contentFit="cover"
+                />
               )}
             </View>
             <View style={styles.cardPreviewOverlay} />
             <View style={styles.cardPreviewContent}>
               <View style={styles.cardPreviewHeader}>
                 <View style={styles.cardPreviewVerticalText}>
-                  <ThemedText style={[styles.cardPreviewDebit, { color: textColor }]}>DEBIT</ThemedText>
+                  <ThemedText style={[styles.cardPreviewDebit, { color: textColor }]}>
+                    DEBIT
+                  </ThemedText>
                 </View>
                 <View style={[styles.cardPreviewLogo, styles.cardPreviewVerticalText]}>
                   <RBLogo width={30} height={18} fill={textColor} />
@@ -103,13 +114,19 @@ export default function CardDesignGalleryScreen() {
               </View>
               <View style={styles.cardPreviewNumber}>
                 <View style={styles.cardPreviewVerticalText}>
-                  <ThemedText style={[styles.cardPreviewNumberText, { color: textColor }]}>**** ****</ThemedText>
+                  <ThemedText style={[styles.cardPreviewNumberText, { color: textColor }]}>
+                    **** ****
+                  </ThemedText>
                 </View>
               </View>
               <View style={styles.cardPreviewFooter}>
                 <View style={styles.cardPreviewVerticalText}>
-                  <ThemedText style={[styles.cardPreviewLabel, { color: textColor }]}>CARDHOLDER</ThemedText>
-                  <ThemedText style={[styles.cardPreviewName, { color: textColor }]} numberOfLines={1}>
+                  <ThemedText style={[styles.cardPreviewLabel, { color: textColor }]}>
+                    CARDHOLDER
+                  </ThemedText>
+                  <ThemedText
+                    style={[styles.cardPreviewName, { color: textColor }]}
+                    numberOfLines={1}>
                     {displayName}
                   </ThemedText>
                 </View>
@@ -121,15 +138,13 @@ export default function CardDesignGalleryScreen() {
             colors={design.gradientColors ?? ['#667eea', '#764ba2']}
             start={design.gradientStart ?? { x: 0, y: 0 }}
             end={design.gradientEnd ?? { x: 1, y: 1 }}
-            style={[styles.cardPreview, isSelected && styles.cardPreviewSelected]}
-          >
+            style={[styles.cardPreview, isSelected && styles.cardPreviewSelected]}>
             {renderPreviewContent(textColor)}
           </LinearGradient>
         )}
         <ThemedText
-          className={`text-xs mt-2 text-center ${isSelected ? 'text-[#0EA5E9] font-semibold' : 'text-light-subtext dark:text-dark-subtext'}`}
-          numberOfLines={1}
-        >
+          className={`mt-2 text-center text-xs ${isSelected ? 'font-semibold text-[#0EA5E9]' : 'text-light-subtext dark:text-dark-subtext'}`}
+          numberOfLines={1}>
           {design.name}
         </ThemedText>
       </Pressable>
@@ -139,11 +154,13 @@ export default function CardDesignGalleryScreen() {
   return (
     <>
       <Header showBackButton />
-      <ThemedScroller className="flex-1 bg-light-primary dark:bg-dark-primary" scrollEventThrottle={16}>
+      <ThemedScroller
+        className="flex-1 bg-light-primary dark:bg-dark-primary"
+        scrollEventThrottle={16}>
         <View className="pb-8">
           {designSections.map(({ title, designs }) => (
             <View key={title} style={styles.section}>
-              <View className="px-global mb-2">
+              <View className="mb-2 px-global">
                 <ThemedText className="text-sm font-medium text-light-subtext dark:text-dark-subtext">
                   {title}
                 </ThemedText>
@@ -153,8 +170,7 @@ export default function CardDesignGalleryScreen() {
                   horizontal
                   showsHorizontalScrollIndicator={false}
                   contentContainerStyle={styles.cardsScrollContent}
-                  style={styles.cardsScrollView}
-                >
+                  style={styles.cardsScrollView}>
                   {designs.map((d) => renderCardPreview(d))}
                 </ScrollView>
               </View>

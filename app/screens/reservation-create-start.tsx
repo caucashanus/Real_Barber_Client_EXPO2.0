@@ -1,12 +1,13 @@
+import { router } from 'expo-router';
 import React from 'react';
 import { View, Image } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import Header from '@/components/Header';
-import Divider from '@/components/layout/Divider';
-import ThemedText from '@/components/ThemedText';
-import { Button } from '@/components/Button';
+
 import { useTranslation } from '@/app/hooks/useTranslation';
-import { router } from 'expo-router';
+import { Button } from '@/components/Button';
+import Header from '@/components/Header';
+import ThemedText from '@/components/ThemedText';
+import Divider from '@/components/layout/Divider';
 import { setReservationIntroCooldown24h } from '@/utils/reservation-intro-cooldown';
 
 export default function ReservationCreateStartScreen() {
@@ -16,9 +17,11 @@ export default function ReservationCreateStartScreen() {
   return (
     <>
       <Header showBackButton />
-      <View className="flex-1 px-6 justify-start bg-light-primary dark:bg-dark-primary">
-        <View className="pb-6 mt-4">
-          <ThemedText className="text-4xl font-semibold mb-8">{t('reservationStartTitle')}</ThemedText>
+      <View className="flex-1 justify-start bg-light-primary px-6 dark:bg-dark-primary">
+        <View className="mt-4 pb-6">
+          <ThemedText className="mb-8 text-4xl font-semibold">
+            {t('reservationStartTitle')}
+          </ThemedText>
         </View>
 
         <IntroStep
@@ -42,7 +45,7 @@ export default function ReservationCreateStartScreen() {
           image={require('@/assets/img/savefinish.png')}
         />
 
-        <View className="pb-2 mt-auto" style={{ paddingBottom: insets.bottom }}>
+        <View className="mt-auto pb-2" style={{ paddingBottom: insets.bottom }}>
           <Button
             size="large"
             variant="primary"
@@ -63,12 +66,14 @@ export default function ReservationCreateStartScreen() {
 function IntroStep(props: { number: string; title: string; description: string; image: number }) {
   return (
     <View className="flex-row items-start py-4">
-      <ThemedText className="text-lg font-semibold mr-4">{props.number}</ThemedText>
-      <View className="flex-1 mr-6">
+      <ThemedText className="mr-4 text-lg font-semibold">{props.number}</ThemedText>
+      <View className="mr-6 flex-1">
         <ThemedText className="text-lg font-semibold">{props.title}</ThemedText>
-        <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext">{props.description}</ThemedText>
+        <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext">
+          {props.description}
+        </ThemedText>
       </View>
-      <Image source={props.image} className="w-24 h-24 ml-auto" />
+      <Image source={props.image} className="ml-auto h-24 w-24" />
     </View>
   );
 }

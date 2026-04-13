@@ -1,3 +1,4 @@
+import { useLocalSearchParams, useRouter } from 'expo-router';
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import {
   View,
@@ -10,25 +11,28 @@ import {
   Keyboard,
   TouchableOpacity,
 } from 'react-native';
-import { useLocalSearchParams, useRouter } from 'expo-router';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { ActionSheetRef } from 'react-native-actions-sheet';
-import Header, { HeaderIcon } from '@/components/Header';
-import Avatar from '@/components/Avatar';
-import ThemedText from '@/components/ThemedText';
-import { Button } from '@/components/Button';
-import ActionSheetThemed from '@/components/ActionSheetThemed';
-import Icon from '@/components/Icon';
-import { useAuth } from '@/app/contexts/AuthContext';
-import { useTransferRecipient, useSetTransferRecipient } from '@/app/contexts/TransferRecipientContext';
-import { useTranslation } from '@/app/hooks/useTranslation';
-import useThemeColors from '@/app/contexts/ThemeColors';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+
 import {
   getRbCoinsBalance,
   getRbCoinsHistory,
   rbCoinsTransfer,
   type RbCoinsHistoryItem,
 } from '@/api/rb-coins';
+import { useAuth } from '@/app/contexts/AuthContext';
+import useThemeColors from '@/app/contexts/ThemeColors';
+import {
+  useTransferRecipient,
+  useSetTransferRecipient,
+} from '@/app/contexts/TransferRecipientContext';
+import { useTranslation } from '@/app/hooks/useTranslation';
+import ActionSheetThemed from '@/components/ActionSheetThemed';
+import Avatar from '@/components/Avatar';
+import { Button } from '@/components/Button';
+import Header, { HeaderIcon } from '@/components/Header';
+import Icon from '@/components/Icon';
+import ThemedText from '@/components/ThemedText';
 
 function formatBalance(value: number): string {
   return value.toLocaleString('cs-CZ', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
@@ -38,7 +42,8 @@ function formatChatDate(dateString: string, t: (key: string) => string): string 
   const date = new Date(dateString);
   const now = new Date();
   const diffInHours = (now.getTime() - date.getTime()) / (1000 * 60 * 60);
-  if (diffInHours < 24) return date.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
+  if (diffInHours < 24)
+    return date.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
   if (diffInHours < 48) return t('transferChatYesterday');
   return date.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' });
 }
@@ -94,7 +99,10 @@ export default function TransferChatScreen() {
     };
   }, [scrollToBottom]);
 
-  const receiverType = (recipientFromContext?.type ?? (String(receiverTypeParam ?? '').toUpperCase() === 'EMPLOYEE' ? 'EMPLOYEE' : 'CLIENT')) as 'CLIENT' | 'EMPLOYEE';
+  const receiverType = (recipientFromContext?.type ??
+    (String(receiverTypeParam ?? '').toUpperCase() === 'EMPLOYEE' ? 'EMPLOYEE' : 'CLIENT')) as
+    | 'CLIENT'
+    | 'EMPLOYEE';
 
   const loadData = useCallback(async () => {
     if (!apiToken || !id) return;
@@ -150,7 +158,10 @@ export default function TransferChatScreen() {
       setSendNote('');
       await loadData();
     } catch (e) {
-      Alert.alert(t('commonError') || 'Error', e instanceof Error ? e.message : t('transferChatFailed'));
+      Alert.alert(
+        t('commonError') || 'Error',
+        e instanceof Error ? e.message : t('transferChatFailed')
+      );
     } finally {
       setSending(false);
     }
@@ -160,7 +171,11 @@ export default function TransferChatScreen() {
   const isValid = amountNum > 0 && amountNum <= balance && !sending;
 
   const displayName = name || transactions[0]?.otherParty?.name || t('commonRecipient');
-  const avatarSrc = transactions[0] ? recipientAvatarUrl(transactions[0]) : (avatarUrlParam && avatarUrlParam.trim() ? avatarUrlParam.trim() : undefined);
+  const avatarSrc = transactions[0]
+    ? recipientAvatarUrl(transactions[0])
+    : avatarUrlParam && avatarUrlParam.trim()
+      ? avatarUrlParam.trim()
+      : undefined;
 
   const headerRight =
     receiverType === 'EMPLOYEE'
@@ -178,8 +193,7 @@ export default function TransferChatScreen() {
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-      style={{ flex: 1 }}
-    >
+      style={{ flex: 1 }}>
       <View className="flex-1 bg-light-primary dark:bg-dark-primary">
         <Header
           showBackButton
@@ -193,16 +207,17 @@ export default function TransferChatScreen() {
           className="flex-1"
           contentContainerStyle={{ paddingHorizontal: 16, paddingTop: 16, paddingBottom: 16 }}
           showsVerticalScrollIndicator={false}
-          keyboardShouldPersistTaps="handled"
-        >
+          keyboardShouldPersistTaps="handled">
           {loading ? (
-            <View className="py-12 items-center">
+            <View className="items-center py-12">
               <ActivityIndicator size="small" />
-              <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext mt-2">{t('commonLoading')}</ThemedText>
+              <ThemedText className="mt-2 text-sm text-light-subtext dark:text-dark-subtext">
+                {t('commonLoading')}
+              </ThemedText>
             </View>
           ) : transactions.length === 0 ? (
-            <View className="py-8 px-4">
-              <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext text-center">
+            <View className="px-4 py-8">
+              <ThemedText className="text-center text-sm text-light-subtext dark:text-dark-subtext">
                 {t('transferChatNoTransactions')}
               </ThemedText>
             </View>
@@ -214,26 +229,22 @@ export default function TransferChatScreen() {
               return (
                 <View
                   key={tx.id}
-                  className={`flex-row mb-4 ${isSent ? 'justify-end' : 'justify-start'}`}
-                >
+                  className={`mb-4 flex-row ${isSent ? 'justify-end' : 'justify-start'}`}>
                   <View
                     style={isSent ? { backgroundColor: colors.highlight } : undefined}
-                    className={`rounded-2xl px-4 py-2 max-w-[80%] ${!isSent ? 'bg-light-secondary dark:bg-dark-secondary' : ''}`}
-                  >
+                    className={`max-w-[80%] rounded-2xl px-4 py-2 ${!isSent ? 'bg-light-secondary dark:bg-dark-secondary' : ''}`}>
                     <ThemedText className={`text-base font-semibold ${isSent ? 'text-white' : ''}`}>
                       {isSent ? '-' : '+'}
                       {formatBalance(amount)} RBC
                     </ThemedText>
                     {tx.description ? (
                       <ThemedText
-                        className={`text-sm mt-0.5 ${isSent ? 'text-white/90' : 'text-light-subtext dark:text-dark-subtext'}`}
-                      >
+                        className={`mt-0.5 text-sm ${isSent ? 'text-white/90' : 'text-light-subtext dark:text-dark-subtext'}`}>
                         {tx.description}
                       </ThemedText>
                     ) : null}
                     <ThemedText
-                      className={`text-xs mt-1 ${isSent ? 'text-white/70' : 'text-light-subtext dark:text-dark-subtext'}`}
-                    >
+                      className={`mt-1 text-xs ${isSent ? 'text-white/70' : 'text-light-subtext dark:text-dark-subtext'}`}>
                       {date}
                     </ThemedText>
                   </View>
@@ -244,10 +255,9 @@ export default function TransferChatScreen() {
         </ScrollView>
 
         <View
-          className="border-t border-light-secondary dark:border-dark-secondary bg-light-primary dark:bg-dark-primary p-global"
-          style={{ paddingBottom: insets.bottom + 8 }}
-        >
-          <View className="flex-row items-center gap-2 mb-2">
+          className="border-t border-light-secondary bg-light-primary p-global dark:border-dark-secondary dark:bg-dark-primary"
+          style={{ paddingBottom: insets.bottom + 8 }}>
+          <View className="mb-2 flex-row items-center gap-2">
             <TextInput
               placeholder={t('transferChatAmountPlaceholder')}
               placeholderTextColor="#888"
@@ -255,9 +265,11 @@ export default function TransferChatScreen() {
               onChangeText={setSendAmount}
               keyboardType="decimal-pad"
               onFocus={() => setTimeout(scrollToBottom, 0)}
-              className="flex-1 bg-light-secondary dark:bg-dark-secondary rounded-xl px-4 py-3 text-base text-light-text dark:text-dark-text"
+              className="flex-1 rounded-xl bg-light-secondary px-4 py-3 text-base text-light-text dark:bg-dark-secondary dark:text-dark-text"
             />
-            <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext">RBC</ThemedText>
+            <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext">
+              RBC
+            </ThemedText>
           </View>
           <TextInput
             placeholder={t('transferChatNoteOptional')}
@@ -265,9 +277,9 @@ export default function TransferChatScreen() {
             value={sendNote}
             onChangeText={setSendNote}
             onFocus={() => setTimeout(scrollToBottom, 0)}
-            className="bg-light-secondary dark:bg-dark-secondary rounded-xl px-4 py-3 text-base text-light-text dark:text-dark-text mb-3"
+            className="mb-3 rounded-xl bg-light-secondary px-4 py-3 text-base text-light-text dark:bg-dark-secondary dark:text-dark-text"
           />
-          <ThemedText className="text-xs text-light-subtext dark:text-dark-subtext mb-2">
+          <ThemedText className="mb-2 text-xs text-light-subtext dark:text-dark-subtext">
             {amountNum > 0
               ? `${t('transferChatBalance')}: ${formatBalance(balance)} RBC · ${t('transferChatRemaining')}: ${formatBalance(Math.max(0, balance - amountNum))} RBC`
               : `${t('transferChatBalance')}: ${formatBalance(balance)} RBC`}
@@ -287,16 +299,14 @@ export default function TransferChatScreen() {
             containerStyle={{
               borderTopLeftRadius: 20,
               borderTopRightRadius: 20,
-            }}
-          >
+            }}>
             <View className="p-4">
               <TouchableOpacity
-                className="py-4 flex-row items-center"
+                className="flex-row items-center py-4"
                 onPress={() => {
                   actionSheetRef.current?.hide();
                   router.push(`/screens/barber-detail?id=${encodeURIComponent(id)}`);
-                }}
-              >
+                }}>
                 <Icon name="User" size={20} className="mr-3" />
                 <ThemedText>{t('transferChatMenuViewProfile')}</ThemedText>
               </TouchableOpacity>

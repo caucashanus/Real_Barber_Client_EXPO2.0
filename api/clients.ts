@@ -34,7 +34,12 @@ export async function searchClients(
   if (q.length < 2) {
     return {
       clients: [],
-      pagination: { total: 0, limit: options?.limit ?? 20, offset: options?.offset ?? 0, hasMore: false },
+      pagination: {
+        total: 0,
+        limit: options?.limit ?? 20,
+        offset: options?.offset ?? 0,
+        hasMore: false,
+      },
       search: { query: q, sortBy: 'name', sortOrder: 'asc', resultsCount: 0 },
       searchedAt: new Date().toISOString(),
     };

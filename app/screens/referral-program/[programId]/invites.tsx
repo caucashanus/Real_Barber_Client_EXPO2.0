@@ -1,16 +1,21 @@
+import { useLocalSearchParams, useRouter } from 'expo-router';
 import React, { useEffect, useMemo, useState } from 'react';
 import { View, ActivityIndicator } from 'react-native';
-import { useLocalSearchParams, useRouter } from 'expo-router';
+
+import {
+  getReferrals,
+  type ClientReferralItem,
+  type PendingAttributionItem,
+} from '@/api/referrals';
+import { useAuth } from '@/app/contexts/AuthContext';
+import { useTranslation } from '@/app/hooks/useTranslation';
+import Avatar from '@/components/Avatar';
 import Header from '@/components/Header';
 import ThemedScroller from '@/components/ThemeScroller';
 import ThemedText from '@/components/ThemedText';
-import Section from '@/components/layout/Section';
 import { List } from '@/components/layout/List';
 import ListItem from '@/components/layout/ListItem';
-import Avatar from '@/components/Avatar';
-import { useAuth } from '@/app/contexts/AuthContext';
-import { useTranslation } from '@/app/hooks/useTranslation';
-import { getReferrals, type ClientReferralItem, type PendingAttributionItem } from '@/api/referrals';
+import Section from '@/components/layout/Section';
 
 function inviteStatusLabel(status: string, t: (k: any) => string): string {
   const s = String(status || '').toUpperCase();
@@ -24,7 +29,9 @@ function refereeTitle(invite: ClientReferralItem): string {
   return invite.referee?.name?.trim() || '—';
 }
 
-function refereeAvatar(invite: ClientReferralItem): string | import('react-native').ImageSourcePropType {
+function refereeAvatar(
+  invite: ClientReferralItem
+): string | import('react-native').ImageSourcePropType {
   const src = invite.referee?.avatarUrl?.trim();
   if (src) return src;
   return require('@/assets/img/wallet/realbarber.png');
@@ -77,7 +84,8 @@ export default function ReferralInvitesScreen() {
       key: `pending:${a.id}`,
       title: a.phone,
       subtitle: t('referralInviteLeadPhoneEntered'),
-      avatar: require('@/assets/img/wallet/realbarber.png') as import('react-native').ImageSourcePropType,
+      avatar:
+        require('@/assets/img/wallet/realbarber.png') as import('react-native').ImageSourcePropType,
       onPress: () => router.push(`/screens/referral-attribution/${encodeURIComponent(a.id)}`),
     }));
     return [...pendingRows, ...inviteRows];
@@ -90,26 +98,26 @@ export default function ReferralInvitesScreen() {
         <Section title={t('referralInvitesSection')} titleSize="lg" />
 
         {loading ? (
-          <View className="py-8 items-center">
+          <View className="items-center py-8">
             <ActivityIndicator size="small" />
-            <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext mt-2">
+            <ThemedText className="mt-2 text-sm text-light-subtext dark:text-dark-subtext">
               {t('commonLoading')}
             </ThemedText>
           </View>
         ) : error ? (
           <View className="py-8">
-            <ThemedText className="text-sm text-red-500 dark:text-red-400 text-center">
+            <ThemedText className="text-center text-sm text-red-500 dark:text-red-400">
               {error}
             </ThemedText>
           </View>
         ) : rows.length === 0 ? (
           <View className="py-8">
-            <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext text-center">
+            <ThemedText className="text-center text-sm text-light-subtext dark:text-dark-subtext">
               {t('referralInvitesEmpty')}
             </ThemedText>
           </View>
         ) : (
-          <View className="rounded-2xl bg-light-secondary dark:bg-dark-secondary overflow-hidden">
+          <View className="overflow-hidden rounded-2xl bg-light-secondary dark:bg-dark-secondary">
             <List variant="divided" spacing={12} className="px-4">
               {rows.map((row) => (
                 <ListItem
@@ -128,4 +136,3 @@ export default function ReferralInvitesScreen() {
     </>
   );
 }
-

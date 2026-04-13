@@ -1,19 +1,20 @@
-import React, { useState } from 'react';
 import { useFocusEffect } from '@react-navigation/native';
+import React, { useState } from 'react';
 import { View, Pressable, ActivityIndicator } from 'react-native';
-import ThemedText from '@/components/ThemedText';
-import ThemeScroller from '@/components/ThemeScroller';
-import { Placeholder } from '@/components/Placeholder';
-import Grid from '@/components/layout/Grid';
-import AnimatedView from '@/components/AnimatedView';
-import Header, { HeaderIcon } from '@/components/Header';
-import Card from '@/components/Card';
-import Icon from '@/components/Icon';
-import { useCollapsibleTitle } from '@/app/hooks/useCollapsibleTitle';
+
+import { getFavorites, deleteFavorite, type Favorite } from '@/api/favorites';
 import { useAuth } from '@/app/contexts/AuthContext';
 import { useFavoritesSync } from '@/app/contexts/FavoritesSyncContext';
+import { useCollapsibleTitle } from '@/app/hooks/useCollapsibleTitle';
 import { useTranslation } from '@/app/hooks/useTranslation';
-import { getFavorites, deleteFavorite, type Favorite } from '@/api/favorites';
+import AnimatedView from '@/components/AnimatedView';
+import Card from '@/components/Card';
+import Header, { HeaderIcon } from '@/components/Header';
+import { Placeholder } from '@/components/Placeholder';
+import ThemeScroller from '@/components/ThemeScroller';
+import ThemedText from '@/components/ThemedText';
+import Grid from '@/components/layout/Grid';
+import Icon from '@/components/Icon';
 
 function favoriteHref(fav: Favorite): string {
   switch (fav.entityType) {
@@ -30,10 +31,7 @@ function favoriteHref(fav: Favorite): string {
   }
 }
 
-function favoriteCategoryBadgeText(
-  fav: Favorite,
-  t: (key: string) => string
-): string {
+function favoriteCategoryBadgeText(fav: Favorite, t: (key: string) => string): string {
   const raw = fav.category?.trim();
   if (raw) return raw;
 
@@ -122,16 +120,19 @@ const FavoritesScreen = () => {
         <ThemeScroller
           onScroll={scrollHandler}
           scrollEventThrottle={scrollEventThrottle}
-          className="pt-4 px-global"
-        >
+          className="px-global pt-4">
           {loading ? (
-            <View className="py-12 items-center">
+            <View className="items-center py-12">
               <ActivityIndicator size="large" />
-              <ThemedText className="mt-2 text-light-subtext dark:text-dark-subtext">Loading…</ThemedText>
+              <ThemedText className="mt-2 text-light-subtext dark:text-dark-subtext">
+                Loading…
+              </ThemedText>
             </View>
           ) : error ? (
             <View className="py-12">
-              <ThemedText className="text-center text-red-500 dark:text-red-400">{error}</ThemedText>
+              <ThemedText className="text-center text-red-500 dark:text-red-400">
+                {error}
+              </ThemedText>
             </View>
           ) : favorites.length > 0 ? (
             <Grid className="mt-2" columns={2} spacing={20}>
@@ -143,13 +144,11 @@ const FavoritesScreen = () => {
                   image={getFavoriteImageUrl(fav) ?? require('@/assets/img/barbers.png')}
                   badge={favoriteCategoryBadgeText(fav, t)}
                   imageHeight={180}
-                  rounded="2xl"
-                >
+                  rounded="2xl">
                   {isEditMode && (
                     <Pressable
-                      className="absolute top-2 right-2 z-10 w-7 h-7 rounded-full bg-light-primary dark:bg-dark-primary items-center justify-center"
-                      onPress={() => handleRemove(fav.id)}
-                    >
+                      className="absolute right-2 top-2 z-10 h-7 w-7 items-center justify-center rounded-full bg-light-primary dark:bg-dark-primary"
+                      onPress={() => handleRemove(fav.id)}>
                       <Icon name="X" size={18} strokeWidth={2} />
                     </Pressable>
                   )}
@@ -168,4 +167,4 @@ const FavoritesScreen = () => {
   );
 };
 
-export default FavoritesScreen; 
+export default FavoritesScreen;

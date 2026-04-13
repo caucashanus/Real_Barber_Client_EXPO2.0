@@ -1,18 +1,29 @@
-import { View } from 'react-native';
 import React, { useMemo, useState, useEffect } from 'react';
-import Header from '@/components/Header';
-import ThemedScroller from '@/components/ThemeScroller';
+import { View } from 'react-native';
+
+import { getNotificationHistory, type NotificationHistoryItem } from '@/api/notifications';
+import { useAuth } from '@/app/contexts/AuthContext';
+import { useTranslation } from '@/app/hooks/useTranslation';
 import { Chip } from '@/components/Chip';
+import Header from '@/components/Header';
+import Icon, { IconName } from '@/components/Icon';
 import SkeletonLoader from '@/components/SkeletonLoader';
+import ThemedScroller from '@/components/ThemeScroller';
+import ThemedText from '@/components/ThemedText';
 import List from '@/components/layout/List';
 import ListItem from '@/components/layout/ListItem';
-import ThemedText from '@/components/ThemedText';
-import Icon, { IconName } from '@/components/Icon';
-import { useTranslation } from '@/app/hooks/useTranslation';
-import { useAuth } from '@/app/contexts/AuthContext';
-import { getNotificationHistory, type NotificationHistoryItem } from '@/api/notifications';
 
-type NotificationType = 'purchase' | 'message' | 'review' | 'offer' | 'seller' | 'all' | 'booking' | 'payment' | 'inquiry' | 'cancellation';
+type NotificationType =
+  | 'purchase'
+  | 'message'
+  | 'review'
+  | 'offer'
+  | 'seller'
+  | 'all'
+  | 'booking'
+  | 'payment'
+  | 'inquiry'
+  | 'cancellation';
 
 interface Notification {
   id: string;
@@ -87,12 +98,9 @@ export default function NotificationsScreen() {
 
   return (
     <>
-      <Header 
-        showBackButton 
-        title={t('notificationsTitle')} 
-      />
+      <Header showBackButton title={t('notificationsTitle')} />
       <View className="flex-1 bg-light-primary dark:bg-dark-primary">
-        <View className="p-4 flex-row gap-1">
+        <View className="flex-row gap-1 p-4">
           <Chip
             label={t('notificationsAll')}
             isSelected={selectedType === 'all'}
@@ -121,19 +129,17 @@ export default function NotificationsScreen() {
               <SkeletonLoader variant="list" count={6} />
             </View>
           ) : loadError ? (
-            <View className="p-8 items-center">
+            <View className="items-center p-8">
               <ThemedText className="text-red-500 dark:text-red-400">{loadError}</ThemedText>
             </View>
           ) : (
             <List variant="divided">
               {filteredNotifications.length > 0 ? (
                 filteredNotifications.map((notification) => (
-                  <View key={notification.id}>
-                    {renderNotification(notification)}
-                  </View>
+                  <View key={notification.id}>{renderNotification(notification)}</View>
                 ))
               ) : (
-                <View className="p-8 items-center">
+                <View className="items-center p-8">
                   <ThemedText>{t('notificationsNoFound')}</ThemedText>
                 </View>
               )}
@@ -183,10 +189,12 @@ function mapHistoryTypeToUiType(item: NotificationHistoryItem): NotificationType
   ].join(' ');
 
   if (joined.includes('cancel')) return 'cancellation';
-  if (joined.includes('reservation') || joined.includes('booking') || joined.includes('rezervac')) return 'booking';
+  if (joined.includes('reservation') || joined.includes('booking') || joined.includes('rezervac'))
+    return 'booking';
   if (joined.includes('payment') || joined.includes('platb')) return 'payment';
   if (joined.includes('review') || joined.includes('recenz')) return 'review';
-  if (joined.includes('inquiry') || joined.includes('dotaz') || joined.includes('question')) return 'inquiry';
+  if (joined.includes('inquiry') || joined.includes('dotaz') || joined.includes('question'))
+    return 'inquiry';
   if (joined.includes('message') || joined.includes('zpr')) return 'message';
   return 'all';
 }
@@ -226,23 +234,19 @@ function mapHistoryItemToNotification(item: NotificationHistoryItem): Notificati
 }
 
 export const renderNotification = (notification: Notification) => (
-
-    <ListItem
-      leading={
-        <View className="bg-light-secondary/30 dark:bg-dark-subtext/30 w-10 h-10 rounded-full items-center justify-center">
-          <Icon name={notification.icon} size={20} />
-        </View>
-      }
-      title={
-        <ThemedText className="font-bold">{notification.title}</ThemedText>
-      }
-      subtitle={notification.message}
-      trailing={
-        <ThemedText className="text-xs text-light-subtext dark:text-dark-subtext">
-          {notification.time}
-        </ThemedText>
-      }
-      className={`py-4 ${!notification.read ? 'bg-light-secondary/5 dark:bg-dark-secondary/5' : ''}`}
-    />
-
+  <ListItem
+    leading={
+      <View className="h-10 w-10 items-center justify-center rounded-full bg-light-secondary/30 dark:bg-dark-subtext/30">
+        <Icon name={notification.icon} size={20} />
+      </View>
+    }
+    title={<ThemedText className="font-bold">{notification.title}</ThemedText>}
+    subtitle={notification.message}
+    trailing={
+      <ThemedText className="text-xs text-light-subtext dark:text-dark-subtext">
+        {notification.time}
+      </ThemedText>
+    }
+    className={`py-4 ${!notification.read ? 'bg-light-secondary/5 dark:bg-dark-secondary/5' : ''}`}
+  />
 );

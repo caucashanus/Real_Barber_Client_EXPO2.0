@@ -1,27 +1,38 @@
-import React, { useEffect, useState, useCallback, useRef } from 'react';
 import { useFocusEffect } from '@react-navigation/native';
-import { View, Image, ActivityIndicator, Pressable, ScrollView, Linking, Modal, Animated, type LayoutChangeEvent } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import * as WebBrowser from 'expo-web-browser';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
-import Header from '@/components/Header';
-import ThemedText from '@/components/ThemedText';
-import ThemedScroller from '@/components/ThemeScroller';
-import ImageCarousel from '@/components/ImageCarousel';
-import Section from '@/components/layout/Section';
-import Divider from '@/components/layout/Divider';
-import ShowRating from '@/components/ShowRating';
-import { CardScroller } from '@/components/CardScroller';
-import Icon from '@/components/Icon';
-import Avatar from '@/components/Avatar';
-import { Button } from '@/components/Button';
-import Favorite from '@/components/Favorite';
-import { useAuth } from '@/app/contexts/AuthContext';
+import * as WebBrowser from 'expo-web-browser';
+import React, { useEffect, useState, useCallback, useRef } from 'react';
+import {
+  View,
+  Image,
+  ActivityIndicator,
+  Pressable,
+  ScrollView,
+  Linking,
+  Modal,
+  Animated,
+  type LayoutChangeEvent,
+} from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+
 import { getBranches, type Branch, type BranchService, type BranchEmployee } from '@/api/branches';
 import { getEntityReviews, type EntityReviewItem } from '@/api/reviews';
-import { useTranslation } from '@/app/hooks/useTranslation';
+import { useAuth } from '@/app/contexts/AuthContext';
 import useThemeColors from '@/app/contexts/ThemeColors';
+import { useTranslation } from '@/app/hooks/useTranslation';
+import Avatar from '@/components/Avatar';
+import { Button } from '@/components/Button';
+import { CardScroller } from '@/components/CardScroller';
+import Favorite from '@/components/Favorite';
+import Header from '@/components/Header';
+import ThemedScroller from '@/components/ThemeScroller';
+import ThemedText from '@/components/ThemedText';
+import ImageCarousel from '@/components/ImageCarousel';
+import Divider from '@/components/layout/Divider';
+import Section from '@/components/layout/Section';
+import ShowRating from '@/components/ShowRating';
+import Icon from '@/components/Icon';
 
 function getServicesList(branch: Branch): BranchService[] {
   const s = branch.services;
@@ -49,7 +60,10 @@ function getMediaUrlsSorted(media: Branch['media']): string[] {
 function getMediaImageUrlsSorted(media: Branch['media']): string[] {
   if (!media) return [];
   const list = Array.isArray(media) ? [...media] : Object.values(media);
-  const images = list.filter((m): m is { url: string; order?: number; type?: string } => !!m?.url && (m as { type?: string }).type !== 'video');
+  const images = list.filter(
+    (m): m is { url: string; order?: number; type?: string } =>
+      !!m?.url && (m as { type?: string }).type !== 'video'
+  );
   images.sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
   return images.map((m) => m.url);
 }
@@ -60,7 +74,9 @@ function branchImages(branch: Branch): (string | number)[] {
   mediaUrls.forEach((url) => out.push(url));
   if (branch.imageUrl) out.push(branch.imageUrl);
   const servicesList = getServicesList(branch);
-  servicesList.forEach((svc) => { if (svc.imageUrl) out.push(svc.imageUrl); });
+  servicesList.forEach((svc) => {
+    if (svc.imageUrl) out.push(svc.imageUrl);
+  });
   if (out.length === 0) out.push(require('@/assets/img/barbers.png'));
   return out;
 }
@@ -71,7 +87,9 @@ function branchCarouselImages(branch: Branch): (string | number)[] {
   const mediaImageUrls = getMediaImageUrlsSorted(branch.media);
   mediaImageUrls.forEach((url) => out.push(url));
   const servicesList = getServicesList(branch);
-  servicesList.forEach((svc) => { if (svc.imageUrl) out.push(svc.imageUrl); });
+  servicesList.forEach((svc) => {
+    if (svc.imageUrl) out.push(svc.imageUrl);
+  });
   if (out.length === 0) out.push(require('@/assets/img/barbers.png'));
   return out;
 }
@@ -125,7 +143,20 @@ function stripDescriptionPrefix(text: string): string {
 function formatReviewDate(iso: string): string {
   try {
     const d = new Date(iso);
-    const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+    const months = [
+      'January',
+      'February',
+      'March',
+      'April',
+      'May',
+      'June',
+      'July',
+      'August',
+      'September',
+      'October',
+      'November',
+      'December',
+    ];
     return `${months[d.getMonth()]} ${d.getFullYear()}`;
   } catch {
     return iso;
@@ -229,7 +260,9 @@ export default function BranchDetailScreen() {
         <Header showBackButton />
         <View className="flex-1 items-center justify-center bg-light-primary dark:bg-dark-primary">
           <ActivityIndicator size="large" />
-          <ThemedText className="mt-4 text-light-subtext dark:text-dark-subtext">{t('commonLoading')}</ThemedText>
+          <ThemedText className="mt-4 text-light-subtext dark:text-dark-subtext">
+            {t('commonLoading')}
+          </ThemedText>
         </View>
       </>
     );
@@ -239,8 +272,10 @@ export default function BranchDetailScreen() {
     return (
       <>
         <Header showBackButton />
-        <View className="flex-1 items-center justify-center bg-light-primary dark:bg-dark-primary p-6">
-          <ThemedText className="text-center text-red-500 dark:text-red-400">{error ?? 'Branch not found'}</ThemedText>
+        <View className="flex-1 items-center justify-center bg-light-primary p-6 dark:bg-dark-primary">
+          <ThemedText className="text-center text-red-500 dark:text-red-400">
+            {error ?? 'Branch not found'}
+          </ThemedText>
         </View>
       </>
     );
@@ -252,17 +287,19 @@ export default function BranchDetailScreen() {
   const webUrl = branch.webUrl ?? null;
   const branchImageUrl = getMediaUrlsSorted(branch.media)[0] ?? branch.imageUrl ?? '';
   const reviewParams = `entityType=branch&entityId=${encodeURIComponent(branch.id)}&entityName=${encodeURIComponent(branch.name)}${branchImageUrl ? `&entityImage=${encodeURIComponent(branchImageUrl)}` : ''}`;
-  const rightComponents = branch.name ? [
-    <Favorite
-      key="fav"
-      productName={branch.name}
-      title={branch.name}
-      entityType="branch"
-      entityId={branch.id}
-      size={25}
-      isWhite
-    />,
-  ] : undefined;
+  const rightComponents = branch.name
+    ? [
+        <Favorite
+          key="fav"
+          productName={branch.name}
+          title={branch.name}
+          entityType="branch"
+          entityId={branch.id}
+          size={25}
+          isWhite
+        />,
+      ]
+    : undefined;
 
   return (
     <>
@@ -270,12 +307,11 @@ export default function BranchDetailScreen() {
       <Header variant="transparent" title="" rightComponents={rightComponents} showBackButton />
       <ThemedScroller
         ref={scrollRef}
-        className="px-0 bg-light-primary dark:bg-dark-primary"
+        className="bg-light-primary px-0 dark:bg-dark-primary"
         onScroll={Animated.event([{ nativeEvent: { contentOffset: { y: heroScrollY } } }], {
           useNativeDriver: false,
         })}
-        scrollEventThrottle={16}
-      >
+        scrollEventThrottle={16}>
         <ImageCarousel
           images={images}
           height={500}
@@ -289,21 +325,29 @@ export default function BranchDetailScreen() {
 
         <View
           style={{ borderTopLeftRadius: 30, borderTopRightRadius: 30 }}
-          className="p-global bg-light-primary dark:bg-dark-primary -mt-[30px]"
-          onLayout={(e: LayoutChangeEvent) => { roundedViewYRef.current = e.nativeEvent.layout.y; }}
-        >
+          className="-mt-[30px] bg-light-primary p-global dark:bg-dark-primary"
+          onLayout={(e: LayoutChangeEvent) => {
+            roundedViewYRef.current = e.nativeEvent.layout.y;
+          }}>
           <View className="">
-            <ThemedText className="text-3xl text-center font-semibold">{branch.name}</ThemedText>
-            <View className="flex-row items-center justify-center mt-4">
-              <Pressable onPress={scrollToReviews} className="flex-row items-center active:opacity-70">
-                <ShowRating rating={average} size="lg" className="px-4 py-2 border-r border-neutral-200 dark:border-dark-secondary" />
-                <ThemedText className="text-base px-4">{t('profileReviews')}</ThemedText>
+            <ThemedText className="text-center text-3xl font-semibold">{branch.name}</ThemedText>
+            <View className="mt-4 flex-row items-center justify-center">
+              <Pressable
+                onPress={scrollToReviews}
+                className="flex-row items-center active:opacity-70">
+                <ShowRating
+                  rating={average}
+                  size="lg"
+                  className="border-r border-neutral-200 px-4 py-2 dark:border-dark-secondary"
+                />
+                <ThemedText className="px-4 text-base">{t('profileReviews')}</ThemedText>
               </Pressable>
               <Pressable
                 onPress={() => router.push(`/screens/review?${reviewParams}`)}
-                className="ml-4 px-3 py-2 rounded-lg bg-light-secondary dark:bg-dark-secondary"
-              >
-                <ThemedText className="text-sm font-medium">{hasReviewed ? t('branchUpdateReview') : t('branchReview')}</ThemedText>
+                className="ml-4 rounded-lg bg-light-secondary px-3 py-2 dark:bg-dark-secondary">
+                <ThemedText className="text-sm font-medium">
+                  {hasReviewed ? t('branchUpdateReview') : t('branchReview')}
+                </ThemedText>
               </Pressable>
             </View>
           </View>
@@ -313,48 +357,51 @@ export default function BranchDetailScreen() {
               const url = getMapsUrl(branch);
               if (url) Linking.openURL(url);
             }}
-            className="flex-row items-center mt-8 mb-2 py-global border-y border-neutral-200 dark:border-dark-secondary active:opacity-80"
-          >
+            className="mb-2 mt-8 flex-row items-center border-y border-neutral-200 py-global active:opacity-80 dark:border-dark-secondary">
             {BRANCH_MARKER_IMAGES[branch.name] ? (
               <Image
                 source={BRANCH_MARKER_IMAGES[branch.name]}
-                className="w-12 h-12 rounded-lg mr-4"
+                className="mr-4 h-12 w-12 rounded-lg"
                 resizeMode="contain"
               />
             ) : (
               <Avatar size="md" name={branch.name} className="mr-4" />
             )}
             <View className="ml-0">
-              <ThemedText className="font-semibold text-base">{t('branchTitle')}</ThemedText>
+              <ThemedText className="text-base font-semibold">{t('branchTitle')}</ThemedText>
               <View className="flex-row items-center">
                 <Icon name="MapPin" size={12} className="mr-1" />
-                <ThemedText className="text-xs text-light-subtext dark:text-dark-subtext" numberOfLines={1}>
+                <ThemedText
+                  className="text-xs text-light-subtext dark:text-dark-subtext"
+                  numberOfLines={1}>
                   {branch.address ?? t('branchAddressNotSet')}
                 </ThemedText>
               </View>
             </View>
           </Pressable>
 
-          {branch.description ? (() => {
-            const descriptionClean = stripDescriptionPrefix(branch.description);
-            return descriptionClean ? (
-              <Section title={t('branchDescription')} titleSize="lg" className="mb-2 mt-2">
-                <ThemedText className="text-base text-light-subtext dark:text-dark-subtext">
-                  {descriptionClean.length > 50
-                    ? `${descriptionClean.slice(0, 50).trim()}… `
-                    : descriptionClean}
-                  {descriptionClean.length > 50 ? (
-                    <ThemedText
-                      onPress={() => setDescriptionModalVisible(true)}
-                      style={{ color: colors.highlight }} className="text-base font-medium"
-                    >
-                      {t('branchReadMore')}
+          {branch.description
+            ? (() => {
+                const descriptionClean = stripDescriptionPrefix(branch.description);
+                return descriptionClean ? (
+                  <Section title={t('branchDescription')} titleSize="lg" className="mb-2 mt-2">
+                    <ThemedText className="text-base text-light-subtext dark:text-dark-subtext">
+                      {descriptionClean.length > 50
+                        ? `${descriptionClean.slice(0, 50).trim()}… `
+                        : descriptionClean}
+                      {descriptionClean.length > 50 ? (
+                        <ThemedText
+                          onPress={() => setDescriptionModalVisible(true)}
+                          style={{ color: colors.highlight }}
+                          className="text-base font-medium">
+                          {t('branchReadMore')}
+                        </ThemedText>
+                      ) : null}
                     </ThemedText>
-                  ) : null}
-                </ThemedText>
-              </Section>
-            ) : null;
-          })() : null}
+                  </Section>
+                ) : null;
+              })()
+            : null}
 
           {employeesList.length > 0 ? (
             <>
@@ -365,10 +412,11 @@ export default function BranchDetailScreen() {
                     <Pressable
                       key={emp.id}
                       onPress={() => router.push(`/screens/barber-detail?id=${emp.id}`)}
-                      className="items-center active:opacity-70"
-                    >
+                      className="items-center active:opacity-70">
                       <Avatar size="lg" src={emp.avatarUrl ?? undefined} name={emp.name} />
-                      <ThemedText className="mt-2 text-sm font-medium" numberOfLines={1}>{emp.name}</ThemedText>
+                      <ThemedText className="mt-2 text-sm font-medium" numberOfLines={1}>
+                        {emp.name}
+                      </ThemedText>
                     </Pressable>
                   ))}
                 </View>
@@ -378,76 +426,107 @@ export default function BranchDetailScreen() {
 
           <Divider className="mb-4 mt-8" />
 
-          <View onLayout={(e: LayoutChangeEvent) => { reviewsSectionYInRoundedRef.current = e.nativeEvent.layout.y; }}>
+          <View
+            onLayout={(e: LayoutChangeEvent) => {
+              reviewsSectionYInRoundedRef.current = e.nativeEvent.layout.y;
+            }}>
             <Section className="mb-6">
-            <View className="mt-4 flex-row items-center justify-between mb-3">
-              <View>
-                <ThemedText className="font-semibold text-lg">{t('profileReviews')}</ThemedText>
-                <ThemedText className="text-xs text-light-subtext dark:text-dark-subtext mt-0.5">{displayTotal} {t('branchReviews')}</ThemedText>
+              <View className="mb-3 mt-4 flex-row items-center justify-between">
+                <View>
+                  <ThemedText className="text-lg font-semibold">{t('profileReviews')}</ThemedText>
+                  <ThemedText className="mt-0.5 text-xs text-light-subtext dark:text-dark-subtext">
+                    {displayTotal} {t('branchReviews')}
+                  </ThemedText>
+                </View>
+                <Pressable
+                  onPress={() => router.push(`/screens/review?${reviewParams}`)}
+                  className="rounded-lg bg-light-secondary px-3 py-2 dark:bg-dark-secondary">
+                  <ThemedText className="text-sm font-medium">
+                    {hasReviewed ? t('branchUpdateReview') : t('branchWriteReview')}
+                  </ThemedText>
+                </Pressable>
               </View>
-              <Pressable
-                onPress={() => router.push(`/screens/review?${reviewParams}`)}
-                className="px-3 py-2 rounded-lg bg-light-secondary dark:bg-dark-secondary"
-              >
-                <ThemedText className="text-sm font-medium">{hasReviewed ? t('branchUpdateReview') : t('branchWriteReview')}</ThemedText>
-              </Pressable>
-            </View>
-            {loadingReviews ? (
-              <View className="py-6 items-center">
-                <ActivityIndicator size="small" />
-                <ThemedText className="mt-2 text-sm text-light-subtext dark:text-dark-subtext">{t('branchLoadingReviews')}</ThemedText>
-              </View>
-            ) : (
-              <CardScroller className="mt-1" space={10}>
-                {reviews.map((review) => {
-                  const isOwnReview = client?.id != null && review.client?.id === client.id;
-                  return (
-                    <View key={review.id} className="w-[280px] bg-light-secondary dark:bg-dark-secondary p-4 rounded-lg">
-                      <View className="flex-row items-center justify-between mb-2">
-                        <View className="flex-row items-center flex-1 min-w-0">
-                          {review.isAnonymous ? (
-                            <Image source={require('@/assets/img/wallet/realbarber.png')} className="w-10 h-10 rounded-full mr-2" resizeMode="cover" />
-                          ) : review.client?.avatarUrl ? (
-                            <Image source={{ uri: review.client.avatarUrl }} className="w-10 h-10 rounded-full mr-2" />
-                          ) : (
-                            <Avatar size="sm" name={review.client?.name ?? '?'} className="mr-2" />
+              {loadingReviews ? (
+                <View className="items-center py-6">
+                  <ActivityIndicator size="small" />
+                  <ThemedText className="mt-2 text-sm text-light-subtext dark:text-dark-subtext">
+                    {t('branchLoadingReviews')}
+                  </ThemedText>
+                </View>
+              ) : (
+                <CardScroller className="mt-1" space={10}>
+                  {reviews.map((review) => {
+                    const isOwnReview = client?.id != null && review.client?.id === client.id;
+                    return (
+                      <View
+                        key={review.id}
+                        className="w-[280px] rounded-lg bg-light-secondary p-4 dark:bg-dark-secondary">
+                        <View className="mb-2 flex-row items-center justify-between">
+                          <View className="min-w-0 flex-1 flex-row items-center">
+                            {review.isAnonymous ? (
+                              <Image
+                                source={require('@/assets/img/wallet/realbarber.png')}
+                                className="mr-2 h-10 w-10 rounded-full"
+                                resizeMode="cover"
+                              />
+                            ) : review.client?.avatarUrl ? (
+                              <Image
+                                source={{ uri: review.client.avatarUrl }}
+                                className="mr-2 h-10 w-10 rounded-full"
+                              />
+                            ) : (
+                              <Avatar
+                                size="sm"
+                                name={review.client?.name ?? '?'}
+                                className="mr-2"
+                              />
+                            )}
+                            <View className="min-w-0">
+                              <ThemedText className="font-medium" numberOfLines={1}>
+                                {review.isAnonymous
+                                  ? 'Anonymous'
+                                  : (review.client?.name ?? 'Anonymous')}
+                              </ThemedText>
+                              <ThemedText className="text-xs text-light-subtext dark:text-dark-subtext">
+                                {formatReviewDate(review.createdAt)}
+                              </ThemedText>
+                            </View>
+                          </View>
+                          {isOwnReview && (
+                            <View
+                              style={{ backgroundColor: colors.highlight }}
+                              className="ml-2 rounded-md px-2 py-1">
+                              <ThemedText className="text-xs font-medium text-white">
+                                {t('branchMine')}
+                              </ThemedText>
+                            </View>
                           )}
-                          <View className="min-w-0">
-                            <ThemedText className="font-medium" numberOfLines={1}>{review.isAnonymous ? 'Anonymous' : (review.client?.name ?? 'Anonymous')}</ThemedText>
-                            <ThemedText className="text-xs text-light-subtext dark:text-dark-subtext">
-                              {formatReviewDate(review.createdAt)}
-                            </ThemedText>
-                          </View>
                         </View>
-                        {isOwnReview && (
-                          <View style={{ backgroundColor: colors.highlight }} className="ml-2 px-2 py-1 rounded-md">
-                            <ThemedText className="text-xs font-medium text-white">{t('branchMine')}</ThemedText>
-                          </View>
-                        )}
+                        <ShowRating rating={review.rating} size="sm" className="mb-2" />
+                        <ThemedText className="text-sm">
+                          {review.description || review.positiveFeedback || '—'}
+                        </ThemedText>
                       </View>
-                      <ShowRating rating={review.rating} size="sm" className="mb-2" />
-                      <ThemedText className="text-sm">
-                        {review.description || review.positiveFeedback || '—'}
-                      </ThemedText>
-                    </View>
-                  );
-                })}
-              </CardScroller>
-            )}
-            <View className="mt-6 bg-light-secondary dark:bg-dark-secondary p-4 rounded-lg flex-row items-center justify-between">
-              <View className="flex-row items-center">
-                <ShowRating rating={average} size="lg" />
-                <ThemedText className="ml-2 text-light-subtext dark:text-dark-subtext">
-                  ({displayTotal})
-                </ThemedText>
+                    );
+                  })}
+                </CardScroller>
+              )}
+              <View className="mt-6 flex-row items-center justify-between rounded-lg bg-light-secondary p-4 dark:bg-dark-secondary">
+                <View className="flex-row items-center">
+                  <ShowRating rating={average} size="lg" />
+                  <ThemedText className="ml-2 text-light-subtext dark:text-dark-subtext">
+                    ({displayTotal})
+                  </ThemedText>
+                </View>
+                <Pressable
+                  onPress={() => setRatingModalVisible(true)}
+                  style={{ backgroundColor: colors.highlight }}
+                  className="rounded-lg px-3 py-2">
+                  <ThemedText className="text-sm font-medium text-white">
+                    {t('branchFullRating')}
+                  </ThemedText>
+                </Pressable>
               </View>
-              <Pressable
-                onPress={() => setRatingModalVisible(true)}
-                style={{ backgroundColor: colors.highlight }} className="px-3 py-2 rounded-lg"
-              >
-                <ThemedText className="text-sm font-medium text-white">{t('branchFullRating')}</ThemedText>
-              </Pressable>
-            </View>
             </Section>
           </View>
 
@@ -457,12 +536,13 @@ export default function BranchDetailScreen() {
             {vrTourUrl ? (
               <Pressable
                 onPress={() => WebBrowser.openBrowserAsync(vrTourUrl)}
-                className="flex-row items-center rounded-xl bg-light-secondary dark:bg-dark-secondary p-4 mb-3"
-              >
+                className="mb-3 flex-row items-center rounded-xl bg-light-secondary p-4 dark:bg-dark-secondary">
                 <Icon name="Box" size={24} className="mr-3" />
                 <View className="flex-1">
                   <ThemedText className="font-medium">3D VR tour</ThemedText>
-                  <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext">{t('branchView3d')}</ThemedText>
+                  <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext">
+                    {t('branchView3d')}
+                  </ThemedText>
                 </View>
                 <Icon name="ChevronRight" size={20} className="opacity-60" />
               </Pressable>
@@ -470,24 +550,30 @@ export default function BranchDetailScreen() {
             {webUrl ? (
               <Pressable
                 onPress={() => WebBrowser.openBrowserAsync(webUrl)}
-                className="flex-row items-center rounded-xl bg-light-secondary dark:bg-dark-secondary p-4 mb-3"
-              >
+                className="mb-3 flex-row items-center rounded-xl bg-light-secondary p-4 dark:bg-dark-secondary">
                 <Icon name="Globe" size={24} className="mr-3" />
                 <View className="flex-1">
                   <ThemedText className="font-medium">{t('branchWeb')}</ThemedText>
-                  <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext" numberOfLines={1}>{webUrl}</ThemedText>
+                  <ThemedText
+                    className="text-sm text-light-subtext dark:text-dark-subtext"
+                    numberOfLines={1}>
+                    {webUrl}
+                  </ThemedText>
                 </View>
                 <Icon name="ChevronRight" size={20} className="opacity-60" />
               </Pressable>
             ) : null}
             <Pressable
-              onPress={() => router.push(`/screens/kudy-k-nam-detail?id=${encodeURIComponent(branch.id)}`)}
-              className="flex-row items-center rounded-xl bg-light-secondary dark:bg-dark-secondary p-4 mb-3"
-            >
+              onPress={() =>
+                router.push(`/screens/kudy-k-nam-detail?id=${encodeURIComponent(branch.id)}`)
+              }
+              className="mb-3 flex-row items-center rounded-xl bg-light-secondary p-4 dark:bg-dark-secondary">
               <Icon name="MapPin" size={24} className="mr-3" />
               <View className="flex-1">
                 <ThemedText className="font-medium">{t('howToGetToUs')}</ThemedText>
-                <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext">{t('kudyTransportParking')}</ThemedText>
+                <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext">
+                  {t('kudyTransportParking')}
+                </ThemedText>
               </View>
               <Icon name="ChevronRight" size={20} className="opacity-60" />
             </Pressable>
@@ -499,8 +585,7 @@ export default function BranchDetailScreen() {
 
       <View
         style={{ paddingBottom: insets.bottom }}
-        className="px-global pt-4 border-t border-neutral-200 dark:border-dark-secondary bg-light-primary dark:bg-dark-primary"
-      >
+        className="border-t border-neutral-200 bg-light-primary px-global pt-4 dark:border-dark-secondary dark:bg-dark-primary">
         <Button
           title={t('branchReserve')}
           variant="primary"
@@ -513,22 +598,23 @@ export default function BranchDetailScreen() {
 
       <Modal visible={descriptionModalVisible} transparent animationType="fade">
         <Pressable
-          className="flex-1 bg-black/50 justify-end"
-          onPress={() => setDescriptionModalVisible(false)}
-        >
+          className="flex-1 justify-end bg-black/50"
+          onPress={() => setDescriptionModalVisible(false)}>
           <Pressable
-            className="bg-light-primary dark:bg-dark-primary rounded-t-3xl max-h-[80%]"
-            onPress={(e) => e.stopPropagation()}
-          >
+            className="max-h-[80%] rounded-t-3xl bg-light-primary dark:bg-dark-primary"
+            onPress={(e) => e.stopPropagation()}>
             <View className="p-global pb-8">
-              <View className="flex-row justify-between items-center mb-4">
+              <View className="mb-4 flex-row items-center justify-between">
                 <ThemedText className="text-lg font-semibold">{t('branchDescription')}</ThemedText>
-                <Pressable onPress={() => setDescriptionModalVisible(false)} hitSlop={12} className="p-2">
+                <Pressable
+                  onPress={() => setDescriptionModalVisible(false)}
+                  hitSlop={12}
+                  className="p-2">
                   <Icon name="X" size={24} className="text-light-subtext dark:text-dark-subtext" />
                 </Pressable>
               </View>
               <ScrollView className="max-h-96" showsVerticalScrollIndicator>
-                <ThemedText className="text-base text-light-subtext dark:text-dark-subtext whitespace-pre-line">
+                <ThemedText className="whitespace-pre-line text-base text-light-subtext dark:text-dark-subtext">
                   {branch.description ? stripDescriptionPrefix(branch.description) : ''}
                 </ThemedText>
               </ScrollView>
@@ -539,14 +625,12 @@ export default function BranchDetailScreen() {
 
       <Modal visible={ratingModalVisible} transparent animationType="fade">
         <Pressable
-          className="flex-1 bg-black/50 justify-end"
-          onPress={() => setRatingModalVisible(false)}
-        >
+          className="flex-1 justify-end bg-black/50"
+          onPress={() => setRatingModalVisible(false)}>
           <Pressable
-            className="bg-light-primary dark:bg-dark-primary rounded-t-3xl p-global pb-8"
-            onPress={(e) => e.stopPropagation()}
-          >
-            <View className="flex-row justify-between items-center mb-4">
+            className="rounded-t-3xl bg-light-primary p-global pb-8 dark:bg-dark-primary"
+            onPress={(e) => e.stopPropagation()}>
+            <View className="mb-4 flex-row items-center justify-between">
               <ThemedText className="text-lg font-semibold">{t('branchFullRating')}</ThemedText>
               <Pressable onPress={() => setRatingModalVisible(false)} hitSlop={12} className="p-2">
                 <Icon name="X" size={24} className="text-light-subtext dark:text-dark-subtext" />
@@ -554,7 +638,9 @@ export default function BranchDetailScreen() {
             </View>
             <View className="space-y-2">
               {([5, 4, 3, 2, 1] as const).map((stars) => (
-                <View key={stars} className="flex-row items-center justify-between py-3 border-b border-neutral-200 dark:border-dark-secondary">
+                <View
+                  key={stars}
+                  className="flex-row items-center justify-between border-b border-neutral-200 py-3 dark:border-dark-secondary">
                   <ShowRating rating={stars} size="sm" displayMode="stars" />
                   <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext">
                     {countByRating[stars] ?? 0} {t('branchReviews')}

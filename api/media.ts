@@ -56,13 +56,10 @@ export interface GetPublicMediaOptions {
 /**
  * GET /api/media – veřejná média podle vlajky (např. předvolby avatarů).
  */
-export async function getPublicMediaPage(options: GetPublicMediaOptions = {}): Promise<MediaListResponse> {
-  const {
-    flagId = AVATAR_APP_DEFAULT_FLAG_ID,
-    isPublic = true,
-    limit = 50,
-    page = 1,
-  } = options;
+export async function getPublicMediaPage(
+  options: GetPublicMediaOptions = {}
+): Promise<MediaListResponse> {
+  const { flagId = AVATAR_APP_DEFAULT_FLAG_ID, isPublic = true, limit = 50, page = 1 } = options;
 
   const q = new URLSearchParams();
   q.set('isPublic', String(isPublic));

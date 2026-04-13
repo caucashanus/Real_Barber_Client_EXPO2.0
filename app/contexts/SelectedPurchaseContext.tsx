@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, useCallback } from 'react';
+
 import type { ClientCatalogProduct, ClientProductPurchase } from '@/api/products';
 
 type SelectedPurchaseContextValue = {
@@ -12,7 +13,9 @@ const SelectedPurchaseContext = createContext<SelectedPurchaseContextValue | nul
 
 export function SelectedPurchaseProvider({ children }: { children: React.ReactNode }) {
   const [selectedPurchase, setSelectedPurchase] = useState<ClientProductPurchase | null>(null);
-  const [selectedCatalogProduct, setSelectedCatalogProduct] = useState<ClientCatalogProduct | null>(null);
+  const [selectedCatalogProduct, setSelectedCatalogProduct] = useState<ClientCatalogProduct | null>(
+    null
+  );
   const setPurchase = useCallback((p: ClientProductPurchase | null) => {
     setSelectedPurchase(p);
   }, []);
@@ -26,8 +29,7 @@ export function SelectedPurchaseProvider({ children }: { children: React.ReactNo
         setSelectedPurchase: setPurchase,
         selectedCatalogProduct,
         setSelectedCatalogProduct: setCatalog,
-      }}
-    >
+      }}>
       {children}
     </SelectedPurchaseContext.Provider>
   );

@@ -1,30 +1,49 @@
-import React, { useCallback, useEffect, useState, useRef } from 'react';
 import { useFocusEffect } from '@react-navigation/native';
-import { View, TouchableOpacity, ActivityIndicator, Animated, Pressable, Platform } from 'react-native';
-import ThemedText from '@/components/ThemedText';
-import { shadowPresets } from '@/utils/useShadow';
-import ThemeScroller from '@/components/ThemeScroller';
-import AnimatedView from '@/components/AnimatedView';
-import Header, { HeaderIcon } from '@/components/Header';
-import { useCollapsibleTitle } from '@/app/hooks/useCollapsibleTitle';
+import { useRouter } from 'expo-router';
+import React, { useCallback, useEffect, useState, useRef } from 'react';
+import {
+  View,
+  TouchableOpacity,
+  ActivityIndicator,
+  Animated,
+  Pressable,
+  Platform,
+} from 'react-native';
+
+import { getBookings, type Booking } from '@/api/bookings';
+import { registerActivityKitPushToken } from '@/api/live-activity-push';
+import { getClientOverview, type ClientOverviewReservation } from '@/api/reviews';
+import { useAccentColor } from '@/app/contexts/AccentColorContext';
 import { useAuth } from '@/app/contexts/AuthContext';
 import { useBookingsBadge } from '@/app/contexts/BookingsBadgeContext';
-import { getBookings, type Booking } from '@/api/bookings';
-import { getClientOverview, type ClientOverviewReservation } from '@/api/reviews';
-import { registerActivityKitPushToken } from '@/api/live-activity-push';
-import { type RBLiveActivityHandle, rbLiveActivityStart, rbLiveActivityWaitForPushToken } from '@/lib/rb-live-activity';
+import { useCollapsibleTitle } from '@/app/hooks/useCollapsibleTitle';
+import AnimatedView from '@/components/AnimatedView';
+import ThemeScroller from '@/components/ThemeScroller';
+import ThemedText from '@/components/ThemedText';
+import { shadowPresets } from '@/utils/useShadow';
+import Header, { HeaderIcon } from '@/components/Header';
+import {
+  type RBLiveActivityHandle,
+  rbLiveActivityStart,
+  rbLiveActivityWaitForPushToken,
+} from '@/lib/rb-live-activity';
 import { Chip } from '@/components/Chip';
 import { CardScroller } from '@/components/CardScroller';
 import ShowRating from '@/components/ShowRating';
 import LiveIndicator from '@/components/LiveIndicator';
 import Avatar from '@/components/Avatar';
 import { Button } from '@/components/Button';
-import { useRouter } from 'expo-router';
 import { useTranslation } from '@/app/hooks/useTranslation';
 import { isReservationIntroCooldownActive } from '@/utils/reservation-intro-cooldown';
-import { useAccentColor } from '@/app/contexts/AccentColorContext';
 
-type BookingFilter = 'all' | 'current' | 'upcoming' | 'past' | 'cancelled' | 'rated' | 'pending_review';
+type BookingFilter =
+  | 'all'
+  | 'current'
+  | 'upcoming'
+  | 'past'
+  | 'cancelled'
+  | 'rated'
+  | 'pending_review';
 
 // During design/debug, prevent auto-start from creating extra instances.
 // Live Activities should be started from Dev Live Activity screen in __DEV__.
@@ -41,7 +60,9 @@ function formatBookingDate(b: Booking, locale: string = 'en'): string {
 
 function groupBookingsByYear(bookings: Booking[]): Record<string, Booking[]> {
   const byYear: Record<string, Booking[]> = {};
-  const sorted = [...bookings].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+  const sorted = [...bookings].sort(
+    (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
+  );
   for (const b of sorted) {
     const year = String(new Date(b.date).getFullYear());
     if (!byYear[year]) byYear[year] = [];
@@ -101,7 +122,11 @@ function formatLiveActivityTimeLine(booking: Booking, locale: string): string {
     bookingDay.getDate() === now.getDate();
   const timePart = `${booking.slotStart}–${booking.slotEnd}`;
   if (sameCalendarDay) return timePart;
-  const dayLabel = bookingDay.toLocaleString(dateLocale, { weekday: 'short', day: 'numeric', month: 'short' });
+  const dayLabel = bookingDay.toLocaleString(dateLocale, {
+    weekday: 'short',
+    day: 'numeric',
+    month: 'short',
+  });
   return `${dayLabel} · ${timePart}`;
 }
 
@@ -134,7 +159,14 @@ function isBookingUpcoming(booking: Booking): boolean {
 function countByFilter(
   bookings: Booking[],
   bookingReviewMap: Record<string, number>
-): { current: number; upcoming: number; past: number; cancelled: number; rated: number; pendingReview: number } {
+): {
+  current: number;
+  upcoming: number;
+  past: number;
+  cancelled: number;
+  rated: number;
+  pendingReview: number;
+} {
   const now = Date.now();
   let current = 0;
   let upcoming = 0;
@@ -278,17 +310,17 @@ const TripsScreen = () => {
         : selectedFilter === 'upcoming'
           ? bookings.filter((b) => isBookingUpcoming(b))
           : selectedFilter === 'past'
-          ? bookings.filter((b) => isBookingPast(b))
-          : selectedFilter === 'cancelled'
-            ? bookings.filter((b) => {
-                const status = (b.status ?? '').toLowerCase();
-                return status === 'cancelled' || status === 'canceled';
-              })
-            : selectedFilter === 'rated'
-              ? bookings.filter((b) => isBookingPast(b) && bookingReviewMap[b.id] != null)
-              : selectedFilter === 'pending_review'
-                ? bookings.filter((b) => isBookingPast(b) && bookingReviewMap[b.id] == null)
-                : bookings;
+            ? bookings.filter((b) => isBookingPast(b))
+            : selectedFilter === 'cancelled'
+              ? bookings.filter((b) => {
+                  const status = (b.status ?? '').toLowerCase();
+                  return status === 'cancelled' || status === 'canceled';
+                })
+              : selectedFilter === 'rated'
+                ? bookings.filter((b) => isBookingPast(b) && bookingReviewMap[b.id] != null)
+                : selectedFilter === 'pending_review'
+                  ? bookings.filter((b) => isBookingPast(b) && bookingReviewMap[b.id] == null)
+                  : bookings;
 
   useEffect(() => {
     if (!apiToken) {
@@ -305,7 +337,9 @@ const TripsScreen = () => {
         getClientOverview(apiToken)
           .then((overview) => {
             const map: Record<string, number> = {};
-            const withReviews = overview?.data?.reservations?.withReviews as ClientOverviewReservation[] | undefined;
+            const withReviews = overview?.data?.reservations?.withReviews as
+              | ClientOverviewReservation[]
+              | undefined;
             if (Array.isArray(withReviews)) {
               withReviews.forEach((res) => {
                 const id = res.id;
@@ -381,9 +415,8 @@ const TripsScreen = () => {
           progress01,
           accentHex: accentColor,
         };
-        const deepLink = `realbarber://screens/trip-detail?id=${encodeURIComponent(bookingId)}`;
-        const isNewForBooking =
-          !liveInstanceRef.current || liveBookingIdRef.current !== bookingId;
+        const deepLink = `realbarber://screens/trip-detail?id=${encodeURIComponent(bookingId)}&openReview=1`;
+        const isNewForBooking = !liveInstanceRef.current || liveBookingIdRef.current !== bookingId;
         if (isNewForBooking) {
           liveBookingIdRef.current = bookingId;
           liveInstanceRef.current = await rbLiveActivityStart(payload, deepLink);
@@ -424,7 +457,9 @@ const TripsScreen = () => {
         })
         .then((overview) => {
           const map: Record<string, number> = {};
-          const withReviews = overview?.data?.reservations?.withReviews as ClientOverviewReservation[] | undefined;
+          const withReviews = overview?.data?.reservations?.withReviews as
+            | ClientOverviewReservation[]
+            | undefined;
           if (Array.isArray(withReviews)) {
             withReviews.forEach((res) => {
               const id = res.id;
@@ -457,7 +492,9 @@ const TripsScreen = () => {
             iconSize={28}
             onPress={async () => {
               const skip = await isReservationIntroCooldownActive();
-              router.push(skip ? '/screens/reservation-create' : '/screens/reservation-create-start');
+              router.push(
+                skip ? '/screens/reservation-create' : '/screens/reservation-create-start'
+              );
             }}
           />,
         ]}
@@ -466,7 +503,9 @@ const TripsScreen = () => {
         {loading ? (
           <View className="flex-1 items-center justify-center py-12">
             <ActivityIndicator size="large" />
-            <ThemedText className="mt-2 text-light-subtext dark:text-dark-subtext">{t('tripsLoading')}</ThemedText>
+            <ThemedText className="mt-2 text-light-subtext dark:text-dark-subtext">
+              {t('tripsLoading')}
+            </ThemedText>
           </View>
         ) : error ? (
           <View className="flex-1 items-center justify-center p-6">
@@ -474,10 +513,9 @@ const TripsScreen = () => {
           </View>
         ) : (
           <ThemeScroller
-            className="pt-4 px-global"
+            className="px-global pt-4"
             onScroll={scrollHandler}
-            scrollEventThrottle={scrollEventThrottle}
-          >
+            scrollEventThrottle={scrollEventThrottle}>
             <CardScroller className="mb-4">
               {counts.current > 0 && (
                 <Chip
@@ -534,7 +572,9 @@ const TripsScreen = () => {
               />
             </CardScroller>
             {years.length === 0 ? (
-              <ThemedText className="text-center text-light-subtext dark:text-dark-subtext py-8">{t('tripsNoBookings')}</ThemedText>
+              <ThemedText className="py-8 text-center text-light-subtext dark:text-dark-subtext">
+                {t('tripsNoBookings')}
+              </ThemedText>
             ) : (
               years.map((year, index) => (
                 <View key={year}>
@@ -572,8 +612,10 @@ const TripsScreen = () => {
 };
 
 const YearDivider = (props: { year: string }) => (
-  <View className="w-full mb-3 mt-1">
-    <ThemedText className="text-xs font-medium text-light-subtext dark:text-dark-subtext uppercase tracking-wider">{props.year}</ThemedText>
+  <View className="mb-3 mt-1 w-full">
+    <ThemedText className="text-xs font-medium uppercase tracking-wider text-light-subtext dark:text-dark-subtext">
+      {props.year}
+    </ThemedText>
   </View>
 );
 
@@ -595,7 +637,9 @@ const BookingCard = (props: {
   const isCurrent = isBookingCurrent(booking);
   const isUpcoming = isBookingUpcoming(booking);
   const hasReview = reviewRating != null && reviewRating >= 1;
-  const isCancelled = (booking.status ?? '').toLowerCase() === 'cancelled' || (booking.status ?? '').toLowerCase() === 'canceled';
+  const isCancelled =
+    (booking.status ?? '').toLowerCase() === 'cancelled' ||
+    (booking.status ?? '').toLowerCase() === 'canceled';
 
   const getStatusText = () => {
     if (isCancelled) return t('bookingStatusCancelled');
@@ -625,11 +669,10 @@ const BookingCard = (props: {
   return (
     <View
       style={shadowPresets.card}
-      className={`w-full rounded-2xl mt-4 overflow-hidden border border-neutral-200 dark:border-neutral-700 bg-light-primary dark:bg-dark-primary ${cardOpacity}`}
-    >
+      className={`mt-4 w-full overflow-hidden rounded-2xl border border-neutral-200 bg-light-primary dark:border-neutral-700 dark:bg-dark-primary ${cardOpacity}`}>
       <Pressable onPress={goToDetail} className="p-5" android_ripple={null}>
-        <View className="flex-row items-center justify-between gap-3 mb-4">
-          <View className="flex-row items-center flex-1 min-w-0">
+        <View className="mb-4 flex-row items-center justify-between gap-3">
+          <View className="min-w-0 flex-1 flex-row items-center">
             <View className={`rounded-full px-2.5 py-1 ${getStatusPillClass()}`}>
               <ThemedText className={`text-xs font-semibold ${getStatusTextClass()}`}>
                 {getStatusText()}
@@ -642,32 +685,42 @@ const BookingCard = (props: {
             )}
           </View>
           {isUpcoming && (
-            <View className="rounded-full px-2.5 py-1 bg-light-secondary dark:bg-dark-secondary">
+            <View className="rounded-full bg-light-secondary px-2.5 py-1 dark:bg-dark-secondary">
               <CountdownDisplay target={getTargetDate(booking)} />
             </View>
           )}
         </View>
         <View className="flex-row items-start justify-between gap-3">
-          <View className="flex-1 min-w-0">
-            <ThemedText className="text-lg font-semibold" numberOfLines={2}>{title}</ThemedText>
-            <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext mt-0.5">{dateText}</ThemedText>
+          <View className="min-w-0 flex-1">
+            <ThemedText className="text-lg font-semibold" numberOfLines={2}>
+              {title}
+            </ThemedText>
+            <ThemedText className="mt-0.5 text-sm text-light-subtext dark:text-dark-subtext">
+              {dateText}
+            </ThemedText>
             {booking.branch?.name ? (
-              <ThemedText className="text-xs text-light-subtext dark:text-dark-subtext mt-1" numberOfLines={1}>
+              <ThemedText
+                className="mt-1 text-xs text-light-subtext dark:text-dark-subtext"
+                numberOfLines={1}>
                 {booking.branch.name}
               </ThemedText>
             ) : null}
           </View>
-          <Avatar src={booking.employee?.avatarUrl ?? undefined} name={booking.employee?.name} size="md" />
+          <Avatar
+            src={booking.employee?.avatarUrl ?? undefined}
+            name={booking.employee?.name}
+            size="md"
+          />
         </View>
       </Pressable>
       {!isCancelled && (
-        <View className="flex-row bg-light-secondary dark:bg-dark-secondary rounded-b-2xl">
+        <View className="flex-row rounded-b-2xl bg-light-secondary dark:bg-dark-secondary">
           <Button
             variant="ghost"
             size="small"
             title={t('tripsViewBooking')}
             onPress={goToDetail}
-            className="flex-1 py-3.5 px-0 rounded-none rounded-bl-2xl"
+            className="flex-1 rounded-none rounded-bl-2xl px-0 py-3.5"
             textClassName="text-sm font-semibold text-neutral-800 dark:text-neutral-200"
           />
           <View className="w-px self-stretch bg-neutral-200 dark:bg-neutral-700" />
@@ -677,11 +730,14 @@ const BookingCard = (props: {
               size="small"
               title={t('tripsAddReview')}
               onPress={onOpenReview}
-              className="flex-1 py-3.5 px-0 rounded-none rounded-br-2xl"
+              className="flex-1 rounded-none rounded-br-2xl px-0 py-3.5"
               textClassName="text-sm font-semibold text-neutral-800 dark:text-neutral-200"
             />
           ) : isPast && hasReview ? (
-            <TouchableOpacity onPress={onOpenReview} activeOpacity={0.7} className="flex-1 py-3.5 items-center justify-center rounded-br-2xl">
+            <TouchableOpacity
+              onPress={onOpenReview}
+              activeOpacity={0.7}
+              className="flex-1 items-center justify-center rounded-br-2xl py-3.5">
               <ShowRating rating={reviewRating!} size="sm" displayMode="stars" />
             </TouchableOpacity>
           ) : isUpcoming ? (
@@ -694,7 +750,7 @@ const BookingCard = (props: {
               onPress={() =>
                 router.push(`/screens/reschedule?id=${encodeURIComponent(booking.id)}`)
               }
-              className="flex-1 py-3.5 px-0 rounded-none rounded-br-2xl"
+              className="flex-1 rounded-none rounded-br-2xl px-0 py-3.5"
               textClassName="text-sm font-semibold text-neutral-800 dark:text-neutral-200"
             />
           ) : (
@@ -703,7 +759,7 @@ const BookingCard = (props: {
               size="small"
               title={t('tripsMessage')}
               onPress={() => router.push('/screens/chat/user')}
-              className="flex-1 py-3.5 px-0 rounded-none rounded-br-2xl"
+              className="flex-1 rounded-none rounded-br-2xl px-0 py-3.5"
               textClassName="text-sm font-semibold text-neutral-800 dark:text-neutral-200"
             />
           )}
@@ -713,4 +769,4 @@ const BookingCard = (props: {
   );
 };
 
-export default TripsScreen; 
+export default TripsScreen;

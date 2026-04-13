@@ -1,24 +1,25 @@
+import { router, useLocalSearchParams } from 'expo-router';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { View, ScrollView, Pressable, ActivityIndicator, Image } from 'react-native';
-import { router, useLocalSearchParams } from 'expo-router';
-import Header from '@/components/Header';
-import ThemedText from '@/components/ThemedText';
-import ThemedFooter from '@/components/ThemeFooter';
-import Section from '@/components/layout/Section';
-import { Chip } from '@/components/Chip';
-import Icon from '@/components/Icon';
-import CurrentBookingCard from '@/components/booking/CurrentBookingCard';
-import { Button } from '@/components/Button';
-import useThemeColors from '@/app/contexts/ThemeColors';
-import { useAuth } from '@/app/contexts/AuthContext';
-import { useLanguage } from '@/app/contexts/LanguageContext';
-import { useTranslation } from '@/app/hooks/useTranslation';
+
 import {
   getBookingById,
   getBookingAvailability,
   type Booking,
   type BookingAvailabilityResponse,
 } from '@/api/bookings';
+import { useAuth } from '@/app/contexts/AuthContext';
+import { useLanguage } from '@/app/contexts/LanguageContext';
+import useThemeColors from '@/app/contexts/ThemeColors';
+import { useTranslation } from '@/app/hooks/useTranslation';
+import { Button } from '@/components/Button';
+import { Chip } from '@/components/Chip';
+import Header from '@/components/Header';
+import Icon from '@/components/Icon';
+import ThemedFooter from '@/components/ThemeFooter';
+import ThemedText from '@/components/ThemedText';
+import CurrentBookingCard from '@/components/booking/CurrentBookingCard';
+import Section from '@/components/layout/Section';
 
 function toIsoDate(d: Date): string {
   const y = d.getFullYear();
@@ -27,13 +28,13 @@ function toIsoDate(d: Date): string {
   return `${y}-${m}-${day}`;
 }
 
-function getMonthDays(offset: number, dateLocale: string): Array<{ value: string; label: string }> {
+function getMonthDays(offset: number, dateLocale: string): { value: string; label: string }[] {
   const now = new Date();
   const year = now.getFullYear();
   const month = now.getMonth() + offset;
   const first = new Date(year, month, 1);
   const last = new Date(year, month + 1, 0);
-  const out: Array<{ value: string; label: string }> = [];
+  const out: { value: string; label: string }[] = [];
   for (let day = 1; day <= last.getDate(); day += 1) {
     const dt = new Date(first.getFullYear(), first.getMonth(), day);
     if (dt < new Date(now.getFullYear(), now.getMonth(), now.getDate())) continue;
@@ -125,7 +126,10 @@ export default function RescheduleScreen() {
     };
   }, [booking]);
 
-  const monthDays = useMemo(() => getMonthDays(monthOffset, dateLocaleTag), [monthOffset, dateLocaleTag]);
+  const monthDays = useMemo(
+    () => getMonthDays(monthOffset, dateLocaleTag),
+    [monthOffset, dateLocaleTag]
+  );
   const visibleMonthDays = useMemo(
     () => monthDays.filter((day) => availableDatesInMonth.has(day.value)),
     [monthDays, availableDatesInMonth]
@@ -140,7 +144,9 @@ export default function RescheduleScreen() {
   const groupedSlots = useMemo(() => {
     const slots = availability?.availability?.slots ?? [];
     const morning = slots.filter((s) => timeToMinutes(s.start) < 12 * 60);
-    const afternoon = slots.filter((s) => timeToMinutes(s.start) >= 12 * 60 && timeToMinutes(s.start) < 17 * 60);
+    const afternoon = slots.filter(
+      (s) => timeToMinutes(s.start) >= 12 * 60 && timeToMinutes(s.start) < 17 * 60
+    );
     const evening = slots.filter((s) => timeToMinutes(s.start) >= 17 * 60);
     return { morning, afternoon, evening };
   }, [availability]);
@@ -255,7 +261,9 @@ export default function RescheduleScreen() {
         <Header title={t('rescheduleTitle')} showBackButton />
         <View className="flex-1 items-center justify-center bg-light-primary dark:bg-dark-primary">
           <ActivityIndicator size="large" />
-          <ThemedText className="mt-2 text-light-subtext dark:text-dark-subtext">{t('commonLoading')}</ThemedText>
+          <ThemedText className="mt-2 text-light-subtext dark:text-dark-subtext">
+            {t('commonLoading')}
+          </ThemedText>
         </View>
       </>
     );
@@ -265,8 +273,10 @@ export default function RescheduleScreen() {
     return (
       <>
         <Header title={t('rescheduleTitle')} showBackButton />
-        <View className="flex-1 items-center justify-center bg-light-primary dark:bg-dark-primary p-6">
-          <ThemedText className="text-center text-red-500 dark:text-red-400">{fetchError ?? t('rescheduleNotFound')}</ThemedText>
+        <View className="flex-1 items-center justify-center bg-light-primary p-6 dark:bg-dark-primary">
+          <ThemedText className="text-center text-red-500 dark:text-red-400">
+            {fetchError ?? t('rescheduleNotFound')}
+          </ThemedText>
         </View>
       </>
     );
@@ -277,13 +287,15 @@ export default function RescheduleScreen() {
       <Header title={t('rescheduleTitle')} showBackButton />
       <View className="flex-1 bg-light-primary dark:bg-dark-primary">
         <ScrollView className="flex-1 px-global pt-4" keyboardShouldPersistTaps="handled">
-          <ThemedText className="text-base text-light-subtext dark:text-dark-subtext mb-4">{t('rescheduleIntro')}</ThemedText>
+          <ThemedText className="mb-4 text-base text-light-subtext dark:text-dark-subtext">
+            {t('rescheduleIntro')}
+          </ThemedText>
 
           <Section
             className="mb-4"
             header={
-              <View className="flex-row items-center justify-between gap-3 w-full">
-                <ThemedText className="text-lg font-semibold flex-1 min-w-0 pr-2" numberOfLines={2}>
+              <View className="w-full flex-row items-center justify-between gap-3">
+                <ThemedText className="min-w-0 flex-1 pr-2 text-lg font-semibold" numberOfLines={2}>
                   {t('rescheduleCurrentTitle')}
                 </ThemedText>
                 <Image
@@ -294,16 +306,15 @@ export default function RescheduleScreen() {
                   accessibilityIgnoresInvertColors
                 />
               </View>
-            }
-          >
+            }>
             <CurrentBookingCard booking={booking} />
           </Section>
 
           <Section
             className="mb-4"
             header={
-              <View className="flex-row items-center justify-between gap-3 w-full">
-                <ThemedText className="text-lg font-semibold flex-1 min-w-0 pr-2" numberOfLines={2}>
+              <View className="w-full flex-row items-center justify-between gap-3">
+                <ThemedText className="min-w-0 flex-1 pr-2 text-lg font-semibold" numberOfLines={2}>
                   {t('reschedulePickTitle')}
                 </ThemedText>
                 <Image
@@ -314,23 +325,23 @@ export default function RescheduleScreen() {
                   accessibilityIgnoresInvertColors
                 />
               </View>
-            }
-          >
+            }>
             <View className="mb-3 flex-row items-center justify-between">
               <Pressable
                 disabled={monthOffset === 0}
                 onPress={() => setMonthOffset((prev) => Math.max(0, prev - 1))}
-                className={`rounded-full p-2 ${monthOffset === 0 ? 'opacity-40' : 'opacity-100'}`}
-              >
+                className={`rounded-full p-2 ${monthOffset === 0 ? 'opacity-40' : 'opacity-100'}`}>
                 <Icon name="ChevronLeft" size={24} className="-translate-x-px" />
               </Pressable>
               <ThemedText className="text-base font-semibold">{monthLabel}</ThemedText>
-              <Pressable onPress={() => setMonthOffset((prev) => prev + 1)} className="rounded-full p-2">
+              <Pressable
+                onPress={() => setMonthOffset((prev) => prev + 1)}
+                className="rounded-full p-2">
                 <Icon name="ChevronRight" size={24} className="translate-x-px" />
               </Pressable>
             </View>
             {loadingMonthAvailability ? (
-              <View className="py-4 items-center">
+              <View className="items-center py-4">
                 <ActivityIndicator size="small" />
               </View>
             ) : null}
@@ -346,19 +357,21 @@ export default function RescheduleScreen() {
               ))}
             </View>
             {!loadingMonthAvailability && visibleMonthDays.length === 0 ? (
-              <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext mt-2">
+              <ThemedText className="mt-2 text-sm text-light-subtext dark:text-dark-subtext">
                 {t('reservationNoSlotsMonth')}
               </ThemedText>
             ) : null}
 
-            <View className="mt-6 mb-2">
-              <ThemedText className="text-lg font-semibold">{t('reservationAvailableTimes')}</ThemedText>
+            <View className="mb-2 mt-6">
+              <ThemedText className="text-lg font-semibold">
+                {t('reservationAvailableTimes')}
+              </ThemedText>
               <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext">
                 {t('reservationAvailableTimesSubtitle')}
               </ThemedText>
             </View>
             {loadingAvailability ? (
-              <View className="py-10 items-center">
+              <View className="items-center py-10">
                 <ActivityIndicator size="small" />
               </View>
             ) : availabilityError ? (
@@ -367,7 +380,7 @@ export default function RescheduleScreen() {
               <>
                 {groupedSlots.morning.length > 0 ? (
                   <Section title={t('reservationMorning')} titleSize="md" className="mb-2">
-                    <View className="flex-row flex-wrap gap-2 mt-1">
+                    <View className="mt-1 flex-row flex-wrap gap-2">
                       {groupedSlots.morning.map((slot, index) => (
                         <Chip
                           key={`m-${slot.start}-${slot.end}-${index}`}
@@ -386,7 +399,7 @@ export default function RescheduleScreen() {
                 ) : null}
                 {groupedSlots.afternoon.length > 0 ? (
                   <Section title={t('reservationAfternoon')} titleSize="md" className="mb-2">
-                    <View className="flex-row flex-wrap gap-2 mt-1">
+                    <View className="mt-1 flex-row flex-wrap gap-2">
                       {groupedSlots.afternoon.map((slot, index) => (
                         <Chip
                           key={`a-${slot.start}-${slot.end}-${index}`}
@@ -405,7 +418,7 @@ export default function RescheduleScreen() {
                 ) : null}
                 {groupedSlots.evening.length > 0 ? (
                   <Section title={t('reservationEvening')} titleSize="md" className="mb-2">
-                    <View className="flex-row flex-wrap gap-2 mt-1">
+                    <View className="mt-1 flex-row flex-wrap gap-2">
                       {groupedSlots.evening.map((slot, index) => (
                         <Chip
                           key={`e-${slot.start}-${slot.end}-${index}`}
@@ -430,20 +443,22 @@ export default function RescheduleScreen() {
               </>
             )}
             {duration > 0 ? (
-              <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext mt-3">
+              <ThemedText className="mt-3 text-sm text-light-subtext dark:text-dark-subtext">
                 {t('reservationSummaryEstimatedDuration')}: {duration} {t('bookingMinutesShort')}
               </ThemedText>
             ) : null}
           </Section>
 
           {saveError ? (
-            <ThemedText className="text-sm text-red-500 dark:text-red-400 mb-4">{saveError}</ThemedText>
+            <ThemedText className="mb-4 text-sm text-red-500 dark:text-red-400">
+              {saveError}
+            </ThemedText>
           ) : null}
           <View className="h-8" />
         </ScrollView>
 
         <ThemedFooter>
-          <View className="flex-row rounded-2xl overflow-hidden bg-light-secondary dark:bg-dark-secondary">
+          <View className="flex-row overflow-hidden rounded-2xl bg-light-secondary dark:bg-dark-secondary">
             <Button
               variant={canSave ? 'primary' : 'ghost'}
               size="small"
@@ -452,7 +467,7 @@ export default function RescheduleScreen() {
               onPress={() => {
                 onContinueToSummary();
               }}
-              className={`w-full flex-1 py-3.5 px-0 min-w-0 rounded-none ${!canSave ? 'opacity-60' : ''}`}
+              className={`w-full min-w-0 flex-1 rounded-none px-0 py-3.5 ${!canSave ? 'opacity-60' : ''}`}
               textClassName={
                 canSave
                   ? 'text-sm font-semibold text-white'

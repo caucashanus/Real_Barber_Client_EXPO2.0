@@ -14,23 +14,19 @@ export default function ProductPurchaseInfoScreen() {
     <View className="flex-1 bg-light-primary dark:bg-dark-primary">
       <Header showBackButton />
       <ThemedScroller className="p-global pb-8">
-        <Section
-          titleSize="2xl"
-          className="mb-4"
-          title={t('productPurchaseInfoTitle')}
-        />
+        <Section titleSize="2xl" className="mb-4" title={t('productPurchaseInfoTitle')} />
         <View className="gap-5">
-          <ThemedText className="text-base text-light-text dark:text-dark-text leading-7">
+          <ThemedText className="text-base leading-7 text-light-text dark:text-dark-text">
             {t('productPurchaseInfoP1')}
           </ThemedText>
-          <ThemedText className="text-base text-light-text dark:text-dark-text leading-7">
+          <ThemedText className="text-base leading-7 text-light-text dark:text-dark-text">
             {t('productPurchaseInfoP2')}
           </ThemedText>
-          <ThemedText className="text-base text-light-text dark:text-dark-text leading-7">
+          <ThemedText className="text-base leading-7 text-light-text dark:text-dark-text">
             {t('productPurchaseInfoP3')}
           </ThemedText>
-          <View className="rounded-xl bg-light-secondary dark:bg-dark-secondary p-4 mt-2">
-            <ThemedText className="text-base font-semibold text-light-text dark:text-dark-text leading-7">
+          <View className="mt-2 rounded-xl bg-light-secondary p-4 dark:bg-dark-secondary">
+            <ThemedText className="text-base font-semibold leading-7 text-light-text dark:text-dark-text">
               {t('productPurchaseInfoThanks')}
             </ThemedText>
           </View>

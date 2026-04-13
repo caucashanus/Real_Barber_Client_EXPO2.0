@@ -1,19 +1,21 @@
-import React, { useEffect, useState, useCallback, useRef, useMemo } from 'react';
 import { useFocusEffect } from '@react-navigation/native';
-import { View, Image, ActivityIndicator, Pressable, ScrollView, Modal, Animated, useWindowDimensions, FlatList, type LayoutChangeEvent } from 'react-native';
-import { useLocalSearchParams } from 'expo-router';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { router, useLocalSearchParams } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
-import VideoPlayer from '@/components/VideoPlayer';
-import Header from '@/components/Header';
-import ThemedText from '@/components/ThemedText';
-import ThemedScroller from '@/components/ThemeScroller';
-import Divider from '@/components/layout/Divider';
-import ShowRating from '@/components/ShowRating';
-import Avatar from '@/components/Avatar';
-import { Button } from '@/components/Button';
-import Favorite from '@/components/Favorite';
-import { useAuth } from '@/app/contexts/AuthContext';
+import React, { useEffect, useState, useCallback, useRef, useMemo } from 'react';
+import {
+  View,
+  Image,
+  ActivityIndicator,
+  Pressable,
+  ScrollView,
+  Modal,
+  Animated,
+  useWindowDimensions,
+  FlatList,
+  type LayoutChangeEvent,
+} from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+
 import {
   getEmployeeById,
   getEmployees,
@@ -22,13 +24,22 @@ import {
   type EmployeeService,
   type EmployeeMediaItem,
 } from '@/api/employees';
+import { getEntityReviews, type EntityReviewItem } from '@/api/reviews';
+import { useAuth } from '@/app/contexts/AuthContext';
+import useThemeColors from '@/app/contexts/ThemeColors';
+import { useTranslation } from '@/app/hooks/useTranslation';
+import Avatar from '@/components/Avatar';
+import { Button } from '@/components/Button';
+import { CardScroller } from '@/components/CardScroller';
+import Favorite from '@/components/Favorite';
+import Header from '@/components/Header';
+import VideoPlayer from '@/components/VideoPlayer';
+import ThemedText from '@/components/ThemedText';
+import ThemedScroller from '@/components/ThemeScroller';
+import Divider from '@/components/layout/Divider';
+import ShowRating from '@/components/ShowRating';
 import Section from '@/components/layout/Section';
 import Icon from '@/components/Icon';
-import { router } from 'expo-router';
-import { CardScroller } from '@/components/CardScroller';
-import { getEntityReviews, type EntityReviewItem } from '@/api/reviews';
-import { useTranslation } from '@/app/hooks/useTranslation';
-import useThemeColors from '@/app/contexts/ThemeColors';
 
 type TopSlide = { type: 'image' | 'video'; uri: string };
 
@@ -36,7 +47,7 @@ function employeeTopSlides(employee: EmployeeDetail): TopSlide[] {
   const out: TopSlide[] = [];
   if (employee.avatarUrl) out.push({ type: 'image', uri: employee.avatarUrl });
   const mediaList = getMediaList(employee);
-  mediaList.forEach((m) => out.push({ type: (m.type === 'video' ? 'video' : 'image'), uri: m.url }));
+  mediaList.forEach((m) => out.push({ type: m.type === 'video' ? 'video' : 'image', uri: m.url }));
   if (out.length === 0) out.push({ type: 'image', uri: '' });
   return out;
 }
@@ -80,7 +91,20 @@ function groupServicesByCategory(services: EmployeeService[]): CategoryGroup[] {
 function formatReviewDate(iso: string): string {
   try {
     const d = new Date(iso);
-    const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+    const months = [
+      'January',
+      'February',
+      'March',
+      'April',
+      'May',
+      'June',
+      'July',
+      'August',
+      'September',
+      'October',
+      'November',
+      'December',
+    ];
     return `${months[d.getMonth()]} ${d.getFullYear()}`;
   } catch {
     return iso;
@@ -135,7 +159,9 @@ export default function BarberDetailScreen() {
     setDescription(null);
     Promise.all([
       getEmployeeById(apiToken, id),
-      getEmployees(apiToken, { includeReviews: true, reviewsLimit: 1 }).catch(() => [] as EmployeeDetail[]),
+      getEmployees(apiToken, { includeReviews: true, reviewsLimit: 1 }).catch(
+        () => [] as EmployeeDetail[]
+      ),
     ])
       .then(([detail, list]) => {
         setEmployee(detail);
@@ -195,7 +221,9 @@ export default function BarberDetailScreen() {
         <Header showBackButton />
         <View className="flex-1 items-center justify-center bg-light-primary dark:bg-dark-primary">
           <ActivityIndicator size="large" />
-          <ThemedText className="mt-4 text-light-subtext dark:text-dark-subtext">{t('commonLoading')}</ThemedText>
+          <ThemedText className="mt-4 text-light-subtext dark:text-dark-subtext">
+            {t('commonLoading')}
+          </ThemedText>
         </View>
       </>
     );
@@ -205,8 +233,10 @@ export default function BarberDetailScreen() {
     return (
       <>
         <Header showBackButton />
-        <View className="flex-1 items-center justify-center bg-light-primary dark:bg-dark-primary p-6">
-          <ThemedText className="text-center text-red-500 dark:text-red-400">{error ?? 'Barber not found'}</ThemedText>
+        <View className="flex-1 items-center justify-center bg-light-primary p-6 dark:bg-dark-primary">
+          <ThemedText className="text-center text-red-500 dark:text-red-400">
+            {error ?? 'Barber not found'}
+          </ThemedText>
         </View>
       </>
     );
@@ -215,17 +245,19 @@ export default function BarberDetailScreen() {
   const employeeImageUrl = employee.avatarUrl ?? '';
   const CAROUSEL_HEIGHT = 500;
   const reviewParams = `entityType=employee&entityId=${encodeURIComponent(employee.id)}&entityName=${encodeURIComponent(employee.name)}${employeeImageUrl ? `&entityImage=${encodeURIComponent(employeeImageUrl)}` : ''}`;
-  const rightComponents = employee.name ? [
-    <Favorite
-      key="fav"
-      productName={employee.name}
-      title={employee.name}
-      entityType="employee"
-      entityId={employee.id}
-      size={25}
-      isWhite
-    />,
-  ] : undefined;
+  const rightComponents = employee.name
+    ? [
+        <Favorite
+          key="fav"
+          productName={employee.name}
+          title={employee.name}
+          entityType="employee"
+          entityId={employee.id}
+          size={25}
+          isWhite
+        />,
+      ]
+    : undefined;
 
   return (
     <>
@@ -233,12 +265,11 @@ export default function BarberDetailScreen() {
       <Header variant="transparent" title="" rightComponents={rightComponents} showBackButton />
       <ThemedScroller
         ref={scrollRef}
-        className="px-0 bg-light-primary dark:bg-dark-primary"
+        className="bg-light-primary px-0 dark:bg-dark-primary"
         onScroll={Animated.event([{ nativeEvent: { contentOffset: { y: heroScrollY } } }], {
           useNativeDriver: false,
         })}
-        scrollEventThrottle={16}
-      >
+        scrollEventThrottle={16}>
         <Animated.View
           style={{
             height: CAROUSEL_HEIGHT,
@@ -259,8 +290,7 @@ export default function BarberDetailScreen() {
                 }),
               },
             ],
-          }}
-        >
+          }}>
           <FlatList
             ref={topCarouselRef}
             data={topSlides}
@@ -294,11 +324,11 @@ export default function BarberDetailScreen() {
             )}
           />
           {topSlides.length > 1 ? (
-            <View className="flex-row justify-center absolute bottom-4 w-full">
+            <View className="absolute bottom-4 w-full flex-row justify-center">
               {topSlides.map((_, index) => (
                 <View
                   key={index}
-                  className={`h-2 w-2 rounded-full mx-1 ${index === activeCarouselIndex ? 'bg-white' : 'bg-white/40'}`}
+                  className={`mx-1 h-2 w-2 rounded-full ${index === activeCarouselIndex ? 'bg-white' : 'bg-white/40'}`}
                 />
               ))}
             </View>
@@ -307,32 +337,47 @@ export default function BarberDetailScreen() {
 
         <View
           style={{ borderTopLeftRadius: 30, borderTopRightRadius: 30 }}
-          className="p-global bg-light-primary dark:bg-dark-primary -mt-[30px]"
-          onLayout={(e: LayoutChangeEvent) => { roundedViewYRef.current = e.nativeEvent.layout.y; }}
-        >
+          className="-mt-[30px] bg-light-primary p-global dark:bg-dark-primary"
+          onLayout={(e: LayoutChangeEvent) => {
+            roundedViewYRef.current = e.nativeEvent.layout.y;
+          }}>
           <View className="">
-            <ThemedText className="text-3xl text-center font-semibold">{employee.name}</ThemedText>
-            <View className="flex-row items-center justify-center mt-4">
-              <Pressable onPress={scrollToReviews} className="flex-row items-center active:opacity-70">
-                <ShowRating rating={average} size="lg" className="px-4 py-2 border-r border-neutral-200 dark:border-dark-secondary" />
-                <ThemedText className="text-base px-4">{t('profileReviews')}</ThemedText>
+            <ThemedText className="text-center text-3xl font-semibold">{employee.name}</ThemedText>
+            <View className="mt-4 flex-row items-center justify-center">
+              <Pressable
+                onPress={scrollToReviews}
+                className="flex-row items-center active:opacity-70">
+                <ShowRating
+                  rating={average}
+                  size="lg"
+                  className="border-r border-neutral-200 px-4 py-2 dark:border-dark-secondary"
+                />
+                <ThemedText className="px-4 text-base">{t('profileReviews')}</ThemedText>
               </Pressable>
               <Pressable
                 onPress={() => router.push(`/screens/review?${reviewParams}`)}
-                className="ml-4 px-3 py-2 rounded-lg bg-light-secondary dark:bg-dark-secondary"
-              >
-                <ThemedText className="text-sm font-medium">{hasReviewed ? t('barberUpdateReview') : t('barberReview')}</ThemedText>
+                className="ml-4 rounded-lg bg-light-secondary px-3 py-2 dark:bg-dark-secondary">
+                <ThemedText className="text-sm font-medium">
+                  {hasReviewed ? t('barberUpdateReview') : t('barberReview')}
+                </ThemedText>
               </Pressable>
             </View>
           </View>
 
-          <View className="mt-8 mb-8 py-global border-y border-neutral-200 dark:border-dark-secondary">
-            <View className="flex-row items-center mb-3">
-              <Avatar size="md" src={employee.avatarUrl ?? undefined} name={employee.name} className="mr-4" />
-              <ThemedText className="font-semibold text-base">{t('barberAboutMe')}</ThemedText>
+          <View className="mb-8 mt-8 border-y border-neutral-200 py-global dark:border-dark-secondary">
+            <View className="mb-3 flex-row items-center">
+              <Avatar
+                size="md"
+                src={employee.avatarUrl ?? undefined}
+                name={employee.name}
+                className="mr-4"
+              />
+              <ThemedText className="text-base font-semibold">{t('barberAboutMe')}</ThemedText>
             </View>
             {description ? (
-              <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext" style={{ lineHeight: 22 }}>
+              <ThemedText
+                className="text-sm text-light-subtext dark:text-dark-subtext"
+                style={{ lineHeight: 22 }}>
                 {description}
               </ThemedText>
             ) : null}
@@ -345,15 +390,13 @@ export default function BarberDetailScreen() {
                   horizontal
                   showsHorizontalScrollIndicator={false}
                   contentContainerStyle={{ gap: 12, paddingVertical: 12 }}
-                  className="-mx-global px-global"
-                >
+                  className="-mx-global px-global">
                   {getMediaList(employee).map((item, index) => (
                     <Pressable
                       key={item.id ?? index}
                       onPress={() => setFullscreenMedia(item)}
-                      className="rounded-xl overflow-hidden"
-                      style={{ width: 160, height: 160 }}
-                    >
+                      className="overflow-hidden rounded-xl"
+                      style={{ width: 160, height: 160 }}>
                       {item.type === 'video' ? (
                         <VideoPlayer
                           uri={item.url}
@@ -364,7 +407,11 @@ export default function BarberDetailScreen() {
                           isLooping
                         />
                       ) : (
-                        <Image source={{ uri: item.url }} className="w-full h-full" resizeMode="cover" />
+                        <Image
+                          source={{ uri: item.url }}
+                          className="h-full w-full"
+                          resizeMode="cover"
+                        />
                       )}
                     </Pressable>
                   ))}
@@ -382,17 +429,22 @@ export default function BarberDetailScreen() {
                     <Pressable
                       key={branch.id}
                       onPress={() => router.push(`/screens/branch-detail?id=${branch.id}`)}
-                      className="flex-row items-center rounded-xl bg-light-secondary dark:bg-dark-secondary p-3"
-                    >
+                      className="flex-row items-center rounded-xl bg-light-secondary p-3 dark:bg-dark-secondary">
                       {branch.imageUrl ? (
-                        <Image source={{ uri: branch.imageUrl }} className="w-12 h-12 rounded-lg" resizeMode="cover" />
+                        <Image
+                          source={{ uri: branch.imageUrl }}
+                          className="h-12 w-12 rounded-lg"
+                          resizeMode="cover"
+                        />
                       ) : (
-                        <View className="w-12 h-12 rounded-lg bg-light-primary dark:bg-dark-primary" />
+                        <View className="h-12 w-12 rounded-lg bg-light-primary dark:bg-dark-primary" />
                       )}
-                      <View className="flex-1 ml-3">
+                      <View className="ml-3 flex-1">
                         <ThemedText className="font-medium">{branch.name}</ThemedText>
                         {branch.address ? (
-                          <ThemedText className="text-xs text-light-subtext dark:text-dark-subtext" numberOfLines={1}>
+                          <ThemedText
+                            className="text-xs text-light-subtext dark:text-dark-subtext"
+                            numberOfLines={1}>
                             {branch.address}
                           </ThemedText>
                         ) : null}
@@ -413,11 +465,14 @@ export default function BarberDetailScreen() {
                   {groupServicesByCategory(getServicesList(employee)).map((group) => {
                     const isExpanded = expandedCategoryId === group.categoryId;
                     return (
-                      <View key={group.categoryId} className="rounded-xl overflow-hidden bg-light-secondary dark:bg-dark-secondary">
+                      <View
+                        key={group.categoryId}
+                        className="overflow-hidden rounded-xl bg-light-secondary dark:bg-dark-secondary">
                         <Pressable
-                          onPress={() => setExpandedCategoryId(isExpanded ? null : group.categoryId)}
-                          className="flex-row items-center justify-between p-3"
-                        >
+                          onPress={() =>
+                            setExpandedCategoryId(isExpanded ? null : group.categoryId)
+                          }
+                          className="flex-row items-center justify-between p-3">
                           <ThemedText className="font-medium">{group.categoryName}</ThemedText>
                           <Icon
                             name="ChevronDown"
@@ -430,20 +485,27 @@ export default function BarberDetailScreen() {
                             {group.services.map((svc) => (
                               <View
                                 key={svc.id}
-                                className="flex-row items-center rounded-lg bg-light-primary dark:bg-dark-primary p-3"
-                              >
+                                className="flex-row items-center rounded-lg bg-light-primary p-3 dark:bg-dark-primary">
                                 {svc.imageUrl ? (
-                                  <Image source={{ uri: svc.imageUrl }} className="w-12 h-12 rounded-lg" resizeMode="cover" />
+                                  <Image
+                                    source={{ uri: svc.imageUrl }}
+                                    className="h-12 w-12 rounded-lg"
+                                    resizeMode="cover"
+                                  />
                                 ) : (
-                                  <View className="w-12 h-12 rounded-lg bg-light-secondary dark:bg-dark-secondary" />
+                                  <View className="h-12 w-12 rounded-lg bg-light-secondary dark:bg-dark-secondary" />
                                 )}
-                                <View className="flex-1 ml-3">
-                                  <ThemedText className="font-medium text-sm">{svc.name}</ThemedText>
+                                <View className="ml-3 flex-1">
+                                  <ThemedText className="text-sm font-medium">
+                                    {svc.name}
+                                  </ThemedText>
                                   <ThemedText className="text-xs text-light-subtext dark:text-dark-subtext">
                                     {svc.duration ?? '—'} min
                                   </ThemedText>
                                 </View>
-                                <ThemedText className="font-semibold text-sm">{svc.price != null ? `${svc.price} Kč` : '—'}</ThemedText>
+                                <ThemedText className="text-sm font-semibold">
+                                  {svc.price != null ? `${svc.price} Kč` : '—'}
+                                </ThemedText>
                               </View>
                             ))}
                           </View>
@@ -456,82 +518,108 @@ export default function BarberDetailScreen() {
             </>
           ) : null}
 
-          <View onLayout={(e: LayoutChangeEvent) => { reviewsSectionYInRoundedRef.current = e.nativeEvent.layout.y; }}>
+          <View
+            onLayout={(e: LayoutChangeEvent) => {
+              reviewsSectionYInRoundedRef.current = e.nativeEvent.layout.y;
+            }}>
             <Section
               title={t('profileReviews')}
               titleSize="lg"
               subtitle={`${displayTotal} ${t('branchReviews')}`}
-              className="mb-6"
-            >
-            <View className="mt-4 bg-light-secondary dark:bg-dark-secondary p-4 rounded-lg">
-              <View className="flex-row items-center mb-4">
-                <ShowRating rating={average} size="lg" />
-                <ThemedText className="ml-2 text-light-subtext dark:text-dark-subtext">
-                  ({displayTotal})
-                </ThemedText>
-              </View>
-              <View className="space-y-2">
-                {([5, 4, 3, 2, 1] as const).map((stars) => (
-                  <View key={stars} className="flex-row items-center justify-between py-1.5">
-                    <ShowRating rating={stars} size="sm" displayMode="stars" />
-                    <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext">
-                      {countByRating[stars] ?? 0} {t('branchReviews')}
-                    </ThemedText>
-                  </View>
-                ))}
-              </View>
-            </View>
-            <View className="mt-6 flex-row items-center justify-between mb-3">
-              <ThemedText className="font-semibold text-lg">{t('profileReviews')}</ThemedText>
-              <Pressable
-                onPress={() => router.push(`/screens/review?${reviewParams}`)}
-                className="px-3 py-2 rounded-lg bg-light-secondary dark:bg-dark-secondary"
-              >
-                <ThemedText className="text-sm font-medium">{hasReviewed ? t('barberUpdateReview') : t('barberWriteReview')}</ThemedText>
-              </Pressable>
-            </View>
-            {loadingReviews ? (
-              <View className="py-6 items-center">
-                <ActivityIndicator size="small" />
-                <ThemedText className="mt-2 text-sm text-light-subtext dark:text-dark-subtext">{t('branchLoadingReviews')}</ThemedText>
-              </View>
-            ) : (
-              <CardScroller className="mt-1" space={10}>
-                {reviews.map((review) => {
-                  const isOwnReview = client?.id != null && review.client?.id === client.id;
-                  return (
-                    <View key={review.id} className="w-[280px] bg-light-secondary dark:bg-dark-secondary p-4 rounded-lg">
-                      <View className="flex-row items-center justify-between mb-2">
-                        <View className="flex-row items-center flex-1 min-w-0">
-                          {review.isAnonymous ? (
-                            <Image source={require('@/assets/img/wallet/realbarber.png')} className="w-10 h-10 rounded-full mr-2" resizeMode="cover" />
-                          ) : review.client?.avatarUrl ? (
-                            <Image source={{ uri: review.client.avatarUrl }} className="w-10 h-10 rounded-full mr-2" />
-                          ) : (
-                            <Avatar size="sm" name={review.client?.name ?? '?'} className="mr-2" />
-                          )}
-                          <View className="min-w-0">
-                            <ThemedText className="font-medium" numberOfLines={1}>{review.isAnonymous ? 'Anonymous' : (review.client?.name ?? 'Anonymous')}</ThemedText>
-                            <ThemedText className="text-xs text-light-subtext dark:text-dark-subtext">
-                              {formatReviewDate(review.createdAt)}
-                            </ThemedText>
-                          </View>
-                        </View>
-                        {isOwnReview && (
-                          <View style={{ backgroundColor: colors.highlight }} className="ml-2 px-2 py-1 rounded-md">
-                            <ThemedText className="text-xs font-medium text-white">{t('barberMine')}</ThemedText>
-                          </View>
-                        )}
-                      </View>
-                      <ShowRating rating={review.rating} size="sm" className="mb-2" />
-                      <ThemedText className="text-sm">
-                        {review.description || review.positiveFeedback || '—'}
+              className="mb-6">
+              <View className="mt-4 rounded-lg bg-light-secondary p-4 dark:bg-dark-secondary">
+                <View className="mb-4 flex-row items-center">
+                  <ShowRating rating={average} size="lg" />
+                  <ThemedText className="ml-2 text-light-subtext dark:text-dark-subtext">
+                    ({displayTotal})
+                  </ThemedText>
+                </View>
+                <View className="space-y-2">
+                  {([5, 4, 3, 2, 1] as const).map((stars) => (
+                    <View key={stars} className="flex-row items-center justify-between py-1.5">
+                      <ShowRating rating={stars} size="sm" displayMode="stars" />
+                      <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext">
+                        {countByRating[stars] ?? 0} {t('branchReviews')}
                       </ThemedText>
                     </View>
-                  );
-                })}
-              </CardScroller>
-            )}
+                  ))}
+                </View>
+              </View>
+              <View className="mb-3 mt-6 flex-row items-center justify-between">
+                <ThemedText className="text-lg font-semibold">{t('profileReviews')}</ThemedText>
+                <Pressable
+                  onPress={() => router.push(`/screens/review?${reviewParams}`)}
+                  className="rounded-lg bg-light-secondary px-3 py-2 dark:bg-dark-secondary">
+                  <ThemedText className="text-sm font-medium">
+                    {hasReviewed ? t('barberUpdateReview') : t('barberWriteReview')}
+                  </ThemedText>
+                </Pressable>
+              </View>
+              {loadingReviews ? (
+                <View className="items-center py-6">
+                  <ActivityIndicator size="small" />
+                  <ThemedText className="mt-2 text-sm text-light-subtext dark:text-dark-subtext">
+                    {t('branchLoadingReviews')}
+                  </ThemedText>
+                </View>
+              ) : (
+                <CardScroller className="mt-1" space={10}>
+                  {reviews.map((review) => {
+                    const isOwnReview = client?.id != null && review.client?.id === client.id;
+                    return (
+                      <View
+                        key={review.id}
+                        className="w-[280px] rounded-lg bg-light-secondary p-4 dark:bg-dark-secondary">
+                        <View className="mb-2 flex-row items-center justify-between">
+                          <View className="min-w-0 flex-1 flex-row items-center">
+                            {review.isAnonymous ? (
+                              <Image
+                                source={require('@/assets/img/wallet/realbarber.png')}
+                                className="mr-2 h-10 w-10 rounded-full"
+                                resizeMode="cover"
+                              />
+                            ) : review.client?.avatarUrl ? (
+                              <Image
+                                source={{ uri: review.client.avatarUrl }}
+                                className="mr-2 h-10 w-10 rounded-full"
+                              />
+                            ) : (
+                              <Avatar
+                                size="sm"
+                                name={review.client?.name ?? '?'}
+                                className="mr-2"
+                              />
+                            )}
+                            <View className="min-w-0">
+                              <ThemedText className="font-medium" numberOfLines={1}>
+                                {review.isAnonymous
+                                  ? 'Anonymous'
+                                  : (review.client?.name ?? 'Anonymous')}
+                              </ThemedText>
+                              <ThemedText className="text-xs text-light-subtext dark:text-dark-subtext">
+                                {formatReviewDate(review.createdAt)}
+                              </ThemedText>
+                            </View>
+                          </View>
+                          {isOwnReview && (
+                            <View
+                              style={{ backgroundColor: colors.highlight }}
+                              className="ml-2 rounded-md px-2 py-1">
+                              <ThemedText className="text-xs font-medium text-white">
+                                {t('barberMine')}
+                              </ThemedText>
+                            </View>
+                          )}
+                        </View>
+                        <ShowRating rating={review.rating} size="sm" className="mb-2" />
+                        <ThemedText className="text-sm">
+                          {review.description || review.positiveFeedback || '—'}
+                        </ThemedText>
+                      </View>
+                    );
+                  })}
+                </CardScroller>
+              )}
             </Section>
           </View>
 
@@ -541,13 +629,12 @@ export default function BarberDetailScreen() {
 
       <View
         style={{ paddingBottom: insets.bottom }}
-        className="flex-row items-center justify-start px-global pt-4 border-t border-neutral-200 dark:border-dark-secondary bg-light-primary dark:bg-dark-primary"
-      >
+        className="flex-row items-center justify-start border-t border-neutral-200 bg-light-primary px-global pt-4 dark:border-dark-secondary dark:bg-dark-primary">
         <View>
           <ThemedText className="text-xl font-bold">{t('barberBook')}</ThemedText>
           <ThemedText className="text-xs opacity-60">{t('barberReserveWith')}</ThemedText>
         </View>
-        <View className="flex-row items-center ml-auto">
+        <View className="ml-auto flex-row items-center">
           <Button
             title={t('commonReserve')}
             variant="primary"
@@ -563,14 +650,12 @@ export default function BarberDetailScreen() {
         visible={!!fullscreenMedia}
         transparent
         animationType="fade"
-        onRequestClose={() => setFullscreenMedia(null)}
-      >
+        onRequestClose={() => setFullscreenMedia(null)}>
         <View style={{ flex: 1, width: winWidth, height: winHeight, backgroundColor: '#000' }}>
           <Pressable
             onPress={() => setFullscreenMedia(null)}
             style={{ position: 'absolute', top: insets.top + 8, left: 16, zIndex: 10, padding: 8 }}
-            className="rounded-full bg-black/50"
-          >
+            className="rounded-full bg-black/50">
             <Icon name="X" size={24} className="text-white" />
           </Pressable>
           {fullscreenMedia?.type === 'video' ? (

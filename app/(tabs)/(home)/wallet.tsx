@@ -1,9 +1,36 @@
-import ThemeScroller from '@/components/ThemeScroller';
-import React, { useCallback, useContext, useEffect, useRef, useState } from 'react';
-import { useFocusEffect } from '@react-navigation/native';
-import { View, Animated, Pressable, ActivityIndicator, ScrollView, ImageBackground } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useFocusEffect } from '@react-navigation/native';
+import { Link, useRouter } from 'expo-router';
+import React, { useCallback, useContext, useEffect, useRef, useState } from 'react';
+import {
+  View,
+  Animated,
+  Pressable,
+  ActivityIndicator,
+  ScrollView,
+  ImageBackground,
+} from 'react-native';
+
+import { ScrollContext } from './_layout';
+
+import { useAuth } from '@/app/contexts/AuthContext';
+import useThemeColors from '@/app/contexts/ThemeColors';
 import AnimatedView from '@/components/AnimatedView';
+import ThemeScroller from '@/components/ThemeScroller';
+
+import ThemedText from '@/components/ThemedText';
+
+import { Button } from '@/components/Button';
+import Icon from '@/components/Icon';
+import TransactionDetailModal from '@/components/TransactionDetailModal';
+import { List } from '@/components/layout/List';
+import ListItem from '@/components/layout/ListItem';
+import Section from '@/components/layout/Section';
+import Avatar from '@/components/Avatar';
+import { shadowPresets } from '@/utils/useShadow';
+import { getRbCoinsBalance, getRbCoinsHistory, type RbCoinsHistoryItem } from '@/api/rb-coins';
+import { getReferrals, type ReferralActiveProgram } from '@/api/referrals';
+import { useTranslation } from '@/app/hooks/useTranslation';
 
 /** In-memory fallback when AsyncStorage native module is unavailable (e.g. web, some dev builds). */
 let memoryLastSeen: string | null = null;
@@ -22,22 +49,6 @@ async function setLastSeenBalance(key: string, value: string): Promise<void> {
     /* ignore when native module unavailable */
   }
 }
-import ThemedText from '@/components/ThemedText';
-import { ScrollContext } from './_layout';
-import { Button } from '@/components/Button';
-import Icon from '@/components/Icon';
-import Section from '@/components/layout/Section';
-import { List } from '@/components/layout/List';
-import ListItem from '@/components/layout/ListItem';
-import Avatar from '@/components/Avatar';
-import useThemeColors from '@/app/contexts/ThemeColors';
-import { shadowPresets } from '@/utils/useShadow';
-import { useAuth } from '@/app/contexts/AuthContext';
-import { getRbCoinsBalance, getRbCoinsHistory, type RbCoinsHistoryItem } from '@/api/rb-coins';
-import { getReferrals, type ReferralActiveProgram } from '@/api/referrals';
-import { useTranslation } from '@/app/hooks/useTranslation';
-import { Link, useRouter } from 'expo-router';
-import TransactionDetailModal from '@/components/TransactionDetailModal';
 
 const MOCK_CURRENCY = 'RBC';
 const WALLET_LAST_SEEN_BALANCE_KEY = 'wallet_last_seen_rbc_balance';
@@ -58,7 +69,9 @@ function transactionListTitle(item: RbCoinsHistoryItem): string {
   return 'RealBarber';
 }
 
-function transactionAvatarSrc(item: RbCoinsHistoryItem): string | import('react-native').ImageSourcePropType {
+function transactionAvatarSrc(
+  item: RbCoinsHistoryItem
+): string | import('react-native').ImageSourcePropType {
   if (item.otherParty?.avatarUrl) return item.otherParty.avatarUrl;
   if (item.type === 'TRANSFER') return require('@/assets/img/wallet/RB.avatar.jpg');
   return require('@/assets/img/wallet/realbarber.png');
@@ -104,7 +117,9 @@ const WalletScreen = () => {
   const [displayAmount, setDisplayAmount] = useState(0);
   const countAnim = useRef(new Animated.Value(0)).current;
   const lastAnimatedBalanceRef = useRef<number | null>(null);
-  const [dismissedReferralPromoAt, setDismissedReferralPromoAt] = useState<Record<string, number>>({});
+  const [dismissedReferralPromoAt, setDismissedReferralPromoAt] = useState<Record<string, number>>(
+    {}
+  );
   const [referralPrograms, setReferralPrograms] = useState<ReferralActiveProgram[]>([]);
   const [referralsLoading, setReferralsLoading] = useState(false);
 
@@ -131,7 +146,9 @@ const WalletScreen = () => {
     const now = Date.now();
     setDismissedReferralPromoAt((prev) => {
       const next = { ...prev, [programId]: now };
-      AsyncStorage.setItem(WALLET_REFERRAL_PROMO_DISMISSED_KEY, JSON.stringify(next)).catch(() => {});
+      AsyncStorage.setItem(WALLET_REFERRAL_PROMO_DISMISSED_KEY, JSON.stringify(next)).catch(
+        () => {}
+      );
       return next;
     });
   };
@@ -225,60 +242,83 @@ const WalletScreen = () => {
 
   return (
     <ThemeScroller
-      onScroll={Animated.event(
-        [{ nativeEvent: { contentOffset: { y: scrollY } } }],
-        { useNativeDriver: false }
-      )}
-      scrollEventThrottle={16}
-    >
-      <AnimatedView animation="scaleIn" className="flex-1 mt-4">
+      onScroll={Animated.event([{ nativeEvent: { contentOffset: { y: scrollY } } }], {
+        useNativeDriver: false,
+      })}
+      scrollEventThrottle={16}>
+      <AnimatedView animation="scaleIn" className="mt-4 flex-1">
         {/* 1. Stav RBC – ve light mode tmavě šedé (ne černé), v dark mode jako dřív */}
-        <View className="bg-slate-600 dark:bg-neutral-900 rounded-t-3xl px-6 pt-8 pb-6 mb-0 items-center">
-          <ThemedText className="text-sm text-white/80 text-center">{t('walletPersonalRbcCaption')}</ThemedText>
+        <View className="mb-0 items-center rounded-t-3xl bg-slate-600 px-6 pb-6 pt-8 dark:bg-neutral-900">
+          <ThemedText className="text-center text-sm text-white/80">
+            {t('walletPersonalRbcCaption')}
+          </ThemedText>
           {balanceLoading ? (
             <ActivityIndicator color="white" size="small" className="mt-2" />
           ) : balanceError ? (
-            <ThemedText className="text-lg text-white/90 mt-1 text-center">{balanceError}</ThemedText>
+            <ThemedText className="mt-1 text-center text-lg text-white/90">
+              {balanceError}
+            </ThemedText>
           ) : (
-            <ThemedText className="text-5xl font-bold text-white mt-1 text-center">{formatBalance(displayAmount)} {MOCK_CURRENCY}</ThemedText>
+            <ThemedText className="mt-1 text-center text-5xl font-bold text-white">
+              {formatBalance(displayAmount)} {MOCK_CURRENCY}
+            </ThemedText>
           )}
           {SHOW_WALLET_MORE_RBC ? (
-            <View className="items-center mt-4">
-              <Button title={t('walletMoreButton')} variant="outline" size="small" className="rounded-full px-6 bg-white/10 border-white/30" textClassName="text-white" href="/screens/rbc" />
+            <View className="mt-4 items-center">
+              <Button
+                title={t('walletMoreButton')}
+                variant="outline"
+                size="small"
+                className="rounded-full border-white/30 bg-white/10 px-6"
+                textClassName="text-white"
+                href="/screens/rbc"
+              />
             </View>
           ) : null}
         </View>
 
         {/* 2. Akční tlačítka – stejný blok se stínem */}
-        <View style={{ ...shadowPresets.large }} className="flex-row justify-around p-5 -mt-2 rounded-2xl bg-light-secondary dark:bg-dark-secondary">
+        <View
+          style={{ ...shadowPresets.large }}
+          className="-mt-2 flex-row justify-around rounded-2xl bg-light-secondary p-5 dark:bg-dark-secondary">
           {SHOW_WALLET_ADD_MONEY_AND_DETAILS ? (
             <Pressable className="items-center">
-              <View className="w-14 h-14 rounded-full bg-white dark:bg-dark-primary items-center justify-center">
+              <View className="h-14 w-14 items-center justify-center rounded-full bg-white dark:bg-dark-primary">
                 <Icon name="Plus" size={24} color={colors.text} />
               </View>
-              <ThemedText className="text-xs mt-2 text-light-text dark:text-dark-text">{t('walletAddMoney')}</ThemedText>
+              <ThemedText className="mt-2 text-xs text-light-text dark:text-dark-text">
+                {t('walletAddMoney')}
+              </ThemedText>
             </Pressable>
           ) : null}
-          <Pressable className="items-center" onPress={() => router.push('/screens/transfer-select-recipient')}>
-            <View className="w-14 h-14 rounded-full bg-white dark:bg-dark-primary items-center justify-center">
+          <Pressable
+            className="items-center"
+            onPress={() => router.push('/screens/transfer-select-recipient')}>
+            <View className="h-14 w-14 items-center justify-center rounded-full bg-white dark:bg-dark-primary">
               <Icon name="ArrowLeftRight" size={22} color={colors.text} />
             </View>
-            <ThemedText className="text-xs mt-2 text-light-text dark:text-dark-text">{t('walletTransfer')}</ThemedText>
+            <ThemedText className="mt-2 text-xs text-light-text dark:text-dark-text">
+              {t('walletTransfer')}
+            </ThemedText>
           </Pressable>
           {SHOW_WALLET_ADD_MONEY_AND_DETAILS ? (
             <Pressable className="items-center">
-              <View className="w-14 h-14 rounded-full bg-white dark:bg-dark-primary items-center justify-center">
+              <View className="h-14 w-14 items-center justify-center rounded-full bg-white dark:bg-dark-primary">
                 <Icon name="Building2" size={22} color={colors.text} />
               </View>
-              <ThemedText className="text-xs mt-2 text-light-text dark:text-dark-text">{t('walletDetails')}</ThemedText>
+              <ThemedText className="mt-2 text-xs text-light-text dark:text-dark-text">
+                {t('walletDetails')}
+              </ThemedText>
             </Pressable>
           ) : null}
           {SHOW_WALLET_MORE_RBC ? (
             <Pressable className="items-center" onPress={() => router.push('/screens/rbc')}>
-              <View className="w-14 h-14 rounded-full bg-white dark:bg-dark-primary items-center justify-center">
+              <View className="h-14 w-14 items-center justify-center rounded-full bg-white dark:bg-dark-primary">
                 <Icon name="MoreVertical" size={22} color={colors.text} />
               </View>
-              <ThemedText className="text-xs mt-2 text-light-text dark:text-dark-text">{t('walletMore')}</ThemedText>
+              <ThemedText className="mt-2 text-xs text-light-text dark:text-dark-text">
+                {t('walletMore')}
+              </ThemedText>
             </Pressable>
           ) : null}
         </View>
@@ -288,14 +328,16 @@ const WalletScreen = () => {
           <ScrollView
             horizontal
             showsHorizontalScrollIndicator={false}
-            className="-mx-global mt-4 mb-0"
-            contentContainerStyle={{ paddingHorizontal: 16, paddingRight: 24, paddingVertical: 18 }}
-          >
+            className="-mx-global mb-0 mt-4"
+            contentContainerStyle={{
+              paddingHorizontal: 16,
+              paddingRight: 24,
+              paddingVertical: 18,
+            }}>
             {referralsLoading && visibleReferralPrograms.length === 0 ? (
               <View
                 style={{ ...shadowPresets.large, width: 280, marginRight: 15 }}
-                className="p-5 rounded-2xl bg-light-secondary dark:bg-dark-secondary flex-shrink-0 items-center justify-center min-h-[120px]"
-              >
+                className="min-h-[120px] flex-shrink-0 items-center justify-center rounded-2xl bg-light-secondary p-5 dark:bg-dark-secondary">
                 <ActivityIndicator size="small" />
               </View>
             ) : null}
@@ -305,16 +347,14 @@ const WalletScreen = () => {
                 router.push(`/screens/referral-program/${encodeURIComponent(program.id)}`);
               };
               const cardInner = (
-                <View className="flex-row justify-between items-start">
+                <View className="flex-row items-start justify-between">
                   <Pressable className="flex-1 pr-2" onPress={openProgramDetail}>
                     <ThemedText
-                      className={`text-lg font-bold ${coverUri ? 'text-white' : 'text-light-text dark:text-dark-text'}`}
-                    >
+                      className={`text-lg font-bold ${coverUri ? 'text-white' : 'text-light-text dark:text-dark-text'}`}>
                       {program.name}
                     </ThemedText>
                     <ThemedText
-                      className={`text-sm mt-1 ${coverUri ? 'text-white/90' : 'text-light-subtext dark:text-dark-subtext'}`}
-                    >
+                      className={`mt-1 text-sm ${coverUri ? 'text-white/90' : 'text-light-subtext dark:text-dark-subtext'}`}>
                       {program.description?.trim() ? program.description : '—'}
                     </ThemedText>
                   </Pressable>
@@ -334,14 +374,15 @@ const WalletScreen = () => {
                   <ImageBackground
                     key={program.id}
                     source={{ uri: coverUri }}
-                    style={[{ ...shadowPresets.large, width: 280, marginRight: 15 }, { minHeight: 140 }]}
-                    className="rounded-2xl overflow-hidden flex-shrink-0"
-                    imageStyle={{ borderRadius: 16 }}
-                  >
+                    style={[
+                      { ...shadowPresets.large, width: 280, marginRight: 15 },
+                      { minHeight: 140 },
+                    ]}
+                    className="flex-shrink-0 overflow-hidden rounded-2xl"
+                    imageStyle={{ borderRadius: 16 }}>
                     <View
-                      className="flex-1 p-5 justify-center rounded-2xl"
-                      style={{ backgroundColor: 'rgba(0,0,0,0.45)' }}
-                    >
+                      className="flex-1 justify-center rounded-2xl p-5"
+                      style={{ backgroundColor: 'rgba(0,0,0,0.45)' }}>
                       {cardInner}
                     </View>
                   </ImageBackground>
@@ -352,8 +393,7 @@ const WalletScreen = () => {
                 <View
                   key={program.id}
                   style={{ ...shadowPresets.large, width: 280, marginRight: 15 }}
-                  className="p-5 rounded-2xl bg-light-secondary dark:bg-dark-secondary flex-shrink-0"
-                >
+                  className="flex-shrink-0 rounded-2xl bg-light-secondary p-5 dark:bg-dark-secondary">
                   {cardInner}
                 </View>
               );
@@ -363,51 +403,62 @@ const WalletScreen = () => {
 
         {/* 4. Transakce – stejný blok se stínem jako na Branches */}
         <Section title={t('walletTransactions')} titleSize="lg" className="mt-6">
-          <View style={{ ...shadowPresets.large }} className="mt-2 p-global rounded-2xl bg-light-secondary dark:bg-dark-secondary overflow-hidden">
-          <List variant="divided" spacing={12}>
-            {historyLoading ? (
-              <View className="py-6 items-center">
-                <ActivityIndicator size="small" />
-                <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext mt-2">{t('commonLoading')}</ThemedText>
-              </View>
-            ) : history.length === 0 ? (
-              <View className="py-6 px-4">
-                <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext text-center">{t('walletNoTransactions')}</ThemedText>
-              </View>
-            ) : (
-              history.map((tx) => {
-                const isSent = tx.direction === 'sent';
-                const amountStr = isSent ? `-${formatBalance(tx.amount)} RBC` : `+${formatBalance(tx.amount)} RBC`;
-                return (
-                  <ListItem
-                    key={tx.id}
-                    className="py-2"
-                    leading={<Avatar src={transactionAvatarSrc(tx)} size="sm" />}
-                    title={transactionListTitle(tx)}
-                    subtitle={formatTransactionTime(tx.createdAt)}
-                    trailing={
-                      <ThemedText className={`text-base font-semibold ${isSent ? 'text-light-text dark:text-dark-text' : 'text-green-600 dark:text-green-400'}`}>
-                        {amountStr}
-                      </ThemedText>
-                    }
-                    onPress={() => setSelectedTransaction(tx)}
-                  />
-                );
-              })
-            )}
-          </List>
+          <View
+            style={{ ...shadowPresets.large }}
+            className="mt-2 overflow-hidden rounded-2xl bg-light-secondary p-global dark:bg-dark-secondary">
+            <List variant="divided" spacing={12}>
+              {historyLoading ? (
+                <View className="items-center py-6">
+                  <ActivityIndicator size="small" />
+                  <ThemedText className="mt-2 text-sm text-light-subtext dark:text-dark-subtext">
+                    {t('commonLoading')}
+                  </ThemedText>
+                </View>
+              ) : history.length === 0 ? (
+                <View className="px-4 py-6">
+                  <ThemedText className="text-center text-sm text-light-subtext dark:text-dark-subtext">
+                    {t('walletNoTransactions')}
+                  </ThemedText>
+                </View>
+              ) : (
+                history.map((tx) => {
+                  const isSent = tx.direction === 'sent';
+                  const amountStr = isSent
+                    ? `-${formatBalance(tx.amount)} RBC`
+                    : `+${formatBalance(tx.amount)} RBC`;
+                  return (
+                    <ListItem
+                      key={tx.id}
+                      className="py-2"
+                      leading={<Avatar src={transactionAvatarSrc(tx)} size="sm" />}
+                      title={transactionListTitle(tx)}
+                      subtitle={formatTransactionTime(tx.createdAt)}
+                      trailing={
+                        <ThemedText
+                          className={`text-base font-semibold ${isSent ? 'text-light-text dark:text-dark-text' : 'text-green-600 dark:text-green-400'}`}>
+                          {amountStr}
+                        </ThemedText>
+                      }
+                      onPress={() => setSelectedTransaction(tx)}
+                    />
+                  );
+                })
+              )}
+            </List>
           </View>
           <Link href="/screens/wallet-history" asChild>
-            <Pressable className="mt-3 py-3 items-center">
-              <ThemedText className="text-base font-medium text-light-text dark:text-dark-text">{t('walletShowAll')}</ThemedText>
+            <Pressable className="mt-3 items-center py-3">
+              <ThemedText className="text-base font-medium text-light-text dark:text-dark-text">
+                {t('walletShowAll')}
+              </ThemedText>
             </Pressable>
           </Link>
         </Section>
-      <TransactionDetailModal
-        transaction={selectedTransaction}
-        visible={!!selectedTransaction}
-        onClose={() => setSelectedTransaction(null)}
-      />
+        <TransactionDetailModal
+          transaction={selectedTransaction}
+          visible={!!selectedTransaction}
+          onClose={() => setSelectedTransaction(null)}
+        />
       </AnimatedView>
     </ThemeScroller>
   );

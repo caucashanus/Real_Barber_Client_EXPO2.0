@@ -6,13 +6,16 @@ import { matchesWizardLabel } from '@/utils/haircut-wizard-match';
 export function parseOverviewOptionValuesFromNote(
   note: string,
   lineLabelDisplay: string,
-  options: ReadonlyArray<{ value: string; labelKey: TranslationKey }>
+  options: readonly { value: string; labelKey: TranslationKey }[]
 ): string[] {
   const prefix = `${lineLabelDisplay}:`;
   const line = getNoteLines(note).find((l) => l.startsWith(prefix));
   if (!line) return [];
   const rest = line.slice(prefix.length).trim();
-  const tags = rest.split(',').map((s) => s.trim()).filter(Boolean);
+  const tags = rest
+    .split(',')
+    .map((s) => s.trim())
+    .filter(Boolean);
   const values: string[] = [];
   for (const tag of tags) {
     const opt = options.find((o) => matchesWizardLabel(tag, o.labelKey));
@@ -22,7 +25,10 @@ export function parseOverviewOptionValuesFromNote(
 }
 
 export function getNoteLines(note: string): string[] {
-  return note.split('\n').map((l) => l.trim()).filter(Boolean);
+  return note
+    .split('\n')
+    .map((l) => l.trim())
+    .filter(Boolean);
 }
 
 export function joinNoteLines(lines: string[]): string {
@@ -74,7 +80,11 @@ export function appendFeatureTags(note: string, newTags: string[], featuresLabel
   return joinNoteLines(lines);
 }
 
-export function removeFeatureTagFromNote(note: string, tagToRemove: string, featuresLabel: string): string {
+export function removeFeatureTagFromNote(
+  note: string,
+  tagToRemove: string,
+  featuresLabel: string
+): string {
   const lines = getNoteLines(note);
   const prefix = `${featuresLabel}:`;
   const idx = lines.findIndex((l) => l.startsWith(prefix));

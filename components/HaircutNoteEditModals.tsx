@@ -1,24 +1,25 @@
+import Slider from '@react-native-community/slider';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { View, ScrollView, Pressable, Dimensions, Image } from 'react-native';
-import Slider from '@react-native-community/slider';
 import ActionSheet, { ActionSheetRef } from 'react-native-actions-sheet';
-import ThemedText from '@/components/ThemedText';
-import { Chip } from '@/components/Chip';
-import Selectable from '@/components/forms/Selectable';
-import Icon from '@/components/Icon';
-import { Button } from '@/components/Button';
-import Input from '@/components/forms/Input';
-import Counter from '@/components/forms/Counter';
-import Section from '@/components/layout/Section';
+
 import { useAccentColor } from '@/app/contexts/AccentColorContext';
-import { useTranslation } from '@/app/hooks/useTranslation';
 import useThemeColors from '@/app/contexts/ThemeColors';
+import { useTranslation } from '@/app/hooks/useTranslation';
+import { Button } from '@/components/Button';
+import { Chip } from '@/components/Chip';
+import Icon from '@/components/Icon';
+import ThemedText from '@/components/ThemedText';
+import Counter from '@/components/forms/Counter';
+import Input from '@/components/forms/Input';
+import Selectable from '@/components/forms/Selectable';
+import Section from '@/components/layout/Section';
 import {
   AMENITY_OPTIONS,
   GUEST_ACCESS_OPTIONS,
   PROPERTY_TYPE_OPTIONS,
 } from '@/constants/haircutWizardOptions';
-import { matchesWizardLabel } from '@/utils/haircut-wizard-match';
+import { stylingDifficultyLabel } from '@/utils/haircut-note-build';
 import {
   getNoteLines,
   parseDescriptionFromNote,
@@ -28,7 +29,7 @@ import {
   removeLineWithLabel,
   upsertLabeledLine,
 } from '@/utils/haircut-note-mutate';
-import { stylingDifficultyLabel } from '@/utils/haircut-note-build';
+import { matchesWizardLabel } from '@/utils/haircut-wizard-match';
 
 export type HaircutNotePickerKind =
   | 'overview'
@@ -45,7 +46,12 @@ interface HaircutNoteEditModalsProps {
   onApply: (nextNote: string) => void;
 }
 
-export default function HaircutNoteEditModals({ kind, note, onClose, onApply }: HaircutNoteEditModalsProps) {
+export default function HaircutNoteEditModals({
+  kind,
+  note,
+  onClose,
+  onApply,
+}: HaircutNoteEditModalsProps) {
   const { t } = useTranslation();
   const { accentColor } = useAccentColor();
   const colors = useThemeColors();
@@ -90,8 +96,16 @@ export default function HaircutNoteEditModals({ kind, note, onClose, onApply }: 
   useEffect(() => {
     if (!visible || !kind) return;
     if (kind === 'overview') {
-      setTypeValues(parseOverviewOptionValuesFromNote(note, t('addPropertyStepHaircutType'), PROPERTY_TYPE_OPTIONS));
-      setSeasonValues(parseOverviewOptionValuesFromNote(note, t('addPropertyStepSeason'), GUEST_ACCESS_OPTIONS));
+      setTypeValues(
+        parseOverviewOptionValuesFromNote(
+          note,
+          t('addPropertyStepHaircutType'),
+          PROPERTY_TYPE_OPTIONS
+        )
+      );
+      setSeasonValues(
+        parseOverviewOptionValuesFromNote(note, t('addPropertyStepSeason'), GUEST_ACCESS_OPTIONS)
+      );
     }
     if (kind === 'measurements') {
       const v = parseMeasurementValues(note, {
@@ -133,7 +147,11 @@ export default function HaircutNoteEditModals({ kind, note, onClose, onApply }: 
     let next = note;
     next = upsertLabeledLine(next, t('addPropertyLengthAtEars'), `${ears} cm`);
     next = upsertLabeledLine(next, t('addPropertyLengthOnTop'), `${top} cm`);
-    next = upsertLabeledLine(next, t('addPropertyHowOftenTrim'), `${weeks} ${t('addPropertyWeeksUnit')}`);
+    next = upsertLabeledLine(
+      next,
+      t('addPropertyHowOftenTrim'),
+      `${weeks} ${t('addPropertyWeeksUnit')}`
+    );
     onApply(next);
     onClose();
   };
@@ -218,11 +236,11 @@ export default function HaircutNoteEditModals({ kind, note, onClose, onApply }: 
         backgroundColor: colors.bg,
       }}
       CustomHeaderComponent={
-        <View className="w-full flex-row items-start justify-between px-2 pb-2 pt-1 mb-1">
+        <View className="mb-1 w-full flex-row items-start justify-between px-2 pb-2 pt-1">
           <View className="w-10" />
           <View className="flex-1 items-center px-1">
-            <View className="w-14 h-2 mt-1 rounded-full bg-light-secondary dark:bg-dark-secondary" />
-            <ThemedText className="font-bold mt-2 text-center" numberOfLines={2}>
+            <View className="mt-1 h-2 w-14 rounded-full bg-light-secondary dark:bg-dark-secondary" />
+            <ThemedText className="mt-2 text-center font-bold" numberOfLines={2}>
               {sheetTitle}
             </ThemedText>
           </View>
@@ -231,25 +249,22 @@ export default function HaircutNoteEditModals({ kind, note, onClose, onApply }: 
             hitSlop={12}
             className="w-10 items-center pt-1"
             accessibilityRole="button"
-            accessibilityLabel={t('commonCancel')}
-          >
+            accessibilityLabel={t('commonCancel')}>
             <Icon name="X" size={22} className="text-light-text dark:text-dark-text" />
           </Pressable>
         </View>
-      }
-    >
+      }>
       <ScrollView
         style={{ maxHeight: maxSheetScroll }}
         contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 28 }}
         keyboardShouldPersistTaps="handled"
-        showsVerticalScrollIndicator
-      >
+        showsVerticalScrollIndicator>
         {kind === 'overview' ? (
           <>
-            <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext mb-1">
+            <ThemedText className="mb-1 text-sm text-light-subtext dark:text-dark-subtext">
               {t('addPropertyStepHaircutType')}
             </ThemedText>
-            <ThemedText className="text-xs text-light-subtext dark:text-dark-subtext mb-3">
+            <ThemedText className="mb-3 text-xs text-light-subtext dark:text-dark-subtext">
               {t('addPropertySelectMultiple')}
             </ThemedText>
             <View className="mb-6">
@@ -259,11 +274,7 @@ export default function HaircutNoteEditModals({ kind, note, onClose, onApply }: 
                   title={t(option.labelKey)}
                   selected={typeValues.includes(option.value)}
                   customIcon={
-                    <Image
-                      source={option.iconImage}
-                      className="h-12 w-12"
-                      resizeMode="contain"
-                    />
+                    <Image source={option.iconImage} className="h-12 w-12" resizeMode="contain" />
                   }
                   onPress={() => {
                     setTypeValues((prev) =>
@@ -275,10 +286,10 @@ export default function HaircutNoteEditModals({ kind, note, onClose, onApply }: 
                 />
               ))}
             </View>
-            <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext mb-1">
+            <ThemedText className="mb-1 text-sm text-light-subtext dark:text-dark-subtext">
               {t('addPropertyStepSeason')}
             </ThemedText>
-            <ThemedText className="text-xs text-light-subtext dark:text-dark-subtext mb-3">
+            <ThemedText className="mb-3 text-xs text-light-subtext dark:text-dark-subtext">
               {t('addPropertySelectMultiple')}
             </ThemedText>
             <View>
@@ -289,11 +300,7 @@ export default function HaircutNoteEditModals({ kind, note, onClose, onApply }: 
                   description={t(option.descKey)}
                   selected={seasonValues.includes(option.value)}
                   customIcon={
-                    <Image
-                      source={option.iconImage}
-                      className="h-12 w-12"
-                      resizeMode="contain"
-                    />
+                    <Image source={option.iconImage} className="h-12 w-12" resizeMode="contain" />
                   }
                   onPress={() => {
                     setSeasonValues((prev) =>
@@ -320,7 +327,7 @@ export default function HaircutNoteEditModals({ kind, note, onClose, onApply }: 
               </View>
               <Counter value={ears} onChange={(v) => setEars(v ?? 0)} min={0} max={20} />
             </View>
-            <View className="flex-row items-center justify-between py-3 border-t border-light-secondary dark:border-dark-secondary">
+            <View className="flex-row items-center justify-between border-t border-light-secondary py-3 dark:border-dark-secondary">
               <View className="flex-1 pr-4">
                 <ThemedText className="text-lg">{t('addPropertyLengthOnTop')}</ThemedText>
                 <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext">
@@ -329,7 +336,7 @@ export default function HaircutNoteEditModals({ kind, note, onClose, onApply }: 
               </View>
               <Counter value={top} onChange={(v) => setTop(v ?? 0)} min={0} max={20} />
             </View>
-            <View className="flex-row items-center justify-between py-3 border-t border-light-secondary dark:border-dark-secondary">
+            <View className="flex-row items-center justify-between border-t border-light-secondary py-3 dark:border-dark-secondary">
               <View className="flex-1 pr-4">
                 <ThemedText className="text-lg">{t('addPropertyHowOftenTrim')}</ThemedText>
                 <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext">
@@ -362,7 +369,7 @@ export default function HaircutNoteEditModals({ kind, note, onClose, onApply }: 
                 />
               ))}
             </View>
-            <Button title={t('commonSave')} onPress={applyFeatures} className="mt-8 mb-2" />
+            <Button title={t('commonSave')} onPress={applyFeatures} className="mb-2 mt-8" />
           </>
         ) : null}
 
@@ -380,7 +387,7 @@ export default function HaircutNoteEditModals({ kind, note, onClose, onApply }: 
                 thumbTintColor={accentColor}
                 step={1}
               />
-              <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext mt-1">
+              <ThemedText className="mt-1 text-sm text-light-subtext dark:text-dark-subtext">
                 {stylingDifficultyLabel(difficulty)}
               </ThemedText>
             </Section>

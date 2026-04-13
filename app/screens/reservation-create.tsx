@@ -1,4 +1,3 @@
-import VideoPlayer from '@/components/VideoPlayer';
 import { router, useLocalSearchParams } from 'expo-router';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { View, ScrollView, Pressable, ActivityIndicator, Image } from 'react-native';
@@ -32,6 +31,7 @@ import Icon from '@/components/Icon';
 import MultiStep, { Step } from '@/components/MultiStep';
 import ShowRating from '@/components/ShowRating';
 import ThemedText from '@/components/ThemedText';
+import VideoPlayer from '@/components/VideoPlayer';
 import Selectable from '@/components/forms/Selectable';
 import Divider from '@/components/layout/Divider';
 import Section from '@/components/layout/Section';
@@ -1228,9 +1228,7 @@ export default function ReservationCreateScreen() {
                           </View>
                         </View>
                         <View className="w-full py-2">
-                          <ThemedText
-                            className="min-w-0 text-sm font-medium"
-                            numberOfLines={1}>
+                          <ThemedText className="min-w-0 text-sm font-medium" numberOfLines={1}>
                             {service.name}
                           </ThemedText>
                         </View>

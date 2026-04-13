@@ -1,16 +1,18 @@
-import Header from '@/components/Header';
-import ThemeScroller from '@/components/ThemeScroller';
 import React, { useRef, useContext, useEffect, useState } from 'react';
 import { View, Animated, ActivityIndicator } from 'react-native';
-import Section from '@/components/layout/Section';
-import { CardScroller } from '@/components/CardScroller';
-import Card from '@/components/Card';
-import AnimatedView from '@/components/AnimatedView';
+
 import { ScrollContext } from './_layout';
-import { useAuth } from '@/app/contexts/AuthContext';
+
 import { getItemsAll, type Item } from '@/api/items';
-import ThemedText from '@/components/ThemedText';
+import { useAuth } from '@/app/contexts/AuthContext';
 import { useTranslation } from '@/app/hooks/useTranslation';
+import AnimatedView from '@/components/AnimatedView';
+import Card from '@/components/Card';
+import { CardScroller } from '@/components/CardScroller';
+import Header from '@/components/Header';
+import ThemeScroller from '@/components/ThemeScroller';
+import ThemedText from '@/components/ThemedText';
+import Section from '@/components/layout/Section';
 
 const CATEGORY_HAIRCUTS = 'Účesy';
 const CATEGORY_BASIC = 'Základní';
@@ -41,7 +43,9 @@ const ServicesScreen = () => {
   }, [apiToken]);
 
   const haircuts = items.filter((i) => i.category === CATEGORY_HAIRCUTS);
-  const basic = items.filter((i) => i.category === CATEGORY_BASIC || i.category === CATEGORY_SLUZBY);
+  const basic = items.filter(
+    (i) => i.category === CATEGORY_BASIC || i.category === CATEGORY_SLUZBY
+  );
   const packages = items.filter((i) => i.category === CATEGORY_PACKAGES);
   const coloring = items.filter((i) => i.category === CATEGORY_BARVENI);
   const homeServices = items.filter((i) => i.category === CATEGORY_SLUZBY_DOMU);
@@ -50,14 +54,16 @@ const ServicesScreen = () => {
     return (
       <View className="flex-1 items-center justify-center bg-light-primary dark:bg-dark-primary">
         <ActivityIndicator size="large" />
-        <ThemedText className="mt-2 text-light-subtext dark:text-dark-subtext">{t('commonLoading')}</ThemedText>
+        <ThemedText className="mt-2 text-light-subtext dark:text-dark-subtext">
+          {t('commonLoading')}
+        </ThemedText>
       </View>
     );
   }
 
   if (error) {
     return (
-      <View className="flex-1 items-center justify-center bg-light-primary dark:bg-dark-primary p-6">
+      <View className="flex-1 items-center justify-center bg-light-primary p-6 dark:bg-dark-primary">
         <ThemedText className="text-center text-red-500 dark:text-red-400">{error}</ThemedText>
       </View>
     );
@@ -65,17 +71,17 @@ const ServicesScreen = () => {
 
   return (
     <ThemeScroller
-      onScroll={Animated.event(
-        [{ nativeEvent: { contentOffset: { y: scrollY } } }],
-        { useNativeDriver: false }
-      )}
-      scrollEventThrottle={16}
-    >
-      <AnimatedView animation="scaleIn" className="flex-1 mt-4">
+      onScroll={Animated.event([{ nativeEvent: { contentOffset: { y: scrollY } } }], {
+        useNativeDriver: false,
+      })}
+      scrollEventThrottle={16}>
+      <AnimatedView animation="scaleIn" className="mt-4 flex-1">
         <Section title={t('servicesHaircuts')} titleSize="lg">
           <CardScroller space={15} className="mt-1.5 pb-4">
             {haircuts.length === 0 ? (
-              <ThemedText className="text-light-subtext dark:text-dark-subtext py-4">{t('servicesNoItems')}</ThemedText>
+              <ThemedText className="py-4 text-light-subtext dark:text-dark-subtext">
+                {t('servicesNoItems')}
+              </ThemedText>
             ) : (
               haircuts.map((item) => (
                 <Card
@@ -95,10 +101,16 @@ const ServicesScreen = () => {
           </CardScroller>
         </Section>
 
-        <Section title={t('servicesBasic')} titleSize="lg" link="/screens/map" linkText={t('commonViewAll')}>
+        <Section
+          title={t('servicesBasic')}
+          titleSize="lg"
+          link="/screens/map"
+          linkText={t('commonViewAll')}>
           <CardScroller space={15} className="mt-1.5 pb-4">
             {basic.length === 0 ? (
-              <ThemedText className="text-light-subtext dark:text-dark-subtext py-4">{t('servicesNoItems')}</ThemedText>
+              <ThemedText className="py-4 text-light-subtext dark:text-dark-subtext">
+                {t('servicesNoItems')}
+              </ThemedText>
             ) : (
               basic.map((item) => (
                 <Card
@@ -118,10 +130,16 @@ const ServicesScreen = () => {
           </CardScroller>
         </Section>
 
-        <Section title={t('servicesPackages')} titleSize="lg" link="/screens/map" linkText={t('commonViewAll')}>
+        <Section
+          title={t('servicesPackages')}
+          titleSize="lg"
+          link="/screens/map"
+          linkText={t('commonViewAll')}>
           <CardScroller space={15} className="mt-1.5 pb-4">
             {packages.length === 0 ? (
-              <ThemedText className="text-light-subtext dark:text-dark-subtext py-4">{t('servicesNoItems')}</ThemedText>
+              <ThemedText className="py-4 text-light-subtext dark:text-dark-subtext">
+                {t('servicesNoItems')}
+              </ThemedText>
             ) : (
               packages.map((item) => (
                 <Card
@@ -141,10 +159,16 @@ const ServicesScreen = () => {
           </CardScroller>
         </Section>
 
-        <Section title={t('servicesColoring')} titleSize="lg" link="/screens/map" linkText={t('commonViewAll')}>
+        <Section
+          title={t('servicesColoring')}
+          titleSize="lg"
+          link="/screens/map"
+          linkText={t('commonViewAll')}>
           <CardScroller space={15} className="mt-1.5 pb-4">
             {coloring.length === 0 ? (
-              <ThemedText className="text-light-subtext dark:text-dark-subtext py-4">{t('servicesNoItems')}</ThemedText>
+              <ThemedText className="py-4 text-light-subtext dark:text-dark-subtext">
+                {t('servicesNoItems')}
+              </ThemedText>
             ) : (
               coloring.map((item) => (
                 <Card
@@ -164,10 +188,16 @@ const ServicesScreen = () => {
           </CardScroller>
         </Section>
 
-        <Section title={t('servicesHomeServices')} titleSize="lg" link="/screens/map" linkText={t('commonViewAll')}>
+        <Section
+          title={t('servicesHomeServices')}
+          titleSize="lg"
+          link="/screens/map"
+          linkText={t('commonViewAll')}>
           <CardScroller space={15} className="mt-1.5 pb-4">
             {homeServices.length === 0 ? (
-              <ThemedText className="text-light-subtext dark:text-dark-subtext py-4">{t('servicesNoItems')}</ThemedText>
+              <ThemedText className="py-4 text-light-subtext dark:text-dark-subtext">
+                {t('servicesNoItems')}
+              </ThemedText>
             ) : (
               homeServices.map((item) => (
                 <Card

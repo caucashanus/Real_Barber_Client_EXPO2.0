@@ -1,3 +1,4 @@
+import * as Haptics from 'expo-haptics';
 import React, {
   ReactNode,
   useState,
@@ -19,14 +20,14 @@ import {
   Platform,
   Keyboard,
 } from 'react-native';
-import * as Haptics from 'expo-haptics';
-import Header from '@/components/Header';
-import { Button } from '@/components/Button';
-import ThemedText from '@/components/ThemedText';
-import Icon from '@/components/Icon';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { useTranslation } from '@/app/hooks/useTranslation';
+
 import useThemeColors from '@/app/contexts/ThemeColors';
+import { useTranslation } from '@/app/hooks/useTranslation';
+import { Button } from '@/components/Button';
+import Header from '@/components/Header';
+import Icon from '@/components/Icon';
+import ThemedText from '@/components/ThemedText';
 
 // Step component that will be used as children
 export interface StepProps {
@@ -50,7 +51,10 @@ export const Step: React.FC<StepProps> = ({ children }) => {
 
 // Add this to help with type checking
 const isStepComponent = (child: any): child is React.ReactElement<StepProps> => {
-  return isValidElement(child) && (child.type === Step || (typeof child.type === 'function' && child.type.name === 'Step'));
+  return (
+    isValidElement(child) &&
+    (child.type === Step || (typeof child.type === 'function' && child.type.name === 'Step'))
+  );
 };
 
 interface StepData {
@@ -116,9 +120,8 @@ const MultiStep = forwardRef<MultiStepHandle, MultiStepProps>(function MultiStep
   ref
 ) {
   // Filter and validate children to only include Step components
-  const validChildren = Children.toArray(children)
-    .filter(isStepComponent);
-  
+  const validChildren = Children.toArray(children).filter(isStepComponent);
+
   // Extract step data from children
   const steps: StepData[] = validChildren.map((child, index) => {
     const {
@@ -145,7 +148,11 @@ const MultiStep = forwardRef<MultiStepHandle, MultiStepProps>(function MultiStep
     steps.push({
       key: 'empty-step',
       title: 'Empty',
-      component: <View><ThemedText>No steps provided</ThemedText></View>
+      component: (
+        <View>
+          <ThemedText>No steps provided</ThemedText>
+        </View>
+      ),
     });
   }
 
@@ -161,10 +168,7 @@ const MultiStep = forwardRef<MultiStepHandle, MultiStepProps>(function MultiStep
   // Animation values
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const slideAnim = useRef(new Animated.Value(50)).current;
-  const progressAnims = useMemo(
-    () => steps.map(() => new Animated.Value(0)),
-    [steps.length]
-  );
+  const progressAnims = useMemo(() => steps.map(() => new Animated.Value(0)), [steps.length]);
 
   useEffect(() => {
     if (currentStepIndex >= steps.length && steps.length > 0) {
@@ -176,7 +180,7 @@ const MultiStep = forwardRef<MultiStepHandle, MultiStepProps>(function MultiStep
     // Reset and start fade/slide animations
     fadeAnim.setValue(0);
     slideAnim.setValue(50);
-    
+
     Animated.parallel([
       Animated.timing(fadeAnim, {
         toValue: 1,
@@ -187,7 +191,7 @@ const MultiStep = forwardRef<MultiStepHandle, MultiStepProps>(function MultiStep
         toValue: 0,
         duration: 200,
         useNativeDriver: true,
-      })
+      }),
     ]).start();
 
     // Animate progress indicators
@@ -281,9 +285,7 @@ const MultiStep = forwardRef<MultiStepHandle, MultiStepProps>(function MultiStep
   );
 
   const showHeaderSkip =
-    currentStep.optional &&
-    !isLastStep &&
-    currentStep.optionalSkipInHeader !== false;
+    currentStep.optional && !isLastStep && currentStep.optionalSkipInHeader !== false;
 
   const insets = useSafeAreaInsets();
   const { t } = useTranslation();
@@ -296,125 +298,119 @@ const MultiStep = forwardRef<MultiStepHandle, MultiStepProps>(function MultiStep
     <KeyboardAvoidingView
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
       style={{ flex: 1 }}
-      className={`bg-light-primary dark:bg-dark-primary ${className}`}
-    >
-      <View style={{ flex: 1, paddingBottom: bottomInset }} className="bg-light-primary dark:bg-dark-primary">
-      {showHeader && (
-        <Header
-          rightComponents={[
-            onClose && !currentStep.hideHeaderClose ? (
-              <Pressable
-                key="close"
-                onPress={() => onClose()}
-                className="p-2 rounded-full active:bg-light-secondary dark:active:bg-dark-secondary"
-                hitSlop={8}
-              >
-                <Icon
-                  name="X"
-                  size={24}
-                  className="text-light-text dark:text-dark-text"
-                />
-              </Pressable>
-            ) : undefined
-          ]}
-          leftComponent={
-            <View className="flex-row items-center gap-2 shrink-0">
-              {showHeaderSkip ? (
-                <Button
-                  key="skip"
-                  title={t('multiStepSkip')}
-                  variant="ghost"
-                  onPress={handleSkip}
-                  size="small"
-                  disableHaptic
-                />
-              ) : null}
-              {!isFirstStep && !currentStep.hideHeaderBack ? (
-                <Icon
-                  name="ArrowLeft"
-                  key="back"
-                  size={24}
-                  className="text-light-text dark:text-dark-text"
-                  onPress={handleBack}
-                />
-              ) : null}
-            </View>
-          }
-        />
-      )}
+      className={`bg-light-primary dark:bg-dark-primary ${className}`}>
+      <View
+        style={{ flex: 1, paddingBottom: bottomInset }}
+        className="bg-light-primary dark:bg-dark-primary">
+        {showHeader && (
+          <Header
+            rightComponents={[
+              onClose && !currentStep.hideHeaderClose ? (
+                <Pressable
+                  key="close"
+                  onPress={() => onClose()}
+                  className="rounded-full p-2 active:bg-light-secondary dark:active:bg-dark-secondary"
+                  hitSlop={8}>
+                  <Icon name="X" size={24} className="text-light-text dark:text-dark-text" />
+                </Pressable>
+              ) : undefined,
+            ]}
+            leftComponent={
+              <View className="shrink-0 flex-row items-center gap-2">
+                {showHeaderSkip ? (
+                  <Button
+                    key="skip"
+                    title={t('multiStepSkip')}
+                    variant="ghost"
+                    onPress={handleSkip}
+                    size="small"
+                    disableHaptic
+                  />
+                ) : null}
+                {!isFirstStep && !currentStep.hideHeaderBack ? (
+                  <Icon
+                    name="ArrowLeft"
+                    key="back"
+                    size={24}
+                    className="text-light-text dark:text-dark-text"
+                    onPress={handleBack}
+                  />
+                ) : null}
+              </View>
+            }
+          />
+        )}
 
-      {/* Step Content */}
-      <Animated.View
-        className="flex-1"
-        style={{
-          opacity: fadeAnim,
-          transform: [{ translateY: slideAnim }],
-        }}
-      >
-        <ScrollView
-          contentContainerStyle={{ flexGrow: 1 }}
-          keyboardShouldPersistTaps="handled"
-          keyboardDismissMode={Platform.OS === 'ios' ? 'interactive' : 'on-drag'}
-          showsVerticalScrollIndicator={false}
-        >
-          {currentStep.component}
-        </ScrollView>
-      </Animated.View>
-
-      {/* Step Indicators – počet segmentů = počet kroků; aktivní krok zvýrazněn (viditelné i v dark módu). */}
-      {showStepIndicator && (
-        <View className={`px-4 ${bottomPadClass} flex-row justify-center items-center gap-1.5`}>
-          {steps.map((_, index) => {
-            const isCurrent = index === safeStepIndex;
-            const anim = progressAnims[index];
-            return (
-              <Animated.View
-                key={index}
-                className="flex-1 rounded-full overflow-hidden max-w-[56px]"
-                style={{
-                  height: isCurrent ? 8 : 5,
-                  backgroundColor: colors.secondary,
-                  borderWidth: isCurrent ? 2 : 0,
-                  borderColor: colors.highlight,
-                  opacity: isCurrent ? 1 : 0.55,
-                }}
-              >
-                <Animated.View
-                  style={{
-                    height: '100%',
-                    backgroundColor: colors.highlight,
-                    width:
-                      anim?.interpolate({
-                        inputRange: [0, 1],
-                        outputRange: ['0%', '100%'],
-                      }) ?? '0%',
-                  }}
-                />
-              </Animated.View>
-            );
-          })}
-        </View>
-      )}
-
-      {/* Bottom Navigation – stejná logika jako tlačítko „Jdeme na to“ (accent pozadí + bílý text) */}
-      <View className={`px-4 ${bottomPadClass} border-t border-light-secondary dark:border-dark-secondary`}>
-        <Button
-          variant="primary"
-          size="large"
-          rounded="full"
-          title={isLastStep ? t('multiStepComplete') : t('multiStepNext')}
-          onPress={() => void handleNext()}
-          impactFeedbackStyle={Haptics.ImpactFeedbackStyle.Heavy}
-          className="w-full"
-          textClassName="text-white font-semibold"
-          loading={footerLoading}
+        {/* Step Content */}
+        <Animated.View
+          className="flex-1"
           style={{
-            backgroundColor: nextDisabled || footerLoading ? colors.secondary : colors.highlight,
-            opacity: nextDisabled || footerLoading ? 0.9 : 1,
-          }}
-          disabled={nextDisabled || footerLoading}
-        />
-      </View>
+            opacity: fadeAnim,
+            transform: [{ translateY: slideAnim }],
+          }}>
+          <ScrollView
+            contentContainerStyle={{ flexGrow: 1 }}
+            keyboardShouldPersistTaps="handled"
+            keyboardDismissMode={Platform.OS === 'ios' ? 'interactive' : 'on-drag'}
+            showsVerticalScrollIndicator={false}>
+            {currentStep.component}
+          </ScrollView>
+        </Animated.View>
+
+        {/* Step Indicators – počet segmentů = počet kroků; aktivní krok zvýrazněn (viditelné i v dark módu). */}
+        {showStepIndicator && (
+          <View className={`px-4 ${bottomPadClass} flex-row items-center justify-center gap-1.5`}>
+            {steps.map((_, index) => {
+              const isCurrent = index === safeStepIndex;
+              const anim = progressAnims[index];
+              return (
+                <Animated.View
+                  key={index}
+                  className="max-w-[56px] flex-1 overflow-hidden rounded-full"
+                  style={{
+                    height: isCurrent ? 8 : 5,
+                    backgroundColor: colors.secondary,
+                    borderWidth: isCurrent ? 2 : 0,
+                    borderColor: colors.highlight,
+                    opacity: isCurrent ? 1 : 0.55,
+                  }}>
+                  <Animated.View
+                    style={{
+                      height: '100%',
+                      backgroundColor: colors.highlight,
+                      width:
+                        anim?.interpolate({
+                          inputRange: [0, 1],
+                          outputRange: ['0%', '100%'],
+                        }) ?? '0%',
+                    }}
+                  />
+                </Animated.View>
+              );
+            })}
+          </View>
+        )}
+
+        {/* Bottom Navigation – stejná logika jako tlačítko „Jdeme na to“ (accent pozadí + bílý text) */}
+        <View
+          className={`px-4 ${bottomPadClass} border-t border-light-secondary dark:border-dark-secondary`}>
+          <Button
+            variant="primary"
+            size="large"
+            rounded="full"
+            title={isLastStep ? t('multiStepComplete') : t('multiStepNext')}
+            onPress={() => void handleNext()}
+            impactFeedbackStyle={Haptics.ImpactFeedbackStyle.Heavy}
+            className="w-full"
+            textClassName="text-white font-semibold"
+            loading={footerLoading}
+            style={{
+              backgroundColor: nextDisabled || footerLoading ? colors.secondary : colors.highlight,
+              opacity: nextDisabled || footerLoading ? 0.9 : 1,
+            }}
+            disabled={nextDisabled || footerLoading}
+          />
+        </View>
       </View>
     </KeyboardAvoidingView>
   );

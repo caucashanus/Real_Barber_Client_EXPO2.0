@@ -1,6 +1,6 @@
+import { styled } from 'nativewind';
 import React from 'react';
 import { ScrollView, View, ViewProps } from 'react-native';
-import { styled } from 'nativewind';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 interface ThemeFooterProps extends ViewProps {
@@ -13,10 +13,9 @@ export default function ThemedFooter({ children, className, ...props }: ThemeFoo
   const insets = useSafeAreaInsets();
   return (
     <ThemeFooter
-      style={{paddingBottom: insets.bottom}}
-      className={`bg-light-primary dark:bg-dark-primary px-global pt-global w-full items-stretch ${className || ''}`}
-      {...props}
-    >
+      style={{ paddingBottom: insets.bottom }}
+      className={`w-full items-stretch bg-light-primary px-global pt-global dark:bg-dark-primary ${className || ''}`}
+      {...props}>
       {children}
     </ThemeFooter>
   );

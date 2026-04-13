@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { View, Image, ImageSourcePropType, Platform, StyleSheet } from 'react-native';
 import { Marker } from 'react-native-maps';
+
 import ThemedText from './ThemedText';
 
 const MARKER_SIZE = 40;
@@ -28,7 +29,7 @@ const PriceMarker: React.FC<PriceMarkerProps> = ({
   imageUrl,
   imageSource,
   onPress,
-  isSelected = false
+  isSelected = false,
 }) => {
   const showLocalLogo = Boolean(imageSource);
   const showRemoteLogo = Boolean(imageUrl?.trim()) && !showLocalLogo;
@@ -50,16 +51,14 @@ const PriceMarker: React.FC<PriceMarkerProps> = ({
       title={title}
       onPress={onPress}
       anchor={{ x: 0.5, y: 0.5 }}
-      tracksViewChanges={tracksViewChanges}
-    >
+      tracksViewChanges={tracksViewChanges}>
       <View
         style={[
           styles.markerWrap,
           { width: MARKER_SIZE, height: MARKER_SIZE },
-          isSelected && styles.markerSelected
+          isSelected && styles.markerSelected,
         ]}
-        className={`rounded-xl overflow-hidden ${isSelected ? 'border-2 border-white' : ''}`}
-      >
+        className={`overflow-hidden rounded-xl ${isSelected ? 'border-2 border-white' : ''}`}>
         {showLocalLogo ? (
           <Image
             source={imageSource!}
@@ -77,21 +76,15 @@ const PriceMarker: React.FC<PriceMarkerProps> = ({
               resizeMode="cover"
               onLoadEnd={handleImageLoad}
             />
-            <View className="px-2 py-1 min-w-0 max-w-[100px] bg-black">
-              <ThemedText
-                className="text-white text-xs font-bold"
-                numberOfLines={1}
-              >
+            <View className="min-w-0 max-w-[100px] bg-black px-2 py-1">
+              <ThemedText className="text-xs font-bold text-white" numberOfLines={1}>
                 {title || '—'}
               </ThemedText>
             </View>
           </>
         ) : (
-          <View style={styles.priceWrap} className="rounded-lg px-3 py-2 min-w-[60px] bg-black">
-            <ThemedText
-              className="text-white text-sm font-bold"
-              numberOfLines={1}
-            >
+          <View style={styles.priceWrap} className="min-w-[60px] rounded-lg bg-black px-3 py-2">
+            <ThemedText className="text-sm font-bold text-white" numberOfLines={1}>
               {price}
             </ThemedText>
           </View>
@@ -116,4 +109,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default PriceMarker; 
+export default PriceMarker;
