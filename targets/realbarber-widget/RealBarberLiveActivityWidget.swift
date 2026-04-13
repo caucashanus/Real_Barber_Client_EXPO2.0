@@ -87,14 +87,18 @@ private struct RBUpcomingBrandLogoCluster: View {
   var logoSize: CGFloat = 52
   var avatarSize: CGFloat = 34
 
+  /// Overlay nemění layout loga — stejná pozice jako samotné `RBBrandLogo`; posun je jen u avatara.
+  private var avatarYOffset: CGFloat {
+    logoSize > 48 ? 20 : 14
+  }
+
   var body: some View {
-    ZStack(alignment: .center) {
-      RBBrandLogo(size: logoSize)
-      RBEmployeeAvatarView(filePath: avatarFilePath, size: avatarSize)
-        .offset(x: -10, y: 8)
-        .shadow(color: .black.opacity(0.4), radius: 3, x: 0, y: 1)
-    }
-    .frame(width: logoSize + 4, height: logoSize + 4)
+    RBBrandLogo(size: logoSize)
+      .overlay(alignment: .center) {
+        RBEmployeeAvatarView(filePath: avatarFilePath, size: avatarSize)
+          .offset(x: -17, y: avatarYOffset)
+          .shadow(color: .black.opacity(0.4), radius: 3, x: 0, y: 1)
+      }
   }
 }
 
@@ -140,6 +144,35 @@ private struct RBTimeRangePill: View {
         Capsule(style: .continuous)
           .fill(Color.white.opacity(0.18))
       )
+  }
+}
+
+/// Jedna řádka: časový rozsah + cena (upcoming).
+private struct RBUpcomingTimePriceRow: View {
+  let detailLine: String
+  let priceFormatted: String
+  var compact: Bool = false
+
+  var body: some View {
+    let time = rbTrim(detailLine)
+    let price = rbTrim(priceFormatted)
+    let showTime = !time.isEmpty
+    let showPrice = !price.isEmpty
+
+    if showTime || showPrice {
+      HStack(alignment: .center, spacing: compact ? 6 : 8) {
+        if showTime {
+          RBTimeRangePill(text: time, compact: compact)
+        }
+        if showTime && showPrice {
+          Spacer(minLength: compact ? 6 : 8)
+        }
+        if showPrice {
+          RBPriceBag(text: price, compact: compact)
+        }
+      }
+      .frame(maxWidth: .infinity, alignment: .leading)
+    }
   }
 }
 
@@ -323,12 +356,11 @@ private struct RBLiveActivityCard: View {
         }
         if isUpcoming {
           RBUpcomingBranchEmployeeRow(state: state, compact: false)
-          if !state.detailLine.isEmpty {
-            RBTimeRangePill(text: state.detailLine, compact: false)
-          }
-          if !upcomingPriceStr.isEmpty {
-            RBPriceBag(text: upcomingPriceStr, compact: false)
-          }
+          RBUpcomingTimePriceRow(
+            detailLine: state.detailLine,
+            priceFormatted: upcomingPriceStr,
+            compact: false
+          )
         } else if !isReview, !isCancelled, !isActive, !state.branchName.isEmpty {
           Text(state.branchName)
             .font(.footnote)
@@ -395,6 +427,7 @@ struct RealBarberLiveActivityWidget: Widget {
               Text(context.state.subtitle)
                 .font(.caption)
                 .foregroundStyle(.secondary)
+                .lineLimit(1)
             }
             if isReview {
               Text(context.state.title)
@@ -429,6 +462,7 @@ struct RealBarberLiveActivityWidget: Widget {
                 .fontWeight(.bold)
             }
           }
+          .frame(maxWidth: .infinity, alignment: .leading)
         }
         DynamicIslandExpandedRegion(.trailing) {
           if isUpcoming {
@@ -454,12 +488,11 @@ struct RealBarberLiveActivityWidget: Widget {
             }
             if isUpcoming {
               RBUpcomingBranchEmployeeRow(state: context.state, compact: true)
-              if !context.state.detailLine.isEmpty {
-                RBTimeRangePill(text: context.state.detailLine, compact: true)
-              }
-              if !islandUpcomingPriceStr.isEmpty {
-                RBPriceBag(text: islandUpcomingPriceStr, compact: true)
-              }
+              RBUpcomingTimePriceRow(
+                detailLine: context.state.detailLine,
+                priceFormatted: islandUpcomingPriceStr,
+                compact: true
+              )
             } else if !context.state.branchName.isEmpty {
               Text(context.state.branchName)
                 .font(.caption)
