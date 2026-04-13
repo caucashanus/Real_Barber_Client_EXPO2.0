@@ -6,6 +6,7 @@ import { Button } from '@/components/Button';
 import Header from '@/components/Header';
 import ThemedScroller from '@/components/ThemeScroller';
 import ThemedText from '@/components/ThemedText';
+import { rbLiveActivityMinutesDisplayed } from '@/lib/rb-live-activity-minutes';
 import {
   type RBLiveActivityHandle,
   rbLiveActivityEndAll,
@@ -48,7 +49,7 @@ export default function DevLiveActivityScreen() {
     const endAt = new Date(Date.now() + (60_000 + minutes * 60_000)).toISOString();
     const startMs = new Date(startAt).getTime();
     const now = Date.now();
-    const minutesToStart = Math.max(1, Math.ceil((startMs - now) / 60_000));
+    const minutesToStart = rbLiveActivityMinutesDisplayed(now, startMs);
     const progress01 = Math.min(1, Math.max(0, 1 - (startMs - now) / (60 * 60 * 1000)));
     return {
       subtitle: 'Začátek za',
@@ -86,7 +87,7 @@ export default function DevLiveActivityScreen() {
     const endAt = new Date(Date.now() + (30 * 60_000 + 45 * 60_000)).toISOString();
     const startMs = new Date(startAt).getTime();
     const now = Date.now();
-    const minutesToStart = Math.max(1, Math.ceil((startMs - now) / 60_000));
+    const minutesToStart = rbLiveActivityMinutesDisplayed(now, startMs);
     const progress01 = Math.min(1, Math.max(0, 1 - (startMs - now) / (60 * 60 * 1000)));
     return {
       subtitle: 'Začátek za',
@@ -110,7 +111,7 @@ export default function DevLiveActivityScreen() {
     const endMs = new Date(endAt).getTime();
     const now = Date.now();
     const slotMs = Math.max(60_000, endMs - startMs);
-    const minutesLeft = Math.max(1, Math.ceil((endMs - now) / 60_000));
+    const minutesLeft = rbLiveActivityMinutesDisplayed(now, endMs);
     const progress01 = Math.min(1, Math.max(0, (now - startMs) / slotMs));
     return {
       subtitle: 'Končí za',

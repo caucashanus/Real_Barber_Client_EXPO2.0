@@ -23,6 +23,7 @@ import ThemeScroller from '@/components/ThemeScroller';
 import ThemedText from '@/components/ThemedText';
 import { shadowPresets } from '@/utils/useShadow';
 import Header, { HeaderIcon } from '@/components/Header';
+import { rbLiveActivityMinutesDisplayed } from '@/lib/rb-live-activity-minutes';
 import {
   type RBLiveActivityHandle,
   rbLiveActivityStart,
@@ -450,12 +451,12 @@ const TripsScreen = () => {
 
     if (isCurrent) {
       const slotMs = Math.max(60_000, endMs - startMs);
-      const minutesLeft = Math.max(1, Math.ceil((endMs - now) / 60_000));
+      const minutesLeft = rbLiveActivityMinutesDisplayed(now, endMs);
       subtitle = t('liveActivityEndsInLabel');
       title = `${minutesLeft} ${t('tripsMinutes')}`;
       progress01 = clamp01((now - startMs) / slotMs);
     } else {
-      const minutesUntil = Math.max(1, Math.ceil((startMs - now) / 60_000));
+      const minutesUntil = rbLiveActivityMinutesDisplayed(now, startMs);
       subtitle = t('liveActivityStartsInLabel');
       title = `${minutesUntil} ${t('tripsMinutes')}`;
       progress01 = clamp01(1 - (startMs - now) / (60 * 60 * 1000));

@@ -19,8 +19,53 @@ private func rbTrim(_ s: String) -> String {
   s.trimmingCharacters(in: .whitespacesAndNewlines)
 }
 
+/// UI fáze z `ContentState` a **aktuálního** času.
+///
+/// `Text(..., style: .timer)` se obnovuje samostatně, ale `if isActive` / `isUpcoming` z jednoho `Date()`
+/// při vzácném překreslení zůstane zastaralé → timer po `startAt` může jít do záporu bez přepnutí na „Probíhá“.
+/// `TimelineView` musí dodávat čerstvé `now` (např. každou sekundu).
+private struct RBReservationLiveModel {
+  let isReview: Bool
+  let isCancelled: Bool
+  let isActive: Bool
+  let isUpcoming: Bool
+  let countdownTarget: Date?
+
+  init(state: RBReservationAttributes.ContentState, now: Date) {
+    let startDate = rbParseISODate(state.startAt)
+    let endDate = rbParseISODate(state.endAt)
+    let subtitleLc = state.subtitle.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
+    isReview = subtitleLc.contains("ohodno") || subtitleLc.contains("hodnoc")
+    isCancelled =
+      subtitleLc.contains("zruš") || subtitleLc.contains("zrus") || subtitleLc.contains("cancel")
+    isActive =
+      !isReview &&
+      !isCancelled &&
+      startDate != nil &&
+      endDate != nil &&
+      now >= startDate! &&
+      now < endDate!
+    if let s = startDate {
+      isUpcoming = !isReview && !isCancelled && !isActive && now < s
+    } else {
+      isUpcoming = false
+    }
+    if let s = startDate, now < s {
+      countdownTarget = s
+    } else {
+      countdownTarget = endDate
+    }
+  }
+}
+
+/// Minuty do cíle od **začátku aktuální kalendářní minuty** (`now`), pak `ceil` po minutách.
+/// Shodné s JS `rbLiveActivityMinutesDisplayed`: 19:27:xx → 19:30 = 3, ne 2 kvůli uběhlým sekundám v minutě.
 private func rbMinutesRemainingCeil(target: Date, now: Date) -> Int {
-  let diff = target.timeIntervalSince(now)
+  let cal = Calendar.current
+  guard target > now else { return 0 }
+  let parts = cal.dateComponents([.year, .month, .day, .hour, .minute], from: now)
+  guard let startOfCurrentMinute = cal.date(from: parts) else { return 0 }
+  let diff = target.timeIntervalSince(startOfCurrentMinute)
   if !diff.isFinite { return 0 }
   return max(0, Int(ceil(diff / 60)))
 }
@@ -147,35 +192,6 @@ private struct RBTimeRangePill: View {
   }
 }
 
-/// Jedna řádka: časový rozsah + cena (upcoming).
-private struct RBUpcomingTimePriceRow: View {
-  let detailLine: String
-  let priceFormatted: String
-  var compact: Bool = false
-
-  var body: some View {
-    let time = rbTrim(detailLine)
-    let price = rbTrim(priceFormatted)
-    let showTime = !time.isEmpty
-    let showPrice = !price.isEmpty
-
-    if showTime || showPrice {
-      HStack(alignment: .center, spacing: compact ? 6 : 8) {
-        if showTime {
-          RBTimeRangePill(text: time, compact: compact)
-        }
-        if showTime && showPrice {
-          Spacer(minLength: compact ? 6 : 8)
-        }
-        if showPrice {
-          RBPriceBag(text: price, compact: compact)
-        }
-      }
-      .frame(maxWidth: .infinity, alignment: .leading)
-    }
-  }
-}
-
 /// Cena — odlišný od pillu času (zaoblený obdélník + jemný okraj).
 private struct RBPriceBag: View {
   let text: String
@@ -260,31 +276,25 @@ private struct RBLiveActivityCard: View {
   let state: RBReservationAttributes.ContentState
 
   var body: some View {
-    let startDate = rbParseISODate(state.startAt)
-    let endDate = rbParseISODate(state.endAt)
-    let now = Date()
-    let countdownTarget = (startDate != nil && now < startDate!) ? startDate : endDate
-    let subtitleLc = state.subtitle.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
-    let isReview = subtitleLc.contains("ohodno") || subtitleLc.contains("hodnoc")
-    let isCancelled =
-      subtitleLc.contains("zruš") || subtitleLc.contains("zrus") || subtitleLc.contains("cancel")
-    let isActive =
-      !isReview &&
-      !isCancelled &&
-      startDate != nil &&
-      endDate != nil &&
-      now >= startDate! &&
-      now < endDate!
-    let isUpcoming: Bool = {
-      guard let s = startDate else { return false }
-      return !isReview && !isCancelled && !isActive && now < s
-    }()
-    let upcomingPriceStr = rbTrim(state.priceFormatted ?? "")
+    TimelineView(.periodic(from: .now, by: 1)) { timeline in
+      RBLiveActivityCardContent(state: state, now: timeline.date)
+    }
+  }
+}
+
+private struct RBLiveActivityCardContent: View {
+  let state: RBReservationAttributes.ContentState
+  let now: Date
+
+  var body: some View {
+    let m = RBReservationLiveModel(state: state, now: now)
+    let priceStr = rbTrim(state.priceFormatted ?? "")
+    let detailTrimmed = rbTrim(state.detailLine)
 
     ZStack(alignment: .trailing) {
       VStack(alignment: .leading, spacing: 8) {
         VStack(alignment: .leading, spacing: 8) {
-          if isActive {
+          if m.isActive {
             HStack(spacing: 10) {
               RBEmployeeAvatarView(filePath: state.employeeAvatarFilePath, size: 32)
               VStack(alignment: .leading, spacing: 2) {
@@ -303,17 +313,21 @@ private struct RBLiveActivityCard: View {
                     .font(.footnote)
                     .foregroundStyle(.secondary)
                 }
+                if !priceStr.isEmpty {
+                  RBPriceBag(text: priceStr, compact: false)
+                    .padding(.top, 4)
+                }
               }
             }
             .frame(maxWidth: .infinity, alignment: .leading)
           } else {
             if !state.subtitle.isEmpty {
-              Text(state.subtitle)
+              Text(m.isUpcoming ? "✨ \(state.subtitle)" : state.subtitle)
                 .font(.subheadline)
                 .foregroundStyle(.secondary)
             }
 
-            if isReview {
+            if m.isReview {
               Text(state.title)
                 .font(.title2)
                 .fontWeight(.bold)
@@ -325,14 +339,14 @@ private struct RBLiveActivityCard: View {
                 }
               }
               .padding(.top, 2)
-            } else if isCancelled {
+            } else if m.isCancelled {
               HStack(alignment: .center, spacing: 10) {
                 Text(state.title)
                   .font(.title2)
                   .fontWeight(.bold)
                 RBPulsingDot(color: Color.red, size: 20, duration: 1.6)
               }
-            } else if let target = countdownTarget {
+            } else if let target = m.countdownTarget {
               // Pozn.: ActivityKit timer formát řídí systém (typicky MM:SS / HH:MM:SS).
               // Nejde spolehlivě vynutit "jen minuty" bez vlastních update pushů.
               Text(target, style: .timer)
@@ -347,40 +361,38 @@ private struct RBLiveActivityCard: View {
           }
         }
 
-        if !isReview, !isCancelled, !isActive, state.progress01 >= 0 {
+        if !m.isReview, !m.isCancelled, !m.isActive, state.progress01 >= 0 {
           RBLiveActivityProgressBar(
             progress01: state.progress01,
             accentHex: state.accentHex ?? "",
             maxWidth: 240
           )
         }
-        if isUpcoming {
+        if m.isUpcoming {
           RBUpcomingBranchEmployeeRow(state: state, compact: false)
-          RBUpcomingTimePriceRow(
-            detailLine: state.detailLine,
-            priceFormatted: upcomingPriceStr,
-            compact: false
-          )
-        } else if !isReview, !isCancelled, !isActive, !state.branchName.isEmpty {
+          if !detailTrimmed.isEmpty {
+            RBTimeRangePill(text: detailTrimmed, compact: false)
+          }
+        } else if !m.isReview, !m.isCancelled, !m.isActive, !state.branchName.isEmpty {
           Text(state.branchName)
             .font(.footnote)
             .foregroundStyle(.secondary)
         }
-        if !isReview, !isCancelled, !isActive, !isUpcoming, !state.detailLine.isEmpty {
+        if !m.isReview, !m.isCancelled, !m.isActive, !m.isUpcoming, !state.detailLine.isEmpty {
           Text(state.detailLine)
             .font(.caption)
             .foregroundStyle(.tertiary)
         }
       }
       .frame(maxWidth: .infinity, alignment: .leading)
-      .frame(minHeight: isActive ? 128 : nil, alignment: .topLeading)
+      .frame(minHeight: m.isActive ? 128 : nil, alignment: .topLeading)
       // Reserve space so the logo never overlaps content.
       .padding(.trailing, 62)
 
       // Keep logo vertically centered relative to the whole card content (not just the top row).
       VStack {
         Spacer(minLength: 0)
-        if isUpcoming {
+        if m.isUpcoming {
           RBUpcomingBrandLogoCluster(avatarFilePath: state.employeeAvatarFilePath, logoSize: 52, avatarSize: 34)
         } else {
           RBBrandLogo(size: 52)
@@ -393,141 +405,168 @@ private struct RBLiveActivityCard: View {
   }
 }
 
+// MARK: - Dynamic Island (TimelineView: stejný důvod jako u lock screen karty)
+
+private struct RBLiveActivityIslandExpandedLeading: View {
+  let state: RBReservationAttributes.ContentState
+
+  var body: some View {
+    TimelineView(.periodic(from: .now, by: 1)) { timeline in
+      let m = RBReservationLiveModel(state: state, now: timeline.date)
+      VStack(alignment: .leading, spacing: 4) {
+        if !state.subtitle.isEmpty {
+          Text(m.isUpcoming ? "✨ \(state.subtitle)" : state.subtitle)
+            .font(.caption)
+            .foregroundStyle(.secondary)
+            .lineLimit(1)
+        }
+        if m.isReview {
+          Text(state.title)
+            .font(.headline)
+            .fontWeight(.bold)
+        } else if m.isCancelled {
+          HStack(spacing: 8) {
+            Text(state.title)
+              .font(.headline)
+              .fontWeight(.bold)
+            RBPulsingDot(color: Color.red, size: 16, duration: 1.6)
+          }
+        } else if m.isActive {
+          HStack(spacing: 8) {
+            RBPulsingDot(
+              color: Color(red: 0.43, green: 0.87, blue: 0.37),
+              size: 16,
+              duration: 1.6
+            )
+            Text("Probíhá")
+              .font(.headline)
+              .fontWeight(.bold)
+          }
+        } else if let target = m.countdownTarget {
+          Text(target, style: .timer)
+            .font(.title3)
+            .fontWeight(.bold)
+            .monospacedDigit()
+        } else {
+          Text(state.title)
+            .font(.title3)
+            .fontWeight(.bold)
+        }
+      }
+      .frame(maxWidth: .infinity, alignment: .leading)
+    }
+  }
+}
+
+private struct RBLiveActivityIslandExpandedTrailing: View {
+  let state: RBReservationAttributes.ContentState
+
+  var body: some View {
+    TimelineView(.periodic(from: .now, by: 1)) { timeline in
+      let m = RBReservationLiveModel(state: state, now: timeline.date)
+      if m.isUpcoming {
+        RBUpcomingBrandLogoCluster(
+          avatarFilePath: state.employeeAvatarFilePath,
+          logoSize: 44,
+          avatarSize: 28
+        )
+      } else {
+        RBBrandLogo(size: 44)
+      }
+    }
+  }
+}
+
+private struct RBLiveActivityIslandExpandedBottom: View {
+  let state: RBReservationAttributes.ContentState
+
+  var body: some View {
+    TimelineView(.periodic(from: .now, by: 1)) { timeline in
+      let m = RBReservationLiveModel(state: state, now: timeline.date)
+      let priceStr = rbTrim(state.priceFormatted ?? "")
+      let detailTrimmed = rbTrim(state.detailLine)
+      VStack(alignment: .leading, spacing: 6) {
+        if m.isActive {
+          if !priceStr.isEmpty {
+            RBPriceBag(text: priceStr, compact: true)
+          }
+        } else if state.progress01 >= 0 {
+          RBLiveActivityProgressBar(
+            progress01: state.progress01,
+            accentHex: state.accentHex ?? "",
+            maxWidth: 200
+          )
+        }
+        if m.isUpcoming {
+          RBUpcomingBranchEmployeeRow(state: state, compact: true)
+          if !detailTrimmed.isEmpty {
+            RBTimeRangePill(text: detailTrimmed, compact: true)
+          }
+        } else if !state.branchName.isEmpty {
+          Text(state.branchName)
+            .font(.caption)
+            .foregroundStyle(.secondary)
+        }
+        if !m.isUpcoming, !state.detailLine.isEmpty {
+          Text(state.detailLine)
+            .font(.caption2)
+            .foregroundStyle(.tertiary)
+        }
+      }
+    }
+  }
+}
+
+private struct RBLiveActivityIslandCompactTrailing: View {
+  let state: RBReservationAttributes.ContentState
+
+  var body: some View {
+    TimelineView(.periodic(from: .now, by: 1)) { timeline in
+      let m = RBReservationLiveModel(state: state, now: timeline.date)
+      if m.isCancelled {
+        RBPulsingDot(color: Color.red, size: 20, duration: 1.6)
+      } else if m.isReview {
+        Image(systemName: "star")
+          .font(.system(size: 16, weight: .bold))
+          .foregroundStyle(Color.white.opacity(0.8))
+      } else if m.isActive {
+        RBPulsingDot(
+          color: Color(red: 0.43, green: 0.87, blue: 0.37),
+          size: 20,
+          duration: 1.6
+        )
+      } else if let target = m.countdownTarget {
+        let mins = rbMinutesRemainingCeil(target: target, now: timeline.date)
+        Text(m.isUpcoming ? "✨ \(mins) min" : "\(mins) min")
+          .font(.system(size: 12, weight: .bold, design: .rounded))
+          .monospacedDigit()
+      } else {
+        RBBrandLogo(size: 30)
+      }
+    }
+  }
+}
+
 struct RealBarberLiveActivityWidget: Widget {
   var body: some WidgetConfiguration {
     ActivityConfiguration(for: RBReservationAttributes.self) { context in
       RBLiveActivityCard(state: context.state)
         .activityBackgroundTint(Color.black)
     } dynamicIsland: { context in
-      let startDate = rbParseISODate(context.state.startAt)
-      let endDate = rbParseISODate(context.state.endAt)
-      let now = Date()
-      let countdownTarget = (startDate != nil && now < startDate!) ? startDate : endDate
-      let subtitleLc = context.state.subtitle.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
-      let isReview = subtitleLc.contains("ohodno") || subtitleLc.contains("hodnoc")
-      let isCancelled =
-        subtitleLc.contains("zruš") || subtitleLc.contains("zrus") || subtitleLc.contains("cancel")
-      let isActive =
-        !isReview &&
-        !isCancelled &&
-        startDate != nil &&
-        endDate != nil &&
-        now >= startDate! &&
-        now < endDate!
-      let isUpcoming: Bool = {
-        guard let s = startDate else { return false }
-        return !isReview && !isCancelled && !isActive && now < s
-      }()
-      let islandUpcomingPriceStr = rbTrim(context.state.priceFormatted ?? "")
-
-      return DynamicIsland {
+      DynamicIsland {
         DynamicIslandExpandedRegion(.leading) {
-          VStack(alignment: .leading, spacing: 4) {
-            if !context.state.subtitle.isEmpty {
-              Text(context.state.subtitle)
-                .font(.caption)
-                .foregroundStyle(.secondary)
-                .lineLimit(1)
-            }
-            if isReview {
-              Text(context.state.title)
-                .font(.headline)
-                .fontWeight(.bold)
-            } else if isCancelled {
-              HStack(spacing: 8) {
-                Text(context.state.title)
-                  .font(.headline)
-                  .fontWeight(.bold)
-                RBPulsingDot(color: Color.red, size: 16, duration: 1.6)
-              }
-            } else if isActive {
-              HStack(spacing: 8) {
-                RBPulsingDot(
-                  color: Color(red: 0.43, green: 0.87, blue: 0.37),
-                  size: 16,
-                  duration: 1.6
-                )
-                Text("Probíhá")
-                  .font(.headline)
-                  .fontWeight(.bold)
-              }
-            } else if let target = countdownTarget {
-              Text(target, style: .timer)
-                .font(.title3)
-                .fontWeight(.bold)
-                .monospacedDigit()
-            } else {
-              Text(context.state.title)
-                .font(.title3)
-                .fontWeight(.bold)
-            }
-          }
-          .frame(maxWidth: .infinity, alignment: .leading)
+          RBLiveActivityIslandExpandedLeading(state: context.state)
         }
         DynamicIslandExpandedRegion(.trailing) {
-          if isUpcoming {
-            RBUpcomingBrandLogoCluster(
-              avatarFilePath: context.state.employeeAvatarFilePath,
-              logoSize: 44,
-              avatarSize: 28
-            )
-          } else {
-            RBBrandLogo(size: 44)
-          }
+          RBLiveActivityIslandExpandedTrailing(state: context.state)
         }
         DynamicIslandExpandedRegion(.bottom) {
-          VStack(alignment: .leading, spacing: 6) {
-            if isActive {
-              EmptyView()
-            } else if context.state.progress01 >= 0 {
-              RBLiveActivityProgressBar(
-                progress01: context.state.progress01,
-                accentHex: context.state.accentHex ?? "",
-                maxWidth: 200
-              )
-            }
-            if isUpcoming {
-              RBUpcomingBranchEmployeeRow(state: context.state, compact: true)
-              RBUpcomingTimePriceRow(
-                detailLine: context.state.detailLine,
-                priceFormatted: islandUpcomingPriceStr,
-                compact: true
-              )
-            } else if !context.state.branchName.isEmpty {
-              Text(context.state.branchName)
-                .font(.caption)
-                .foregroundStyle(.secondary)
-            }
-            if !isUpcoming, !context.state.detailLine.isEmpty {
-              Text(context.state.detailLine)
-                .font(.caption2)
-                .foregroundStyle(.tertiary)
-            }
-          }
+          RBLiveActivityIslandExpandedBottom(state: context.state)
         }
       } compactLeading: {
         RBBrandLogo(size: 30)
       } compactTrailing: {
-        if isCancelled {
-          RBPulsingDot(color: Color.red, size: 20, duration: 1.6)
-        } else if isReview {
-          Image(systemName: "star")
-            .font(.system(size: 16, weight: .bold))
-            .foregroundStyle(Color.white.opacity(0.8))
-        } else if isActive {
-          RBPulsingDot(
-            color: Color(red: 0.43, green: 0.87, blue: 0.37),
-            size: 20,
-            duration: 1.6
-          )
-        } else if let target = countdownTarget {
-          let m = rbMinutesRemainingCeil(target: target, now: now)
-          Text("\(m) min")
-            .font(.system(size: 12, weight: .bold, design: .rounded))
-            .monospacedDigit()
-        } else {
-          RBBrandLogo(size: 30)
-        }
+        RBLiveActivityIslandCompactTrailing(state: context.state)
       } minimal: {
         RBBrandLogo(size: 24)
       }
