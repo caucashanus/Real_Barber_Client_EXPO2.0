@@ -296,7 +296,10 @@ private struct RBLiveActivityCardContent: View {
         VStack(alignment: .leading, spacing: 8) {
           if m.isActive {
             HStack(spacing: 10) {
-              RBEmployeeAvatarView(filePath: state.employeeAvatarFilePath, size: 32)
+              RBEmployeeAvatarView(
+                filePath: state.employeeAvatarFilePath,
+                size: 32
+              )
               VStack(alignment: .leading, spacing: 2) {
                 if !state.employeeName.isEmpty {
                   Text(state.employeeName)
@@ -393,7 +396,11 @@ private struct RBLiveActivityCardContent: View {
       VStack {
         Spacer(minLength: 0)
         if m.isUpcoming {
-          RBUpcomingBrandLogoCluster(avatarFilePath: state.employeeAvatarFilePath, logoSize: 52, avatarSize: 34)
+          RBUpcomingBrandLogoCluster(
+            avatarFilePath: state.employeeAvatarFilePath,
+            logoSize: 52,
+            avatarSize: 34
+          )
         } else {
           RBBrandLogo(size: 52)
         }

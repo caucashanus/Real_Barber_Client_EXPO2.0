@@ -83,9 +83,8 @@ async function resolveLiveActivityEmployeeAvatarUrl(
     let url = resolveCrmMediaUrl(emp.avatarUrl ?? undefined);
     if (!url && emp.media) {
       const items = Array.isArray(emp.media) ? emp.media : Object.values(emp.media);
-      const firstWithUrl = items.find(
-        (m): m is { url: string } =>
-          Boolean(m && typeof m === 'object' && typeof (m as { url?: string }).url === 'string')
+      const firstWithUrl = items.find((m): m is { url: string } =>
+        Boolean(m && typeof m === 'object' && typeof (m as { url?: string }).url === 'string')
       );
       if (firstWithUrl) url = resolveCrmMediaUrl(firstWithUrl.url);
     }
@@ -469,6 +468,13 @@ const TripsScreen = () => {
           target,
           liveActivityAvatarCacheRef.current
         );
+        console.log('[LiveActivity] resolved avatar', {
+          bookingId,
+          isCurrent,
+          employeeName: target.employee?.name ?? '',
+          employeeAvatarUrl: employeeAvatarUrl ? employeeAvatarUrl.slice(0, 120) : '',
+          hasAuthToken: Boolean(apiToken),
+        });
         const payload = {
           subtitle,
           title,
@@ -487,8 +493,16 @@ const TripsScreen = () => {
         const isNewForBooking = !liveInstanceRef.current || liveBookingIdRef.current !== bookingId;
         if (isNewForBooking) {
           liveBookingIdRef.current = bookingId;
+          console.log('[LiveActivity] start', {
+            bookingId,
+            subtitle,
+            title,
+            detailLine,
+            branchName,
+          });
           liveInstanceRef.current = await rbLiveActivityStart(payload, deepLink);
           const handle = liveInstanceRef.current;
+          console.log('[LiveActivity] started', { bookingId, activityId: handle?.id });
           if (apiToken && handle) {
             const activityId = handle.id;
             void (async () => {
@@ -506,10 +520,16 @@ const TripsScreen = () => {
             })();
           }
         } else {
+          console.log('[LiveActivity] update', {
+            bookingId,
+            activityId: liveInstanceRef.current?.id,
+            subtitle,
+            title,
+          });
           await liveInstanceRef.current!.update(payload);
         }
-      } catch {
-        // Live Activity optional / permissions / simulator
+      } catch (e) {
+        console.warn('[LiveActivity] failed', e);
       }
     })();
   }, [bookings, locale, t, accentColor, apiToken]);

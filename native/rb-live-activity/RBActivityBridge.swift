@@ -134,9 +134,21 @@ private func rbWriteAvatarToAppGroup(fromRemoteURL remote: URL, bearerToken: Str
   let key = rbSHA256Hex(remote.absoluteString)
   let fileURL = dir.appendingPathComponent("\(key).jpg", isDirectory: false)
   let path = fileURL.path
-  if FileManager.default.fileExists(atPath: path) { return path }
+  if FileManager.default.fileExists(atPath: path) {
+    // Cache může být prázdná/poškozená (např. přerušený zápis). Pak widget nic nezobrazí.
+    // Pokud nejde dekódovat jako obrázek, smažeme a stáhneme znovu.
+    if let attrs = try? FileManager.default.attributesOfItem(atPath: path),
+       let size = attrs[.size] as? NSNumber,
+       size.intValue > 0,
+       UIImage(contentsOfFile: path) != nil
+    {
+      return path
+    }
+    try? FileManager.default.removeItem(atPath: path)
+  }
 
   do {
+    NSLog("[RBActivityBridge] Avatar download start url=%@ auth=%@", remote.absoluteString, (bearerToken ?? "").isEmpty ? "no" : "yes")
     var request = URLRequest(url: remote)
     request.setValue(
       "Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Mobile/15E148 Safari/604.1",
@@ -147,12 +159,21 @@ private func rbWriteAvatarToAppGroup(fromRemoteURL remote: URL, bearerToken: Str
       request.setValue("Bearer \(t)", forHTTPHeaderField: "Authorization")
     }
     let (data, resp) = try await URLSession.shared.data(for: request)
-    if let http = resp as? HTTPURLResponse, http.statusCode >= 400 { return nil }
+    if let http = resp as? HTTPURLResponse {
+      NSLog("[RBActivityBridge] Avatar response status=%d bytes=%d", http.statusCode, data.count)
+      if http.statusCode >= 400 { return nil }
+    }
     if data.isEmpty { return nil }
     guard let normalized = rbNormalizeAvatarImageData(data) else { return nil }
     try normalized.write(to: fileURL, options: [.atomic])
+    if UIImage(contentsOfFile: path) == nil {
+      NSLog("[RBActivityBridge] Avatar wrote but decode failed path=%@", path)
+    } else {
+      NSLog("[RBActivityBridge] Avatar wrote ok path=%@", path)
+    }
     return path
   } catch {
+    NSLog("[RBActivityBridge] Avatar download failed url=%@ err=%@", remote.absoluteString, String(describing: error))
     return nil
   }
 }
