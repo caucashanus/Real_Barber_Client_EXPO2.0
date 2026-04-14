@@ -58,16 +58,16 @@ private struct RBReservationLiveModel {
   }
 }
 
-/// Minuty do cíle od **začátku aktuální kalendářní minuty** (`now`), pak `ceil` po minutách.
-/// Shodné s JS `rbLiveActivityMinutesDisplayed`: 19:27:xx → 19:30 = 3, ne 2 kvůli uběhlým sekundám v minutě.
+/// Minuty do cíle „jako na ciferníku“: ignorujeme sekundy.
 private func rbMinutesRemainingCeil(target: Date, now: Date) -> Int {
   let cal = Calendar.current
   guard target > now else { return 0 }
-  let parts = cal.dateComponents([.year, .month, .day, .hour, .minute], from: now)
-  guard let startOfCurrentMinute = cal.date(from: parts) else { return 0 }
-  let diff = target.timeIntervalSince(startOfCurrentMinute)
-  if !diff.isFinite { return 0 }
-  return max(0, Int(ceil(diff / 60)))
+  let nowParts = cal.dateComponents([.year, .month, .day, .hour, .minute], from: now)
+  let targetParts = cal.dateComponents([.year, .month, .day, .hour, .minute], from: target)
+  guard let nowMinute = cal.date(from: nowParts), let targetMinute = cal.date(from: targetParts) else { return 0 }
+  let diff = targetMinute.timeIntervalSince(nowMinute)
+  if !diff.isFinite || diff <= 0 { return 0 }
+  return max(1, Int(diff / 60))
 }
 
 private func rbProgressFillColor(accentHex: String) -> Color {

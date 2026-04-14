@@ -1,11 +1,14 @@
 /**
- * Minuty do `targetMs`, počítané od začátku aktuální místní minuty (sekundy a ms = 0).
- * Tak 19:27:xx → start 19:30 ukáže 3 min (rozdíl „27 vs 30“ na ciferníku), ne 2 kvůli uběhlým sekundám.
+ * Minuty do `targetMs` počítané „jako na ciferníku“: ignorujeme sekundy.
+ *
+ * Příklad: 12:12:59 → 12:15:00 pořád ukáže 3 (protože 12→15).
  */
 export function rbLiveActivityMinutesDisplayed(nowMs: number, targetMs: number): number {
-  const anchor = new Date(nowMs);
-  anchor.setSeconds(0, 0);
-  const diff = targetMs - anchor.getTime();
+  const now = new Date(nowMs);
+  now.setSeconds(0, 0);
+  const target = new Date(targetMs);
+  target.setSeconds(0, 0);
+  const diff = target.getTime() - now.getTime();
   if (!Number.isFinite(diff) || diff <= 0) return 0;
-  return Math.max(1, Math.ceil(diff / 60_000));
+  return Math.max(1, diff / 60_000);
 }

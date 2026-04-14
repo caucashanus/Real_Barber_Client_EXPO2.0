@@ -356,6 +356,7 @@ const TripsScreen = () => {
   const [selectedFilter, setSelectedFilter] = useState<BookingFilter>('all');
   const liveInstanceRef = useRef<RBLiveActivityHandle | null>(null);
   const liveBookingIdRef = useRef<string | null>(null);
+  const livePhaseTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const liveActivityAvatarCacheRef = useRef<Record<string, string>>({});
 
   const counts = countByFilter(bookings, bookingReviewMap);
@@ -416,6 +417,11 @@ const TripsScreen = () => {
   useEffect(() => {
     if (Platform.OS !== 'ios') return;
     if (!ENABLE_AUTO_LIVE_ACTIVITY) return;
+
+    if (livePhaseTimeoutRef.current) {
+      clearTimeout(livePhaseTimeoutRef.current);
+      livePhaseTimeoutRef.current = null;
+    }
 
     const current = bookings.find((b) => isBookingCurrent(b)) ?? null;
     const upcomingInHour =
@@ -503,6 +509,38 @@ const TripsScreen = () => {
           liveInstanceRef.current = await rbLiveActivityStart(payload, deepLink);
           const handle = liveInstanceRef.current;
           console.log('[LiveActivity] started', { bookingId, activityId: handle?.id });
+
+          // Spolehlivý přechod upcoming -> active: naplánujeme lokální update přesně v čase startu.
+          // Bez toho může UI zůstat v upcoming a `.timer` do startu přejde do záporu (<1).
+          if (!isCurrent) {
+            const msUntilStart = Math.max(0, startMs - Date.now());
+            livePhaseTimeoutRef.current = setTimeout(() => {
+              const h = liveInstanceRef.current;
+              if (!h || liveBookingIdRef.current !== bookingId) return;
+
+              const now2 = Date.now();
+              const slotMs = Math.max(60_000, endMs - startMs);
+              const minutesLeft = rbLiveActivityMinutesDisplayed(now2, endMs);
+              const payload2 = {
+                subtitle: t('liveActivityEndsInLabel'),
+                title: `${minutesLeft} ${t('tripsMinutes')}`,
+                detailLine,
+                branchName: branchName || undefined,
+                startAt: start.toISOString(),
+                endAt: end.toISOString(),
+                employeeName: target.employee?.name ?? '',
+                employeeAvatarUrl,
+                employeeAvatarAuthToken: apiToken ?? undefined,
+                priceFormatted: formatLiveActivityPrice(target, locale),
+                progress01: clamp01((now2 - startMs) / slotMs),
+                accentHex: accentColor,
+              };
+
+              console.log('[LiveActivity] phase->active (scheduled)', { bookingId });
+              void h.update(payload2).catch(() => {});
+            }, msUntilStart + 1200);
+          }
+
           if (apiToken && handle) {
             const activityId = handle.id;
             void (async () => {
@@ -532,6 +570,13 @@ const TripsScreen = () => {
         console.warn('[LiveActivity] failed', e);
       }
     })();
+
+    return () => {
+      if (livePhaseTimeoutRef.current) {
+        clearTimeout(livePhaseTimeoutRef.current);
+        livePhaseTimeoutRef.current = null;
+      }
+    };
   }, [bookings, locale, t, accentColor, apiToken]);
 
   useFocusEffect(
