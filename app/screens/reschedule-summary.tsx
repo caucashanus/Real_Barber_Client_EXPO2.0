@@ -1,3 +1,4 @@
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { router, useLocalSearchParams } from 'expo-router';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { View, ScrollView, ActivityIndicator, Image } from 'react-native';
@@ -15,6 +16,20 @@ import CurrentBookingCard from '@/components/booking/CurrentBookingCard';
 import Divider from '@/components/layout/Divider';
 import Section from '@/components/layout/Section';
 import { rbLiveActivityUpdateForBooking } from '@/lib/rb-live-activity';
+
+const RB_RESCHEDULE_HINT_KEY = 'rb_live_activity_reschedule_hint_v1';
+
+type RescheduleHint = {
+  bookingId: string;
+  startAt: string;
+  endAt: string;
+  ts: number;
+  branchName: string;
+  employeeName: string;
+  employeeAvatarUrl: string;
+  price: number | null;
+  detailLine: string;
+};
 
 function formatDateLabel(date: string, locale: string): string {
   const parsed = new Date(date);
@@ -96,6 +111,21 @@ export default function RescheduleSummaryScreen() {
         slotStart,
         slotEnd,
       });
+      // Hint for immediate foreground reconcile without requiring Trips refresh.
+      const startIso = new Date(`${date}T${slotStart}:00`).toISOString();
+      const endIso = new Date(`${date}T${slotEnd}:00`).toISOString();
+      const hint: RescheduleHint = {
+        bookingId: booking.id,
+        startAt: startIso,
+        endAt: endIso,
+        ts: Date.now(),
+        branchName: booking.branch?.name ?? '',
+        employeeName: booking.employee?.name ?? '',
+        employeeAvatarUrl: booking.employee?.avatarUrl ?? '',
+        price: Number.isFinite(Number(booking.price)) ? Number(booking.price) : null,
+        detailLine: `${slotStart}–${slotEnd}`,
+      };
+      AsyncStorage.setItem(RB_RESCHEDULE_HINT_KEY, JSON.stringify(hint)).catch(() => undefined);
       // Immediate local lock-screen feedback: show "changed" state even when server won't send remote updates.
       await rbLiveActivityUpdateForBooking(booking.id, {
         subtitle: 'Váš termín se změnil',
@@ -210,7 +240,7 @@ export default function RescheduleSummaryScreen() {
               title={t('rescheduleConfirm')}
               loading={saving}
               onPress={() => {
-                void onConfirm();
+                onConfirm().catch(() => undefined);
               }}
               disabled={saving}
               className="w-full min-w-0 flex-1 rounded-none px-0 py-3.5"

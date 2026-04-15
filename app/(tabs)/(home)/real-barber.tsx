@@ -5,7 +5,6 @@ import { ActivityIndicator, Image, Pressable, View } from 'react-native';
 import { getBookings, type Booking } from '@/api/bookings';
 import { useAuth } from '@/app/contexts/AuthContext';
 import Avatar from '@/components/Avatar';
-import Icon from '@/components/Icon';
 import ThemeScroller from '@/components/ThemeScroller';
 import ThemedText from '@/components/ThemedText';
 import { List } from '@/components/layout/List';
@@ -13,6 +12,33 @@ import ListItem from '@/components/layout/ListItem';
 import Section from '@/components/layout/Section';
 import { BRANCH_MARKER_IMAGES } from '@/constants/branch-marker-images';
 import { isReservationIntroCooldownActive } from '@/utils/reservation-intro-cooldown';
+
+function getBookingEndDate(booking: Booking): Date {
+  const dateStr = (booking.date || '').slice(0, 10);
+  const [y, m, d] = dateStr.split('-').map(Number);
+  const parts = (booking.slotEnd || booking.slotStart || '00:00').trim().split(':');
+  const hh = Number(parts[0]);
+  const mm = Number(parts[1]);
+  return new Date(
+    Number.isFinite(y) ? y : 0,
+    Number.isFinite(m) ? m - 1 : 0,
+    Number.isFinite(d) ? d : 1,
+    Number.isFinite(hh) ? hh : 0,
+    Number.isFinite(mm) ? mm : 0,
+    0,
+    0
+  );
+}
+
+function isBookingNotCancelled(booking: Booking): boolean {
+  const status = (booking.status ?? '').toLowerCase();
+  return status !== 'cancelled' && status !== 'canceled';
+}
+
+function isBookingPast(booking: Booking): boolean {
+  if (!isBookingNotCancelled(booking)) return false;
+  return getBookingEndDate(booking).getTime() < Date.now();
+}
 
 export default function RealBarberHomeTab() {
   const { apiToken } = useAuth();
@@ -64,8 +90,14 @@ export default function RealBarberHomeTab() {
       return;
     }
     setRecentLoading(true);
-    getBookings(apiToken, { limit: 3, offset: 0 })
-      .then((res) => setRecentBookings(res.bookings.slice(0, 3)))
+    getBookings(apiToken, { limit: 50, offset: 0 })
+      .then((res) => {
+        const items = res.bookings
+          .filter(isBookingPast)
+          .sort((a, b) => getBookingEndDate(b).getTime() - getBookingEndDate(a).getTime())
+          .slice(0, 3);
+        setRecentBookings(items);
+      })
       .catch(() => setRecentBookings([]))
       .finally(() => setRecentLoading(false));
   }, [apiToken]);
@@ -86,18 +118,6 @@ export default function RealBarberHomeTab() {
               </ThemedText>
             </Pressable>
           ))}
-        </View>
-
-        {/* Search row */}
-        <View className="-mx-global mt-4 px-0">
-          <Pressable
-            onPress={() => router.push('/screens/reservation-quick-branch')}
-            className="flex-row items-center gap-2 rounded-full bg-light-secondary px-4 py-3 dark:bg-dark-secondary">
-            <Icon name="Search" size={18} className="text-light-subtext dark:text-dark-subtext" />
-            <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext">
-              Co chceš rezervovat?
-            </ThemedText>
-          </Pressable>
         </View>
 
         {/* Recent bookings */}

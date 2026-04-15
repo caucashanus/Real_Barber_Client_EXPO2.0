@@ -68,16 +68,12 @@ private struct RBReservationLiveModel {
   }
 }
 
-/// Minuty do cíle „jako na ciferníku“: ignorujeme sekundy.
+/// Minuty do cíle z reálného času (včetně sekund), zaokrouhlené nahoru (ceil).
 private func rbMinutesRemainingCeil(target: Date, now: Date) -> Int {
-  let cal = Calendar.current
   guard target > now else { return 0 }
-  let nowParts = cal.dateComponents([.year, .month, .day, .hour, .minute], from: now)
-  let targetParts = cal.dateComponents([.year, .month, .day, .hour, .minute], from: target)
-  guard let nowMinute = cal.date(from: nowParts), let targetMinute = cal.date(from: targetParts) else { return 0 }
-  let diff = targetMinute.timeIntervalSince(nowMinute)
+  let diff = target.timeIntervalSince(now)
   if !diff.isFinite || diff <= 0 { return 0 }
-  return max(1, Int(diff / 60))
+  return max(1, Int(ceil(diff / 60)))
 }
 
 private func rbProgressFillColor(accentHex: String) -> Color {
@@ -364,9 +360,9 @@ private struct RBLiveActivityCardContent: View {
                 RBPulsingDot(color: Color.red, size: 20, duration: 1.6)
               }
             } else if let target = m.countdownTarget {
-              // Pozn.: ActivityKit timer formát řídí systém (typicky MM:SS / HH:MM:SS).
-              // Nejde spolehlivě vynutit "jen minuty" bez vlastních update pushů.
-              Text(target, style: .timer)
+              // UX: nechceme "<1" ani MM:SS; zobrazujeme vždy minuty zaokrouhlené nahoru.
+              let mins = rbMinutesRemainingCeil(target: target, now: now)
+              Text("\(mins) min")
                 .font(.title2)
                 .fontWeight(.bold)
                 .monospacedDigit()
@@ -472,7 +468,8 @@ private struct RBLiveActivityIslandExpandedLeading: View {
               .fontWeight(.bold)
           }
         } else if let target = m.countdownTarget {
-          Text(target, style: .timer)
+          let mins = rbMinutesRemainingCeil(target: target, now: timeline.date)
+          Text(m.isUpcoming ? "✨ \(mins) min" : "\(mins) min")
             .font(.title3)
             .fontWeight(.bold)
             .monospacedDigit()
