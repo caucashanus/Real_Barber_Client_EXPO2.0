@@ -27,6 +27,7 @@ private func rbTrim(_ s: String) -> String {
 private struct RBReservationLiveModel {
   let isReview: Bool
   let isCancelled: Bool
+  let isMoved: Bool
   let isActive: Bool
   let isUpcoming: Bool
   let countdownTarget: Date?
@@ -38,19 +39,28 @@ private struct RBReservationLiveModel {
     isReview = subtitleLc.contains("ohodno") || subtitleLc.contains("hodnoc")
     isCancelled =
       subtitleLc.contains("zruš") || subtitleLc.contains("zrus") || subtitleLc.contains("cancel")
+    isMoved =
+      subtitleLc.contains("přesu") ||
+      subtitleLc.contains("presu") ||
+      subtitleLc.contains("posun") ||
+      subtitleLc.contains("změn") ||
+      subtitleLc.contains("zmen")
     isActive =
       !isReview &&
       !isCancelled &&
+      !isMoved &&
       startDate != nil &&
       endDate != nil &&
       now >= startDate! &&
       now < endDate!
     if let s = startDate {
-      isUpcoming = !isReview && !isCancelled && !isActive && now < s
+      isUpcoming = !isReview && !isCancelled && !isMoved && !isActive && now < s
     } else {
       isUpcoming = false
     }
-    if let s = startDate, now < s {
+    if isMoved {
+      countdownTarget = nil
+    } else if let s = startDate, now < s {
       countdownTarget = s
     } else {
       countdownTarget = endDate
@@ -342,6 +352,10 @@ private struct RBLiveActivityCardContent: View {
                 }
               }
               .padding(.top, 2)
+            } else if m.isMoved {
+              Text(state.title)
+                .font(.title2)
+                .fontWeight(.bold)
             } else if m.isCancelled {
               HStack(alignment: .center, spacing: 10) {
                 Text(state.title)
@@ -376,12 +390,16 @@ private struct RBLiveActivityCardContent: View {
           if !detailTrimmed.isEmpty {
             RBTimeRangePill(text: detailTrimmed, compact: false)
           }
+        } else if m.isMoved {
+          if !detailTrimmed.isEmpty {
+            RBTimeRangePill(text: detailTrimmed, compact: false)
+          }
         } else if !m.isReview, !m.isCancelled, !m.isActive, !state.branchName.isEmpty {
           Text(state.branchName)
             .font(.footnote)
             .foregroundStyle(.secondary)
         }
-        if !m.isReview, !m.isCancelled, !m.isActive, !m.isUpcoming, !state.detailLine.isEmpty {
+        if !m.isMoved, !m.isReview, !m.isCancelled, !m.isActive, !m.isUpcoming, !state.detailLine.isEmpty {
           Text(state.detailLine)
             .font(.caption)
             .foregroundStyle(.tertiary)
@@ -428,6 +446,10 @@ private struct RBLiveActivityIslandExpandedLeading: View {
             .lineLimit(1)
         }
         if m.isReview {
+          Text(state.title)
+            .font(.headline)
+            .fontWeight(.bold)
+        } else if m.isMoved {
           Text(state.title)
             .font(.headline)
             .fontWeight(.bold)
@@ -532,6 +554,10 @@ private struct RBLiveActivityIslandCompactTrailing: View {
       let m = RBReservationLiveModel(state: state, now: timeline.date)
       if m.isCancelled {
         RBPulsingDot(color: Color.red, size: 20, duration: 1.6)
+      } else if m.isMoved {
+        Text("Změna")
+          .font(.system(size: 12, weight: .bold, design: .rounded))
+          .monospacedDigit()
       } else if m.isReview {
         Image(systemName: "star")
           .font(.system(size: 16, weight: .bold))

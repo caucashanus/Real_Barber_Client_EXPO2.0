@@ -14,6 +14,7 @@ import ThemedText from '@/components/ThemedText';
 import CurrentBookingCard from '@/components/booking/CurrentBookingCard';
 import Divider from '@/components/layout/Divider';
 import Section from '@/components/layout/Section';
+import { rbLiveActivityUpdateForBooking } from '@/lib/rb-live-activity';
 
 function formatDateLabel(date: string, locale: string): string {
   const parsed = new Date(date);
@@ -94,6 +95,21 @@ export default function RescheduleSummaryScreen() {
         date,
         slotStart,
         slotEnd,
+      });
+      // Immediate local lock-screen feedback: show "changed" state even when server won't send remote updates.
+      await rbLiveActivityUpdateForBooking(booking.id, {
+        subtitle: 'Váš termín se změnil',
+        title: 'Otevřete aplikaci pro detail',
+        startAt: new Date().toISOString(),
+        endAt: new Date(Date.now() + 60 * 60 * 1000).toISOString(),
+        branchName: '',
+        detailLine: '',
+        employeeName: '',
+        employeeAvatarUrl: '',
+        employeeAvatarAuthToken: '',
+        progress01: -1,
+        accentHex: '',
+        priceFormatted: '',
       });
       router.replace('/trips');
     } catch (e) {

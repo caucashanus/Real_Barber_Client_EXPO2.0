@@ -208,51 +208,46 @@ private func contentState(from payload: NSDictionary, employeeAvatarFilePath: St
 
 // MARK: - ActivityKit push token (hex) pro APNs `liveactivity`
 
-private enum RBPushTokenRegistry {
-  private static let lock = NSLock()
-  private static var hexByActivity: [String: String] = [:]
-  private static var observationTasks: [String: Task<Void, Never>] = [:]
+private actor RBPushTokenRegistryActor {
+  static let shared = RBPushTokenRegistryActor()
+  private var hexByActivity: [String: String] = [:]
+  private var observationTasks: [String: Task<Void, Never>] = [:]
 
-  static func hex(for activityId: String) -> String? {
-    lock.lock()
-    defer { lock.unlock() }
-    return hexByActivity[activityId]
+  func hex(for activityId: String) -> String? {
+    hexByActivity[activityId]
   }
 
-  static func cancelObservation(activityId: String) {
-    lock.lock()
+  func cancelObservation(activityId: String) {
     observationTasks[activityId]?.cancel()
     observationTasks[activityId] = nil
     hexByActivity.removeValue(forKey: activityId)
-    lock.unlock()
   }
 
-  static func cancelAllObservations() {
-    lock.lock()
+  func cancelAllObservations() {
     for (_, t) in observationTasks { t.cancel() }
     observationTasks.removeAll()
     hexByActivity.removeAll()
-    lock.unlock()
   }
 
-  @MainActor
-  static func startObservingPushToken(for activity: Activity<RBReservationAttributes>) {
+  func startObservingPushToken(for activity: Activity<RBReservationAttributes>) {
     let activityId = activity.id
-    lock.lock()
     observationTasks[activityId]?.cancel()
-    let task = Task {
+    let task = Task { [weak self] in
       for await pushToken in activity.pushTokenUpdates {
         let hex = pushToken.reduce(into: "") { $0.append(String(format: "%02x", $1)) }
-        lock.lock()
-        hexByActivity[activityId] = hex
-        lock.unlock()
+        await self?.setHex(hex, for: activityId)
       }
-      lock.lock()
-      observationTasks[activityId] = nil
-      lock.unlock()
+      await self?.clearTask(activityId)
     }
     observationTasks[activityId] = task
-    lock.unlock()
+  }
+
+  private func setHex(_ hex: String, for activityId: String) {
+    hexByActivity[activityId] = hex
+  }
+
+  private func clearTask(_ activityId: String) {
+    observationTasks[activityId] = nil
   }
 }
 
@@ -271,7 +266,7 @@ private enum RBActivityStore {
 
   static func remove(id: String) {
     activities.removeValue(forKey: id)
-    RBPushTokenRegistry.cancelObservation(activityId: id)
+    Task { await RBPushTokenRegistryActor.shared.cancelObservation(activityId: id) }
     if let p = avatarPathByActivityId.removeValue(forKey: id), !p.isEmpty {
       try? FileManager.default.removeItem(atPath: p)
     }
@@ -283,7 +278,7 @@ private enum RBActivityStore {
       await act.end(nil, dismissalPolicy: .immediate)
     }
     activities.removeAll()
-    RBPushTokenRegistry.cancelAllObservations()
+    await RBPushTokenRegistryActor.shared.cancelAllObservations()
     let paths = Array(avatarPathByActivityId.values)
     avatarPathByActivityId.removeAll()
     for p in paths where !p.isEmpty {
@@ -299,6 +294,13 @@ private enum RBActivityStore {
 @objc(RBActivityBridge)
 class RBActivityBridge: NSObject {
   @objc static func requiresMainQueueSetup() -> Bool { true }
+
+  private func bookingIdFromDeepLink(_ deepLink: String) -> String? {
+    guard let url = URL(string: deepLink) else { return nil }
+    guard let components = URLComponents(url: url, resolvingAgainstBaseURL: false) else { return nil }
+    let id = components.queryItems?.first(where: { $0.name == "id" })?.value?.trimmingCharacters(in: .whitespacesAndNewlines)
+    return (id ?? "").isEmpty ? nil : id
+  }
 
   @objc
   func startReservationActivity(
@@ -318,10 +320,10 @@ class RBActivityBridge: NSObject {
     Task {
       do {
         let avatarPath = await rbResolveEmployeeAvatarFilePath(from: payload)
+        let state = contentState(from: payload, employeeAvatarFilePath: avatarPath)
 
         try await MainActor.run {
           let attributes = RBReservationAttributes(deepLink: deepLink)
-          let state = contentState(from: payload, employeeAvatarFilePath: avatarPath)
           let content = ActivityContent(state: state, staleDate: nil)
           let activity = try Activity<RBReservationAttributes>.request(
             attributes: attributes,
@@ -332,7 +334,7 @@ class RBActivityBridge: NSObject {
           if let p = avatarPath, !p.isEmpty {
             RBActivityStore.avatarPathByActivityId[activity.id] = p
           }
-          RBPushTokenRegistry.startObservingPushToken(for: activity)
+          Task { await RBPushTokenRegistryActor.shared.startObservingPushToken(for: activity) }
           resolve(activity.id)
         }
       } catch {
@@ -351,10 +353,9 @@ class RBActivityBridge: NSObject {
       resolve(NSNull())
       return
     }
-    if let hex = RBPushTokenRegistry.hex(for: activityId) {
-      resolve(hex)
-    } else {
-      resolve(NSNull())
+    Task {
+      let hex = await RBPushTokenRegistryActor.shared.hex(for: activityId)
+      await MainActor.run { resolve(hex ?? NSNull()) }
     }
   }
 
@@ -382,22 +383,58 @@ class RBActivityBridge: NSObject {
 
       let avatarPath = await rbResolveEmployeeAvatarFilePath(from: payload)
 
-      let content: ActivityContent<RBReservationAttributes.ContentState> = await MainActor.run {
+      let effectivePath: String? = await MainActor.run {
         if let newPath = avatarPath, !newPath.isEmpty {
           let old = RBActivityStore.avatarPathByActivityId[activityId]
-          if let old, old != newPath {
-            try? FileManager.default.removeItem(atPath: old)
-          }
+          if let old, old != newPath { try? FileManager.default.removeItem(atPath: old) }
           RBActivityStore.avatarPathByActivityId[activityId] = newPath
+          return newPath
         }
-
-        let effectivePath = avatarPath ?? RBActivityStore.avatarPathByActivityId[activityId]
-        let state = contentState(from: payload, employeeAvatarFilePath: effectivePath)
-        return ActivityContent(state: state, staleDate: nil)
+        return RBActivityStore.avatarPathByActivityId[activityId]
       }
-
-      await activity.update(content)
+      let state = contentState(from: payload, employeeAvatarFilePath: effectivePath)
+      await activity.update(ActivityContent(state: state, staleDate: nil))
       await MainActor.run { resolve(nil) }
+    }
+  }
+
+  @objc
+  func updateReservationActivitiesForBooking(
+    _ bookingId: String,
+    payload: NSDictionary,
+    resolver resolve: @escaping RCTPromiseResolveBlock,
+    rejecter reject: @escaping RCTPromiseRejectBlock
+  ) {
+    guard #available(iOS 16.2, *) else {
+      reject("E_UNSUPPORTED", "Live Activity requires iOS 16.2+", nil)
+      return
+    }
+    let needle = bookingId.trimmingCharacters(in: .whitespacesAndNewlines)
+    if needle.isEmpty {
+      resolve(0)
+      return
+    }
+    Task {
+      var updated = 0
+      for act in Activity<RBReservationAttributes>.activities {
+        if self.bookingIdFromDeepLink(act.attributes.deepLink) != needle { continue }
+        let avatarPath = await rbResolveEmployeeAvatarFilePath(from: payload)
+        let effectivePath: String? = await MainActor.run {
+          if let newPath = avatarPath, !newPath.isEmpty {
+            let old = RBActivityStore.avatarPathByActivityId[act.id]
+            if let old, old != newPath { try? FileManager.default.removeItem(atPath: old) }
+            RBActivityStore.avatarPathByActivityId[act.id] = newPath
+            return newPath
+          }
+          return RBActivityStore.avatarPathByActivityId[act.id]
+        }
+        let state = contentState(from: payload, employeeAvatarFilePath: effectivePath)
+        await act.update(ActivityContent(state: state, staleDate: nil))
+        await MainActor.run { RBActivityStore.remember(act) }
+        updated += 1
+      }
+      let result = updated
+      await MainActor.run { resolve(result) }
     }
   }
 

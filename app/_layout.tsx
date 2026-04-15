@@ -11,6 +11,7 @@ import { BranchFilterProvider } from './contexts/BranchFilterContext';
 import { BusinessModeProvider } from './contexts/BusinesModeContext';
 import { FavoritesSyncProvider } from './contexts/FavoritesSyncContext';
 import { LanguageProvider } from './contexts/LanguageContext';
+import LiveActivityReconcileProvider from './contexts/LiveActivityReconcileProvider';
 import PushNotificationsProvider from './contexts/PushNotificationsProvider';
 import { SelectedPurchaseProvider } from './contexts/SelectedPurchaseContext';
 import { ThemeProvider } from './contexts/ThemeContext';
@@ -42,17 +43,19 @@ export default function RootLayout() {
           <ThemeProvider>
             <AccentColorProvider>
               <AuthProvider>
-                <TransferRecipientProvider>
-                  <SelectedPurchaseProvider>
-                    <BranchFilterProvider>
-                      <FavoritesSyncProvider>
-                        <PushNotificationsProvider>
-                          <ThemedLayout />
-                        </PushNotificationsProvider>
-                      </FavoritesSyncProvider>
-                    </BranchFilterProvider>
-                  </SelectedPurchaseProvider>
-                </TransferRecipientProvider>
+                <LiveActivityReconcileProvider>
+                  <TransferRecipientProvider>
+                    <SelectedPurchaseProvider>
+                      <BranchFilterProvider>
+                        <FavoritesSyncProvider>
+                          <PushNotificationsProvider>
+                            <ThemedLayout />
+                          </PushNotificationsProvider>
+                        </FavoritesSyncProvider>
+                      </BranchFilterProvider>
+                    </SelectedPurchaseProvider>
+                  </TransferRecipientProvider>
+                </LiveActivityReconcileProvider>
               </AuthProvider>
             </AccentColorProvider>
           </ThemeProvider>

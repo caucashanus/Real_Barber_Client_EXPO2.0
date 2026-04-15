@@ -48,6 +48,12 @@ type Bridge = {
   getLiveActivityPushToken: (activityId: string) => Promise<string | null>;
   updateReservationActivity: (activityId: string, payload: NativePayload) => Promise<void>;
   endReservationActivity: (activityId: string) => Promise<void>;
+  updateReservationActivitiesForBooking: (
+    bookingId: string,
+    payload: NativePayload
+  ) => Promise<number>;
+  endReservationActivitiesForBooking: (bookingId: string) => Promise<number>;
+  cleanupReservationActivities: (keepBookingIds: string[]) => Promise<number>;
   endAllReservationActivities: () => Promise<void>;
   getReservationActivityCount: () => Promise<number>;
 };
@@ -108,10 +114,42 @@ export async function rbLiveActivityUpdate(id: string, props: RBLiveActivityProp
   await bridge.updateReservationActivity(id, toNativePayload(props));
 }
 
+/**
+ * Best-effort: update any Live Activity whose deepLink bookingId matches `bookingId`.
+ * Useful for immediate lock-screen feedback after reschedule, even when server won't send remote updates (>60min).
+ */
+export async function rbLiveActivityUpdateForBooking(
+  bookingId: string,
+  props: RBLiveActivityProps
+): Promise<number> {
+  const bridge = getBridge();
+  if (!bridge?.updateReservationActivitiesForBooking) return 0;
+  return bridge.updateReservationActivitiesForBooking(bookingId, toNativePayload(props));
+}
+
 export async function rbLiveActivityEnd(id: string) {
   const bridge = getBridge();
   if (!bridge) return;
   await bridge.endReservationActivity(id);
+}
+
+/**
+ * Best-effort: end any Live Activity whose deepLink bookingId matches `bookingId`.
+ * Useful after reschedule/cancel, and for cleaning up stale activities after app restart.
+ */
+export async function rbLiveActivityEndForBooking(bookingId: string): Promise<number> {
+  const bridge = getBridge();
+  if (!bridge?.endReservationActivitiesForBooking) return 0;
+  return bridge.endReservationActivitiesForBooking(bookingId);
+}
+
+/**
+ * Best-effort: end all Live Activities except those whose bookingId is in `keepBookingIds`.
+ */
+export async function rbLiveActivityCleanup(keepBookingIds: string[]): Promise<number> {
+  const bridge = getBridge();
+  if (!bridge?.cleanupReservationActivities) return 0;
+  return bridge.cleanupReservationActivities(keepBookingIds);
 }
 
 export async function rbLiveActivityEndAll() {
