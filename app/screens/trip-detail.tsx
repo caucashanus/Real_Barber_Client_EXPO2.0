@@ -221,7 +221,8 @@ const BookingDetailScreen = () => {
   const location = booking.branch?.address ?? booking.branch?.name ?? '—';
   const status = (booking.status ?? '').toLowerCase();
   const isCancelled = status === 'cancelled' || status === 'canceled';
-  const isPast = isBookingPast(booking);
+  const isCompleted = status === 'completed';
+  const isPast = !isCancelled && (isCompleted || isBookingPast(booking));
   const isUpcoming = !isCancelled && !isPast;
   const cancelMessage = `${t('tripDetailCancelConfirmIntro')} ${appointment.dateStr} ${appointment.fromTime} ${t('tripDetailCancelConfirmAtBranch')} ${booking.branch?.name ?? '—'}.`;
   const carouselImages =

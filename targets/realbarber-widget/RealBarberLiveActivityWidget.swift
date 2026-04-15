@@ -280,11 +280,13 @@ private struct RBLiveActivityProgressBar: View {
 
 private struct RBLiveActivityCard: View {
   let state: RBReservationAttributes.ContentState
+  let deepLink: String
 
   var body: some View {
     TimelineView(.periodic(from: .now, by: 1)) { timeline in
       RBLiveActivityCardContent(state: state, now: timeline.date)
     }
+    .widgetURL(URL(string: deepLink))
   }
 }
 
@@ -580,8 +582,9 @@ private struct RBLiveActivityIslandCompactTrailing: View {
 struct RealBarberLiveActivityWidget: Widget {
   var body: some WidgetConfiguration {
     ActivityConfiguration(for: RBReservationAttributes.self) { context in
-      RBLiveActivityCard(state: context.state)
+      RBLiveActivityCard(state: context.state, deepLink: context.attributes.deepLink)
         .activityBackgroundTint(Color.black)
+        .widgetURL(URL(string: context.attributes.deepLink))
     } dynamicIsland: { context in
       DynamicIsland {
         DynamicIslandExpandedRegion(.leading) {
@@ -600,6 +603,7 @@ struct RealBarberLiveActivityWidget: Widget {
       } minimal: {
         RBBrandLogo(size: 24)
       }
+      .widgetURL(URL(string: context.attributes.deepLink))
     }
   }
 }

@@ -37,6 +37,7 @@ import Avatar from '@/components/Avatar';
 import { Button } from '@/components/Button';
 import { useTranslation } from '@/app/hooks/useTranslation';
 import { isReservationIntroCooldownActive } from '@/utils/reservation-intro-cooldown';
+import { buildReservationDetailDeepLink } from '@/utils/pushNavigation';
 
 type BookingFilter =
   | 'all'
@@ -195,12 +196,14 @@ function clamp01(n: number): number {
 function isBookingPast(booking: Booking): boolean {
   const status = (booking.status ?? '').toLowerCase();
   if (status === 'cancelled' || status === 'canceled') return false;
+  if (status === 'completed') return true;
   return getBookingEndDate(booking).getTime() < Date.now();
 }
 
 function isBookingCurrent(booking: Booking): boolean {
   const status = (booking.status ?? '').toLowerCase();
   if (status === 'cancelled' || status === 'canceled') return false;
+  if (status === 'completed') return false;
   const now = Date.now();
   const start = getTargetDate(booking).getTime();
   const end = getBookingEndDate(booking).getTime();
@@ -210,6 +213,7 @@ function isBookingCurrent(booking: Booking): boolean {
 function isBookingUpcoming(booking: Booking): boolean {
   const status = (booking.status ?? '').toLowerCase();
   if (status === 'cancelled' || status === 'canceled') return false;
+  if (status === 'completed') return false;
   return getTargetDate(booking).getTime() > Date.now();
 }
 
@@ -235,6 +239,13 @@ function countByFilter(
     const status = (b.status ?? '').toLowerCase();
     if (status === 'cancelled' || status === 'canceled') {
       cancelled += 1;
+    } else if (status === 'completed') {
+      past += 1;
+      if (bookingReviewMap[b.id] != null) {
+        rated += 1;
+      } else {
+        pendingReview += 1;
+      }
     } else {
       const start = getTargetDate(b).getTime();
       const end = getBookingEndDate(b).getTime();
@@ -495,7 +506,7 @@ const TripsScreen = () => {
           progress01,
           accentHex: accentColor,
         };
-        const deepLink = `realbarber://screens/trip-detail?id=${encodeURIComponent(bookingId)}&openReview=1`;
+        const deepLink = buildReservationDetailDeepLink(bookingId, { openReview: true });
         const isNewForBooking = !liveInstanceRef.current || liveBookingIdRef.current !== bookingId;
         if (isNewForBooking) {
           liveBookingIdRef.current = bookingId;

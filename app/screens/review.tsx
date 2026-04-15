@@ -91,11 +91,7 @@ const ReviewScreen = () => {
     (rating !== initialRating ||
       review.trim() !== initialReview ||
       isAnonymous !== initialAnonymous);
-  const canSubmit =
-    canSubmitToApi &&
-    (isEditMode
-      ? isDirty && rating >= 1 && review.trim().length > 0
-      : rating >= 1 && review.trim().length > 0);
+  const canSubmit = canSubmitToApi && (isEditMode ? isDirty && rating >= 1 : rating >= 1);
 
   useEffect(() => {
     if (!apiToken || !entityType || !entityId) {

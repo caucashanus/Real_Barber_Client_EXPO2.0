@@ -11,6 +11,19 @@ export function buildReservationDetailHref(reservationId: string): string {
   return `${RESERVATION_DETAIL_ROUTE}?id=${encodeURIComponent(reservationId)}`;
 }
 
+/**
+ * Deep link pro Live Activity / widget tap (scheme `realbarber`):
+ * `realbarber://screens/trip-detail?id=<reservationId>&openReview=1`
+ */
+export function buildReservationDetailDeepLink(
+  reservationId: string,
+  options?: { openReview?: boolean }
+): string {
+  const id = encodeURIComponent(reservationId);
+  const openReview = options?.openReview ? '&openReview=1' : '';
+  return `realbarber://screens/trip-detail?id=${id}${openReview}`;
+}
+
 function asTrimmedString(value: unknown): string | null {
   if (typeof value !== 'string') return null;
   const t = value.trim();
