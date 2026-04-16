@@ -61,7 +61,7 @@ export default function RealBarberHomeTab() {
         title: 'Pobočky',
         subtitle: 'Vyber místo',
         icon: 'MapPin',
-        onPress: () => router.push('/' as any),
+        onPress: () => router.push('/branches' as any),
       },
       {
         id: 'barbers',

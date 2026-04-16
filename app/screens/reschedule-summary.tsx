@@ -6,6 +6,7 @@ import { View, ScrollView, ActivityIndicator, Image } from 'react-native';
 import { getBookingById, updateBooking, type Booking } from '@/api/bookings';
 import { useAuth } from '@/app/contexts/AuthContext';
 import { useLanguage } from '@/app/contexts/LanguageContext';
+import { RB_RESCHEDULE_HINT_KEY } from '@/app/contexts/LiveActivityReconcileProvider';
 import useThemeColors from '@/app/contexts/ThemeColors';
 import { useTranslation } from '@/app/hooks/useTranslation';
 import { Button } from '@/components/Button';
@@ -16,8 +17,7 @@ import CurrentBookingCard from '@/components/booking/CurrentBookingCard';
 import Divider from '@/components/layout/Divider';
 import Section from '@/components/layout/Section';
 import { rbLiveActivityUpdateForBooking } from '@/lib/rb-live-activity';
-
-const RB_RESCHEDULE_HINT_KEY = 'rb_live_activity_reschedule_hint_v1';
+import { buildReservationRescheduledActivity } from '@/lib/rb-live-activity-reservation';
 
 type RescheduleHint = {
   bookingId: string;
@@ -126,21 +126,25 @@ export default function RescheduleSummaryScreen() {
         detailLine: `${slotStart}–${slotEnd}`,
       };
       AsyncStorage.setItem(RB_RESCHEDULE_HINT_KEY, JSON.stringify(hint)).catch(() => undefined);
-      // Immediate local lock-screen feedback: show "changed" state even when server won't send remote updates.
-      await rbLiveActivityUpdateForBooking(booking.id, {
-        subtitle: 'Váš termín se změnil',
-        title: 'Otevřete aplikaci pro detail',
-        startAt: new Date().toISOString(),
-        endAt: new Date(Date.now() + 60 * 60 * 1000).toISOString(),
-        branchName: '',
-        detailLine: '',
-        employeeName: '',
-        employeeAvatarUrl: '',
-        employeeAvatarAuthToken: '',
-        progress01: -1,
+      const movedDescriptor = buildReservationRescheduledActivity(hint, {
+        locale,
         accentHex: '',
-        priceFormatted: '',
+        employeeAvatarAuthToken: apiToken ?? undefined,
+        copy: {
+          startsInLabel: t('liveActivityStartsInLabel'),
+          activeLabel: t('liveActivityEndsInLabel'),
+          rescheduledLabel: locale === 'cs' ? 'Rezervace přesunuta' : 'Booking moved',
+          rescheduledHeadline: locale === 'cs' ? 'Změna rezervace' : 'Booking updated',
+          rescheduledDetail: locale === 'cs' ? 'Klepněte pro detail' : 'Tap for details',
+          cancelledLabel: locale === 'cs' ? 'Rezervace zrušena' : 'Booking cancelled',
+          cancelledHeadline: locale === 'cs' ? 'Zrušeno' : 'Cancelled',
+          cancelledDetail:
+            locale === 'cs' ? 'Klepněte pro detail rezervace' : 'Tap for booking details',
+          reviewLabel: locale === 'cs' ? 'Ohodnoťte rezervaci' : 'Review your booking',
+          reviewHeadline: locale === 'cs' ? 'Děkujeme!' : 'Thank you!',
+        },
       });
+      await rbLiveActivityUpdateForBooking(booking.id, movedDescriptor.state);
       router.replace('/trips');
     } catch (e) {
       setSubmitError(e instanceof Error ? e.message : String(e));

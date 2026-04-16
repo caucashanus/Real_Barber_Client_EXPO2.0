@@ -1,6 +1,6 @@
 import { useFocusEffect } from '@react-navigation/native';
 import { useRouter } from 'expo-router';
-import React, { useCallback, useEffect, useState, useRef } from 'react';
+import React, { useCallback, useEffect, useMemo, useState, useRef } from 'react';
 import {
   View,
   TouchableOpacity,
@@ -18,26 +18,34 @@ import { useAccentColor } from '@/app/contexts/AccentColorContext';
 import { useAuth } from '@/app/contexts/AuthContext';
 import { useBookingsBadge } from '@/app/contexts/BookingsBadgeContext';
 import { useCollapsibleTitle } from '@/app/hooks/useCollapsibleTitle';
+import { useTranslation } from '@/app/hooks/useTranslation';
 import AnimatedView from '@/components/AnimatedView';
+import Avatar from '@/components/Avatar';
+import { Button } from '@/components/Button';
+import { CardScroller } from '@/components/CardScroller';
+import { Chip } from '@/components/Chip';
+import Header, { HeaderIcon } from '@/components/Header';
+import LiveIndicator from '@/components/LiveIndicator';
+import ShowRating from '@/components/ShowRating';
 import ThemeScroller from '@/components/ThemeScroller';
 import ThemedText from '@/components/ThemedText';
-import { shadowPresets } from '@/utils/useShadow';
-import Header, { HeaderIcon } from '@/components/Header';
-import { rbLiveActivityMinutesDisplayed } from '@/lib/rb-live-activity-minutes';
 import {
   type RBLiveActivityHandle,
   rbLiveActivityStart,
   rbLiveActivityWaitForPushToken,
 } from '@/lib/rb-live-activity';
-import { Chip } from '@/components/Chip';
-import { CardScroller } from '@/components/CardScroller';
-import ShowRating from '@/components/ShowRating';
-import LiveIndicator from '@/components/LiveIndicator';
-import Avatar from '@/components/Avatar';
-import { Button } from '@/components/Button';
-import { useTranslation } from '@/app/hooks/useTranslation';
+import {
+  buildReservationLiveActivityFromBooking,
+  getBookingEndDate,
+  getBookingStartDate,
+  isBookingCurrent,
+  isBookingPast,
+  isBookingUpcoming,
+  pickLiveActivityBooking,
+  type RBLiveActivityCopy,
+} from '@/lib/rb-live-activity-reservation';
 import { isReservationIntroCooldownActive } from '@/utils/reservation-intro-cooldown';
-import { buildReservationDetailDeepLink } from '@/utils/pushNavigation';
+import { shadowPresets } from '@/utils/useShadow';
 
 type BookingFilter =
   | 'all'
@@ -102,119 +110,28 @@ function formatBookingDate(b: Booking, locale: string = 'en'): string {
   const day = d.getDate();
   const month = d.toLocaleString(dateLocale, { month: 'short' });
   const year = d.getFullYear();
-  return `${day} ${month} ${year}, ${b.slotStart} - ${b.slotEnd}`;
+  return `${day} ${month} ${year}, ${b.slotStart}`;
 }
 
-function groupBookingsByYear(bookings: Booking[]): Record<string, Booking[]> {
+function groupBookingsByYear(
+  bookings: Booking[],
+  options?: { upcomingFirst?: boolean }
+): Record<string, Booking[]> {
   const byYear: Record<string, Booking[]> = {};
-  const sorted = [...bookings].sort(
-    (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
-  );
+  const sorted = [...bookings].sort((a, b) => {
+    if (options?.upcomingFirst) {
+      const aUp = isBookingUpcoming(a);
+      const bUp = isBookingUpcoming(b);
+      if (aUp !== bUp) return aUp ? -1 : 1;
+    }
+    return new Date(b.date).getTime() - new Date(a.date).getTime();
+  });
   for (const b of sorted) {
     const year = String(new Date(b.date).getFullYear());
     if (!byYear[year]) byYear[year] = [];
     byYear[year].push(b);
   }
   return byYear;
-}
-
-function getBookingEndDate(booking: Booking): Date {
-  const dateStr = (booking.date || '').slice(0, 10);
-  const [y, m, d] = dateStr.split('-').map(Number);
-  const parts = (booking.slotEnd || booking.slotStart || '00:00').trim().split(':');
-  const hh = Number(parts[0]);
-  const mm = Number(parts[1]);
-  return new Date(
-    Number.isFinite(y) ? y : 0,
-    Number.isFinite(m) ? m - 1 : 0,
-    Number.isFinite(d) ? d : 1,
-    Number.isFinite(hh) ? hh : 0,
-    Number.isFinite(mm) ? mm : 0,
-    0,
-    0
-  );
-}
-
-function getTargetDate(booking: Booking): Date {
-  const dateStr = (booking.date || '').slice(0, 10);
-  const [y, m, d] = dateStr.split('-').map(Number);
-  const parts = (booking.slotStart || '00:00').trim().split(':');
-  const hh = Number(parts[0]);
-  const mm = Number(parts[1]);
-  return new Date(
-    Number.isFinite(y) ? y : 0,
-    Number.isFinite(m) ? m - 1 : 0,
-    Number.isFinite(d) ? d : 1,
-    Number.isFinite(hh) ? hh : 0,
-    Number.isFinite(mm) ? mm : 0,
-    0,
-    0
-  );
-}
-
-/** Readable slot line for Live Activity (today → only times, else short weekday + date). */
-function formatLiveActivityTimeLine(booking: Booking, locale: string): string {
-  const dateStr = (booking.date || '').slice(0, 10);
-  const [y, m, d] = dateStr.split('-').map(Number);
-  const dateLocale = locale === 'cs' ? 'cs-CZ' : 'en-GB';
-  const bookingDay = new Date(
-    Number.isFinite(y) ? y : 0,
-    Number.isFinite(m) ? m - 1 : 0,
-    Number.isFinite(d) ? d : 1
-  );
-  const now = new Date();
-  const sameCalendarDay =
-    bookingDay.getFullYear() === now.getFullYear() &&
-    bookingDay.getMonth() === now.getMonth() &&
-    bookingDay.getDate() === now.getDate();
-  const timePart = `${booking.slotStart}–${booking.slotEnd}`;
-  if (sameCalendarDay) return timePart;
-  const dayLabel = bookingDay.toLocaleString(dateLocale, {
-    weekday: 'short',
-    day: 'numeric',
-    month: 'short',
-  });
-  return `${dayLabel} · ${timePart}`;
-}
-
-function formatLiveActivityPrice(booking: Booking, locale: string): string {
-  const n = Number(booking.price);
-  if (!Number.isFinite(n)) return '';
-  const loc = locale === 'cs' ? 'cs-CZ' : 'en-GB';
-  return new Intl.NumberFormat(loc, {
-    style: 'currency',
-    currency: 'CZK',
-    maximumFractionDigits: n % 1 === 0 ? 0 : 2,
-  }).format(n);
-}
-
-function clamp01(n: number): number {
-  if (!Number.isFinite(n)) return 0;
-  return Math.min(1, Math.max(0, n));
-}
-
-function isBookingPast(booking: Booking): boolean {
-  const status = (booking.status ?? '').toLowerCase();
-  if (status === 'cancelled' || status === 'canceled') return false;
-  if (status === 'completed') return true;
-  return getBookingEndDate(booking).getTime() < Date.now();
-}
-
-function isBookingCurrent(booking: Booking): boolean {
-  const status = (booking.status ?? '').toLowerCase();
-  if (status === 'cancelled' || status === 'canceled') return false;
-  if (status === 'completed') return false;
-  const now = Date.now();
-  const start = getTargetDate(booking).getTime();
-  const end = getBookingEndDate(booking).getTime();
-  return start <= now && end >= now;
-}
-
-function isBookingUpcoming(booking: Booking): boolean {
-  const status = (booking.status ?? '').toLowerCase();
-  if (status === 'cancelled' || status === 'canceled') return false;
-  if (status === 'completed') return false;
-  return getTargetDate(booking).getTime() > Date.now();
 }
 
 function countByFilter(
@@ -247,7 +164,7 @@ function countByFilter(
         pendingReview += 1;
       }
     } else {
-      const start = getTargetDate(b).getTime();
+      const start = getBookingStartDate(b).getTime();
       const end = getBookingEndDate(b).getTime();
       if (start <= now && end >= now) {
         current += 1;
@@ -392,6 +309,23 @@ const TripsScreen = () => {
                   ? bookings.filter((b) => isBookingPast(b) && bookingReviewMap[b.id] == null)
                   : bookings;
 
+  const liveActivityCopy = useMemo<RBLiveActivityCopy>(
+    () => ({
+      startsInLabel: t('liveActivityStartsInLabel'),
+      activeLabel: t('liveActivityEndsInLabel'),
+      rescheduledLabel: locale === 'cs' ? 'Rezervace přesunuta' : 'Booking moved',
+      rescheduledHeadline: locale === 'cs' ? 'Změna rezervace' : 'Booking updated',
+      rescheduledDetail: locale === 'cs' ? 'Klepněte pro detail' : 'Tap for details',
+      cancelledLabel: locale === 'cs' ? 'Rezervace zrušena' : 'Booking cancelled',
+      cancelledHeadline: locale === 'cs' ? 'Zrušeno' : 'Cancelled',
+      cancelledDetail:
+        locale === 'cs' ? 'Klepněte pro detail rezervace' : 'Tap for booking details',
+      reviewLabel: locale === 'cs' ? 'Ohodnoťte rezervaci' : 'Review your booking',
+      reviewHeadline: locale === 'cs' ? 'Děkujeme!' : 'Thank you!',
+    }),
+    [locale, t]
+  );
+
   useEffect(() => {
     if (!apiToken) {
       setLoading(false);
@@ -434,51 +368,24 @@ const TripsScreen = () => {
       livePhaseTimeoutRef.current = null;
     }
 
-    const current = bookings.find((b) => isBookingCurrent(b)) ?? null;
-    const upcomingInHour =
-      bookings
-        .filter((b) => isBookingUpcoming(b))
-        .map((b) => ({ b, t: getTargetDate(b).getTime() }))
-        .filter(({ t }) => t - Date.now() <= 60 * 60_000 && t - Date.now() > 0)
-        .sort((a, c) => a.t - c.t)[0]?.b ?? null;
-
-    const target = current ?? upcomingInHour;
+    const target = pickLiveActivityBooking(bookings);
     if (!target) {
       const prev = liveInstanceRef.current;
       liveInstanceRef.current = null;
       liveBookingIdRef.current = null;
-      if (prev) void prev.end().catch(() => {});
+      if (prev) {
+        prev.end().catch(() => undefined);
+      }
       return;
     }
 
-    const start = getTargetDate(target);
+    const start = getBookingStartDate(target);
     const end = getBookingEndDate(target);
     const bookingId = target.id;
-    const now = Date.now();
     const startMs = start.getTime();
     const endMs = end.getTime();
-    const isCurrent = isBookingCurrent(target);
-    const detailLine = formatLiveActivityTimeLine(target, locale);
-    const branchName = target.branch?.name ?? '';
 
-    let subtitle: string;
-    let title: string;
-    let progress01: number;
-
-    if (isCurrent) {
-      const slotMs = Math.max(60_000, endMs - startMs);
-      const minutesLeft = rbLiveActivityMinutesDisplayed(now, endMs);
-      subtitle = t('liveActivityEndsInLabel');
-      title = `${minutesLeft} ${t('tripsMinutes')}`;
-      progress01 = clamp01((now - startMs) / slotMs);
-    } else {
-      const minutesUntil = rbLiveActivityMinutesDisplayed(now, startMs);
-      subtitle = t('liveActivityStartsInLabel');
-      title = `${minutesUntil} ${t('tripsMinutes')}`;
-      progress01 = clamp01(1 - (startMs - now) / (60 * 60 * 1000));
-    }
-
-    void (async () => {
+    const syncLiveActivity = async () => {
       try {
         const employeeAvatarUrl = await resolveLiveActivityEmployeeAvatarUrl(
           apiToken,
@@ -487,74 +394,70 @@ const TripsScreen = () => {
         );
         console.log('[LiveActivity] resolved avatar', {
           bookingId,
-          isCurrent,
           employeeName: target.employee?.name ?? '',
           employeeAvatarUrl: employeeAvatarUrl ? employeeAvatarUrl.slice(0, 120) : '',
           hasAuthToken: Boolean(apiToken),
         });
-        const payload = {
-          subtitle,
-          title,
-          detailLine,
-          branchName: branchName || undefined,
-          startAt: start.toISOString(),
-          endAt: end.toISOString(),
-          employeeName: target.employee?.name ?? '',
+        const descriptor = buildReservationLiveActivityFromBooking(target, {
+          locale,
+          accentHex: accentColor,
+          copy: liveActivityCopy,
           employeeAvatarUrl,
           employeeAvatarAuthToken: apiToken ?? undefined,
-          priceFormatted: formatLiveActivityPrice(target, locale),
-          progress01,
-          accentHex: accentColor,
-        };
-        const deepLink = buildReservationDetailDeepLink(bookingId, { openReview: true });
+          openReview: true,
+        });
         const isNewForBooking = !liveInstanceRef.current || liveBookingIdRef.current !== bookingId;
         if (isNewForBooking) {
           liveBookingIdRef.current = bookingId;
           console.log('[LiveActivity] start', {
             bookingId,
-            subtitle,
-            title,
-            detailLine,
-            branchName,
+            phase: descriptor.state.phase,
+            presentation: descriptor.state.presentation,
           });
-          liveInstanceRef.current = await rbLiveActivityStart(payload, deepLink);
+          liveInstanceRef.current = await rbLiveActivityStart(
+            descriptor.bookingId,
+            descriptor.state,
+            descriptor.deepLink
+          );
           const handle = liveInstanceRef.current;
           console.log('[LiveActivity] started', { bookingId, activityId: handle?.id });
 
-          // Spolehlivý přechod upcoming -> active: naplánujeme lokální update přesně v čase startu.
-          // Bez toho může UI zůstat v upcoming a `.timer` do startu přejde do záporu (<1).
-          if (!isCurrent) {
-            const msUntilStart = Math.max(0, startMs - Date.now());
-            livePhaseTimeoutRef.current = setTimeout(() => {
-              const h = liveInstanceRef.current;
-              if (!h || liveBookingIdRef.current !== bookingId) return;
+          const nextBoundaryMs =
+            descriptor.state.phase === 'scheduled'
+              ? startMs
+              : descriptor.state.phase === 'active'
+                ? endMs
+                : 0;
 
-              const now2 = Date.now();
-              const slotMs = Math.max(60_000, endMs - startMs);
-              const minutesLeft = rbLiveActivityMinutesDisplayed(now2, endMs);
-              const payload2 = {
-                subtitle: t('liveActivityEndsInLabel'),
-                title: `${minutesLeft} ${t('tripsMinutes')}`,
-                detailLine,
-                branchName: branchName || undefined,
-                startAt: start.toISOString(),
-                endAt: end.toISOString(),
-                employeeName: target.employee?.name ?? '',
-                employeeAvatarUrl,
-                employeeAvatarAuthToken: apiToken ?? undefined,
-                priceFormatted: formatLiveActivityPrice(target, locale),
-                progress01: clamp01((now2 - startMs) / slotMs),
-                accentHex: accentColor,
-              };
+          if (nextBoundaryMs > Date.now()) {
+            livePhaseTimeoutRef.current = setTimeout(
+              () => {
+                const h = liveInstanceRef.current;
+                if (!h || liveBookingIdRef.current !== bookingId) return;
 
-              console.log('[LiveActivity] phase->active (scheduled)', { bookingId });
-              void h.update(payload2).catch(() => {});
-            }, msUntilStart + 1200);
+                const nextDescriptor = buildReservationLiveActivityFromBooking(target, {
+                  locale,
+                  accentHex: accentColor,
+                  copy: liveActivityCopy,
+                  employeeAvatarUrl,
+                  employeeAvatarAuthToken: apiToken ?? undefined,
+                  openReview: true,
+                  nowMs: Date.now(),
+                });
+
+                console.log('[LiveActivity] phase boundary refresh', {
+                  bookingId,
+                  phase: nextDescriptor.state.phase,
+                });
+                h.update(nextDescriptor.state).catch(() => undefined);
+              },
+              Math.max(0, nextBoundaryMs - Date.now()) + 1200
+            );
           }
 
           if (apiToken && handle) {
             const activityId = handle.id;
-            void (async () => {
+            const registerPushToken = async () => {
               const pushToken = await rbLiveActivityWaitForPushToken(activityId);
               if (!pushToken) return;
               try {
@@ -566,21 +469,24 @@ const TripsScreen = () => {
               } catch {
                 // CRM může endpoint ještě nemít — Live Activity v appce funguje i bez registrace.
               }
-            })();
+            };
+            registerPushToken().catch(() => undefined);
           }
         } else {
           console.log('[LiveActivity] update', {
             bookingId,
             activityId: liveInstanceRef.current?.id,
-            subtitle,
-            title,
+            phase: descriptor.state.phase,
+            presentation: descriptor.state.presentation,
           });
-          await liveInstanceRef.current!.update(payload);
+          await liveInstanceRef.current!.update(descriptor.state);
         }
       } catch (e) {
         console.warn('[LiveActivity] failed', e);
       }
-    })();
+    };
+
+    syncLiveActivity().catch(() => undefined);
 
     return () => {
       if (livePhaseTimeoutRef.current) {
@@ -588,7 +494,7 @@ const TripsScreen = () => {
         livePhaseTimeoutRef.current = null;
       }
     };
-  }, [bookings, locale, t, accentColor, apiToken]);
+  }, [bookings, locale, t, accentColor, apiToken, liveActivityCopy]);
 
   useFocusEffect(
     useCallback(() => {
@@ -617,7 +523,7 @@ const TripsScreen = () => {
     }, [apiToken, refreshBookingsBadge])
   );
 
-  const byYear = groupBookingsByYear(filteredBookings);
+  const byYear = groupBookingsByYear(filteredBookings, { upcomingFirst: selectedFilter === 'all' });
   const years = Object.keys(byYear).sort((a, b) => Number(b) - Number(a));
 
   return (
@@ -830,7 +736,7 @@ const BookingCard = (props: {
           </View>
           {isUpcoming && (
             <View className="rounded-full bg-light-secondary px-2.5 py-1 dark:bg-dark-secondary">
-              <CountdownDisplay target={getTargetDate(booking)} />
+              <CountdownDisplay target={getBookingStartDate(booking)} />
             </View>
           )}
         </View>

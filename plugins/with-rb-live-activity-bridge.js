@@ -12,6 +12,7 @@ function withRbLiveActivityBridge(config) {
     // Paths expect repo root (glob `ios/*/AppDelegate`). If AppDelegate is not there yet, fall back to app.json name.
     const projectName = IOSConfig.XcodeUtils.getHackyProjectName(projectRoot, cfg);
     const sourceDir = path.join(projectRoot, 'native', 'rb-live-activity');
+    const sharedDir = path.join(projectRoot, 'targets', 'realbarber-widget');
     const destDir = path.join(platformRoot, projectName, 'RBLiveActivity');
     const groupPath = `${projectName}/RBLiveActivity`;
 
@@ -35,6 +36,17 @@ function withRbLiveActivityBridge(config) {
       project,
       verbose: true,
     });
+
+    for (const file of ['RBLiveActivityContent.swift', 'RBLiveActivityUI.swift']) {
+      const absolutePath = path.join(sharedDir, file);
+      if (!fs.existsSync(absolutePath)) continue;
+      IOSConfig.XcodeUtils.addBuildSourceFileToGroup({
+        filepath: `../targets/realbarber-widget/${file}`,
+        groupName: groupPath,
+        project,
+        verbose: true,
+      });
+    }
 
     return cfg;
   });

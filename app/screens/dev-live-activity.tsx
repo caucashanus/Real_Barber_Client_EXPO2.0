@@ -1,40 +1,27 @@
+import * as Clipboard from 'expo-clipboard';
 import React, { useMemo, useRef, useState } from 'react';
-import { View } from 'react-native';
+import { Pressable, View } from 'react-native';
 
 import { useAccentColor } from '@/app/contexts/AccentColorContext';
 import { Button } from '@/components/Button';
 import Header from '@/components/Header';
 import ThemedScroller from '@/components/ThemeScroller';
 import ThemedText from '@/components/ThemedText';
-import { rbLiveActivityMinutesDisplayed } from '@/lib/rb-live-activity-minutes';
 import {
   type RBLiveActivityHandle,
+  type RBLiveActivityState,
   rbLiveActivityEndAll,
   rbLiveActivityGetCount,
   rbLiveActivityStart,
+  rbLiveActivityWaitForPushToken,
 } from '@/lib/rb-live-activity';
 
-type Props = {
-  /** Small caption (Bolt-style top). */
-  subtitle: string;
-  /** Large minutes line. */
-  title: string;
-  detailLine: string;
-  progress01: number;
-  startAt: string;
-  endAt: string;
-  employeeName?: string;
-  employeeAvatarUrl?: string;
-  branchName?: string;
-  priceFormatted?: string;
-  accentHex: string;
-};
-
 function formatDevSlotRange(startIso: string, endIso: string): string {
-  const s = new Date(startIso);
-  const e = new Date(endIso);
-  const fmt = (d: Date) => d.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' });
-  return `${fmt(s)}–${fmt(e)}`;
+  const start = new Date(startIso);
+  const end = new Date(endIso);
+  const fmt = (date: Date) =>
+    date.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' });
+  return `${fmt(start)}–${fmt(end)}`;
 }
 
 export default function DevLiveActivityScreen() {
@@ -42,23 +29,21 @@ export default function DevLiveActivityScreen() {
   const [minutes, setMinutes] = useState(15);
   const [error, setError] = useState<string | null>(null);
   const [instancesCount, setInstancesCount] = useState<number>(0);
+  const [pushToken, setPushToken] = useState<string | null>(null);
+  const [tokenCopied, setTokenCopied] = useState(false);
   const instanceRef = useRef<RBLiveActivityHandle | null>(null);
 
-  const initialProps = useMemo<Props>(() => {
+  const initialState = useMemo<RBLiveActivityState>(() => {
     const startAt = new Date(Date.now() + 60_000).toISOString();
     const endAt = new Date(Date.now() + (60_000 + minutes * 60_000)).toISOString();
-    const startMs = new Date(startAt).getTime();
-    const now = Date.now();
-    const minutesToStart = rbLiveActivityMinutesDisplayed(now, startMs);
-    const progress01 = Math.min(1, Math.max(0, 1 - (startMs - now) / (60 * 60 * 1000)));
     return {
-      subtitle: 'Začátek za',
-      title: `${minutesToStart} min`,
-      detailLine: formatDevSlotRange(startAt, endAt),
-      progress01,
+      phase: 'scheduled',
+      presentation: 'normal',
+      labelText: 'Začátek za',
       startAt,
       endAt,
       branchName: 'Hagibor',
+      timeRangeText: formatDevSlotRange(startAt, endAt),
       employeeName: 'Bára',
       employeeAvatarUrl: 'https://randomuser.me/api/portraits/women/44.jpg',
       priceFormatted: '450 Kč',
@@ -67,36 +52,32 @@ export default function DevLiveActivityScreen() {
   }, [minutes, accentColor]);
 
   const refreshInstances = () => {
-    void rbLiveActivityGetCount()
+    rbLiveActivityGetCount()
       .then(setInstancesCount)
       .catch(() => setInstancesCount(0));
   };
 
-  const applyOrStart = async (props: Props) => {
+  const applyOrStart = async (state: RBLiveActivityState) => {
     setError(null);
     if (instanceRef.current) {
-      await instanceRef.current.update(props);
+      await instanceRef.current.update(state);
     } else {
-      instanceRef.current = await rbLiveActivityStart(props, 'realbarber://');
+      instanceRef.current = await rbLiveActivityStart('dev-booking', state, 'realbarber://');
     }
     refreshInstances();
   };
 
-  const makeUpcomingProps = (): Props => {
+  const makeUpcomingState = (): RBLiveActivityState => {
     const startAt = new Date(Date.now() + 30 * 60_000).toISOString();
     const endAt = new Date(Date.now() + (30 * 60_000 + 45 * 60_000)).toISOString();
-    const startMs = new Date(startAt).getTime();
-    const now = Date.now();
-    const minutesToStart = rbLiveActivityMinutesDisplayed(now, startMs);
-    const progress01 = Math.min(1, Math.max(0, 1 - (startMs - now) / (60 * 60 * 1000)));
     return {
-      subtitle: 'Začátek za',
-      title: `${minutesToStart} min`,
-      detailLine: formatDevSlotRange(startAt, endAt),
-      progress01,
+      phase: 'scheduled',
+      presentation: 'normal',
+      labelText: 'Začátek za',
       startAt,
       endAt,
       branchName: 'Hagibor',
+      timeRangeText: formatDevSlotRange(startAt, endAt),
       employeeName: 'Bára',
       employeeAvatarUrl: 'https://randomuser.me/api/portraits/women/44.jpg',
       priceFormatted: '450 Kč',
@@ -104,38 +85,32 @@ export default function DevLiveActivityScreen() {
     };
   };
 
-  const makeActiveProps = (): Props => {
+  const makeActiveState = (): RBLiveActivityState => {
     const startAt = new Date(Date.now() - 10 * 60_000).toISOString();
     const endAt = new Date(Date.now() + 20 * 60_000).toISOString();
-    const startMs = new Date(startAt).getTime();
-    const endMs = new Date(endAt).getTime();
-    const now = Date.now();
-    const slotMs = Math.max(60_000, endMs - startMs);
-    const minutesLeft = rbLiveActivityMinutesDisplayed(now, endMs);
-    const progress01 = Math.min(1, Math.max(0, (now - startMs) / slotMs));
     return {
-      subtitle: 'Končí za',
-      title: `${minutesLeft} min`,
-      detailLine: formatDevSlotRange(startAt, endAt),
-      progress01,
+      phase: 'active',
+      presentation: 'normal',
+      labelText: 'Končí za',
       startAt,
       endAt,
+      branchName: 'Test pobočka',
+      timeRangeText: formatDevSlotRange(startAt, endAt),
       employeeName: 'Martin',
       employeeAvatarUrl: 'https://randomuser.me/api/portraits/men/32.jpg',
-      branchName: 'Test pobočka',
       priceFormatted: '450 Kč',
       accentHex: accentColor,
     };
   };
 
-  const makeReviewProps = (): Props => {
+  const makeReviewState = (): RBLiveActivityState => {
     const startAt = new Date(Date.now() - 30 * 60_000).toISOString();
-    const endAt = new Date(Date.now() + 15 * 60_000).toISOString();
+    const endAt = new Date(Date.now() - 15 * 60_000).toISOString();
     return {
-      subtitle: 'Ohodnoťte rezervaci',
-      title: 'Děkujeme!',
-      detailLine: 'Tap pro hodnocení',
-      progress01: -1,
+      phase: 'finished',
+      presentation: 'review',
+      labelText: 'Ohodnoťte rezervaci',
+      headlineText: 'Děkujeme!',
       startAt,
       endAt,
       branchName: 'Test pobočka',
@@ -143,17 +118,37 @@ export default function DevLiveActivityScreen() {
     };
   };
 
-  const makeCancelledProps = (): Props => {
+  const makeCancelledState = (): RBLiveActivityState => {
     const startAt = new Date(Date.now() - 30 * 60_000).toISOString();
-    const endAt = new Date(Date.now() + 15 * 60_000).toISOString();
+    const endAt = new Date(Date.now() - 15 * 60_000).toISOString();
     return {
-      subtitle: 'Rezervace zrušena',
-      title: 'Zrušeno',
-      detailLine: 'Klepněte pro detail rezervace',
-      progress01: -1,
+      phase: 'finished',
+      presentation: 'cancelled',
+      labelText: 'Rezervace zrušena',
+      headlineText: 'Zrušeno',
+      detailText: 'Klepněte pro detail rezervace',
       startAt,
       endAt,
-      branchName: 'Zobrazit informace',
+      branchName: 'Test pobočka',
+      accentHex: accentColor,
+    };
+  };
+
+  const makeRescheduledState = (): RBLiveActivityState => {
+    const startAt = new Date(Date.now() + 20 * 60_000).toISOString();
+    const endAt = new Date(Date.now() + 50 * 60_000).toISOString();
+    return {
+      phase: 'scheduled',
+      presentation: 'rescheduled',
+      labelText: 'Rezervace přesunuta',
+      headlineText: 'Změna rezervace',
+      detailText: 'Klepněte pro detail',
+      startAt,
+      endAt,
+      timeRangeText: formatDevSlotRange(startAt, endAt),
+      branchName: 'Hagibor',
+      employeeName: 'Bára',
+      employeeAvatarUrl: 'https://randomuser.me/api/portraits/women/44.jpg',
       accentHex: accentColor,
     };
   };
@@ -163,8 +158,8 @@ export default function DevLiveActivityScreen() {
       <Header showBackButton title="Live Activity (Dev)" />
       <ThemedScroller className="p-global">
         <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext">
-          Start / Update / End — ActivityKit přes RBActivityBridge; UI Live Activity je ve widget
-          extension (targets/realbarber-widget).
+          Start / update / end pres ActivityKit. Dev screen nyni pouziva explicitni
+          `phase/presentation` model stejne jako produkcni orchestrace.
         </ThemedText>
         <ThemedText className="mt-2 text-xs text-light-subtext dark:text-dark-subtext">
           Instances (tracked): {instancesCount}
@@ -173,26 +168,56 @@ export default function DevLiveActivityScreen() {
           <ThemedText className="mt-2 text-xs text-red-600 dark:text-red-400">{error}</ThemedText>
         ) : null}
 
+        {pushToken ? (
+          <Pressable
+            className="mt-3 rounded-lg bg-light-secondary dark:bg-dark-secondary p-3"
+            onPress={() => {
+              Clipboard.setStringAsync(pushToken).catch(() => undefined);
+              setTokenCopied(true);
+            }}
+          >
+            <ThemedText className="text-xs font-semibold text-light-text dark:text-dark-text mb-1">
+              Push Token {tokenCopied ? '(copied!)' : '(tap to copy)'}
+            </ThemedText>
+            <ThemedText
+              className="text-[10px] text-light-subtext dark:text-dark-subtext"
+              numberOfLines={3}
+            >
+              {pushToken}
+            </ThemedText>
+          </Pressable>
+        ) : null}
+
         <View className="mt-4 gap-2">
           <Button
             title="Start"
             onPress={() => {
-              void (async () => {
+              const startLiveActivity = async () => {
                 try {
                   setError(null);
-                  instanceRef.current = await rbLiveActivityStart(initialProps, 'realbarber://');
+                  setPushToken(null);
+                  setTokenCopied(false);
+                  const handle = await rbLiveActivityStart(
+                    'dev-booking',
+                    initialState,
+                    'realbarber://screens/trip-detail?id=dev-booking'
+                  );
+                  instanceRef.current = handle;
                   refreshInstances();
+                  const token = await rbLiveActivityWaitForPushToken(handle.id);
+                  setPushToken(token);
                 } catch (e) {
                   setError(e instanceof Error ? e.message : String(e));
                 }
-              })();
+              };
+              startLiveActivity().catch(() => undefined);
             }}
           />
           <Button
             title="End ALL"
             variant="secondary"
             onPress={() => {
-              void (async () => {
+              const endAllActivities = async () => {
                 try {
                   setError(null);
                   await rbLiveActivityEndAll();
@@ -202,7 +227,8 @@ export default function DevLiveActivityScreen() {
                   instanceRef.current = null;
                   refreshInstances();
                 }
-              })();
+              };
+              endAllActivities().catch(() => undefined);
             }}
           />
           <Button
@@ -211,25 +237,19 @@ export default function DevLiveActivityScreen() {
             onPress={() => {
               setMinutes((m) => {
                 const next = m + 1;
-                void (async () => {
+                const updateMinutes = async () => {
                   try {
                     setError(null);
-                    const baseStart = new Date(Date.now() + 60_000);
-                    const startIso = baseStart.toISOString();
-                    const endIso = new Date(baseStart.getTime() + next * 60_000).toISOString();
-                    const startMs = baseStart.getTime();
-                    const progress01 = Math.min(
-                      1,
-                      Math.max(0, 1 - (startMs - Date.now()) / (60 * 60 * 1000))
-                    );
+                    const startAt = new Date(Date.now() + 60_000).toISOString();
+                    const endAt = new Date(Date.now() + (60_000 + next * 60_000)).toISOString();
                     await instanceRef.current?.update({
-                      subtitle: 'Začátek za',
-                      title: `${next} min`,
-                      detailLine: formatDevSlotRange(startIso, endIso),
-                      progress01,
-                      startAt: startIso,
-                      endAt: endIso,
+                      phase: 'scheduled',
+                      presentation: 'normal',
+                      labelText: 'Začátek za',
+                      startAt,
+                      endAt,
                       branchName: 'Hagibor',
+                      timeRangeText: formatDevSlotRange(startAt, endAt),
                       employeeName: 'Bára',
                       employeeAvatarUrl: 'https://randomuser.me/api/portraits/women/44.jpg',
                       priceFormatted: '450 Kč',
@@ -239,7 +259,8 @@ export default function DevLiveActivityScreen() {
                   } catch (e) {
                     setError(e instanceof Error ? e.message : String(e));
                   }
-                })();
+                };
+                updateMinutes().catch(() => undefined);
                 return next;
               });
             }}
@@ -248,7 +269,7 @@ export default function DevLiveActivityScreen() {
             title="End"
             variant="outline"
             onPress={() => {
-              void (async () => {
+              const endCurrentActivity = async () => {
                 try {
                   setError(null);
                   await instanceRef.current?.end();
@@ -258,55 +279,55 @@ export default function DevLiveActivityScreen() {
                   instanceRef.current = null;
                   refreshInstances();
                 }
-              })();
+              };
+              endCurrentActivity().catch(() => undefined);
             }}
           />
-          <Button title="Refresh instances" variant="outline" onPress={refreshInstances} />
-        </View>
-
-        <View className="mt-8">
-          <ThemedText className="text-base font-semibold">Preview states</ThemedText>
-          <ThemedText className="mt-1 text-xs text-light-subtext dark:text-dark-subtext">
-            Tlačítka buď založí instanci, nebo updatují tu běžící (stejný activityId).
-          </ThemedText>
-          <View className="mt-3 gap-2">
-            <Button
-              title="Preview: Upcoming"
-              variant="outline"
-              onPress={() => {
-                void applyOrStart(makeUpcomingProps()).catch((e) =>
-                  setError(e instanceof Error ? e.message : String(e))
-                );
-              }}
-            />
-            <Button
-              title="Preview: Active"
-              variant="outline"
-              onPress={() => {
-                void applyOrStart(makeActiveProps()).catch((e) =>
-                  setError(e instanceof Error ? e.message : String(e))
-                );
-              }}
-            />
-            <Button
-              title="Preview: Review"
-              variant="outline"
-              onPress={() => {
-                void applyOrStart(makeReviewProps()).catch((e) =>
-                  setError(e instanceof Error ? e.message : String(e))
-                );
-              }}
-            />
-            <Button
-              title="Preview: Cancelled"
-              variant="outline"
-              onPress={() => {
-                void applyOrStart(makeCancelledProps()).catch((e) =>
-                  setError(e instanceof Error ? e.message : String(e))
-                );
-              }}
-            />
-          </View>
+          <Button
+            title="Upcoming"
+            variant="ghost"
+            onPress={() => {
+              applyOrStart(makeUpcomingState()).catch((e) =>
+                setError(e instanceof Error ? e.message : String(e))
+              );
+            }}
+          />
+          <Button
+            title="Active"
+            variant="ghost"
+            onPress={() => {
+              applyOrStart(makeActiveState()).catch((e) =>
+                setError(e instanceof Error ? e.message : String(e))
+              );
+            }}
+          />
+          <Button
+            title="Rescheduled"
+            variant="ghost"
+            onPress={() => {
+              applyOrStart(makeRescheduledState()).catch((e) =>
+                setError(e instanceof Error ? e.message : String(e))
+              );
+            }}
+          />
+          <Button
+            title="Review"
+            variant="ghost"
+            onPress={() => {
+              applyOrStart(makeReviewState()).catch((e) =>
+                setError(e instanceof Error ? e.message : String(e))
+              );
+            }}
+          />
+          <Button
+            title="Cancelled"
+            variant="ghost"
+            onPress={() => {
+              applyOrStart(makeCancelledState()).catch((e) =>
+                setError(e instanceof Error ? e.message : String(e))
+              );
+            }}
+          />
         </View>
       </ThemedScroller>
     </View>

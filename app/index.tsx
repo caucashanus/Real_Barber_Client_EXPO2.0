@@ -15,5 +15,5 @@ export default function Index() {
     );
   }
 
-  return apiToken ? <Redirect href="/(tabs)/(home)" /> : <Redirect href="/screens/welcome" />;
+  return apiToken ? <Redirect href="/real-barber" /> : <Redirect href="/screens/welcome" />;
 }

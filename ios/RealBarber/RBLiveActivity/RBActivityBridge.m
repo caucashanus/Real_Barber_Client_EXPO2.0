@@ -3,6 +3,7 @@
 @interface RCT_EXTERN_MODULE(RBActivityBridge, NSObject)
 
 RCT_EXTERN_METHOD(startReservationActivity:(NSDictionary *)payload
+                  bookingId:(NSString *)bookingId
                   deepLink:(NSString *)deepLink
                   resolver:(RCTPromiseResolveBlock)resolve
                   rejecter:(RCTPromiseRejectBlock)reject)

@@ -4,39 +4,20 @@ import Foundation
 import React
 import UIKit
 
-// MARK: - Keep in sync with targets/realbarber-widget/RBReservationAttributes.swift
-
-struct RBReservationAttributes: ActivityAttributes {
-  public struct ContentState: Codable, Hashable {
-    public var subtitle: String
-    public var title: String
-    public var branchName: String
-    public var detailLine: String
-    public var startAt: String
-    public var endAt: String
-    public var employeeName: String
-    public var employeeAvatarUrl: String?
-    public var employeeAvatarFilePath: String?
-    public var progress01: Double
-    /// `#RRGGBB`; nil / chybějící při decode → černobílý progress ve widgetu.
-    public var accentHex: String?
-    public var priceFormatted: String?
-  }
-
-  public var deepLink: String
-}
-
 private func rbString(_ value: Any?) -> String {
   if let s = value as? String { return s }
   if let s = value as? NSString { return s as String }
   return ""
 }
 
-private func rbProgress01(_ value: Any?) -> Double {
-  if let n = value as? NSNumber { return n.doubleValue }
-  if let n = value as? Double { return n }
-  if let n = value as? Int { return Double(n) }
-  return -1
+private func rbPhase(_ value: Any?) -> RBReservationPhase {
+  let raw = rbString(value).trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
+  return RBReservationPhase(rawValue: raw) ?? .scheduled
+}
+
+private func rbPresentation(_ value: Any?) -> RBReservationPresentation {
+  let raw = rbString(value).trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
+  return RBReservationPresentation(rawValue: raw) ?? .normal
 }
 
 private let kRBAppGroup = "group.com.realbarber.client"
@@ -105,27 +86,6 @@ private func rbWriteAvatarDataToAppGroup(data: Data) -> String? {
   }
 }
 
-private func rbResolveEmployeeAvatarFilePath(from payload: NSDictionary) async -> String? {
-  let avatarRemote = rbString(payload["employeeAvatarUrl"]).trimmingCharacters(in: .whitespacesAndNewlines)
-  let token = rbString(payload["employeeAvatarAuthToken"]).trimmingCharacters(in: .whitespacesAndNewlines)
-  if let avatarURL = rbResolvedAvatarRemoteURL(from: avatarRemote) {
-    if !token.isEmpty {
-      if let p = await rbWriteAvatarToAppGroup(fromRemoteURL: avatarURL, bearerToken: token) { return p }
-    }
-    if let p = await rbWriteAvatarToAppGroup(fromRemoteURL: avatarURL, bearerToken: nil) { return p }
-  }
-  let b64 = rbString(payload["employeeAvatarBase64"]).trimmingCharacters(in: .whitespacesAndNewlines)
-  if !b64.isEmpty {
-    if let data = Data(base64Encoded: b64), !data.isEmpty {
-      return rbWriteAvatarDataToAppGroup(data: data)
-    }
-    if let data = Data(base64Encoded: b64, options: [.ignoreUnknownCharacters]), !data.isEmpty {
-      return rbWriteAvatarDataToAppGroup(data: data)
-    }
-  }
-  return nil
-}
-
 private func rbWriteAvatarToAppGroup(fromRemoteURL remote: URL, bearerToken: String?) async -> String? {
   guard let scheme = remote.scheme?.lowercased(), scheme == "http" || scheme == "https" else { return nil }
   guard let dir = rbAvatarDirURL() else { return nil }
@@ -135,20 +95,16 @@ private func rbWriteAvatarToAppGroup(fromRemoteURL remote: URL, bearerToken: Str
   let fileURL = dir.appendingPathComponent("\(key).jpg", isDirectory: false)
   let path = fileURL.path
   if FileManager.default.fileExists(atPath: path) {
-    // Cache může být prázdná/poškozená (např. přerušený zápis). Pak widget nic nezobrazí.
-    // Pokud nejde dekódovat jako obrázek, smažeme a stáhneme znovu.
     if let attrs = try? FileManager.default.attributesOfItem(atPath: path),
        let size = attrs[.size] as? NSNumber,
        size.intValue > 0,
-       UIImage(contentsOfFile: path) != nil
-    {
+       UIImage(contentsOfFile: path) != nil {
       return path
     }
     try? FileManager.default.removeItem(atPath: path)
   }
 
   do {
-    NSLog("[RBActivityBridge] Avatar download start url=%@ auth=%@", remote.absoluteString, (bearerToken ?? "").isEmpty ? "no" : "yes")
     var request = URLRequest(url: remote)
     request.setValue(
       "Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.0 Mobile/15E148 Safari/604.1",
@@ -159,52 +115,81 @@ private func rbWriteAvatarToAppGroup(fromRemoteURL remote: URL, bearerToken: Str
       request.setValue("Bearer \(t)", forHTTPHeaderField: "Authorization")
     }
     let (data, resp) = try await URLSession.shared.data(for: request)
-    if let http = resp as? HTTPURLResponse {
-      NSLog("[RBActivityBridge] Avatar response status=%d bytes=%d", http.statusCode, data.count)
-      if http.statusCode >= 400 { return nil }
-    }
+    if let http = resp as? HTTPURLResponse, http.statusCode >= 400 { return nil }
     if data.isEmpty { return nil }
     guard let normalized = rbNormalizeAvatarImageData(data) else { return nil }
     try normalized.write(to: fileURL, options: [.atomic])
-    if UIImage(contentsOfFile: path) == nil {
-      NSLog("[RBActivityBridge] Avatar wrote but decode failed path=%@", path)
-    } else {
-      NSLog("[RBActivityBridge] Avatar wrote ok path=%@", path)
-    }
-    return path
+    return UIImage(contentsOfFile: path) == nil ? nil : path
   } catch {
-    NSLog("[RBActivityBridge] Avatar download failed url=%@ err=%@", remote.absoluteString, String(describing: error))
     return nil
   }
 }
 
-private func contentState(from payload: NSDictionary, employeeAvatarFilePath: String?) -> RBReservationAttributes.ContentState {
+private func rbResolveEmployeeAvatarFilePath(from payload: NSDictionary) async -> String? {
+  let avatarRemote = rbString(payload["employeeAvatarUrl"]).trimmingCharacters(in: .whitespacesAndNewlines)
+  let token = rbString(payload["employeeAvatarAuthToken"]).trimmingCharacters(in: .whitespacesAndNewlines)
+  if let avatarURL = rbResolvedAvatarRemoteURL(from: avatarRemote) {
+    if !token.isEmpty,
+       let p = await rbWriteAvatarToAppGroup(fromRemoteURL: avatarURL, bearerToken: token) {
+      return p
+    }
+    if let p = await rbWriteAvatarToAppGroup(fromRemoteURL: avatarURL, bearerToken: nil) {
+      return p
+    }
+  }
+
+  let b64 = rbString(payload["employeeAvatarBase64"]).trimmingCharacters(in: .whitespacesAndNewlines)
+  if !b64.isEmpty {
+    if let data = Data(base64Encoded: b64), !data.isEmpty {
+      return rbWriteAvatarDataToAppGroup(data: data)
+    }
+    if let data = Data(base64Encoded: b64, options: [.ignoreUnknownCharacters]), !data.isEmpty {
+      return rbWriteAvatarDataToAppGroup(data: data)
+    }
+  }
+
+  return nil
+}
+
+private func contentState(
+  from payload: NSDictionary,
+  employeeAvatarFilePath: String?
+) -> RBReservationAttributes.ContentState {
   RBReservationAttributes.ContentState(
-    subtitle: rbString(payload["subtitle"]),
-    title: rbString(payload["title"]),
-    branchName: rbString(payload["branchName"]),
-    detailLine: rbString(payload["detailLine"]),
+    phase: rbPhase(payload["phase"]),
+    presentation: rbPresentation(payload["presentation"]),
+    labelText: {
+      let value = rbString(payload["labelText"])
+      return value.isEmpty ? nil : value
+    }(),
+    headlineText: {
+      let value = rbString(payload["headlineText"])
+      return value.isEmpty ? nil : value
+    }(),
+    detailText: {
+      let value = rbString(payload["detailText"])
+      return value.isEmpty ? nil : value
+    }(),
     startAt: rbString(payload["startAt"]),
     endAt: rbString(payload["endAt"]),
+    branchName: rbString(payload["branchName"]),
+    timeRangeText: rbString(payload["timeRangeText"]),
     employeeName: rbString(payload["employeeName"]),
     employeeAvatarUrl: {
-      let u = rbString(payload["employeeAvatarUrl"])
-      return u.isEmpty ? nil : u
+      let value = rbString(payload["employeeAvatarUrl"])
+      return value.isEmpty ? nil : value
     }(),
     employeeAvatarFilePath: employeeAvatarFilePath,
-    progress01: rbProgress01(payload["progress"]),
     accentHex: {
-      let h = rbString(payload["accentHex"])
-      return h.isEmpty ? nil : h
+      let value = rbString(payload["accentHex"])
+      return value.isEmpty ? nil : value
     }(),
     priceFormatted: {
-      let p = rbString(payload["priceFormatted"])
-      return p.isEmpty ? nil : p
+      let value = rbString(payload["priceFormatted"])
+      return value.isEmpty ? nil : value
     }()
   )
 }
-
-// MARK: - ActivityKit push token (hex) pro APNs `liveactivity`
 
 private actor RBPushTokenRegistryActor {
   static let shared = RBPushTokenRegistryActor()
@@ -222,7 +207,9 @@ private actor RBPushTokenRegistryActor {
   }
 
   func cancelAllObservations() {
-    for (_, t) in observationTasks { t.cancel() }
+    for (_, task) in observationTasks {
+      task.cancel()
+    }
     observationTasks.removeAll()
     hexByActivity.removeAll()
   }
@@ -250,6 +237,7 @@ private actor RBPushTokenRegistryActor {
 }
 
 @available(iOS 16.2, *)
+@MainActor
 private enum RBActivityStore {
   static var activities: [String: Activity<RBReservationAttributes>] = [:]
   static var avatarPathByActivityId: [String: String] = [:]
@@ -258,8 +246,29 @@ private enum RBActivityStore {
     activities[activity.id] = activity
   }
 
+  static func allActivities() -> [Activity<RBReservationAttributes>] {
+    var byId = activities
+    for activity in Activity<RBReservationAttributes>.activities {
+      byId[activity.id] = activity
+    }
+    return Array(byId.values)
+  }
+
   static func activity(for id: String) -> Activity<RBReservationAttributes>? {
-    activities[id]
+    if let tracked = activities[id] { return tracked }
+    if let system = Activity<RBReservationAttributes>.activities.first(where: { $0.id == id }) {
+      remember(system)
+      return system
+    }
+    return nil
+  }
+
+  static func activities(for bookingId: String) -> [Activity<RBReservationAttributes>] {
+    let matched = allActivities().filter { $0.attributes.bookingId == bookingId }
+    for activity in matched {
+      remember(activity)
+    }
+    return matched
   }
 
   static func remove(id: String) {
@@ -270,10 +279,15 @@ private enum RBActivityStore {
     }
   }
 
+  static func end(_ activity: Activity<RBReservationAttributes>) async {
+    await activity.end(nil, dismissalPolicy: .immediate)
+    remove(id: activity.id)
+  }
+
   static func endAll() async {
-    let copy = Array(activities.values)
-    for act in copy {
-      await act.end(nil, dismissalPolicy: .immediate)
+    let copy = allActivities()
+    for activity in copy {
+      await activity.end(nil, dismissalPolicy: .immediate)
     }
     activities.removeAll()
     await RBPushTokenRegistryActor.shared.cancelAllObservations()
@@ -285,7 +299,7 @@ private enum RBActivityStore {
   }
 
   static var trackedCount: Int {
-    activities.count
+    allActivities().count
   }
 }
 
@@ -293,16 +307,10 @@ private enum RBActivityStore {
 class RBActivityBridge: NSObject {
   @objc static func requiresMainQueueSetup() -> Bool { true }
 
-  private func bookingIdFromDeepLink(_ deepLink: String) -> String? {
-    guard let url = URL(string: deepLink) else { return nil }
-    guard let components = URLComponents(url: url, resolvingAgainstBaseURL: false) else { return nil }
-    let id = components.queryItems?.first(where: { $0.name == "id" })?.value?.trimmingCharacters(in: .whitespacesAndNewlines)
-    return (id ?? "").isEmpty ? nil : id
-  }
-
   @objc
   func startReservationActivity(
     _ payload: NSDictionary,
+    bookingId: String,
     deepLink: String,
     resolver resolve: @escaping RCTPromiseResolveBlock,
     rejecter reject: @escaping RCTPromiseRejectBlock
@@ -315,13 +323,23 @@ class RBActivityBridge: NSObject {
       reject("E_DISABLED", "Live Activities are disabled for this app", nil)
       return
     }
+
+    let trimmedBookingId = bookingId.trimmingCharacters(in: .whitespacesAndNewlines)
+    if trimmedBookingId.isEmpty {
+      reject("E_INVALID_BOOKING", "Missing bookingId for Live Activity", nil)
+      return
+    }
+
     Task {
       do {
         let avatarPath = await rbResolveEmployeeAvatarFilePath(from: payload)
         let state = contentState(from: payload, employeeAvatarFilePath: avatarPath)
 
         try await MainActor.run {
-          let attributes = RBReservationAttributes(deepLink: deepLink)
+          let attributes = RBReservationAttributes(
+            bookingId: trimmedBookingId,
+            deepLink: deepLink
+          )
           let content = ActivityContent(state: state, staleDate: nil)
           let activity = try Activity<RBReservationAttributes>.request(
             attributes: attributes,
@@ -353,7 +371,29 @@ class RBActivityBridge: NSObject {
     }
     Task {
       let hex = await RBPushTokenRegistryActor.shared.hex(for: activityId)
-      await MainActor.run { resolve(hex ?? NSNull()) }
+      await MainActor.run {
+        resolve(hex ?? NSNull())
+      }
+    }
+  }
+
+  @available(iOS 16.2, *)
+  private func buildContent(
+    activityId: String,
+    payload: NSDictionary
+  ) async -> ActivityContent<RBReservationAttributes.ContentState> {
+    let avatarPath = await rbResolveEmployeeAvatarFilePath(from: payload)
+    return await MainActor.run {
+      if let newPath = avatarPath, !newPath.isEmpty {
+        let oldPath = RBActivityStore.avatarPathByActivityId[activityId]
+        if let oldPath, oldPath != newPath {
+          try? FileManager.default.removeItem(atPath: oldPath)
+        }
+        RBActivityStore.avatarPathByActivityId[activityId] = newPath
+      }
+      let effectivePath = avatarPath ?? RBActivityStore.avatarPathByActivityId[activityId]
+      let state = contentState(from: payload, employeeAvatarFilePath: effectivePath)
+      return ActivityContent(state: state, staleDate: nil)
     }
   }
 
@@ -368,40 +408,21 @@ class RBActivityBridge: NSObject {
       reject("E_UNSUPPORTED", "Live Activity requires iOS 16.2+", nil)
       return
     }
-    Task {
-      guard #available(iOS 16.2, *) else {
-        reject("E_UNSUPPORTED", "Live Activity requires iOS 16.2+", nil)
-        return
-      }
 
+    Task {
       guard let activity = await MainActor.run(body: { RBActivityStore.activity(for: activityId) }) else {
         reject("E_MISSING", "No Live Activity for id \(activityId)", nil)
         return
       }
-
-      let avatarPath = await rbResolveEmployeeAvatarFilePath(from: payload)
-
-      let content: ActivityContent<RBReservationAttributes.ContentState> = await MainActor.run {
-        if let newPath = avatarPath, !newPath.isEmpty {
-          let old = RBActivityStore.avatarPathByActivityId[activityId]
-          if let old, old != newPath {
-            try? FileManager.default.removeItem(atPath: old)
-          }
-          RBActivityStore.avatarPathByActivityId[activityId] = newPath
-        }
-
-        let effectivePath = avatarPath ?? RBActivityStore.avatarPathByActivityId[activityId]
-        let state = contentState(from: payload, employeeAvatarFilePath: effectivePath)
-        return ActivityContent(state: state, staleDate: nil)
-      }
-
+      let content = await buildContent(activityId: activity.id, payload: payload)
       await activity.update(content)
-      await MainActor.run { resolve(nil) }
+      await MainActor.run {
+        RBActivityStore.remember(activity)
+        resolve(nil)
+      }
     }
   }
 
-  /// Updates all Live Activities whose deepLink bookingId matches `bookingId`.
-  /// Useful for immediate lock-screen feedback after reschedule, even when server won't send remote updates (>60min).
   @objc
   func updateReservationActivitiesForBooking(
     _ bookingId: String,
@@ -413,31 +434,27 @@ class RBActivityBridge: NSObject {
       reject("E_UNSUPPORTED", "Live Activity requires iOS 16.2+", nil)
       return
     }
+
     let needle = bookingId.trimmingCharacters(in: .whitespacesAndNewlines)
     if needle.isEmpty {
       resolve(0)
       return
     }
+
     Task {
+      let activities = await MainActor.run(body: { RBActivityStore.activities(for: needle) })
       var updated = 0
-      for act in Activity<RBReservationAttributes>.activities {
-        if bookingIdFromDeepLink(act.attributes.deepLink) != needle { continue }
-        let avatarPath = await rbResolveEmployeeAvatarFilePath(from: payload)
-        let content: ActivityContent<RBReservationAttributes.ContentState> = await MainActor.run {
-          if let newPath = avatarPath, !newPath.isEmpty {
-            let old = RBActivityStore.avatarPathByActivityId[act.id]
-            if let old, old != newPath { try? FileManager.default.removeItem(atPath: old) }
-            RBActivityStore.avatarPathByActivityId[act.id] = newPath
-          }
-          let effectivePath = avatarPath ?? RBActivityStore.avatarPathByActivityId[act.id]
-          let state = contentState(from: payload, employeeAvatarFilePath: effectivePath)
-          return ActivityContent(state: state, staleDate: nil)
-        }
-        await act.update(content)
-        await MainActor.run { RBActivityStore.remember(act) }
+      for activity in activities {
+        let content = await buildContent(activityId: activity.id, payload: payload)
+        await activity.update(content)
         updated += 1
       }
-      await MainActor.run { resolve(updated) }
+      await MainActor.run {
+        for activity in activities {
+          RBActivityStore.remember(activity)
+        }
+        resolve(updated)
+      }
     }
   }
 
@@ -451,15 +468,88 @@ class RBActivityBridge: NSObject {
       reject("E_UNSUPPORTED", "Live Activity requires iOS 16.2+", nil)
       return
     }
-    Task { @MainActor in
-      guard let activity = RBActivityStore.activity(for: activityId) else {
-        RBActivityStore.remove(id: activityId)
-        resolve(nil)
+
+    Task {
+      let activity = await MainActor.run(body: { RBActivityStore.activity(for: activityId) })
+      guard let activity else {
+        await MainActor.run {
+          RBActivityStore.remove(id: activityId)
+          resolve(nil)
+        }
         return
       }
+      await MainActor.run {
+        RBActivityStore.remember(activity)
+      }
       await activity.end(nil, dismissalPolicy: .immediate)
-      RBActivityStore.remove(id: activityId)
-      resolve(nil)
+      await MainActor.run {
+        RBActivityStore.remove(id: activity.id)
+        resolve(nil)
+      }
+    }
+  }
+
+  @objc
+  func endReservationActivitiesForBooking(
+    _ bookingId: String,
+    resolver resolve: @escaping RCTPromiseResolveBlock,
+    rejecter reject: @escaping RCTPromiseRejectBlock
+  ) {
+    guard #available(iOS 16.2, *) else {
+      reject("E_UNSUPPORTED", "Live Activity requires iOS 16.2+", nil)
+      return
+    }
+
+    let needle = bookingId.trimmingCharacters(in: .whitespacesAndNewlines)
+    if needle.isEmpty {
+      resolve(0)
+      return
+    }
+
+    Task {
+      let activities = await MainActor.run(body: { RBActivityStore.activities(for: needle) })
+      for activity in activities {
+        await activity.end(nil, dismissalPolicy: .immediate)
+      }
+      await MainActor.run {
+        for activity in activities {
+          RBActivityStore.remove(id: activity.id)
+        }
+        resolve(activities.count)
+      }
+    }
+  }
+
+  @objc
+  func cleanupReservationActivities(
+    _ keepBookingIds: [String],
+    resolver resolve: @escaping RCTPromiseResolveBlock,
+    rejecter reject: @escaping RCTPromiseRejectBlock
+  ) {
+    guard #available(iOS 16.2, *) else {
+      reject("E_UNSUPPORTED", "Live Activity requires iOS 16.2+", nil)
+      return
+    }
+
+    let keep = Set(
+      keepBookingIds
+        .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
+        .filter { !$0.isEmpty }
+    )
+
+    Task {
+      let activities = await MainActor.run(body: { RBActivityStore.allActivities() })
+      var removed = 0
+      for activity in activities where !keep.contains(activity.attributes.bookingId) {
+        await activity.end(nil, dismissalPolicy: .immediate)
+        removed += 1
+      }
+      await MainActor.run {
+        for activity in activities where !keep.contains(activity.attributes.bookingId) {
+          RBActivityStore.remove(id: activity.id)
+        }
+        resolve(removed)
+      }
     }
   }
 
@@ -472,6 +562,7 @@ class RBActivityBridge: NSObject {
       reject("E_UNSUPPORTED", "Live Activity requires iOS 16.2+", nil)
       return
     }
+
     Task { @MainActor in
       await RBActivityStore.endAll()
       resolve(nil)
@@ -487,6 +578,7 @@ class RBActivityBridge: NSObject {
       resolve(0)
       return
     }
+
     Task { @MainActor in
       resolve(RBActivityStore.trackedCount)
     }

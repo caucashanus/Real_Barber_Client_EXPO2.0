@@ -13,6 +13,8 @@
 		3D75EB12BA686716E0B2E8F8 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 22DE2B51012C262F8EF3190D /* PrivacyInfo.xcprivacy */; };
 		3E461D99554A48A4959DE609 /* SplashScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = AA286B85B6C04FC6940260E9 /* SplashScreen.storyboard */; };
 		40492D8CC29A442C87F893CC /* RBActivityBridge.swift in Sources */ = {isa = PBXBuildFile; fileRef = A189F189DA48403C89BC98E8 /* RBActivityBridge.swift */; };
+		7A1A0B1C2D3E4F5061728390 /* RBLiveActivityContent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A1A0B1C2D3E4F5061728392 /* RBLiveActivityContent.swift */; };
+		7A1A0B1C2D3E4F5061728391 /* RBLiveActivityUI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A1A0B1C2D3E4F5061728393 /* RBLiveActivityUI.swift */; };
 		9D0DD0FFAE687B390C10B70F /* libPods-RealBarber.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 1BB4E8D3E212D39391FBA0EB /* libPods-RealBarber.a */; };
 		BB2F792D24A3F905000567C9 /* Expo.plist in Resources */ = {isa = PBXBuildFile; fileRef = BB2F792C24A3F905000567C9 /* Expo.plist */; };
 		F11748422D0307B40044C1D9 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = F11748412D0307B40044C1D9 /* AppDelegate.swift */; };
@@ -54,6 +56,8 @@
 		1422C838F31FEEFD8B3FF770 /* Pods-RealBarber.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-RealBarber.release.xcconfig"; path = "Target Support Files/Pods-RealBarber/Pods-RealBarber.release.xcconfig"; sourceTree = "<group>"; };
 		1BB4E8D3E212D39391FBA0EB /* libPods-RealBarber.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-RealBarber.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		22DE2B51012C262F8EF3190D /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; includeInIndex = 1; name = PrivacyInfo.xcprivacy; path = RealBarber/PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
+		7A1A0B1C2D3E4F5061728392 /* RBLiveActivityContent.swift */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 4; includeInIndex = 0; lastKnownFileType = sourcecode.swift; name = RBLiveActivityContent.swift; path = "../targets/realbarber-widget/RBLiveActivityContent.swift"; sourceTree = "<group>"; };
+		7A1A0B1C2D3E4F5061728393 /* RBLiveActivityUI.swift */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 4; includeInIndex = 0; lastKnownFileType = sourcecode.swift; name = RBLiveActivityUI.swift; path = "../targets/realbarber-widget/RBLiveActivityUI.swift"; sourceTree = "<group>"; };
 		A189F189DA48403C89BC98E8 /* RBActivityBridge.swift */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 4; includeInIndex = 0; lastKnownFileType = sourcecode.swift; name = RBActivityBridge.swift; path = RealBarber/RBLiveActivity/RBActivityBridge.swift; sourceTree = "<group>"; };
 		AA286B85B6C04FC6940260E9 /* SplashScreen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; includeInIndex = 0; lastKnownFileType = file.storyboard; name = SplashScreen.storyboard; path = RealBarber/SplashScreen.storyboard; sourceTree = "<group>"; };
 		B961D5011FC24EB68949A072 /* RBActivityBridge.m */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 4; includeInIndex = 0; lastKnownFileType = sourcecode.c.objc; name = RBActivityBridge.m; path = RealBarber/RBLiveActivity/RBActivityBridge.m; sourceTree = "<group>"; };
@@ -162,6 +166,8 @@
 			children = (
 				A189F189DA48403C89BC98E8 /* RBActivityBridge.swift */,
 				B961D5011FC24EB68949A072 /* RBActivityBridge.m */,
+				7A1A0B1C2D3E4F5061728392 /* RBLiveActivityContent.swift */,
+				7A1A0B1C2D3E4F5061728393 /* RBLiveActivityUI.swift */,
 			);
 			name = RBLiveActivity;
 			path = "";
@@ -507,6 +513,8 @@
 				F11748422D0307B40044C1D9 /* AppDelegate.swift in Sources */,
 				40492D8CC29A442C87F893CC /* RBActivityBridge.swift in Sources */,
 				267C49B58D0C4F4890B79678 /* RBActivityBridge.m in Sources */,
+				7A1A0B1C2D3E4F5061728390 /* RBLiveActivityContent.swift in Sources */,
+				7A1A0B1C2D3E4F5061728391 /* RBLiveActivityUI.swift in Sources */,
 				34585ADA1A9EC295639EF846 /* ExpoModulesProvider.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

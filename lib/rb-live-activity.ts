@@ -1,50 +1,50 @@
 import { NativeModules, Platform } from 'react-native';
 
-/**
- * Live Activity content. Native order: small caption (`subtitle`) → big headline (`title`) → progress bar → branch → detail line.
- */
-export type RBLiveActivityProps = {
-  /** Small gray caption above the headline (Bolt-style). */
-  subtitle?: string;
-  /** Large headline (e.g. "12 min"). */
-  title: string;
+export type RBLiveActivityPhase = 'scheduled' | 'active' | 'finished';
+export type RBLiveActivityPresentation = 'normal' | 'rescheduled' | 'cancelled' | 'review';
+
+export type RBLiveActivityState = {
+  phase: RBLiveActivityPhase;
+  presentation: RBLiveActivityPresentation;
+  labelText?: string;
+  headlineText?: string;
+  detailText?: string;
   startAt: string;
   endAt: string;
+  branchName?: string;
+  timeRangeText?: string;
   employeeName?: string;
   employeeAvatarUrl?: string;
-  /** PNG/JPEG bytes as standard base64; fallback, když nestačí stažení z URL (malé soubory). */
   employeeAvatarBase64?: string;
-  /** Bearer pro stažení `employeeAvatarUrl` na native straně (neukládá se do ActivityKit state). */
   employeeAvatarAuthToken?: string;
-  branchName?: string;
-  /** Line under branch (e.g. "10:30–10:45"). */
-  detailLine?: string;
-  /** Např. „450 Kč“ pro upcoming řádek pobočka · jméno · … · cena */
-  priceFormatted?: string;
-  /** 0…1 fill; values &lt; 0 hide the progress bar. */
-  progress01?: number;
-  /** `#RRGGBB` z nastavení barevnosti; prázdné = černobílý fallback na Live Activity. */
   accentHex?: string;
+  priceFormatted?: string;
 };
 
 type NativePayload = {
-  subtitle: string;
-  title: string;
-  branchName: string;
-  detailLine: string;
+  phase: string;
+  presentation: string;
+  labelText: string;
+  headlineText: string;
+  detailText: string;
   startAt: string;
   endAt: string;
+  branchName: string;
+  timeRangeText: string;
   employeeName: string;
   employeeAvatarUrl: string;
   employeeAvatarBase64: string;
   employeeAvatarAuthToken: string;
-  progress: number;
   accentHex: string;
   priceFormatted: string;
 };
 
 type Bridge = {
-  startReservationActivity: (payload: NativePayload, deepLink: string) => Promise<string>;
+  startReservationActivity: (
+    payload: NativePayload,
+    bookingId: string,
+    deepLink: string
+  ) => Promise<string>;
   getLiveActivityPushToken: (activityId: string) => Promise<string | null>;
   updateReservationActivity: (activityId: string, payload: NativePayload) => Promise<void>;
   endReservationActivity: (activityId: string) => Promise<void>;
@@ -58,23 +58,25 @@ type Bridge = {
   getReservationActivityCount: () => Promise<number>;
 };
 
-function toNativePayload(props: RBLiveActivityProps): NativePayload {
-  const raw = props.accentHex?.replace(/^\s+|\s+$/g, '') ?? '';
-  const accentHex = /^#[0-9A-Fa-f]{6}$/.test(raw) ? raw : '';
+function toNativePayload(state: RBLiveActivityState): NativePayload {
+  const rawAccent = state.accentHex?.replace(/^\s+|\s+$/g, '') ?? '';
+  const accentHex = /^#[0-9A-Fa-f]{6}$/.test(rawAccent) ? rawAccent : '';
   return {
-    subtitle: props.subtitle ?? '',
-    title: props.title,
-    branchName: props.branchName ?? '',
-    detailLine: props.detailLine ?? '',
-    startAt: props.startAt,
-    endAt: props.endAt,
-    employeeName: props.employeeName ?? '',
-    employeeAvatarUrl: props.employeeAvatarUrl ?? '',
-    employeeAvatarBase64: props.employeeAvatarBase64 ?? '',
-    employeeAvatarAuthToken: props.employeeAvatarAuthToken ?? '',
-    progress: props.progress01 ?? -1,
+    phase: state.phase,
+    presentation: state.presentation,
+    labelText: state.labelText ?? '',
+    headlineText: state.headlineText ?? '',
+    detailText: state.detailText ?? '',
+    startAt: state.startAt,
+    endAt: state.endAt,
+    branchName: state.branchName ?? '',
+    timeRangeText: state.timeRangeText ?? '',
+    employeeName: state.employeeName ?? '',
+    employeeAvatarUrl: state.employeeAvatarUrl ?? '',
+    employeeAvatarBase64: state.employeeAvatarBase64 ?? '',
+    employeeAvatarAuthToken: state.employeeAvatarAuthToken ?? '',
     accentHex,
-    priceFormatted: props.priceFormatted ?? '',
+    priceFormatted: state.priceFormatted ?? '',
   };
 }
 
@@ -83,12 +85,14 @@ function getBridge(): Bridge | undefined {
   return NativeModules.RBActivityBridge as Bridge | undefined;
 }
 
-/** Handle returned from {@link rbLiveActivityStart}. */
 export class RBLiveActivityHandle {
-  constructor(readonly id: string) {}
+  constructor(
+    readonly id: string,
+    readonly bookingId: string
+  ) {}
 
-  update(props: RBLiveActivityProps) {
-    return rbLiveActivityUpdate(this.id, props);
+  update(state: RBLiveActivityState) {
+    return rbLiveActivityUpdate(this.id, state);
   }
 
   end() {
@@ -97,34 +101,31 @@ export class RBLiveActivityHandle {
 }
 
 export async function rbLiveActivityStart(
-  props: RBLiveActivityProps,
+  bookingId: string,
+  state: RBLiveActivityState,
   deepLink: string
 ): Promise<RBLiveActivityHandle> {
   const bridge = getBridge();
   if (!bridge) {
     throw new Error('RBActivityBridge is not available (iOS native module missing).');
   }
-  const id = await bridge.startReservationActivity(toNativePayload(props), deepLink);
-  return new RBLiveActivityHandle(id);
+  const id = await bridge.startReservationActivity(toNativePayload(state), bookingId, deepLink);
+  return new RBLiveActivityHandle(id, bookingId);
 }
 
-export async function rbLiveActivityUpdate(id: string, props: RBLiveActivityProps) {
+export async function rbLiveActivityUpdate(id: string, state: RBLiveActivityState) {
   const bridge = getBridge();
   if (!bridge) return;
-  await bridge.updateReservationActivity(id, toNativePayload(props));
+  await bridge.updateReservationActivity(id, toNativePayload(state));
 }
 
-/**
- * Best-effort: update any Live Activity whose deepLink bookingId matches `bookingId`.
- * Useful for immediate lock-screen feedback after reschedule, even when server won't send remote updates (>60min).
- */
 export async function rbLiveActivityUpdateForBooking(
   bookingId: string,
-  props: RBLiveActivityProps
+  state: RBLiveActivityState
 ): Promise<number> {
   const bridge = getBridge();
   if (!bridge?.updateReservationActivitiesForBooking) return 0;
-  return bridge.updateReservationActivitiesForBooking(bookingId, toNativePayload(props));
+  return bridge.updateReservationActivitiesForBooking(bookingId, toNativePayload(state));
 }
 
 export async function rbLiveActivityEnd(id: string) {
@@ -133,19 +134,12 @@ export async function rbLiveActivityEnd(id: string) {
   await bridge.endReservationActivity(id);
 }
 
-/**
- * Best-effort: end any Live Activity whose deepLink bookingId matches `bookingId`.
- * Useful after reschedule/cancel, and for cleaning up stale activities after app restart.
- */
 export async function rbLiveActivityEndForBooking(bookingId: string): Promise<number> {
   const bridge = getBridge();
   if (!bridge?.endReservationActivitiesForBooking) return 0;
   return bridge.endReservationActivitiesForBooking(bookingId);
 }
 
-/**
- * Best-effort: end all Live Activities except those whose bookingId is in `keepBookingIds`.
- */
 export async function rbLiveActivityCleanup(keepBookingIds: string[]): Promise<number> {
   const bridge = getBridge();
   if (!bridge?.cleanupReservationActivities) return 0;
@@ -164,10 +158,6 @@ export async function rbLiveActivityGetCount(): Promise<number> {
   return bridge.getReservationActivityCount();
 }
 
-/**
- * ActivityKit push token (hex) pro APNs `apns-push-type: liveactivity`.
- * Po `start` může pár set ms chybět — použij {@link rbLiveActivityWaitForPushToken}.
- */
 export async function rbLiveActivityGetPushToken(activityId: string): Promise<string | null> {
   const bridge = getBridge();
   if (!bridge?.getLiveActivityPushToken) return null;
@@ -175,11 +165,8 @@ export async function rbLiveActivityGetPushToken(activityId: string): Promise<st
   return typeof raw === 'string' && raw.length > 0 ? raw : null;
 }
 
-const sleep = (ms: number) => new Promise<void>((r) => setTimeout(r, ms));
+const sleep = (ms: number) => new Promise<void>((resolve) => setTimeout(resolve, ms));
 
-/**
- * Čeká na první ActivityKit push token po startu aktivity (polling).
- */
 export async function rbLiveActivityWaitForPushToken(
   activityId: string,
   options?: { maxAttempts?: number; intervalMs?: number }
@@ -187,8 +174,8 @@ export async function rbLiveActivityWaitForPushToken(
   const maxAttempts = options?.maxAttempts ?? 80;
   const intervalMs = options?.intervalMs ?? 200;
   for (let i = 0; i < maxAttempts; i++) {
-    const t = await rbLiveActivityGetPushToken(activityId);
-    if (t) return t;
+    const token = await rbLiveActivityGetPushToken(activityId);
+    if (token) return token;
     await sleep(intervalMs);
   }
   return null;
