@@ -1060,7 +1060,6 @@ export const cs: Record<TranslationKey, string> = {
   reservationNoSlotsSelection: 'Pro vybrané parametry nejsou dostupné žádné termíny.',
   reservationSummaryTitle: 'Shrnutí rezervace',
   reservationSummarySubtitle: 'Zkontrolujte údaje před potvrzením.',
-  reservationSummaryConfirmHint: 'Potvrzením dokončíte vytvoření rezervace.',
   reservationSummaryBranch: 'Pobočka',
   reservationSummaryWithSpecialist: 'U vašeho specialisty',
   reservationSummaryAppointment: 'Váš termín',

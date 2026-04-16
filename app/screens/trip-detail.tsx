@@ -19,6 +19,7 @@ import Header from '@/components/Header';
 import Icon from '@/components/Icon';
 import ImageCarousel from '@/components/ImageCarousel';
 import ListLink from '@/components/ListLink';
+import LiveIndicator from '@/components/LiveIndicator';
 import ThemedFooter from '@/components/ThemeFooter';
 import ThemedScroller from '@/components/ThemeScroller';
 import ThemedText from '@/components/ThemedText';
@@ -93,6 +94,30 @@ function getBookingEndDate(booking: Booking): Date {
     0,
     0
   );
+}
+
+function getBookingStartDate(booking: Booking): Date {
+  const dateStr = (booking.date || '').slice(0, 10);
+  const [y, m, d] = dateStr.split('-').map(Number);
+  const parts = (booking.slotStart || '00:00').trim().split(':');
+  const hh = Number(parts[0]);
+  const mm = Number(parts[1]);
+  return new Date(
+    Number.isFinite(y) ? y : 0,
+    Number.isFinite(m) ? m - 1 : 0,
+    Number.isFinite(d) ? d : 1,
+    Number.isFinite(hh) ? hh : 0,
+    Number.isFinite(mm) ? mm : 0,
+    0,
+    0
+  );
+}
+
+function isBookingCurrent(booking: Booking): boolean {
+  const status = (booking.status ?? '').toLowerCase();
+  if (status === 'cancelled' || status === 'canceled') return false;
+  const now = Date.now();
+  return getBookingStartDate(booking).getTime() <= now && getBookingEndDate(booking).getTime() >= now;
 }
 
 function isBookingPast(booking: Booking): boolean {
@@ -222,8 +247,9 @@ const BookingDetailScreen = () => {
   const status = (booking.status ?? '').toLowerCase();
   const isCancelled = status === 'cancelled' || status === 'canceled';
   const isCompleted = status === 'completed';
-  const isPast = !isCancelled && (isCompleted || isBookingPast(booking));
-  const isUpcoming = !isCancelled && !isPast;
+  const isCurrent = !isCancelled && isBookingCurrent(booking);
+  const isPast = !isCancelled && !isCurrent && (isCompleted || isBookingPast(booking));
+  const isUpcoming = !isCancelled && !isCurrent && !isPast;
   const cancelMessage = `${t('tripDetailCancelConfirmIntro')} ${appointment.dateStr} ${appointment.fromTime} ${t('tripDetailCancelConfirmAtBranch')} ${booking.branch?.name ?? '—'}.`;
   const carouselImages =
     branch != null
@@ -458,6 +484,17 @@ const BookingDetailScreen = () => {
 
       <ThemedFooter>
         <View className="flex-row overflow-hidden rounded-2xl bg-light-secondary dark:bg-dark-secondary">
+          {isCancelled && (
+            <View className="flex-1 flex-row items-center justify-center gap-2 py-3.5">
+              <ThemedText className="text-sm font-semibold text-red-500 dark:text-red-400">Zrušená rezervace</ThemedText>
+            </View>
+          )}
+          {isCurrent && (
+            <View className="flex-1 flex-row items-center justify-center gap-2 py-3.5">
+              <LiveIndicator variant="green" size="md" />
+              <ThemedText className="text-sm font-semibold">Probíhá</ThemedText>
+            </View>
+          )}
           {isPast && (
             <>
               <Button

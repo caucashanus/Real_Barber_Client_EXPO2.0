@@ -1057,7 +1057,6 @@ export const en = {
   reservationNoSlotsSelection: 'No time slots are available for the selected options.',
   reservationSummaryTitle: 'Booking summary',
   reservationSummarySubtitle: 'Review your details before confirming.',
-  reservationSummaryConfirmHint: 'Completing the flow will create your booking.',
   reservationSummaryBranch: 'Branch',
   reservationSummaryWithSpecialist: 'With your barber',
   reservationSummaryAppointment: 'Your appointment',

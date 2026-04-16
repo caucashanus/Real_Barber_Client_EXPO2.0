@@ -71,6 +71,9 @@ function groupBookingsByYear(
 ): Record<string, Booking[]> {
   const byYear: Record<string, Booking[]> = {};
   const sorted = [...bookings].sort((a, b) => {
+    const aCurrent = isBookingCurrent(a);
+    const bCurrent = isBookingCurrent(b);
+    if (aCurrent !== bCurrent) return aCurrent ? -1 : 1;
     if (options?.upcomingFirst) {
       const aUp = isBookingUpcoming(a);
       const bUp = isBookingUpcoming(b);
@@ -558,53 +561,66 @@ const BookingCard = (props: {
       </Pressable>
       {!isCancelled && (
         <View className="flex-row rounded-b-2xl bg-light-secondary dark:bg-dark-secondary">
-          <Button
-            variant="ghost"
-            size="small"
-            title={t('tripsViewBooking')}
-            onPress={goToDetail}
-            className="flex-1 rounded-none rounded-bl-2xl px-0 py-3.5"
-            textClassName="text-sm font-semibold text-neutral-800 dark:text-neutral-200"
-          />
-          <View className="w-px self-stretch bg-neutral-200 dark:bg-neutral-700" />
-          {isPast && !hasReview ? (
+          {isCurrent ? (
             <Button
               variant="ghost"
               size="small"
-              title={t('tripsAddReview')}
-              onPress={onOpenReview}
-              className="flex-1 rounded-none rounded-br-2xl px-0 py-3.5"
-              textClassName="text-sm font-semibold text-neutral-800 dark:text-neutral-200"
-            />
-          ) : isPast && hasReview ? (
-            <TouchableOpacity
-              onPress={onOpenReview}
-              activeOpacity={0.7}
-              className="flex-1 items-center justify-center rounded-br-2xl py-3.5">
-              <ShowRating rating={reviewRating!} size="sm" displayMode="stars" />
-            </TouchableOpacity>
-          ) : isUpcoming ? (
-            <Button
-              variant="ghost"
-              size="small"
-              title={t('tripDetailMoveButton')}
-              iconStart="Calendar"
-              iconSize={16}
-              onPress={() =>
-                router.push(`/screens/reschedule?id=${encodeURIComponent(booking.id)}`)
-              }
-              className="flex-1 rounded-none rounded-br-2xl px-0 py-3.5"
-              textClassName="text-sm font-semibold text-neutral-800 dark:text-neutral-200"
+              title="Zobrazit probíhající rezervaci"
+              onPress={goToDetail}
+              className="flex-1 rounded-none rounded-b-2xl px-0 py-3.5"
+              textClassName="text-sm font-semibold text-green-600 dark:text-green-400"
             />
           ) : (
-            <Button
-              variant="ghost"
-              size="small"
-              title={t('tripsMessage')}
-              onPress={() => router.push('/screens/chat/user')}
-              className="flex-1 rounded-none rounded-br-2xl px-0 py-3.5"
-              textClassName="text-sm font-semibold text-neutral-800 dark:text-neutral-200"
-            />
+            <>
+              <Button
+                variant="ghost"
+                size="small"
+                title={t('tripsViewBooking')}
+                onPress={goToDetail}
+                className="flex-1 rounded-none rounded-bl-2xl px-0 py-3.5"
+                textClassName="text-sm font-semibold text-neutral-800 dark:text-neutral-200"
+              />
+              <View className="w-px self-stretch bg-neutral-200 dark:bg-neutral-700" />
+              {isPast && !hasReview ? (
+                <Button
+                  variant="ghost"
+                  size="small"
+                  title={t('tripsAddReview')}
+                  onPress={onOpenReview}
+                  className="flex-1 rounded-none rounded-br-2xl px-0 py-3.5"
+                  textClassName="text-sm font-semibold text-neutral-800 dark:text-neutral-200"
+                />
+              ) : isPast && hasReview ? (
+                <TouchableOpacity
+                  onPress={onOpenReview}
+                  activeOpacity={0.7}
+                  className="flex-1 items-center justify-center rounded-br-2xl py-3.5">
+                  <ShowRating rating={reviewRating!} size="sm" displayMode="stars" />
+                </TouchableOpacity>
+              ) : isUpcoming ? (
+                <Button
+                  variant="ghost"
+                  size="small"
+                  title={t('tripDetailMoveButton')}
+                  iconStart="Calendar"
+                  iconSize={16}
+                  onPress={() =>
+                    router.push(`/screens/reschedule?id=${encodeURIComponent(booking.id)}`)
+                  }
+                  className="flex-1 rounded-none rounded-br-2xl px-0 py-3.5"
+                  textClassName="text-sm font-semibold text-neutral-800 dark:text-neutral-200"
+                />
+              ) : (
+                <Button
+                  variant="ghost"
+                  size="small"
+                  title={t('tripsMessage')}
+                  onPress={() => router.push('/screens/chat/user')}
+                  className="flex-1 rounded-none rounded-br-2xl px-0 py-3.5"
+                  textClassName="text-sm font-semibold text-neutral-800 dark:text-neutral-200"
+                />
+              )}
+            </>
           )}
         </View>
       )}

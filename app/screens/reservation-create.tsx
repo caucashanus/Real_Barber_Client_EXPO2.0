@@ -1443,11 +1443,6 @@ export default function ReservationCreateScreen() {
               {t('reservationSummarySubtitle')}
             </ThemedText>
 
-            <View className="bg-light-accent/10 dark:bg-dark-accent/15 border-light-accent/25 dark:border-dark-accent/30 mt-3 rounded-xl border p-3">
-              <ThemedText className="text-center text-sm font-medium text-light-text dark:text-dark-text">
-                {t('reservationSummaryConfirmHint')}
-              </ThemedText>
-            </View>
 
             <Divider className="mt-4 h-2 bg-light-secondary dark:bg-dark-darker" />
 

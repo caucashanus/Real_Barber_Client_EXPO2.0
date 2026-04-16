@@ -5,12 +5,10 @@ import { ActivityIndicator, Image, Pressable, View } from 'react-native';
 import { getBookings, type Booking } from '@/api/bookings';
 import { useAuth } from '@/app/contexts/AuthContext';
 import Avatar from '@/components/Avatar';
+import Icon from '@/components/Icon';
 import ThemeScroller from '@/components/ThemeScroller';
 import ThemedText from '@/components/ThemedText';
-import { List } from '@/components/layout/List';
-import ListItem from '@/components/layout/ListItem';
 import Section from '@/components/layout/Section';
-import { BRANCH_MARKER_IMAGES } from '@/constants/branch-marker-images';
 import { isReservationIntroCooldownActive } from '@/utils/reservation-intro-cooldown';
 
 function getBookingEndDate(booking: Booking): Date {
@@ -156,59 +154,57 @@ export default function RealBarberHomeTab() {
 
         {/* Recent bookings */}
         <Section title="Nedávné" titleSize="md" className="mt-6" />
-        <View className="-mx-global mt-2 px-0">
-          <View className="rounded-2xl bg-light-secondary p-2 dark:bg-dark-secondary">
-            {recentLoading ? (
-              <View className="items-center py-6">
-                <ActivityIndicator size="small" />
-                <ThemedText className="mt-2 text-sm text-light-subtext dark:text-dark-subtext">
-                  Načítám…
-                </ThemedText>
-              </View>
-            ) : recentBookings.length === 0 ? (
-              <View className="px-4 py-6">
-                <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext">
-                  Zatím nemáte žádné rezervace.
-                </ThemedText>
-              </View>
-            ) : (
-              <List variant="divided" spacing={10}>
-                {recentBookings.map((b) => (
-                  <ListItem
-                    key={b.id}
-                    leading={
-                      <View className="flex-row items-center gap-2">
-                        <View className="h-10 w-10 overflow-hidden rounded-xl bg-light-primary dark:bg-dark-primary">
-                          {b.branch?.name && BRANCH_MARKER_IMAGES[b.branch.name] ? (
-                            <Image
-                              source={BRANCH_MARKER_IMAGES[b.branch.name]}
-                              className="h-10 w-10"
-                              resizeMode="cover"
-                            />
-                          ) : null}
-                        </View>
-                        <ThemedText className="text-sm font-semibold text-light-subtext dark:text-dark-subtext">
-                          +
-                        </ThemedText>
-                        <Avatar
-                          size="sm"
-                          src={b.employee?.avatarUrl ?? undefined}
-                          name={b.employee?.name ?? undefined}
-                          className="bg-light-primary dark:bg-dark-primary"
-                        />
-                      </View>
-                    }
-                    title={`${b.item?.name ?? 'Rezervace'} - ${b.employee?.name ?? '—'}`}
-                    subtitle={b.branch?.name ?? ''}
-                    onPress={() =>
-                      router.push(`/screens/trip-detail?id=${encodeURIComponent(b.id)}` as any)
-                    }
-                  />
-                ))}
-              </List>
-            )}
+        {recentLoading ? (
+          <View className="items-center py-6">
+            <ActivityIndicator size="small" />
+            <ThemedText className="mt-2 text-sm text-light-subtext dark:text-dark-subtext">
+              Načítám…
+            </ThemedText>
           </View>
-        </View>
+        ) : recentBookings.length === 0 ? (
+          <View className="py-4">
+            <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext">
+              Zatím nemáte žádné rezervace.
+            </ThemedText>
+          </View>
+        ) : (
+          <View className="-mx-global overflow-hidden rounded-2xl bg-light-secondary dark:bg-dark-secondary">
+            {recentBookings.map((b, i) => (
+              <Pressable
+                key={b.id}
+                onPress={() =>
+                  router.push(`/screens/trip-detail?id=${encodeURIComponent(b.id)}` as any)
+                }
+                className="active:opacity-70">
+                {i > 0 && (
+                  <View className="mx-4 h-px bg-neutral-200 dark:bg-neutral-700" />
+                )}
+                <View className="flex-row items-center gap-3 px-4 py-3">
+                  <Avatar
+                    size="md"
+                    src={b.employee?.avatarUrl ?? undefined}
+                    name={b.employee?.name ?? undefined}
+                  />
+                  <View className="min-w-0 flex-1">
+                    <ThemedText className="text-sm font-semibold" numberOfLines={1}>
+                      {b.item?.name ?? 'Rezervace'}
+                    </ThemedText>
+                    <ThemedText className="mt-0.5 text-xs text-light-subtext dark:text-dark-subtext" numberOfLines={1}>
+                      {b.employee?.name ?? '—'} · {b.branch?.name ?? ''}
+                    </ThemedText>
+                    <View className="mt-1 flex-row items-center gap-1">
+                      <Icon name="Calendar" size={11} className="text-light-subtext dark:text-dark-subtext" />
+                      <ThemedText className="text-xs text-light-subtext dark:text-dark-subtext">
+                        {b.date ? b.date.slice(0, 10) : '—'}{b.slotStart ? ` · ${b.slotStart}` : ''}
+                      </ThemedText>
+                    </View>
+                  </View>
+                  <Icon name="ChevronRight" size={16} className="text-light-subtext dark:text-dark-subtext" />
+                </View>
+              </Pressable>
+            ))}
+          </View>
+        )}
       </View>
     </ThemeScroller>
   );
