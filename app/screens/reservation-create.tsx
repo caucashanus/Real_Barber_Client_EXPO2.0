@@ -244,13 +244,22 @@ function isReservationStepValid(stepIndex: number, d: ReservationFlowData): bool
   return true;
 }
 
+const HIDDEN_CATEGORY_ID_PREFIXES = ['2d7624', 'd0a2cc'];
+
+function isCategoryHidden(categoryId: string | null | undefined): boolean {
+  if (!categoryId) return false;
+  return HIDDEN_CATEGORY_ID_PREFIXES.some((prefix) => categoryId.startsWith(prefix));
+}
+
 function groupServicesByCategory(
   services: ServiceOption[],
   otherCategoryLabel: string
 ): { key: string; name: string; services: ServiceOption[] }[] {
   const map = new Map<string, { key: string; name: string; services: ServiceOption[] }>();
   for (const svc of services) {
-    const key = svc.category?.id ?? svc.category?.name ?? 'other';
+    const catId = svc.category?.id;
+    if (isCategoryHidden(catId)) continue;
+    const key = catId ?? svc.category?.name ?? 'other';
     const name = svc.category?.name ?? otherCategoryLabel;
     if (!map.has(key)) map.set(key, { key, name, services: [] });
     map.get(key)!.services.push(svc);

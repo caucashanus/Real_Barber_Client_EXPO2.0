@@ -115,7 +115,7 @@ export default function RealBarberHomeTab() {
               <View className="items-center p-4">
                 {a.id === 'create' && (
                   <Image
-                    source={require('@/assets/img/search-modal-bookings.png')}
+                    source={require('@/assets/img/plus-ikon.png')}
                     style={{ width: 32, height: 32 }}
                     resizeMode="contain"
                     className="mb-2"
