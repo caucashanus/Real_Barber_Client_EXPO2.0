@@ -1,4 +1,3 @@
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { router, useLocalSearchParams } from 'expo-router';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { View, ScrollView, ActivityIndicator, Image } from 'react-native';
@@ -6,7 +5,6 @@ import { View, ScrollView, ActivityIndicator, Image } from 'react-native';
 import { getBookingById, updateBooking, type Booking } from '@/api/bookings';
 import { useAuth } from '@/app/contexts/AuthContext';
 import { useLanguage } from '@/app/contexts/LanguageContext';
-import { RB_RESCHEDULE_HINT_KEY } from '@/app/contexts/LiveActivityReconcileProvider';
 import useThemeColors from '@/app/contexts/ThemeColors';
 import { useTranslation } from '@/app/hooks/useTranslation';
 import { Button } from '@/components/Button';
@@ -16,20 +14,6 @@ import ThemedText from '@/components/ThemedText';
 import CurrentBookingCard from '@/components/booking/CurrentBookingCard';
 import Divider from '@/components/layout/Divider';
 import Section from '@/components/layout/Section';
-import { rbLiveActivityUpdateForBooking } from '@/lib/rb-live-activity';
-import { buildReservationRescheduledActivity } from '@/lib/rb-live-activity-reservation';
-
-type RescheduleHint = {
-  bookingId: string;
-  startAt: string;
-  endAt: string;
-  ts: number;
-  branchName: string;
-  employeeName: string;
-  employeeAvatarUrl: string;
-  price: number | null;
-  detailLine: string;
-};
 
 function formatDateLabel(date: string, locale: string): string {
   const parsed = new Date(date);
@@ -111,40 +95,6 @@ export default function RescheduleSummaryScreen() {
         slotStart,
         slotEnd,
       });
-      // Hint for immediate foreground reconcile without requiring Trips refresh.
-      const startIso = new Date(`${date}T${slotStart}:00`).toISOString();
-      const endIso = new Date(`${date}T${slotEnd}:00`).toISOString();
-      const hint: RescheduleHint = {
-        bookingId: booking.id,
-        startAt: startIso,
-        endAt: endIso,
-        ts: Date.now(),
-        branchName: booking.branch?.name ?? '',
-        employeeName: booking.employee?.name ?? '',
-        employeeAvatarUrl: booking.employee?.avatarUrl ?? '',
-        price: Number.isFinite(Number(booking.price)) ? Number(booking.price) : null,
-        detailLine: `${slotStart}–${slotEnd}`,
-      };
-      AsyncStorage.setItem(RB_RESCHEDULE_HINT_KEY, JSON.stringify(hint)).catch(() => undefined);
-      const movedDescriptor = buildReservationRescheduledActivity(hint, {
-        locale,
-        accentHex: '',
-        employeeAvatarAuthToken: apiToken ?? undefined,
-        copy: {
-          startsInLabel: t('liveActivityStartsInLabel'),
-          activeLabel: t('liveActivityEndsInLabel'),
-          rescheduledLabel: locale === 'cs' ? 'Rezervace přesunuta' : 'Booking moved',
-          rescheduledHeadline: locale === 'cs' ? 'Změna rezervace' : 'Booking updated',
-          rescheduledDetail: locale === 'cs' ? 'Klepněte pro detail' : 'Tap for details',
-          cancelledLabel: locale === 'cs' ? 'Rezervace zrušena' : 'Booking cancelled',
-          cancelledHeadline: locale === 'cs' ? 'Zrušeno' : 'Cancelled',
-          cancelledDetail:
-            locale === 'cs' ? 'Klepněte pro detail rezervace' : 'Tap for booking details',
-          reviewLabel: locale === 'cs' ? 'Ohodnoťte rezervaci' : 'Review your booking',
-          reviewHeadline: locale === 'cs' ? 'Děkujeme!' : 'Thank you!',
-        },
-      });
-      await rbLiveActivityUpdateForBooking(booking.id, movedDescriptor.state);
       router.replace('/trips');
     } catch (e) {
       setSubmitError(e instanceof Error ? e.message : String(e));

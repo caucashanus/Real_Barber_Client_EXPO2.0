@@ -34,8 +34,8 @@ const EmptyScreen = () => {
           image={require('@/assets/img/barbers.png')}
         />
         <ListingCard
-          title="House in Barcelona"
-          description="Barcelona, Spain"
+          title=""
+          description=""
           image={require('@/assets/img/barbers.png')}
         />
         <ListingCard

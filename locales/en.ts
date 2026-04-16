@@ -147,9 +147,6 @@ export const en = {
   tripsMinutes: 'min',
   tripsSeconds: 's',
   tripsIn: 'In',
-  liveActivityStartsInLabel: 'Starts in',
-  liveActivityEndsInLabel: 'Ends in',
-
   // Review
   reviewWriteTo: 'Write review to',
   reviewWriteFallback: 'Write a Review',

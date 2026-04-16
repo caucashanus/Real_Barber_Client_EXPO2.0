@@ -151,9 +151,6 @@ export const cs: Record<TranslationKey, string> = {
   tripsMinutes: 'min',
   tripsSeconds: 's',
   tripsIn: 'Za',
-  liveActivityStartsInLabel: 'Začátek za',
-  liveActivityEndsInLabel: 'Končí za',
-
   // Review
   reviewWriteTo: 'Napsat recenzi pro',
   reviewWriteFallback: 'Napsat recenzi',

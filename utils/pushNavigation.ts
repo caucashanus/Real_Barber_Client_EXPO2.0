@@ -12,7 +12,7 @@ export function buildReservationDetailHref(reservationId: string): string {
 }
 
 /**
- * Deep link pro Live Activity / widget tap (scheme `realbarber`):
+ * Deep link pro widget tap (scheme `realbarber`):
  * `realbarber://screens/trip-detail?id=<reservationId>&openReview=1`
  */
 export function buildReservationDetailDeepLink(

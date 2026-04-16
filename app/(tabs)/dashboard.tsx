@@ -64,7 +64,7 @@ const DashboardScreen = () => {
       id: 1,
       type: 'booking',
       title: 'New Booking Confirmed',
-      message: 'Maria Rodriguez booked your Beachfront Villa for 7 nights',
+      message: '',
       time: '5 min ago',
       read: false,
       icon: 'Calendar',

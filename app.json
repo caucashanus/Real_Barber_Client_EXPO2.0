@@ -22,7 +22,6 @@
         }
       ],
       "@bacons/apple-targets",
-      "./plugins/with-rb-live-activity-bridge.js",
       "@react-native-community/datetimepicker",
       "expo-asset",
       "expo-image",
@@ -45,8 +44,7 @@
       "buildNumber": "2",
       "supportsTablet": false,
       "infoPlist": {
-        "ITSAppUsesNonExemptEncryption": false,
-        "NSSupportsLiveActivities": true
+        "ITSAppUsesNonExemptEncryption": false
       },
       "entitlements": {
         "com.apple.security.application-groups": ["group.com.realbarber.client"]

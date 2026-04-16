@@ -21,8 +21,8 @@ import ListLink from '@/components/ListLink';
 // Sample booking request data from host's perspective
 const bookingData = {
   id: '1',
-  propertyName: 'Luxury Beachfront Villa',
-  location: 'Barcelona, Spain',
+  propertyName: '',
+  location: '',
   guest: {
     name: 'John Smith',
     avatar: require('@/assets/img/wallet/RB.avatar.jpg'),

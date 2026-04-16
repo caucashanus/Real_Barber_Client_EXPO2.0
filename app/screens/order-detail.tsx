@@ -54,7 +54,7 @@ interface PriceBreakdown {
 // Sample property data
 const propertyData: Property = {
   id: '1',
-  name: 'Luxury Penthouse with Central Park View',
+  name: '',
   image: require('@/assets/img/barbers.png'),
   rating: 4.9,
   reviews: 284,

@@ -80,7 +80,7 @@ const ReviewScreen = () => {
     entityEmployeeAvatar?: string;
   }>();
 
-  const displayName = entityName ? decodeURIComponent(entityName) : 'Luxury Beachfront Villa';
+  const displayName = entityName ? decodeURIComponent(entityName) : '';
   const imageUrl = entityImage ? decodeURIComponent(entityImage) : '';
   const employeeName = entityEmployeeName ? decodeURIComponent(entityEmployeeName) : '';
   const employeeAvatarUrl = entityEmployeeAvatar ? decodeURIComponent(entityEmployeeAvatar) : '';

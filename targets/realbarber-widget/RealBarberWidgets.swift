@@ -5,6 +5,5 @@ import WidgetKit
 struct RealBarberWidgets: WidgetBundle {
   var body: some Widget {
     RealBarberHomeWidget()
-    RealBarberLiveActivityWidget()
   }
 }

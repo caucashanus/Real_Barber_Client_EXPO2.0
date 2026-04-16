@@ -6,7 +6,6 @@ import { ActionSheetRef } from 'react-native-actions-sheet';
 import { getBranches, type Branch } from '@/api/branches';
 import { getEmployees, type Employee, type EmployeeBranch } from '@/api/employees';
 import { useAuth } from '@/app/contexts/AuthContext';
-import useThemeColors from '@/app/contexts/ThemeColors';
 import { useTranslation } from '@/app/hooks/useTranslation';
 import ActionSheetThemed from '@/components/ActionSheetThemed';
 import { Button } from '@/components/Button';
@@ -316,7 +315,6 @@ interface ScheduleCardProps {
 }
 
 const ScheduleCard = ({ name, image, branchNames, dateVariant }: ScheduleCardProps) => {
-  const colors = useThemeColors();
   return (
     <View
       style={{ ...shadowPresets.large }}
@@ -347,18 +345,9 @@ const ScheduleCard = ({ name, image, branchNames, dateVariant }: ScheduleCardPro
         )}
       </View>
       <View className="p-3">
-        <ThemedText className="mb-2 text-base font-semibold" numberOfLines={1}>
+        <ThemedText className="text-base font-semibold" numberOfLines={1}>
           {name}
         </ThemedText>
-        <View className="w-full flex-row items-center">
-          <View className="mr-2 h-1.5 flex-1 rounded-full bg-neutral-200 dark:bg-neutral-800">
-            <View
-              style={{ backgroundColor: colors.highlight, width: '50%' }}
-              className="h-full rounded-full"
-            />
-          </View>
-          <ThemedText className="text-xs text-light-subtext dark:text-dark-subtext">2/4</ThemedText>
-        </View>
       </View>
     </View>
   );

@@ -57,9 +57,8 @@ import {
 
 const property = {
   id: 1,
-  title: 'Luxury Penthouse with Central Park View',
-  description:
-    'Stunning penthouse apartment with breathtaking views of Central Park. This luxurious 3-bedroom home features floor-to-ceiling windows, a gourmet kitchen, and a private terrace. Perfect for families or groups looking for an upscale NYC experience.',
+  title: '',
+  description: '',
   price: '$850',
   features: {
     guests: '6 guests',
@@ -101,7 +100,7 @@ const reviewsData = [
   {
     rating: 5,
     description:
-      'Luxurious apartment with everything you need. We especially loved the terrace and the Central Park views!',
+      '',
     date: 'May 2023',
     username: 'Maria S.',
     avatar: 'https://randomuser.me/api/portraits/women/45.jpg',
@@ -352,7 +351,7 @@ function buildProductShareMessage(params: {
 const similarProperties = [
   {
     id: 2,
-    title: 'Modern Loft in SoHo',
+    title: '',
     price: '$650/night',
     image:
       'https://images.pexels.com/photos/1571453/pexels-photo-1571453.jpeg?auto=compress&cs=tinysrgb&w=1200',

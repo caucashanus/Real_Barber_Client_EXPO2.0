@@ -73,7 +73,7 @@ export default function RealBarberHomeTab() {
       {
         id: 'bookings',
         title: 'Rezervace',
-        subtitle: 'Moje termíny',
+        subtitle: 'Všechny mé rezervace',
         icon: 'Calendar',
         onPress: () => router.push('/trips' as any),
       },
@@ -111,11 +111,45 @@ export default function RealBarberHomeTab() {
             <Pressable
               key={a.id}
               onPress={a.onPress}
-              className="mb-2 w-[48.7%] rounded-2xl bg-light-secondary p-4 dark:bg-dark-secondary">
-              <ThemedText className="text-base font-semibold">{a.title}</ThemedText>
-              <ThemedText className="mt-0.5 text-xs text-light-subtext dark:text-dark-subtext">
-                {a.subtitle}
-              </ThemedText>
+              className="mb-2 w-[48.7%] rounded-2xl bg-light-secondary dark:bg-dark-secondary">
+              <View className="items-center p-4">
+                {a.id === 'create' && (
+                  <Image
+                    source={require('@/assets/img/search-modal-bookings.png')}
+                    style={{ width: 32, height: 32 }}
+                    resizeMode="contain"
+                    className="mb-2"
+                  />
+                )}
+                {a.id === 'branches' && (
+                  <Image
+                    source={require('@/assets/img/search-modal-branches.png')}
+                    style={{ width: 32, height: 32 }}
+                    resizeMode="contain"
+                    className="mb-2"
+                  />
+                )}
+                {a.id === 'barbers' && (
+                  <Image
+                    source={require('@/assets/img/barbers.png')}
+                    style={{ width: 32, height: 32 }}
+                    resizeMode="contain"
+                    className="mb-2"
+                  />
+                )}
+                {a.id === 'bookings' && (
+                  <Image
+                    source={require('@/assets/img/search-modal-bookings.png')}
+                    style={{ width: 32, height: 32 }}
+                    resizeMode="contain"
+                    className="mb-2"
+                  />
+                )}
+                <ThemedText className="text-base font-semibold">{a.title}</ThemedText>
+                <ThemedText className="mt-0.5 text-xs text-light-subtext dark:text-dark-subtext">
+                  {a.subtitle}
+                </ThemedText>
+              </View>
             </Pressable>
           ))}
         </View>

@@ -1,18 +1,15 @@
 import { useFocusEffect } from '@react-navigation/native';
 import { useRouter } from 'expo-router';
-import React, { useCallback, useEffect, useMemo, useState, useRef } from 'react';
+import React, { useCallback, useEffect, useState, useRef } from 'react';
 import {
   View,
   TouchableOpacity,
   ActivityIndicator,
   Animated,
   Pressable,
-  Platform,
 } from 'react-native';
 
 import { CRM_BASE, getBookings, type Booking } from '@/api/bookings';
-import { getEmployeeById } from '@/api/employees';
-import { registerActivityKitPushToken } from '@/api/live-activity-push';
 import { getClientOverview, type ClientOverviewReservation } from '@/api/reviews';
 import { useAccentColor } from '@/app/contexts/AccentColorContext';
 import { useAuth } from '@/app/contexts/AuthContext';
@@ -30,20 +27,12 @@ import ShowRating from '@/components/ShowRating';
 import ThemeScroller from '@/components/ThemeScroller';
 import ThemedText from '@/components/ThemedText';
 import {
-  type RBLiveActivityHandle,
-  rbLiveActivityStart,
-  rbLiveActivityWaitForPushToken,
-} from '@/lib/rb-live-activity';
-import {
-  buildReservationLiveActivityFromBooking,
   getBookingEndDate,
   getBookingStartDate,
   isBookingCurrent,
   isBookingPast,
   isBookingUpcoming,
-  pickLiveActivityBooking,
-  type RBLiveActivityCopy,
-} from '@/lib/rb-live-activity-reservation';
+} from '@/utils/bookingHelpers';
 import { isReservationIntroCooldownActive } from '@/utils/reservation-intro-cooldown';
 import { shadowPresets } from '@/utils/useShadow';
 
@@ -56,10 +45,6 @@ type BookingFilter =
   | 'rated'
   | 'pending_review';
 
-// Zapnuto i v __DEV__, aby šlo testovat auto-start s reálnými rezervacemi (lock screen).
-// Pro čistý design-only režim bez instancí z tabu Trips nastav na `!__DEV__`.
-const ENABLE_AUTO_LIVE_ACTIVITY = true;
-
 /** Absolutní URL pro stažení avatara (CRM často vrací relativní cesty). */
 function resolveCrmMediaUrl(raw: string | null | undefined): string {
   const s = raw?.trim() ?? '';
@@ -70,39 +55,6 @@ function resolveCrmMediaUrl(raw: string | null | undefined): string {
   return s;
 }
 
-/**
- * GET /bookings často neobsahuje `employee.avatarUrl`; detail zaměstnance ho má.
- * Výsledek cachujeme pod `employeeId`, aby se effect při každém ticku netrefil do API.
- */
-async function resolveLiveActivityEmployeeAvatarUrl(
-  apiToken: string | null,
-  target: Booking,
-  cache: Record<string, string>
-): Promise<string | undefined> {
-  const fromList = resolveCrmMediaUrl(target.employee?.avatarUrl);
-  if (fromList) return fromList;
-
-  const empId = target.employeeId;
-  if (!empId || !apiToken) return undefined;
-  const cached = cache[empId];
-  if (cached) return cached;
-
-  try {
-    const emp = await getEmployeeById(apiToken, empId);
-    let url = resolveCrmMediaUrl(emp.avatarUrl ?? undefined);
-    if (!url && emp.media) {
-      const items = Array.isArray(emp.media) ? emp.media : Object.values(emp.media);
-      const firstWithUrl = items.find((m): m is { url: string } =>
-        Boolean(m && typeof m === 'object' && typeof (m as { url?: string }).url === 'string')
-      );
-      if (firstWithUrl) url = resolveCrmMediaUrl(firstWithUrl.url);
-    }
-    if (url) cache[empId] = url;
-    return url || undefined;
-  } catch {
-    return undefined;
-  }
-}
 
 function formatBookingDate(b: Booking, locale: string = 'en'): string {
   const d = new Date(b.date);
@@ -282,11 +234,6 @@ const TripsScreen = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [selectedFilter, setSelectedFilter] = useState<BookingFilter>('all');
-  const liveInstanceRef = useRef<RBLiveActivityHandle | null>(null);
-  const liveBookingIdRef = useRef<string | null>(null);
-  const livePhaseTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const liveActivityAvatarCacheRef = useRef<Record<string, string>>({});
-
   const counts = countByFilter(bookings, bookingReviewMap);
 
   const filteredBookings =
@@ -308,23 +255,6 @@ const TripsScreen = () => {
                 : selectedFilter === 'pending_review'
                   ? bookings.filter((b) => isBookingPast(b) && bookingReviewMap[b.id] == null)
                   : bookings;
-
-  const liveActivityCopy = useMemo<RBLiveActivityCopy>(
-    () => ({
-      startsInLabel: t('liveActivityStartsInLabel'),
-      activeLabel: t('liveActivityEndsInLabel'),
-      rescheduledLabel: locale === 'cs' ? 'Rezervace přesunuta' : 'Booking moved',
-      rescheduledHeadline: locale === 'cs' ? 'Změna rezervace' : 'Booking updated',
-      rescheduledDetail: locale === 'cs' ? 'Klepněte pro detail' : 'Tap for details',
-      cancelledLabel: locale === 'cs' ? 'Rezervace zrušena' : 'Booking cancelled',
-      cancelledHeadline: locale === 'cs' ? 'Zrušeno' : 'Cancelled',
-      cancelledDetail:
-        locale === 'cs' ? 'Klepněte pro detail rezervace' : 'Tap for booking details',
-      reviewLabel: locale === 'cs' ? 'Ohodnoťte rezervaci' : 'Review your booking',
-      reviewHeadline: locale === 'cs' ? 'Děkujeme!' : 'Thank you!',
-    }),
-    [locale, t]
-  );
 
   useEffect(() => {
     if (!apiToken) {
@@ -358,143 +288,6 @@ const TripsScreen = () => {
       .catch((e) => setError(e instanceof Error ? e.message : 'Failed to load'))
       .finally(() => setLoading(false));
   }, [apiToken, refreshBookingsBadge]);
-
-  useEffect(() => {
-    if (Platform.OS !== 'ios') return;
-    if (!ENABLE_AUTO_LIVE_ACTIVITY) return;
-
-    if (livePhaseTimeoutRef.current) {
-      clearTimeout(livePhaseTimeoutRef.current);
-      livePhaseTimeoutRef.current = null;
-    }
-
-    const target = pickLiveActivityBooking(bookings);
-    if (!target) {
-      const prev = liveInstanceRef.current;
-      liveInstanceRef.current = null;
-      liveBookingIdRef.current = null;
-      if (prev) {
-        prev.end().catch(() => undefined);
-      }
-      return;
-    }
-
-    const start = getBookingStartDate(target);
-    const end = getBookingEndDate(target);
-    const bookingId = target.id;
-    const startMs = start.getTime();
-    const endMs = end.getTime();
-
-    const syncLiveActivity = async () => {
-      try {
-        const employeeAvatarUrl = await resolveLiveActivityEmployeeAvatarUrl(
-          apiToken,
-          target,
-          liveActivityAvatarCacheRef.current
-        );
-        console.log('[LiveActivity] resolved avatar', {
-          bookingId,
-          employeeName: target.employee?.name ?? '',
-          employeeAvatarUrl: employeeAvatarUrl ? employeeAvatarUrl.slice(0, 120) : '',
-          hasAuthToken: Boolean(apiToken),
-        });
-        const descriptor = buildReservationLiveActivityFromBooking(target, {
-          locale,
-          accentHex: accentColor,
-          copy: liveActivityCopy,
-          employeeAvatarUrl,
-          employeeAvatarAuthToken: apiToken ?? undefined,
-          openReview: true,
-        });
-        const isNewForBooking = !liveInstanceRef.current || liveBookingIdRef.current !== bookingId;
-        if (isNewForBooking) {
-          liveBookingIdRef.current = bookingId;
-          console.log('[LiveActivity] start', {
-            bookingId,
-            phase: descriptor.state.phase,
-            presentation: descriptor.state.presentation,
-          });
-          liveInstanceRef.current = await rbLiveActivityStart(
-            descriptor.bookingId,
-            descriptor.state,
-            descriptor.deepLink
-          );
-          const handle = liveInstanceRef.current;
-          console.log('[LiveActivity] started', { bookingId, activityId: handle?.id });
-
-          const nextBoundaryMs =
-            descriptor.state.phase === 'scheduled'
-              ? startMs
-              : descriptor.state.phase === 'active'
-                ? endMs
-                : 0;
-
-          if (nextBoundaryMs > Date.now()) {
-            livePhaseTimeoutRef.current = setTimeout(
-              () => {
-                const h = liveInstanceRef.current;
-                if (!h || liveBookingIdRef.current !== bookingId) return;
-
-                const nextDescriptor = buildReservationLiveActivityFromBooking(target, {
-                  locale,
-                  accentHex: accentColor,
-                  copy: liveActivityCopy,
-                  employeeAvatarUrl,
-                  employeeAvatarAuthToken: apiToken ?? undefined,
-                  openReview: true,
-                  nowMs: Date.now(),
-                });
-
-                console.log('[LiveActivity] phase boundary refresh', {
-                  bookingId,
-                  phase: nextDescriptor.state.phase,
-                });
-                h.update(nextDescriptor.state).catch(() => undefined);
-              },
-              Math.max(0, nextBoundaryMs - Date.now()) + 1200
-            );
-          }
-
-          if (apiToken && handle) {
-            const activityId = handle.id;
-            const registerPushToken = async () => {
-              const pushToken = await rbLiveActivityWaitForPushToken(activityId);
-              if (!pushToken) return;
-              try {
-                await registerActivityKitPushToken(apiToken, {
-                  bookingId,
-                  activityId,
-                  pushToken,
-                });
-              } catch {
-                // CRM může endpoint ještě nemít — Live Activity v appce funguje i bez registrace.
-              }
-            };
-            registerPushToken().catch(() => undefined);
-          }
-        } else {
-          console.log('[LiveActivity] update', {
-            bookingId,
-            activityId: liveInstanceRef.current?.id,
-            phase: descriptor.state.phase,
-            presentation: descriptor.state.presentation,
-          });
-          await liveInstanceRef.current!.update(descriptor.state);
-        }
-      } catch (e) {
-        console.warn('[LiveActivity] failed', e);
-      }
-    };
-
-    syncLiveActivity().catch(() => undefined);
-
-    return () => {
-      if (livePhaseTimeoutRef.current) {
-        clearTimeout(livePhaseTimeoutRef.current);
-        livePhaseTimeoutRef.current = null;
-      }
-    };
-  }, [bookings, locale, t, accentColor, apiToken, liveActivityCopy]);
 
   useFocusEffect(
     useCallback(() => {
