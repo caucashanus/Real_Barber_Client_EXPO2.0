@@ -86,12 +86,14 @@ export default function SettingsScreen() {
               href="/screens/profile/currency"
             />
           ) : null}
+          {/* TODO: Změnit heslo - dočasně skryto
           <ListLink
             title={t('settingsChangePassword')}
             description={t('settingsChangePasswordDesc')}
             icon="KeyRound"
             href="/screens/change-password"
           />
+          */}
           <ListLink
             title={t('settingsDeleteAccount')}
             description={t('settingsDeleteAccountSectionDesc')}

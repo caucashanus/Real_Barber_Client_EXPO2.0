@@ -7,7 +7,7 @@ export const useThemeColors = () => {
 
   return {
     icon: isDark ? 'white' : 'black',
-    bg: isDark ? '#171717' : '#ffffff',
+    bg: isDark ? '#0F0F0F' : '#ffffff',
     invert: isDark ? '#000000' : '#ffffff',
     secondary: isDark ? '#262626' : '#F5F5F5',
     state: isDark ? 'rgba(255, 255, 255, 0.3)' : 'rgba(0, 0, 0, 0.3)',

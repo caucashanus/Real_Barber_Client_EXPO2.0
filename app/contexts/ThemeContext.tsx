@@ -16,7 +16,7 @@ export const ThemeProvider = ({ children }: { children: React.ReactNode }) => {
 
   useEffect(() => {
     AsyncStorage.getItem(THEME_STORAGE_KEY).then((stored) => {
-      const next = stored === 'dark' || stored === 'light' ? stored : 'light';
+      const next = stored === 'dark' || stored === 'light' ? stored : 'dark';
       try {
         if (typeof setColorScheme === 'function') {
           setColorScheme(next);
