@@ -1,7 +1,7 @@
 import { AntDesign } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import React from 'react';
-import { View, Text, Pressable } from 'react-native';
+import { View, Text, Pressable, Image } from 'react-native';
 import { useSafeAreaInsets, SafeAreaView } from 'react-native-safe-area-context';
 
 import useThemeColors from '../contexts/ThemeColors';
@@ -36,11 +36,19 @@ export default function OnboardingScreen() {
       style={{ paddingTop: insets.top, paddingBottom: insets.bottom }}
       className="flex-1 bg-light-primary dark:bg-dark-primary">
       <View className="relative flex-1 bg-light-primary dark:bg-dark-primary">
-        <View className="w-full flex-row items-center justify-end px-4 pt-2">
+        <View className="w-full flex-row items-center justify-between px-4 pt-2">
+          <Pressable
+            onPress={toggleLocale}
+            className="flex-row items-center gap-1.5 rounded-full border border-neutral-300 px-3 py-1.5 dark:border-neutral-600">
+            <Text style={{ fontSize: 14 }}>{switchFlag}</Text>
+            <Text className="text-xs font-medium text-neutral-800 dark:text-neutral-200">
+              {isEnglish ? 'CZ' : 'EN'}
+            </Text>
+          </Pressable>
           <ThemeToggle />
         </View>
 
-        <View className="flex w-full flex-1 flex-col items-start justify-center gap-2 px-global pb-4">
+        <View className="flex w-full flex-1 flex-col items-start justify-end gap-2 px-global pb-4">
           <View className="mb-8">
             <ThemedText className="text-4xl font-bold">{t('loginWelcomeBack')}</ThemedText>
             <ThemedText className="text-base text-light-subtext dark:text-dark-subtext">
@@ -50,11 +58,13 @@ export default function OnboardingScreen() {
           <Pressable
             onPress={() => router.push('/screens/login')}
             className="flex w-full flex-row items-center justify-center rounded-2xl border border-black py-4 dark:border-white">
-            <View className="top-4.5 absolute left-4">
-              <Icon name="ArrowRight" size={20} color={colors.text} />
-            </View>
-            <ThemedText className="pr-2 text-base font-medium">{t('welcomeStart')}</ThemedText>
+            <ThemedText className="text-base font-medium">{t('welcomeStart')}</ThemedText>
           </Pressable>
+          <Image
+            source={require('@/assets/img/welcomerb.png')}
+            style={{ width: '100%', height: 320, marginBottom: -110 }}
+            resizeMode="contain"
+          />
           {SHOW_WELCOME_GOOGLE_APPLE_BUTTONS ? (
             <>
               <Pressable
@@ -81,28 +91,6 @@ export default function OnboardingScreen() {
           ) : null}
         </View>
 
-        <View className="items-center justify-center px-4 pb-8 pt-2">
-          <Pressable
-            onPress={toggleLocale}
-            style={{
-              shadowColor: '#000',
-              shadowOffset: { width: 0, height: 2 },
-              shadowOpacity: 0.5,
-              shadowRadius: 3.84,
-              elevation: 8,
-              flexDirection: 'row',
-              alignItems: 'center',
-              justifyContent: 'center',
-            }}
-            className="min-w-[220px] rounded-full bg-neutral-900 px-6 py-3 dark:bg-neutral-100">
-            <Text style={{ fontSize: 16 }}>{switchFlag}</Text>
-            <Text
-              className="ml-2 text-base font-medium text-white dark:text-neutral-900"
-              numberOfLines={1}>
-              {switchLabel}
-            </Text>
-          </Pressable>
-        </View>
       </View>
     </SafeAreaView>
   );

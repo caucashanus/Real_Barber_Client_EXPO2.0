@@ -2,7 +2,7 @@
   "expo": {
     "name": "Real Barber",
     "slug": "realbarber",
-    "version": "1.0.2",
+    "version": "1.0.3",
     "runtimeVersion": "1.0.0",
     "scheme": "realbarber",
     "experiments": {
@@ -41,7 +41,7 @@
       "deploymentTarget": "16.2",
       "appleTeamId": "VK8YT9654D",
       "bundleIdentifier": "com.realbarber.client",
-      "buildNumber": "2",
+      "buildNumber": "3",
       "supportsTablet": false,
       "infoPlist": {
         "ITSAppUsesNonExemptEncryption": false

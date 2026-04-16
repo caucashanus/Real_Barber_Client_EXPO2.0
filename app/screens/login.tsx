@@ -1,6 +1,7 @@
 import { router } from 'expo-router';
-import React, { useState } from 'react';
-import { View, Keyboard, TouchableWithoutFeedback } from 'react-native';
+import React, { useState, useEffect, useRef } from 'react';
+import { View, Keyboard, TouchableWithoutFeedback, Animated, StyleSheet } from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
 
 import { requestClientOtp } from '@/api/auth';
 import { useTranslation } from '@/app/hooks/useTranslation';
@@ -10,6 +11,62 @@ import ThemedText from '@/components/ThemedText';
 import Input from '@/components/forms/Input';
 import Select from '@/components/forms/Select';
 import { COUNTRY_CODE_OPTIONS, formatPhoneDisplay } from '@/utils/phone';
+
+function ShimmerButton({ children }: { children: React.ReactNode }) {
+  const shimmerX = useRef(new Animated.Value(-1)).current;
+
+  useEffect(() => {
+    const loop = Animated.loop(
+      Animated.sequence([
+        Animated.timing(shimmerX, {
+          toValue: 2,
+          duration: 1800,
+          useNativeDriver: true,
+        }),
+        Animated.delay(1200),
+      ])
+    );
+    loop.start();
+    return () => loop.stop();
+  }, [shimmerX]);
+
+  const translateX = shimmerX.interpolate({
+    inputRange: [-1, 2],
+    outputRange: [-300, 300],
+  });
+
+  return (
+    <View style={styles.shimmerContainer}>
+      {children}
+      <Animated.View
+        pointerEvents="none"
+        style={[styles.shimmerOverlay, { transform: [{ translateX }] }]}>
+        <LinearGradient
+          colors={['transparent', 'rgba(255,255,255,0.25)', 'transparent']}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 0 }}
+          style={styles.shimmerGradient}
+        />
+      </Animated.View>
+    </View>
+  );
+}
+
+const styles = StyleSheet.create({
+  shimmerContainer: {
+    overflow: 'hidden',
+    borderRadius: 16,
+    marginBottom: 24,
+  },
+  shimmerOverlay: {
+    ...StyleSheet.absoluteFillObject,
+    zIndex: 10,
+  },
+  shimmerGradient: {
+    flex: 1,
+    width: 120,
+  },
+});
 
 export default function LoginScreen() {
   const { t } = useTranslation();
@@ -66,7 +123,6 @@ export default function LoginScreen() {
   return (
     <>
       <Header
-        showBackButton
         rightComponents={[
           <View
             key="password-login-badge"
@@ -125,14 +181,15 @@ export default function LoginScreen() {
               </ThemedText>
             ) : null}
 
-            <Button
-              title={t('loginContinue')}
-              onPress={() => void handleContinue()}
-              loading={isLoading}
-              size="large"
-              className="mb-6"
-              textClassName="font-bold text-lg"
-            />
+            <ShimmerButton>
+              <Button
+                title={t('loginContinue')}
+                onPress={() => void handleContinue()}
+                loading={isLoading}
+                size="large"
+                textClassName="font-bold text-lg"
+              />
+            </ShimmerButton>
           </View>
         </View>
       </TouchableWithoutFeedback>
