@@ -8,6 +8,7 @@ import {
   TouchableOpacity,
   Image,
   ActivityIndicator,
+  Share,
 } from 'react-native';
 
 import { getBookings } from '@/api/bookings';
@@ -27,7 +28,7 @@ import Divider from '@/components/layout/Divider';
 import { shadowPresets } from '@/utils/useShadow';
 
 /** Profil → Doporučení (`/screens/referrals`). */
-const SHOW_PROFILE_REFERRALS_SECTION = true;
+const SHOW_PROFILE_REFERRALS_SECTION = false;
 
 /** Profil → Nápověda (`/screens/help`). Nastav na `true`, až bude sekce znovu potřeba. */
 const SHOW_PROFILE_HELP_SECTION = false;
@@ -245,6 +246,16 @@ const PersonalProfile = () => {
             href="/screens/referrals"
           />
         ) : null}
+        <ListLink
+          showChevron
+          title="Poslat apku kamarádovi"
+          icon="Share2"
+          onPress={() =>
+            void Share.share({
+              message: 'https://apps.apple.com/ca/app/rb/id6760221388',
+            })
+          }
+        />
         <Divider />
         <ListLink
           showChevron

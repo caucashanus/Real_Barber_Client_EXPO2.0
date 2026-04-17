@@ -1,6 +1,6 @@
 import { router, useLocalSearchParams } from 'expo-router';
 import React, { useEffect, useMemo, useState } from 'react';
-import { View, Keyboard, TouchableWithoutFeedback, Pressable } from 'react-native';
+import { View, Keyboard, TouchableWithoutFeedback, Pressable, Image } from 'react-native';
 
 import { requestClientOtp, verifyClientOtp } from '@/api/auth';
 import { useAuth } from '@/app/contexts/AuthContext';
@@ -144,7 +144,8 @@ export default function LoginOtpScreen() {
     <>
       <Header showBackButton />
       <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
-        <View className="flex-1 bg-light-primary p-6 dark:bg-dark-primary">
+        <View className="flex-1 bg-light-primary dark:bg-dark-primary" style={{ overflow: 'hidden' }}>
+          <View className="p-6">
           <View className="mt-8">
             <ThemedText className="mb-3 text-3xl font-bold text-light-text dark:text-dark-text">
               {welcomeName
@@ -204,6 +205,12 @@ export default function LoginOtpScreen() {
               </ThemedText>
             </Pressable>
           </View>
+          </View>
+          <Image
+            source={require('@/assets/img/smslogin.png')}
+            style={{ width: '100%', height: 320, position: 'absolute', bottom: 0 }}
+            resizeMode="contain"
+          />
         </View>
       </TouchableWithoutFeedback>
     </>

@@ -1,6 +1,6 @@
 import { router } from 'expo-router';
 import React, { useState, useEffect, useRef } from 'react';
-import { View, Keyboard, TouchableWithoutFeedback, Animated, StyleSheet } from 'react-native';
+import { View, Keyboard, TouchableWithoutFeedback, Animated, StyleSheet, Image } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 
 import { requestClientOtp } from '@/api/auth';
@@ -136,61 +136,68 @@ export default function LoginScreen() {
         ]}
       />
       <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
-        <View className="flex-1 bg-light-primary p-6 dark:bg-dark-primary">
-          <View className="mt-8">
-            <ThemedText className="mb-1 text-3xl font-bold">{t('loginWelcomeBack')}</ThemedText>
-            <ThemedText className="mb-6 text-light-subtext dark:text-dark-subtext">
-              {t('loginPhoneStepSubtitle')}
-            </ThemedText>
-
-            <View className="mb-4">
-              <ThemedText className="mb-1 font-medium text-light-text dark:text-dark-text">
-                {t('signupPhoneLabel')}
+        <View className="flex-1 bg-light-primary dark:bg-dark-primary" style={{ overflow: 'hidden' }}>
+          <View className="p-6">
+            <View className="mt-8">
+              <ThemedText className="mb-1 text-3xl font-bold">{t('loginWelcomeBack')}</ThemedText>
+              <ThemedText className="mb-6 text-light-subtext dark:text-dark-subtext">
+                {t('loginPhoneStepSubtitle')}
               </ThemedText>
-              <View className="flex-row items-stretch gap-2">
-                <View style={{ width: 100 }}>
-                  <Select
-                    options={COUNTRY_CODE_OPTIONS}
-                    value={countryCode}
-                    onChange={(v) => setCountryCode(String(v))}
-                    placeholder="+420"
-                    variant="classic"
-                    className="mb-0"
-                  />
-                </View>
-                <View className="flex-1">
-                  <Input
-                    value={phone}
-                    onChangeText={(text) => {
-                      setPhone(formatPhoneDisplay(text));
-                      if (phoneError) validatePhone(text);
-                    }}
-                    error={phoneError}
-                    keyboardType="phone-pad"
-                    placeholder="123 456 789"
-                    autoComplete="tel"
-                    containerClassName="mb-0"
-                  />
+
+              <View className="mb-4">
+                <ThemedText className="mb-1 font-medium text-light-text dark:text-dark-text">
+                  {t('signupPhoneLabel')}
+                </ThemedText>
+                <View className="flex-row items-stretch gap-2">
+                  <View style={{ width: 100 }}>
+                    <Select
+                      options={COUNTRY_CODE_OPTIONS}
+                      value={countryCode}
+                      onChange={(v) => setCountryCode(String(v))}
+                      placeholder="+420"
+                      variant="classic"
+                      className="mb-0"
+                    />
+                  </View>
+                  <View className="flex-1">
+                    <Input
+                      value={phone}
+                      onChangeText={(text) => {
+                        setPhone(formatPhoneDisplay(text));
+                        if (phoneError) validatePhone(text);
+                      }}
+                      error={phoneError}
+                      keyboardType="phone-pad"
+                      placeholder="123 456 789"
+                      autoComplete="tel"
+                      containerClassName="mb-0"
+                    />
+                  </View>
                 </View>
               </View>
+
+              {apiError ? (
+                <ThemedText className="mb-4 text-sm text-red-500 dark:text-red-400">
+                  {apiError}
+                </ThemedText>
+              ) : null}
+
+              <ShimmerButton>
+                <Button
+                  title={t('loginContinue')}
+                  onPress={() => void handleContinue()}
+                  loading={isLoading}
+                  size="large"
+                  textClassName="font-bold text-lg"
+                />
+              </ShimmerButton>
             </View>
-
-            {apiError ? (
-              <ThemedText className="mb-4 text-sm text-red-500 dark:text-red-400">
-                {apiError}
-              </ThemedText>
-            ) : null}
-
-            <ShimmerButton>
-              <Button
-                title={t('loginContinue')}
-                onPress={() => void handleContinue()}
-                loading={isLoading}
-                size="large"
-                textClassName="font-bold text-lg"
-              />
-            </ShimmerButton>
           </View>
+          <Image
+            source={require('@/assets/img/loginrb.png')}
+            style={{ width: '100%', height: 320, position: 'absolute', bottom: 0 }}
+            resizeMode="contain"
+          />
         </View>
       </TouchableWithoutFeedback>
     </>

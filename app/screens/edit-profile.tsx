@@ -106,14 +106,14 @@ export default function EditProfileScreen() {
 
   const openPhotoSourceSheet = () => photoSourceSheetRef.current?.show();
 
-  const onChooseLibrary = async () => {
+  const onChooseLibrary = () => {
     photoSourceSheetRef.current?.hide();
-    await pickFromLibrary();
+    setTimeout(() => { void pickFromLibrary(); }, 500);
   };
 
-  const onChooseCamera = async () => {
+  const onChooseCamera = () => {
     photoSourceSheetRef.current?.hide();
-    await takePhoto();
+    setTimeout(() => { void takePhoto(); }, 500);
   };
 
   const saveChanges = async () => {
