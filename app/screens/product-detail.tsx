@@ -123,24 +123,13 @@ const reviewsData = [
   },
 ];
 
-function formatReviewDate(iso: string): string {
+function formatReviewDate(iso: string, locale: string): string {
   try {
     const d = new Date(iso);
-    const months = [
-      'January',
-      'February',
-      'March',
-      'April',
-      'May',
-      'June',
-      'July',
-      'August',
-      'September',
-      'October',
-      'November',
-      'December',
-    ];
-    return `${months[d.getMonth()]} ${d.getFullYear()}`;
+    return new Intl.DateTimeFormat(locale === 'cs' ? 'cs-CZ' : 'en-GB', {
+      month: 'long',
+      year: 'numeric',
+    }).format(d);
   } catch {
     return iso;
   }
@@ -1014,19 +1003,6 @@ const PropertyDetail = () => {
             </View>
           </Section>
 
-          <Divider className="my-4" />
-
-          {/* Instant Book Option */}
-          <View className="flex-row items-center justify-between">
-            <Switch
-              icon="Zap"
-              label={t('productInstantBook')}
-              description={t('productInstantBookDescription')}
-              value={instantBook}
-              onChange={setInstantBook}
-              className="flex-1 py-3"
-            />
-          </View>
 
           <Divider className="my-4" />
 
@@ -1112,10 +1088,10 @@ const PropertyDetail = () => {
                                   )}
                                   <View className="min-w-0">
                                     <ThemedText className="font-medium" numberOfLines={1}>
-                                      {review.client?.name ?? 'Anonymous'}
+                                      {review.client?.name ?? t('productReviewAuthorAnonymous')}
                                     </ThemedText>
                                     <ThemedText className="text-xs text-light-subtext dark:text-dark-subtext">
-                                      {formatReviewDate(review.createdAt)}
+                                      {formatReviewDate(review.createdAt, locale)}
                                     </ThemedText>
                                   </View>
                                 </View>
@@ -1193,7 +1169,7 @@ const PropertyDetail = () => {
                                   {authorName}
                                 </ThemedText>
                                 <ThemedText className="text-xs text-light-subtext dark:text-dark-subtext">
-                                  {formatReviewDate(review.createdAt)}
+                                  {formatReviewDate(review.createdAt, locale)}
                                 </ThemedText>
                               </View>
                             </View>

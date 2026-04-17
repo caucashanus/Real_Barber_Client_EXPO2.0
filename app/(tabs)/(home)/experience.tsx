@@ -1,6 +1,6 @@
 import { useFocusEffect } from '@react-navigation/native';
 import React, { useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
-import { View, Animated, Pressable } from 'react-native';
+import { View, Animated, Pressable, ActivityIndicator } from 'react-native';
 import { ActionSheetRef } from 'react-native-actions-sheet';
 
 import { ScrollContext } from './_layout';
@@ -319,6 +319,17 @@ const ExperienceScreen = () => {
       ],
     },
   ];
+
+  if (employeesLoading) {
+    return (
+      <View className="flex-1 items-center justify-center bg-light-primary dark:bg-dark-primary">
+        <ActivityIndicator size="large" />
+        <ThemedText className="mt-2 text-light-subtext dark:text-dark-subtext">
+          {t('commonLoading')}
+        </ThemedText>
+      </View>
+    );
+  }
 
   return (
     <>

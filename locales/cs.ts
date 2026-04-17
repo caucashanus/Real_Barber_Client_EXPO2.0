@@ -516,7 +516,7 @@ export const cs: Record<TranslationKey, string> = {
   productWarehouseOpenMap: 'Otevřít adresu skladu na mapě',
   productPiecesAbbr: 'ks',
   productReviewsCount: 'recenzí',
-  productReviewAuthorAnonymous: 'Anonymní uživatel',
+  productReviewAuthorAnonymous: 'Anonym',
 
   // Checkout
   checkoutChooseMethod: 'Vybrat způsob rezervace',

@@ -1,6 +1,6 @@
 import { router } from 'expo-router';
 import React, { useContext, useEffect, useMemo, useState } from 'react';
-import { Animated, Image, Pressable, View } from 'react-native';
+import { Animated, Image, Pressable, View, ActivityIndicator } from 'react-native';
 
 import { ScrollContext } from './_layout';
 
@@ -115,6 +115,17 @@ export default function BranchesScreen() {
     [branchReviewsList]
   );
   const popularBranches = branches.length > 0 ? branches : null;
+
+  if (branchesLoading) {
+    return (
+      <View className="flex-1 items-center justify-center bg-light-primary dark:bg-dark-primary">
+        <ActivityIndicator size="large" />
+        <ThemedText className="mt-2 text-light-subtext dark:text-dark-subtext">
+          {t('commonLoading')}
+        </ThemedText>
+      </View>
+    );
+  }
 
   return (
     <ThemeScroller

@@ -25,6 +25,7 @@ import {
   type EmployeeMediaItem,
 } from '@/api/employees';
 import { getEntityReviews, type EntityReviewItem } from '@/api/reviews';
+import { getMockReviews } from '@/utils/mockReviews';
 import { useAuth } from '@/app/contexts/AuthContext';
 import useThemeColors from '@/app/contexts/ThemeColors';
 import { useTranslation } from '@/app/hooks/useTranslation';
@@ -88,24 +89,13 @@ function groupServicesByCategory(services: EmployeeService[]): CategoryGroup[] {
   return Array.from(byId.values());
 }
 
-function formatReviewDate(iso: string): string {
+function formatReviewDate(iso: string, locale: string): string {
   try {
     const d = new Date(iso);
-    const months = [
-      'January',
-      'February',
-      'March',
-      'April',
-      'May',
-      'June',
-      'July',
-      'August',
-      'September',
-      'October',
-      'November',
-      'December',
-    ];
-    return `${months[d.getMonth()]} ${d.getFullYear()}`;
+    return new Intl.DateTimeFormat(locale === 'cs' ? 'cs-CZ' : 'en-GB', {
+      month: 'long',
+      year: 'numeric',
+    }).format(d);
   } catch {
     return iso;
   }
@@ -129,7 +119,7 @@ function useReviewStats(reviews: EntityReviewItem[]) {
 export default function BarberDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const { apiToken, client } = useAuth();
-  const { t } = useTranslation();
+  const { t, locale } = useTranslation();
   const colors = useThemeColors();
   const insets = useSafeAreaInsets();
   const [employee, setEmployee] = useState<EmployeeDetail | null>(null);
@@ -178,13 +168,15 @@ export default function BarberDetailScreen() {
     setLoadingReviews(true);
     getEntityReviews(apiToken, 'employee', id, { page: 1, limit: 9999, includeOwn: true })
       .then((data) => {
-        setReviews(data.reviews);
-        setReviewsTotal(data.pagination.total);
+        const mock = getMockReviews(id);
+        setReviews([...data.reviews, ...mock]);
+        setReviewsTotal((data.pagination.total ?? 0) + mock.length);
         setHasReviewed(!!data.hasReviewed);
       })
       .catch(() => {
-        setReviews([]);
-        setReviewsTotal(null);
+        const mock = getMockReviews(id);
+        setReviews(mock);
+        setReviewsTotal(mock.length);
         setHasReviewed(false);
       })
       .finally(() => setLoadingReviews(false));
@@ -195,8 +187,9 @@ export default function BarberDetailScreen() {
       if (!apiToken || !id) return;
       getEntityReviews(apiToken, 'employee', id, { page: 1, limit: 9999, includeOwn: true })
         .then((data) => {
-          setReviews(data.reviews);
-          setReviewsTotal(data.pagination.total);
+          const mock = getMockReviews(id);
+          setReviews([...data.reviews, ...mock]);
+          setReviewsTotal((data.pagination.total ?? 0) + mock.length);
           setHasReviewed(!!data.hasReviewed);
         })
         .catch(() => {});
@@ -597,7 +590,7 @@ export default function BarberDetailScreen() {
                                   : (review.client?.name ?? 'Anonymous')}
                               </ThemedText>
                               <ThemedText className="text-xs text-light-subtext dark:text-dark-subtext">
-                                {formatReviewDate(review.createdAt)}
+                                {formatReviewDate(review.createdAt, locale)}
                               </ThemedText>
                             </View>
                           </View>

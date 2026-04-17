@@ -18,6 +18,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { getBranches, type Branch, type BranchService, type BranchEmployee } from '@/api/branches';
 import { getEntityReviews, type EntityReviewItem } from '@/api/reviews';
+import { getMockReviews } from '@/utils/mockReviews';
 import { useAuth } from '@/app/contexts/AuthContext';
 import useThemeColors from '@/app/contexts/ThemeColors';
 import { useTranslation } from '@/app/hooks/useTranslation';
@@ -226,13 +227,15 @@ export default function BranchDetailScreen() {
     setLoadingReviews(true);
     getEntityReviews(apiToken, 'branch', branch.id, { page: 1, limit: 9999, includeOwn: true })
       .then((data) => {
-        setReviews(data.reviews);
-        setReviewsTotal(data.pagination.total);
+        const mock = getMockReviews(branch.id);
+        setReviews([...data.reviews, ...mock]);
+        setReviewsTotal((data.pagination.total ?? 0) + mock.length);
         setHasReviewed(!!data.hasReviewed);
       })
       .catch(() => {
-        setReviews([]);
-        setReviewsTotal(null);
+        const mock = getMockReviews(branch.id);
+        setReviews(mock);
+        setReviewsTotal(mock.length);
         setHasReviewed(false);
       })
       .finally(() => setLoadingReviews(false));
@@ -243,8 +246,9 @@ export default function BranchDetailScreen() {
       if (!apiToken || !branch?.id) return;
       getEntityReviews(apiToken, 'branch', branch.id, { page: 1, limit: 9999, includeOwn: true })
         .then((data) => {
-          setReviews(data.reviews);
-          setReviewsTotal(data.pagination.total);
+          const mock = getMockReviews(branch.id);
+          setReviews([...data.reviews, ...mock]);
+          setReviewsTotal((data.pagination.total ?? 0) + mock.length);
           setHasReviewed(!!data.hasReviewed);
         })
         .catch(() => {});
