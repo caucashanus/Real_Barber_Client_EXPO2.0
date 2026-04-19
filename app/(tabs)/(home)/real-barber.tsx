@@ -168,9 +168,10 @@ function SpotlightCard({ spotlight, t, locale }: { spotlight: SpotlightBooking; 
 
   return (
     <Pressable
-      onPress={() =>
-        router.push(`/screens/trip-detail?id=${encodeURIComponent(booking.id)}` as any)
-      }
+      onPress={() => {
+        if (state === 'review') return;
+        router.push(`/screens/trip-detail?id=${encodeURIComponent(booking.id)}` as any);
+      }}
       className="active:opacity-70">
       <View style={{ overflow: 'visible' }}>
         <View className="flex-row overflow-hidden rounded-2xl bg-light-secondary dark:bg-dark-secondary">
@@ -197,9 +198,29 @@ function SpotlightCard({ spotlight, t, locale }: { spotlight: SpotlightBooking; 
                     {headerText()}
                   </ThemedText>
                   <View className="mt-3 flex-row gap-1.5">
-                    {[1,2,3,4,5].map((i) => (
-                      <Icon key={i} name="Star" size={30} className="text-neutral-300 dark:text-neutral-600" />
-                    ))}
+                    {[1,2,3,4,5].map((i) => {
+                      const imageParam = booking.item?.imageUrl
+                        ? `&entityImage=${encodeURIComponent(booking.item.imageUrl)}`
+                        : '';
+                      const employeeNameParam = booking.employee?.name
+                        ? `&entityEmployeeName=${encodeURIComponent(booking.employee.name)}`
+                        : '';
+                      const employeeAvatarParam = booking.employee?.avatarUrl
+                        ? `&entityEmployeeAvatar=${encodeURIComponent(booking.employee.avatarUrl)}`
+                        : '';
+                      return (
+                        <Pressable
+                          key={i}
+                          hitSlop={6}
+                          onPress={() =>
+                            router.push(
+                              `/screens/review?entityType=reservation&entityId=${encodeURIComponent(booking.id)}&entityName=${encodeURIComponent(booking.item?.name ?? 'Booking')}&presetRating=${i}${imageParam}${employeeNameParam}${employeeAvatarParam}` as any
+                            )
+                          }>
+                          <Icon name="Star" size={30} className="text-neutral-300 dark:text-neutral-600" />
+                        </Pressable>
+                      );
+                    })}
                   </View>
                 </View>
               ) : (

@@ -71,6 +71,7 @@ const ReviewScreen = () => {
     entityImage,
     entityEmployeeName,
     entityEmployeeAvatar,
+    presetRating,
   } = useLocalSearchParams<{
     entityType?: string;
     entityId?: string;
@@ -78,6 +79,7 @@ const ReviewScreen = () => {
     entityImage?: string;
     entityEmployeeName?: string;
     entityEmployeeAvatar?: string;
+    presetRating?: string;
   }>();
 
   const displayName = entityName ? decodeURIComponent(entityName) : '';
@@ -115,6 +117,8 @@ const ReviewScreen = () => {
           setInitialAnonymous(cr.isAnonymous ?? false);
         } else {
           setExistingReviewId(null);
+          const preset = presetRating ? parseInt(presetRating, 10) : 0;
+          if (preset >= 1 && preset <= 5) setRating(preset);
         }
       })
       .catch(() => setExistingReviewId(null))
