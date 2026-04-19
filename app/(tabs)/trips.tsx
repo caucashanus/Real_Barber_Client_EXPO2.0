@@ -441,8 +441,12 @@ const TripsScreen = () => {
                         const employeeAvatarParam = booking.employee?.avatarUrl
                           ? `&entityEmployeeAvatar=${encodeURIComponent(booking.employee.avatarUrl)}`
                           : '';
+                        const [, m, d] = (booking.date ?? '').slice(0, 10).split('-');
+                        const dateParam = m && d ? `&entityDate=${encodeURIComponent(`${d}.${m}.`)}` : '';
+                        const timeParam = booking.slotStart ? `&entityTime=${encodeURIComponent(booking.slotStart)}` : '';
+                        const branchParam = booking.branch?.name ? `&entityBranch=${encodeURIComponent(booking.branch.name)}` : '';
                         router.push(
-                          `/screens/review?entityType=reservation&entityId=${encodeURIComponent(booking.id)}&entityName=${encodeURIComponent(booking.item?.name ?? 'Booking')}${imageParam}${employeeNameParam}${employeeAvatarParam}`
+                          `/screens/review?entityType=reservation&entityId=${encodeURIComponent(booking.id)}&entityName=${encodeURIComponent(booking.item?.name ?? 'Booking')}${imageParam}${employeeNameParam}${employeeAvatarParam}${dateParam}${timeParam}${branchParam}`
                         );
                       }}
                     />

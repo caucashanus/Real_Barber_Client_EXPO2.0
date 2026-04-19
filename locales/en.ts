@@ -170,6 +170,7 @@ export const en = {
   // Review
   reviewWriteTo: 'Write review to',
   reviewWriteFallback: 'Write a Review',
+  reviewReservationTitle: 'Reviewing booking',
   reviewWriteYourReview: 'Write your review',
   reviewAnonymous: 'Anonymous review',
   reviewAnonymousDesc: 'Your name and profile will not be shown with this review.',

@@ -174,6 +174,7 @@ export const cs: Record<TranslationKey, string> = {
   // Review
   reviewWriteTo: 'Napsat recenzi pro',
   reviewWriteFallback: 'Napsat recenzi',
+  reviewReservationTitle: 'Recenzujete rezervaci',
   reviewWriteYourReview: 'Napište svou recenzi',
   reviewAnonymous: 'Anonymní recenze',
   reviewAnonymousDesc: 'Vaše jméno a profil se u této recenze nezobrazí.',

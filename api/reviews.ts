@@ -50,6 +50,8 @@ export interface EntityReviewItem {
   createdAt: string;
   updatedAt: string;
   client: EntityReviewClient;
+  entityType?: string;
+  entityId?: string;
 }
 
 export interface GetEntityReviewsOptions {

@@ -72,6 +72,9 @@ const ReviewScreen = () => {
     entityEmployeeName,
     entityEmployeeAvatar,
     presetRating,
+    entityDate,
+    entityTime,
+    entityBranch,
   } = useLocalSearchParams<{
     entityType?: string;
     entityId?: string;
@@ -80,12 +83,25 @@ const ReviewScreen = () => {
     entityEmployeeName?: string;
     entityEmployeeAvatar?: string;
     presetRating?: string;
+    entityDate?: string;
+    entityTime?: string;
+    entityBranch?: string;
   }>();
 
   const displayName = entityName ? decodeURIComponent(entityName) : '';
   const imageUrl = entityImage ? decodeURIComponent(entityImage) : '';
   const employeeName = entityEmployeeName ? decodeURIComponent(entityEmployeeName) : '';
   const employeeAvatarUrl = entityEmployeeAvatar ? decodeURIComponent(entityEmployeeAvatar) : '';
+
+  const dateStr = entityDate ? decodeURIComponent(entityDate) : '';
+  const timeStr = entityTime ? decodeURIComponent(entityTime) : '';
+  const branchStr = entityBranch ? decodeURIComponent(entityBranch) : '';
+  const isReservation = entityType === 'reservation';
+  const reservationBadge = isReservation
+    ? [dateStr && timeStr ? `${dateStr} v ${timeStr}` : dateStr || timeStr, branchStr]
+        .filter(Boolean)
+        .join(' · ')
+    : '';
   const canSubmitToApi = Boolean(apiToken && entityType && entityId);
   const isEditMode = existingReviewId != null;
   const isDirty =
@@ -178,8 +194,8 @@ const ReviewScreen = () => {
   return (
     <>
       <Header
-        title={entityName ? t('reviewWriteTo') : t('reviewWriteFallback')}
-        subtitle={entityName ? displayName : undefined}
+        title={isReservation ? t('reviewReservationTitle') : (entityName ? t('reviewWriteTo') : t('reviewWriteFallback'))}
+        subtitle={reservationBadge || undefined}
         showBackButton
       />
       <ThemedScroller className="flex-1 pt-8" keyboardShouldPersistTaps="handled">

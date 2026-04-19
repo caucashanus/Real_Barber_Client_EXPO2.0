@@ -132,6 +132,7 @@ export default function BarberDetailScreen() {
   const [reviewsTotal, setReviewsTotal] = useState<number | null>(null);
   const [loadingReviews, setLoadingReviews] = useState(false);
   const [hasReviewed, setHasReviewed] = useState(false);
+  const [ownReviewIds, setOwnReviewIds] = useState<Set<string>>(new Set());
   const { width: winWidth, height: winHeight } = useWindowDimensions();
   const [activeCarouselIndex, setActiveCarouselIndex] = useState(0);
   const topCarouselRef = useRef<FlatList>(null);
@@ -163,6 +164,17 @@ export default function BarberDetailScreen() {
       .finally(() => setLoading(false));
   }, [apiToken, id]);
 
+  const buildOwnReviewIds = useCallback((data: Awaited<ReturnType<typeof getEntityReviews>>) => {
+    const ids = new Set<string>();
+    if (data.clientReview?.id) ids.add(data.clientReview.id);
+    if (client?.id) {
+      data.reviews.forEach((r) => {
+        if (r.client?.id != null && String(r.client.id) === String(client.id)) ids.add(r.id);
+      });
+    }
+    return ids;
+  }, [client?.id]);
+
   useEffect(() => {
     if (!apiToken || !id) return;
     setLoadingReviews(true);
@@ -172,15 +184,17 @@ export default function BarberDetailScreen() {
         setReviews([...data.reviews, ...mock]);
         setReviewsTotal((data.pagination.total ?? 0) + mock.length);
         setHasReviewed(!!data.hasReviewed);
+        setOwnReviewIds(buildOwnReviewIds(data));
       })
       .catch(() => {
         const mock = getMockReviews(id);
         setReviews(mock);
         setReviewsTotal(mock.length);
         setHasReviewed(false);
+        setOwnReviewIds(new Set());
       })
       .finally(() => setLoadingReviews(false));
-  }, [apiToken, id]);
+  }, [apiToken, id, buildOwnReviewIds]);
 
   useFocusEffect(
     useCallback(() => {
@@ -191,9 +205,10 @@ export default function BarberDetailScreen() {
           setReviews([...data.reviews, ...mock]);
           setReviewsTotal((data.pagination.total ?? 0) + mock.length);
           setHasReviewed(!!data.hasReviewed);
+          setOwnReviewIds(buildOwnReviewIds(data));
         })
         .catch(() => {});
-    }, [apiToken, id])
+    }, [apiToken, id, buildOwnReviewIds])
   );
 
   const { countByRating, average, total: reviewsComputedTotal } = useReviewStats(reviews);
@@ -346,13 +361,6 @@ export default function BarberDetailScreen() {
                   className="border-r border-neutral-200 px-4 py-2 dark:border-dark-secondary"
                 />
                 <ThemedText className="px-4 text-base">{t('profileReviews')}</ThemedText>
-              </Pressable>
-              <Pressable
-                onPress={() => router.push(`/screens/review?${reviewParams}`)}
-                className="ml-4 rounded-lg bg-light-secondary px-3 py-2 dark:bg-dark-secondary">
-                <ThemedText className="text-sm font-medium">
-                  {hasReviewed ? t('barberUpdateReview') : t('barberReview')}
-                </ThemedText>
               </Pressable>
             </View>
           </View>
@@ -540,13 +548,15 @@ export default function BarberDetailScreen() {
               </View>
               <View className="mb-3 mt-6 flex-row items-center justify-between">
                 <ThemedText className="text-lg font-semibold">{t('profileReviews')}</ThemedText>
-                <Pressable
-                  onPress={() => router.push(`/screens/review?${reviewParams}`)}
-                  className="rounded-lg bg-light-secondary px-3 py-2 dark:bg-dark-secondary">
-                  <ThemedText className="text-sm font-medium">
-                    {hasReviewed ? t('barberUpdateReview') : t('barberWriteReview')}
-                  </ThemedText>
-                </Pressable>
+                {!hasReviewed && (
+                  <Pressable
+                    onPress={() => router.push(`/screens/review?${reviewParams}` as any)}
+                    className="rounded-lg bg-light-secondary px-3 py-2 dark:bg-dark-secondary">
+                    <ThemedText className="text-sm font-medium">
+                      {t('barberWriteReview')}
+                    </ThemedText>
+                  </Pressable>
+                )}
               </View>
               {loadingReviews ? (
                 <View className="items-center py-6">
@@ -558,7 +568,10 @@ export default function BarberDetailScreen() {
               ) : (
                 <CardScroller className="mt-1" space={10}>
                   {reviews.map((review) => {
-                    const isOwnReview = client?.id != null && review.client?.id === client.id;
+                    const isOwnReview = ownReviewIds.has(review.id);
+                    const editParams = review.entityType === 'reservation' && review.entityId
+                      ? `entityType=reservation&entityId=${encodeURIComponent(review.entityId)}`
+                      : reviewParams;
                     return (
                       <View
                         key={review.id}
@@ -595,13 +608,13 @@ export default function BarberDetailScreen() {
                             </View>
                           </View>
                           {isOwnReview && (
-                            <View
-                              style={{ backgroundColor: colors.highlight }}
-                              className="ml-2 rounded-md px-2 py-1">
-                              <ThemedText className="text-xs font-medium text-white">
-                                {t('barberMine')}
+                            <Pressable
+                              onPress={() => router.push(`/screens/review?${editParams}` as any)}
+                              className="ml-2 rounded-md bg-light-primary px-2 py-1 dark:bg-dark-primary">
+                              <ThemedText className="text-xs font-medium">
+                                {t('barberUpdateReview')}
                               </ThemedText>
-                            </View>
+                            </Pressable>
                           )}
                         </View>
                         <ShowRating rating={review.rating} size="sm" className="mb-2" />

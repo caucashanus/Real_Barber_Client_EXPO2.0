@@ -3,6 +3,7 @@ import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { ActivityIndicator, Image, Pressable, View } from 'react-native';
 
 import { getBookings, type Booking } from '@/api/bookings';
+import { getClientOverview } from '@/api/reviews';
 import { useAuth } from '@/app/contexts/AuthContext';
 import { useTranslation } from '@/app/hooks/useTranslation';
 import Avatar from '@/components/Avatar';
@@ -88,7 +89,7 @@ interface SpotlightBooking {
   msUntilStart: number;
 }
 
-function getSpotlightBooking(bookings: Booking[], now: number): SpotlightBooking | null {
+function getSpotlightBooking(bookings: Booking[], now: number, reviewedBookingIds: Set<string>): SpotlightBooking | null {
   const active = bookings.find((b) => {
     if (!isBookingNotCancelled(b)) return false;
     const start = getBookingStartDate(b).getTime();
@@ -127,6 +128,7 @@ function getSpotlightBooking(bookings: Booking[], now: number): SpotlightBooking
       if (!isBookingNotCancelled(b)) return false;
       const status = (b.status ?? '').toLowerCase();
       if (status !== 'completed') return false;
+      if (reviewedBookingIds.has(b.id)) return false;
       const end = getBookingEndDate(b).getTime();
       return end < now && now - end <= TWO_DAYS_MS;
     })
@@ -208,13 +210,17 @@ function SpotlightCard({ spotlight, t, locale }: { spotlight: SpotlightBooking; 
                       const employeeAvatarParam = booking.employee?.avatarUrl
                         ? `&entityEmployeeAvatar=${encodeURIComponent(booking.employee.avatarUrl)}`
                         : '';
+                      const [, m, d] = (booking.date ?? '').slice(0, 10).split('-');
+                      const dateParam = m && d ? `&entityDate=${encodeURIComponent(`${d}.${m}.`)}` : '';
+                      const timeParam = booking.slotStart ? `&entityTime=${encodeURIComponent(booking.slotStart)}` : '';
+                      const branchParam = booking.branch?.name ? `&entityBranch=${encodeURIComponent(booking.branch.name)}` : '';
                       return (
                         <Pressable
                           key={i}
                           hitSlop={6}
                           onPress={() =>
                             router.push(
-                              `/screens/review?entityType=reservation&entityId=${encodeURIComponent(booking.id)}&entityName=${encodeURIComponent(booking.item?.name ?? 'Booking')}&presetRating=${i}${imageParam}${employeeNameParam}${employeeAvatarParam}` as any
+                              `/screens/review?entityType=reservation&entityId=${encodeURIComponent(booking.id)}&entityName=${encodeURIComponent(booking.item?.name ?? 'Booking')}&presetRating=${i}${imageParam}${employeeNameParam}${employeeAvatarParam}${dateParam}${timeParam}${branchParam}` as any
                             )
                           }>
                           <Icon name="Star" size={30} className="text-neutral-300 dark:text-neutral-600" />
@@ -317,6 +323,7 @@ export default function RealBarberHomeTab() {
 
   const [recentLoading, setRecentLoading] = useState(false);
   const [allBookings, setAllBookings] = useState<Booking[]>([]);
+  const [reviewedBookingIds, setReviewedBookingIds] = useState<Set<string>>(new Set());
   const [now, setNow] = useState(() => Date.now());
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
@@ -337,9 +344,16 @@ export default function RealBarberHomeTab() {
       .then((res) => setAllBookings(res.bookings ?? []))
       .catch(() => setAllBookings([]))
       .finally(() => setRecentLoading(false));
+    getClientOverview(apiToken)
+      .then((overview) => {
+        const ids = new Set<string>();
+        (overview.data?.reservations?.withReviews ?? []).forEach((r) => ids.add(r.id));
+        setReviewedBookingIds(ids);
+      })
+      .catch(() => {});
   }, [apiToken]);
 
-  const spotlight = useMemo(() => getSpotlightBooking(allBookings, now), [allBookings, now]);
+  const spotlight = useMemo(() => getSpotlightBooking(allBookings, now, reviewedBookingIds), [allBookings, now, reviewedBookingIds]);
 
   const recentBookings = useMemo(
     () =>
