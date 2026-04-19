@@ -233,7 +233,8 @@ const ProductsScreen = () => {
           </CardScroller>
         </Section>
 
-        <ScrollView
+        {/* Promo cards hidden */}
+        {false && <ScrollView
           horizontal
           showsHorizontalScrollIndicator={false}
           className="-mx-global mb-6"
@@ -279,7 +280,7 @@ const ProductsScreen = () => {
                 </View>
               </View>
             ))}
-        </ScrollView>
+        </ScrollView>}
 
         <Section
           title={t('productsTitle')}
