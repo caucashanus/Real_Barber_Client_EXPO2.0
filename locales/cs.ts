@@ -135,6 +135,26 @@ export const cs: Record<TranslationKey, string> = {
   tabProducts: 'Produkty',
   tabGuides: 'Návody',
 
+  // Real Barber home screen
+  homeCreateBooking: 'Vytvořit rezervaci',
+  homeCreateBookingSubtitle: 'Vyber službu a čas',
+  homeBranches: 'Pobočky',
+  homeBranchesSubtitle: 'Vyber místo',
+  homeBarbers: 'Barbeři',
+  homeBarbersSubtitle: 'Najdi svého',
+  homeBookings: 'Rezervace',
+  homeBookingsSubtitle: 'Všechny mé rezervace',
+  homeRecentTitle: 'Nedávné',
+  homeRecentLoading: 'Načítám…',
+  homeRecentEmpty: 'Zatím nemáte žádné rezervace.',
+  homeRecentDefaultName: 'Rezervace',
+  homeSpotlightCurrent: 'Právě probíhá',
+  homeSpotlightSoon: 'Brzy začíná rezervace',
+  homeSpotlightToday: 'Dnes máte rezervaci',
+  homeSpotlightUpcoming: 'Nadcházející rezervace',
+  homeSpotlightReview: 'Jak jste byli spokojeni?',
+  homeSpotlightOngoing: 'Právě probíhá',
+
   // Trips / Bookings
   tripsTitle: 'Vaše rezervace',
   tripsLoading: 'Načítání…',

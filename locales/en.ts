@@ -131,6 +131,26 @@ export const en = {
   tabProducts: 'Products',
   tabGuides: 'Guides',
 
+  // Real Barber home screen
+  homeCreateBooking: 'Create booking',
+  homeCreateBookingSubtitle: 'Choose a service and time',
+  homeBranches: 'Branches',
+  homeBranchesSubtitle: 'Choose a location',
+  homeBarbers: 'Barbers',
+  homeBarbersSubtitle: 'Find yours',
+  homeBookings: 'Bookings',
+  homeBookingsSubtitle: 'All my bookings',
+  homeRecentTitle: 'Recent',
+  homeRecentLoading: 'Loading…',
+  homeRecentEmpty: 'No bookings yet.',
+  homeRecentDefaultName: 'Booking',
+  homeSpotlightCurrent: 'In progress',
+  homeSpotlightSoon: 'Upcoming booking',
+  homeSpotlightToday: "You have a booking today",
+  homeSpotlightUpcoming: 'Upcoming booking',
+  homeSpotlightReview: 'How was your experience?',
+  homeSpotlightOngoing: 'In progress',
+
   // Trips / Bookings
   tripsTitle: 'Your Bookings',
   tripsLoading: 'Loading…',
