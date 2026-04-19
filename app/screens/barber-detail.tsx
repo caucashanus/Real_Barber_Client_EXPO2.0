@@ -167,13 +167,25 @@ export default function BarberDetailScreen() {
   const buildOwnReviewIds = useCallback((data: Awaited<ReturnType<typeof getEntityReviews>>) => {
     const ids = new Set<string>();
     if (data.clientReview?.id) ids.add(data.clientReview.id);
-    if (client?.id) {
-      data.reviews.forEach((r) => {
-        if (r.client?.id != null && String(r.client.id) === String(client.id)) ids.add(r.id);
-      });
-    }
+    data.reviews.forEach((r) => {
+      if (r.client?.id != null && client?.id != null && String(r.client.id) === String(client.id)) {
+        ids.add(r.id);
+      }
+    });
     return ids;
   }, [client?.id]);
+
+  // Přepočítej ownReviewIds když se client načte po reviews
+  useEffect(() => {
+    if (!client?.id || reviews.length === 0) return;
+    setOwnReviewIds((prev) => {
+      const ids = new Set(prev);
+      reviews.forEach((r) => {
+        if (r.client?.id != null && String(r.client.id) === String(client.id)) ids.add(r.id);
+      });
+      return ids;
+    });
+  }, [client?.id, reviews]);
 
   useEffect(() => {
     if (!apiToken || !id) return;

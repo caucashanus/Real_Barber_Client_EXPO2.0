@@ -284,7 +284,11 @@ const ScheduleScreen = () => {
           <View className="gap-3">
             <Button
               title={t('scheduleRezervovat')}
-              onPress={() => {}}
+              onPress={() => {
+                employeeSheetRef.current?.hide();
+                if (selectedEmployee)
+                  router.push(`/screens/reservation-create?employeeId=${encodeURIComponent(selectedEmployee.id)}` as any);
+              }}
               variant="primary"
               className="w-full"
             />
