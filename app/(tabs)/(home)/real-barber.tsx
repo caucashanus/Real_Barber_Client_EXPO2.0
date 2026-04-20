@@ -1,16 +1,20 @@
 import { router } from 'expo-router';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import {ActivityIndicator, Pressable, View} from 'react-native';
+import { ActivityIndicator, Clipboard, Linking, Pressable, View } from 'react-native';
 import { Image } from 'expo-image';
 
 import { getBookings, type Booking } from '@/api/bookings';
 import { getClientOverview } from '@/api/reviews';
 import { useAuth } from '@/app/contexts/AuthContext';
 import { useTranslation } from '@/app/hooks/useTranslation';
+import type { TranslationKey } from '@/locales';
 import Avatar from '@/components/Avatar';
 import Icon from '@/components/Icon';
 import LiveIndicator from '@/components/LiveIndicator';
 import NotificationPromptSheet from '@/components/NotificationPromptSheet';
+import ActionSheetThemed from '@/components/ActionSheetThemed';
+import { Button } from '@/components/Button';
+import { type ActionSheetRef } from 'react-native-actions-sheet';
 import ThemeScroller from '@/components/ThemeScroller';
 import ThemedText from '@/components/ThemedText';
 import Section from '@/components/layout/Section';
@@ -143,8 +147,21 @@ function getSpotlightBooking(bookings: Booking[], now: number, reviewedBookingId
   return null;
 }
 
-function SpotlightCard({ spotlight, t, locale }: { spotlight: SpotlightBooking; t: (key: string) => string; locale: string }) {
+function SpotlightCard({ spotlight, t, locale }: { spotlight: SpotlightBooking; t: (key: TranslationKey) => string; locale: string }) {
   const { booking, state, msUntilStart } = spotlight;
+  const navSheetRef = useRef<ActionSheetRef>(null);
+
+  const openMaps = (app: 'google' | 'waze') => {
+    navSheetRef.current?.hide();
+    const address = encodeURIComponent(booking.branch?.address ?? booking.branch?.name ?? '');
+    setTimeout(() => {
+      if (app === 'google') {
+        Linking.openURL(`https://www.google.com/maps/search/?api=1&query=${address}`);
+      } else {
+        Linking.openURL(`https://waze.com/ul?q=${address}&navigate=yes`);
+      }
+    }, 300);
+  };
 
   const headerText = () => {
     switch (state) {
@@ -171,6 +188,7 @@ function SpotlightCard({ spotlight, t, locale }: { spotlight: SpotlightBooking; 
   const subtitle = subtitleText();
 
   return (
+  <>
     <Pressable
       onPress={() => {
         if (state === 'review') return;
@@ -249,7 +267,7 @@ function SpotlightCard({ spotlight, t, locale }: { spotlight: SpotlightBooking; 
                 </View>
               ) : null}
             </View>
-            <Icon name="ChevronRight" size={16} className="text-light-subtext dark:text-dark-subtext" />
+            {state !== 'soon' && <Icon name="ChevronRight" size={16} className="text-light-subtext dark:text-dark-subtext" />}
           </View>
         </View>
         {/* Badge — top right, slightly overlapping */}
@@ -276,8 +294,51 @@ function SpotlightCard({ spotlight, t, locale }: { spotlight: SpotlightBooking; 
             </ThemedText>
           </View>
         )}
+        {state === 'soon' && (
+          <Pressable
+            onPress={(e) => { e.stopPropagation?.(); navSheetRef.current?.show(); }}
+            className="absolute flex-row items-center gap-1 rounded-full bg-neutral-200 dark:bg-neutral-800 px-2.5 py-1 active:opacity-70"
+            style={{ bottom: -10, right: 12 }}>
+            <Icon name="Navigation" size={11} className="text-neutral-900 dark:text-white" />
+            <ThemedText className="text-xs font-semibold text-neutral-900 dark:text-white">Navigovat</ThemedText>
+          </Pressable>
+        )}
       </View>
     </Pressable>
+    {state === 'soon' && (
+      <ActionSheetThemed ref={navSheetRef} gestureEnabled>
+        <View className="px-4 pb-8 pt-2 gap-3">
+          <ThemedText className="text-center text-base font-semibold mb-1">
+            Navigovat do pobočky{booking.branch?.name ? ` ${booking.branch.name}` : ''}
+          </ThemedText>
+          {booking.branch?.address ? (
+            <Pressable
+              onPress={() => Clipboard.setString(booking.branch!.address!)}
+              className="flex-row items-center justify-center gap-1 -mt-1 active:opacity-60">
+              <ThemedText className="text-center text-xs text-light-subtext dark:text-dark-subtext">
+                {booking.branch.address}
+              </ThemedText>
+              <Icon name="Copy" size={12} className="text-light-subtext dark:text-dark-subtext" />
+            </Pressable>
+          ) : null}
+          <Button
+            title="Google Maps"
+            onPress={() => openMaps('google')}
+            variant="primary"
+            iconStart="Map"
+            style={{ backgroundColor: '#34A853' }}
+          />
+          <Button
+            title="Waze"
+            onPress={() => openMaps('waze')}
+            variant="primary"
+            iconStart="Navigation"
+            style={{ backgroundColor: '#33CCFF' }}
+          />
+        </View>
+      </ActionSheetThemed>
+    )}
+  </>
   );
 }
 
@@ -372,9 +433,11 @@ export default function RealBarberHomeTab() {
       <View className="mt-4 px-global">
         {/* Spotlight booking */}
         {recentLoading ? null : spotlight ? (
-          <View className="-mx-global mt-4">
-            <SpotlightCard spotlight={spotlight} t={t} locale={locale} />
-          </View>
+          <>
+            <View className="-mx-global mt-4">
+              <SpotlightCard spotlight={spotlight} t={t} locale={locale} />
+            </View>
+          </>
         ) : null}
 
         {/* Quick actions grid (2x2) */}
