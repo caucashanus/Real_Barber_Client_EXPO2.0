@@ -193,20 +193,20 @@ const ProductsScreen = () => {
       scrollEventThrottle={16}>
       <AnimatedView animation="scaleIn" className="mt-4 flex-1">
         <Section title={t('productsMyPurchased')} titleSize="lg" className="mb-2">
-          <CardScroller space={15} className="mt-1.5 pb-2">
-            {purchasedLoading ? (
-              <View className="items-center py-8">
-                <ActivityIndicator size="small" />
-                <ThemedText className="py-2 text-light-subtext dark:text-dark-subtext">
-                  {t('commonLoading')}
-                </ThemedText>
-              </View>
-            ) : purchasedProducts.length === 0 ? (
-              <ThemedText className="py-4 text-light-subtext dark:text-dark-subtext">
-                {t('productsNoPurchased')}
+          {purchasedLoading ? (
+            <View className="items-center py-8">
+              <ActivityIndicator size="small" />
+              <ThemedText className="py-2 text-light-subtext dark:text-dark-subtext">
+                {t('commonLoading')}
               </ThemedText>
-            ) : (
-              purchasedProducts.map((purchase) => {
+            </View>
+          ) : purchasedProducts.length === 0 ? (
+            <ThemedText className="py-4 text-light-subtext dark:text-dark-subtext">
+              {t('productsNoPurchased')}
+            </ThemedText>
+          ) : (
+            <CardScroller space={15} className="mt-1.5 pb-2">
+              {purchasedProducts.map((purchase) => {
                 const imgUrl = productImageUrl(purchase);
                 return (
                   <Card
@@ -228,9 +228,9 @@ const ProductsScreen = () => {
                     }}
                   />
                 );
-              })
-            )}
-          </CardScroller>
+              })}
+            </CardScroller>
+          )}
         </Section>
 
         {/* Promo cards hidden */}

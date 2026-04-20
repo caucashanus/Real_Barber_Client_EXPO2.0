@@ -9,7 +9,6 @@ import ActionSheetThemed from './ActionSheetThemed';
 import { Button } from './Button';
 import ThemedText from './ThemedText';
 
-const PUSH_TOKEN_KEY = '@expo_push_token';
 const NOTIF_OPENS_KEY = '@notif_prompt_opens';
 const NOTIF_DISMISSED_AT_KEY = '@notif_prompt_dismissed_at';
 const REQUIRED_OPENS = 3;
@@ -37,38 +36,30 @@ async function markDismissed(): Promise<void> {
 }
 
 interface NotificationPromptSheetProps {
-  sheetRef?: React.RefObject<ActionSheetRef>;
   onPermissionGranted?: () => void;
 }
 
 const NotificationPromptSheet: React.FC<NotificationPromptSheetProps> = ({
-  sheetRef: externalRef,
   onPermissionGranted,
 }) => {
   const internalRef = useRef<ActionSheetRef>(null);
-  const sheetRef = externalRef ?? internalRef;
+  const sheetRef = internalRef;
 
   const check = useCallback(async () => {
-    const token = await AsyncStorage.getItem(PUSH_TOKEN_KEY).catch(() => null);
-    if (token) return;
+    const { status } = await Notifications.getPermissionsAsync();
+    if (status === 'granted') return;
 
     await incrementOpens();
     const opens = await getOpens();
     if (opens < REQUIRED_OPENS) return;
 
-    if (await isDismissedRecently()) return;
-
-    const { status } = await Notifications.getPermissionsAsync();
-
     if (status === 'undetermined') {
-      // First time — go straight to native dialog
       const { status: newStatus } = await Notifications.requestPermissionsAsync();
       if (newStatus === 'granted') onPermissionGranted?.();
       return;
     }
 
     if (status === 'denied') {
-      // Already denied — show our sheet with Settings link
       setTimeout(() => sheetRef.current?.show(), 800);
     }
   }, [onPermissionGranted]);
@@ -89,7 +80,7 @@ const NotificationPromptSheet: React.FC<NotificationPromptSheetProps> = ({
   };
 
   return (
-    <ActionSheetThemed ref={sheetRef} gestureEnabled snapPoints={[85]}>
+    <ActionSheetThemed ref={sheetRef} gestureEnabled snapPoints={[100]}>
       <View className="p-4 pb-6">
         <ThemedText className="mb-1 mt-4 text-left text-lg font-bold">
           Nezmeškejte svou rezervaci
