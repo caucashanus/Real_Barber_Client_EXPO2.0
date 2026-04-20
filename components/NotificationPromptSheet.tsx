@@ -60,6 +60,8 @@ const NotificationPromptSheet: React.FC<NotificationPromptSheetProps> = ({
     }
 
     if (status === 'denied') {
+      const recentlyDismissed = await isDismissedRecently();
+      if (recentlyDismissed) return;
       setTimeout(() => sheetRef.current?.show(), 800);
     }
   }, [onPermissionGranted]);
