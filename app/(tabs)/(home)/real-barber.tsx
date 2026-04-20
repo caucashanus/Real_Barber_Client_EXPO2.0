@@ -6,6 +6,7 @@ import { Image } from 'expo-image';
 import { getBookings, type Booking } from '@/api/bookings';
 import { getClientOverview } from '@/api/reviews';
 import { useAuth } from '@/app/contexts/AuthContext';
+import { useTheme } from '@/app/contexts/ThemeContext';
 import { useTranslation } from '@/app/hooks/useTranslation';
 import type { TranslationKey } from '@/locales';
 import Avatar from '@/components/Avatar';
@@ -149,6 +150,7 @@ function getSpotlightBooking(bookings: Booking[], now: number, reviewedBookingId
 
 function SpotlightCard({ spotlight, t, locale }: { spotlight: SpotlightBooking; t: (key: TranslationKey) => string; locale: string }) {
   const { booking, state, msUntilStart } = spotlight;
+  const { isDark } = useTheme();
   const navSheetRef = useRef<ActionSheetRef>(null);
 
   const openMaps = (app: 'google' | 'waze') => {
@@ -297,10 +299,10 @@ function SpotlightCard({ spotlight, t, locale }: { spotlight: SpotlightBooking; 
         {state === 'soon' && (
           <Pressable
             onPress={(e) => { e.stopPropagation?.(); navSheetRef.current?.show(); }}
-            className="absolute flex-row items-center gap-1 rounded-full bg-neutral-200 dark:bg-neutral-800 px-2.5 py-1 active:opacity-70"
+            className="absolute flex-row items-center gap-1 rounded-full bg-neutral-800 px-2.5 py-1 dark:bg-neutral-200 active:opacity-70"
             style={{ bottom: -10, right: 12 }}>
-            <Icon name="Navigation" size={11} className="text-neutral-900 dark:text-white" />
-            <ThemedText className="text-xs font-semibold text-neutral-900 dark:text-white">Navigovat</ThemedText>
+            <Icon name="Navigation" size={11} color={isDark ? '#171717' : '#ffffff'} />
+            <ThemedText className="text-xs font-semibold text-white dark:text-neutral-900">Navigovat</ThemedText>
           </Pressable>
         )}
       </View>
