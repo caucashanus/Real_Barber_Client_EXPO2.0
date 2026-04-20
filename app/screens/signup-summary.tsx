@@ -2,7 +2,8 @@ import * as Haptics from 'expo-haptics';
 import { Stack, router } from 'expo-router';
 import LottieView from 'lottie-react-native';
 import React, { useEffect } from 'react';
-import { View, Image, ActivityIndicator, useWindowDimensions } from 'react-native';
+import {View, ActivityIndicator, useWindowDimensions} from 'react-native';
+import { Image } from 'expo-image';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { useAuth } from '@/app/contexts/AuthContext';
@@ -58,7 +59,7 @@ export default function SignupSummaryScreen() {
               source={REGISTRATION_SUMMARY_LOTTIE}
               autoPlay
               loop
-              resizeMode="cover"
+              contentFit="cover"
               style={{ width: winW, height: winH }}
             />
           </View>
@@ -72,7 +73,7 @@ export default function SignupSummaryScreen() {
                   <Image
                     source={{ uri: raw }}
                     style={{ width: '100%', height: '100%' }}
-                    resizeMode="cover"
+                    contentFit="cover"
                   />
                 ) : (
                   <View className="flex-1 items-center justify-center">

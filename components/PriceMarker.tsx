@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { View, Image, ImageSourcePropType, Platform, StyleSheet } from 'react-native';
+import {View, ImageSourcePropType, Platform, StyleSheet} from 'react-native';
+import { Image } from 'expo-image';
 import { Marker } from 'react-native-maps';
 
 import ThemedText from './ThemedText';
@@ -64,7 +65,7 @@ const PriceMarker: React.FC<PriceMarkerProps> = ({
             source={imageSource!}
             style={{ width: MARKER_IMAGE_SIZE, height: MARKER_IMAGE_SIZE }}
             className="rounded-lg bg-white"
-            resizeMode="contain"
+            contentFit="contain"
             onLoadEnd={handleImageLoad}
           />
         ) : showRemoteLogo ? (
@@ -73,7 +74,7 @@ const PriceMarker: React.FC<PriceMarkerProps> = ({
               source={{ uri: imageUrl! }}
               style={{ width: 48, height: 48 }}
               className="rounded-t-xl bg-light-secondary dark:bg-dark-secondary"
-              resizeMode="cover"
+              contentFit="cover"
               onLoadEnd={handleImageLoad}
             />
             <View className="min-w-0 max-w-[100px] bg-black px-2 py-1">

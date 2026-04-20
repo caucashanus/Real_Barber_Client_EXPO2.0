@@ -1,5 +1,6 @@
 import React, { useMemo, useState } from 'react';
-import { View, Image, Pressable } from 'react-native';
+import {View, Pressable} from 'react-native';
+import { Image } from 'expo-image';
 
 import { useTranslation } from '@/app/hooks/useTranslation';
 import HaircutNoteEditModals, {
@@ -168,7 +169,7 @@ function OverviewTagsBlock({
               selected
               showSelectedIndicator={!editing}
               customIcon={
-                img ? <Image source={img} className="h-12 w-12" resizeMode="contain" /> : undefined
+                img ? <Image source={img} className="h-12 w-12" contentFit="contain" /> : undefined
               }
             />
             {editing && onRemoveTag ? (
@@ -346,7 +347,7 @@ export default function HaircutNoteSections({
                             ? 'h-14 w-14 shrink-0 translate-y-3'
                             : 'h-12 w-12 shrink-0 translate-y-3'
                         }
-                        resizeMode="contain"
+                        contentFit="contain"
                       />
                     ) : undefined;
 

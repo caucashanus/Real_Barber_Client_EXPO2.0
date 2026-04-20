@@ -1,6 +1,7 @@
 import { router } from 'expo-router';
 import React from 'react';
-import { Image, Pressable, View } from 'react-native';
+import {Pressable, View} from 'react-native';
+import { Image } from 'expo-image';
 
 import useThemeColors from '@/app/contexts/ThemeColors';
 import { useTranslation } from '@/app/hooks/useTranslation';

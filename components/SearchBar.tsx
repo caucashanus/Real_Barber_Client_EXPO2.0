@@ -1,7 +1,8 @@
 import { BlurView } from 'expo-blur';
 import { router } from 'expo-router';
 import React, { useState } from 'react';
-import { Modal, Pressable, View, Platform, Image, ImageSourcePropType } from 'react-native';
+import {Modal, Pressable, View, Platform, ImageSourcePropType} from 'react-native';
+import { Image } from 'expo-image';
 import Animated from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -140,7 +141,7 @@ const SearchModal = ({ showModal, setShowModal }: SearchModalProps) => {
                       source={SEARCH_MODAL_IMAGES[i]}
                       className="h-8 w-8"
                       style={{ width: 32, height: 32 }}
-                      resizeMode="contain"
+                      contentFit="contain"
                       accessibilityIgnoresInvertColors
                     />
                   </View>

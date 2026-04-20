@@ -2,17 +2,15 @@ import { useFocusEffect } from '@react-navigation/native';
 import { useLocalSearchParams, router } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import React, { useState, useRef, useEffect, useCallback } from 'react';
-import {
-  View,
+import {View,
   Text,
-  Image,
   Pressable,
   ScrollView,
   ActivityIndicator,
   Animated,
-  type LayoutChangeEvent,
-} from 'react-native';
-import { Share } from 'react-native';
+  type LayoutChangeEvent} from 'react-native';
+import { Image } from 'expo-image';
+import {Share} from 'react-native';
 import { ActionSheetRef } from 'react-native-actions-sheet';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 

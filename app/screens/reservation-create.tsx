@@ -1,6 +1,7 @@
 import { router, useLocalSearchParams } from 'expo-router';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { View, ScrollView, Pressable, ActivityIndicator, Image } from 'react-native';
+import {View, ScrollView, Pressable, ActivityIndicator} from 'react-native';
+import { Image } from 'expo-image';
 import { ActionSheetRef } from 'react-native-actions-sheet';
 
 import {
@@ -1038,7 +1039,7 @@ export default function ReservationCreateScreen() {
                 source={require('@/assets/img/reservation-branch.png')}
                 className="h-16 w-16"
                 style={{ width: 64, height: 64 }}
-                resizeMode="contain"
+                contentFit="contain"
                 accessibilityIgnoresInvertColors
               />
             </View>
@@ -1073,7 +1074,7 @@ export default function ReservationCreateScreen() {
                         <Image
                           source={{ uri: getBranchImageUrl(branch)! }}
                           className="h-12 w-12 rounded-xl"
-                          resizeMode="cover"
+                          contentFit="cover"
                         />
                       ) : (
                         <Avatar size="sm" name={branch.name} />
@@ -1110,7 +1111,7 @@ export default function ReservationCreateScreen() {
                 source={require('@/assets/img/reservation-specialist.png')}
                 className="h-16 w-16"
                 style={{ width: 64, height: 64 }}
-                resizeMode="contain"
+                contentFit="contain"
                 accessibilityIgnoresInvertColors
               />
             </View>
@@ -1183,7 +1184,7 @@ export default function ReservationCreateScreen() {
                 source={require('@/assets/img/reservation-service.png')}
                 className="h-16 w-16"
                 style={{ width: 64, height: 64 }}
-                resizeMode="contain"
+                contentFit="contain"
                 accessibilityIgnoresInvertColors
               />
             </View>
@@ -1228,7 +1229,7 @@ export default function ReservationCreateScreen() {
                                 : require('@/assets/img/barbers.png')
                             }
                             className="h-[140px] w-[160px]"
-                            resizeMode="cover"
+                            contentFit="cover"
                           />
                           <View className="absolute right-2 top-2 z-10 rounded-full bg-light-secondary px-2 py-1 dark:bg-dark-secondary">
                             <ThemedText className="text-xs text-light-subtext dark:text-dark-subtext">
@@ -1262,7 +1263,7 @@ export default function ReservationCreateScreen() {
                 source={require('@/assets/img/reservation-time.png')}
                 className="h-16 w-16"
                 style={{ width: 64, height: 64 }}
-                resizeMode="contain"
+                contentFit="contain"
                 accessibilityIgnoresInvertColors
               />
             </View>
@@ -1434,7 +1435,7 @@ export default function ReservationCreateScreen() {
                 source={require('@/assets/img/reservation-summary.png')}
                 className="h-16 w-16"
                 style={{ width: 64, height: 64 }}
-                resizeMode="contain"
+                contentFit="contain"
                 accessibilityIgnoresInvertColors
               />
             </View>
@@ -1455,7 +1456,7 @@ export default function ReservationCreateScreen() {
                       : { uri: summaryBranchCardImage }
                   }
                   className="h-40 w-full"
-                  resizeMode="cover"
+                  contentFit="cover"
                 />
                 <View className="p-3">
                   <ThemedText className="text-base font-semibold">
@@ -1596,7 +1597,7 @@ export default function ReservationCreateScreen() {
                         </ThemedText>
                       </View>
                     ) : (
-                      <Image source={{ uri: m.url }} className="h-full w-full" resizeMode="cover" />
+                      <Image source={{ uri: m.url }} className="h-full w-full" contentFit="cover" />
                     )}
                   </View>
                 ))}
@@ -1662,7 +1663,7 @@ export default function ReservationCreateScreen() {
                   <View
                     key={`${m.url}-${index}`}
                     className="h-24 w-24 overflow-hidden rounded-xl bg-light-secondary dark:bg-dark-secondary">
-                    <Image source={{ uri: m.url }} className="h-full w-full" resizeMode="cover" />
+                    <Image source={{ uri: m.url }} className="h-full w-full" contentFit="cover" />
                   </View>
                 ))}
               </ScrollView>

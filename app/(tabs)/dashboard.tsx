@@ -1,5 +1,6 @@
 import React from 'react';
-import { View, Image, Pressable } from 'react-native';
+import {View, Pressable} from 'react-native';
+import { Image } from 'expo-image';
 
 import { useTranslation } from '@/app/hooks/useTranslation';
 import { renderNotification } from '@/app/screens/notifications';

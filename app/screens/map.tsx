@@ -3,17 +3,15 @@ import * as Location from 'expo-location';
 import { router, useLocalSearchParams } from 'expo-router';
 import * as LucideIcons from 'lucide-react-native';
 import React, { useRef, useEffect, useState, useMemo } from 'react';
-import {
-  View,
+import {View,
   Text,
-  Image,
   Pressable,
   Dimensions,
   TouchableOpacity,
   ActivityIndicator,
   Platform,
-  Linking,
-} from 'react-native';
+  Linking} from 'react-native';
+import { Image } from 'expo-image';
 import ActionSheet, { ActionSheetRef, useSheetRef, FlatList } from 'react-native-actions-sheet';
 import MapView, { Callout, MapStyleElement, Marker } from 'react-native-maps';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';

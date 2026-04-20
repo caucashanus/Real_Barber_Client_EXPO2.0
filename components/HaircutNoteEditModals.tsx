@@ -1,6 +1,7 @@
 import Slider from '@react-native-community/slider';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { View, ScrollView, Pressable, Dimensions, Image } from 'react-native';
+import {View, ScrollView, Pressable, Dimensions} from 'react-native';
+import { Image } from 'expo-image';
 import ActionSheet, { ActionSheetRef } from 'react-native-actions-sheet';
 
 import { useAccentColor } from '@/app/contexts/AccentColorContext';
@@ -274,7 +275,7 @@ export default function HaircutNoteEditModals({
                   title={t(option.labelKey)}
                   selected={typeValues.includes(option.value)}
                   customIcon={
-                    <Image source={option.iconImage} className="h-12 w-12" resizeMode="contain" />
+                    <Image source={option.iconImage} className="h-12 w-12" contentFit="contain" />
                   }
                   onPress={() => {
                     setTypeValues((prev) =>
@@ -300,7 +301,7 @@ export default function HaircutNoteEditModals({
                   description={t(option.descKey)}
                   selected={seasonValues.includes(option.value)}
                   customIcon={
-                    <Image source={option.iconImage} className="h-12 w-12" resizeMode="contain" />
+                    <Image source={option.iconImage} className="h-12 w-12" contentFit="contain" />
                   }
                   onPress={() => {
                     setSeasonValues((prev) =>

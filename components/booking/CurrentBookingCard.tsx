@@ -1,5 +1,6 @@
 import React, { useMemo } from 'react';
-import { View, Image } from 'react-native';
+import {View} from 'react-native';
+import { Image } from 'expo-image';
 
 import type { Booking } from '@/api/bookings';
 import { useLanguage } from '@/app/contexts/LanguageContext';
@@ -80,7 +81,7 @@ export default function CurrentBookingCard({ booking }: CurrentBookingCardProps)
               <Image
                 source={{ uri: booking.item.imageUrl }}
                 className="ml-2 h-14 w-14 shrink-0 rounded-xl"
-                resizeMode="cover"
+                contentFit="cover"
               />
             ) : null}
           </View>

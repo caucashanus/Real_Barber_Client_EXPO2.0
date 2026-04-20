@@ -4,14 +4,12 @@ import * as ImagePicker from 'expo-image-picker';
 import type { ImagePickerAsset } from 'expo-image-picker';
 import { router } from 'expo-router';
 import React, { useState, useEffect, useCallback } from 'react';
-import {
-  View,
+import {View,
   ScrollView,
-  Image,
   TouchableOpacity,
   Alert,
-  useWindowDimensions,
-} from 'react-native';
+  useWindowDimensions} from 'react-native';
+import { Image } from 'expo-image';
 
 import { uploadClientMedia } from '@/api/client';
 import { createClientCut } from '@/api/cuts';
@@ -80,7 +78,7 @@ const PropertyTypeStep: React.FC<StepProps> = ({ data, updateData }) => {
             title={t(option.labelKey)}
             selected={data.propertyTypes.includes(option.value)}
             customIcon={
-              <Image source={option.iconImage} className="h-12 w-12" resizeMode="contain" />
+              <Image source={option.iconImage} className="h-12 w-12" contentFit="contain" />
             }
             onPress={() => {
               const next = data.propertyTypes.includes(option.value)
@@ -117,7 +115,7 @@ const GuestAccessStep: React.FC<StepProps> = ({ data, updateData }) => {
             description={t(option.descKey)}
             selected={data.guestAccessTypes.includes(option.value)}
             customIcon={
-              <Image source={option.iconImage} className="h-12 w-12" resizeMode="contain" />
+              <Image source={option.iconImage} className="h-12 w-12" contentFit="contain" />
             }
             onPress={() => {
               const next = data.guestAccessTypes.includes(option.value)
@@ -286,7 +284,7 @@ const PhotosStep: React.FC<StepProps> = ({ data, updateData }) => {
             <Image
               source={{ uri: asset.uri }}
               className="h-44 w-full rounded-lg"
-              resizeMode="cover"
+              contentFit="cover"
             />
             <TouchableOpacity
               onPress={() => removePhoto(index)}
@@ -473,7 +471,7 @@ const SuccessStep: React.FC<StepProps> = ({ data }) => {
       <Image
         source={require('@/assets/img/gratulations.png')}
         className="h-32 w-32 rounded-lg"
-        resizeMode="cover"
+        contentFit="cover"
       />
       <ThemedText className="mt-8 text-center text-3xl font-bold">
         {t('addPropertyCongratulations')}
@@ -487,7 +485,7 @@ const SuccessStep: React.FC<StepProps> = ({ data }) => {
                     <Image
                         source={require('@/assets/img/barbers.png')}
                         className="w-20 h-20 rounded-lg mr-4"
-                        resizeMode="cover"
+                        contentFit="cover"
                     />
 
                     <View className="flex-1">

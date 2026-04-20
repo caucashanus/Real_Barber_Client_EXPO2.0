@@ -1,7 +1,8 @@
 import * as Haptics from 'expo-haptics';
 import { router, usePathname } from 'expo-router';
 import React, { useEffect, useRef, useState } from 'react';
-import { Animated, Image, ScrollView, TouchableOpacity, View } from 'react-native';
+import {Animated, ScrollView, TouchableOpacity, View} from 'react-native';
+import { Image } from 'expo-image';
 
 import ThemedText from './ThemedText';
 
@@ -144,7 +145,7 @@ const TabItem = (props: any) => {
           alignItems: 'center',
           justifyContent: 'center',
         }}>
-        <Image source={props.icon} className="h-full w-full" resizeMode="contain" />
+        <Image source={props.icon} className="h-full w-full" contentFit="contain" />
       </Animated.View>
       <ThemedText
         className={`mt-2 text-xs ${props.active ? 'font-bold' : 'font-normal text-gray-500 dark:text-gray-400'}`}>

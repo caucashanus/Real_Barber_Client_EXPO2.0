@@ -1,6 +1,7 @@
 import { router } from 'expo-router';
 import React from 'react';
-import { View, Image, Pressable } from 'react-native';
+import {View, Pressable} from 'react-native';
+import { Image } from 'expo-image';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { useTranslation } from '@/app/hooks/useTranslation';
@@ -44,7 +45,7 @@ export default function GuideMyHaircutsScreen() {
         <Image
           source={current.image}
           className="h-full w-full"
-          resizeMode="cover"
+          contentFit="cover"
           accessibilityLabel={`Guide step ${step + 1}`}
         />
       </Pressable>

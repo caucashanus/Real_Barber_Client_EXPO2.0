@@ -1,6 +1,7 @@
 import { useLocalSearchParams } from 'expo-router';
 import React, { useState } from 'react';
-import { View, ScrollView, Image, Pressable } from 'react-native';
+import {View, ScrollView, Pressable} from 'react-native';
+import { Image } from 'expo-image';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import useThemeColors from '@/app/contexts/ThemeColors';
@@ -127,7 +128,7 @@ export default function OrderDetailScreen() {
                 <Image
                   source={propertyData.image}
                   className="mr-4 h-20 w-20 rounded-lg"
-                  resizeMode="cover"
+                  contentFit="cover"
                 />
                 <View className="flex-1">
                   <ThemedText className="text-base font-semibold" numberOfLines={2}>

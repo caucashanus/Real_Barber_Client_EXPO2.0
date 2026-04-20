@@ -1,7 +1,8 @@
 import { useFocusEffect } from '@react-navigation/native';
 import { router } from 'expo-router';
 import React, { useCallback, useContext, useMemo, useState } from 'react';
-import { View, Image, Animated, Pressable, ActivityIndicator } from 'react-native';
+import {View, Animated, Pressable, ActivityIndicator} from 'react-native';
+import { Image } from 'expo-image';
 
 import { ScrollContext } from './_layout';
 
@@ -133,21 +134,21 @@ const MyHaircutsScreen = () => {
                 <Image
                   className="h-full w-full"
                   source={require('@/assets/img/myidea.png')}
-                  resizeMode="contain"
+                  contentFit="contain"
                 />
               </View>
               <View className="absolute left-8 top-0 h-full w-full rotate-12 overflow-hidden rounded-xl border-2 border-light-primary dark:border-dark-primary">
                 <Image
                   className="h-full w-full"
                   source={require('@/assets/img/myrules.png')}
-                  resizeMode="contain"
+                  contentFit="contain"
                 />
               </View>
               <View className="absolute right-8 top-0 h-full w-full -rotate-12 overflow-hidden rounded-xl border-2 border-light-primary dark:border-dark-primary">
                 <Image
                   className="h-full w-full"
                   source={require('@/assets/img/savefinish.png')}
-                  resizeMode="contain"
+                  contentFit="contain"
                 />
               </View>
             </View>

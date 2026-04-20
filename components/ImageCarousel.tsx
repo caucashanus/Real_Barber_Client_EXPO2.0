@@ -1,14 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import {
-  View,
+import {View,
   FlatList,
-  Image,
   Dimensions,
   StyleSheet,
   LayoutChangeEvent,
   Animated,
-  ImageSourcePropType,
-} from 'react-native';
+  ImageSourcePropType} from 'react-native';
+import { Image } from 'expo-image';
 
 import ThemedText from '@/components/ThemedText';
 
@@ -141,7 +139,7 @@ const ImageCarousel: React.FC<ImageCarouselProps> = ({
             height,
           },
         ]}
-        resizeMode="cover"
+        contentFit="cover"
       />
     </View>
   );

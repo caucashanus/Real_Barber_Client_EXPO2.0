@@ -1,6 +1,7 @@
 import { router } from 'expo-router';
 import React, { useState, useEffect, useRef } from 'react';
-import { View, Keyboard, TouchableWithoutFeedback, Animated, StyleSheet, Image } from 'react-native';
+import {View, Keyboard, TouchableWithoutFeedback, Animated, StyleSheet} from 'react-native';
+import { Image } from 'expo-image';
 import { LinearGradient } from 'expo-linear-gradient';
 
 import { requestClientOtp } from '@/api/auth';
@@ -196,7 +197,7 @@ export default function LoginScreen() {
           <Image
             source={require('@/assets/img/loginrb.png')}
             style={{ width: '100%', height: 320, position: 'absolute', bottom: 0 }}
-            resizeMode="contain"
+            contentFit="contain"
           />
         </View>
       </TouchableWithoutFeedback>

@@ -1,6 +1,7 @@
 import * as ImagePicker from 'expo-image-picker';
 import React, { useState } from 'react';
-import { View, Image, Pressable, Dimensions, Text, ScrollView } from 'react-native';
+import {View, Pressable, Dimensions, Text, ScrollView} from 'react-native';
+import { Image } from 'expo-image';
 
 import { CardScroller } from './CardScroller';
 import Icon from './Icon';

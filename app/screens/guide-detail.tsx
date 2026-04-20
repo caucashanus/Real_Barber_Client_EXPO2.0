@@ -1,6 +1,7 @@
 import { useLocalSearchParams, router } from 'expo-router';
 import React, { useEffect, useState } from 'react';
-import { View, Image, ScrollView, ActivityIndicator, Dimensions, Pressable } from 'react-native';
+import {View, ScrollView, ActivityIndicator, Dimensions, Pressable} from 'react-native';
+import { Image } from 'expo-image';
 
 import {
   getCachedGuide,
@@ -41,7 +42,7 @@ function MediaItem({ item }: { item: GuideMedia }) {
         <Image
           source={{ uri: file.url }}
           style={{ width: screenWidth * 0.6, height: 220 }}
-          resizeMode="cover"
+          contentFit="cover"
         />
       </View>
     );

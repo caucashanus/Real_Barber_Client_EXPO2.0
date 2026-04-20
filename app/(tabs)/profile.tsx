@@ -1,15 +1,13 @@
 import { useFocusEffect } from '@react-navigation/native';
 import { router } from 'expo-router';
 import React, { useCallback, useEffect, useState } from 'react';
-import {
-  View,
+import {View,
   ImageBackground,
   Text,
   TouchableOpacity,
-  Image,
   ActivityIndicator,
-  Share,
-} from 'react-native';
+  Share} from 'react-native';
+import { Image } from 'expo-image';
 
 import { getBookings } from '@/api/bookings';
 import { getClientMe, type ClientMe } from '@/api/client';

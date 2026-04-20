@@ -1,13 +1,11 @@
 import * as ImagePicker from 'expo-image-picker';
 import React, { useCallback, useEffect, useState } from 'react';
-import {
-  View,
-  Image,
+import {View,
   Pressable,
   ScrollView,
   useWindowDimensions,
-  ActivityIndicator,
-} from 'react-native';
+  ActivityIndicator} from 'react-native';
+import { Image } from 'expo-image';
 
 import { getAllPublicMediaByFlag, type MediaFile } from '@/api/media';
 import { useTranslation } from '@/app/hooks/useTranslation';
@@ -108,7 +106,7 @@ export default function SignupAvatarPicker({
           <Image
             source={previewSource}
             style={{ width: '100%', height: '100%' }}
-            resizeMode="cover"
+            contentFit="cover"
           />
         ) : (
           <View className="flex-1 items-center justify-center">
@@ -185,7 +183,7 @@ export default function SignupAvatarPicker({
                   <Image
                     source={{ uri: item.url }}
                     style={{ width: '100%', height: '100%' }}
-                    resizeMode="cover"
+                    contentFit="cover"
                   />
                 </Pressable>
               );

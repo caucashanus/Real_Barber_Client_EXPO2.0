@@ -1,6 +1,7 @@
 import { router } from 'expo-router';
 import React, { useContext, useEffect, useMemo, useState } from 'react';
-import { Animated, Image, Pressable, View, ActivityIndicator } from 'react-native';
+import {Animated, Pressable, View, ActivityIndicator} from 'react-native';
+import { Image } from 'expo-image';
 
 import { ScrollContext } from './_layout';
 
@@ -145,7 +146,7 @@ export default function BranchesScreen() {
             <Image
               className="h-full w-full"
               source={require('@/assets/img/branches.png')}
-              resizeMode="contain"
+              contentFit="contain"
             />
           </View>
         </Pressable>
@@ -226,7 +227,7 @@ export default function BranchesScreen() {
                             pointerEvents="none"
                             source={typeof cardImage === 'number' ? cardImage : { uri: cardImage }}
                             style={{ width: 160, height: 160 }}
-                            resizeMode="cover"
+                            contentFit="cover"
                           />
                           <View pointerEvents="none" className="absolute right-3 top-3 z-50">
                             <Icon name="Play" size={24} className="text-white" />

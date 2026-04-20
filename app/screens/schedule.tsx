@@ -1,6 +1,7 @@
 import { router } from 'expo-router';
 import React, { useEffect, useState, useMemo, useRef } from 'react';
-import { View, Image, Pressable } from 'react-native';
+import {View, Pressable} from 'react-native';
+import { Image } from 'expo-image';
 import { ActionSheetRef } from 'react-native-actions-sheet';
 
 import { getBranches, type Branch } from '@/api/branches';
@@ -327,7 +328,7 @@ const ScheduleCard = ({ name, image, branchNames, dateVariant }: ScheduleCardPro
         <Image
           source={typeof image === 'string' ? { uri: image } : image}
           className="h-full w-full"
-          resizeMode="cover"
+          contentFit="cover"
         />
         {dateVariant !== null && (
           <View className="absolute right-3 top-2">

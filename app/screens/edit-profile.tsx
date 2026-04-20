@@ -1,7 +1,8 @@
 import type { ImagePickerAsset } from 'expo-image-picker';
 import { router } from 'expo-router';
 import React, { useState, useEffect, useRef, useMemo } from 'react';
-import { View, Image, TouchableOpacity, ActivityIndicator, Pressable, Linking } from 'react-native';
+import {View, TouchableOpacity, ActivityIndicator, Pressable, Linking} from 'react-native';
+import { Image } from 'expo-image';
 import { ActionSheetRef } from 'react-native-actions-sheet';
 
 import { getClientMe, patchClientMe, uploadClientMedia, type ClientMe } from '@/api/client';

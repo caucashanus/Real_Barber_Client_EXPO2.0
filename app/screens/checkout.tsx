@@ -2,7 +2,8 @@ import AntDesign from '@expo/vector-icons/AntDesign';
 import Fontisto from '@expo/vector-icons/Fontisto';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import React, { useState, useEffect } from 'react';
-import { View, Image, ScrollView, TouchableOpacity, ActivityIndicator, Alert } from 'react-native';
+import {View, ScrollView, TouchableOpacity, ActivityIndicator, Alert} from 'react-native';
+import { Image } from 'expo-image';
 
 import useThemeColors from '../contexts/ThemeColors';
 

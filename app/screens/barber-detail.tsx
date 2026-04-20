@@ -2,9 +2,7 @@ import { useFocusEffect } from '@react-navigation/native';
 import { router, useLocalSearchParams } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import React, { useEffect, useState, useCallback, useRef, useMemo } from 'react';
-import {
-  View,
-  Image,
+import {View,
   ActivityIndicator,
   Pressable,
   ScrollView,
@@ -12,8 +10,8 @@ import {
   Animated,
   useWindowDimensions,
   FlatList,
-  type LayoutChangeEvent,
-} from 'react-native';
+  type LayoutChangeEvent} from 'react-native';
+import { Image } from 'expo-image';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import {
@@ -337,7 +335,7 @@ export default function BarberDetailScreen() {
                   <Image
                     source={item.uri ? { uri: item.uri } : require('@/assets/img/barbers.png')}
                     style={{ width: carouselWidth, height: CAROUSEL_HEIGHT }}
-                    resizeMode="cover"
+                    contentFit="cover"
                   />
                 )}
               </View>
@@ -423,7 +421,7 @@ export default function BarberDetailScreen() {
                         <Image
                           source={{ uri: item.url }}
                           className="h-full w-full"
-                          resizeMode="cover"
+                          contentFit="cover"
                         />
                       )}
                     </Pressable>
@@ -447,7 +445,7 @@ export default function BarberDetailScreen() {
                         <Image
                           source={{ uri: branch.imageUrl }}
                           className="h-12 w-12 rounded-lg"
-                          resizeMode="cover"
+                          contentFit="cover"
                         />
                       ) : (
                         <View className="h-12 w-12 rounded-lg bg-light-primary dark:bg-dark-primary" />
@@ -503,7 +501,7 @@ export default function BarberDetailScreen() {
                                   <Image
                                     source={{ uri: svc.imageUrl }}
                                     className="h-12 w-12 rounded-lg"
-                                    resizeMode="cover"
+                                    contentFit="cover"
                                   />
                                 ) : (
                                   <View className="h-12 w-12 rounded-lg bg-light-secondary dark:bg-dark-secondary" />
@@ -594,7 +592,7 @@ export default function BarberDetailScreen() {
                               <Image
                                 source={require('@/assets/img/wallet/realbarber.png')}
                                 className="mr-2 h-10 w-10 rounded-full"
-                                resizeMode="cover"
+                                contentFit="cover"
                               />
                             ) : review.client?.avatarUrl ? (
                               <Image
@@ -689,7 +687,7 @@ export default function BarberDetailScreen() {
               <Image
                 source={{ uri: fullscreenMedia.url }}
                 style={{ width: winWidth, height: winHeight }}
-                resizeMode="contain"
+                contentFit="contain"
               />
             </Pressable>
           ) : null}

@@ -2,14 +2,13 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useFocusEffect } from '@react-navigation/native';
 import { Link, useRouter } from 'expo-router';
 import React, { useCallback, useContext, useEffect, useRef, useState } from 'react';
-import {
-  View,
+import {View,
   Animated,
   Pressable,
   ActivityIndicator,
   ScrollView,
-  ImageBackground,
-} from 'react-native';
+  ImageBackground} from 'react-native';
+import { Image } from 'expo-image';
 
 import { ScrollContext } from './_layout';
 

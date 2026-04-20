@@ -1,12 +1,10 @@
 import { useLocalSearchParams, router } from 'expo-router';
 import React, { useEffect, useState, useRef } from 'react';
-import {
-  View,
-  Image,
+import {View,
   ActivityIndicator,
   Animated,
-  type LayoutChangeEvent,
-} from 'react-native';
+  type LayoutChangeEvent} from 'react-native';
+import { Image } from 'expo-image';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { getItemsAll, type Item } from '@/api/items';
@@ -135,7 +133,7 @@ export default function ServiceDetailScreen() {
             source={typeof images[0] === 'string' ? { uri: images[0] } : images[0]}
             className="w-full"
             style={{ aspectRatio: 4 / 3 }}
-            resizeMode="cover"
+            contentFit="cover"
           />
         </Animated.View>
 

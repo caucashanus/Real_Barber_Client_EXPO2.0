@@ -2,7 +2,8 @@ import FontAwesome from '@expo/vector-icons/FontAwesome';
 import * as Haptics from 'expo-haptics';
 import { router, useLocalSearchParams } from 'expo-router';
 import React, { useState, useEffect } from 'react';
-import { View, TouchableOpacity, Alert, Image, ActivityIndicator } from 'react-native';
+import {View, TouchableOpacity, Alert, ActivityIndicator} from 'react-native';
+import { Image } from 'expo-image';
 
 import { createReview, getEntityReviews, updateReview, deleteReview } from '@/api/reviews';
 import { useAuth } from '@/app/contexts/AuthContext';
@@ -216,7 +217,7 @@ const ReviewScreen = () => {
                   <Image
                     source={{ uri: imageUrl }}
                     className="h-24 w-24 rounded-lg bg-light-secondary dark:bg-dark-secondary"
-                    resizeMode="cover"
+                    contentFit="cover"
                   />
                 ) : null}
                 <ThemedText className="mt-2 text-center text-sm font-bold" numberOfLines={2}>

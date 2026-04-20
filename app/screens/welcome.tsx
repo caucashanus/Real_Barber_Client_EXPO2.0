@@ -1,7 +1,8 @@
 import { AntDesign } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import React from 'react';
-import { View, Text, Pressable, Image } from 'react-native';
+import {View, Text, Pressable} from 'react-native';
+import { Image } from 'expo-image';
 import { useSafeAreaInsets, SafeAreaView } from 'react-native-safe-area-context';
 
 import useThemeColors from '../contexts/ThemeColors';
@@ -63,7 +64,7 @@ export default function OnboardingScreen() {
           <Image
             source={require('@/assets/img/welcomerb.png')}
             style={{ width: '100%', height: 320, marginBottom: -110 }}
-            resizeMode="contain"
+            contentFit="contain"
           />
           {SHOW_WELCOME_GOOGLE_APPLE_BUTTONS ? (
             <>

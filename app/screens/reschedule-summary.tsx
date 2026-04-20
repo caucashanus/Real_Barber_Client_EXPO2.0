@@ -1,6 +1,7 @@
 import { router, useLocalSearchParams } from 'expo-router';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { View, ScrollView, ActivityIndicator, Image } from 'react-native';
+import {View, ScrollView, ActivityIndicator} from 'react-native';
+import { Image } from 'expo-image';
 
 import { getBookingById, updateBooking, type Booking } from '@/api/bookings';
 import { useAuth } from '@/app/contexts/AuthContext';
@@ -139,7 +140,7 @@ export default function RescheduleSummaryScreen() {
             <Image
               source={require('@/assets/img/reschedule-confirm.png')}
               className="h-20 w-20"
-              resizeMode="contain"
+              contentFit="contain"
               accessibilityIgnoresInvertColors
             />
           </View>

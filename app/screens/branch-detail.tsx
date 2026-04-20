@@ -3,17 +3,15 @@ import { useLocalSearchParams, useRouter } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import * as WebBrowser from 'expo-web-browser';
 import React, { useEffect, useState, useCallback, useRef } from 'react';
-import {
-  View,
-  Image,
+import {View,
   ActivityIndicator,
   Pressable,
   ScrollView,
   Linking,
   Modal,
   Animated,
-  type LayoutChangeEvent,
-} from 'react-native';
+  type LayoutChangeEvent} from 'react-native';
+import { Image } from 'expo-image';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { getBranches, type Branch, type BranchService, type BranchEmployee } from '@/api/branches';
@@ -366,7 +364,7 @@ export default function BranchDetailScreen() {
               <Image
                 source={BRANCH_MARKER_IMAGES[branch.name]}
                 className="mr-4 h-12 w-12 rounded-lg"
-                resizeMode="contain"
+                contentFit="contain"
               />
             ) : (
               <Avatar size="md" name={branch.name} className="mr-4" />
@@ -471,7 +469,7 @@ export default function BranchDetailScreen() {
                               <Image
                                 source={require('@/assets/img/wallet/realbarber.png')}
                                 className="mr-2 h-10 w-10 rounded-full"
-                                resizeMode="cover"
+                                contentFit="cover"
                               />
                             ) : review.client?.avatarUrl ? (
                               <Image

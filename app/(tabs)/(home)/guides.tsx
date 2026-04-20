@@ -1,7 +1,8 @@
 import { useFocusEffect } from '@react-navigation/native';
 import { router } from 'expo-router';
 import React, { useCallback, useContext, useEffect, useState } from 'react';
-import { View, Pressable, Image, Animated, ActivityIndicator } from 'react-native';
+import {View, Pressable, Animated, ActivityIndicator} from 'react-native';
+import { Image } from 'expo-image';
 
 import { ScrollContext } from './_layout';
 
@@ -49,7 +50,7 @@ function GuideCard({ guide }: { guide: ClientGuide }) {
       <View className="relative h-20 w-20">
         {imageUrl ? (
           <View className="h-full w-full overflow-hidden rounded-xl border-2 border-light-primary dark:border-dark-primary">
-            <Image className="h-full w-full" source={{ uri: imageUrl }} resizeMode="cover" />
+            <Image className="h-full w-full" source={{ uri: imageUrl }} contentFit="cover" />
           </View>
         ) : (
           <View className="h-full w-full items-center justify-center rounded-xl border-2 border-light-primary bg-light-secondary dark:border-dark-primary dark:bg-dark-secondary">

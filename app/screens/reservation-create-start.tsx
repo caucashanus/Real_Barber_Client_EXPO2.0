@@ -1,6 +1,7 @@
 import { router } from 'expo-router';
 import React from 'react';
-import { View, Image } from 'react-native';
+import {View} from 'react-native';
+import { Image } from 'expo-image';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { useTranslation } from '@/app/hooks/useTranslation';

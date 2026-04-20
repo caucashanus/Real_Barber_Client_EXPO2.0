@@ -1,6 +1,7 @@
 import { router, useLocalSearchParams } from 'expo-router';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { View, ScrollView, Pressable, ActivityIndicator, Image } from 'react-native';
+import {View, ScrollView, Pressable, ActivityIndicator} from 'react-native';
+import { Image } from 'expo-image';
 
 import {
   getBookingById,
@@ -302,7 +303,7 @@ export default function RescheduleScreen() {
                   source={require('@/assets/img/reschedule-old-slot.png')}
                   className="h-16 w-16 shrink-0"
                   style={{ width: 64, height: 64 }}
-                  resizeMode="contain"
+                  contentFit="contain"
                   accessibilityIgnoresInvertColors
                 />
               </View>
@@ -321,7 +322,7 @@ export default function RescheduleScreen() {
                   source={require('@/assets/img/reschedule-new-slot.png')}
                   className="h-16 w-16 shrink-0"
                   style={{ width: 64, height: 64 }}
-                  resizeMode="contain"
+                  contentFit="contain"
                   accessibilityIgnoresInvertColors
                 />
               </View>

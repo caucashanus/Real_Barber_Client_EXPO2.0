@@ -1,6 +1,7 @@
 import { useLocalSearchParams, router } from 'expo-router';
 import React, { useEffect, useRef, useState } from 'react';
-import { View, ActivityIndicator, Image, Pressable, Linking, Alert, Animated } from 'react-native';
+import {View, ActivityIndicator, Pressable, Linking, Alert, Animated} from 'react-native';
+import { Image } from 'expo-image';
 import { ActionSheetRef } from 'react-native-actions-sheet';
 
 import { getBookings, cancelBooking, type Booking } from '../../api/bookings';
@@ -394,7 +395,7 @@ const BookingDetailScreen = () => {
                     : require('@/assets/img/barbers.png')
                 }
                 className="mb-3 h-32 w-32 rounded-xl"
-                resizeMode="cover"
+                contentFit="cover"
               />
               <View className="flex-row justify-between">
                 <ThemedText className="text-light-subtext dark:text-dark-subtext">

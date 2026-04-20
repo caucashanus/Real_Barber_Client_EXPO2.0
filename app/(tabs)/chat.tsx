@@ -1,6 +1,7 @@
 import { Link } from 'expo-router';
 import React, { useState } from 'react';
-import { View, FlatList, TouchableOpacity, Image } from 'react-native';
+import {View, FlatList, TouchableOpacity} from 'react-native';
+import { Image } from 'expo-image';
 
 import useThemeColors from '@/app/contexts/ThemeColors';
 import { useCollapsibleTitle } from '@/app/hooks/useCollapsibleTitle';

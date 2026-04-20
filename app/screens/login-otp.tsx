@@ -1,14 +1,12 @@
 import { router, useLocalSearchParams } from 'expo-router';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import {
-  View,
+import {View,
   Keyboard,
   TouchableWithoutFeedback,
   Pressable,
-  Image,
   TextInput,
-  StyleSheet,
-} from 'react-native';
+  StyleSheet} from 'react-native';
+import { Image } from 'expo-image';
 
 import { requestClientOtp, verifyClientOtp } from '@/api/auth';
 import { useAuth } from '@/app/contexts/AuthContext';
@@ -329,7 +327,7 @@ export default function LoginOtpScreen() {
           <Image
             source={require('@/assets/img/smslogin.png')}
             style={{ width: '100%', height: 320, position: 'absolute', bottom: 0 }}
-            resizeMode="contain"
+            contentFit="contain"
           />
         </View>
       </TouchableWithoutFeedback>

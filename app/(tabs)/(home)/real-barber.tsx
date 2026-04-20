@@ -1,6 +1,7 @@
 import { router } from 'expo-router';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { ActivityIndicator, Image, Pressable, View } from 'react-native';
+import {ActivityIndicator, Pressable, View} from 'react-native';
+import { Image } from 'expo-image';
 
 import { getBookings, type Booking } from '@/api/bookings';
 import { getClientOverview } from '@/api/reviews';
@@ -9,6 +10,8 @@ import { useTranslation } from '@/app/hooks/useTranslation';
 import Avatar from '@/components/Avatar';
 import Icon from '@/components/Icon';
 import LiveIndicator from '@/components/LiveIndicator';
+import NotificationPromptSheet from '@/components/NotificationPromptSheet';
+import { ActionSheetRef } from 'react-native-actions-sheet';
 import ThemeScroller from '@/components/ThemeScroller';
 import ThemedText from '@/components/ThemedText';
 import Section from '@/components/layout/Section';
@@ -364,8 +367,17 @@ export default function RealBarberHomeTab() {
     [allBookings]
   );
 
+  const notifSheetRef = useRef<ActionSheetRef>(null);
+
   return (
     <ThemeScroller className="flex-1">
+      <NotificationPromptSheet sheetRef={notifSheetRef} />
+      {/* TEST — smazat před releasem */}
+      <Pressable
+        onPress={() => notifSheetRef.current?.show()}
+        className="mx-global mt-4 rounded-xl bg-light-secondary p-3 dark:bg-dark-secondary">
+        <ThemedText className="text-center text-sm">🧪 Test notifikační sheet</ThemedText>
+      </Pressable>
       <View className="mt-4 px-global">
         {/* Spotlight booking */}
         {recentLoading ? null : spotlight ? (
@@ -386,7 +398,7 @@ export default function RealBarberHomeTab() {
                   <Image
                     source={require('@/assets/img/plus-ikon.png')}
                     style={{ width: 32, height: 32 }}
-                    resizeMode="contain"
+                    contentFit="contain"
                     className="mb-2"
                   />
                 )}
@@ -394,7 +406,7 @@ export default function RealBarberHomeTab() {
                   <Image
                     source={require('@/assets/img/search-modal-branches.png')}
                     style={{ width: 32, height: 32 }}
-                    resizeMode="contain"
+                    contentFit="contain"
                     className="mb-2"
                   />
                 )}
@@ -402,7 +414,7 @@ export default function RealBarberHomeTab() {
                   <Image
                     source={require('@/assets/img/barbers.png')}
                     style={{ width: 32, height: 32 }}
-                    resizeMode="contain"
+                    contentFit="contain"
                     className="mb-2"
                   />
                 )}
@@ -410,7 +422,7 @@ export default function RealBarberHomeTab() {
                   <Image
                     source={require('@/assets/img/search-modal-bookings.png')}
                     style={{ width: 32, height: 32 }}
-                    resizeMode="contain"
+                    contentFit="contain"
                     className="mb-2"
                   />
                 )}

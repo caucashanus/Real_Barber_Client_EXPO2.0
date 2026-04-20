@@ -2,16 +2,14 @@ import * as ImagePicker from 'expo-image-picker';
 import type { ImagePickerAsset } from 'expo-image-picker';
 import { useLocalSearchParams, router } from 'expo-router';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import {
-  View,
+import {View,
   ActivityIndicator,
   Alert,
   Animated,
-  Image,
   TouchableOpacity,
   ScrollView,
-  Pressable,
-} from 'react-native';
+  Pressable} from 'react-native';
+import { Image } from 'expo-image';
 
 import { deleteClientMedia, uploadClientMedia } from '@/api/client';
 import { getClientCut, patchClientCut, deleteClientCut, type ClientCut } from '@/api/cuts';
@@ -491,7 +489,7 @@ export default function HaircutDetailScreen() {
                             <Image
                               source={{ uri }}
                               className="h-44 w-36 rounded-xl bg-light-secondary dark:bg-dark-secondary"
-                              resizeMode="cover"
+                              contentFit="cover"
                             />
                             <Pressable
                               onPress={() => removePhotoAt(index)}
@@ -507,7 +505,7 @@ export default function HaircutDetailScreen() {
                           key={`${uri}-${index}`}
                           source={{ uri }}
                           className="h-44 w-36 shrink-0 rounded-xl bg-light-secondary dark:bg-dark-secondary"
-                          resizeMode="cover"
+                          contentFit="cover"
                         />
                       ))}
 

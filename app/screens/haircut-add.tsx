@@ -2,7 +2,8 @@ import * as ImagePicker from 'expo-image-picker';
 import type { ImagePickerAsset } from 'expo-image-picker';
 import { router } from 'expo-router';
 import React, { useEffect, useState } from 'react';
-import { View, Image, Pressable, Alert } from 'react-native';
+import {View, Pressable, Alert} from 'react-native';
+import { Image } from 'expo-image';
 
 import { uploadClientMedia } from '@/api/client';
 import { createClientCut } from '@/api/cuts';
@@ -127,7 +128,7 @@ export default function HaircutAddScreen() {
                 <Image
                   source={{ uri: asset.uri }}
                   className="h-20 w-20 rounded-xl bg-light-secondary dark:bg-dark-secondary"
-                  resizeMode="cover"
+                  contentFit="cover"
                 />
                 <Pressable
                   onPress={() => removePhoto(index)}

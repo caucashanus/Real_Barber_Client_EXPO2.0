@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { View, Text, TouchableOpacity, Image, useWindowDimensions } from 'react-native';
+import {View, Text, TouchableOpacity, useWindowDimensions} from 'react-native';
+import { Image } from 'expo-image';
 import { CalendarList } from 'react-native-calendars';
 
 import useThemeColors from '@/app/contexts/ThemeColors';
