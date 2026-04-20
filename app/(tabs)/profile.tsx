@@ -1,5 +1,6 @@
 import { useFocusEffect } from '@react-navigation/native';
 import { router } from 'expo-router';
+import * as Notifications from 'expo-notifications';
 import React, { useCallback, useEffect, useState } from 'react';
 import {View,
   ImageBackground,
@@ -33,12 +34,29 @@ const SHOW_PROFILE_HELP_SECTION = false;
 
 export default function ProfileScreen() {
   const { isBusinessMode } = useBusinessMode();
+  const [notifStatus, setNotifStatus] = useState<'granted' | 'denied' | 'undetermined' | null>(null);
+
+  useFocusEffect(
+    useCallback(() => {
+      Notifications.getPermissionsAsync().then(({ status }) => setNotifStatus(status));
+    }, [])
+  );
+
+  const notifBadge = notifStatus === null ? null : (
+    <View
+      className={`absolute -left-1.5 -top-1 z-30 h-5 w-5 items-center justify-center rounded-full border border-white dark:border-dark-primary ${notifStatus === 'granted' ? 'bg-green-500' : 'bg-red-500'}`}>
+      <Text style={{ color: 'white', fontSize: 10, fontWeight: 'bold', lineHeight: 12 }}>
+        {notifStatus === 'granted' ? '✓' : '✕'}
+      </Text>
+    </View>
+  );
+
   return (
     <View className="flex-1 bg-light-primary dark:bg-dark-primary">
       <Header
         leftComponent={<ThemeToggle />}
         rightComponents={[
-          <HeaderIcon key="notifications" icon="Bell" href="/screens/notifications" />,
+          <HeaderIcon key="notifications" icon="Bell" href="/screens/notifications" badge={notifBadge} />,
         ]}
       />
       <View className="flex-1 bg-light-primary dark:bg-dark-primary">

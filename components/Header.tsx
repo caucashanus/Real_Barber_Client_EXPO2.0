@@ -362,6 +362,7 @@ type HeaderItemProps = {
   icon: IconName;
   className?: string;
   hasBadge?: boolean;
+  badge?: React.ReactNode;
   onPress?: any;
   isWhite?: boolean;
   /** Icon size in px (touch area scales with it). Default 22. */
@@ -372,6 +373,7 @@ export const HeaderIcon = ({
   href,
   icon,
   hasBadge,
+  badge,
   onPress,
   className = '',
   isWhite = false,
@@ -390,6 +392,7 @@ export const HeaderIcon = ({
             {hasBadge && (
               <View className="absolute -right-0 -top-0 z-30 h-4 w-4 rounded-full border-2 border-light-primary bg-red-500 dark:border-dark-primary" />
             )}
+            {badge}
             {isWhite ? (
               <Icon name={icon} size={iconSize} color="white" />
             ) : (
@@ -407,6 +410,7 @@ export const HeaderIcon = ({
               {hasBadge && (
                 <View className="absolute -right-[3px] -top-0 z-30 h-4 w-4 rounded-full border-2 border-light-primary bg-red-500 dark:border-dark-primary" />
               )}
+              {badge}
               {isWhite ? (
                 <Icon name={icon} size={iconSize} color="white" />
               ) : (
