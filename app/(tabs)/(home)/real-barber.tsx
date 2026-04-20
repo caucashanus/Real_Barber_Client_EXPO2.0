@@ -393,7 +393,7 @@ export default function RealBarberHomeTab() {
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   useEffect(() => {
-    intervalRef.current = setInterval(() => setNow(Date.now()), 60000);
+    intervalRef.current = setInterval(() => setNow(Date.now()), 15000);
     return () => {
       if (intervalRef.current) clearInterval(intervalRef.current);
     };
