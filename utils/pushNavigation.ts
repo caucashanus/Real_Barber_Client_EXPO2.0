@@ -99,10 +99,10 @@ export function openFromPushNotificationData(
   if (!data) return;
 
   const SCREEN_MAP: Record<string, string> = {
-    wallet: '/(tabs)/wallet',
-    home: '/(tabs)/real-barber',
-    trips: '/(tabs)/trips',
-    profile: '/(tabs)/profile',
+    wallet: '/wallet',
+    home: '/real-barber',
+    trips: '/trips',
+    profile: '/profile',
   };
 
   const run = () => {
