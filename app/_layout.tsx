@@ -1,8 +1,17 @@
 import '../global.css';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Stack } from 'expo-router';
 import { NativeWindStyleSheet } from 'nativewind';
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Platform } from 'react-native';
+
+export const APP_OPENS_KEY = '@app_opens_count';
+
+async function incrementAppOpens(): Promise<void> {
+  const raw = await AsyncStorage.getItem(APP_OPENS_KEY).catch(() => null);
+  const current = parseInt(raw ?? '0', 10) || 0;
+  await AsyncStorage.setItem(APP_OPENS_KEY, String(current + 1)).catch(() => {});
+}
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 import { AccentColorProvider } from './contexts/AccentColorContext';
@@ -23,6 +32,10 @@ NativeWindStyleSheet.setOutput({
 
 function ThemedLayout() {
   const { ThemedStatusBar, screenOptions } = useThemedNavigation();
+
+  useEffect(() => {
+    incrementAppOpens();
+  }, []);
 
   return (
     <>

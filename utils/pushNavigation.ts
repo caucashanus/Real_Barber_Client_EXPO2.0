@@ -98,10 +98,23 @@ export function openFromPushNotificationData(
 ): void {
   if (!data) return;
 
+  const SCREEN_MAP: Record<string, string> = {
+    wallet: '/(tabs)/wallet',
+    home: '/(tabs)/real-barber',
+    trips: '/(tabs)/trips',
+    profile: '/(tabs)/profile',
+  };
+
   const run = () => {
     const legacy = legacyDeepLinkHref(data);
     if (legacy) {
       safePush(legacy);
+      return;
+    }
+
+    const screen = asTrimmedString(data.screen);
+    if (screen && SCREEN_MAP[screen]) {
+      safePush(SCREEN_MAP[screen]);
       return;
     }
 

@@ -1,10 +1,11 @@
 import { router } from 'expo-router';
-import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { ActivityIndicator, Clipboard, Linking, Pressable, View } from 'react-native';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { ActivityIndicator, Clipboard, Linking, Pressable, RefreshControl, View } from 'react-native';
 import { Image } from 'expo-image';
 
 import { getBookings, type Booking } from '@/api/bookings';
 import { getClientOverview } from '@/api/reviews';
+import { useAccentColor } from '@/app/contexts/AccentColorContext';
 import { useAuth } from '@/app/contexts/AuthContext';
 import { useTheme } from '@/app/contexts/ThemeContext';
 import { useTranslation } from '@/app/hooks/useTranslation';
@@ -346,6 +347,7 @@ function SpotlightCard({ spotlight, t, locale }: { spotlight: SpotlightBooking; 
 
 export default function RealBarberHomeTab() {
   const { apiToken } = useAuth();
+  const { accentColor } = useAccentColor();
   const { t, locale } = useTranslation();
   const actions = useMemo(
     () => [
@@ -387,6 +389,7 @@ export default function RealBarberHomeTab() {
   );
 
   const [recentLoading, setRecentLoading] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
   const [allBookings, setAllBookings] = useState<Booking[]>([]);
   const [reviewedBookingIds, setReviewedBookingIds] = useState<Set<string>>(new Set());
   const [now, setNow] = useState(() => Date.now());
@@ -399,24 +402,35 @@ export default function RealBarberHomeTab() {
     };
   }, []);
 
-  useEffect(() => {
+  const loadData = useCallback(async () => {
     if (!apiToken) {
       setAllBookings([]);
       return;
     }
-    setRecentLoading(true);
-    getBookings(apiToken, { limit: 50, offset: 0 })
-      .then((res) => setAllBookings(res.bookings ?? []))
-      .catch(() => setAllBookings([]))
-      .finally(() => setRecentLoading(false));
-    getClientOverview(apiToken)
-      .then((overview) => {
-        const ids = new Set<string>();
-        (overview.data?.reservations?.withReviews ?? []).forEach((r) => ids.add(r.id));
-        setReviewedBookingIds(ids);
-      })
-      .catch(() => {});
+    await Promise.allSettled([
+      getBookings(apiToken, { limit: 50, offset: 0 })
+        .then((res) => setAllBookings(res.bookings ?? []))
+        .catch(() => setAllBookings([])),
+      getClientOverview(apiToken)
+        .then((overview) => {
+          const ids = new Set<string>();
+          (overview.data?.reservations?.withReviews ?? []).forEach((r) => ids.add(r.id));
+          setReviewedBookingIds(ids);
+        })
+        .catch(() => {}),
+    ]);
   }, [apiToken]);
+
+  const onRefresh = useCallback(async () => {
+    setRefreshing(true);
+    await loadData();
+    setRefreshing(false);
+  }, [loadData]);
+
+  useEffect(() => {
+    setRecentLoading(true);
+    loadData().finally(() => setRecentLoading(false));
+  }, [loadData]);
 
   const spotlight = useMemo(() => getSpotlightBooking(allBookings, now, reviewedBookingIds), [allBookings, now, reviewedBookingIds]);
 
@@ -430,7 +444,7 @@ export default function RealBarberHomeTab() {
   );
 
   return (
-    <ThemeScroller className="flex-1">
+    <ThemeScroller className="flex-1" refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={accentColor} />}>
       <NotificationPromptSheet />
       <View className="mt-4 px-global">
         {/* Spotlight booking */}

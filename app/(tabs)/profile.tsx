@@ -1,8 +1,11 @@
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useFocusEffect } from '@react-navigation/native';
 import { router } from 'expo-router';
 import * as Notifications from 'expo-notifications';
-import React, { useCallback, useEffect, useState } from 'react';
+import * as StoreReview from 'expo-store-review';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import {View,
+  RefreshControl,
   ImageBackground,
   Text,
   TouchableOpacity,
@@ -12,6 +15,7 @@ import { Image } from 'expo-image';
 
 import { getBookings } from '@/api/bookings';
 import { getClientMe, type ClientMe } from '@/api/client';
+import { useAccentColor } from '@/app/contexts/AccentColorContext';
 import { useAuth } from '@/app/contexts/AuthContext';
 import { useBusinessMode } from '@/app/contexts/BusinesModeContext';
 import { useTranslation } from '@/app/hooks/useTranslation';
@@ -28,13 +32,25 @@ import { shadowPresets } from '@/utils/useShadow';
 
 /** Profil → Doporučení (`/screens/referrals`). */
 const SHOW_PROFILE_REFERRALS_SECTION = false;
+const APP_REVIEW_PROMPTED_KEY = '@app_review_prompted';
+const APP_REVIEW_MIN_RESERVATIONS = 1;
+const APP_REVIEW_MIN_OPENS = 10;
 
 /** Profil → Nápověda (`/screens/help`). Nastav na `true`, až bude sekce znovu potřeba. */
 const SHOW_PROFILE_HELP_SECTION = false;
 
 export default function ProfileScreen() {
   const { isBusinessMode } = useBusinessMode();
+  const { accentColor } = useAccentColor();
   const [notifStatus, setNotifStatus] = useState<'granted' | 'denied' | 'undetermined' | null>(null);
+  const [refreshing, setRefreshing] = useState(false);
+  const refreshFnRef = useRef<(() => Promise<void>) | null>(null);
+
+  const onRefresh = useCallback(async () => {
+    setRefreshing(true);
+    await refreshFnRef.current?.();
+    setRefreshing(false);
+  }, []);
 
   useFocusEffect(
     useCallback(() => {
@@ -60,7 +76,10 @@ export default function ProfileScreen() {
         ]}
       />
       <View className="flex-1 bg-light-primary dark:bg-dark-primary">
-        <ThemedScroller>{isBusinessMode ? <HostProfile /> : <PersonalProfile />}</ThemedScroller>
+        <ThemedScroller
+          refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={accentColor} />}>
+          {isBusinessMode ? <HostProfile /> : <PersonalProfile onRegisterRefresh={(fn) => { refreshFnRef.current = fn; }} />}
+        </ThemedScroller>
       </View>
     </View>
   );
@@ -145,7 +164,7 @@ function daysSinceCreatedAt(createdAt: string | null | undefined): number | null
   return Math.max(0, Math.floor((now - created) / (24 * 60 * 60 * 1000)));
 }
 
-const PersonalProfile = () => {
+const PersonalProfile = ({ onRegisterRefresh }: { onRegisterRefresh?: (fn: () => Promise<void>) => void }) => {
   const { apiToken, clearAuth } = useAuth();
   const { t } = useTranslation();
   const [client, setClient] = useState<ClientMe | null>(null);
@@ -153,31 +172,46 @@ const PersonalProfile = () => {
   const [error, setError] = useState<string | null>(null);
   const [reservationsCount, setReservationsCount] = useState<number>(0);
 
-  useEffect(() => {
+  const fetchData = useCallback(async () => {
     if (!apiToken) {
       setClient(null);
       setReservationsCount(0);
       return;
     }
-    setLoading(true);
-    setError(null);
-    getClientMe(apiToken)
-      .then(setClient)
-      .catch((e) => setError(e instanceof Error ? e.message : 'Failed to load'))
-      .finally(() => setLoading(false));
-
-    getBookings(apiToken, { limit: 1 })
-      .then((res) => setReservationsCount(res.pagination?.total ?? res.bookings?.length ?? 0))
-      .catch(() => setReservationsCount(0));
+    await Promise.allSettled([
+      getClientMe(apiToken).then(setClient).catch((e) => setError(e instanceof Error ? e.message : 'Failed to load')),
+      getBookings(apiToken, { limit: 1 }).then(async (res) => {
+        const count = res.pagination?.total ?? res.bookings?.length ?? 0;
+        setReservationsCount(count);
+        if (count >= APP_REVIEW_MIN_RESERVATIONS) {
+          const alreadyPrompted = await AsyncStorage.getItem(APP_REVIEW_PROMPTED_KEY).catch(() => null);
+          if (!alreadyPrompted) {
+            const { APP_OPENS_KEY } = await import('@/app/_layout');
+            const raw = await AsyncStorage.getItem(APP_OPENS_KEY).catch(() => null);
+            const opens = parseInt(raw ?? '0', 10) || 0;
+            if (opens >= APP_REVIEW_MIN_OPENS && await StoreReview.hasAction()) {
+              await AsyncStorage.setItem(APP_REVIEW_PROMPTED_KEY, '1').catch(() => {});
+              setTimeout(() => StoreReview.requestReview(), 1500);
+            }
+          }
+        }
+      }).catch(() => setReservationsCount(0)),
+    ]);
   }, [apiToken]);
+
+  useEffect(() => {
+    setLoading(true);
+    fetchData().finally(() => setLoading(false));
+  }, [fetchData]);
+
+  useEffect(() => {
+    if (onRegisterRefresh) onRegisterRefresh(fetchData);
+  }, [fetchData, onRegisterRefresh]);
 
   useFocusEffect(
     useCallback(() => {
-      if (!apiToken) return;
-      getClientMe(apiToken)
-        .then(setClient)
-        .catch(() => {});
-    }, [apiToken])
+      fetchData();
+    }, [fetchData])
   );
 
   const displayName = client?.firstName?.trim() || client?.name?.trim() || null;

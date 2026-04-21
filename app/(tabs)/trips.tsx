@@ -7,6 +7,7 @@ import {
   ActivityIndicator,
   Animated,
   Pressable,
+  RefreshControl,
 } from 'react-native';
 
 import { CRM_BASE, getBookings, type Booking } from '@/api/bookings';
@@ -235,6 +236,7 @@ const TripsScreen = () => {
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [bookingReviewMap, setBookingReviewMap] = useState<Record<string, number>>({});
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [selectedFilter, setSelectedFilter] = useState<BookingFilter>('all');
   const counts = countByFilter(bookings, bookingReviewMap);
@@ -259,38 +261,51 @@ const TripsScreen = () => {
                   ? bookings.filter((b) => isBookingPast(b) && bookingReviewMap[b.id] == null)
                   : bookings;
 
-  useEffect(() => {
+  const loadData = useCallback(async () => {
     if (!apiToken) {
       setLoading(false);
       setBookingReviewMap({});
       return;
     }
-    setLoading(true);
     setError(null);
-    getBookings(apiToken)
-      .then((res) => {
-        setBookings(res.bookings);
-        refreshBookingsBadge();
-        getClientOverview(apiToken)
-          .then((overview) => {
-            const map: Record<string, number> = {};
-            const withReviews = overview?.data?.reservations?.withReviews as
-              | ClientOverviewReservation[]
-              | undefined;
-            if (Array.isArray(withReviews)) {
-              withReviews.forEach((res) => {
-                const id = res.id;
-                const review = res.reviews?.[0];
-                if (id && review?.rating != null) map[id] = review.rating;
-              });
-            }
-            setBookingReviewMap(map);
-          })
-          .catch(() => setBookingReviewMap({}));
-      })
-      .catch((e) => setError(e instanceof Error ? e.message : 'Failed to load'))
-      .finally(() => setLoading(false));
+    try {
+      const res = await getBookings(apiToken);
+      setBookings(res.bookings);
+      refreshBookingsBadge();
+      try {
+        const overview = await getClientOverview(apiToken);
+        const map: Record<string, number> = {};
+        const withReviews = overview?.data?.reservations?.withReviews as
+          | ClientOverviewReservation[]
+          | undefined;
+        if (Array.isArray(withReviews)) {
+          withReviews.forEach((r) => {
+            const id = r.id;
+            const review = r.reviews?.[0];
+            if (id && review?.rating != null) map[id] = review.rating;
+          });
+        }
+        setBookingReviewMap(map);
+      } catch {
+        setBookingReviewMap({});
+      }
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'Failed to load');
+    } finally {
+      setLoading(false);
+    }
   }, [apiToken, refreshBookingsBadge]);
+
+  const onRefresh = useCallback(async () => {
+    setRefreshing(true);
+    await loadData();
+    setRefreshing(false);
+  }, [loadData]);
+
+  useEffect(() => {
+    setLoading(true);
+    loadData();
+  }, [loadData]);
 
   useFocusEffect(
     useCallback(() => {
@@ -361,7 +376,8 @@ const TripsScreen = () => {
           <ThemeScroller
             className="px-global pt-4"
             onScroll={scrollHandler}
-            scrollEventThrottle={scrollEventThrottle}>
+            scrollEventThrottle={scrollEventThrottle}
+            refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={accentColor} />}>
             <CardScroller className="mb-4">
               {counts.current > 0 && (
                 <Chip

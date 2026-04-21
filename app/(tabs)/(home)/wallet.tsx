@@ -3,6 +3,7 @@ import { useFocusEffect } from '@react-navigation/native';
 import { Link, useRouter } from 'expo-router';
 import React, { useCallback, useContext, useEffect, useRef, useState } from 'react';
 import {View,
+  RefreshControl,
   Animated,
   Pressable,
   ActivityIndicator,
@@ -12,6 +13,7 @@ import { Image } from 'expo-image';
 
 import { ScrollContext } from './_layout';
 
+import { useAccentColor } from '@/app/contexts/AccentColorContext';
 import { useAuth } from '@/app/contexts/AuthContext';
 import useThemeColors from '@/app/contexts/ThemeColors';
 import AnimatedView from '@/components/AnimatedView';
@@ -105,6 +107,7 @@ const WalletScreen = () => {
   const router = useRouter();
   const scrollY = useContext(ScrollContext);
   const colors = useThemeColors();
+  const { accentColor } = useAccentColor();
   const { apiToken } = useAuth();
   const { t } = useTranslation();
   const [balance, setBalance] = useState<number | null>(null);
@@ -121,6 +124,7 @@ const WalletScreen = () => {
   );
   const [referralPrograms, setReferralPrograms] = useState<ReferralActiveProgram[]>([]);
   const [referralsLoading, setReferralsLoading] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
 
   useEffect(() => {
     AsyncStorage.getItem(WALLET_REFERRAL_PROMO_DISMISSED_KEY).then((raw) => {
@@ -190,19 +194,31 @@ const WalletScreen = () => {
       .finally(() => setReferralsLoading(false));
   }, [apiToken]);
 
-  useFocusEffect(
-    useCallback(() => {
-      if (!apiToken) return;
+  const fetchWalletData = useCallback(async () => {
+    if (!apiToken) return;
+    await Promise.allSettled([
       getRbCoinsBalance(apiToken)
         .then((r) => setBalance(r.balance))
-        .catch((e) => setBalanceError(e instanceof Error ? e.message : 'Error'));
+        .catch((e) => setBalanceError(e instanceof Error ? e.message : 'Error')),
       getRbCoinsHistory(apiToken)
         .then((r) => setHistory(r.data.slice(0, 3)))
-        .catch(() => {});
+        .catch(() => {}),
       getReferrals(apiToken)
         .then((r) => setReferralPrograms(normalizeActivePrograms(r.activePrograms)))
-        .catch(() => {});
-    }, [apiToken])
+        .catch(() => {}),
+    ]);
+  }, [apiToken]);
+
+  const onRefresh = useCallback(async () => {
+    setRefreshing(true);
+    await fetchWalletData();
+    setRefreshing(false);
+  }, [fetchWalletData]);
+
+  useFocusEffect(
+    useCallback(() => {
+      fetchWalletData();
+    }, [fetchWalletData])
   );
 
   useEffect(() => {
@@ -244,6 +260,7 @@ const WalletScreen = () => {
       onScroll={Animated.event([{ nativeEvent: { contentOffset: { y: scrollY } } }], {
         useNativeDriver: false,
       })}
+      refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={accentColor} />}
       scrollEventThrottle={16}>
       <AnimatedView animation="scaleIn" className="mt-4 flex-1">
         {/* 1. Stav RBC – ve light mode tmavě šedé (ne černé), v dark mode jako dřív */}
