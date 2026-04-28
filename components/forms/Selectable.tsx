@@ -11,6 +11,8 @@ import useThemeColors from '@/app/contexts/ThemeColors';
 interface SelectableProps {
   title: string;
   description?: string;
+  /** When set, renders below the title instead of {@link description}. */
+  descriptionContent?: ReactNode;
   descriptionClassName?: string;
   selectedIndicatorPosition?: 'inline' | 'topRight' | 'bottomRight';
   showSelectedIndicator?: boolean;
@@ -28,6 +30,7 @@ interface SelectableProps {
 const Selectable: React.FC<SelectableProps> = ({
   title,
   description,
+  descriptionContent,
   descriptionClassName = '',
   selectedIndicatorPosition = 'inline',
   showSelectedIndicator = true,
@@ -78,12 +81,14 @@ const Selectable: React.FC<SelectableProps> = ({
           )}
           <View className="flex-1">
             <ThemedText className="text-base font-semibold">{title}</ThemedText>
-            {description && (
+            {descriptionContent ? (
+              <View className="mt-1">{descriptionContent}</View>
+            ) : description ? (
               <ThemedText
                 className={`mt-0 text-sm text-light-subtext dark:text-dark-subtext ${descriptionClassName}`}>
                 {description}
               </ThemedText>
-            )}
+            ) : null}
           </View>
           {selected && showSelectedIndicator && selectedIndicatorPosition === 'inline' ? (
             <AnimatedView className="ml-3" animation="bounceIn" duration={500}>

@@ -10,6 +10,10 @@ import {
   type BookingAvailabilityResponse,
 } from '@/api/bookings';
 import {
+  getEmployeesNearest,
+  type EmployeesNearestNextSlot,
+} from '@/api/availability';
+import {
   getBranches,
   getBranchById,
   type Branch,
@@ -255,13 +259,6 @@ function employeeDescription(employee: BranchEmployee): string {
   return raw.replace(/\s+/g, ' ').trim();
 }
 
-function shortEmployeeDescription(employee: BranchEmployee): string {
-  const full = employeeDescription(employee);
-  if (!full) return '';
-  if (full.length <= 55) return full;
-  return `${full.slice(0, 55)}...`;
-}
-
 function getEmployeeAverageRating(employee: BranchEmployee): number | null {
   const rawReviews = (employee as { reviews?: unknown }).reviews;
   if (!Array.isArray(rawReviews) || rawReviews.length === 0) return null;
@@ -374,25 +371,12 @@ function mergeAggregatedEmployeeServices(
 ): {
   options: ServiceOption[];
   offerersByServiceId: Map<string, Set<string>>;
-  itemPriceByEmployeeId: Map<string, Map<string, number>>;
 } {
   const offerersByServiceId = new Map<string, Set<string>>();
   const unique = new Map<string, ServiceOption>();
-  const itemPriceByEmployeeId = new Map<string, Map<string, number>>();
 
   for (const { employeeId, services } of results) {
-    if (!itemPriceByEmployeeId.has(employeeId)) {
-      itemPriceByEmployeeId.set(employeeId, new Map());
-    }
-    const empPrices = itemPriceByEmployeeId.get(employeeId)!;
-
     for (const s of services) {
-      const prevP = empPrices.get(s.id);
-      empPrices.set(
-        s.id,
-        prevP === undefined ? s.price : mergeServiceMinPrice(prevP, s.price)
-      );
-
       if (!offerersByServiceId.has(s.id)) offerersByServiceId.set(s.id, new Set());
       offerersByServiceId.get(s.id)!.add(employeeId);
       if (!unique.has(s.id)) {
@@ -409,7 +393,6 @@ function mergeAggregatedEmployeeServices(
   return {
     options: Array.from(unique.values()),
     offerersByServiceId,
-    itemPriceByEmployeeId,
   };
 }
 
@@ -449,36 +432,95 @@ function findServiceOptionOnBranch(branch: Branch | null, itemId: string): Servi
   return buildBranchServicePickerData(branch).options.find((s) => s.id === itemId) ?? null;
 }
 
-function buildBranchEmployeeItemPrices(branch: Branch | null): Map<string, Map<string, number>> {
-  const out = new Map<string, Map<string, number>>();
-  if (!branch) return out;
-  const rows = collectBranchServiceRows(branch);
-  rows.forEach((raw, idx) => {
-    const parsed = normalizeBranchServiceRow(raw, idx);
-    if (!parsed?.employeeId) return;
-    const { employeeId, option } = parsed;
-    if (!out.has(employeeId)) out.set(employeeId, new Map());
-    const inner = out.get(employeeId)!;
-    const prev = inner.get(option.id);
-    inner.set(
-      option.id,
-      prev === undefined ? option.price : mergeServiceMinPrice(prev, option.price)
-    );
-  });
-  return out;
+/** Rozdíl kalendářních dnů: slotDate − dnes (0 = dnes, 1 = zítra, …). */
+function calendarDayDiffFromToday(isoDate: string): number {
+  const parts = isoDate.split('-').map((x) => parseInt(x, 10));
+  if (parts.length !== 3 || parts.some((n) => Number.isNaN(n))) return Number.NaN;
+  const [yy, mm, dd] = parts;
+  const slotDay = new Date(yy, mm - 1, dd);
+  const now = new Date();
+  const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  return Math.round((slotDay.getTime() - todayStart.getTime()) / 86400000);
 }
 
-function resolveEmployeeServicePrice(
+/** Zarovnání HH:MM nahoru na mřížku 15 min (jen zobrazení badge nejbližšího termínu). Při přetečení dne → 23:45. */
+function roundNearestSlotDisplayTime(slotStart: string): string {
+  const m = /^(\d{1,2}):(\d{2})$/.exec(slotStart.trim());
+  if (!m) return slotStart;
+  const h = parseInt(m[1], 10);
+  const min = parseInt(m[2], 10);
+  if (Number.isNaN(h) || Number.isNaN(min)) return slotStart;
+  let total = Math.ceil((h * 60 + min) / 15) * 15;
+  const nh = Math.floor(total / 60);
+  const nm = total % 60;
+  if (nh >= 24) return '23:45';
+  return `${String(nh).padStart(2, '0')}:${String(nm).padStart(2, '0')}`;
+}
+
+type EmployeesNearestRow = { price: number; nextSlot: EmployeesNearestNextSlot | null };
+
+/** Řazení: nejdříve podle data/času slotu, pak načítání, pak bez slotu (localeCompare). */
+function employeeNearestSortKey(
   employeeId: string,
-  itemId: string,
-  lookup: Map<string, Map<string, number>>,
-  branch: Branch | null
-): number | null {
-  const fromRow = lookup.get(employeeId)?.get(itemId);
-  if (typeof fromRow === 'number' && Number.isFinite(fromRow) && fromRow > 0) return fromRow;
-  const merged = branch ? findServiceOptionOnBranch(branch, itemId)?.price : undefined;
-  if (typeof merged === 'number' && Number.isFinite(merged) && merged > 0) return merged;
-  return null;
+  nearestMap: Map<string, EmployeesNearestRow> | null,
+  loadingNearest: boolean
+): string {
+  if (loadingNearest && nearestMap === null) return `1|${employeeId}`;
+  const row = nearestMap?.get(employeeId);
+  if (row?.nextSlot) {
+    const t = roundNearestSlotDisplayTime(row.nextSlot.slotStart);
+    return `0|${row.nextSlot.date} ${t}|${employeeId}`;
+  }
+  return `2|${employeeId}`;
+}
+
+function formatEmployeeNearestSlotLabel(
+  slot: EmployeesNearestNextSlot,
+  dateLocaleTag: string,
+  t: (key: string) => string
+): string {
+  const diff = calendarDayDiffFromToday(slot.date);
+  const time = roundNearestSlotDisplayTime(slot.slotStart);
+  if (!Number.isFinite(diff)) {
+    const d = new Date(`${slot.date}T12:00:00`);
+    const dateStr = d.toLocaleDateString(dateLocaleTag, {
+      day: 'numeric',
+      month: 'numeric',
+    });
+    return `${dateStr} ${t('reservationNearestSlotAt')} ${time}`;
+  }
+  if (diff < 0) {
+    const parts = slot.date.split('-').map((x) => parseInt(x, 10));
+    const dayNum = parts[2];
+    const monthNum = parts[1];
+    if (dateLocaleTag.startsWith('cs')) {
+      return `${dayNum}. ${monthNum}. ${t('reservationNearestSlotAt')} ${time}`;
+    }
+    const d = new Date(parts[0], parts[1] - 1, parts[2]);
+    const dateStr = d.toLocaleDateString(dateLocaleTag, { day: 'numeric', month: 'short' });
+    return `${dateStr} ${t('reservationNearestSlotAt')} ${time}`;
+  }
+  if (diff === 0) return `${t('reservationToday')} ${time}`;
+  if (diff === 1) return `${t('reservationTomorrow')} ${time}`;
+  if (diff === 2) return `${t('reservationDayAfterTomorrow')} ${time}`;
+  if (diff >= 3 && diff <= 6) {
+    const parts = slot.date.split('-').map((x) => parseInt(x, 10));
+    const d = new Date(parts[0], parts[1] - 1, parts[2]);
+    let weekday = d.toLocaleDateString(dateLocaleTag, { weekday: 'long' });
+    if (weekday.length > 0) {
+      weekday = weekday.charAt(0).toUpperCase() + weekday.slice(1);
+    }
+    return `${weekday} ${time}`;
+  }
+  const parts = slot.date.split('-').map((x) => parseInt(x, 10));
+  const dayNum = parts[2];
+  const monthNum = parts[1];
+  if (dateLocaleTag.startsWith('cs')) {
+    return `${dayNum}. ${monthNum}. ${t('reservationNearestSlotAt')} ${time}`;
+  }
+  const d = new Date(parts[0], parts[1] - 1, parts[2]);
+  const dateStr = d.toLocaleDateString(dateLocaleTag, { day: 'numeric', month: 'short' });
+  return `${dateStr} ${t('reservationNearestSlotAt')} ${time}`;
 }
 
 type ServiceCategoryGroup = { key: string; name: string; services: ServiceOption[] };
@@ -632,11 +674,15 @@ export default function ReservationCreateScreen() {
   const [aggregatedBranchServices, setAggregatedBranchServices] = useState<{
     options: ServiceOption[];
     offerersByServiceId: Map<string, Set<string>>;
-    itemPriceByEmployeeId: Map<string, Map<string, number>>;
   } | null>(null);
   const [loadingAggregatedBranchServices, setLoadingAggregatedBranchServices] = useState(false);
   const [branchServicesSource, setBranchServicesSource] = useState<Branch | null>(null);
   const [loadingBranchServicesFetch, setLoadingBranchServicesFetch] = useState(false);
+  const [employeesNearestMap, setEmployeesNearestMap] = useState<Map<
+    string,
+    { price: number; nextSlot: EmployeesNearestNextSlot | null }
+  > | null>(null);
+  const [loadingEmployeesNearest, setLoadingEmployeesNearest] = useState(false);
 
   const resetFlowAfterStep = useCallback(
     (stepIndex: number) => {
@@ -1108,6 +1154,15 @@ export default function ReservationCreateScreen() {
     return employeesAll.filter((e) => ids.has(e.id));
   }, [employeesAll, data.itemId, serviceOfferersByItemId]);
 
+  const employeesDisplayOrder = useMemo(() => {
+    if (!data.itemId.trim()) return employees;
+    return [...employees].sort((a, b) =>
+      employeeNearestSortKey(a.id, employeesNearestMap, loadingEmployeesNearest).localeCompare(
+        employeeNearestSortKey(b.id, employeesNearestMap, loadingEmployeesNearest)
+      )
+    );
+  }, [employees, data.itemId, employeesNearestMap, loadingEmployeesNearest]);
+
   const branchStepServiceOptions = useMemo(() => {
     if (branchPickerFromBranchPayload.options.length > 0) {
       return branchPickerFromBranchPayload.options;
@@ -1120,14 +1175,40 @@ export default function ReservationCreateScreen() {
     [branchStepServiceOptions, t]
   );
 
-  const employeeItemPriceLookup = useMemo(() => {
-    if (branchPickerFromBranchPayload.options.length > 0) {
-      return buildBranchEmployeeItemPrices(branchForServiceStep);
+  useEffect(() => {
+    if (!apiToken || !data.branchId?.trim() || !data.itemId?.trim()) {
+      setEmployeesNearestMap(null);
+      setLoadingEmployeesNearest(false);
+      return;
     }
-    return (
-      aggregatedBranchServices?.itemPriceByEmployeeId ?? new Map<string, Map<string, number>>()
-    );
-  }, [branchPickerFromBranchPayload.options.length, branchForServiceStep, aggregatedBranchServices]);
+    let cancelled = false;
+    setEmployeesNearestMap(null);
+    setLoadingEmployeesNearest(true);
+    getEmployeesNearest(apiToken, {
+      branchId: data.branchId.trim(),
+      itemId: data.itemId.trim(),
+      maxDays: 30,
+    })
+      .then((res) => {
+        if (cancelled) return;
+        const m = new Map<string, { price: number; nextSlot: EmployeesNearestNextSlot | null }>();
+        for (const row of res.employees ?? []) {
+          const id = row.employee?.id;
+          if (!id) continue;
+          m.set(id, { price: row.price, nextSlot: row.nextSlot });
+        }
+        setEmployeesNearestMap(m);
+      })
+      .catch(() => {
+        if (!cancelled) setEmployeesNearestMap(new Map());
+      })
+      .finally(() => {
+        if (!cancelled) setLoadingEmployeesNearest(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [apiToken, data.branchId, data.itemId]);
 
   const groupedSlots = useMemo(() => {
     const slots = availability?.availability?.slots ?? [];
@@ -1680,79 +1761,111 @@ export default function ReservationCreateScreen() {
                 {t('reservationStepEmployeeSubtitle')}
               </ThemedText>
             </View>
-            {employees.map((emp) => {
+            {employeesDisplayOrder.map((emp) => {
               const empRating = getEmployeeAverageRating(emp);
+              const itemIdReady = data.itemId.trim() !== '';
+              const nearestEntry = itemIdReady ? employeesNearestMap?.get(emp.id) : undefined;
               const empServicePrice =
-                data.itemId.trim() !== ''
-                  ? resolveEmployeeServicePrice(
-                      emp.id,
-                      data.itemId,
-                      employeeItemPriceLookup,
-                      branchForServiceStep
-                    )
+                itemIdReady &&
+                nearestEntry != null &&
+                typeof nearestEntry.price === 'number' &&
+                nearestEntry.price > 0
+                  ? nearestEntry.price
                   : null;
               const hasMore = Boolean(employeeDescription(emp));
+
+              const showNearestLoading = itemIdReady && loadingEmployeesNearest && employeesNearestMap === null;
+              const showNearestLoaded =
+                itemIdReady && employeesNearestMap != null && employeesNearestMap.has(emp.id);
+              let nearestPillText: string | null = null;
+              if (showNearestLoading) {
+                nearestPillText = t('reservationEmployeeNearestLoading');
+              } else if (showNearestLoaded && nearestEntry) {
+                nearestPillText = nearestEntry.nextSlot
+                  ? formatEmployeeNearestSlotLabel(nearestEntry.nextSlot, dateLocaleTag, t)
+                  : t('reservationEmployeeNoNearestSlot');
+              }
+
+              const hasNearestPill = nearestPillText != null;
               const rowBadges = empServicePrice != null || hasMore;
-              const rowPadRight =
-                empServicePrice != null && hasMore ? 152 : rowBadges ? 80 : undefined;
 
               return (
-                <View key={emp.id} className="mb-2">
-                <Selectable
-                  title={emp.name}
-                  description={shortEmployeeDescription(emp)}
-                  descriptionClassName="text-xs"
-                  customIcon={
-                    <View className="h-12 w-12 items-center justify-center">
-                      <Avatar size="sm" src={emp.avatarUrl ?? undefined} name={emp.name} />
-                    </View>
-                  }
-                  className="relative"
-                  selected={data.employeeId === emp.id}
-                  showSelectedIndicator={false}
-                  onPress={() => selectEmployee(emp.id)}
-                  style={{ paddingRight: rowPadRight }}
-                />
-                {rowBadges ? (
-                  <View className="absolute right-4 top-4 z-10 max-w-[70%] flex-row items-center justify-end gap-1.5">
-                    {empServicePrice != null ? (
-                      <View className="rounded-full bg-light-secondary px-2 py-1 dark:bg-dark-secondary">
-                        <ThemedText
-                          className="text-xs text-light-subtext dark:text-dark-subtext"
-                          numberOfLines={1}>
-                          {empServicePrice} {t('reservationCurrencySuffix')}
-                        </ThemedText>
+                <View key={emp.id} className="mb-3 mt-1">
+                  <View className="relative">
+                    {rowBadges ? (
+                      <View
+                        className="absolute right-3 z-10 flex-row flex-wrap items-center justify-end gap-1"
+                        style={{ top: -3 }}>
+                        {empServicePrice != null ? (
+                          <View className="rounded-full bg-light-secondary px-1.5 py-0.5 dark:bg-dark-secondary">
+                            <ThemedText
+                              className="text-[11px] leading-snug text-light-subtext dark:text-dark-subtext"
+                              numberOfLines={1}>
+                              {empServicePrice} {t('reservationCurrencySuffix')}
+                            </ThemedText>
+                          </View>
+                        ) : null}
+                        {hasMore ? (
+                          <Pressable
+                            className="rounded-full border border-neutral-300 bg-transparent px-1.5 py-0.5 active:opacity-70 dark:border-neutral-500"
+                            onPress={() => {
+                              selectEmployee(emp.id);
+                              setDetailsEmployeeId(emp.id);
+                              detailsSheetRef.current?.show();
+                            }}>
+                            <ThemedText className="text-[11px] leading-snug text-light-subtext dark:text-dark-subtext">
+                              {t('reservationMore')}
+                            </ThemedText>
+                          </Pressable>
+                        ) : null}
                       </View>
                     ) : null}
-                    {hasMore ? (
-                      <Pressable
-                        className="rounded-full bg-light-secondary px-2 py-1 dark:bg-dark-secondary"
-                        onPress={() => {
-                          selectEmployee(emp.id);
-                          setDetailsEmployeeId(emp.id);
-                          detailsSheetRef.current?.show();
-                        }}>
-                        <ThemedText className="text-xs text-light-subtext dark:text-dark-subtext">
-                          {t('reservationMore')}
-                        </ThemedText>
-                      </Pressable>
-                    ) : null}
-                  </View>
-                ) : null}
-                {empRating != null ? (
-                  <View className="ml-16 mt-1 flex-row items-center gap-2">
-                    <ShowRating
-                      rating={empRating}
-                      size="sm"
-                      displayMode="stars"
+                    <Selectable
+                      title={emp.name}
+                      descriptionContent={
+                        hasNearestPill ? (
+                          <View className="flex-row flex-wrap items-center gap-2">
+                            <ThemedText className="shrink-0 text-sm leading-snug text-light-subtext dark:text-dark-subtext">
+                              {t('reservationEmployeeNearestFreeSlotLabel')}
+                            </ThemedText>
+                            <View
+                              className="max-w-full min-w-0 shrink rounded-full bg-light-secondary px-2 py-1 dark:bg-dark-secondary"
+                              style={{ borderWidth: 1, borderColor: colors.highlight }}>
+                              <ThemedText
+                                className="text-[11px] font-medium leading-snug text-light-text dark:text-dark-text"
+                                numberOfLines={2}>
+                                {nearestPillText}
+                              </ThemedText>
+                            </View>
+                          </View>
+                        ) : undefined
+                      }
+                      customIcon={
+                        <View className="h-12 w-12 items-center justify-center">
+                          <Avatar size="sm" src={emp.avatarUrl ?? undefined} name={emp.name} />
+                        </View>
+                      }
+                      containerClassName="mb-0"
+                      className="relative overflow-visible"
+                      selected={data.employeeId === emp.id}
+                      showSelectedIndicator={false}
+                      onPress={() => selectEmployee(emp.id)}
                     />
-                    <View className="rounded-full bg-light-secondary px-2 py-1 dark:bg-dark-secondary">
-                      <ThemedText className="text-xs text-light-subtext dark:text-dark-subtext">
-                        {empRating.toFixed(1)}
-                      </ThemedText>
-                    </View>
                   </View>
-                ) : null}
+                  {empRating != null ? (
+                    <View className="ml-16 mt-1 flex-row items-center gap-2">
+                      <ShowRating
+                        rating={empRating}
+                        size="sm"
+                        displayMode="stars"
+                      />
+                      <View className="rounded-full bg-light-secondary px-2 py-1 dark:bg-dark-secondary">
+                        <ThemedText className="text-xs text-light-subtext dark:text-dark-subtext">
+                          {empRating.toFixed(1)}
+                        </ThemedText>
+                      </View>
+                    </View>
+                  ) : null}
                 </View>
               );
             })}
