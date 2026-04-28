@@ -57,3 +57,25 @@ export function isBookingPast(booking: Booking): boolean {
   if (!isNotCancelled(booking)) return false;
   return getBookingEndDate(booking).getTime() < Date.now();
 }
+
+export type BookingUiStatusTranslationKey =
+  | 'bookingStatusCancelled'
+  | 'bookingStatusInProgress'
+  | 'bookingStatusPast'
+  | 'bookingStatusUpcoming';
+
+/**
+ * Stav pro UI (stejná logika jako karty v Rezervace / patička detailu).
+ * Nepoužívá surový `booking.status` z API — ten může být anglicky (scheduled, …).
+ */
+export function getBookingUiStatusTranslationKey(
+  booking: Booking
+): BookingUiStatusTranslationKey {
+  const status = (booking.status ?? '').toLowerCase();
+  const isCancelled = status === 'cancelled' || status === 'canceled';
+  if (isCancelled) return 'bookingStatusCancelled';
+  if (isBookingCurrent(booking)) return 'bookingStatusInProgress';
+  const isCompleted = status === 'completed';
+  if (isCompleted || isBookingPast(booking)) return 'bookingStatusPast';
+  return 'bookingStatusUpcoming';
+}

@@ -26,6 +26,11 @@ import ThemedScroller from '@/components/ThemeScroller';
 import ThemedText from '@/components/ThemedText';
 import Divider from '@/components/layout/Divider';
 import Section from '@/components/layout/Section';
+import {
+  getBookingUiStatusTranslationKey,
+  isBookingCurrent,
+  isBookingPast,
+} from '@/utils/bookingHelpers';
 
 const BRANCH_IMAGES: Record<string, number> = {
   Modřany: require('@/assets/img/branches/Modrany.jpg'),
@@ -80,51 +85,20 @@ function formatAppointment(
   };
 }
 
-function getBookingEndDate(booking: Booking): Date {
-  const dateStr = (booking.date || '').slice(0, 10);
-  const [y, m, d] = dateStr.split('-').map(Number);
-  const parts = (booking.slotEnd || booking.slotStart || '00:00').trim().split(':');
-  const hh = Number(parts[0]);
-  const mm = Number(parts[1]);
-  return new Date(
-    Number.isFinite(y) ? y : 0,
-    Number.isFinite(m) ? m - 1 : 0,
-    Number.isFinite(d) ? d : 1,
-    Number.isFinite(hh) ? hh : 0,
-    Number.isFinite(mm) ? mm : 0,
-    0,
-    0
-  );
-}
-
-function getBookingStartDate(booking: Booking): Date {
-  const dateStr = (booking.date || '').slice(0, 10);
-  const [y, m, d] = dateStr.split('-').map(Number);
-  const parts = (booking.slotStart || '00:00').trim().split(':');
-  const hh = Number(parts[0]);
-  const mm = Number(parts[1]);
-  return new Date(
-    Number.isFinite(y) ? y : 0,
-    Number.isFinite(m) ? m - 1 : 0,
-    Number.isFinite(d) ? d : 1,
-    Number.isFinite(hh) ? hh : 0,
-    Number.isFinite(mm) ? mm : 0,
-    0,
-    0
-  );
-}
-
-function isBookingCurrent(booking: Booking): boolean {
-  const status = (booking.status ?? '').toLowerCase();
-  if (status === 'cancelled' || status === 'canceled') return false;
-  const now = Date.now();
-  return getBookingStartDate(booking).getTime() <= now && getBookingEndDate(booking).getTime() >= now;
-}
-
-function isBookingPast(booking: Booking): boolean {
-  const status = (booking.status ?? '').toLowerCase();
-  if (status === 'cancelled' || status === 'canceled') return false;
-  return getBookingEndDate(booking).getTime() < Date.now();
+/** Datum a čas jen pro text ve sheetu zrušení (CS: „29. 5 v 16:45“ z kalendářního data rezervace). */
+function formatCancelSheetWhen(b: Booking, locale: string): string {
+  const time = (b.slotStart || '').trim();
+  const raw = (b.date || '').slice(0, 10);
+  const nums = raw.split('-').map(Number);
+  const y = nums[0];
+  const m = nums[1];
+  const d = nums[2];
+  if (locale === 'cs' && Number.isFinite(y) && Number.isFinite(m) && Number.isFinite(d)) {
+    return `${d}. ${m} v ${time}`;
+  }
+  const dt = new Date(b.date);
+  const monthShort = dt.toLocaleString('en-GB', { month: 'short' });
+  return `${dt.getDate()} ${monthShort} ${dt.getFullYear()} at ${time}`;
 }
 
 const BookingDetailScreen = () => {
@@ -251,7 +225,8 @@ const BookingDetailScreen = () => {
   const isCurrent = !isCancelled && isBookingCurrent(booking);
   const isPast = !isCancelled && !isCurrent && (isCompleted || isBookingPast(booking));
   const isUpcoming = !isCancelled && !isCurrent && !isPast;
-  const cancelMessage = `${t('tripDetailCancelConfirmIntro')} ${appointment.dateStr} ${appointment.fromTime} ${t('tripDetailCancelConfirmAtBranch')} ${booking.branch?.name ?? '—'}.`;
+  const cancelWhen = formatCancelSheetWhen(booking, locale);
+  const cancelMessage = `${t('tripDetailCancelConfirmIntro')} ${cancelWhen} ${t('tripDetailCancelConfirmAtBranch')} ${booking.branch?.name ?? '—'}. ${t('tripDetailCancelConfirmNote')}`;
   const carouselImages =
     branch != null
       ? branchImages(branch)
@@ -407,7 +382,7 @@ const BookingDetailScreen = () => {
                 <ThemedText className="text-light-subtext dark:text-dark-subtext">
                   {t('bookingStatus')}
                 </ThemedText>
-                <ThemedText className="font-medium capitalize">{booking.status}</ThemedText>
+                <ThemedText className="font-medium">{t(getBookingUiStatusTranslationKey(booking))}</ThemedText>
               </View>
             </View>
           </Section>
@@ -553,18 +528,12 @@ const BookingDetailScreen = () => {
           actionSheetRef={cancelSheetRef}
           title={t('tripDetailCancelBooking')}
           message={cancelMessage}
-          optionalReasonPlaceholder={t('tripDetailCancelReasonPlaceholder')}
-          quickReasons={[
-            t('cancelReasonOtherTerm'),
-            t('cancelReasonNoTime'),
-            t('cancelReasonChangeOfPlans'),
-          ]}
           cancelText={t('tripDetailCancelNo')}
           confirmText={t('tripDetailCancelYes')}
           onCancel={() => {}}
-          onConfirm={(reason) => {
+          onConfirm={() => {
             if (!apiToken) return;
-            cancelBooking(apiToken, booking.id, reason)
+            cancelBooking(apiToken, booking.id)
               .then(() => {
                 router.back();
               })

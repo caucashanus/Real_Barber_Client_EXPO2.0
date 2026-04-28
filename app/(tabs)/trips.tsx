@@ -30,6 +30,7 @@ import ThemedText from '@/components/ThemedText';
 import {
   getBookingEndDate,
   getBookingStartDate,
+  getBookingUiStatusTranslationKey,
   isBookingCurrent,
   isBookingPast,
   isBookingUpcoming,
@@ -507,12 +508,7 @@ const BookingCard = (props: {
     (booking.status ?? '').toLowerCase() === 'cancelled' ||
     (booking.status ?? '').toLowerCase() === 'canceled';
 
-  const getStatusText = () => {
-    if (isCancelled) return t('bookingStatusCancelled');
-    if (isCurrent) return t('bookingStatusInProgress');
-    if (isPast) return t('bookingStatusPast');
-    return t('bookingStatusUpcoming');
-  };
+  const statusLabel = t(getBookingUiStatusTranslationKey(booking));
 
   const getStatusPillClass = () => {
     if (isCancelled) return 'bg-red-100 dark:bg-red-900/30';
@@ -541,7 +537,7 @@ const BookingCard = (props: {
           <View className="min-w-0 flex-1 flex-row items-center">
             <View className={`rounded-full px-2.5 py-1 ${getStatusPillClass()}`}>
               <ThemedText className={`text-xs font-semibold ${getStatusTextClass()}`}>
-                {getStatusText()}
+                {statusLabel}
               </ThemedText>
             </View>
             {isCurrent && (
