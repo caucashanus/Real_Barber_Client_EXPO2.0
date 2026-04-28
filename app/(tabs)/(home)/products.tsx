@@ -56,11 +56,9 @@ const ProductsScreen = () => {
   const { t } = useTranslation();
   const setSelectedPurchase = useSetSelectedPurchase();
   const setSelectedCatalogProduct = useSetSelectedCatalogProduct();
-  const [purchasedLoading, setPurchasedLoading] = useState(true);
+  const [loading, setLoading] = useState(!!apiToken);
   const [purchasedProducts, setPurchasedProducts] = useState<ClientProductPurchase[]>([]);
-  const [catalogLoading, setCatalogLoading] = useState(true);
   const [catalogProducts, setCatalogProducts] = useState<ClientCatalogProduct[]>([]);
-  const [giftsLoading, setGiftsLoading] = useState(true);
   const [giftProducts, setGiftProducts] = useState<ClientCatalogProduct[]>([]);
   const [dismissedPromoAt, setDismissedPromoAt] = useState<Record<number, number>>({});
 
@@ -93,57 +91,39 @@ const ProductsScreen = () => {
 
   useEffect(() => {
     if (!apiToken) {
-      setPurchasedLoading(false);
-      return;
-    }
-    setPurchasedLoading(true);
-    getClientProducts(apiToken)
-      .then((res) => setPurchasedProducts(res.products ?? []))
-      .catch(() => setPurchasedProducts([]))
-      .finally(() => setPurchasedLoading(false));
-  }, [apiToken]);
-
-  useEffect(() => {
-    if (!apiToken) {
-      setCatalogLoading(false);
+      setPurchasedProducts([]);
       setCatalogProducts([]);
-      return;
-    }
-    setCatalogLoading(true);
-    getClientProductsByFlag(apiToken)
-      .then((res) => setCatalogProducts(shuffled(res.products ?? [])))
-      .catch(() => setCatalogProducts([]))
-      .finally(() => setCatalogLoading(false));
-  }, [apiToken]);
-
-  useEffect(() => {
-    if (!apiToken) {
-      setGiftsLoading(false);
       setGiftProducts([]);
+      setLoading(false);
       return;
     }
-    setGiftsLoading(true);
-    getClientProductsByFlag(apiToken, { flagId: CLIENT_PRODUCTS_GIFTS_FLAG_ID })
-      .then((res) => setGiftProducts(shuffled(res.products ?? [])))
-      .catch(() => setGiftProducts([]))
-      .finally(() => setGiftsLoading(false));
+
+    let cancelled = false;
+    setLoading(true);
+
+    Promise.all([
+      getClientProducts(apiToken).catch(() => ({ products: [] as ClientProductPurchase[] })),
+      getClientProductsByFlag(apiToken).catch(() => ({ products: [] as ClientCatalogProduct[] })),
+      getClientProductsByFlag(apiToken, { flagId: CLIENT_PRODUCTS_GIFTS_FLAG_ID }).catch(() => ({
+        products: [] as ClientCatalogProduct[],
+      })),
+    ])
+      .then(([purchasedRes, catalogRes, giftsRes]) => {
+        if (cancelled) return;
+        setPurchasedProducts(purchasedRes.products ?? []);
+        setCatalogProducts(shuffled(catalogRes.products ?? []));
+        setGiftProducts(shuffled(giftsRes.products ?? []));
+      })
+      .finally(() => {
+        if (!cancelled) setLoading(false);
+      });
+
+    return () => {
+      cancelled = true;
+    };
   }, [apiToken]);
 
-  const renderFlagCatalogCards = (
-    loading: boolean,
-    items: ClientCatalogProduct[],
-    emptyKey: TranslationKey
-  ) => {
-    if (loading) {
-      return (
-        <View className="items-center py-8">
-          <ActivityIndicator size="small" />
-          <ThemedText className="py-2 text-light-subtext dark:text-dark-subtext">
-            {t('commonLoading')}
-          </ThemedText>
-        </View>
-      );
-    }
+  const renderFlagCatalogCards = (items: ClientCatalogProduct[], emptyKey: TranslationKey) => {
     if (items.length === 0) {
       return (
         <ThemedText className="py-4 text-light-subtext dark:text-dark-subtext">
@@ -191,16 +171,17 @@ const ProductsScreen = () => {
         useNativeDriver: false,
       })}
       scrollEventThrottle={16}>
+      {loading ? (
+        <View className="min-h-[240px] flex-1 items-center justify-center py-16">
+          <ActivityIndicator size="large" />
+          <ThemedText className="mt-4 text-light-subtext dark:text-dark-subtext">
+            {t('commonLoading')}
+          </ThemedText>
+        </View>
+      ) : (
       <AnimatedView animation="scaleIn" className="mt-4 flex-1">
         <Section title={t('productsMyPurchased')} titleSize="lg" className="mb-2">
-          {purchasedLoading ? (
-            <View className="items-center py-8">
-              <ActivityIndicator size="small" />
-              <ThemedText className="py-2 text-light-subtext dark:text-dark-subtext">
-                {t('commonLoading')}
-              </ThemedText>
-            </View>
-          ) : purchasedProducts.length === 0 ? (
+          {purchasedProducts.length === 0 ? (
             <ThemedText className="py-4 text-light-subtext dark:text-dark-subtext">
               {t('productsNoPurchased')}
             </ThemedText>
@@ -288,7 +269,7 @@ const ProductsScreen = () => {
           link="/screens/map"
           linkText={t('commonViewAll')}>
           <CardScroller space={15} className="mt-1.5 pb-4">
-            {renderFlagCatalogCards(catalogLoading, catalogProducts, 'productsCatalogEmpty')}
+            {renderFlagCatalogCards(catalogProducts, 'productsCatalogEmpty')}
           </CardScroller>
         </Section>
 
@@ -298,10 +279,11 @@ const ProductsScreen = () => {
           link="/screens/map"
           linkText={t('commonViewAll')}>
           <CardScroller space={15} className="mt-1.5 pb-4">
-            {renderFlagCatalogCards(giftsLoading, giftProducts, 'productsGiftsEmpty')}
+            {renderFlagCatalogCards(giftProducts, 'productsGiftsEmpty')}
           </CardScroller>
         </Section>
       </AnimatedView>
+      )}
     </ThemeScroller>
   );
 };
