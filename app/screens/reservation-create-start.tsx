@@ -36,20 +36,13 @@ export default function ReservationCreateStartScreen() {
           number="2"
           title={t('reservationStartStep2Title')}
           description={t('reservationStartStep2Desc')}
-          image={require('@/assets/img/reservation-service.png')}
+          image={require('@/assets/img/reservation-specialist.png')}
         />
         <Divider className="my-4" />
         <IntroStep
           number="3"
           title={t('reservationStartStep3Title')}
           description={t('reservationStartStep3Desc')}
-          image={require('@/assets/img/reservation-specialist.png')}
-        />
-        <Divider className="my-4" />
-        <IntroStep
-          number="4"
-          title={t('reservationStartStep4Title')}
-          description={t('reservationStartStep4Desc')}
           image={require('@/assets/img/savefinish.png')}
         />
 

@@ -1048,12 +1048,11 @@ export const en = {
   reservationStartTitle: "We'll book you in easily",
   reservationStartStep1Title: 'Choose a branch',
   reservationStartStep1Desc: 'Pick the salon you want to visit.',
-  reservationStartStep2Title: 'Choose a service',
-  reservationStartStep2Desc: 'Pick the service you want to book at this branch.',
-  reservationStartStep3Title: 'Choose your barber',
-  reservationStartStep3Desc: 'Pick the specialist who will take care of you.',
-  reservationStartStep4Title: 'Choose a time',
-  reservationStartStep4Desc: "We'll show available slots and you'll confirm the booking.",
+  reservationStartStep2Title: 'Choose a service and barber',
+  reservationStartStep2Desc:
+    'Pick the service you want and the specialist who will provide it.',
+  reservationStartStep3Title: 'Choose a time',
+  reservationStartStep3Desc: "We'll show available slots and you'll confirm the booking.",
   reservationStartCta: "Let's go",
   reservationFromBarberLoadError:
     'We could not start a booking for this barber. They may have no branch assigned or the data could not be loaded.',

@@ -1051,12 +1051,11 @@ export const cs: Record<TranslationKey, string> = {
   reservationStartTitle: 'Jednoduše vytvoříme rezervaci',
   reservationStartStep1Title: 'Vyberte pobočku',
   reservationStartStep1Desc: 'Zvolte salon, kam chcete jít.',
-  reservationStartStep2Title: 'Vyberte službu',
-  reservationStartStep2Desc: 'Zvolte službu, kterou chcete na pobočce rezervovat.',
-  reservationStartStep3Title: 'Vyberte holiče',
-  reservationStartStep3Desc: 'Zvolte specialistu, u kterého chcete službu absolvovat.',
-  reservationStartStep4Title: 'Vyberte termín',
-  reservationStartStep4Desc: 'Zobrazíme dostupné časy a potvrdíte rezervaci.',
+  reservationStartStep2Title: 'Vyberte službu a holiče',
+  reservationStartStep2Desc:
+    'Zvolte službu, kterou chcete rezervovat, a specialistu, u kterého ji absolvujete.',
+  reservationStartStep3Title: 'Vyberte termín',
+  reservationStartStep3Desc: 'Zobrazíme dostupné časy a potvrdíte rezervaci.',
   reservationStartCta: 'Jdeme na to',
   reservationFromBarberLoadError:
     'Rezervaci u tohoto holiče se nepodařilo zahájit. Nemusí mít přiřazenou pobočku nebo se nepodařilo načíst data.',
