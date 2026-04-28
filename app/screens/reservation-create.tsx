@@ -1,6 +1,6 @@
 import { router, useLocalSearchParams } from 'expo-router';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import {View, ScrollView, Pressable, ActivityIndicator} from 'react-native';
+import { View, ScrollView, Pressable, ActivityIndicator } from 'react-native';
 import { Image } from 'expo-image';
 import { ActionSheetRef } from 'react-native-actions-sheet';
 
@@ -62,6 +62,13 @@ type ServiceOption = {
   category?: { id?: string; name?: string } | null;
 };
 
+type AvailabilitySlot = {
+  start: string;
+  end: string;
+  duration: number;
+  branchId?: string;
+};
+
 function getEmployeesList(branch: Branch | null): BranchEmployee[] {
   if (!branch?.employees) return [];
   if (Array.isArray(branch.employees)) return branch.employees;
@@ -75,7 +82,6 @@ function flattenApiRecord(value: unknown): unknown[] {
   return [];
 }
 
-/** Služby / ceník u pobočky – CRM může posílat různé klíče (services, items, employeeItemPrices, …). */
 function collectBranchServiceRows(branch: Branch | null): unknown[] {
   if (!branch) return [];
   const b = branch as Record<string, unknown>;
@@ -91,8 +97,7 @@ function collectBranchServiceRows(branch: Branch | null): unknown[] {
   for (const key of keys) {
     out.push(...flattenApiRecord(b[key]));
   }
-  if (out.length > 0) return out;
-  return flattenApiRecord(b.services);
+  return out;
 }
 
 function strVal(v: unknown): string {
@@ -105,7 +110,6 @@ function numVal(v: unknown, fallback = 0): number {
   return Number.isFinite(n) ? n : fallback;
 }
 
-/** Minimální cena z více záznamů API; kladné hodnoty mají přednost před 0 (chybějící cena). */
 function mergeServiceMinPrice(a: number, b: number): number {
   const pair = [a, b].filter((n) => typeof n === 'number' && Number.isFinite(n));
   if (pair.length === 0) return 0;
@@ -233,7 +237,6 @@ function getBranchMedia(
     .sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
 }
 
-/** Stejná priorita jako `branchCardImage` na home (Top picks / pobočky): média → imageUrl → první služba → fallback. */
 function getBranchCardImageSource(branch: Branch | null): string | number {
   if (!branch) return require('@/assets/img/barbers.png');
   const media = getBranchMedia(branch);
@@ -355,7 +358,61 @@ function isReservationStepValid(stepIndex: number, d: ReservationFlowData): bool
   return true;
 }
 
-/** Služby nabízené na pobočce + mapa „kdo službu dělá“ (pro krok holič). */
+function serviceOptionFromEmployeeService(s: EmployeeService): ServiceOption {
+  return {
+    id: s.id,
+    name: s.name,
+    imageUrl: s.imageUrl,
+    price: s.price,
+    duration: s.duration,
+    category: s.category,
+  };
+}
+
+function mergeAggregatedEmployeeServices(
+  results: { employeeId: string; services: EmployeeService[] }[]
+): {
+  options: ServiceOption[];
+  offerersByServiceId: Map<string, Set<string>>;
+  itemPriceByEmployeeId: Map<string, Map<string, number>>;
+} {
+  const offerersByServiceId = new Map<string, Set<string>>();
+  const unique = new Map<string, ServiceOption>();
+  const itemPriceByEmployeeId = new Map<string, Map<string, number>>();
+
+  for (const { employeeId, services } of results) {
+    if (!itemPriceByEmployeeId.has(employeeId)) {
+      itemPriceByEmployeeId.set(employeeId, new Map());
+    }
+    const empPrices = itemPriceByEmployeeId.get(employeeId)!;
+
+    for (const s of services) {
+      const prevP = empPrices.get(s.id);
+      empPrices.set(
+        s.id,
+        prevP === undefined ? s.price : mergeServiceMinPrice(prevP, s.price)
+      );
+
+      if (!offerersByServiceId.has(s.id)) offerersByServiceId.set(s.id, new Set());
+      offerersByServiceId.get(s.id)!.add(employeeId);
+      if (!unique.has(s.id)) {
+        unique.set(s.id, serviceOptionFromEmployeeService(s));
+      } else {
+        const prev = unique.get(s.id)!;
+        unique.set(s.id, {
+          ...prev,
+          price: mergeServiceMinPrice(prev.price, s.price),
+        });
+      }
+    }
+  }
+  return {
+    options: Array.from(unique.values()),
+    offerersByServiceId,
+    itemPriceByEmployeeId,
+  };
+}
+
 function buildBranchServicePickerData(branch: Branch | null): {
   options: ServiceOption[];
   offerersByServiceId: Map<string, Set<string>>;
@@ -392,9 +449,92 @@ function findServiceOptionOnBranch(branch: Branch | null, itemId: string): Servi
   return buildBranchServicePickerData(branch).options.find((s) => s.id === itemId) ?? null;
 }
 
+function buildBranchEmployeeItemPrices(branch: Branch | null): Map<string, Map<string, number>> {
+  const out = new Map<string, Map<string, number>>();
+  if (!branch) return out;
+  const rows = collectBranchServiceRows(branch);
+  rows.forEach((raw, idx) => {
+    const parsed = normalizeBranchServiceRow(raw, idx);
+    if (!parsed?.employeeId) return;
+    const { employeeId, option } = parsed;
+    if (!out.has(employeeId)) out.set(employeeId, new Map());
+    const inner = out.get(employeeId)!;
+    const prev = inner.get(option.id);
+    inner.set(
+      option.id,
+      prev === undefined ? option.price : mergeServiceMinPrice(prev, option.price)
+    );
+  });
+  return out;
+}
+
+function resolveEmployeeServicePrice(
+  employeeId: string,
+  itemId: string,
+  lookup: Map<string, Map<string, number>>,
+  branch: Branch | null
+): number | null {
+  const fromRow = lookup.get(employeeId)?.get(itemId);
+  if (typeof fromRow === 'number' && Number.isFinite(fromRow) && fromRow > 0) return fromRow;
+  const merged = branch ? findServiceOptionOnBranch(branch, itemId)?.price : undefined;
+  if (typeof merged === 'number' && Number.isFinite(merged) && merged > 0) return merged;
+  return null;
+}
+
 type ServiceCategoryGroup = { key: string; name: string; services: ServiceOption[] };
 
-/** Seskupí služby podle `category` (pořadí = první výskyt v seznamu). Bez kategorie → jedna skupina `otherLabel`. */
+/** Pořadí sekcí v kroku výběru služby (názvy jako z CRM). */
+const RESERVATION_SERVICE_CATEGORY_ORDER = ['Služby', 'Účesy', 'Balíčky'] as const;
+
+/** Kategorie z API, které v rezervaci nezobrazujeme (porovnání podle názvu, bez rozlišení velikosti písmen). */
+const RESERVATION_SERVICE_CATEGORY_HIDDEN = new Set(['barvení', 'služby domů']);
+
+function normalizedServiceCategoryName(cat: ServiceOption['category']): string {
+  if (!cat) return '';
+  return (cat.name?.trim() || cat.id?.trim() || '').toLowerCase();
+}
+
+function isReservationServiceCategoryHidden(service: ServiceOption): boolean {
+  const n = normalizedServiceCategoryName(service.category);
+  return n !== '' && RESERVATION_SERVICE_CATEGORY_HIDDEN.has(n);
+}
+
+function filterReservationVisibleServices(services: ServiceOption[]): ServiceOption[] {
+  return services.filter((s) => !isReservationServiceCategoryHidden(s));
+}
+
+function sortReservationServiceCategoryGroups(
+  groups: ServiceCategoryGroup[],
+  otherLabel: string
+): ServiceCategoryGroup[] {
+  const otherNorm = otherLabel.trim().toLowerCase();
+  const orderLen = RESERVATION_SERVICE_CATEGORY_ORDER.length;
+  const decorated = groups.map((g, index) => {
+    const nameNorm = g.name.trim().toLowerCase();
+    let rank: number;
+    if (nameNorm === otherNorm) {
+      rank = 10000;
+    } else {
+      const fixed = RESERVATION_SERVICE_CATEGORY_ORDER.findIndex(
+        (label) => label.toLowerCase() === nameNorm
+      );
+      rank = fixed >= 0 ? fixed : orderLen;
+    }
+    return { g, index, rank };
+  });
+  decorated.sort((a, b) => a.rank - b.rank || a.index - b.index);
+  return decorated.map((d) => d.g);
+}
+
+function buildReservationServiceStepCategories(
+  services: ServiceOption[],
+  otherLabel: string
+): ServiceCategoryGroup[] {
+  const visible = filterReservationVisibleServices(services);
+  const grouped = groupServicesByCategory(visible, otherLabel);
+  return sortReservationServiceCategoryGroups(grouped, otherLabel);
+}
+
 function groupServicesByCategory(
   services: ServiceOption[],
   otherLabel: string
@@ -439,7 +579,6 @@ export default function ReservationCreateScreen() {
     employeeId?: string;
     branchId?: string;
     itemId?: string;
-    /** Volitelný název služby z detailu (zobrazení ve shrnutí, když není v seznamu u holiče). */
     itemName?: string;
   }>();
   const presetEmployeeId = trimParam(params.employeeId);
@@ -490,17 +629,15 @@ export default function ReservationCreateScreen() {
   );
   const [initialMultiStepIndex, setInitialMultiStepIndex] = useState(0);
   const [presetBranchFilterIds, setPresetBranchFilterIds] = useState<Set<string> | null>(null);
-  /** Když API u pobočky nevrátí `services`, doplníme služby z profilů holičů na pobočce. */
   const [aggregatedBranchServices, setAggregatedBranchServices] = useState<{
     options: ServiceOption[];
     offerersByServiceId: Map<string, Set<string>>;
+    itemPriceByEmployeeId: Map<string, Map<string, number>>;
   } | null>(null);
   const [loadingAggregatedBranchServices, setLoadingAggregatedBranchServices] = useState(false);
-  /** Detail pobočky ze GET /branches/:id (služby pro krok 2). */
   const [branchServicesSource, setBranchServicesSource] = useState<Branch | null>(null);
   const [loadingBranchServicesFetch, setLoadingBranchServicesFetch] = useState(false);
 
-  /** Clear wizard fields for steps after `stepIndex` (used when user goes Back). Krok 0=pobočka,1=služba,2=holič,3=čas,4=shrnutí */
   const resetFlowAfterStep = useCallback(
     (stepIndex: number) => {
       const durationForItem = (prev: ReservationFlowData) => {
@@ -927,34 +1064,7 @@ export default function ReservationCreateScreen() {
     )
       .then((results) => {
         if (cancelled) return;
-        const offerersByServiceId = new Map<string, Set<string>>();
-        const unique = new Map<string, ServiceOption>();
-        for (const { employeeId, services } of results) {
-          for (const s of services) {
-            if (!offerersByServiceId.has(s.id)) offerersByServiceId.set(s.id, new Set());
-            offerersByServiceId.get(s.id)!.add(employeeId);
-            if (!unique.has(s.id)) {
-              unique.set(s.id, {
-                id: s.id,
-                name: s.name,
-                imageUrl: s.imageUrl,
-                price: s.price,
-                duration: s.duration,
-                category: s.category,
-              });
-            } else {
-              const prev = unique.get(s.id)!;
-              unique.set(s.id, {
-                ...prev,
-                price: mergeServiceMinPrice(prev.price, s.price),
-              });
-            }
-          }
-        }
-        setAggregatedBranchServices({
-          options: Array.from(unique.values()),
-          offerersByServiceId,
-        });
+        setAggregatedBranchServices(mergeAggregatedEmployeeServices(results));
       })
       .finally(() => {
         if (!cancelled) setLoadingAggregatedBranchServices(false);
@@ -1005,11 +1115,19 @@ export default function ReservationCreateScreen() {
     return aggregatedBranchServices?.options ?? [];
   }, [branchPickerFromBranchPayload, aggregatedBranchServices]);
 
-  const serviceCategoryOtherLabel = t('serviceCategoryOther');
   const branchStepServiceCategories = useMemo(
-    () => groupServicesByCategory(branchStepServiceOptions, serviceCategoryOtherLabel),
-    [branchStepServiceOptions, serviceCategoryOtherLabel]
+    () => buildReservationServiceStepCategories(branchStepServiceOptions, t('serviceCategoryOther')),
+    [branchStepServiceOptions, t]
   );
+
+  const employeeItemPriceLookup = useMemo(() => {
+    if (branchPickerFromBranchPayload.options.length > 0) {
+      return buildBranchEmployeeItemPrices(branchForServiceStep);
+    }
+    return (
+      aggregatedBranchServices?.itemPriceByEmployeeId ?? new Map<string, Map<string, number>>()
+    );
+  }, [branchPickerFromBranchPayload.options.length, branchForServiceStep, aggregatedBranchServices]);
 
   const groupedSlots = useMemo(() => {
     const slots = availability?.availability?.slots ?? [];
@@ -1233,9 +1351,20 @@ export default function ReservationCreateScreen() {
     }));
   };
 
+  const selectAvailabilitySlot = useCallback((slot: AvailabilitySlot) => {
+    setData((prev) => ({
+      ...prev,
+      slotStart: slot.start,
+      slotEnd: slot.end,
+      duration: slot.duration,
+    }));
+  }, []);
+
   const detailsEmployee = employeesAll.find((e) => e.id === detailsEmployeeId) ?? null;
   const detailsDescription = detailsEmployee ? employeeDescription(detailsEmployee) : '';
-  const detailsMedia = detailsEmployee ? getEmployeeMedia(detailsEmployee) : [];
+  const detailsMedia = detailsEmployee
+    ? getEmployeeMedia(detailsEmployee).filter((m) => m.type !== 'video')
+    : [];
   const detailsBranch = branches.find((b) => b.id === detailsBranchId) ?? null;
   const detailsBranchDescription = detailsBranch ? branchDescription(detailsBranch) : '';
   const detailsBranchMedia = detailsBranch ? getBranchMedia(detailsBranch) : [];
@@ -1256,14 +1385,7 @@ export default function ReservationCreateScreen() {
   const selectedService = useMemo((): ServiceOption | null => {
     const empSvc = employeeServices.find((s) => s.id === data.itemId);
     if (empSvc) {
-      return {
-        id: empSvc.id,
-        name: empSvc.name,
-        imageUrl: empSvc.imageUrl,
-        price: empSvc.price,
-        duration: empSvc.duration,
-        category: empSvc.category,
-      };
+      return serviceOptionFromEmployeeService(empSvc);
     }
     if (!branchForServiceStep || !data.itemId) return null;
     return findServiceOptionOnBranch(branchForServiceStep, data.itemId);
@@ -1407,42 +1529,45 @@ export default function ReservationCreateScreen() {
                 <ActivityIndicator size="small" />
               </View>
             ) : (
-              branchesForReservation.map((branch) => (
-                <View key={branch.id} className="mb-2">
-                  <Selectable
-                    title={branch.name}
-                    description={branch.address ?? ''}
-                    customIcon={
-                      getBranchImageUrl(branch) ? (
-                        <Image
-                          source={{ uri: getBranchImageUrl(branch)! }}
-                          className="h-12 w-12 rounded-xl"
-                          contentFit="cover"
-                        />
-                      ) : (
-                        <Avatar size="sm" name={branch.name} />
-                      )
-                    }
-                    className="relative"
-                    selected={data.branchId === branch.id}
-                    showSelectedIndicator={false}
-                    onPress={() => selectBranchId(branch.id)}
-                    style={{ paddingRight: 74 }}
-                  />
-                  <Pressable
-                    className="absolute right-4 top-4 rounded-full bg-light-secondary px-2 py-1 dark:bg-dark-secondary"
-                    onPress={() => {
-                      selectBranchId(branch.id);
-                      setDetailsBranchId(branch.id);
-                      setIsBranchDescriptionExpanded(false);
-                      branchDetailsSheetRef.current?.show();
-                    }}>
-                    <ThemedText className="text-xs text-light-subtext dark:text-dark-subtext">
-                      {t('reservationMore')}
-                    </ThemedText>
-                  </Pressable>
-                </View>
-              ))
+              branchesForReservation.map((branch) => {
+                const branchThumb = getBranchImageUrl(branch);
+                return (
+                  <View key={branch.id} className="mb-2">
+                    <Selectable
+                      title={branch.name}
+                      description={branch.address ?? ''}
+                      customIcon={
+                        branchThumb ? (
+                          <Image
+                            source={{ uri: branchThumb }}
+                            className="h-12 w-12 rounded-xl"
+                            contentFit="cover"
+                          />
+                        ) : (
+                          <Avatar size="sm" name={branch.name} />
+                        )
+                      }
+                      className="relative"
+                      selected={data.branchId === branch.id}
+                      showSelectedIndicator={false}
+                      onPress={() => selectBranchId(branch.id)}
+                      style={{ paddingRight: 74 }}
+                    />
+                    <Pressable
+                      className="absolute right-4 top-4 rounded-full bg-light-secondary px-2 py-1 dark:bg-dark-secondary"
+                      onPress={() => {
+                        selectBranchId(branch.id);
+                        setDetailsBranchId(branch.id);
+                        setIsBranchDescriptionExpanded(false);
+                        branchDetailsSheetRef.current?.show();
+                      }}>
+                      <ThemedText className="text-xs text-light-subtext dark:text-dark-subtext">
+                        {t('reservationMore')}
+                      </ThemedText>
+                    </Pressable>
+                  </View>
+                );
+              })
             )}
           </ScrollView>
         </Step>
@@ -1555,8 +1680,24 @@ export default function ReservationCreateScreen() {
                 {t('reservationStepEmployeeSubtitle')}
               </ThemedText>
             </View>
-            {employees.map((emp) => (
-              <View key={emp.id} className="mb-2">
+            {employees.map((emp) => {
+              const empRating = getEmployeeAverageRating(emp);
+              const empServicePrice =
+                data.itemId.trim() !== ''
+                  ? resolveEmployeeServicePrice(
+                      emp.id,
+                      data.itemId,
+                      employeeItemPriceLookup,
+                      branchForServiceStep
+                    )
+                  : null;
+              const hasMore = Boolean(employeeDescription(emp));
+              const rowBadges = empServicePrice != null || hasMore;
+              const rowPadRight =
+                empServicePrice != null && hasMore ? 152 : rowBadges ? 80 : undefined;
+
+              return (
+                <View key={emp.id} className="mb-2">
                 <Selectable
                   title={emp.name}
                   description={shortEmployeeDescription(emp)}
@@ -1570,37 +1711,51 @@ export default function ReservationCreateScreen() {
                   selected={data.employeeId === emp.id}
                   showSelectedIndicator={false}
                   onPress={() => selectEmployee(emp.id)}
-                  style={{ paddingRight: employeeDescription(emp) ? 74 : undefined }}
+                  style={{ paddingRight: rowPadRight }}
                 />
-                {employeeDescription(emp) ? (
-                  <Pressable
-                    className="absolute right-4 top-4 rounded-full bg-light-secondary px-2 py-1 dark:bg-dark-secondary"
-                    onPress={() => {
-                      selectEmployee(emp.id);
-                      setDetailsEmployeeId(emp.id);
-                      detailsSheetRef.current?.show();
-                    }}>
-                    <ThemedText className="text-xs text-light-subtext dark:text-dark-subtext">
-                      {t('reservationMore')}
-                    </ThemedText>
-                  </Pressable>
+                {rowBadges ? (
+                  <View className="absolute right-4 top-4 z-10 max-w-[70%] flex-row items-center justify-end gap-1.5">
+                    {empServicePrice != null ? (
+                      <View className="rounded-full bg-light-secondary px-2 py-1 dark:bg-dark-secondary">
+                        <ThemedText
+                          className="text-xs text-light-subtext dark:text-dark-subtext"
+                          numberOfLines={1}>
+                          {empServicePrice} {t('reservationCurrencySuffix')}
+                        </ThemedText>
+                      </View>
+                    ) : null}
+                    {hasMore ? (
+                      <Pressable
+                        className="rounded-full bg-light-secondary px-2 py-1 dark:bg-dark-secondary"
+                        onPress={() => {
+                          selectEmployee(emp.id);
+                          setDetailsEmployeeId(emp.id);
+                          detailsSheetRef.current?.show();
+                        }}>
+                        <ThemedText className="text-xs text-light-subtext dark:text-dark-subtext">
+                          {t('reservationMore')}
+                        </ThemedText>
+                      </Pressable>
+                    ) : null}
+                  </View>
                 ) : null}
-                {getEmployeeAverageRating(emp) != null ? (
+                {empRating != null ? (
                   <View className="ml-16 mt-1 flex-row items-center gap-2">
                     <ShowRating
-                      rating={getEmployeeAverageRating(emp)!}
+                      rating={empRating}
                       size="sm"
                       displayMode="stars"
                     />
                     <View className="rounded-full bg-light-secondary px-2 py-1 dark:bg-dark-secondary">
                       <ThemedText className="text-xs text-light-subtext dark:text-dark-subtext">
-                        {getEmployeeAverageRating(emp)!.toFixed(1)}
+                        {empRating.toFixed(1)}
                       </ThemedText>
                     </View>
                   </View>
                 ) : null}
-              </View>
-            ))}
+                </View>
+              );
+            })}
             {employees.length === 0 ? (
               <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext">
                 {t('reservationNoBarbers')}
@@ -1714,14 +1869,7 @@ export default function ReservationCreateScreen() {
                           size="lg"
                           label={slot.start}
                           isSelected={data.slotStart === slot.start && data.slotEnd === slot.end}
-                          onPress={() =>
-                            setData((prev) => ({
-                              ...prev,
-                              slotStart: slot.start,
-                              slotEnd: slot.end,
-                              duration: slot.duration,
-                            }))
-                          }
+                          onPress={() => selectAvailabilitySlot(slot)}
                         />
                       ))}
                     </View>
@@ -1736,14 +1884,7 @@ export default function ReservationCreateScreen() {
                           size="lg"
                           label={slot.start}
                           isSelected={data.slotStart === slot.start && data.slotEnd === slot.end}
-                          onPress={() =>
-                            setData((prev) => ({
-                              ...prev,
-                              slotStart: slot.start,
-                              slotEnd: slot.end,
-                              duration: slot.duration,
-                            }))
-                          }
+                          onPress={() => selectAvailabilitySlot(slot)}
                         />
                       ))}
                     </View>
@@ -1758,14 +1899,7 @@ export default function ReservationCreateScreen() {
                           size="lg"
                           label={slot.start}
                           isSelected={data.slotStart === slot.start && data.slotEnd === slot.end}
-                          onPress={() =>
-                            setData((prev) => ({
-                              ...prev,
-                              slotStart: slot.start,
-                              slotEnd: slot.end,
-                              duration: slot.duration,
-                            }))
-                          }
+                          onPress={() => selectAvailabilitySlot(slot)}
                         />
                       ))}
                     </View>
@@ -1796,7 +1930,6 @@ export default function ReservationCreateScreen() {
             <ThemedText className="mt-1 text-sm text-light-subtext dark:text-dark-subtext">
               {t('reservationSummarySubtitle')}
             </ThemedText>
-
 
             <Divider className="mt-4 h-2 bg-light-secondary dark:bg-dark-darker" />
 
@@ -1943,15 +2076,7 @@ export default function ReservationCreateScreen() {
                   <View
                     key={`${m.url}-${index}`}
                     className="h-24 w-24 overflow-hidden rounded-xl bg-light-secondary dark:bg-dark-secondary">
-                    {m.type === 'video' ? (
-                      <View className="flex-1 items-center justify-center">
-                        <ThemedText className="text-xs text-light-subtext dark:text-dark-subtext">
-                          {t('sheetVideoLabel')}
-                        </ThemedText>
-                      </View>
-                    ) : (
-                      <Image source={{ uri: m.url }} className="h-full w-full" contentFit="cover" />
-                    )}
+                    <Image source={{ uri: m.url }} className="h-full w-full" contentFit="cover" />
                   </View>
                 ))}
               </ScrollView>
