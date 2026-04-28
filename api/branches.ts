@@ -66,3 +66,24 @@ export async function getBranches(
 
   return res.json() as Promise<Branch[]>;
 }
+
+/** GET /api/client/branches/:id — detail pobočky včetně služeb (EmployeeItemPrice / vazby na holiče). */
+export async function getBranchById(token: string, branchId: string): Promise<Branch> {
+  const url = `${CRM_BASE}/api/client/branches/${encodeURIComponent(branchId)}`;
+  const res = await fetch(url, {
+    method: 'GET',
+    headers: { Authorization: `Bearer ${token}` },
+  });
+
+  if (res.status === 401) throw new Error('Unauthorized');
+  if (res.status === 404) throw new Error('Branch not found');
+  if (!res.ok) throw new Error(`Error ${res.status}`);
+
+  const json: unknown = await res.json();
+  if (json && typeof json === 'object') {
+    const o = json as Record<string, unknown>;
+    if (o.branch && typeof o.branch === 'object') return o.branch as Branch;
+    if (o.data && typeof o.data === 'object') return o.data as Branch;
+  }
+  return json as Branch;
+}

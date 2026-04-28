@@ -232,7 +232,7 @@ export const en = {
   helpContactHoursValue: 'Mon–Fri 8:30–21:30, Sat–Sun 9:30–18:30',
   helpFaq1Q: 'How do I book an appointment?',
   helpFaq1A:
-    'Open Schedule from the home area or go to a branch or barber profile. Pick a service, date, and a free time slot, then follow the booking steps (branch, barber, service, time). You need to be signed in to complete a booking.',
+    'Open Schedule from the home area or go to a branch or barber profile. Follow the booking steps (branch, service, barber, time). You need to be signed in to complete a booking.',
   helpFaq2Q: 'Can I change or cancel a booking?',
   helpFaq2A:
     'Yes. Under Bookings in the bottom tab bar you will see your visits. For a specific booking you may see options to reschedule or cancel, depending on branch rules and availability. If something is not available in the app, contact the branch directly or use the support options below.',
@@ -835,7 +835,7 @@ export const en = {
   tripDetailMoveButton: 'Reschedule',
   rescheduleTitle: 'Reschedule',
   reschedulePlaceholder: 'Choosing a new date and time will be available soon.',
-  rescheduleIntro: 'Pick a new date and time. The branch, barber and service stay the same.',
+  rescheduleIntro: 'Pick a new date and time. The branch, service, and barber stay the same.',
   rescheduleCurrentTitle: 'Current booking',
   rescheduleCurrentTimeHeading: 'Current time slot',
   rescheduleCurrentTimeHint:
@@ -1048,10 +1048,12 @@ export const en = {
   reservationStartTitle: "We'll book you in easily",
   reservationStartStep1Title: 'Choose a branch',
   reservationStartStep1Desc: 'Pick the salon you want to visit.',
-  reservationStartStep2Title: 'Choose your barber and service',
-  reservationStartStep2Desc: 'Pick the barber and the service you want to book.',
-  reservationStartStep3Title: 'Choose a time',
-  reservationStartStep3Desc: "We'll show available slots and you'll confirm the booking.",
+  reservationStartStep2Title: 'Choose a service',
+  reservationStartStep2Desc: 'Pick the service you want to book at this branch.',
+  reservationStartStep3Title: 'Choose your barber',
+  reservationStartStep3Desc: 'Pick the specialist who will take care of you.',
+  reservationStartStep4Title: 'Choose a time',
+  reservationStartStep4Desc: "We'll show available slots and you'll confirm the booking.",
   reservationStartCta: "Let's go",
   reservationFromBarberLoadError:
     'We could not start a booking for this barber. They may have no branch assigned or the data could not be loaded.',
@@ -1088,6 +1090,7 @@ export const en = {
   reservationSummaryEstimatedDuration: 'Estimated duration',
   reservationSummaryCreating: 'Creating booking…',
   reservationCurrencySuffix: 'CZK',
+  reservationPriceFromPrefix: 'from',
   serviceCategoryOther: 'Other',
   sheetSpecialistFallback: 'Barber',
   sheetNoBio: 'No description.',

@@ -9,7 +9,12 @@ import {
   getBookingAvailability,
   type BookingAvailabilityResponse,
 } from '@/api/bookings';
-import { getBranches, type Branch, type BranchEmployee, type BranchService } from '@/api/branches';
+import {
+  getBranches,
+  getBranchById,
+  type Branch,
+  type BranchEmployee,
+} from '@/api/branches';
 import {
   getEmployeeById,
   getEmployees,
@@ -36,6 +41,7 @@ import VideoPlayer from '@/components/VideoPlayer';
 import Selectable from '@/components/forms/Selectable';
 import Divider from '@/components/layout/Divider';
 import Section from '@/components/layout/Section';
+import { isEmployeePubliclyBookable } from '@/utils/employeePublicBooking';
 
 interface ReservationFlowData {
   branchId: string;
@@ -47,16 +53,130 @@ interface ReservationFlowData {
   duration: number;
 }
 
+type ServiceOption = {
+  id: string;
+  name: string;
+  imageUrl?: string | null;
+  price: number;
+  duration: number;
+  category?: { id?: string; name?: string } | null;
+};
+
 function getEmployeesList(branch: Branch | null): BranchEmployee[] {
   if (!branch?.employees) return [];
   if (Array.isArray(branch.employees)) return branch.employees;
   return Object.values(branch.employees);
 }
 
-function getServicesList(branch: Branch | null): BranchService[] {
-  if (!branch?.services) return [];
-  if (Array.isArray(branch.services)) return branch.services;
-  return Object.values(branch.services);
+function flattenApiRecord(value: unknown): unknown[] {
+  if (value == null) return [];
+  if (Array.isArray(value)) return value;
+  if (typeof value === 'object') return Object.values(value as Record<string, unknown>);
+  return [];
+}
+
+/** Služby / ceník u pobočky – CRM může posílat různé klíče (services, items, employeeItemPrices, …). */
+function collectBranchServiceRows(branch: Branch | null): unknown[] {
+  if (!branch) return [];
+  const b = branch as Record<string, unknown>;
+  const keys = [
+    'services',
+    'items',
+    'itemPrices',
+    'employeeItemPrices',
+    'branchItemPrices',
+    'branchServices',
+  ];
+  const out: unknown[] = [];
+  for (const key of keys) {
+    out.push(...flattenApiRecord(b[key]));
+  }
+  if (out.length > 0) return out;
+  return flattenApiRecord(b.services);
+}
+
+function strVal(v: unknown): string {
+  return typeof v === 'string' && v.trim() !== '' ? v.trim() : '';
+}
+
+function numVal(v: unknown, fallback = 0): number {
+  if (typeof v === 'number' && Number.isFinite(v)) return v;
+  const n = Number(v);
+  return Number.isFinite(n) ? n : fallback;
+}
+
+/** Minimální cena z více záznamů API; kladné hodnoty mají přednost před 0 (chybějící cena). */
+function mergeServiceMinPrice(a: number, b: number): number {
+  const pair = [a, b].filter((n) => typeof n === 'number' && Number.isFinite(n));
+  if (pair.length === 0) return 0;
+  const positive = pair.filter((n) => n > 0);
+  if (positive.length > 0) return Math.min(...positive);
+  return Math.min(...pair);
+}
+
+function normalizeBranchServiceRow(
+  raw: unknown,
+  index: number
+): { option: ServiceOption; employeeId?: string } | null {
+  if (!raw || typeof raw !== 'object') return null;
+  const r = raw as Record<string, unknown>;
+  const nestedItem =
+    r.item && typeof r.item === 'object' ? (r.item as Record<string, unknown>) : null;
+  const nestedService =
+    r.service && typeof r.service === 'object' ? (r.service as Record<string, unknown>) : null;
+
+  let itemId =
+    strVal(r.id) || strVal(r.itemId) || (nestedItem ? strVal(nestedItem.id) : '') || (nestedService ? strVal(nestedService.id) : '');
+  const name =
+    strVal(r.name) ||
+    (nestedItem ? strVal(nestedItem.name) : '') ||
+    (nestedService ? strVal(nestedService.name) : '');
+
+  const price = numVal(r.price ?? r.amount ?? nestedItem?.price ?? nestedService?.price, 0);
+  const duration = numVal(
+    r.duration ?? r.lengthMinutes ?? nestedItem?.duration ?? nestedService?.duration,
+    0
+  );
+  const imageUrl =
+    (typeof r.imageUrl === 'string' && r.imageUrl) ||
+    (nestedItem && typeof nestedItem.imageUrl === 'string' ? nestedItem.imageUrl : undefined) ||
+    (nestedService && typeof nestedService.imageUrl === 'string'
+      ? nestedService.imageUrl
+      : undefined) ||
+    null;
+
+  let employeeId: string | undefined;
+  const em = r.employee;
+  if (em && typeof em === 'object') {
+    const id = (em as { id?: unknown }).id;
+    if (typeof id === 'string' && id.trim()) employeeId = id.trim();
+  }
+  if (!employeeId && typeof r.employeeId === 'string' && r.employeeId.trim())
+    employeeId = r.employeeId.trim();
+
+  let category: ServiceOption['category'] | null = null;
+  const cat = r.category ?? nestedItem?.category ?? nestedService?.category;
+  if (cat && typeof cat === 'object') {
+    const c = cat as Record<string, unknown>;
+    const cid = strVal(c.id);
+    const cname = strVal(c.name);
+    if (cid || cname) category = { id: cid || undefined, name: cname || undefined };
+  } else if (typeof cat === 'string' && cat) {
+    category = { id: cat, name: cat };
+  }
+
+  if (!itemId && name && employeeId) itemId = `__row:${employeeId}:${name}:${index}`;
+  if (!itemId) return null;
+
+  const option: ServiceOption = {
+    id: itemId,
+    name: name || itemId,
+    imageUrl,
+    price,
+    duration,
+    category: category ?? undefined,
+  };
+  return { option, employeeId };
 }
 
 function getEmployeeBranchesList(employee: Pick<EmployeeDetail, 'branches'>): EmployeeBranch[] {
@@ -120,9 +240,8 @@ function getBranchCardImageSource(branch: Branch | null): string | number {
   const firstStill = media.find((m) => m.type !== 'video') ?? media[0];
   if (firstStill?.url) return firstStill.url;
   if (branch.imageUrl) return branch.imageUrl;
-  const servicesList = getServicesList(branch);
-  const firstWithImage = servicesList.find((s) => s.imageUrl);
-  if (firstWithImage?.imageUrl) return firstWithImage.imageUrl;
+  const pick = buildBranchServicePickerData(branch).options.find((s) => s.imageUrl);
+  if (pick?.imageUrl) return pick.imageUrl;
   return require('@/assets/img/barbers.png');
 }
 
@@ -228,44 +347,83 @@ function getMonthKeyFromDate(date: Date): string {
   return `${date.getFullYear()}-${`${date.getMonth() + 1}`.padStart(2, '0')}`;
 }
 
-type ServiceOption = {
-  id: string;
-  name: string;
-  imageUrl?: string | null;
-  price: number;
-  duration: number;
-  category?: { id?: string; name?: string } | null;
-};
-
 function isReservationStepValid(stepIndex: number, d: ReservationFlowData): boolean {
   if (stepIndex === 0) return Boolean(d.branchId);
-  if (stepIndex === 1) return Boolean(d.employeeId);
-  if (stepIndex === 2) return Boolean(d.itemId);
+  if (stepIndex === 1) return Boolean(d.itemId);
+  if (stepIndex === 2) return Boolean(d.employeeId);
   if (stepIndex === 3) return Boolean(d.date && d.slotStart);
   return true;
 }
 
-const HIDDEN_CATEGORY_ID_PREFIXES = ['2d7624', 'd0a2cc'];
+/** Služby nabízené na pobočce + mapa „kdo službu dělá“ (pro krok holič). */
+function buildBranchServicePickerData(branch: Branch | null): {
+  options: ServiceOption[];
+  offerersByServiceId: Map<string, Set<string>>;
+} {
+  if (!branch) return { options: [], offerersByServiceId: new Map() };
+  const rows = collectBranchServiceRows(branch);
+  const offerersByServiceId = new Map<string, Set<string>>();
+  const unique = new Map<string, ServiceOption>();
 
-function isCategoryHidden(categoryId: string | null | undefined): boolean {
-  if (!categoryId) return false;
-  return HIDDEN_CATEGORY_ID_PREFIXES.some((prefix) => categoryId.startsWith(prefix));
+  rows.forEach((raw, idx) => {
+    const parsed = normalizeBranchServiceRow(raw, idx);
+    if (!parsed) return;
+    const { option, employeeId } = parsed;
+    if (employeeId) {
+      if (!offerersByServiceId.has(option.id)) offerersByServiceId.set(option.id, new Set());
+      offerersByServiceId.get(option.id)!.add(employeeId);
+    }
+    if (!unique.has(option.id)) {
+      unique.set(option.id, option);
+    } else {
+      const prev = unique.get(option.id)!;
+      unique.set(option.id, { ...prev, price: mergeServiceMinPrice(prev.price, option.price) });
+    }
+  });
+
+  return {
+    options: Array.from(unique.values()),
+    offerersByServiceId,
+  };
 }
 
+function findServiceOptionOnBranch(branch: Branch | null, itemId: string): ServiceOption | null {
+  if (!branch || !itemId) return null;
+  return buildBranchServicePickerData(branch).options.find((s) => s.id === itemId) ?? null;
+}
+
+type ServiceCategoryGroup = { key: string; name: string; services: ServiceOption[] };
+
+/** Seskupí služby podle `category` (pořadí = první výskyt v seznamu). Bez kategorie → jedna skupina `otherLabel`. */
 function groupServicesByCategory(
   services: ServiceOption[],
-  otherCategoryLabel: string
-): { key: string; name: string; services: ServiceOption[] }[] {
-  const map = new Map<string, { key: string; name: string; services: ServiceOption[] }>();
-  for (const svc of services) {
-    const catId = svc.category?.id;
-    if (isCategoryHidden(catId)) continue;
-    const key = catId ?? svc.category?.name ?? 'other';
-    const name = svc.category?.name ?? otherCategoryLabel;
-    if (!map.has(key)) map.set(key, { key, name, services: [] });
-    map.get(key)!.services.push(svc);
+  otherLabel: string
+): ServiceCategoryGroup[] {
+  const order: string[] = [];
+  const titles = new Map<string, string>();
+  const buckets = new Map<string, ServiceOption[]>();
+
+  for (const s of services) {
+    const c = s.category;
+    const id = c?.id?.trim();
+    const nm = c?.name?.trim();
+    const hasCategory = Boolean(id || nm);
+    const key = id ?? (nm ? `name:${nm}` : '__other');
+    const title = hasCategory ? nm || id || otherLabel : otherLabel;
+
+    if (!buckets.has(key)) {
+      buckets.set(key, []);
+      order.push(key);
+      titles.set(key, title);
+    }
+    buckets.get(key)!.push(s);
   }
-  return Array.from(map.values());
+
+  return order.map((key) => ({
+    key,
+    name: titles.get(key) ?? otherLabel,
+    services: buckets.get(key) ?? [],
+  }));
 }
 
 type BarberEntryMode = 'none' | 'single' | 'multi' | 'branch' | 'service';
@@ -295,6 +453,8 @@ export default function ReservationCreateScreen() {
   const dateLocaleTag = locale === 'cs' ? 'cs-CZ' : 'en-GB';
   const colors = useThemeColors();
   const [branches, setBranches] = useState<Branch[]>([]);
+  const branchesRef = useRef<Branch[]>([]);
+  branchesRef.current = branches;
   const [employeesById, setEmployeesById] = useState<Record<string, Employee>>({});
   const [loadingBranches, setLoadingBranches] = useState(true);
   const [availability, setAvailability] = useState<BookingAvailabilityResponse | null>(null);
@@ -303,7 +463,6 @@ export default function ReservationCreateScreen() {
   const [availableDatesInMonth, setAvailableDatesInMonth] = useState<Set<string>>(new Set());
   const [loadingMonthAvailability, setLoadingMonthAvailability] = useState(false);
   const [employeeServices, setEmployeeServices] = useState<EmployeeService[]>([]);
-  const [loadingEmployeeServices, setLoadingEmployeeServices] = useState(false);
   const [creatingBooking, setCreatingBooking] = useState(false);
   const [createBookingError, setCreateBookingError] = useState<string | null>(null);
   const [detailsEmployeeId, setDetailsEmployeeId] = useState<string | null>(null);
@@ -331,10 +490,27 @@ export default function ReservationCreateScreen() {
   );
   const [initialMultiStepIndex, setInitialMultiStepIndex] = useState(0);
   const [presetBranchFilterIds, setPresetBranchFilterIds] = useState<Set<string> | null>(null);
+  /** Když API u pobočky nevrátí `services`, doplníme služby z profilů holičů na pobočce. */
+  const [aggregatedBranchServices, setAggregatedBranchServices] = useState<{
+    options: ServiceOption[];
+    offerersByServiceId: Map<string, Set<string>>;
+  } | null>(null);
+  const [loadingAggregatedBranchServices, setLoadingAggregatedBranchServices] = useState(false);
+  /** Detail pobočky ze GET /branches/:id (služby pro krok 2). */
+  const [branchServicesSource, setBranchServicesSource] = useState<Branch | null>(null);
+  const [loadingBranchServicesFetch, setLoadingBranchServicesFetch] = useState(false);
 
-  /** Clear wizard fields for steps after `stepIndex` (used when user goes Back). */
+  /** Clear wizard fields for steps after `stepIndex` (used when user goes Back). Krok 0=pobočka,1=služba,2=holič,3=čas,4=shrnutí */
   const resetFlowAfterStep = useCallback(
     (stepIndex: number) => {
+      const durationForItem = (prev: ReservationFlowData) => {
+        if (!prev.itemId || !prev.branchId) return 0;
+        const fromFetched =
+          branchServicesSource?.id === prev.branchId ? branchServicesSource : null;
+        const b = fromFetched ?? branches.find((x) => x.id === prev.branchId) ?? null;
+        const svc = b ? findServiceOptionOnBranch(b, prev.itemId) : null;
+        return svc?.duration ?? 0;
+      };
       setData((prev) => {
         if (stepIndex < 1) {
           return {
@@ -351,6 +527,7 @@ export default function ReservationCreateScreen() {
           if (presetItemId) {
             return {
               ...prev,
+              employeeId: presetEmployeeId ? presetEmployeeId : '',
               date: '',
               slotStart: '',
               slotEnd: '',
@@ -359,11 +536,11 @@ export default function ReservationCreateScreen() {
           }
           return {
             ...prev,
-            itemId: '',
+            employeeId: presetEmployeeId ? presetEmployeeId : '',
             date: '',
             slotStart: '',
             slotEnd: '',
-            duration: 0,
+            duration: prev.itemId ? durationForItem(prev) : 0,
           };
         }
         if (stepIndex < 3) {
@@ -372,7 +549,7 @@ export default function ReservationCreateScreen() {
             date: '',
             slotStart: '',
             slotEnd: '',
-            duration: presetItemId ? prev.duration : 0,
+            duration: presetItemId ? prev.duration : durationForItem(prev),
           };
         }
         if (stepIndex < 4) {
@@ -380,7 +557,7 @@ export default function ReservationCreateScreen() {
             ...prev,
             slotStart: '',
             slotEnd: '',
-            duration: presetItemId ? prev.duration : 0,
+            duration: presetItemId ? prev.duration : durationForItem(prev),
           };
         }
         return prev;
@@ -392,7 +569,7 @@ export default function ReservationCreateScreen() {
         setMonthOffset(0);
       }
     },
-    [presetEmployeeId, presetItemId]
+    [presetEmployeeId, presetItemId, branches, branchServicesSource]
   );
 
   const selectBranchId = useCallback(
@@ -404,8 +581,7 @@ export default function ReservationCreateScreen() {
         const b = branches.find((x) => x.id === branchId);
         let nextDuration = 0;
         if (presetItemId && b) {
-          const sl = getServicesList(b);
-          const svc = sl.find((s) => s.id === presetItemId);
+          const svc = findServiceOptionOnBranch(b, presetItemId);
           nextDuration = svc?.duration ?? prev.duration ?? 0;
         }
         return {
@@ -427,33 +603,36 @@ export default function ReservationCreateScreen() {
     [presetEmployeeId, presetItemId, branches]
   );
 
-  const selectEmployee = useCallback(
-    (employeeId: string) => {
-      setData((prev) => ({
-        ...prev,
-        employeeId,
-        itemId: presetItemId ? presetItemId : '',
-        date: '',
-        slotStart: '',
-        slotEnd: '',
-        duration: presetItemId ? prev.duration : 0,
-      }));
-      setLastSelectedDateByMonth({});
-    },
-    [presetItemId]
-  );
-
-  const selectServiceOption = useCallback((service: ServiceOption) => {
+  const selectEmployee = useCallback((employeeId: string) => {
     setData((prev) => ({
       ...prev,
-      itemId: service.id,
+      employeeId,
+      itemId: prev.itemId,
       date: '',
       slotStart: '',
       slotEnd: '',
-      duration: service.duration,
+      duration: prev.duration,
     }));
     setLastSelectedDateByMonth({});
   }, []);
+
+  const selectServiceOption = useCallback(
+    (service: ServiceOption) => {
+      const keepEmp =
+        (barberEntryMode === 'multi' || barberEntryMode === 'single') && Boolean(presetEmployeeId);
+      setData((prev) => ({
+        ...prev,
+        itemId: service.id,
+        employeeId: keepEmp ? presetEmployeeId! : '',
+        date: '',
+        slotStart: '',
+        slotEnd: '',
+        duration: service.duration,
+      }));
+      setLastSelectedDateByMonth({});
+    },
+    [barberEntryMode, presetEmployeeId]
+  );
 
   useEffect(() => {
     if (!apiToken) {
@@ -462,8 +641,8 @@ export default function ReservationCreateScreen() {
     }
     setLoadingBranches(true);
     Promise.all([
-      getBranches(apiToken, { includeReviews: true, reviewsLimit: 9999 }),
-      getEmployees(apiToken, { includeReviews: true, reviewsLimit: 9999 }).catch(
+      getBranches(apiToken),
+      getEmployees(apiToken, { includeReviews: true, reviewsLimit: 99 }).catch(
         () => [] as Employee[]
       ),
     ])
@@ -519,7 +698,7 @@ export default function ReservationCreateScreen() {
         return;
       }
 
-      const svc = getServicesList(branch).find((s) => s.id === presetItemId);
+      const svc = findServiceOptionOnBranch(branch, presetItemId);
       const duration = svc?.duration ?? 0;
       setData((prev) => ({
         ...prev,
@@ -563,7 +742,7 @@ export default function ReservationCreateScreen() {
             setLastSelectedDateByMonth({});
             setMonthOffset(0);
             setBarberEntryMode('single');
-            setInitialMultiStepIndex(2);
+            setInitialMultiStepIndex(1);
             setPresetBranchFilterIds(null);
             setBarberBootstrap('ready');
           } else if (matched.length > 1) {
@@ -645,8 +824,7 @@ export default function ReservationCreateScreen() {
       // žádné pobočky (API katalog vs. vnořené služby u branch) — jinak by se znovu zobrazil výběr služby.
       let duration = 0;
       for (const b of branches) {
-        const sl = getServicesList(b);
-        const svc = sl.find((s) => s.id === presetItemId);
+        const svc = findServiceOptionOnBranch(b, presetItemId);
         if (svc) {
           duration = svc.duration;
           break;
@@ -675,28 +853,164 @@ export default function ReservationCreateScreen() {
     () => branches.find((b) => b.id === data.branchId) ?? null,
     [branches, data.branchId]
   );
+
+  useEffect(() => {
+    if (!apiToken || !data.branchId?.trim()) {
+      setBranchServicesSource(null);
+      setLoadingBranchServicesFetch(false);
+      return;
+    }
+    let cancelled = false;
+    setBranchServicesSource(null);
+    setLoadingBranchServicesFetch(true);
+    setAggregatedBranchServices(null);
+    getBranchById(apiToken, data.branchId.trim())
+      .then((b) => {
+        if (!cancelled) setBranchServicesSource(b);
+      })
+      .catch(() => {
+        if (!cancelled) {
+          setBranchServicesSource(
+            branchesRef.current.find((x) => x.id === data.branchId) ?? null
+          );
+        }
+      })
+      .finally(() => {
+        if (!cancelled) setLoadingBranchServicesFetch(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [apiToken, data.branchId]);
+
+  const branchForServiceStep = branchServicesSource ?? selectedBranch;
+
+  const branchPickerFromBranchPayload = useMemo(
+    () => buildBranchServicePickerData(branchForServiceStep),
+    [branchForServiceStep]
+  );
+
+  useEffect(() => {
+    if (!apiToken || !selectedBranch?.id) {
+      setAggregatedBranchServices(null);
+      setLoadingAggregatedBranchServices(false);
+      return;
+    }
+    if (loadingBranchServicesFetch) {
+      return;
+    }
+    if (branchPickerFromBranchPayload.options.length > 0) {
+      setAggregatedBranchServices(null);
+      setLoadingAggregatedBranchServices(false);
+      return;
+    }
+    const emps = getEmployeesList(branchForServiceStep)
+      .map((e) => mergeEmployee(e, employeesById[e.id]))
+      .filter((e) => e.isActive !== false && isEmployeePubliclyBookable(e));
+    if (emps.length === 0) {
+      setAggregatedBranchServices(null);
+      setLoadingAggregatedBranchServices(false);
+      return;
+    }
+    let cancelled = false;
+    setLoadingAggregatedBranchServices(true);
+    setAggregatedBranchServices(null);
+    Promise.all(
+      emps.map((e) =>
+        getEmployeeById(apiToken, e.id)
+          .then((emp) => ({
+            employeeId: e.id,
+            services: getEmployeeServicesList(emp.services),
+          }))
+          .catch(() => ({ employeeId: e.id, services: [] as EmployeeService[] }))
+      )
+    )
+      .then((results) => {
+        if (cancelled) return;
+        const offerersByServiceId = new Map<string, Set<string>>();
+        const unique = new Map<string, ServiceOption>();
+        for (const { employeeId, services } of results) {
+          for (const s of services) {
+            if (!offerersByServiceId.has(s.id)) offerersByServiceId.set(s.id, new Set());
+            offerersByServiceId.get(s.id)!.add(employeeId);
+            if (!unique.has(s.id)) {
+              unique.set(s.id, {
+                id: s.id,
+                name: s.name,
+                imageUrl: s.imageUrl,
+                price: s.price,
+                duration: s.duration,
+                category: s.category,
+              });
+            } else {
+              const prev = unique.get(s.id)!;
+              unique.set(s.id, {
+                ...prev,
+                price: mergeServiceMinPrice(prev.price, s.price),
+              });
+            }
+          }
+        }
+        setAggregatedBranchServices({
+          options: Array.from(unique.values()),
+          offerersByServiceId,
+        });
+      })
+      .finally(() => {
+        if (!cancelled) setLoadingAggregatedBranchServices(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [
+    apiToken,
+    selectedBranch,
+    branchForServiceStep,
+    loadingBranchServicesFetch,
+    branchPickerFromBranchPayload.options.length,
+    employeesById,
+  ]);
+
   const branchesForReservation = useMemo(() => {
     if (presetBranchFilterIds != null && presetBranchFilterIds.size > 0) {
       return branches.filter((b) => presetBranchFilterIds.has(b.id));
     }
     return branches;
   }, [branches, presetBranchFilterIds]);
-  const employees = useMemo(
+  const employeesAll = useMemo(
     () =>
-      getEmployeesList(selectedBranch)
+      getEmployeesList(branchForServiceStep)
         .map((e) => mergeEmployee(e, employeesById[e.id]))
-        .filter((e) => e.isActive !== false),
-    [selectedBranch, employeesById]
+        .filter((e) => e.isActive !== false && isEmployeePubliclyBookable(e)),
+    [branchForServiceStep, employeesById]
   );
-  const services = useMemo<ServiceOption[]>(() => {
-    if (employeeServices.length > 0) return employeeServices;
-    return getServicesList(selectedBranch);
-  }, [selectedBranch, employeeServices]);
+  const serviceOfferersByItemId = useMemo(() => {
+    if (branchPickerFromBranchPayload.options.length > 0) {
+      return branchPickerFromBranchPayload.offerersByServiceId;
+    }
+    return aggregatedBranchServices?.offerersByServiceId ?? new Map<string, Set<string>>();
+  }, [branchPickerFromBranchPayload, aggregatedBranchServices]);
+
+  const employees = useMemo(() => {
+    if (!data.itemId) return employeesAll;
+    const ids = serviceOfferersByItemId.get(data.itemId);
+    if (!ids || ids.size === 0) return employeesAll;
+    return employeesAll.filter((e) => ids.has(e.id));
+  }, [employeesAll, data.itemId, serviceOfferersByItemId]);
+
+  const branchStepServiceOptions = useMemo(() => {
+    if (branchPickerFromBranchPayload.options.length > 0) {
+      return branchPickerFromBranchPayload.options;
+    }
+    return aggregatedBranchServices?.options ?? [];
+  }, [branchPickerFromBranchPayload, aggregatedBranchServices]);
+
   const serviceCategoryOtherLabel = t('serviceCategoryOther');
-  const serviceCategories = useMemo(
-    () => groupServicesByCategory(services, serviceCategoryOtherLabel),
-    [services, serviceCategoryOtherLabel]
+  const branchStepServiceCategories = useMemo(
+    () => groupServicesByCategory(branchStepServiceOptions, serviceCategoryOtherLabel),
+    [branchStepServiceOptions, serviceCategoryOtherLabel]
   );
+
   const groupedSlots = useMemo(() => {
     const slots = availability?.availability?.slots ?? [];
     const morning = slots.filter((s) => timeToMinutes(s.start) < 12 * 60);
@@ -733,17 +1047,23 @@ export default function ReservationCreateScreen() {
   useEffect(() => {
     if (!apiToken || !data.employeeId) {
       setEmployeeServices([]);
-      setLoadingEmployeeServices(false);
       return;
     }
-    setLoadingEmployeeServices(true);
     getEmployeeById(apiToken, data.employeeId)
       .then((emp) => {
         setEmployeeServices(getEmployeeServicesList(emp.services));
       })
-      .catch(() => setEmployeeServices([]))
-      .finally(() => setLoadingEmployeeServices(false));
+      .catch(() => setEmployeeServices([]));
   }, [apiToken, data.employeeId]);
+
+  useEffect(() => {
+    if (!data.itemId || !data.employeeId) return;
+    const match = employeeServices.find((s) => s.id === data.itemId);
+    if (match == null || typeof match.duration !== 'number') return;
+    setData((prev) =>
+      prev.duration === match.duration ? prev : { ...prev, duration: match.duration }
+    );
+  }, [employeeServices, data.itemId, data.employeeId]);
 
   useEffect(() => {
     if (!apiToken || !data.employeeId || !data.date) {
@@ -755,11 +1075,12 @@ export default function ReservationCreateScreen() {
     setAvailability(null);
     setLoadingAvailability(true);
     setAvailabilityError(null);
+    // Délka slotů a omezení pobočkou/službou: employeeId + date + branchId + itemId jako při výběru.
     getBookingAvailability(apiToken, {
       employeeId: data.employeeId,
       date: data.date,
-      branchId: data.branchId || undefined,
-      itemId: data.itemId || undefined,
+      branchId: data.branchId.trim() !== '' ? data.branchId : undefined,
+      itemId: data.itemId.trim() !== '' ? data.itemId : undefined,
       noCache: true,
     })
       .then((res) => {
@@ -794,8 +1115,8 @@ export default function ReservationCreateScreen() {
           const res = await getBookingAvailability(apiToken, {
             employeeId: data.employeeId,
             date: day.value,
-            branchId: data.branchId || undefined,
-            itemId: data.itemId || undefined,
+            branchId: data.branchId.trim() !== '' ? data.branchId : undefined,
+            itemId: data.itemId.trim() !== '' ? data.itemId : undefined,
             noCache: true,
           });
           const count = res?.availability?.slots?.length ?? 0;
@@ -873,7 +1194,8 @@ export default function ReservationCreateScreen() {
         itemId: data.itemId,
         date: data.date,
         slotStart: data.slotStart,
-        slotEnd: data.slotEnd || undefined,
+        // slotEnd může doplnit server podle délky služby
+        slotEnd: data.slotEnd.trim() !== '' ? data.slotEnd : undefined,
         notes: '',
       };
       const created = await createBooking(apiToken, payload);
@@ -911,7 +1233,7 @@ export default function ReservationCreateScreen() {
     }));
   };
 
-  const detailsEmployee = employees.find((e) => e.id === detailsEmployeeId) ?? null;
+  const detailsEmployee = employeesAll.find((e) => e.id === detailsEmployeeId) ?? null;
   const detailsDescription = detailsEmployee ? employeeDescription(detailsEmployee) : '';
   const detailsMedia = detailsEmployee ? getEmployeeMedia(detailsEmployee) : [];
   const detailsBranch = branches.find((b) => b.id === detailsBranchId) ?? null;
@@ -920,7 +1242,7 @@ export default function ReservationCreateScreen() {
   const detailsBranchImages = detailsBranchMedia.filter((m) => m.type !== 'video');
   const detailsBranchVideo = detailsBranchMedia.find((m) => m.type === 'video');
   const selectedEmployee = useMemo(() => {
-    const fromList = employees.find((e) => e.id === data.employeeId);
+    const fromList = employeesAll.find((e) => e.id === data.employeeId);
     if (fromList) return fromList;
     const full = data.employeeId ? employeesById[data.employeeId] : undefined;
     if (full) {
@@ -930,8 +1252,22 @@ export default function ReservationCreateScreen() {
       );
     }
     return null;
-  }, [employees, data.employeeId, employeesById]);
-  const selectedService = services.find((s) => s.id === data.itemId) ?? null;
+  }, [employeesAll, data.employeeId, employeesById]);
+  const selectedService = useMemo((): ServiceOption | null => {
+    const empSvc = employeeServices.find((s) => s.id === data.itemId);
+    if (empSvc) {
+      return {
+        id: empSvc.id,
+        name: empSvc.name,
+        imageUrl: empSvc.imageUrl,
+        price: empSvc.price,
+        duration: empSvc.duration,
+        category: empSvc.category,
+      };
+    }
+    if (!branchForServiceStep || !data.itemId) return null;
+    return findServiceOptionOnBranch(branchForServiceStep, data.itemId);
+  }, [employeeServices, branchForServiceStep, data.itemId]);
   const selectedEmployeeName = selectedEmployee?.name ?? '—';
   const selectedServiceName =
     selectedService?.name ??
@@ -946,12 +1282,12 @@ export default function ReservationCreateScreen() {
       })
     : '—';
   const summaryBranchCardImage = useMemo(
-    () => getBranchCardImageSource(selectedBranch),
-    [selectedBranch]
+    () => getBranchCardImageSource(branchForServiceStep),
+    [branchForServiceStep]
   );
 
   const useFlowNextResolver =
-    (barberEntryMode === 'multi' && Boolean(presetEmployeeId)) ||
+    ((barberEntryMode === 'multi' || barberEntryMode === 'single') && Boolean(presetEmployeeId)) ||
     (barberEntryMode === 'service' && Boolean(presetItemId));
 
   const useFlowPrevResolver =
@@ -959,8 +1295,13 @@ export default function ReservationCreateScreen() {
 
   const flowStepNextIndex = useCallback(
     (currentStepIndex: number, _stepsLength: number) => {
-      if (barberEntryMode === 'multi' && presetEmployeeId && currentStepIndex === 0) return 2;
-      if (barberEntryMode === 'service' && presetItemId && currentStepIndex === 1) return 3;
+      if (barberEntryMode === 'service' && presetItemId && currentStepIndex === 0) return 2;
+      if (
+        (barberEntryMode === 'multi' || barberEntryMode === 'single') &&
+        presetEmployeeId &&
+        currentStepIndex === 1
+      )
+        return 3;
       return currentStepIndex + 1;
     },
     [barberEntryMode, presetEmployeeId, presetItemId]
@@ -969,8 +1310,9 @@ export default function ReservationCreateScreen() {
   const flowStepPrevIndex = useCallback(
     (currentStepIndex: number) => {
       if (presetEmployeeId) {
-        if (barberEntryMode === 'single' && currentStepIndex === 2) return -1;
-        if (barberEntryMode === 'multi' && currentStepIndex === 2) return 0;
+        if (barberEntryMode === 'single' && currentStepIndex === 3) return 1;
+        if (barberEntryMode === 'single' && currentStepIndex === 1) return -1;
+        if (barberEntryMode === 'multi' && currentStepIndex === 3) return 1;
         return currentStepIndex - 1;
       }
       if (barberEntryMode === 'branch' && presetBranchId) {
@@ -978,7 +1320,8 @@ export default function ReservationCreateScreen() {
         return currentStepIndex - 1;
       }
       if (barberEntryMode === 'service' && presetItemId) {
-        if (currentStepIndex === 3) return 1;
+        if (currentStepIndex === 3) return 2;
+        if (currentStepIndex === 2) return 0;
         if (currentStepIndex === 0) return -1;
         return currentStepIndex - 1;
       }
@@ -1104,6 +1447,95 @@ export default function ReservationCreateScreen() {
           </ScrollView>
         </Step>
 
+        <Step title={t('reservationStepServiceTitle')}>
+          <ScrollView className="px-6 pb-4 pt-2">
+            <View className="mb-3 items-center">
+              <Image
+                source={require('@/assets/img/reservation-service.png')}
+                className="h-16 w-16"
+                style={{ width: 64, height: 64 }}
+                contentFit="contain"
+                accessibilityIgnoresInvertColors
+              />
+            </View>
+            <View className="mb-5">
+              <ThemedText className="text-2xl font-semibold">
+                {t('reservationStepServiceTitle')}
+              </ThemedText>
+              <ThemedText className="text-base text-light-subtext dark:text-dark-subtext">
+                {t('reservationStepServiceSubtitle')}
+              </ThemedText>
+            </View>
+            {(loadingBranchServicesFetch ||
+              (loadingAggregatedBranchServices && branchStepServiceOptions.length === 0)) &&
+            branchStepServiceOptions.length === 0 ? (
+              <View className="items-center py-10">
+                <ActivityIndicator size="small" />
+                <ThemedText className="mt-3 text-sm text-light-subtext dark:text-dark-subtext">
+                  {t('commonLoading')}
+                </ThemedText>
+              </View>
+            ) : null}
+            {!loadingBranchServicesFetch && branchStepServiceCategories.length > 0
+              ? branchStepServiceCategories.map((category, categoryIndex) => (
+                  <Section
+                    key={`res-svc-cat-${category.key}-${categoryIndex}`}
+                    title={category.name}
+                    titleSize="lg"
+                    className="mb-4">
+                    <CardScroller className="mt-1.5 pb-1" space={12}>
+                      {category.services.map((service, serviceIndex) => {
+                        const isSelected = data.itemId === service.id;
+                        return (
+                          <Pressable
+                            key={`res-svc-${category.key}-${service.id}-${serviceIndex}`}
+                            onPress={() => selectServiceOption(service)}
+                            className="w-[160px] active:opacity-80">
+                            <View
+                              className="relative overflow-hidden rounded-2xl"
+                              style={
+                                isSelected
+                                  ? { borderColor: colors.highlight, borderWidth: 2 }
+                                  : undefined
+                              }>
+                              <Image
+                                source={
+                                  service.imageUrl
+                                    ? { uri: service.imageUrl }
+                                    : require('@/assets/img/barbers.png')
+                                }
+                                className="h-[140px] w-[160px]"
+                                contentFit="cover"
+                              />
+                              <View className="absolute right-2 top-2 z-10 rounded-full bg-light-secondary px-2 py-1 dark:bg-dark-secondary">
+                                <ThemedText className="text-xs text-light-subtext dark:text-dark-subtext">
+                                  {t('reservationPriceFromPrefix')} {service.price}{' '}
+                                  {t('reservationCurrencySuffix')}
+                                </ThemedText>
+                              </View>
+                            </View>
+                            <View className="w-full py-2">
+                              <ThemedText className="min-w-0 text-sm font-medium" numberOfLines={2}>
+                                {service.name}
+                              </ThemedText>
+                            </View>
+                          </Pressable>
+                        );
+                      })}
+                    </CardScroller>
+                  </Section>
+                ))
+              : null}
+            {!loadingBranchServicesFetch &&
+            !loadingAggregatedBranchServices &&
+            branchStepServiceOptions.length === 0 ? (
+              <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext">
+                {t('reservationNoServices')}
+              </ThemedText>
+            ) : null}
+          </ScrollView>
+        </Step>
+
         <Step title={t('reservationStepEmployeeTitle')}>
           <ScrollView className="px-6 pb-4 pt-2">
             <View className="mb-3 items-center">
@@ -1172,85 +1604,6 @@ export default function ReservationCreateScreen() {
             {employees.length === 0 ? (
               <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext">
                 {t('reservationNoBarbers')}
-              </ThemedText>
-            ) : null}
-          </ScrollView>
-        </Step>
-
-        <Step title={t('reservationStepServiceTitle')}>
-          <ScrollView className="px-6 pb-4 pt-2">
-            <View className="mb-3 items-center">
-              <Image
-                source={require('@/assets/img/reservation-service.png')}
-                className="h-16 w-16"
-                style={{ width: 64, height: 64 }}
-                contentFit="contain"
-                accessibilityIgnoresInvertColors
-              />
-            </View>
-            <View className="mb-5">
-              <ThemedText className="text-2xl font-semibold">
-                {t('reservationStepServiceTitle')}
-              </ThemedText>
-              <ThemedText className="text-base text-light-subtext dark:text-dark-subtext">
-                {t('reservationStepServiceSubtitle')}
-              </ThemedText>
-            </View>
-            {loadingEmployeeServices ? (
-              <View className="items-center py-10">
-                <ActivityIndicator size="small" />
-              </View>
-            ) : null}
-            {serviceCategories.map((category, categoryIndex) => (
-              <Section
-                key={`res-svc-cat-${category.key}-${categoryIndex}`}
-                title={category.name}
-                titleSize="lg"
-                className="mb-4">
-                <CardScroller className="mt-1.5 pb-1" space={12}>
-                  {category.services.map((service, serviceIndex) => {
-                    const isSelected = data.itemId === service.id;
-                    return (
-                      <Pressable
-                        key={`res-svc-${category.key}-${service.id}-${serviceIndex}`}
-                        onPress={() => selectServiceOption(service)}
-                        className="w-[160px] active:opacity-80">
-                        <View
-                          className="relative overflow-hidden rounded-2xl"
-                          style={
-                            isSelected
-                              ? { borderColor: colors.highlight, borderWidth: 2 }
-                              : undefined
-                          }>
-                          <Image
-                            source={
-                              service.imageUrl
-                                ? { uri: service.imageUrl }
-                                : require('@/assets/img/barbers.png')
-                            }
-                            className="h-[140px] w-[160px]"
-                            contentFit="cover"
-                          />
-                          <View className="absolute right-2 top-2 z-10 rounded-full bg-light-secondary px-2 py-1 dark:bg-dark-secondary">
-                            <ThemedText className="text-xs text-light-subtext dark:text-dark-subtext">
-                              {service.price} {t('reservationCurrencySuffix')}
-                            </ThemedText>
-                          </View>
-                        </View>
-                        <View className="w-full py-2">
-                          <ThemedText className="min-w-0 text-sm font-medium" numberOfLines={1}>
-                            {service.name}
-                          </ThemedText>
-                        </View>
-                      </Pressable>
-                    );
-                  })}
-                </CardScroller>
-              </Section>
-            ))}
-            {services.length === 0 ? (
-              <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext">
-                {t('reservationNoServices')}
               </ThemedText>
             ) : null}
           </ScrollView>
@@ -1460,9 +1813,9 @@ export default function ReservationCreateScreen() {
                 />
                 <View className="p-3">
                   <ThemedText className="text-base font-semibold">
-                    {selectedBranch?.name ?? '—'}
+                    {branchForServiceStep?.name ?? '—'}
                   </ThemedText>
-                  {selectedBranch?.address ? (
+                  {branchForServiceStep?.address ? (
                     <View className="mt-1.5 flex-row items-start">
                       <Icon
                         name="MapPin"
@@ -1470,7 +1823,7 @@ export default function ReservationCreateScreen() {
                         className="mr-1.5 mt-0.5 text-light-subtext dark:text-dark-subtext"
                       />
                       <ThemedText className="flex-1 text-sm text-light-subtext dark:text-dark-subtext">
-                        {selectedBranch.address}
+                        {branchForServiceStep.address}
                       </ThemedText>
                     </View>
                   ) : null}
@@ -1508,7 +1861,7 @@ export default function ReservationCreateScreen() {
                       numberOfLines={2}>
                       {selectedServiceName}
                       {selectedService
-                        ? ` · ${selectedService.price} ${t('reservationCurrencySuffix')}`
+                        ? ` · ${t('reservationPriceFromPrefix')} ${selectedService.price} ${t('reservationCurrencySuffix')}`
                         : ''}
                     </ThemedText>
                   ) : (
