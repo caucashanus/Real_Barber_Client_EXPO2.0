@@ -1,5 +1,6 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useFocusEffect } from '@react-navigation/native';
+import Constants from 'expo-constants';
 import { router } from 'expo-router';
 import * as Notifications from 'expo-notifications';
 import * as StoreReview from 'expo-store-review';
@@ -38,6 +39,22 @@ const APP_REVIEW_MIN_OPENS = 10;
 
 /** Profil → Nápověda (`/screens/help`). Nastav na `true`, až bude sekce znovu potřeba. */
 const SHOW_PROFILE_HELP_SECTION = false;
+
+/** Spodní badge s číslem verze (přizpůsobeno iOS/Android buildu). */
+function ProfileVersionBadge() {
+  const { t } = useTranslation();
+  const version =
+    Constants.nativeApplicationVersion ?? Constants.expoConfig?.version ?? '—';
+  return (
+    <View className="mt-8 items-center px-4 pb-8">
+      <View className="rounded-full bg-light-secondary px-4 py-2 dark:bg-dark-secondary">
+        <ThemedText className="text-center text-xs text-light-subtext dark:text-dark-subtext">
+          {t('profileAppVersionLabel')} – {version}
+        </ThemedText>
+      </View>
+    </View>
+  );
+}
 
 export default function ProfileScreen() {
   const { isBusinessMode } = useBusinessMode();
@@ -151,6 +168,7 @@ const HostProfile = () => {
             href="/screens/add-property-start"
           />
         </View>
+        <ProfileVersionBadge />
       </AnimatedView>
     </>
   );
@@ -317,6 +335,7 @@ const PersonalProfile = ({ onRegisterRefresh }: { onRegisterRefresh?: (fn: () =>
           }}
         />
       </View>
+      <ProfileVersionBadge />
     </AnimatedView>
   );
 };

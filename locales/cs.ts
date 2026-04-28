@@ -108,6 +108,7 @@ export const cs: Record<TranslationKey, string> = {
   profileGetHelp: 'Nápověda',
   profileReferrals: 'Doporučení',
   profileLogout: 'Odhlásit se',
+  profileAppVersionLabel: 'Verze aplikace',
   profileGuest: 'Host',
   profileNewToHosting: 'Nový v hostování?',
   profileNewToHostingDesc: 'Zjistěte, jak začít hostit a vydělat si navíc',

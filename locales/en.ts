@@ -104,6 +104,7 @@ export const en = {
   profileGetHelp: 'Get help',
   profileReferrals: 'Referrals',
   profileLogout: 'Logout',
+  profileAppVersionLabel: 'App version',
   profileGuest: 'Guest',
   profileNewToHosting: 'New to hosting?',
   profileNewToHostingDesc: 'Discover how to start hosting and earn extra income',
