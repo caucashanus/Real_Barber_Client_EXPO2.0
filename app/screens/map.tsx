@@ -261,7 +261,7 @@ const MapScreen = () => {
       <View className="flex-1 bg-light-primary dark:bg-dark-primary">
         <MapView
           ref={mapRef}
-          className="h-[100vh] w-full"
+          style={{ flex: 1, width: '100%' }}
           initialRegion={{
             latitude: PRAGUE_CENTER.lat - 0.055,
             longitude: PRAGUE_CENTER.lng - 0.015,
