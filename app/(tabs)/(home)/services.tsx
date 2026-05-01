@@ -1,4 +1,4 @@
-import React, { useRef, useContext, useEffect, useState } from 'react';
+import React, { useRef, useContext, useEffect, useState, useMemo } from 'react';
 import { View, Animated, ActivityIndicator } from 'react-native';
 
 import { ScrollContext } from './_layout';
@@ -20,6 +20,26 @@ const CATEGORY_SLUZBY = 'Služby';
 const CATEGORY_PACKAGES = 'Balíčky';
 const CATEGORY_BARVENI = 'Barvení';
 const CATEGORY_SLUZBY_DOMU = 'Služby domů';
+
+/** Pořadí karet v sekci Základní / Služby (názvy musí přesně odpovídat CRM). */
+const BASIC_SECTION_ITEM_ORDER = [
+  'Vlasy a Vousy',
+  'Vlasy',
+  'Vousy',
+  'Rychlé stříhání',
+  'Vlasy do 12 let',
+] as const;
+
+function sortItemsByNameOrder(items: Item[], orderedNames: readonly string[]): Item[] {
+  const rank = new Map(orderedNames.map((name, i) => [name, i]));
+  const tail = orderedNames.length;
+  return [...items].sort((a, b) => {
+    const ra = rank.has(a.name) ? rank.get(a.name)! : tail;
+    const rb = rank.has(b.name) ? rank.get(b.name)! : tail;
+    if (ra !== rb) return ra - rb;
+    return a.name.localeCompare(b.name, 'cs');
+  });
+}
 
 const ServicesScreen = () => {
   const scrollY = useContext(ScrollContext);
@@ -43,9 +63,12 @@ const ServicesScreen = () => {
   }, [apiToken]);
 
   const haircuts = items.filter((i) => i.category === CATEGORY_HAIRCUTS);
-  const basic = items.filter(
-    (i) => i.category === CATEGORY_BASIC || i.category === CATEGORY_SLUZBY
-  );
+  const basicOrdered = useMemo(() => {
+    const filtered = items.filter(
+      (i) => i.category === CATEGORY_BASIC || i.category === CATEGORY_SLUZBY
+    );
+    return sortItemsByNameOrder(filtered, BASIC_SECTION_ITEM_ORDER);
+  }, [items]);
   const packages = items.filter((i) => i.category === CATEGORY_PACKAGES);
   const coloring = items.filter((i) => i.category === CATEGORY_BARVENI);
   const homeServices = items.filter((i) => i.category === CATEGORY_SLUZBY_DOMU);
@@ -107,12 +130,12 @@ const ServicesScreen = () => {
           link="/screens/map"
           linkText={t('commonViewAll')}>
           <CardScroller space={15} className="mt-1.5 pb-4">
-            {basic.length === 0 ? (
+            {basicOrdered.length === 0 ? (
               <ThemedText className="py-4 text-light-subtext dark:text-dark-subtext">
                 {t('servicesNoItems')}
               </ThemedText>
             ) : (
-              basic.map((item) => (
+              basicOrdered.map((item) => (
                 <Card
                   key={item.id}
                   title={item.name}
