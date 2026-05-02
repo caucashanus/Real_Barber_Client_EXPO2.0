@@ -31,6 +31,7 @@ import { useAuth } from '@/app/contexts/AuthContext';
 import { useLanguage } from '@/app/contexts/LanguageContext';
 import useThemeColors from '@/app/contexts/ThemeColors';
 import { useTranslation } from '@/app/hooks/useTranslation';
+import type { TranslationKey } from '@/locales';
 import ActionSheetThemed from '@/components/ActionSheetThemed';
 import Avatar from '@/components/Avatar';
 import { Button } from '@/components/Button';
@@ -218,27 +219,25 @@ function branchDescription(branch: Branch): string {
   return raw.replace(/\s+/g, ' ').trim();
 }
 
-function getBranchMedia(
-  branch: Branch
-): { url: string; type?: 'image' | 'video'; order?: number }[] {
+function getBranchMedia(branch: Branch): { url: string; type?: 'image' | 'video'; order?: number }[] {
   const raw = branch.media;
   if (!raw) return [];
   const list = Array.isArray(raw) ? raw : Object.values(raw);
-  return list
-    .map((item) => {
-      if (!item || typeof item !== 'object') return null;
-      const url = (item as { url?: unknown }).url;
-      const type = (item as { type?: unknown }).type;
-      const order = (item as { order?: unknown }).order;
-      if (typeof url !== 'string' || url.trim() === '') return null;
-      return {
-        url,
-        type: type === 'video' ? 'video' : 'image',
-        order: typeof order === 'number' ? order : undefined,
-      };
-    })
-    .filter((x): x is { url: string; type?: 'image' | 'video'; order?: number } => x != null)
-    .sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
+  const out: { url: string; type?: 'image' | 'video'; order?: number }[] = [];
+  for (const item of list) {
+    if (!item || typeof item !== 'object') continue;
+    const url = (item as { url?: unknown }).url;
+    const type = (item as { type?: unknown }).type;
+    const order = (item as { order?: unknown }).order;
+    if (typeof url !== 'string' || url.trim() === '') continue;
+    const row: { url: string; type?: 'image' | 'video'; order?: number } = {
+      url,
+      type: type === 'video' ? 'video' : 'image',
+    };
+    if (typeof order === 'number') row.order = order;
+    out.push(row);
+  }
+  return out.sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
 }
 
 function getBranchCardImageSource(branch: Branch | null): string | number {
@@ -294,18 +293,18 @@ function getEmployeeMedia(employee: BranchEmployee): { url: string; type?: 'imag
     : typeof raw === 'object'
       ? Object.values(raw as Record<string, unknown>)
       : [];
-  return list
-    .map((item) => {
-      if (!item || typeof item !== 'object') return null;
-      const url = (item as { url?: unknown }).url;
-      const type = (item as { type?: unknown }).type;
-      if (typeof url !== 'string' || url.trim() === '') return null;
-      return {
-        url,
-        type: type === 'video' ? 'video' : 'image',
-      };
-    })
-    .filter((x): x is { url: string; type?: 'image' | 'video' } => x != null);
+  const out: { url: string; type?: 'image' | 'video' }[] = [];
+  for (const item of list) {
+    if (!item || typeof item !== 'object') continue;
+    const url = (item as { url?: unknown }).url;
+    const type = (item as { type?: unknown }).type;
+    if (typeof url !== 'string' || url.trim() === '') continue;
+    out.push({
+      url,
+      type: type === 'video' ? 'video' : 'image',
+    });
+  }
+  return out;
 }
 
 function toIsoDate(date: Date): string {
@@ -477,7 +476,7 @@ function employeeNearestSortKey(
 function formatEmployeeNearestSlotLabel(
   slot: EmployeesNearestNextSlot,
   dateLocaleTag: string,
-  t: (key: string) => string
+  t: (key: TranslationKey) => string
 ): string {
   const diff = calendarDayDiffFromToday(slot.date);
   const time = roundNearestSlotDisplayTime(slot.slotStart);

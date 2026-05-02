@@ -29,6 +29,7 @@ import Section from '@/components/layout/Section';
 import {
   getBookingUiStatusTranslationKey,
   isBookingCurrent,
+  isBookingMarkedCompleted,
   isBookingPast,
 } from '@/utils/bookingHelpers';
 
@@ -168,8 +169,7 @@ const BookingDetailScreen = () => {
     if (didAutoReviewRef.current) return;
     if (openReview !== '1') return;
     if (hasReview) return;
-    const status = (booking.status ?? '').toLowerCase();
-    if (status !== 'completed') return;
+    if (!isBookingMarkedCompleted(booking)) return;
 
     didAutoReviewRef.current = true;
     const entityName = encodeURIComponent(booking.item?.name ?? booking.branch?.name ?? 'Booking');
@@ -221,7 +221,7 @@ const BookingDetailScreen = () => {
   const location = booking.branch?.address ?? booking.branch?.name ?? '—';
   const status = (booking.status ?? '').toLowerCase();
   const isCancelled = status === 'cancelled' || status === 'canceled';
-  const isCompleted = status === 'completed';
+  const isCompleted = isBookingMarkedCompleted(booking);
   const isCurrent = !isCancelled && isBookingCurrent(booking);
   const isPast = !isCancelled && !isCurrent && (isCompleted || isBookingPast(booking));
   const isUpcoming = !isCancelled && !isCurrent && !isPast;
@@ -468,7 +468,9 @@ const BookingDetailScreen = () => {
           {isCurrent && (
             <View className="flex-1 flex-row items-center justify-center gap-2 py-3.5">
               <LiveIndicator variant="green" size="md" />
-              <ThemedText className="text-sm font-semibold">Probíhá</ThemedText>
+              <ThemedText className="text-sm font-semibold">
+                {t('bookingStatusInProgress')}
+              </ThemedText>
             </View>
           )}
           {isPast && (

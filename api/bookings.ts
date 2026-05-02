@@ -61,6 +61,29 @@ export interface BookingsResponse {
   pagination: BookingsPagination;
 }
 
+/** CRM vrací někdy `bookings`, někdy `reservations` – klient vždy pracuje s `bookings`. */
+function normalizeBookingsPayload(raw: unknown): BookingsResponse {
+  const obj = raw && typeof raw === 'object' ? (raw as Record<string, unknown>) : {};
+  const fromBookings = obj.bookings;
+  const fromReservations = obj.reservations;
+  const list = (Array.isArray(fromBookings)
+    ? fromBookings
+    : Array.isArray(fromReservations)
+      ? fromReservations
+      : []) as Booking[];
+  const pag = obj.pagination;
+  const pagination: BookingsPagination =
+    pag && typeof pag === 'object'
+      ? (pag as BookingsPagination)
+      : {
+          total: list.length,
+          limit: list.length,
+          offset: 0,
+          hasMore: false,
+        };
+  return { bookings: list, pagination };
+}
+
 export interface GetBookingsOptions {
   status?: string;
   limit?: number;
@@ -106,7 +129,8 @@ export async function getBookings(
   if (res.status === 401) throw new Error('Unauthorized');
   if (!res.ok) throw new Error(`Error ${res.status}`);
 
-  return res.json() as Promise<BookingsResponse>;
+  const raw = await res.json();
+  return normalizeBookingsPayload(raw);
 }
 
 /** Load one booking by id (paginates list until found or exhausted). */

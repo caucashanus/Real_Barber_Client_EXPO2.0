@@ -32,6 +32,7 @@ import {
   getBookingStartDate,
   getBookingUiStatusTranslationKey,
   isBookingCurrent,
+  isBookingMarkedCompleted,
   isBookingPast,
   isBookingUpcoming,
 } from '@/utils/bookingHelpers';
@@ -113,7 +114,7 @@ function countByFilter(
     const status = (b.status ?? '').toLowerCase();
     if (status === 'cancelled' || status === 'canceled') {
       cancelled += 1;
-    } else if (status === 'completed') {
+    } else if (isBookingMarkedCompleted(b)) {
       past += 1;
       if (bookingReviewMap[b.id] != null) {
         rated += 1;
