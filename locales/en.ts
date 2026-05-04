@@ -150,6 +150,7 @@ export const en = {
   homeSpotlightToday: "You have a booking today",
   homeSpotlightUpcoming: 'Upcoming booking',
   homeSpotlightReview: 'How was your experience?',
+  homeSpotlightReviewRated: 'You rated',
   homeSpotlightOngoing: 'In progress',
 
   // Trips / Bookings

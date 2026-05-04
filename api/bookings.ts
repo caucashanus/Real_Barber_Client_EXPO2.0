@@ -26,6 +26,13 @@ export interface BookingPayment {
   amount?: number | null;
 }
 
+/** Hodnocení klienta v GET /api/client/reservations (vnořený objekt). */
+export interface BookingClientReview {
+  hasReview: boolean;
+  rating: number | null;
+  note?: string | null;
+}
+
 export interface Booking {
   id: string;
   clientId: string;
@@ -47,6 +54,10 @@ export interface Booking {
   branch: BookingBranch;
   item: BookingItem;
   attachments?: unknown[];
+  /** Souhrn recenze klienta k této rezervaci (backend). */
+  clientReview?: BookingClientReview | null;
+  /** Zastaralé / alternativní pole z API */
+  clientReviewRating?: number | null;
 }
 
 export interface BookingsPagination {
@@ -61,7 +72,7 @@ export interface BookingsResponse {
   pagination: BookingsPagination;
 }
 
-/** CRM vrací někdy `bookings`, někdy `reservations` – klient vždy pracuje s `bookings`. */
+/** CRM vrací `reservations` (nebo legacy `bookings`) — klient vždy pracuje s `bookings`. */
 function normalizeBookingsPayload(raw: unknown): BookingsResponse {
   const obj = raw && typeof raw === 'object' ? (raw as Record<string, unknown>) : {};
   const fromBookings = obj.bookings;
@@ -117,7 +128,7 @@ export async function getBookings(
   if (options.offset !== undefined) params.set('offset', String(options.offset));
   if (options.upcoming !== undefined) params.set('upcoming', String(options.upcoming));
   const qs = params.toString();
-  const url = `${CRM_BASE}/api/client/bookings${qs ? `?${qs}` : ''}`;
+  const url = `${CRM_BASE}/api/client/reservations${qs ? `?${qs}` : ''}`;
 
   const res = await fetch(url, {
     method: 'GET',

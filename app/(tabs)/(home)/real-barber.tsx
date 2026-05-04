@@ -1,10 +1,10 @@
-import { Image } from 'expo-image';
+import { useFocusEffect } from '@react-navigation/native';
 import { router } from 'expo-router';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { ActivityIndicator, Pressable, RefreshControl, View } from 'react-native';
+import { Image } from 'expo-image';
 
 import { getBookings, type Booking } from '@/api/bookings';
-import { getClientOverview } from '@/api/reviews';
 import { useAccentColor } from '@/app/contexts/AccentColorContext';
 import { useAuth } from '@/app/contexts/AuthContext';
 import { useTranslation } from '@/app/hooks/useTranslation';
@@ -65,7 +65,6 @@ export default function RealBarberHomeTab() {
   const [recentLoading, setRecentLoading] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const [allBookings, setAllBookings] = useState<Booking[]>([]);
-  const [reviewedBookingIds, setReviewedBookingIds] = useState<Set<string>>(new Set());
   const [now, setNow] = useState(() => Date.now());
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
@@ -81,18 +80,12 @@ export default function RealBarberHomeTab() {
       setAllBookings([]);
       return;
     }
-    await Promise.allSettled([
-      getBookings(apiToken, { limit: 50, offset: 0 })
-        .then((res) => setAllBookings(res.bookings))
-        .catch(() => setAllBookings([])),
-      getClientOverview(apiToken)
-        .then((overview) => {
-          const ids = new Set<string>();
-          (overview.data?.reservations?.withReviews ?? []).forEach((r) => ids.add(r.id));
-          setReviewedBookingIds(ids);
-        })
-        .catch(() => {}),
-    ]);
+    try {
+      const res = await getBookings(apiToken, { limit: 50, offset: 0 });
+      setAllBookings(res.bookings);
+    } catch {
+      setAllBookings([]);
+    }
   }, [apiToken]);
 
   const onRefresh = useCallback(async () => {
@@ -106,10 +99,16 @@ export default function RealBarberHomeTab() {
     loadData().finally(() => setRecentLoading(false));
   }, [loadData]);
 
-  const spotlight = useMemo(
-    () => pickHomeSpotlight(allBookings, now, reviewedBookingIds),
-    [allBookings, now, reviewedBookingIds]
+  useFocusEffect(
+    useCallback(() => {
+      if (!apiToken) return;
+      void getBookings(apiToken, { limit: 50, offset: 0 })
+        .then((res) => setAllBookings(res.bookings))
+        .catch(() => {});
+    }, [apiToken])
   );
+
+  const spotlight = useMemo(() => pickHomeSpotlight(allBookings, now), [allBookings, now]);
 
   const recentBookings = useMemo(
     () =>
@@ -121,11 +120,7 @@ export default function RealBarberHomeTab() {
   );
 
   return (
-    <ThemeScroller
-      className="flex-1"
-      refreshControl={
-        <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={accentColor} />
-      }>
+    <ThemeScroller className="flex-1" refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={accentColor} />}>
       <NotificationPromptSheet />
       <View className="mt-4 px-global">
         {recentLoading ? null : spotlight ? (
@@ -205,7 +200,9 @@ export default function RealBarberHomeTab() {
                   router.push(`/screens/trip-detail?id=${encodeURIComponent(b.id)}` as any)
                 }
                 className="active:opacity-70">
-                {i > 0 && <View className="mx-4 h-px bg-neutral-200 dark:bg-neutral-700" />}
+                {i > 0 && (
+                  <View className="mx-4 h-px bg-neutral-200 dark:bg-neutral-700" />
+                )}
                 <View className="flex-row items-center gap-3 px-4 py-3">
                   <Avatar
                     size="md"
@@ -216,27 +213,17 @@ export default function RealBarberHomeTab() {
                     <ThemedText className="text-sm font-semibold" numberOfLines={1}>
                       {b.item?.name ?? t('homeRecentDefaultName')}
                     </ThemedText>
-                    <ThemedText
-                      className="mt-0.5 text-xs text-light-subtext dark:text-dark-subtext"
-                      numberOfLines={1}>
+                    <ThemedText className="mt-0.5 text-xs text-light-subtext dark:text-dark-subtext" numberOfLines={1}>
                       {b.employee?.name ?? '—'} · {b.branch?.name ?? ''}
                     </ThemedText>
                     <View className="mt-1 flex-row items-center gap-1">
-                      <Icon
-                        name="Calendar"
-                        size={11}
-                        className="text-light-subtext dark:text-dark-subtext"
-                      />
+                      <Icon name="Calendar" size={11} className="text-light-subtext dark:text-dark-subtext" />
                       <ThemedText className="text-xs text-light-subtext dark:text-dark-subtext">
                         {formatHomeBookingSlotLabel(b)}
                       </ThemedText>
                     </View>
                   </View>
-                  <Icon
-                    name="ChevronRight"
-                    size={16}
-                    className="text-light-subtext dark:text-dark-subtext"
-                  />
+                  <Icon name="ChevronRight" size={16} className="text-light-subtext dark:text-dark-subtext" />
                 </View>
               </Pressable>
             ))}

@@ -29,11 +29,7 @@ const COMPLETED_STATUS_NORMALIZED = new Set([
 ]);
 
 function normalizeStatusToken(booking: Booking): string {
-  return stripDiacritics(
-    String(booking.status ?? '')
-      .trim()
-      .toLowerCase()
-  )
+  return stripDiacritics(String(booking.status ?? '').trim().toLowerCase())
     .replace(/_/g, '')
     .replace(/\s+/g, '');
 }
@@ -56,9 +52,7 @@ function hasRecordedPayment(booking: Booking): boolean {
  * Zohledňuje synonyma statusu, případně zapsanou platbu (po uzavření u pokladny).
  */
 export function isBookingMarkedCompleted(booking: Booking): boolean {
-  const raw = String(booking.status ?? '')
-    .trim()
-    .toLowerCase();
+  const raw = String(booking.status ?? '').trim().toLowerCase();
   const compact = normalizeStatusToken(booking);
 
   if (compact && COMPLETED_STATUS_NORMALIZED.has(compact)) return true;
@@ -150,7 +144,9 @@ export type BookingUiStatusTranslationKey =
  * Stav pro UI (stejná logika jako karty v Rezervace / patička detailu).
  * Nepoužívá surový `booking.status` z API — ten může být anglicky (scheduled, …).
  */
-export function getBookingUiStatusTranslationKey(booking: Booking): BookingUiStatusTranslationKey {
+export function getBookingUiStatusTranslationKey(
+  booking: Booking
+): BookingUiStatusTranslationKey {
   const status = (booking.status ?? '').toLowerCase();
   const isCancelled = status === 'cancelled' || status === 'canceled';
   if (isCancelled) return 'bookingStatusCancelled';
@@ -158,4 +154,31 @@ export function getBookingUiStatusTranslationKey(booking: Booking): BookingUiSta
   if (isBookingCurrent(booking)) return 'bookingStatusInProgress';
   if (isBookingPast(booking)) return 'bookingStatusPast';
   return 'bookingStatusUpcoming';
+}
+
+/**
+ * Hodnocení 1–5 z objektu rezervace (`clientReview` z GET /api/client/reservations).
+ * Respektuje `hasReview`; akceptuje i `client_review` / `clientReviewRating`.
+ */
+export function getBookingClientReviewRating(booking: Booking): number | undefined {
+  const b = booking as Record<string, unknown>;
+  const nested = b.clientReview ?? b.client_review;
+  if (nested != null && typeof nested === 'object') {
+    const cr = nested as { hasReview?: unknown; rating?: unknown };
+    if (cr.hasReview === false) return undefined;
+    if (cr.rating == null) return undefined;
+    const n = typeof cr.rating === 'number' ? cr.rating : Number(String(cr.rating).trim().replace(',', '.'));
+    if (Number.isFinite(n) && n >= 1 && n <= 5) return Math.round(n);
+    return undefined;
+  }
+  for (const key of ['clientReviewRating', 'client_review_rating']) {
+    const v = b[key];
+    if (v == null) continue;
+    const n = typeof v === 'number' ? v : Number(String(v).trim().replace(',', '.'));
+    if (Number.isFinite(n)) {
+      const r = Math.round(n);
+      if (r >= 1 && r <= 5) return r;
+    }
+  }
+  return undefined;
 }

@@ -2,6 +2,7 @@ import type { Booking } from '@/api/bookings';
 import type { TranslationKey } from '@/locales';
 import {
   getBookingEndDate,
+  getBookingClientReviewRating,
   getBookingStartDate,
   isBookingDuringSlotAt,
   isBookingFutureStartAt,
@@ -32,15 +33,12 @@ export interface HomeSpotlight {
   booking: Booking;
   state: HomeSpotlightState;
   msUntilStart: number;
+  /** 1–5 z objektu rezervace (`clientReview` / `clientReviewRating` z API). */
+  existingReviewRating?: number;
 }
 
-export function isHomeSpotlightReviewEligible(
-  booking: Booking,
-  nowMs: number,
-  reviewedBookingIds: Set<string>
-): boolean {
+export function isHomeSpotlightReviewEligible(booking: Booking, nowMs: number): boolean {
   if (!isBookingNotCancelled(booking)) return false;
-  if (reviewedBookingIds.has(booking.id)) return false;
   const end = getBookingEndDate(booking).getTime();
   if (nowMs - end > HOME_SPOTLIGHT_REVIEW_MAX_AGE_MS) return false;
   if (isBookingMarkedCompleted(booking)) return true;
@@ -51,11 +49,7 @@ export function isHomeSpotlightReviewEligible(
  * Vybere jednu rezervaci pro horní kartu na Real Barber.
  * Priorita: probíhající slot → nejbližší budoucí (soon / today / upcoming) → recenze.
  */
-export function pickHomeSpotlight(
-  bookings: Booking[],
-  nowMs: number,
-  reviewedBookingIds: Set<string>
-): HomeSpotlight | null {
+export function pickHomeSpotlight(bookings: Booking[], nowMs: number): HomeSpotlight | null {
   const active = bookings.find((b) => isBookingDuringSlotAt(b, nowMs));
   if (active) {
     return { booking: active, state: 'current', msUntilStart: 0 };
@@ -81,11 +75,21 @@ export function pickHomeSpotlight(
   }
 
   const reviewCandidates = bookings
-    .filter((b) => isHomeSpotlightReviewEligible(b, nowMs, reviewedBookingIds))
-    .sort((a, b) => getBookingEndDate(b).getTime() - getBookingEndDate(a).getTime());
+    .filter((b) => isHomeSpotlightReviewEligible(b, nowMs))
+    .sort((a, b) => {
+      const done = (booking: Booking) => {
+        const r = getBookingClientReviewRating(booking);
+        return r != null && r >= 1;
+      };
+      const delta = Number(done(a)) - Number(done(b));
+      if (delta !== 0) return delta;
+      return getBookingEndDate(b).getTime() - getBookingEndDate(a).getTime();
+    });
 
   if (reviewCandidates.length > 0) {
-    return { booking: reviewCandidates[0], state: 'review', msUntilStart: 0 };
+    const booking = reviewCandidates[0];
+    const existingReviewRating = getBookingClientReviewRating(booking);
+    return { booking, state: 'review', msUntilStart: 0, existingReviewRating };
   }
 
   return null;

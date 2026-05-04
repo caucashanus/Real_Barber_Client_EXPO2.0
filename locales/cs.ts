@@ -154,6 +154,7 @@ export const cs: Record<TranslationKey, string> = {
   homeSpotlightToday: 'Dnes máte rezervaci',
   homeSpotlightUpcoming: 'Nadcházející rezervace',
   homeSpotlightReview: 'Jak jste byli spokojeni?',
+  homeSpotlightReviewRated: 'Ohodnotili jste',
   homeSpotlightOngoing: 'Právě probíhá',
 
   // Trips / Bookings

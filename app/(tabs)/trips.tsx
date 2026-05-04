@@ -11,7 +11,6 @@ import {
 } from 'react-native';
 
 import { CRM_BASE, getBookings, type Booking } from '@/api/bookings';
-import { getClientOverview, type ClientOverviewReservation } from '@/api/reviews';
 import { useAccentColor } from '@/app/contexts/AccentColorContext';
 import { useAuth } from '@/app/contexts/AuthContext';
 import { useBookingsBadge } from '@/app/contexts/BookingsBadgeContext';
@@ -29,6 +28,7 @@ import ThemeScroller from '@/components/ThemeScroller';
 import ThemedText from '@/components/ThemedText';
 import {
   getBookingEndDate,
+  getBookingClientReviewRating,
   getBookingStartDate,
   getBookingUiStatusTranslationKey,
   isBookingCurrent,
@@ -92,10 +92,7 @@ function groupBookingsByYear(
   return byYear;
 }
 
-function countByFilter(
-  bookings: Booking[],
-  bookingReviewMap: Record<string, number>
-): {
+function countByFilter(bookings: Booking[]): {
   current: number;
   upcoming: number;
   past: number;
@@ -112,11 +109,12 @@ function countByFilter(
   let pendingReview = 0;
   for (const b of bookings) {
     const status = (b.status ?? '').toLowerCase();
+    const hasReview = getBookingClientReviewRating(b) != null;
     if (status === 'cancelled' || status === 'canceled') {
       cancelled += 1;
     } else if (isBookingMarkedCompleted(b)) {
       past += 1;
-      if (bookingReviewMap[b.id] != null) {
+      if (hasReview) {
         rated += 1;
       } else {
         pendingReview += 1;
@@ -130,7 +128,7 @@ function countByFilter(
         upcoming += 1;
       } else {
         past += 1;
-        if (bookingReviewMap[b.id] != null) {
+        if (hasReview) {
           rated += 1;
         } else {
           pendingReview += 1;
@@ -236,12 +234,11 @@ const TripsScreen = () => {
   const { apiToken } = useAuth();
   const { refresh: refreshBookingsBadge } = useBookingsBadge();
   const [bookings, setBookings] = useState<Booking[]>([]);
-  const [bookingReviewMap, setBookingReviewMap] = useState<Record<string, number>>({});
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [selectedFilter, setSelectedFilter] = useState<BookingFilter>('all');
-  const counts = countByFilter(bookings, bookingReviewMap);
+  const counts = countByFilter(bookings);
 
   const filteredBookings =
     selectedFilter === 'all'
@@ -258,15 +255,14 @@ const TripsScreen = () => {
                   return status === 'cancelled' || status === 'canceled';
                 })
               : selectedFilter === 'rated'
-                ? bookings.filter((b) => isBookingPast(b) && bookingReviewMap[b.id] != null)
+                ? bookings.filter((b) => isBookingPast(b) && getBookingClientReviewRating(b) != null)
                 : selectedFilter === 'pending_review'
-                  ? bookings.filter((b) => isBookingPast(b) && bookingReviewMap[b.id] == null)
+                  ? bookings.filter((b) => isBookingPast(b) && getBookingClientReviewRating(b) == null)
                   : bookings;
 
   const loadData = useCallback(async () => {
     if (!apiToken) {
       setLoading(false);
-      setBookingReviewMap({});
       return;
     }
     setError(null);
@@ -274,23 +270,6 @@ const TripsScreen = () => {
       const res = await getBookings(apiToken);
       setBookings(res.bookings);
       refreshBookingsBadge();
-      try {
-        const overview = await getClientOverview(apiToken);
-        const map: Record<string, number> = {};
-        const withReviews = overview?.data?.reservations?.withReviews as
-          | ClientOverviewReservation[]
-          | undefined;
-        if (Array.isArray(withReviews)) {
-          withReviews.forEach((r) => {
-            const id = r.id;
-            const review = r.reviews?.[0];
-            if (id && review?.rating != null) map[id] = review.rating;
-          });
-        }
-        setBookingReviewMap(map);
-      } catch {
-        setBookingReviewMap({});
-      }
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Failed to load');
     } finally {
@@ -316,21 +295,6 @@ const TripsScreen = () => {
         .then((res) => {
           setBookings(res.bookings);
           refreshBookingsBadge();
-          return getClientOverview(apiToken);
-        })
-        .then((overview) => {
-          const map: Record<string, number> = {};
-          const withReviews = overview?.data?.reservations?.withReviews as
-            | ClientOverviewReservation[]
-            | undefined;
-          if (Array.isArray(withReviews)) {
-            withReviews.forEach((res) => {
-              const id = res.id;
-              const review = res.reviews?.[0];
-              if (id && review?.rating != null) map[id] = review.rating;
-            });
-          }
-          setBookingReviewMap(map);
         })
         .catch(() => {});
     }, [apiToken, refreshBookingsBadge])
@@ -448,7 +412,7 @@ const TripsScreen = () => {
                       key={booking.id}
                       booking={booking}
                       dateText={formatBookingDate(booking, locale)}
-                      reviewRating={bookingReviewMap[booking.id]}
+                      reviewRating={getBookingClientReviewRating(booking)}
                       onOpenReview={() => {
                         const imageParam = booking.item?.imageUrl
                           ? `&entityImage=${encodeURIComponent(booking.item.imageUrl)}`

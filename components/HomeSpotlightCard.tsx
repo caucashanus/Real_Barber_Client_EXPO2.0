@@ -28,7 +28,7 @@ export function HomeSpotlightCard({
   t: (key: TranslationKey) => string;
   locale: string;
 }) {
-  const { booking, state, msUntilStart } = spotlight;
+  const { booking, state, msUntilStart, existingReviewRating } = spotlight;
   const { isDark } = useTheme();
   const navSheetRef = useRef<ActionSheetRef>(null);
 
@@ -44,11 +44,15 @@ export function HomeSpotlightCard({
     }, 300);
   };
 
-  const titleKey = HOME_SPOTLIGHT_TITLE_KEY[state];
-  const subtitle =
-    state === 'today' ? formatHomeSpotlightCountdown(msUntilStart, locale) : null;
+  const titleKey: TranslationKey =
+    state === 'review' && existingReviewRating != null
+      ? 'homeSpotlightReviewRated'
+      : HOME_SPOTLIGHT_TITLE_KEY[state];
+  const subtitle = state === 'today' ? formatHomeSpotlightCountdown(msUntilStart, locale) : null;
   const showIndicator = state !== 'review';
   const indicatorVariant = state === 'current' ? 'green' : 'orange';
+  const starFilledColor = isDark ? '#fbbf24' : '#f59e0b';
+  const starEmptyColor = isDark ? '#525252' : '#d4d4d4';
 
   return (
     <>
@@ -69,7 +73,7 @@ export function HomeSpotlightCard({
                 <View className="flex-1 rounded-l-2xl bg-neutral-300 dark:bg-neutral-600" />
               )}
             </View>
-            <View className="flex-row flex-1 items-center gap-3 px-4 py-4">
+            <View className="flex-1 flex-row items-center gap-3 px-4 py-4">
               <Avatar
                 size="md"
                 src={booking.employee?.avatarUrl ?? undefined}
@@ -82,16 +86,26 @@ export function HomeSpotlightCard({
                       {t(titleKey)}
                     </ThemedText>
                     <View className="mt-3 flex-row gap-1.5">
-                      {([1, 2, 3, 4, 5] as const).map((rating) => (
-                        <Pressable
-                          key={rating}
-                          hitSlop={6}
-                          onPress={() =>
-                            router.push(getHomeSpotlightReviewPath(booking, rating) as any)
-                          }>
-                          <Icon name="Star" size={30} className="text-neutral-300 dark:text-neutral-600" />
-                        </Pressable>
-                      ))}
+                      {([1, 2, 3, 4, 5] as const).map((rating) => {
+                        const filled =
+                          existingReviewRating != null && rating <= existingReviewRating;
+                        return (
+                          <Pressable
+                            key={rating}
+                            hitSlop={6}
+                            onPress={() =>
+                              router.push(getHomeSpotlightReviewPath(booking, rating) as any)
+                            }>
+                            <Icon
+                              name="Star"
+                              size={30}
+                              color={filled ? starFilledColor : starEmptyColor}
+                              fill={filled ? starFilledColor : 'none'}
+                              strokeWidth={filled ? 1.5 : 2}
+                            />
+                          </Pressable>
+                        );
+                      })}
                     </View>
                   </View>
                 ) : (
@@ -115,7 +129,11 @@ export function HomeSpotlightCard({
                 ) : null}
               </View>
               {state !== 'soon' && (
-                <Icon name="ChevronRight" size={16} className="text-light-subtext dark:text-dark-subtext" />
+                <Icon
+                  name="ChevronRight"
+                  size={16}
+                  className="text-light-subtext dark:text-dark-subtext"
+                />
               )}
             </View>
           </View>
@@ -142,7 +160,7 @@ export function HomeSpotlightCard({
                 e.stopPropagation?.();
                 navSheetRef.current?.show();
               }}
-              className="absolute flex-row items-center gap-1 rounded-full bg-neutral-800 px-2.5 py-1 dark:bg-neutral-200 active:opacity-70"
+              className="absolute flex-row items-center gap-1 rounded-full bg-neutral-800 px-2.5 py-1 active:opacity-70 dark:bg-neutral-200"
               style={{ bottom: -10, right: 12 }}>
               <Icon name="Navigation" size={11} color={isDark ? '#171717' : '#ffffff'} />
               <ThemedText className="text-xs font-semibold text-white dark:text-neutral-900">
