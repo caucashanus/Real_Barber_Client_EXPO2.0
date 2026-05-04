@@ -7,6 +7,7 @@ import { ActionSheetRef } from 'react-native-actions-sheet';
 import {
   createBooking,
   getBookingAvailability,
+  type Booking,
   type BookingAvailabilityResponse,
 } from '@/api/bookings';
 import {
@@ -32,6 +33,12 @@ import { useLanguage } from '@/app/contexts/LanguageContext';
 import useThemeColors from '@/app/contexts/ThemeColors';
 import { useTranslation } from '@/app/hooks/useTranslation';
 import type { TranslationKey } from '@/locales';
+import { setFreshBookingSnapshot } from '@/utils/freshBookingSnapshot';
+import {
+  buildOptimisticBooking,
+  mergeApiBookingWithOptimistic,
+} from '@/utils/optimisticBooking';
+import { setPendingCalendarPromo } from '@/utils/pendingCalendarPromo';
 import ActionSheetThemed from '@/components/ActionSheetThemed';
 import Avatar from '@/components/Avatar';
 import { Button } from '@/components/Button';
@@ -627,7 +634,7 @@ export default function ReservationCreateScreen() {
   const presetItemId = trimParam(params.itemId);
   const presetItemName = trimParam(params.itemName);
 
-  const { apiToken } = useAuth();
+  const { apiToken, client } = useAuth();
   const { t } = useTranslation();
   const { locale } = useLanguage();
   const dateLocaleTag = locale === 'cs' ? 'cs-CZ' : 'en-GB';
@@ -1381,39 +1388,6 @@ export default function ReservationCreateScreen() {
     };
   }, [apiToken, data.employeeId, data.branchId, data.itemId, monthOffset, currentMonthKey]);
 
-  const handleCreateBooking = async () => {
-    if (!apiToken || creatingBooking) return;
-    setCreateBookingError(null);
-    setCreatingBooking(true);
-    try {
-      const payload = {
-        employeeId: data.employeeId,
-        branchId: data.branchId,
-        itemId: data.itemId,
-        date: data.date,
-        slotStart: data.slotStart,
-        // slotEnd může doplnit server podle délky služby
-        slotEnd: data.slotEnd.trim() !== '' ? data.slotEnd : undefined,
-        notes: '',
-      };
-      const created = await createBooking(apiToken, payload);
-      const createdId =
-        (typeof created.id === 'string' ? created.id : undefined) ??
-        (created.booking && typeof created.booking.id === 'string'
-          ? created.booking.id
-          : undefined);
-      if (createdId) {
-        router.replace(`/screens/trip-detail?id=${encodeURIComponent(createdId)}`);
-      } else {
-        router.replace('/screens/reservations');
-      }
-    } catch (e) {
-      setCreateBookingError(e instanceof Error ? e.message : 'Failed to create booking');
-    } finally {
-      setCreatingBooking(false);
-    }
-  };
-
   const selectDate = (dateValue: string) => {
     const d = new Date(dateValue);
     if (!Number.isNaN(d.getTime())) {
@@ -1470,6 +1444,70 @@ export default function ReservationCreateScreen() {
     if (!branchForServiceStep || !data.itemId) return null;
     return findServiceOptionOnBranch(branchForServiceStep, data.itemId);
   }, [employeeServices, branchForServiceStep, data.itemId]);
+
+  const handleCreateBooking = async () => {
+    if (!apiToken || creatingBooking) return;
+    setCreateBookingError(null);
+    setCreatingBooking(true);
+    try {
+      const payload = {
+        employeeId: data.employeeId,
+        branchId: data.branchId,
+        itemId: data.itemId,
+        date: data.date,
+        slotStart: data.slotStart,
+        // slotEnd může doplnit server podle délky služby
+        slotEnd: data.slotEnd.trim() !== '' ? data.slotEnd : undefined,
+        notes: '',
+      };
+      const created = await createBooking(apiToken, payload);
+      const createdId =
+        (typeof created.id === 'string' ? created.id : undefined) ??
+        (created.booking && typeof created.booking.id === 'string'
+          ? created.booking.id
+          : undefined);
+      if (createdId) {
+        const fallback = buildOptimisticBooking({
+          id: createdId,
+          clientId: client?.id ?? '',
+          employeeId: data.employeeId,
+          branchId: data.branchId,
+          itemId: data.itemId,
+          date: data.date,
+          slotStart: data.slotStart,
+          slotEnd: data.slotEnd.trim() !== '' ? data.slotEnd : undefined,
+          duration: data.duration,
+          price: selectedService?.price ?? 0,
+          branch: branchForServiceStep,
+          employee: selectedEmployee
+            ? {
+                id: selectedEmployee.id,
+                name: selectedEmployee.name,
+                avatarUrl: selectedEmployee.avatarUrl ?? null,
+              }
+            : null,
+          service: selectedService,
+        });
+        const merged =
+          created.booking && typeof created.booking === 'object'
+            ? mergeApiBookingWithOptimistic(
+                created.booking as Partial<Booking> & { id?: string },
+                fallback
+              )
+            : fallback;
+        setFreshBookingSnapshot(merged);
+        setPendingCalendarPromo(createdId);
+        router.replace(`/screens/trip-detail?id=${encodeURIComponent(createdId)}`);
+      } else {
+        router.replace('/screens/reservations');
+      }
+    } catch (e) {
+      setCreateBookingError(e instanceof Error ? e.message : 'Failed to create booking');
+    } finally {
+      setCreatingBooking(false);
+    }
+  };
+
   const selectedEmployeeName = selectedEmployee?.name ?? '—';
   const selectedServiceName =
     selectedService?.name ??

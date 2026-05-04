@@ -425,6 +425,10 @@ export const en = {
   bookingAddToCalendarDescription: 'Adds a calendar event with date, time, and location.',
   bookingCalendarNoteBarber: 'Barber',
   bookingAddToCalendarFailed: 'The calendar could not be opened. Please try again.',
+  tripDetailPostBookingCalendarTitle: 'Add to calendar?',
+  tripDetailPostBookingCalendarMessage:
+    "Your booking is confirmed. Save it to your calendar so you don't miss it.",
+  tripDetailPostBookingCalendarLater: 'Not now',
   bookingFrom: 'From',
   bookingTo: 'To',
   bookingDuration: 'Duration',

@@ -430,6 +430,10 @@ export const cs: Record<TranslationKey, string> = {
   bookingAddToCalendarDescription: 'Přidá událost s datem, časem a místem do kalendáře.',
   bookingCalendarNoteBarber: 'Kadeřník',
   bookingAddToCalendarFailed: 'Kalendář se nepodařilo otevřít. Zkuste to prosím znovu.',
+  tripDetailPostBookingCalendarTitle: 'Přidat do kalendáře?',
+  tripDetailPostBookingCalendarMessage:
+    'Rezervace je potvrzená. Uložte si termín do kalendáře, ať vám neuteče.',
+  tripDetailPostBookingCalendarLater: 'Teď ne',
   bookingFrom: 'Od',
   bookingTo: 'Do',
   bookingDuration: 'Délka',

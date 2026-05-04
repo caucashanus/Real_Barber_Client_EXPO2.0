@@ -8,15 +8,17 @@ import {
   Alert,
   Animated,
   Platform,
+  Modal,
 } from 'react-native';
 import { Image } from 'expo-image';
 import { ActionSheetRef } from 'react-native-actions-sheet';
 
-import { getBookings, cancelBooking, type Booking } from '../../api/bookings';
+import { getBookings, getBookingById, cancelBooking, type Booking } from '../../api/bookings';
 
 import { getBranches, type Branch, type BranchService } from '@/api/branches';
 import { getClientOverview, type ClientOverviewReservation } from '@/api/reviews';
 import { useAuth } from '@/app/contexts/AuthContext';
+import useThemeColors from '@/app/contexts/ThemeColors';
 import { useLanguage } from '@/app/contexts/LanguageContext';
 import { useSetTransferRecipient } from '@/app/contexts/TransferRecipientContext';
 import { useTranslation } from '@/app/hooks/useTranslation';
@@ -35,6 +37,14 @@ import ThemedText from '@/components/ThemedText';
 import Divider from '@/components/layout/Divider';
 import Section from '@/components/layout/Section';
 import { addBookingToCalendar } from '@/utils/bookingCalendar';
+import {
+  clearFreshBookingSnapshotIfMatches,
+  peekFreshBookingSnapshot,
+} from '@/utils/freshBookingSnapshot';
+import {
+  clearPendingCalendarPromo,
+  peekPendingCalendarPromo,
+} from '@/utils/pendingCalendarPromo';
 import {
   getBookingUiStatusTranslationKey,
   isBookingCurrent,
@@ -112,14 +122,25 @@ function formatCancelSheetWhen(b: Booking, locale: string): string {
 }
 
 const BookingDetailScreen = () => {
-  const { id, openReview } = useLocalSearchParams<{ id: string; openReview?: string }>();
+  const local = useLocalSearchParams<{
+    id: string | string[];
+    openReview?: string;
+    justBooked?: string | string[];
+  }>();
+  const id = (Array.isArray(local.id) ? local.id[0] : local.id) ?? '';
+  const openReview = local.openReview;
+  const justBooked = local.justBooked;
   const { apiToken } = useAuth();
   const { locale } = useLanguage();
   const { t } = useTranslation();
+  const colors = useThemeColors();
   const dateLocaleTag = locale === 'cs' ? 'cs-CZ' : 'en-GB';
   const setTransferRecipient = useSetTransferRecipient();
+  const promoTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const cancelSheetRef = useRef<ActionSheetRef>(null);
+  const didShowCalendarPromoRef = useRef(false);
   const heroScrollY = useRef(new Animated.Value(0)).current;
+  const [calendarPromoVisible, setCalendarPromoVisible] = useState(false);
   const [booking, setBooking] = useState<Booking | null>(null);
   const [branch, setBranch] = useState<Branch | null>(null);
   const [hasReview, setHasReview] = useState(false);
@@ -134,14 +155,64 @@ const BookingDetailScreen = () => {
     }
     setLoading(true);
     setError(null);
-    getBookings(apiToken, { limit: 50 })
-      .then((res) => {
+
+    let cancelled = false;
+
+    (async () => {
+      try {
+        const res = await getBookings(apiToken, { limit: 50 });
+        if (cancelled) return;
         const found = res.bookings.find((b) => b.id === id) ?? null;
-        setBooking(found);
-        if (!found) setError(t('bookingNotFound'));
-      })
-      .catch((e) => setError(e instanceof Error ? e.message : t('bookingLoadFailed')))
-      .finally(() => setLoading(false));
+        if (found) {
+          clearFreshBookingSnapshotIfMatches(id);
+          setBooking(found);
+          setError(null);
+          return;
+        }
+
+        const snap = peekFreshBookingSnapshot(id);
+        if (snap) {
+          setBooking(snap);
+          setError(null);
+        }
+
+        const fromServer = await getBookingById(apiToken, id);
+        if (cancelled) return;
+        if (fromServer) {
+          clearFreshBookingSnapshotIfMatches(id);
+          setBooking(fromServer);
+          setError(null);
+        } else if (!snap) {
+          setBooking(null);
+          setError(t('bookingNotFound'));
+        }
+      } catch (e) {
+        if (cancelled) return;
+        const snap = peekFreshBookingSnapshot(id);
+        if (snap) {
+          setBooking(snap);
+          setError(null);
+          try {
+            const fromServer = await getBookingById(apiToken, id);
+            if (!cancelled && fromServer) {
+              clearFreshBookingSnapshotIfMatches(id);
+              setBooking(fromServer);
+            }
+          } catch {
+            /* nechat snapshot */
+          }
+        } else {
+          setBooking(null);
+          setError(e instanceof Error ? e.message : t('bookingLoadFailed'));
+        }
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+    };
   }, [apiToken, id, t]);
 
   useEffect(() => {
@@ -172,6 +243,57 @@ const BookingDetailScreen = () => {
       })
       .catch(() => setHasReview(false));
   }, [apiToken, id]);
+
+  useEffect(() => {
+    didShowCalendarPromoRef.current = false;
+    setCalendarPromoVisible(false);
+  }, [id]);
+
+  useEffect(() => {
+    if (loading || !booking) return;
+
+    if (!(Platform.OS === 'ios' || Platform.OS === 'android')) {
+      if (peekPendingCalendarPromo(booking.id)) clearPendingCalendarPromo();
+      return;
+    }
+
+    const status = (booking.status ?? '').toLowerCase();
+    const isCancelled = status === 'cancelled' || status === 'canceled';
+    const isCompleted = isBookingMarkedCompleted(booking);
+    const isCurrent = !isCancelled && isBookingCurrent(booking);
+    const isPast = !isCancelled && !isCurrent && (isCompleted || isBookingPast(booking));
+    if (isCancelled || isPast) {
+      if (peekPendingCalendarPromo(booking.id)) clearPendingCalendarPromo();
+      return;
+    }
+
+    if (String(booking.id).trim().toLowerCase() !== String(id).trim().toLowerCase()) return;
+
+    const justBookedRaw = Array.isArray(justBooked) ? justBooked[0] : justBooked;
+    const fromUrl = String(justBookedRaw ?? '') === '1';
+    const fromMem = peekPendingCalendarPromo(booking.id);
+
+    if (!fromMem && !fromUrl) return;
+    if (didShowCalendarPromoRef.current) return;
+
+    promoTimerRef.current = setTimeout(() => {
+      promoTimerRef.current = null;
+      if (didShowCalendarPromoRef.current) return;
+      didShowCalendarPromoRef.current = true;
+      if (fromMem) clearPendingCalendarPromo();
+      setCalendarPromoVisible(true);
+      if (fromUrl) {
+        router.replace(`/screens/trip-detail?id=${encodeURIComponent(booking.id)}`);
+      }
+    }, 400);
+
+    return () => {
+      if (promoTimerRef.current != null) {
+        clearTimeout(promoTimerRef.current);
+        promoTimerRef.current = null;
+      }
+    };
+  }, [loading, booking, justBooked, id]);
 
   useEffect(() => {
     if (!booking) return;
@@ -576,6 +698,48 @@ const BookingDetailScreen = () => {
           }}
         />
       )}
+      <Modal
+        visible={calendarPromoVisible}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setCalendarPromoVisible(false)}>
+        <Pressable
+          className="flex-1 justify-end bg-black/50"
+          onPress={() => setCalendarPromoVisible(false)}>
+          <Pressable
+            className="gap-3 rounded-t-3xl px-4 pb-10 pt-4"
+            style={{ backgroundColor: colors.sheet }}
+            onPress={(e) => e.stopPropagation?.()}>
+            <ThemedText className="mb-1 text-center text-base font-semibold">
+              {t('tripDetailPostBookingCalendarTitle')}
+            </ThemedText>
+            <ThemedText className="text-center text-sm text-light-subtext dark:text-dark-subtext">
+              {t('tripDetailPostBookingCalendarMessage')}
+            </ThemedText>
+            <Button
+              title={t('bookingAddToCalendar')}
+              onPress={() => {
+                setCalendarPromoVisible(false);
+                setTimeout(() => {
+                  void addBookingToCalendar(booking, {
+                    noteBarberPrefix: t('bookingCalendarNoteBarber'),
+                    reservationNumberPrefix: t('bookingReservationNumber'),
+                    errorTitle: t('commonError'),
+                    errorMessage: t('bookingAddToCalendarFailed'),
+                  });
+                }, 320);
+              }}
+              variant="primary"
+              iconStart="CalendarPlus"
+            />
+            <Button
+              title={t('tripDetailPostBookingCalendarLater')}
+              onPress={() => setCalendarPromoVisible(false)}
+              variant="secondary"
+            />
+          </Pressable>
+        </Pressable>
+      </Modal>
     </>
   );
 };
