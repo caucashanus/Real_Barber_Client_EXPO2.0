@@ -118,7 +118,8 @@ export function formatHomeBookingSlotLabel(booking: Booking): string {
   return parts.join(' v ');
 }
 
-export function getHomeSpotlightReviewPath(booking: Booking, presetRating: number): string {
+/** Část URL bez úvodního `?` — společné parametry pro /screens/review ze spotlight karty. */
+export function getHomeSpotlightReviewQueryString(booking: Booking): string {
   const imageParam = booking.item?.imageUrl
     ? `&entityImage=${encodeURIComponent(booking.item.imageUrl)}`
     : '';
@@ -134,5 +135,14 @@ export function getHomeSpotlightReviewPath(booking: Booking, presetRating: numbe
   const branchParam = booking.branch?.name
     ? `&entityBranch=${encodeURIComponent(booking.branch.name)}`
     : '';
-  return `/screens/review?entityType=reservation&entityId=${encodeURIComponent(booking.id)}&entityName=${encodeURIComponent(booking.item?.name ?? 'Booking')}&presetRating=${presetRating}${imageParam}${employeeNameParam}${employeeAvatarParam}${dateParam}${timeParam}${branchParam}`;
+  return `entityType=reservation&entityId=${encodeURIComponent(booking.id)}&entityName=${encodeURIComponent(booking.item?.name ?? 'Booking')}${imageParam}${employeeNameParam}${employeeAvatarParam}${dateParam}${timeParam}${branchParam}`;
+}
+
+export function getHomeSpotlightReviewPath(booking: Booking, presetRating: number): string {
+  return `/screens/review?${getHomeSpotlightReviewQueryString(booking)}&presetRating=${presetRating}`;
+}
+
+/** Recenze ke stejné rezervaci bez předvolby hvězd (klik na kartu mimo hvězdy). */
+export function getHomeSpotlightReviewScreenPath(booking: Booking): string {
+  return `/screens/review?${getHomeSpotlightReviewQueryString(booking)}`;
 }

@@ -17,6 +17,7 @@ import {
   formatHomeBookingSlotLabel,
   formatHomeSpotlightCountdown,
   getHomeSpotlightReviewPath,
+  getHomeSpotlightReviewScreenPath,
 } from '@/utils/homeSpotlight';
 
 export function HomeSpotlightCard({
@@ -58,7 +59,10 @@ export function HomeSpotlightCard({
     <>
       <Pressable
         onPress={() => {
-          if (state === 'review') return;
+          if (state === 'review') {
+            router.push(getHomeSpotlightReviewScreenPath(booking) as any);
+            return;
+          }
           router.push(`/screens/trip-detail?id=${encodeURIComponent(booking.id)}` as any);
         }}
         className="active:opacity-70">
@@ -93,9 +97,10 @@ export function HomeSpotlightCard({
                           <Pressable
                             key={rating}
                             hitSlop={6}
-                            onPress={() =>
-                              router.push(getHomeSpotlightReviewPath(booking, rating) as any)
-                            }>
+                            onPress={(e) => {
+                              e.stopPropagation?.();
+                              router.push(getHomeSpotlightReviewPath(booking, rating) as any);
+                            }}>
                             <Icon
                               name="Star"
                               size={30}
