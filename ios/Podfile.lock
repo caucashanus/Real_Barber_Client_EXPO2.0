@@ -185,6 +185,8 @@ PODS:
     - ExpoModulesCore
   - ExpoBlur (55.0.13):
     - ExpoModulesCore
+  - ExpoCalendar (55.0.14):
+    - ExpoModulesCore
   - ExpoDomWebView (55.0.5):
     - ExpoModulesCore
   - ExpoFileSystem (55.0.15):
@@ -2629,6 +2631,7 @@ DEPENDENCIES:
   - expo-dev-menu-interface (from `../node_modules/expo-dev-menu-interface/ios`)
   - ExpoAsset (from `../node_modules/expo-asset/ios`)
   - ExpoBlur (from `../node_modules/expo-blur/ios`)
+  - ExpoCalendar (from `../node_modules/expo-calendar/ios`)
   - "ExpoDomWebView (from `../node_modules/@expo/dom-webview/ios`)"
   - ExpoFileSystem (from `../node_modules/expo-file-system/ios`)
   - ExpoFont (from `../node_modules/expo-font/ios`)
@@ -2779,6 +2782,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/expo-asset/ios"
   ExpoBlur:
     :path: "../node_modules/expo-blur/ios"
+  ExpoCalendar:
+    :path: "../node_modules/expo-calendar/ios"
   ExpoDomWebView:
     :path: "../node_modules/@expo/dom-webview/ios"
   ExpoFileSystem:
@@ -3016,6 +3021,7 @@ SPEC CHECKSUMS:
   expo-dev-menu-interface: 833795f4c98a674d36cbc12b11b21756c38e01e8
   ExpoAsset: 3636e70a874487efd0a677f6c064dbc9fc8f174b
   ExpoBlur: 7d0cba2858a2dc88c4eef56a170116ea74f33a42
+  ExpoCalendar: b6256830f2effeee5e8ba5e327fd6e3d0eb78683
   ExpoDomWebView: 2b2fbd9a07de8790569257cbf9dfdaa31cf95c70
   ExpoFileSystem: d40374bc7b6e990e2640e5dc3350fc83b1d74a40
   ExpoFont: cdd7a1d574a376fa003c713eff49e0a4df8672c7

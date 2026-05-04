@@ -26,7 +26,14 @@
       "expo-asset",
       "expo-image",
       "expo-sharing",
-      "expo-video"
+      "expo-video",
+      [
+        "expo-calendar",
+        {
+          "calendarPermission": "Aplikace může přidat termín do vašeho kalendáře.",
+          "remindersPermission": "Aplikace může přidat připomínku k termínu."
+        }
+      ]
     ],
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -44,7 +51,11 @@
       "buildNumber": "5",
       "supportsTablet": false,
       "infoPlist": {
-        "ITSAppUsesNonExemptEncryption": false
+        "ITSAppUsesNonExemptEncryption": false,
+        "NSCalendarsUsageDescription": "Aplikace může přidat termín do vašeho kalendáře.",
+        "NSCalendarsFullAccessUsageDescription": "Aplikace může přidat termín do vašeho kalendáře.",
+        "NSRemindersUsageDescription": "Aplikace může přidat připomínku k termínu.",
+        "NSRemindersFullAccessUsageDescription": "Aplikace může přidat připomínku k termínu."
       },
       "entitlements": {
         "com.apple.security.application-groups": ["group.com.realbarber.client"]

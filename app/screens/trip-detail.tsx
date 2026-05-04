@@ -1,6 +1,14 @@
 import { useLocalSearchParams, router } from 'expo-router';
-import React, { useEffect, useRef, useState } from 'react';
-import {View, ActivityIndicator, Pressable, Linking, Alert, Animated} from 'react-native';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
+import {
+  View,
+  ActivityIndicator,
+  Pressable,
+  Linking,
+  Alert,
+  Animated,
+  Platform,
+} from 'react-native';
 import { Image } from 'expo-image';
 import { ActionSheetRef } from 'react-native-actions-sheet';
 
@@ -26,6 +34,12 @@ import ThemedScroller from '@/components/ThemeScroller';
 import ThemedText from '@/components/ThemedText';
 import Divider from '@/components/layout/Divider';
 import Section from '@/components/layout/Section';
+import {
+  buildGoogleCalendarTemplateUrl,
+  getBookingCalendarLocation,
+  getBookingCalendarTimeRange,
+  getBookingCalendarTitle,
+} from '@/utils/bookingCalendar';
 import {
   getBookingUiStatusTranslationKey,
   isBookingCurrent,
@@ -190,6 +204,56 @@ const BookingDetailScreen = () => {
     );
   }, [booking, openReview, hasReview]);
 
+  const handleAddToCalendar = useCallback(async () => {
+    if (!booking) return;
+    const { startDate, endDate } = getBookingCalendarTimeRange(booking);
+    const title = getBookingCalendarTitle(booking);
+    const loc = getBookingCalendarLocation(booking);
+    const noteLines: string[] = [];
+    if (booking.employee?.name) {
+      noteLines.push(`${t('bookingCalendarNoteBarber')}: ${booking.employee.name}`);
+    }
+    noteLines.push(`${t('bookingReservationNumber')}: #${booking.id.slice(0, 8)}`);
+    const notes = noteLines.join('\n');
+
+    let calendarMod: typeof import('expo-calendar') | undefined;
+    try {
+      calendarMod = await import('expo-calendar');
+    } catch {
+      calendarMod = undefined;
+    }
+
+    if (calendarMod) {
+      try {
+        await calendarMod.createEventInCalendarAsync({
+          title,
+          startDate,
+          endDate,
+          location: loc || undefined,
+          notes,
+          alarms: [{ relativeOffset: -60 }],
+        });
+        return;
+      } catch {
+        Alert.alert(t('commonError'), t('bookingAddToCalendarFailed'));
+        return;
+      }
+    }
+
+    try {
+      const url = buildGoogleCalendarTemplateUrl({
+        title,
+        startDate,
+        endDate,
+        details: notes,
+        location: loc,
+      });
+      await Linking.openURL(url);
+    } catch {
+      Alert.alert(t('commonError'), t('bookingAddToCalendarFailed'));
+    }
+  }, [booking, t]);
+
   if (loading) {
     return (
       <>
@@ -225,6 +289,8 @@ const BookingDetailScreen = () => {
   const isCurrent = !isCancelled && isBookingCurrent(booking);
   const isPast = !isCancelled && !isCurrent && (isCompleted || isBookingPast(booking));
   const isUpcoming = !isCancelled && !isCurrent && !isPast;
+  const canAddToCalendar =
+    (Platform.OS === 'ios' || Platform.OS === 'android') && !isCancelled && !isPast;
   const cancelWhen = formatCancelSheetWhen(booking, locale);
   const cancelMessage = `${t('tripDetailCancelConfirmIntro')} ${cancelWhen} ${t('tripDetailCancelConfirmAtBranch')} ${booking.branch?.name ?? '—'}. ${t('tripDetailCancelConfirmNote')}`;
   const carouselImages =
@@ -346,6 +412,16 @@ const BookingDetailScreen = () => {
                   <ThemedText className="text-lg font-semibold">{appointment.toTime}</ThemedText>
                 </View>
               </View>
+              {canAddToCalendar ? (
+                <ListLink
+                  icon="CalendarPlus"
+                  title={t('bookingAddToCalendar')}
+                  description={t('bookingAddToCalendarDescription')}
+                  showChevron
+                  className="rounded-xl bg-light-secondary px-4 py-3 dark:bg-dark-secondary"
+                  onPress={handleAddToCalendar}
+                />
+              ) : null}
               <View className="flex-row items-center justify-between pt-2">
                 <View>
                   <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext">
