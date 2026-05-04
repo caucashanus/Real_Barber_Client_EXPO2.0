@@ -1,4 +1,6 @@
 import type { Booking } from '@/api/bookings';
+import { Alert, Linking } from 'react-native';
+
 import { getBookingEndDate, getBookingStartDate } from '@/utils/bookingHelpers';
 
 /** Začátek a konec události v lokálním čase zařízení (kalendářní den z `date`, časy ze slotů). */
@@ -17,11 +19,72 @@ export function getBookingCalendarTimeRange(booking: Booking): {
 export function getBookingCalendarTitle(booking: Booking): string {
   const service = (booking.item?.name ?? '').trim() || 'Real Barber';
   const branch = (booking.branch?.name ?? '').trim();
-  return branch ? `${service} — ${branch}` : service;
+  const core = branch ? `${service} — ${branch}` : service;
+  return `Real Barber - ${core}`;
 }
 
 export function getBookingCalendarLocation(booking: Booking): string {
   return (booking.branch?.address ?? booking.branch?.name ?? '').trim();
+}
+
+export interface BookingCalendarActionStrings {
+  noteBarberPrefix: string;
+  reservationNumberPrefix: string;
+  errorTitle: string;
+  errorMessage: string;
+}
+
+/** Nativní dialog kalendáře, jinak Google Calendar v prohlížeči. */
+export async function addBookingToCalendar(
+  booking: Booking,
+  strings: BookingCalendarActionStrings
+): Promise<void> {
+  const { startDate, endDate } = getBookingCalendarTimeRange(booking);
+  const title = getBookingCalendarTitle(booking);
+  const loc = getBookingCalendarLocation(booking);
+  const noteLines: string[] = [];
+  if (booking.employee?.name) {
+    noteLines.push(`${strings.noteBarberPrefix}: ${booking.employee.name}`);
+  }
+  noteLines.push(`${strings.reservationNumberPrefix}: #${booking.id.slice(0, 8)}`);
+  const notes = noteLines.join('\n');
+
+  let calendarMod: typeof import('expo-calendar') | undefined;
+  try {
+    calendarMod = await import('expo-calendar');
+  } catch {
+    calendarMod = undefined;
+  }
+
+  if (calendarMod) {
+    try {
+      await calendarMod.createEventInCalendarAsync({
+        title,
+        startDate,
+        endDate,
+        location: loc || undefined,
+        notes,
+        alarms: [{ relativeOffset: -60 }],
+      });
+      return;
+    } catch {
+      Alert.alert(strings.errorTitle, strings.errorMessage);
+      return;
+    }
+  }
+
+  try {
+    const url = buildGoogleCalendarTemplateUrl({
+      title,
+      startDate,
+      endDate,
+      details: notes,
+      location: loc,
+    });
+    await Linking.openURL(url);
+  } catch {
+    Alert.alert(strings.errorTitle, strings.errorMessage);
+  }
 }
 
 /** Záloha bez nativního `expo-calendar` — otevře přidání události v Google Kalendáři v prohlížeči. */

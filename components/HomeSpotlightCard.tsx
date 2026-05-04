@@ -1,6 +1,6 @@
 import { router } from 'expo-router';
 import React, { useRef } from 'react';
-import { Clipboard, Linking, Pressable, View } from 'react-native';
+import { Clipboard, Linking, Platform, Pressable, View } from 'react-native';
 import { type ActionSheetRef } from 'react-native-actions-sheet';
 
 import { useTheme } from '@/app/contexts/ThemeContext';
@@ -11,6 +11,7 @@ import Icon from '@/components/Icon';
 import LiveIndicator from '@/components/LiveIndicator';
 import ThemedText from '@/components/ThemedText';
 import type { TranslationKey } from '@/locales';
+import { addBookingToCalendar } from '@/utils/bookingCalendar';
 import {
   type HomeSpotlight,
   HOME_SPOTLIGHT_TITLE_KEY,
@@ -173,6 +174,30 @@ export function HomeSpotlightCard({
               </ThemedText>
             </Pressable>
           )}
+          {(state === 'upcoming' || state === 'today') &&
+          (Platform.OS === 'ios' || Platform.OS === 'android') ? (
+            <Pressable
+              accessibilityRole="button"
+              accessibilityLabel={t('bookingAddToCalendar')}
+              onPress={(e) => {
+                e.stopPropagation?.();
+                void addBookingToCalendar(booking, {
+                  noteBarberPrefix: t('bookingCalendarNoteBarber'),
+                  reservationNumberPrefix: t('bookingReservationNumber'),
+                  errorTitle: t('commonError'),
+                  errorMessage: t('bookingAddToCalendarFailed'),
+                });
+              }}
+              className="absolute max-w-[68%] flex-row items-center gap-1 rounded-full bg-neutral-800 px-2.5 py-1 active:opacity-70 dark:bg-neutral-200"
+              style={{ bottom: -10, right: 12 }}>
+              <Icon name="CalendarPlus" size={11} color={isDark ? '#171717' : '#ffffff'} />
+              <ThemedText
+                className="text-xs font-semibold text-white dark:text-neutral-900"
+                numberOfLines={1}>
+                {t('bookingAddToCalendar')}
+              </ThemedText>
+            </Pressable>
+          ) : null}
         </View>
       </Pressable>
       {state === 'soon' && (

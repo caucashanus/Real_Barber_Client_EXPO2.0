@@ -34,12 +34,7 @@ import ThemedScroller from '@/components/ThemeScroller';
 import ThemedText from '@/components/ThemedText';
 import Divider from '@/components/layout/Divider';
 import Section from '@/components/layout/Section';
-import {
-  buildGoogleCalendarTemplateUrl,
-  getBookingCalendarLocation,
-  getBookingCalendarTimeRange,
-  getBookingCalendarTitle,
-} from '@/utils/bookingCalendar';
+import { addBookingToCalendar } from '@/utils/bookingCalendar';
 import {
   getBookingUiStatusTranslationKey,
   isBookingCurrent,
@@ -206,52 +201,12 @@ const BookingDetailScreen = () => {
 
   const handleAddToCalendar = useCallback(async () => {
     if (!booking) return;
-    const { startDate, endDate } = getBookingCalendarTimeRange(booking);
-    const title = getBookingCalendarTitle(booking);
-    const loc = getBookingCalendarLocation(booking);
-    const noteLines: string[] = [];
-    if (booking.employee?.name) {
-      noteLines.push(`${t('bookingCalendarNoteBarber')}: ${booking.employee.name}`);
-    }
-    noteLines.push(`${t('bookingReservationNumber')}: #${booking.id.slice(0, 8)}`);
-    const notes = noteLines.join('\n');
-
-    let calendarMod: typeof import('expo-calendar') | undefined;
-    try {
-      calendarMod = await import('expo-calendar');
-    } catch {
-      calendarMod = undefined;
-    }
-
-    if (calendarMod) {
-      try {
-        await calendarMod.createEventInCalendarAsync({
-          title,
-          startDate,
-          endDate,
-          location: loc || undefined,
-          notes,
-          alarms: [{ relativeOffset: -60 }],
-        });
-        return;
-      } catch {
-        Alert.alert(t('commonError'), t('bookingAddToCalendarFailed'));
-        return;
-      }
-    }
-
-    try {
-      const url = buildGoogleCalendarTemplateUrl({
-        title,
-        startDate,
-        endDate,
-        details: notes,
-        location: loc,
-      });
-      await Linking.openURL(url);
-    } catch {
-      Alert.alert(t('commonError'), t('bookingAddToCalendarFailed'));
-    }
+    await addBookingToCalendar(booking, {
+      noteBarberPrefix: t('bookingCalendarNoteBarber'),
+      reservationNumberPrefix: t('bookingReservationNumber'),
+      errorTitle: t('commonError'),
+      errorMessage: t('bookingAddToCalendarFailed'),
+    });
   }, [booking, t]);
 
   if (loading) {

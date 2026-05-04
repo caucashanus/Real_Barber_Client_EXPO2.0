@@ -422,7 +422,7 @@ export const en = {
   bookingSendRbcTip: 'Send RBC as tip',
   bookingYourAppointment: 'Your appointment',
   bookingAddToCalendar: 'Add to calendar',
-  bookingAddToCalendarDescription: 'Open your calendar app to save this appointment',
+  bookingAddToCalendarDescription: 'Adds a calendar event with date, time, and location.',
   bookingCalendarNoteBarber: 'Barber',
   bookingAddToCalendarFailed: 'The calendar could not be opened. Please try again.',
   bookingFrom: 'From',

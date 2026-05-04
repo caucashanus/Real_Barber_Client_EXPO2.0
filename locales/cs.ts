@@ -427,7 +427,7 @@ export const cs: Record<TranslationKey, string> = {
   bookingSendRbcTip: 'Poslat RBC jako spropitné',
   bookingYourAppointment: 'Vaše návštěva',
   bookingAddToCalendar: 'Přidat do kalendáře',
-  bookingAddToCalendarDescription: 'Otevře kalendář v telefonu a uloží termín',
+  bookingAddToCalendarDescription: 'Přidá událost s datem, časem a místem do kalendáře.',
   bookingCalendarNoteBarber: 'Kadeřník',
   bookingAddToCalendarFailed: 'Kalendář se nepodařilo otevřít. Zkuste to prosím znovu.',
   bookingFrom: 'Od',
