@@ -83,7 +83,12 @@ export const cs: Record<TranslationKey, string> = {
   communicationChannel_telegram: 'Telegram',
   communicationChannel_sms: 'SMS',
   communicationChannel_email: 'E-mail',
-  communicationChannel_pushNotification: 'Push notifikace',
+  communicationChannel_pushNotification: 'Push notifikace · Doporučujeme ✓',
+  communicationChannel_pushNotificationHint:
+    'Nechte si zasílat přednostní uvolněné termíny, akční nabídky, slevy a tipy na produkty.',
+  communicationChannel_pushBasic: 'Push notifikace',
+  communicationChannel_pushBasicHint:
+    'Pouze základní notifikace — např. vytvoření, zrušení nebo přesunutí termínu rezervace.',
   communicationContent_newsAndPromotions: 'Novinky a akce',
   communicationContent_favoriteServicesAndProducts: 'Oblíbené služby a produkty',
   communicationContent_reviewsAndFeedback: 'Recenze a zpětná vazba',
@@ -156,6 +161,7 @@ export const cs: Record<TranslationKey, string> = {
   homeSpotlightReview: 'Jak jste byli spokojeni?',
   homeSpotlightReviewRated: 'Ohodnotili jste',
   homeSpotlightOngoing: 'Právě probíhá',
+  homePromoSectionTitle: 'Tipy a nabídky',
 
   // Trips / Bookings
   tripsTitle: 'Vaše rezervace',

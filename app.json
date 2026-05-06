@@ -2,13 +2,16 @@
   "expo": {
     "name": "Real Barber",
     "slug": "realbarber",
-    "version": "1.0.8",
-    "runtimeVersion": "1.0.0",
+    "version": "1.0.12",
+    "runtimeVersion": "1.0.12",
     "scheme": "realbarber",
     "experiments": {
       "tsconfigPaths": true
     },
-    "platforms": ["ios", "android"],
+    "platforms": [
+      "ios",
+      "android"
+    ],
     "plugins": [
       "expo-router",
       "expo-font",
@@ -43,12 +46,14 @@
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
-    "assetBundlePatterns": ["**/*"],
+    "assetBundlePatterns": [
+      "**/*"
+    ],
     "ios": {
       "deploymentTarget": "16.2",
       "appleTeamId": "VK8YT9654D",
       "bundleIdentifier": "com.realbarber.client",
-      "buildNumber": "5",
+      "buildNumber": "49",
       "supportsTablet": false,
       "infoPlist": {
         "ITSAppUsesNonExemptEncryption": false,
@@ -58,11 +63,14 @@
         "NSRemindersFullAccessUsageDescription": "Aplikace může přidat připomínku k termínu."
       },
       "entitlements": {
-        "com.apple.security.application-groups": ["group.com.realbarber.client"]
+        "com.apple.security.application-groups": [
+          "group.com.realbarber.client"
+        ]
       }
     },
     "android": {
       "package": "com.realbarber.client",
+      "versionCode": 48,
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"

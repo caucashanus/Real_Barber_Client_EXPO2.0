@@ -1,7 +1,13 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as Notifications from 'expo-notifications';
 import { Image } from 'expo-image';
-import React, { useEffect, useRef, useCallback } from 'react';
+import React, {
+  forwardRef,
+  useCallback,
+  useEffect,
+  useImperativeHandle,
+  useRef,
+} from 'react';
 import { Linking, View } from 'react-native';
 import { ActionSheetRef } from 'react-native-actions-sheet';
 
@@ -35,15 +41,29 @@ async function markDismissed(): Promise<void> {
   await AsyncStorage.setItem(NOTIF_DISMISSED_AT_KEY, String(Date.now())).catch(() => {});
 }
 
+export type NotificationPromptSheetHandle = {
+  /** Otevře vzdělávací sheet (Profil → zvoneček bez oprávnění). */
+  openPromptSheet: () => void;
+};
+
 interface NotificationPromptSheetProps {
   onPermissionGranted?: () => void;
+  /** Domovská Real Barber: automatická logika 3× návštěva + sheet při denied. Na Profilu vypni. */
+  enableAutoCheck?: boolean;
 }
 
-const NotificationPromptSheet: React.FC<NotificationPromptSheetProps> = ({
-  onPermissionGranted,
-}) => {
+const NotificationPromptSheet = forwardRef<
+  NotificationPromptSheetHandle,
+  NotificationPromptSheetProps
+>(({ onPermissionGranted, enableAutoCheck = true }, ref) => {
   const internalRef = useRef<ActionSheetRef>(null);
   const sheetRef = internalRef;
+
+  const openPromptSheet = useCallback(() => {
+    setTimeout(() => sheetRef.current?.show(), 100);
+  }, []);
+
+  useImperativeHandle(ref, () => ({ openPromptSheet }), [openPromptSheet]);
 
   const check = useCallback(async () => {
     const { status } = await Notifications.getPermissionsAsync();
@@ -67,8 +87,9 @@ const NotificationPromptSheet: React.FC<NotificationPromptSheetProps> = ({
   }, [onPermissionGranted]);
 
   useEffect(() => {
+    if (!enableAutoCheck) return;
     check();
-  }, [check]);
+  }, [check, enableAutoCheck]);
 
   const handleOpenSettings = async () => {
     sheetRef.current?.hide();
@@ -112,6 +133,8 @@ const NotificationPromptSheet: React.FC<NotificationPromptSheetProps> = ({
       </View>
     </ActionSheetThemed>
   );
-};
+});
+
+NotificationPromptSheet.displayName = 'NotificationPromptSheet';
 
 export default NotificationPromptSheet;

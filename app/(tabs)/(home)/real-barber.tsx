@@ -1,7 +1,8 @@
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useFocusEffect } from '@react-navigation/native';
 import { router } from 'expo-router';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { ActivityIndicator, Pressable, RefreshControl, View } from 'react-native';
+import { ActivityIndicator, Pressable, RefreshControl, ScrollView, View } from 'react-native';
 import { Image } from 'expo-image';
 
 import { getBookings, type Booking } from '@/api/bookings';
@@ -15,9 +16,29 @@ import NotificationPromptSheet from '@/components/NotificationPromptSheet';
 import ThemeScroller from '@/components/ThemeScroller';
 import ThemedText from '@/components/ThemedText';
 import Section from '@/components/layout/Section';
+import type { TranslationKey } from '@/locales';
 import { getBookingEndDate, isBookingPast } from '@/utils/bookingHelpers';
 import { pickHomeSpotlight, formatHomeBookingSlotLabel } from '@/utils/homeSpotlight';
 import { isReservationIntroCooldownActive } from '@/utils/reservation-intro-cooldown';
+import { shadowPresets } from '@/utils/useShadow';
+
+const HOME_PROMO_DISMISSED_KEY = 'real_barber_home_promo_dismissed';
+const HOME_PROMO_HIDE_MS = 24 * 60 * 60 * 1000;
+
+type HomePromoDef = {
+  titleKey: TranslationKey;
+  subtitleKey: TranslationKey;
+  nav: 'create' | 'path';
+  path?: string;
+};
+
+const HOME_PROMO_CARDS: HomePromoDef[] = [
+  { titleKey: 'productsPromoTitle', subtitleKey: 'productsPromoSubtitle', nav: 'create' },
+  { titleKey: 'productsPromoTitle2', subtitleKey: 'productsPromoSubtitle2', nav: 'path', path: '/products' },
+  { titleKey: 'productsPromoTitle3', subtitleKey: 'productsPromoSubtitle3', nav: 'path', path: '/branches' },
+  { titleKey: 'productsPromoTitle4', subtitleKey: 'productsPromoSubtitle4', nav: 'path', path: '/wallet' },
+  { titleKey: 'productsPromoTitle5', subtitleKey: 'productsPromoSubtitle5', nav: 'path', path: '/guides' },
+];
 
 export default function RealBarberHomeTab() {
   const { apiToken } = useAuth();
@@ -66,7 +87,54 @@ export default function RealBarberHomeTab() {
   const [refreshing, setRefreshing] = useState(false);
   const [allBookings, setAllBookings] = useState<Booking[]>([]);
   const [now, setNow] = useState(() => Date.now());
+  const [dismissedPromoAt, setDismissedPromoAt] = useState<Record<number, number>>({});
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+
+  useEffect(() => {
+    AsyncStorage.getItem(HOME_PROMO_DISMISSED_KEY).then((raw) => {
+      if (!raw) return;
+      try {
+        const parsed: Record<string, number> = JSON.parse(raw);
+        const nowMs = Date.now();
+        const next: Record<number, number> = {};
+        Object.entries(parsed).forEach(([k, ts]) => {
+          const idx = Number(k);
+          if (nowMs - ts < HOME_PROMO_HIDE_MS) next[idx] = ts;
+        });
+        setDismissedPromoAt(next);
+      } catch {
+        /* ignore */
+      }
+    });
+  }, []);
+
+  const handleDismissPromo = (index: number) => {
+    const ts = Date.now();
+    setDismissedPromoAt((prev) => {
+      const next = { ...prev, [index]: ts };
+      AsyncStorage.setItem(HOME_PROMO_DISMISSED_KEY, JSON.stringify(next)).catch(() => {});
+      return next;
+    });
+  };
+
+  const visiblePromoCards = useMemo(
+    () =>
+      HOME_PROMO_CARDS.map((def, index) => ({ def, index })).filter(({ index }) => {
+        const at = dismissedPromoAt[index];
+        if (!at) return true;
+        return now - at >= HOME_PROMO_HIDE_MS;
+      }),
+    [dismissedPromoAt, now]
+  );
+
+  const openPromoNav = async (def: HomePromoDef) => {
+    if (def.nav === 'create') {
+      const suppressed = await isReservationIntroCooldownActive();
+      router.push(suppressed ? '/screens/reservation-create' : '/screens/reservation-create-start');
+      return;
+    }
+    if (def.path) router.push(def.path as any);
+  };
 
   useEffect(() => {
     intervalRef.current = setInterval(() => setNow(Date.now()), 15000);
@@ -126,6 +194,52 @@ export default function RealBarberHomeTab() {
         {recentLoading ? null : spotlight ? (
           <View className="-mx-global mt-4">
             <HomeSpotlightCard spotlight={spotlight} t={t} locale={locale} />
+          </View>
+        ) : null}
+
+        {visiblePromoCards.length > 0 ? (
+          <View className="-mx-global mt-6">
+            <Section title={t('homePromoSectionTitle')} titleSize="md" />
+            <ScrollView
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              className="-mx-global"
+              contentContainerStyle={{
+                paddingHorizontal: 16,
+                paddingRight: 24,
+                paddingTop: 8,
+                paddingBottom: 4,
+              }}>
+              {visiblePromoCards.map(({ def, index }) => (
+                <View
+                  key={index}
+                  style={[shadowPresets.large, { width: 280, marginRight: 15 }]}
+                  className="relative flex-shrink-0 overflow-hidden rounded-2xl bg-light-secondary dark:bg-dark-secondary">
+                  <Pressable
+                    onPress={() => void openPromoNav(def)}
+                    className="p-5 pr-10 active:opacity-90">
+                    <ThemedText className="text-lg font-bold text-light-text dark:text-dark-text">
+                      {t(def.titleKey)}
+                    </ThemedText>
+                    <ThemedText className="mt-1 text-sm text-light-subtext dark:text-dark-subtext">
+                      {t(def.subtitleKey)}
+                    </ThemedText>
+                  </Pressable>
+                  <Pressable
+                    className="absolute right-2 top-2 rounded-full p-1.5 active:opacity-70"
+                    hitSlop={8}
+                    accessibilityRole="button"
+                    accessibilityLabel={t('commonCancel')}
+                    onPress={() => handleDismissPromo(index)}>
+                    <Icon
+                      name="X"
+                      size={18}
+                      className="text-light-subtext dark:text-dark-subtext"
+                    />
+                  </Pressable>
+                </View>
+              ))}
+            </ScrollView>
           </View>
         ) : null}
 

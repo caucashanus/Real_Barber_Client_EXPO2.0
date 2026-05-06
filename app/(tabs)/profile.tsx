@@ -23,6 +23,9 @@ import { useTranslation } from '@/app/hooks/useTranslation';
 import AnimatedView from '@/components/AnimatedView';
 import Avatar from '@/components/Avatar';
 import Header, { HeaderIcon } from '@/components/Header';
+import NotificationPromptSheet, {
+  type NotificationPromptSheetHandle,
+} from '@/components/NotificationPromptSheet';
 import ThemedText from '@/components/ThemedText';
 import ListLink from '@/components/ListLink';
 import ThemedScroller from '@/components/ThemeScroller';
@@ -62,6 +65,7 @@ export default function ProfileScreen() {
   const [notifStatus, setNotifStatus] = useState<'granted' | 'denied' | 'undetermined' | null>(null);
   const [refreshing, setRefreshing] = useState(false);
   const refreshFnRef = useRef<(() => Promise<void>) | null>(null);
+  const notifPromptRef = useRef<NotificationPromptSheetHandle>(null);
 
   const onRefresh = useCallback(async () => {
     setRefreshing(true);
@@ -75,6 +79,24 @@ export default function ProfileScreen() {
     }, [])
   );
 
+  const handleProfileBellPress = useCallback(async () => {
+    const { status } = await Notifications.getPermissionsAsync();
+    if (status === 'granted') {
+      router.push('/screens/notifications');
+      return;
+    }
+    if (status === 'undetermined') {
+      const { status: newStatus } = await Notifications.requestPermissionsAsync();
+      const { status: latest } = await Notifications.getPermissionsAsync();
+      setNotifStatus(latest);
+      if (newStatus === 'granted') {
+        router.push('/screens/notifications');
+        return;
+      }
+    }
+    notifPromptRef.current?.openPromptSheet();
+  }, []);
+
   const notifBadge = notifStatus === null ? null : (
     <View
       className={`absolute -left-1.5 -top-1 z-30 h-5 w-5 items-center justify-center rounded-full border border-white dark:border-dark-primary ${notifStatus === 'granted' ? 'bg-green-500' : 'bg-red-500'}`}>
@@ -86,10 +108,16 @@ export default function ProfileScreen() {
 
   return (
     <View className="flex-1 bg-light-primary dark:bg-dark-primary">
+      <NotificationPromptSheet ref={notifPromptRef} enableAutoCheck={false} />
       <Header
         leftComponent={<ThemeToggle />}
         rightComponents={[
-          <HeaderIcon key="notifications" icon="Bell" href="/screens/notifications" badge={notifBadge} />,
+          <HeaderIcon
+            key="notifications"
+            icon="Bell"
+            badge={notifBadge}
+            onPress={() => void handleProfileBellPress()}
+          />,
         ]}
       />
       <View className="flex-1 bg-light-primary dark:bg-dark-primary">

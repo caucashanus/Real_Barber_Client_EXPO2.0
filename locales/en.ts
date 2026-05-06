@@ -79,7 +79,12 @@ export const en = {
   communicationChannel_telegram: 'Telegram',
   communicationChannel_sms: 'SMS',
   communicationChannel_email: 'Email',
-  communicationChannel_pushNotification: 'Push notifications',
+  communicationChannel_pushNotification: 'Push notifications · Recommended ✓',
+  communicationChannel_pushNotificationHint:
+    'Get first pick of newly free slots, flash deals, discounts, and product tips.',
+  communicationChannel_pushBasic: 'Push notifications',
+  communicationChannel_pushBasicHint:
+    'Basic notifications only — e.g. when a booking is created, cancelled, or the time is moved.',
   communicationContent_newsAndPromotions: 'News and promotions',
   communicationContent_favoriteServicesAndProducts: 'Favorite services and products',
   communicationContent_reviewsAndFeedback: 'Reviews and feedback',
@@ -152,6 +157,7 @@ export const en = {
   homeSpotlightReview: 'How was your experience?',
   homeSpotlightReviewRated: 'You rated',
   homeSpotlightOngoing: 'In progress',
+  homePromoSectionTitle: 'Tips & offers',
 
   // Trips / Bookings
   tripsTitle: 'Your Bookings',

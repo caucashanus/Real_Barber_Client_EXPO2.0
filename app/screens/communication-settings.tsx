@@ -1,5 +1,7 @@
+import { useFocusEffect } from '@react-navigation/native';
+import * as Notifications from 'expo-notifications';
 import React, { useCallback, useEffect, useState } from 'react';
-import { View, ActivityIndicator, Alert } from 'react-native';
+import { View, ActivityIndicator, Alert, Linking } from 'react-native';
 
 import {
   getCommunicationSettings,
@@ -23,7 +25,6 @@ const CHANNEL_ROWS: { key: keyof CommunicationChannels; label: TranslationKey }[
   { key: 'telegram', label: 'communicationChannel_telegram' },
   { key: 'sms', label: 'communicationChannel_sms' },
   { key: 'email', label: 'communicationChannel_email' },
-  { key: 'pushNotification', label: 'communicationChannel_pushNotification' },
 ];
 
 const CONTENT_ROWS: { key: keyof CommunicationContentTypes; label: TranslationKey }[] = [
@@ -40,6 +41,20 @@ export default function CommunicationSettingsScreen() {
   const [error, setError] = useState<string | null>(null);
   const [channels, setChannels] = useState<CommunicationChannels | null>(null);
   const [contentTypes, setContentTypes] = useState<CommunicationContentTypes | null>(null);
+  const [pushPermissionStatus, setPushPermissionStatus] =
+    useState<Notifications.PermissionStatus | null>(null);
+
+  const refreshPushPermission = useCallback(() => {
+    return Notifications.getPermissionsAsync().then(({ status }) => {
+      setPushPermissionStatus(status);
+    });
+  }, []);
+
+  useFocusEffect(
+    useCallback(() => {
+      void refreshPushPermission();
+    }, [refreshPushPermission])
+  );
 
   useEffect(() => {
     if (!apiToken) {
@@ -111,6 +126,27 @@ export default function CommunicationSettingsScreen() {
     [channels, contentTypes, applyPatch]
   );
 
+  const onPushBasicChange = useCallback(
+    async (wantOn: boolean) => {
+      const { status } = await Notifications.getPermissionsAsync();
+      if (wantOn) {
+        if (status === 'granted') {
+          await refreshPushPermission();
+          return;
+        }
+        if (status === 'undetermined') {
+          await Notifications.requestPermissionsAsync();
+        } else {
+          await Linking.openSettings();
+        }
+      } else {
+        await Linking.openSettings();
+      }
+      await refreshPushPermission();
+    },
+    [refreshPushPermission]
+  );
+
   return (
     <View className="flex-1 bg-light-primary dark:bg-dark-primary">
       <Header showBackButton />
@@ -140,6 +176,7 @@ export default function CommunicationSettingsScreen() {
             <ThemedText className="mb-3 text-lg font-semibold text-light-text dark:text-dark-text">
               {t('communicationSettingsChannelsSection')}
             </ThemedText>
+
             {CHANNEL_ROWS.map(({ key, label }) => (
               <Switch
                 key={key}
@@ -149,6 +186,24 @@ export default function CommunicationSettingsScreen() {
                 className="mb-4"
               />
             ))}
+
+            <Switch
+              label={t('communicationChannel_pushBasic')}
+              description={t('communicationChannel_pushBasicHint')}
+              value={pushPermissionStatus === 'granted'}
+              onChange={(v) => void onPushBasicChange(v)}
+              className="mb-4"
+            />
+
+            {pushPermissionStatus === 'granted' ? (
+              <Switch
+                label={t('communicationChannel_pushNotification')}
+                description={t('communicationChannel_pushNotificationHint')}
+                value={channels.pushNotification}
+                onChange={(v) => void onChannelChange('pushNotification', v)}
+                className="mb-4"
+              />
+            ) : null}
 
             <Divider className="my-6" />
 

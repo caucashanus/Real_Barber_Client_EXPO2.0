@@ -358,12 +358,12 @@ const Header: React.FC<HeaderProps> = ({
 export default Header;
 
 type HeaderItemProps = {
-  href: string;
+  href?: string;
   icon: IconName;
   className?: string;
   hasBadge?: boolean;
   badge?: React.ReactNode;
-  onPress?: any;
+  onPress?: () => void;
   isWhite?: boolean;
   /** Icon size in px (touch area scales with it). Default 22. */
   iconSize?: number;
@@ -400,7 +400,7 @@ export const HeaderIcon = ({
             )}
           </View>
         </TouchableOpacity>
-      ) : (
+      ) : href ? (
         <Link href={href} asChild>
           <TouchableOpacity
             className="mb-2 overflow-visible"
@@ -419,7 +419,7 @@ export const HeaderIcon = ({
             </View>
           </TouchableOpacity>
         </Link>
-      )}
+      ) : null}
     </>
   );
 };
