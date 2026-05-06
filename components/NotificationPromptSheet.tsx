@@ -103,7 +103,7 @@ const NotificationPromptSheet = forwardRef<
   };
 
   return (
-    <ActionSheetThemed ref={sheetRef} gestureEnabled snapPoints={[100]}>
+    <ActionSheetThemed ref={sheetRef} gestureEnabled>
       <View className="p-4 pb-6">
         <ThemedText className="mb-1 mt-4 text-left text-lg font-bold">
           Nezmeškejte svou rezervaci
