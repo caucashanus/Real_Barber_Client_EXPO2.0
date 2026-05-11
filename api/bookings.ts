@@ -110,6 +110,7 @@ export interface CreateBookingBody {
   slotStart: string; // HH:MM
   slotEnd?: string;
   notes?: string;
+  couponCode?: string;
 }
 
 export interface CreateBookingResponse {
@@ -174,7 +175,18 @@ export async function createBooking(
 
   const text = await res.text();
   if (res.status === 401) throw new Error('Unauthorized');
-  if (res.status === 400) throw new Error('Invalid booking data or slot conflict');
+  if (res.status === 400) {
+    let msg = 'Invalid booking data or slot conflict';
+    try {
+      const parsed = JSON.parse(text) as { message?: string; error?: string };
+      if (parsed?.message) msg = parsed.message;
+      else if (typeof parsed?.error === 'string') msg = parsed.error;
+      else if (text) msg = `${msg}: ${text.slice(0, 200)}`;
+    } catch {
+      if (text) msg = `${msg}: ${text.slice(0, 200)}`;
+    }
+    throw new Error(msg);
+  }
   if (res.status === 404) throw new Error('Employee, branch, or service not found');
   if (res.status === 409) throw new Error('Booking conflict or duplicate');
   if (res.status === 500) throw new Error('Failed to create booking');

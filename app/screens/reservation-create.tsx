@@ -1,6 +1,6 @@
 import { router, useLocalSearchParams } from 'expo-router';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { View, ScrollView, Pressable, ActivityIndicator } from 'react-native';
+import { View, ScrollView, Pressable, ActivityIndicator, TextInput } from 'react-native';
 import { Image } from 'expo-image';
 import { ActionSheetRef } from 'react-native-actions-sheet';
 
@@ -10,6 +10,7 @@ import {
   type Booking,
   type BookingAvailabilityResponse,
 } from '@/api/bookings';
+import { previewCoupon, type CouponPreviewSuccess } from '@/api/coupons';
 import {
   getEmployeesNearest,
   type EmployeesNearestNextSlot,
@@ -33,6 +34,7 @@ import { useLanguage } from '@/app/contexts/LanguageContext';
 import useThemeColors from '@/app/contexts/ThemeColors';
 import { useTranslation } from '@/app/hooks/useTranslation';
 import type { TranslationKey } from '@/locales';
+import { dedupeAvailabilitySlots } from '@/utils/availabilitySlots';
 import { setFreshBookingSnapshot } from '@/utils/freshBookingSnapshot';
 import {
   buildOptimisticBooking,
@@ -689,6 +691,15 @@ export default function ReservationCreateScreen() {
     { price: number; nextSlot: EmployeesNearestNextSlot | null }
   > | null>(null);
   const [loadingEmployeesNearest, setLoadingEmployeesNearest] = useState(false);
+  const [couponCodeInput, setCouponCodeInput] = useState('');
+  const [couponPreview, setCouponPreview] = useState<CouponPreviewSuccess | null>(null);
+  const [couponPreviewError, setCouponPreviewError] = useState<string | null>(null);
+  const [couponVerifying, setCouponVerifying] = useState(false);
+
+  useEffect(() => {
+    setCouponPreview(null);
+    setCouponPreviewError(null);
+  }, [data.employeeId, data.branchId, data.itemId]);
 
   const resetFlowAfterStep = useCallback(
     (stepIndex: number) => {
@@ -1217,7 +1228,7 @@ export default function ReservationCreateScreen() {
   }, [apiToken, data.branchId, data.itemId]);
 
   const groupedSlots = useMemo(() => {
-    const slots = availability?.availability?.slots ?? [];
+    const slots = dedupeAvailabilitySlots(availability?.availability?.slots ?? []);
     const morning = slots.filter((s) => timeToMinutes(s.start) < 12 * 60);
     const afternoon = slots.filter(
       (s) => timeToMinutes(s.start) >= 12 * 60 && timeToMinutes(s.start) < 17 * 60
@@ -1445,11 +1456,71 @@ export default function ReservationCreateScreen() {
     return findServiceOptionOnBranch(branchForServiceStep, data.itemId);
   }, [employeeServices, branchForServiceStep, data.itemId]);
 
+  const formatReservationPrice = useCallback(
+    (value: number) =>
+      value.toLocaleString(dateLocaleTag, {
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 0,
+      }),
+    [dateLocaleTag]
+  );
+
+  const onCouponCodeChange = useCallback((text: string) => {
+    setCouponCodeInput(text);
+    setCouponPreview(null);
+    setCouponPreviewError(null);
+  }, []);
+
+  const handleVerifyCoupon = useCallback(async () => {
+    if (!apiToken || couponVerifying) return;
+    const code = couponCodeInput.trim();
+    if (!code) {
+      setCouponPreviewError(t('reservationCouponEmpty'));
+      return;
+    }
+    if (!data.employeeId || !data.branchId || !data.itemId) {
+      setCouponPreviewError(t('reservationCouponIncompleteSelection'));
+      return;
+    }
+    setCouponPreviewError(null);
+    setCouponVerifying(true);
+    try {
+      const preview = await previewCoupon(apiToken, {
+        couponCode: code,
+        employeeId: data.employeeId,
+        branchId: data.branchId,
+        itemId: data.itemId,
+      });
+      setCouponPreview(preview);
+    } catch (e) {
+      setCouponPreview(null);
+      setCouponPreviewError(
+        e instanceof Error ? e.message : t('reservationCouponVerifyFailed')
+      );
+    } finally {
+      setCouponVerifying(false);
+    }
+  }, [
+    apiToken,
+    couponVerifying,
+    couponCodeInput,
+    data.employeeId,
+    data.branchId,
+    data.itemId,
+    t,
+  ]);
+
   const handleCreateBooking = async () => {
     if (!apiToken || creatingBooking) return;
     setCreateBookingError(null);
     setCreatingBooking(true);
     try {
+      const trimmedCoupon = couponCodeInput.trim();
+      const verifiedCoupon =
+        trimmedCoupon !== '' &&
+        couponPreview !== null &&
+        couponPreview.couponCode.trim().toLowerCase() === trimmedCoupon.toLowerCase();
+
       const payload = {
         employeeId: data.employeeId,
         branchId: data.branchId,
@@ -1459,6 +1530,7 @@ export default function ReservationCreateScreen() {
         // slotEnd může doplnit server podle délky služby
         slotEnd: data.slotEnd.trim() !== '' ? data.slotEnd : undefined,
         notes: '',
+        ...(verifiedCoupon ? { couponCode: trimmedCoupon } : {}),
       };
       const created = await createBooking(apiToken, payload);
       const createdId =
@@ -1467,6 +1539,10 @@ export default function ReservationCreateScreen() {
           ? created.booking.id
           : undefined);
       if (createdId) {
+        const optimisticPrice =
+          verifiedCoupon && couponPreview
+            ? couponPreview.finalPrice
+            : selectedService?.price ?? 0;
         const fallback = buildOptimisticBooking({
           id: createdId,
           clientId: client?.id ?? '',
@@ -1477,7 +1553,7 @@ export default function ReservationCreateScreen() {
           slotStart: data.slotStart,
           slotEnd: data.slotEnd.trim() !== '' ? data.slotEnd : undefined,
           duration: data.duration,
-          price: selectedService?.price ?? 0,
+          price: optimisticPrice,
           branch: branchForServiceStep,
           employee: selectedEmployee
             ? {
@@ -2186,6 +2262,73 @@ export default function ReservationCreateScreen() {
                   </ThemedText>
                   <ThemedText className="text-sm font-semibold">{data.duration} min</ThemedText>
                 </View>
+              ) : null}
+            </Section>
+
+            <Divider className="mt-4 h-2 bg-light-secondary dark:bg-dark-darker" />
+
+            <Section title={t('reservationCouponSectionTitle')} titleSize="lg" className="pb-1 pt-3">
+              <View className="mt-2 flex-row items-stretch gap-2">
+                <TextInput
+                  placeholder={t('reservationCouponPlaceholder')}
+                  placeholderTextColor="#888"
+                  value={couponCodeInput}
+                  onChangeText={onCouponCodeChange}
+                  autoCapitalize="characters"
+                  autoCorrect={false}
+                  editable={!couponVerifying}
+                  className="min-h-[44px] flex-1 rounded-xl border border-neutral-400/30 bg-light-secondary px-3 py-2 text-base text-light-text dark:border-neutral-500/40 dark:bg-dark-secondary dark:text-dark-text"
+                />
+                <Button
+                  title={t('reservationCouponVerify')}
+                  variant="outline"
+                  size="small"
+                  loading={couponVerifying}
+                  disabled={couponVerifying}
+                  onPress={handleVerifyCoupon}
+                  className="self-center px-3"
+                />
+              </View>
+              {couponPreview ? (
+                <View className="mt-3 rounded-xl bg-light-secondary p-3 dark:bg-dark-secondary">
+                  {couponPreview.couponName ? (
+                    <ThemedText className="mb-2 text-sm font-semibold text-light-text dark:text-dark-text">
+                      {couponPreview.couponName}
+                    </ThemedText>
+                  ) : null}
+                  <View className="flex-row items-center justify-between py-0.5">
+                    <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext">
+                      {t('reservationCouponOriginalPrice')}
+                    </ThemedText>
+                    <ThemedText className="text-sm font-medium">
+                      {formatReservationPrice(couponPreview.originalPrice)}{' '}
+                      {t('reservationCurrencySuffix')}
+                    </ThemedText>
+                  </View>
+                  <View className="flex-row items-center justify-between py-0.5">
+                    <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext">
+                      {t('reservationCouponDiscount')}
+                    </ThemedText>
+                    <ThemedText className="text-sm font-medium text-emerald-600 dark:text-emerald-400">
+                      −{formatReservationPrice(couponPreview.discountAmount)}{' '}
+                      {t('reservationCurrencySuffix')}
+                    </ThemedText>
+                  </View>
+                  <View className="mt-1 flex-row items-center justify-between border-t border-neutral-400/20 pt-2 dark:border-neutral-500/25">
+                    <ThemedText className="text-sm font-semibold">
+                      {t('reservationCouponFinalPrice')}
+                    </ThemedText>
+                    <ThemedText className="text-base font-bold">
+                      {formatReservationPrice(couponPreview.finalPrice)}{' '}
+                      {t('reservationCurrencySuffix')}
+                    </ThemedText>
+                  </View>
+                </View>
+              ) : null}
+              {couponPreviewError ? (
+                <ThemedText className="mt-2 text-sm text-red-500 dark:text-red-400">
+                  {couponPreviewError}
+                </ThemedText>
               ) : null}
             </Section>
 

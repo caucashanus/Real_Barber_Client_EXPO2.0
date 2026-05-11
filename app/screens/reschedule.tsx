@@ -21,6 +21,7 @@ import ThemedFooter from '@/components/ThemeFooter';
 import ThemedText from '@/components/ThemedText';
 import CurrentBookingCard from '@/components/booking/CurrentBookingCard';
 import Section from '@/components/layout/Section';
+import { dedupeAvailabilitySlots } from '@/utils/availabilitySlots';
 
 function toIsoDate(d: Date): string {
   const y = d.getFullYear();
@@ -143,7 +144,7 @@ export default function RescheduleScreen() {
   }, [monthOffset, dateLocaleTag]);
 
   const groupedSlots = useMemo(() => {
-    const slots = availability?.availability?.slots ?? [];
+    const slots = dedupeAvailabilitySlots(availability?.availability?.slots ?? []);
     const morning = slots.filter((s) => timeToMinutes(s.start) < 12 * 60);
     const afternoon = slots.filter(
       (s) => timeToMinutes(s.start) >= 12 * 60 && timeToMinutes(s.start) < 17 * 60

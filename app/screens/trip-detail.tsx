@@ -24,6 +24,7 @@ import { useSetTransferRecipient } from '@/app/contexts/TransferRecipientContext
 import { useTranslation } from '@/app/hooks/useTranslation';
 import AnimatedView from '@/components/AnimatedView';
 import Avatar from '@/components/Avatar';
+import { BranchNavigateSheet, getBranchNavigateMapsQuery } from '@/components/BranchNavigateSheet';
 import { Button } from '@/components/Button';
 import ConfirmationModal from '@/components/ConfirmationModal';
 import Header from '@/components/Header';
@@ -138,6 +139,7 @@ const BookingDetailScreen = () => {
   const setTransferRecipient = useSetTransferRecipient();
   const promoTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const cancelSheetRef = useRef<ActionSheetRef>(null);
+  const branchNavigateRef = useRef<ActionSheetRef>(null);
   const didShowCalendarPromoRef = useRef(false);
   const heroScrollY = useRef(new Animated.Value(0)).current;
   const [calendarPromoVisible, setCalendarPromoVisible] = useState(false);
@@ -366,6 +368,12 @@ const BookingDetailScreen = () => {
   const isCurrent = !isCancelled && isBookingCurrent(booking);
   const isPast = !isCancelled && !isCurrent && (isCompleted || isBookingPast(booking));
   const isUpcoming = !isCancelled && !isCurrent && !isPast;
+  const canOpenBranchNavigate =
+    !isCancelled &&
+    getBranchNavigateMapsQuery(
+      booking.branch?.name ?? branch?.name,
+      booking.branch?.address ?? branch?.address
+    ) !== '';
   const canAddToCalendar =
     (Platform.OS === 'ios' || Platform.OS === 'android') && !isCancelled && !isPast;
   const cancelWhen = formatCancelSheetWhen(booking, locale);
@@ -412,6 +420,20 @@ const BookingDetailScreen = () => {
                 {location}
               </ThemedText>
             </View>
+            {canOpenBranchNavigate ? (
+              <Pressable
+                accessibilityRole="button"
+                accessibilityLabel={t('branchNavigateSectionTitle')}
+                onPress={() => branchNavigateRef.current?.show()}
+                className="mt-3 flex-row items-center gap-2 self-start rounded-xl bg-light-secondary px-3 py-2 active:opacity-80 dark:bg-dark-secondary">
+                <Icon
+                  name="Navigation"
+                  size={16}
+                  className="text-light-text dark:text-dark-text"
+                />
+                <ThemedText className="text-sm font-semibold">{t('branchNavigateSectionTitle')}</ThemedText>
+              </Pressable>
+            ) : null}
           </View>
 
           <Divider className="h-2 bg-light-secondary dark:bg-dark-darker" />
@@ -610,6 +632,12 @@ const BookingDetailScreen = () => {
           </Section>
         </AnimatedView>
       </ThemedScroller>
+
+      <BranchNavigateSheet
+        ref={branchNavigateRef}
+        branchName={booking.branch?.name ?? branch?.name}
+        address={booking.branch?.address ?? branch?.address}
+      />
 
       <ThemedFooter>
         <View className="flex-row overflow-hidden rounded-2xl bg-light-secondary dark:bg-dark-secondary">
