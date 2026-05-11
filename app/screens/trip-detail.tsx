@@ -407,33 +407,37 @@ const BookingDetailScreen = () => {
           </View>
 
           <View className="px-global pb-4 pt-6">
-            <ThemedText className="mb-2 text-2xl font-bold">
-              {booking.branch?.name ?? '—'}
-            </ThemedText>
-            <View className="flex-row items-center">
+            <View className="mb-2 flex-row items-start justify-between gap-2">
+              <ThemedText className="min-w-0 flex-1 shrink pr-1 text-2xl font-bold">
+                {booking.branch?.name ?? '—'}
+              </ThemedText>
+              {canOpenBranchNavigate ? (
+                <Pressable
+                  accessibilityRole="button"
+                  accessibilityLabel={t('branchNavigateSectionTitle')}
+                  onPress={() => branchNavigateRef.current?.show()}
+                  className="mt-0.5 h-9 w-[128px] shrink-0 flex-row items-center justify-center gap-1 rounded-full bg-light-secondary active:opacity-80 dark:bg-dark-secondary">
+                  <Icon
+                    name="Navigation"
+                    size={14}
+                    className="text-light-text dark:text-dark-text"
+                  />
+                  <ThemedText className="text-center text-sm font-semibold">
+                    {t('branchNavigateSectionTitle')}
+                  </ThemedText>
+                </Pressable>
+              ) : null}
+            </View>
+            <View className="mb-2 flex-row items-start gap-2">
               <Icon
                 name="MapPin"
                 size={16}
-                className="mr-2 text-light-subtext dark:text-dark-subtext"
+                className="mt-0.5 shrink-0 text-light-subtext dark:text-dark-subtext"
               />
-              <ThemedText className="text-light-subtext dark:text-dark-subtext">
+              <ThemedText className="min-w-0 flex-1 text-light-subtext leading-snug dark:text-dark-subtext">
                 {location}
               </ThemedText>
             </View>
-            {canOpenBranchNavigate ? (
-              <Pressable
-                accessibilityRole="button"
-                accessibilityLabel={t('branchNavigateSectionTitle')}
-                onPress={() => branchNavigateRef.current?.show()}
-                className="mt-3 flex-row items-center gap-2 self-start rounded-xl bg-light-secondary px-3 py-2 active:opacity-80 dark:bg-dark-secondary">
-                <Icon
-                  name="Navigation"
-                  size={16}
-                  className="text-light-text dark:text-dark-text"
-                />
-                <ThemedText className="text-sm font-semibold">{t('branchNavigateSectionTitle')}</ThemedText>
-              </Pressable>
-            ) : null}
           </View>
 
           <Divider className="h-2 bg-light-secondary dark:bg-dark-darker" />

@@ -25,6 +25,10 @@ interface SelectableProps {
   className?: string;
   containerClassName?: string;
   style?: StyleProp<ViewStyle>;
+  /**
+   * S {@link customIcon}: bez šedého rámečku kolem ikony – vlastní vzhled (např. obrys výběru kolem avatara).
+   */
+  customIconUnstyled?: boolean;
 }
 
 const Selectable: React.FC<SelectableProps> = ({
@@ -43,6 +47,7 @@ const Selectable: React.FC<SelectableProps> = ({
   className = '',
   containerClassName = '',
   style,
+  customIconUnstyled = false,
 }) => {
   const colors = useThemeColors();
   const handlePress = () => {
@@ -50,15 +55,20 @@ const Selectable: React.FC<SelectableProps> = ({
     onPress?.();
   };
 
+  const borderStyle: ViewStyle = error
+    ? { borderWidth: 2, borderColor: '#ef4444' }
+    : selected
+      ? { borderWidth: 2, borderColor: colors.highlight }
+      : { borderWidth: 1, borderColor: colors.border };
+
   return (
     <View className={`mb-2 ${containerClassName}`}>
       <Pressable
         onPress={handlePress}
-        style={[style, selected ? { borderColor: colors.highlight } : undefined]}
+        style={[style, borderStyle]}
         className={`
-          y relative  rounded-2xl border p-4 active:opacity-70 dark:border-transparent dark:bg-dark-secondary/50
-          ${selected ? ' bg-light-subtext/0 dark:bg-dark-secondary' : ' border-neutral-400 dark:border-transparent'}
-          ${error ? 'border-red-500' : ''}
+          relative rounded-2xl p-4 active:opacity-70
+          ${selected ? 'bg-light-subtext/0 dark:bg-dark-secondary' : 'dark:bg-dark-secondary/50'}
           ${className}
         `}>
         <View className="flex-row items-center">
@@ -74,11 +84,14 @@ const Selectable: React.FC<SelectableProps> = ({
               />
             </View>
           )}
-          {customIcon && (
-            <View className="mr-4 h-12 w-12 items-center justify-center rounded-xl bg-light-secondary dark:bg-dark-secondary">
-              {customIcon}
-            </View>
-          )}
+          {customIcon &&
+            (customIconUnstyled ? (
+              <View className="mr-4 justify-center">{customIcon}</View>
+            ) : (
+              <View className="mr-4 h-12 w-12 items-center justify-center rounded-xl bg-light-secondary dark:bg-dark-secondary">
+                {customIcon}
+              </View>
+            ))}
           <View className="flex-1">
             <ThemedText className="text-base font-semibold">{title}</ThemedText>
             {descriptionContent ? (

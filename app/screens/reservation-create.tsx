@@ -1954,10 +1954,17 @@ export default function ReservationCreateScreen() {
                         ) : undefined
                       }
                       customIcon={
-                        <View className="h-12 w-12 items-center justify-center">
+                        <View
+                          className="h-12 w-12 items-center justify-center overflow-hidden rounded-xl bg-light-secondary dark:bg-dark-secondary"
+                          style={
+                            data.employeeId === emp.id
+                              ? { borderColor: colors.highlight, borderWidth: 2 }
+                              : undefined
+                          }>
                           <Avatar size="sm" src={emp.avatarUrl ?? undefined} name={emp.name} />
                         </View>
                       }
+                      customIconUnstyled
                       containerClassName="mb-0"
                       className="relative overflow-visible"
                       selected={data.employeeId === emp.id}
