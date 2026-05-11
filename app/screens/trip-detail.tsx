@@ -13,7 +13,7 @@ import {
 import { Image } from 'expo-image';
 import { ActionSheetRef } from 'react-native-actions-sheet';
 
-import { getBookings, getBookingById, cancelBooking, type Booking } from '../../api/bookings';
+import { getBookingById, cancelBooking, normalizeBookingCouponUsages, type Booking, type BookingCouponUsage } from '../../api/bookings';
 
 import { getBranches, type Branch, type BranchService } from '@/api/branches';
 import { getClientOverview, type ClientOverviewReservation } from '@/api/reviews';
@@ -136,6 +136,22 @@ const BookingDetailScreen = () => {
   const { t } = useTranslation();
   const colors = useThemeColors();
   const dateLocaleTag = locale === 'cs' ? 'cs-CZ' : 'en-GB';
+  const formatDetailMoney = useCallback(
+    (value: unknown) => {
+      const n = typeof value === 'number' ? value : Number(value);
+      const x = Number.isFinite(n) ? n : 0;
+      return x.toLocaleString(dateLocaleTag, { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+    },
+    [dateLocaleTag]
+  );
+  const formatAppliedAt = useCallback(
+    (iso: string) => {
+      const d = new Date(iso);
+      if (Number.isNaN(d.getTime())) return iso;
+      return d.toLocaleString(dateLocaleTag, { dateStyle: 'short', timeStyle: 'short' });
+    },
+    [dateLocaleTag]
+  );
   const setTransferRecipient = useSetTransferRecipient();
   const promoTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const cancelSheetRef = useRef<ActionSheetRef>(null);
@@ -162,43 +178,35 @@ const BookingDetailScreen = () => {
 
     (async () => {
       try {
-        const res = await getBookings(apiToken, { limit: 50 });
-        if (cancelled) return;
-        const found = res.bookings.find((b) => b.id === id) ?? null;
-        if (found) {
-          clearFreshBookingSnapshotIfMatches(id);
-          setBooking(found);
-          setError(null);
-          return;
-        }
-
-        const snap = peekFreshBookingSnapshot(id);
-        if (snap) {
-          setBooking(snap);
-          setError(null);
-        }
-
         const fromServer = await getBookingById(apiToken, id);
         if (cancelled) return;
         if (fromServer) {
           clearFreshBookingSnapshotIfMatches(id);
           setBooking(fromServer);
           setError(null);
-        } else if (!snap) {
-          setBooking(null);
-          setError(t('bookingNotFound'));
+          return;
         }
+
+        const snap = peekFreshBookingSnapshot(id);
+        if (snap) {
+          setBooking(normalizeBookingCouponUsages(snap));
+          setError(null);
+          return;
+        }
+
+        setBooking(null);
+        setError(t('bookingNotFound'));
       } catch (e) {
         if (cancelled) return;
         const snap = peekFreshBookingSnapshot(id);
         if (snap) {
-          setBooking(snap);
+          setBooking(normalizeBookingCouponUsages(snap));
           setError(null);
           try {
-            const fromServer = await getBookingById(apiToken, id);
-            if (!cancelled && fromServer) {
+            const retry = await getBookingById(apiToken, id);
+            if (!cancelled && retry) {
               clearFreshBookingSnapshotIfMatches(id);
-              setBooking(fromServer);
+              setBooking(retry);
             }
           } catch {
             /* nechat snapshot */
@@ -570,6 +578,65 @@ const BookingDetailScreen = () => {
 
           <Section title={t('bookingPriceDetails')} titleSize="lg" className="px-global pt-4">
             <View className="mt-4 space-y-3">
+              {booking.couponUsages && booking.couponUsages.length > 0 ? (
+                <View className="space-y-4">
+                  <ThemedText className="text-base font-semibold text-light-text dark:text-dark-text">
+                    {t('bookingCouponSectionTitle')}
+                  </ThemedText>
+                  {booking.couponUsages.map((usage: BookingCouponUsage, idx: number) => {
+                    const amounts = usage.amounts;
+                    const c = usage.coupon;
+                    return (
+                      <View
+                        key={usage.id || `coupon-use-${idx}`}
+                        className={
+                          idx > 0
+                            ? 'border-t border-neutral-400/20 pt-4 dark:border-neutral-500/25'
+                            : ''
+                        }>
+                        {booking.couponUsages.length > 1 ? (
+                          <ThemedText className="mb-2 text-xs font-semibold text-light-subtext dark:text-dark-subtext">
+                            {idx + 1}. {t('bookingCouponUsageShort')}
+                          </ThemedText>
+                        ) : null}
+                        <ThemedText className="text-base font-semibold">
+                          {c?.name ?? '—'}
+                        </ThemedText>
+                        {c?.code ? (
+                          <ThemedText className="mt-0.5 text-sm text-light-subtext dark:text-dark-subtext">
+                            {t('bookingCouponCodeLabel')}: {c.code}
+                          </ThemedText>
+                        ) : null}
+                        <View className="mt-3 space-y-2 rounded-xl bg-light-secondary p-3 dark:bg-dark-secondary">
+                          <View className="flex-row justify-between">
+                            <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext">
+                              {t('reservationCouponOriginalPrice')}
+                            </ThemedText>
+                            <ThemedText className="text-sm font-medium">
+                              {formatDetailMoney(amounts?.original)}{' '}
+                              {t('reservationCurrencySuffix')}
+                            </ThemedText>
+                          </View>
+                          <View className="flex-row justify-between">
+                            <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext">
+                              {t('reservationCouponDiscount')}
+                            </ThemedText>
+                            <ThemedText className="text-sm font-medium text-emerald-600 dark:text-emerald-400">
+                              −{formatDetailMoney(amounts?.discount)} {t('reservationCurrencySuffix')}
+                            </ThemedText>
+                          </View>
+                        </View>
+                        {usage.appliedAt ? (
+                          <ThemedText className="mt-2 text-xs text-light-subtext dark:text-dark-subtext">
+                            {t('bookingCouponAppliedAt')}: {formatAppliedAt(usage.appliedAt)}
+                          </ThemedText>
+                        ) : null}
+                      </View>
+                    );
+                  })}
+                  <Divider className="my-2 w-full" />
+                </View>
+              ) : null}
               <View className="flex-row justify-between">
                 <ThemedText className="text-light-subtext dark:text-dark-subtext">
                   {booking.item?.name ?? t('bookingServiceFallback')}

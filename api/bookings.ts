@@ -33,6 +33,28 @@ export interface BookingClientReview {
   note?: string | null;
 }
 
+/** Částky u jednoho použití kupónu u rezervace (GET /api/client/bookings/:id). */
+export interface BookingCouponUsageAmounts {
+  original: number;
+  discount: number;
+  final: number;
+}
+
+export interface BookingCouponUsageCouponMeta {
+  id: string;
+  code: string;
+  name: string;
+  discountType?: string;
+  discountValue?: number;
+}
+
+export interface BookingCouponUsage {
+  id: string;
+  appliedAt: string;
+  amounts: BookingCouponUsageAmounts;
+  coupon: BookingCouponUsageCouponMeta;
+}
+
 export interface Booking {
   id: string;
   clientId: string;
@@ -58,6 +80,14 @@ export interface Booking {
   clientReview?: BookingClientReview | null;
   /** Zastaralé / alternativní pole z API */
   clientReviewRating?: number | null;
+  /**
+   * Použití kupónů u této rezervace (vždy pole v appce; API může vynechat → []).
+   * @see GET /api/client/bookings/:id
+   */
+  couponUsages?: BookingCouponUsage[];
+  totalCash?: number | null;
+  totalCard?: number | null;
+  totalCoins?: number | null;
 }
 
 export interface BookingsPagination {
@@ -72,6 +102,14 @@ export interface BookingsResponse {
   pagination: BookingsPagination;
 }
 
+/** Zajistí `couponUsages` jako pole (nikdy null/undefined). */
+export function normalizeBookingCouponUsages(booking: Booking): Booking {
+  return {
+    ...booking,
+    couponUsages: Array.isArray(booking.couponUsages) ? booking.couponUsages : [],
+  };
+}
+
 /** CRM vrací `reservations` (nebo legacy `bookings`) — klient vždy pracuje s `bookings`. */
 function normalizeBookingsPayload(raw: unknown): BookingsResponse {
   const obj = raw && typeof raw === 'object' ? (raw as Record<string, unknown>) : {};
@@ -82,17 +120,65 @@ function normalizeBookingsPayload(raw: unknown): BookingsResponse {
     : Array.isArray(fromReservations)
       ? fromReservations
       : []) as Booking[];
+  const normalized = list.map((b) => normalizeBookingCouponUsages(b));
   const pag = obj.pagination;
   const pagination: BookingsPagination =
     pag && typeof pag === 'object'
       ? (pag as BookingsPagination)
       : {
-          total: list.length,
-          limit: list.length,
+          total: normalized.length,
+          limit: normalized.length,
           offset: 0,
           hasMore: false,
         };
-  return { bookings: list, pagination };
+  return { bookings: normalized, pagination };
+}
+
+/**
+ * GET /api/client/bookings/:id — detail rezervace (vč. couponUsages).
+ * Tělo: `{ booking: { … } }` nebo `{ data: { booking: … } }`.
+ */
+export async function getClientBookingById(
+  apiToken: string,
+  bookingId: string
+): Promise<Booking | null> {
+  const url = `${CRM_BASE}/api/client/bookings/${encodeURIComponent(bookingId)}`;
+  const res = await fetch(url, {
+    method: 'GET',
+    headers: {
+      Authorization: `Bearer ${apiToken}`,
+    },
+  });
+  const text = await res.text();
+  if (res.status === 401) throw new Error('Unauthorized');
+  if (res.status === 404) return null;
+  if (!res.ok) {
+    let msg = `Error ${res.status}`;
+    try {
+      const parsed = JSON.parse(text) as { message?: string; error?: string };
+      if (parsed?.message) msg = parsed.message;
+      else if (typeof parsed?.error === 'string') msg = parsed.error;
+      else if (text) msg = `${msg}: ${text.slice(0, 200)}`;
+    } catch {
+      if (text) msg = `${msg}: ${text.slice(0, 200)}`;
+    }
+    throw new Error(msg);
+  }
+  if (!text) return null;
+  let raw: unknown;
+  try {
+    raw = JSON.parse(text);
+  } catch {
+    return null;
+  }
+  const obj = raw && typeof raw === 'object' ? (raw as Record<string, unknown>) : {};
+  let inner: unknown = obj.booking;
+  if (!inner && typeof obj.data === 'object' && obj.data) {
+    const d = obj.data as Record<string, unknown>;
+    inner = d.booking ?? null;
+  }
+  if (!inner || typeof inner !== 'object') return null;
+  return normalizeBookingCouponUsages(inner as Booking);
 }
 
 export interface GetBookingsOptions {
@@ -145,8 +231,14 @@ export async function getBookings(
   return normalizeBookingsPayload(raw);
 }
 
-/** Load one booking by id (paginates list until found or exhausted). */
+/** Detail rezervace: primárně GET /api/client/bookings/:id, jinak list /api/client/reservations. */
 export async function getBookingById(apiToken: string, bookingId: string): Promise<Booking | null> {
+  try {
+    const direct = await getClientBookingById(apiToken, bookingId);
+    if (direct) return direct;
+  } catch (e) {
+    if (e instanceof Error && e.message === 'Unauthorized') throw e;
+  }
   const limit = 100;
   let offset = 0;
   for (;;) {

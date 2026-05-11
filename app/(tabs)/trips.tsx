@@ -465,6 +465,13 @@ const BookingCard = (props: {
   const { t } = useTranslation();
   const { booking, dateText, reviewRating, onOpenReview } = props;
   const title = booking.item?.name ?? 'Booking';
+  const couponUsages = booking.couponUsages ?? [];
+  const hasCoupon = couponUsages.length > 0;
+  const couponBagLabel = hasCoupon
+    ? (couponUsages[0]?.coupon?.name?.trim() ||
+        couponUsages[0]?.coupon?.code?.trim() ||
+        null)
+    : null;
   const isPast = isPastAndNotCancelled(booking);
   const isCurrent = isBookingCurrent(booking);
   const isUpcoming = isBookingUpcoming(booking);
@@ -531,6 +538,15 @@ const BookingCard = (props: {
                 numberOfLines={1}>
                 {booking.branch.name}
               </ThemedText>
+            ) : null}
+            {couponBagLabel ? (
+              <View className="mt-1.5 max-w-full self-start rounded-full bg-light-secondary px-2.5 py-1 dark:bg-dark-secondary">
+                <ThemedText
+                  className="text-xs font-semibold text-light-text dark:text-dark-text"
+                  numberOfLines={1}>
+                  {couponBagLabel}
+                </ThemedText>
+              </View>
             ) : null}
           </View>
           <Avatar
