@@ -73,7 +73,13 @@ export async function getRbCoinsHistory(
   if (res.status === 401) throw new Error('Unauthorized');
   if (!res.ok) throw new Error(`Error ${res.status}`);
 
-  return res.json() as Promise<RbCoinsHistoryResponse>;
+  const json = await res.json();
+  const parsed = json as RbCoinsHistoryResponse;
+  const rows = Array.isArray(parsed.data) ? parsed.data : [];
+  /** Nulové částky nemá UI zobrazovat (např. technické řádky z CRM). */
+  const data = rows.filter((tx) => Number(tx.amount) !== 0);
+
+  return { ...parsed, data };
 }
 
 export interface RbCoinsTransferParams {

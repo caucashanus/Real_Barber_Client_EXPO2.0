@@ -982,6 +982,9 @@ export const en = {
   walletHistoryDayBefore: 'Day before yesterday',
   walletHistoryGiftCardCreated: 'Gift card created',
   walletHistoryCashback: 'Cashback',
+  walletTransactionVisitReservationBonus: '10% visit cashback',
+  walletTransactionVisitReservationDetail:
+    'We calculate the bonus as 10% of the amount you pay in cash or by card for that visit; payments made directly in RealBarber Coins are not included.',
   walletDetailTransfer: 'Transfer',
   walletDetailCashback: 'Cashback',
   walletDetailLoyaltyReward: 'Loyalty reward',

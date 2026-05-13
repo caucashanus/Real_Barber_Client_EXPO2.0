@@ -29,6 +29,10 @@ import ListItem from '@/components/layout/ListItem';
 import Section from '@/components/layout/Section';
 import Avatar from '@/components/Avatar';
 import { shadowPresets } from '@/utils/useShadow';
+import {
+  getRbCoinsTransactionListTitle,
+  RB_COINS_TX_LIST_KEYS_WALLET,
+} from '@/utils/rbcCoinsHistoryUi';
 import { getRbCoinsBalance, getRbCoinsHistory, type RbCoinsHistoryItem } from '@/api/rb-coins';
 import { getReferrals, type ReferralActiveProgram } from '@/api/referrals';
 import { useTranslation } from '@/app/hooks/useTranslation';
@@ -60,14 +64,6 @@ function formatBalance(value: number): string {
 
 function formatTransactionTime(iso: string): string {
   return new Date(iso).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
-}
-
-/** Krátký název pro řádek v seznamu (jako v referenci: label nebo jméno, ne dlouhý popis). */
-function transactionListTitle(item: RbCoinsHistoryItem): string {
-  if (item.description?.startsWith('Created gift card:')) return 'Gift card created';
-  if (item.description?.startsWith('Cashback z nákupu')) return 'Cashback';
-  if (item.otherParty?.name) return item.otherParty.name;
-  return 'RealBarber';
 }
 
 function transactionAvatarSrc(
@@ -447,7 +443,7 @@ const WalletScreen = () => {
                       key={tx.id}
                       className="py-2"
                       leading={<Avatar src={transactionAvatarSrc(tx)} size="sm" />}
-                      title={transactionListTitle(tx)}
+                      title={getRbCoinsTransactionListTitle(tx, t, RB_COINS_TX_LIST_KEYS_WALLET)}
                       subtitle={formatTransactionTime(tx.createdAt)}
                       trailing={
                         <ThemedText

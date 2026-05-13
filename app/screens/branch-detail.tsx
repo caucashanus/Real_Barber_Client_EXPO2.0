@@ -12,6 +12,7 @@ import {View,
   Animated,
   type LayoutChangeEvent} from 'react-native';
 import { Image } from 'expo-image';
+import { ActionSheetRef } from 'react-native-actions-sheet';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { getBranches, type Branch, type BranchService, type BranchEmployee } from '@/api/branches';
@@ -21,6 +22,7 @@ import { useAuth } from '@/app/contexts/AuthContext';
 import useThemeColors from '@/app/contexts/ThemeColors';
 import { useTranslation } from '@/app/hooks/useTranslation';
 import Avatar from '@/components/Avatar';
+import { BranchNavigateSheet, getBranchNavigateMapsQuery } from '@/components/BranchNavigateSheet';
 import { Button } from '@/components/Button';
 import { CardScroller } from '@/components/CardScroller';
 import Favorite from '@/components/Favorite';
@@ -194,6 +196,7 @@ export default function BranchDetailScreen() {
   const [descriptionModalVisible, setDescriptionModalVisible] = useState(false);
   const [ratingModalVisible, setRatingModalVisible] = useState(false);
   const scrollRef = useRef<ScrollView>(null);
+  const branchNavigateRef = useRef<ActionSheetRef>(null);
   const heroScrollY = useRef(new Animated.Value(0)).current;
   const roundedViewYRef = useRef(0);
   const reviewsSectionYInRoundedRef = useRef(0);
@@ -289,6 +292,8 @@ export default function BranchDetailScreen() {
   const webUrl = branch.webUrl ?? null;
   const branchImageUrl = getMediaUrlsSorted(branch.media)[0] ?? branch.imageUrl ?? '';
   const reviewParams = `entityType=branch&entityId=${encodeURIComponent(branch.id)}&entityName=${encodeURIComponent(branch.name)}${branchImageUrl ? `&entityImage=${encodeURIComponent(branchImageUrl)}` : ''}`;
+  const canOpenBranchNavigate =
+    getBranchNavigateMapsQuery(branch.name, branch.address) !== '';
   const rightComponents = branch.name
     ? [
         <Favorite
@@ -332,21 +337,38 @@ export default function BranchDetailScreen() {
             roundedViewYRef.current = e.nativeEvent.layout.y;
           }}>
           <View className="">
-            <ThemedText className="text-center text-3xl font-semibold">{branch.name}</ThemedText>
-            <View className="mt-4 flex-row items-center justify-center">
+            <View className="mb-2 flex-row items-start justify-between gap-2">
+              <ThemedText className="min-w-0 flex-1 shrink pr-1 text-3xl font-semibold">
+                {branch.name}
+              </ThemedText>
+              {canOpenBranchNavigate ? (
+                <Pressable
+                  accessibilityRole="button"
+                  accessibilityLabel={t('branchNavigateSectionTitle')}
+                  onPress={() => branchNavigateRef.current?.show()}
+                  className="mt-1 h-7 shrink-0 flex-row items-center justify-center gap-0.5 rounded-full bg-light-secondary px-2.5 active:opacity-80 dark:bg-dark-secondary">
+                  <Icon
+                    name="Navigation"
+                    size={12}
+                    className="text-light-text dark:text-dark-text"
+                  />
+                  <ThemedText className="text-center text-xs font-semibold">
+                    {t('branchNavigateSectionTitle')}
+                  </ThemedText>
+                </Pressable>
+              ) : null}
+            </View>
+            <View className="mt-4 flex-row items-center justify-center gap-4">
               <Pressable
                 onPress={scrollToReviews}
-                className="flex-row items-center active:opacity-70">
-                <ShowRating
-                  rating={average}
-                  size="lg"
-                  className="border-r border-neutral-200 px-4 py-2 dark:border-dark-secondary"
-                />
-                <ThemedText className="px-4 text-base">{t('profileReviews')}</ThemedText>
+                accessibilityRole="button"
+                accessibilityLabel={t('profileReviews')}
+                className="active:opacity-70">
+                <ShowRating rating={average} size="lg" className="py-2" />
               </Pressable>
               <Pressable
                 onPress={() => router.push(`/screens/review?${reviewParams}`)}
-                className="ml-4 rounded-lg bg-light-secondary px-3 py-2 dark:bg-dark-secondary">
+                className="rounded-lg bg-light-secondary px-3 py-2 dark:bg-dark-secondary">
                 <ThemedText className="text-sm font-medium">
                   {hasReviewed ? t('branchUpdateReview') : t('branchReview')}
                 </ThemedText>
@@ -597,6 +619,12 @@ export default function BranchDetailScreen() {
           href={`/screens/reservation-create?branchId=${encodeURIComponent(branch.id)}`}
         />
       </View>
+
+      <BranchNavigateSheet
+        ref={branchNavigateRef}
+        branchName={branch.name}
+        address={branch.address}
+      />
 
       <Modal visible={descriptionModalVisible} transparent animationType="fade">
         <Pressable

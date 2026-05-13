@@ -12,6 +12,10 @@ import TransactionDetailModal from '@/components/TransactionDetailModal';
 import { List } from '@/components/layout/List';
 import ListItem from '@/components/layout/ListItem';
 import Section from '@/components/layout/Section';
+import {
+  getRbCoinsTransactionListTitle,
+  RB_COINS_TX_LIST_KEYS_RBC,
+} from '@/utils/rbcCoinsHistoryUi';
 import { shadowPresets } from '@/utils/useShadow';
 
 function formatBalance(value: number): string {
@@ -27,7 +31,11 @@ function formatTransactionTime(iso: string): string {
   return new Date(iso).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
 }
 
-function getSectionTitle(dateKey: string): string {
+function getSectionTitle(
+  dateKey: string,
+  t: (key: string) => string,
+  locale: string
+): string {
   const now = new Date();
   const today = toDateKey(now.toISOString());
   const yesterday = new Date(now);
@@ -36,11 +44,12 @@ function getSectionTitle(dateKey: string): string {
   const dayBefore = new Date(now);
   dayBefore.setDate(dayBefore.getDate() - 2);
   const dayBeforeKey = toDateKey(dayBefore.toISOString());
-  if (dateKey === today) return 'Today';
-  if (dateKey === yesterdayKey) return 'Yesterday';
-  if (dateKey === dayBeforeKey) return 'Day before yesterday';
+  if (dateKey === today) return t('rbcToday');
+  if (dateKey === yesterdayKey) return t('rbcYesterday');
+  if (dateKey === dayBeforeKey) return t('rbcDayBeforeYesterday');
   const d = new Date(dateKey + 'T12:00:00');
-  return d.toLocaleDateString('en-GB', { day: 'numeric', month: 'long' });
+  const dateLocale = locale === 'cs' ? 'cs-CZ' : 'en-GB';
+  return d.toLocaleDateString(dateLocale, { day: 'numeric', month: 'long' });
 }
 
 function groupByDate(
@@ -56,13 +65,6 @@ function groupByDate(
   return sorted.map((dateKey) => ({ dateKey, items: map[dateKey]! }));
 }
 
-function transactionListTitle(item: RbCoinsHistoryItem, t: (key: string) => string): string {
-  if (item.description?.startsWith('Created gift card:')) return t('rbcGiftCardCreated');
-  if (item.description?.startsWith('Cashback z nákupu')) return t('rbcCashback');
-  if (item.otherParty?.name) return item.otherParty.name;
-  return 'RealBarber';
-}
-
 function transactionAvatarSrc(
   item: RbCoinsHistoryItem
 ): string | import('react-native').ImageSourcePropType {
@@ -72,7 +74,7 @@ function transactionAvatarSrc(
 }
 
 export default function RBCHistorieScreen() {
-  const { t } = useTranslation();
+  const { t, locale } = useTranslation();
   const { apiToken } = useAuth();
   const [history, setHistory] = useState<RbCoinsHistoryItem[]>([]);
   const [loading, setLoading] = useState(true);
@@ -120,7 +122,7 @@ export default function RBCHistorieScreen() {
           groupByDate(history).map(({ dateKey, items }) => (
             <Section
               key={dateKey}
-              title={getSectionTitle(dateKey, t)}
+              title={getSectionTitle(dateKey, t, locale)}
               titleSize="lg"
               className="px-global pb-2 pt-4">
               <View
@@ -137,7 +139,7 @@ export default function RBCHistorieScreen() {
                         key={tx.id}
                         className="py-2"
                         leading={<Avatar src={transactionAvatarSrc(tx)} size="sm" />}
-                        title={transactionListTitle(tx, t)}
+                        title={getRbCoinsTransactionListTitle(tx, t, RB_COINS_TX_LIST_KEYS_RBC)}
                         subtitle={formatTransactionTime(tx.createdAt)}
                         trailing={
                           <ThemedText

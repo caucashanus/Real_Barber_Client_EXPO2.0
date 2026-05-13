@@ -10,6 +10,7 @@ import { useTranslation } from '@/app/hooks/useTranslation';
 import Avatar from '@/components/Avatar';
 import Icon from '@/components/Icon';
 import ThemedText from '@/components/ThemedText';
+import { isVisitReservationBonusTransaction } from '@/utils/rbcCoinsHistoryUi';
 
 function formatBalance(value: number): string {
   return value.toLocaleString('cs-CZ', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
@@ -25,13 +26,14 @@ function formatDateTime(iso: string, locale: string): { date: string; time: stri
 }
 
 function getDetailDescription(tx: RbCoinsHistoryItem, t: (key: string) => string): string {
-  if (tx.description?.trim()) return tx.description.trim();
+  if (isVisitReservationBonusTransaction(tx)) return t('walletTransactionVisitReservationDetail');
   if (tx.description?.startsWith('Created gift card:')) {
     const code = tx.description.replace('Created gift card:', '').trim();
     const label = t('walletHistoryGiftCardCreated');
     return code ? `${label} – ${code}` : label;
   }
   if (tx.description?.startsWith('Cashback z nákupu')) return tx.description;
+  if (tx.description?.trim()) return tx.description.trim();
   return '–';
 }
 
@@ -62,8 +64,9 @@ export default function TransactionDetailModal({
 
   if (!transaction) return null;
 
-  const getTypeLabel = (type: string): string => {
-    switch (type) {
+  const getTypeLabel = (tx: RbCoinsHistoryItem): string => {
+    if (isVisitReservationBonusTransaction(tx)) return t('walletTransactionVisitReservationBonus');
+    switch (tx.type) {
       case 'TRANSFER':
         return t('walletDetailTransfer');
       case 'CASHBACK':
@@ -133,7 +136,7 @@ export default function TransactionDetailModal({
               <Avatar src={transactionAvatarSrc(transaction)} size="md" />
               <View className="ml-3 flex-1">
                 <ThemedText className="text-base font-semibold">
-                  {getTypeLabel(transaction.type)}
+                  {getTypeLabel(transaction)}
                 </ThemedText>
                 <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext">
                   {getDirectionLabel(transaction.direction)}

@@ -12,6 +12,10 @@ import TransactionDetailModal from '@/components/TransactionDetailModal';
 import { List } from '@/components/layout/List';
 import ListItem from '@/components/layout/ListItem';
 import Section from '@/components/layout/Section';
+import {
+  getRbCoinsTransactionListTitle,
+  RB_COINS_TX_LIST_KEYS_WALLET,
+} from '@/utils/rbcCoinsHistoryUi';
 import { shadowPresets } from '@/utils/useShadow';
 
 function formatBalance(value: number): string {
@@ -58,14 +62,6 @@ function groupByDate(
   });
   const sorted = Object.keys(map).sort((a, b) => b.localeCompare(a));
   return sorted.map((dateKey) => ({ dateKey, items: map[dateKey] }));
-}
-
-/** Krátký název pro řádek v seznamu (jako v referenci: label nebo jméno, ne dlouhý popis). */
-function transactionListTitle(item: RbCoinsHistoryItem, t: (key: string) => string): string {
-  if (item.description?.startsWith('Created gift card:')) return t('walletHistoryGiftCardCreated');
-  if (item.description?.startsWith('Cashback z nákupu')) return t('walletHistoryCashback');
-  if (item.otherParty?.name) return item.otherParty.name;
-  return 'RealBarber';
 }
 
 function transactionAvatarSrc(
@@ -142,7 +138,7 @@ export default function WalletHistoryScreen() {
                         key={tx.id}
                         className="py-2"
                         leading={<Avatar src={transactionAvatarSrc(tx)} size="sm" />}
-                        title={transactionListTitle(tx, t)}
+                        title={getRbCoinsTransactionListTitle(tx, t, RB_COINS_TX_LIST_KEYS_WALLET)}
                         subtitle={formatTransactionTime(tx.createdAt)}
                         trailing={
                           <ThemedText

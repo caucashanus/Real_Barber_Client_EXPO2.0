@@ -986,6 +986,9 @@ export const cs: Record<TranslationKey, string> = {
   walletHistoryDayBefore: 'Předevčírem',
   walletHistoryGiftCardCreated: 'Dárková karta vytvořena',
   walletHistoryCashback: 'Cashback',
+  walletTransactionVisitReservationBonus: '10% cashback z návštěvy',
+  walletTransactionVisitReservationDetail:
+    'Bonus počítáme jako 10 % z částky, kterou platíte hotově nebo kartou u té konkrétní návštěvy; platba přímo RealBarber Coiny se do tohoto výpočtu nepočítá.',
   walletDetailTransfer: 'Převod',
   walletDetailCashback: 'Cashback',
   walletDetailLoyaltyReward: 'Věrnostní odměna',
