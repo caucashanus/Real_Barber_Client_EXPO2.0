@@ -162,6 +162,14 @@ export const cs: Record<TranslationKey, string> = {
   homeSpotlightReviewRated: 'Ohodnotili jste',
   homeSpotlightOngoing: 'Právě probíhá',
   homePromoSectionTitle: 'Tipy a nabídky',
+  homeCouponCopyCode: 'Zkopírovat kód',
+  homeCouponLimitedScope: 'Pouze u vybraných poboček, služeb nebo holičů',
+  homeCouponValidityPillFrom: 'Od',
+  homeCouponValidityPillUntil: 'Do',
+  homeCouponDetailBenefitLabel: 'Výhoda',
+  homeCouponDescriptionLabel: 'Popis',
+  homeCouponValidityLabel: 'Platnost',
+  homeCouponDetailScopeLabel: 'Kde platí',
 
   // Trips / Bookings
   tripsTitle: 'Vaše rezervace',

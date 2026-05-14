@@ -158,6 +158,14 @@ export const en = {
   homeSpotlightReviewRated: 'You rated',
   homeSpotlightOngoing: 'In progress',
   homePromoSectionTitle: 'Tips & offers',
+  homeCouponCopyCode: 'Copy code',
+  homeCouponLimitedScope: 'Limited to selected branches, services or staff',
+  homeCouponValidityPillFrom: 'From',
+  homeCouponValidityPillUntil: 'Until',
+  homeCouponDetailBenefitLabel: 'Benefit',
+  homeCouponDescriptionLabel: 'Description',
+  homeCouponValidityLabel: 'Validity',
+  homeCouponDetailScopeLabel: 'Where it applies',
 
   // Trips / Bookings
   tripsTitle: 'Your Bookings',
