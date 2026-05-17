@@ -2,15 +2,9 @@ import { useFocusEffect } from '@react-navigation/native';
 import { Image } from 'expo-image';
 import { LinearGradient } from 'expo-linear-gradient';
 import { router } from 'expo-router';
+import * as WebBrowser from 'expo-web-browser';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import {
-  ActivityIndicator,
-  Linking,
-  Pressable,
-  RefreshControl,
-  ScrollView,
-  View,
-} from 'react-native';
+import { ActivityIndicator, Pressable, RefreshControl, ScrollView, View } from 'react-native';
 
 import { getBookings, type Booking } from '@/api/bookings';
 import { getClientCoupons, type ClientCoupon } from '@/api/client-coupons';
@@ -81,11 +75,11 @@ function openPosterTarget(poster: ClientPoster): void {
   const web = poster.websiteUrl?.trim();
   const vid = poster.videoUrl?.trim();
   if (web) {
-    Linking.openURL(web).catch(() => {});
+    WebBrowser.openBrowserAsync(web).catch(() => {});
     return;
   }
   if (vid) {
-    Linking.openURL(vid).catch(() => {});
+    WebBrowser.openBrowserAsync(vid).catch(() => {});
   }
 }
 
