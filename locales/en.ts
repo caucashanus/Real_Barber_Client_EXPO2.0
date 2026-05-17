@@ -158,7 +158,9 @@ export const en = {
   homeSpotlightReviewRated: 'You rated',
   homeSpotlightOngoing: 'In progress',
   homePromoSectionTitle: 'Tips & offers',
+  homePromoBadgeCoupon: 'Coupon',
   homeCouponCopyCode: 'Copy code',
+  homeCouponSheetCodeLabel: 'Coupon code',
   homeCouponLimitedScope: 'Limited to selected branches, services or staff',
   homeCouponValidityPillFrom: 'From',
   homeCouponValidityPillUntil: 'Until',
@@ -166,6 +168,7 @@ export const en = {
   homeCouponDescriptionLabel: 'Description',
   homeCouponValidityLabel: 'Validity',
   homeCouponDetailScopeLabel: 'Where it applies',
+  homeCouponDetailNotFound: 'This offer is no longer available.',
 
   // Trips / Bookings
   tripsTitle: 'Your Bookings',

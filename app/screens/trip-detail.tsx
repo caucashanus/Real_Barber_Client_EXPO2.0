@@ -424,13 +424,13 @@ const BookingDetailScreen = () => {
                   accessibilityRole="button"
                   accessibilityLabel={t('branchNavigateSectionTitle')}
                   onPress={() => branchNavigateRef.current?.show()}
-                  className="mt-0.5 h-9 w-[128px] shrink-0 flex-row items-center justify-center gap-1 rounded-full bg-light-secondary active:opacity-80 dark:bg-dark-secondary">
+                  className="mt-1 h-7 shrink-0 flex-row items-center justify-center gap-0.5 rounded-full bg-light-secondary px-2.5 active:opacity-80 dark:bg-dark-secondary">
                   <Icon
                     name="Navigation"
-                    size={14}
+                    size={12}
                     className="text-light-text dark:text-dark-text"
                   />
-                  <ThemedText className="text-center text-sm font-semibold">
+                  <ThemedText className="text-center text-xs font-semibold">
                     {t('branchNavigateSectionTitle')}
                   </ThemedText>
                 </Pressable>

@@ -3,16 +3,22 @@ import { Image } from 'expo-image';
 import { LinearGradient } from 'expo-linear-gradient';
 import { router } from 'expo-router';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { ActivityIndicator, Pressable, RefreshControl, ScrollView, View } from 'react-native';
-import { ActionSheetRef } from 'react-native-actions-sheet';
+import {
+  ActivityIndicator,
+  Linking,
+  Pressable,
+  RefreshControl,
+  ScrollView,
+  View,
+} from 'react-native';
 
 import { getBookings, type Booking } from '@/api/bookings';
 import { getClientCoupons, type ClientCoupon } from '@/api/client-coupons';
+import { getClientPosters, type ClientPoster } from '@/api/client-posters';
 import { useAccentColor } from '@/app/contexts/AccentColorContext';
 import { useAuth } from '@/app/contexts/AuthContext';
 import { useTranslation } from '@/app/hooks/useTranslation';
 import Avatar from '@/components/Avatar';
-import { ClientCouponDetailSheet } from '@/components/ClientCouponDetailSheet';
 import { ClientCouponValidityPills } from '@/components/ClientCouponValidityPills';
 import { HomeSpotlightCard } from '@/components/HomeSpotlightCard';
 import Icon from '@/components/Icon';
@@ -22,6 +28,8 @@ import ThemedText from '@/components/ThemedText';
 import Section from '@/components/layout/Section';
 import { getBookingEndDate, isBookingPast } from '@/utils/bookingHelpers';
 import { getClientCouponValidityA11y } from '@/utils/clientCouponFormat';
+import { pickDailyFeaturedHomePromoCoupon, homePromoClientSeed } from '@/utils/homePromoCoupon';
+import { mergePostersAndCouponsRoundRobin, filterHomePosters } from '@/utils/homePromoFeed';
 import { pickHomeSpotlight, formatHomeBookingSlotLabel } from '@/utils/homeSpotlight';
 import { isReservationIntroCooldownActive } from '@/utils/reservation-intro-cooldown';
 import { shadowPresets } from '@/utils/useShadow';
@@ -57,8 +65,32 @@ const COUPON_IMAGE_TEXT_SHADOW_STYLE = {
   textShadowRadius: 4,
 } as const;
 
+/** Kupóny skryté v sekci Tipy a nabídky i když je API vrátí (filtrování podle `name`). */
+const HIDDEN_HOME_PROMO_COUPON_NAMES = new Set(['Gorila10', 'TVPRIMA10']);
+
+function posterCardText(poster: ClientPoster): { primary: string; secondary: string | null } {
+  const title = poster.title?.trim() ?? '';
+  const subtitle = poster.subtitle?.trim() ?? '';
+  if (title && subtitle) return { primary: title, secondary: subtitle };
+  if (title) return { primary: title, secondary: null };
+  if (subtitle) return { primary: subtitle, secondary: null };
+  return { primary: '—', secondary: null };
+}
+
+function openPosterTarget(poster: ClientPoster): void {
+  const web = poster.websiteUrl?.trim();
+  const vid = poster.videoUrl?.trim();
+  if (web) {
+    Linking.openURL(web).catch(() => {});
+    return;
+  }
+  if (vid) {
+    Linking.openURL(vid).catch(() => {});
+  }
+}
+
 export default function RealBarberHomeTab() {
-  const { apiToken } = useAuth();
+  const { apiToken, client } = useAuth();
   const { accentColor } = useAccentColor();
   const { t, locale } = useTranslation();
   const actions = useMemo(
@@ -104,10 +136,9 @@ export default function RealBarberHomeTab() {
   const [refreshing, setRefreshing] = useState(false);
   const [allBookings, setAllBookings] = useState<Booking[]>([]);
   const [coupons, setCoupons] = useState<ClientCoupon[]>([]);
-  const [couponSheetCoupon, setCouponSheetCoupon] = useState<ClientCoupon | null>(null);
+  const [posters, setPosters] = useState<ClientPoster[]>([]);
   const [now, setNow] = useState(() => Date.now());
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
-  const couponSheetRef = useRef<ActionSheetRef>(null);
 
   useEffect(() => {
     intervalRef.current = setInterval(() => setNow(Date.now()), 15000);
@@ -120,6 +151,7 @@ export default function RealBarberHomeTab() {
     if (!apiToken) {
       setAllBookings([]);
       setCoupons([]);
+      setPosters([]);
       return;
     }
     await Promise.allSettled([
@@ -129,6 +161,9 @@ export default function RealBarberHomeTab() {
       getClientCoupons(apiToken)
         .then((list) => setCoupons(list))
         .catch(() => setCoupons([])),
+      getClientPosters(apiToken)
+        .then((list) => setPosters(list))
+        .catch(() => setPosters([])),
     ]);
   }, [apiToken]);
 
@@ -153,6 +188,9 @@ export default function RealBarberHomeTab() {
         getClientCoupons(apiToken)
           .then((list) => setCoupons(list))
           .catch(() => {}),
+        getClientPosters(apiToken)
+          .then((list) => setPosters(list))
+          .catch(() => {}),
       ]).catch(() => {});
     }, [apiToken])
   );
@@ -168,10 +206,34 @@ export default function RealBarberHomeTab() {
     [allBookings]
   );
 
-  const openCouponSheet = useCallback((c: ClientCoupon) => {
-    setCouponSheetCoupon(c);
-    requestAnimationFrame(() => couponSheetRef.current?.show());
-  }, []);
+  const homePromoCoupons = useMemo(
+    () => coupons.filter((c) => !HIDDEN_HOME_PROMO_COUPON_NAMES.has(c.name.trim())),
+    [coupons]
+  );
+
+  const clientPromoSeed = useMemo(
+    () => homePromoClientSeed(client?.id ?? apiToken ?? ''),
+    [client?.id, apiToken]
+  );
+
+  const featuredHomePromoCoupon = useMemo(
+    () =>
+      pickDailyFeaturedHomePromoCoupon(homePromoCoupons, {
+        nowMs: now,
+        clientSeed: clientPromoSeed,
+      }),
+    [homePromoCoupons, now, clientPromoSeed]
+  );
+
+  const homePromoCouponsForMerge = useMemo(
+    () => (featuredHomePromoCoupon ? [featuredHomePromoCoupon] : []),
+    [featuredHomePromoCoupon]
+  );
+
+  const homePromoFeed = useMemo(
+    () => mergePostersAndCouponsRoundRobin(filterHomePosters(posters), homePromoCouponsForMerge),
+    [posters, homePromoCouponsForMerge]
+  );
 
   return (
     <>
@@ -236,7 +298,7 @@ export default function RealBarberHomeTab() {
             ))}
           </View>
 
-          {apiToken && (recentLoading || coupons.length > 0) ? (
+          {apiToken && (recentLoading || homePromoFeed.length > 0) ? (
             <View className="-mx-global mt-6">
               <Section title={t('homePromoSectionTitle')} titleSize="md" />
               {recentLoading ? (
@@ -257,34 +319,158 @@ export default function RealBarberHomeTab() {
                     paddingTop: 8,
                     paddingBottom: 4,
                   }}>
-                  {coupons.map((coupon) => {
-                    const validityA11y = getClientCouponValidityA11y(
-                      coupon.validFrom,
-                      coupon.validUntil,
-                      locale,
-                      t,
-                      { homeCardUntilOnly: true }
-                    );
-                    const hasValidity = validityA11y != null;
-                    const hasImage = Boolean(coupon.imageUrl?.trim());
-                    const titleCls = hasImage
+                  {homePromoFeed.map((item) => {
+                    if (item.kind === 'coupon') {
+                      const coupon = item.coupon;
+                      const validityA11y = getClientCouponValidityA11y(
+                        coupon.validFrom,
+                        coupon.validUntil,
+                        locale,
+                        t,
+                        { homeCardUntilOnly: true }
+                      );
+                      const hasValidity = validityA11y != null;
+                      const hasImage = Boolean(coupon.imageUrl?.trim());
+                      const titleCls = hasImage
+                        ? 'text-base font-bold leading-tight text-white'
+                        : 'text-base font-bold leading-tight text-light-text dark:text-dark-text';
+
+                      return (
+                        <Pressable
+                          key={`c-${coupon.id}`}
+                          onPress={() =>
+                            router.push(
+                              `/screens/client-coupon-detail?id=${encodeURIComponent(coupon.id)}` as any
+                            )
+                          }
+                          accessibilityRole="button"
+                          accessibilityLabel={[
+                            t('homePromoBadgeCoupon'),
+                            coupon.name,
+                            coupon.benefitLabel,
+                            validityA11y,
+                          ]
+                            .filter(Boolean)
+                            .join('. ')}
+                          style={[
+                            shadowPresets.large,
+                            {
+                              width: HOME_COUPON_CARD_WIDTH,
+                              height: HOME_COUPON_CARD_HEIGHT,
+                              marginRight: 15,
+                            },
+                          ]}
+                          className="relative flex-shrink-0 overflow-hidden rounded-2xl bg-light-secondary active:opacity-90 dark:bg-dark-secondary">
+                          <View
+                            className={
+                              hasImage
+                                ? 'bg-black/55 absolute left-2 top-2 z-30 rounded-full border border-white/40 px-2 py-0.5'
+                                : 'absolute left-2 top-2 z-30 rounded-full border border-neutral-200 bg-light-primary/95 px-2 py-0.5 dark:border-dark-secondary dark:bg-dark-secondary/95'
+                            }
+                            pointerEvents="none">
+                            <ThemedText
+                              className={
+                                hasImage
+                                  ? 'text-[10px] font-semibold uppercase tracking-wide text-white'
+                                  : 'text-[10px] font-semibold uppercase tracking-wide text-light-subtext dark:text-dark-subtext'
+                              }>
+                              {t('homePromoBadgeCoupon')}
+                            </ThemedText>
+                          </View>
+                          {hasImage ? (
+                            <>
+                              <Image
+                                source={{ uri: coupon.imageUrl! }}
+                                style={{
+                                  position: 'absolute',
+                                  top: 0,
+                                  left: 0,
+                                  right: 0,
+                                  bottom: 0,
+                                }}
+                                contentFit="cover"
+                              />
+                              <LinearGradient
+                                pointerEvents="none"
+                                colors={[...COUPON_TEXT_SCRIM_GRADIENT.colors]}
+                                locations={[...COUPON_TEXT_SCRIM_GRADIENT.locations]}
+                                start={{ x: 0, y: 0 }}
+                                end={{ x: 1, y: 1 }}
+                                style={{
+                                  position: 'absolute',
+                                  left: 0,
+                                  top: 0,
+                                  width: COUPON_TEXT_SCRIM_BOX.width,
+                                  height: COUPON_TEXT_SCRIM_BOX.height,
+                                  borderBottomRightRadius:
+                                    COUPON_TEXT_SCRIM_BOX.borderBottomRightRadius,
+                                }}
+                              />
+                            </>
+                          ) : (
+                            <View
+                              pointerEvents="none"
+                              className="absolute inset-0 bg-light-secondary dark:bg-dark-secondary"
+                            />
+                          )}
+                          {hasValidity ? (
+                            <View className="absolute bottom-2 right-2 z-20 max-w-[72%]">
+                              <ClientCouponValidityPills
+                                validFrom={coupon.validFrom}
+                                validUntil={coupon.validUntil}
+                                locale={locale}
+                                t={t}
+                                variant={hasImage ? 'cardImage' : 'cardSolid'}
+                                align="end"
+                              />
+                            </View>
+                          ) : null}
+                          <View className="relative z-10 h-full justify-start px-4 pb-3 pt-8">
+                            <View className="min-w-0 flex-1 justify-start">
+                              <ThemedText
+                                className={titleCls}
+                                style={hasImage ? COUPON_IMAGE_TEXT_SHADOW_STYLE : undefined}
+                                numberOfLines={2}>
+                                {coupon.name}
+                              </ThemedText>
+                              <View
+                                className={
+                                  hasImage
+                                    ? 'mt-1.5 max-w-full self-start rounded-full border border-white/25 bg-black/50 px-2 py-0.5'
+                                    : 'mt-1.5 max-w-full self-start rounded-full border border-neutral-200 bg-light-primary px-2 py-0.5 dark:border-dark-secondary dark:bg-dark-secondary'
+                                }
+                                pointerEvents="none">
+                                <ThemedText
+                                  className={
+                                    hasImage
+                                      ? 'text-[10px] font-semibold leading-tight text-emerald-300'
+                                      : 'text-[10px] font-semibold leading-tight text-emerald-600 dark:text-emerald-400'
+                                  }
+                                  numberOfLines={1}>
+                                  {coupon.benefitLabel}
+                                </ThemedText>
+                              </View>
+                            </View>
+                          </View>
+                        </Pressable>
+                      );
+                    }
+
+                    const poster = item.poster;
+                    const { primary, secondary } = posterCardText(poster);
+                    const hasImage = Boolean(poster.imageUrl?.trim());
+                    const hasVideoOnly = !hasImage && Boolean(poster.videoUrl?.trim());
+                    const hasMediaHero = hasImage || hasVideoOnly;
+                    const titleCls = hasMediaHero
                       ? 'text-base font-bold leading-tight text-white'
                       : 'text-base font-bold leading-tight text-light-text dark:text-dark-text';
-                    const benefitCls = hasImage
-                      ? 'mt-0 text-sm font-semibold leading-tight text-emerald-300'
-                      : 'mt-0 text-sm font-semibold leading-tight text-emerald-600 dark:text-emerald-400';
-                    const metaCls = hasImage
-                      ? 'text-xs leading-tight text-white/80'
-                      : 'text-xs leading-tight text-light-subtext dark:text-dark-subtext';
 
                     return (
                       <Pressable
-                        key={coupon.id}
-                        onPress={() => openCouponSheet(coupon)}
+                        key={`p-${poster.id}`}
+                        onPress={() => openPosterTarget(poster)}
                         accessibilityRole="button"
-                        accessibilityLabel={[coupon.name, coupon.benefitLabel, validityA11y]
-                          .filter(Boolean)
-                          .join('. ')}
+                        accessibilityLabel={[primary, secondary].filter(Boolean).join('. ')}
                         style={[
                           shadowPresets.large,
                           {
@@ -297,8 +483,14 @@ export default function RealBarberHomeTab() {
                         {hasImage ? (
                           <>
                             <Image
-                              source={{ uri: coupon.imageUrl! }}
-                              style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0 }}
+                              source={{ uri: poster.imageUrl!.trim() }}
+                              style={{
+                                position: 'absolute',
+                                top: 0,
+                                left: 0,
+                                right: 0,
+                                bottom: 0,
+                              }}
                               contentFit="cover"
                             />
                             <LinearGradient
@@ -318,51 +510,54 @@ export default function RealBarberHomeTab() {
                               }}
                             />
                           </>
+                        ) : hasVideoOnly ? (
+                          <View
+                            pointerEvents="none"
+                            className="absolute inset-0 items-center justify-center bg-neutral-900">
+                            <LinearGradient
+                              pointerEvents="none"
+                              colors={['rgba(0,0,0,0.5)', 'rgba(0,0,0,0.75)']}
+                              start={{ x: 0, y: 0 }}
+                              end={{ x: 1, y: 1 }}
+                              style={{
+                                position: 'absolute',
+                                left: 0,
+                                top: 0,
+                                right: 0,
+                                bottom: 0,
+                              }}
+                            />
+                            <View className="bg-white/15 rounded-full p-2">
+                              <Icon name="Play" size={28} className="text-white" />
+                            </View>
+                          </View>
                         ) : (
                           <View
                             pointerEvents="none"
                             className="absolute inset-0 bg-light-secondary dark:bg-dark-secondary"
                           />
                         )}
-                        {hasValidity ? (
-                          <View className="absolute bottom-2 right-2 z-20 max-w-[72%]">
-                            <ClientCouponValidityPills
-                              validFrom={coupon.validFrom}
-                              validUntil={coupon.validUntil}
-                              locale={locale}
-                              t={t}
-                              variant={hasImage ? 'cardImage' : 'cardSolid'}
-                              align="end"
-                            />
-                          </View>
-                        ) : null}
-                        <View className="relative z-10 h-full justify-between px-4 pb-3 pt-3">
+                        <View className="relative z-10 h-full justify-start px-4 pb-3 pt-3">
                           <View className="min-w-0 flex-1 justify-start">
                             <ThemedText
                               className={titleCls}
-                              style={hasImage ? COUPON_IMAGE_TEXT_SHADOW_STYLE : undefined}
+                              style={hasMediaHero ? COUPON_IMAGE_TEXT_SHADOW_STYLE : undefined}
                               numberOfLines={2}>
-                              {coupon.name}
+                              {primary}
                             </ThemedText>
-                            <ThemedText
-                              className={benefitCls}
-                              style={hasImage ? COUPON_IMAGE_TEXT_SHADOW_STYLE : undefined}
-                              numberOfLines={1}>
-                              {coupon.benefitLabel}
-                            </ThemedText>
-                          </View>
-                          {!coupon.applicableToAll ? (
-                            <View
-                              className="mt-1 shrink-0"
-                              style={hasValidity ? { paddingRight: 104 } : undefined}>
+                            {secondary ? (
                               <ThemedText
-                                className={metaCls}
-                                style={hasImage ? COUPON_IMAGE_TEXT_SHADOW_STYLE : undefined}
-                                numberOfLines={1}>
-                                {t('homeCouponLimitedScope')}
+                                className={
+                                  hasMediaHero
+                                    ? 'mt-1 text-sm font-semibold leading-tight text-white'
+                                    : 'mt-1 text-sm font-semibold leading-tight text-light-text dark:text-dark-text'
+                                }
+                                style={hasMediaHero ? COUPON_IMAGE_TEXT_SHADOW_STYLE : undefined}
+                                numberOfLines={2}>
+                                {secondary}
                               </ThemedText>
-                            </View>
-                          ) : null}
+                            ) : null}
+                          </View>
                         </View>
                       </Pressable>
                     );
@@ -434,11 +629,6 @@ export default function RealBarberHomeTab() {
           )}
         </View>
       </ThemeScroller>
-      <ClientCouponDetailSheet
-        ref={couponSheetRef}
-        coupon={couponSheetCoupon}
-        onDismiss={() => setCouponSheetCoupon(null)}
-      />
     </>
   );
 }

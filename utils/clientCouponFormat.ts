@@ -70,3 +70,34 @@ export function getClientCouponValidityA11y(
   }
   return parts.join(', ');
 }
+
+/** Fráze omezení z API / CRM — shodné s naším statickým štítkem `homeCouponLimitedScope`. */
+const LIMITED_SCOPE_REPEAT_PHRASES = [
+  'Pouze u vybraných poboček, služeb nebo holičů',
+  'Limited to selected branches, services or staff',
+] as const;
+
+function normalizeScopeText(s: string): string {
+  return s.replace(/\s+/g, ' ').trim().toLowerCase();
+}
+
+/**
+ * Když `!applicableToAll`, zda ještě ukázat řádek/sekci s `homeCouponLimitedScope`.
+ * Pokud API už vrátí stejnou informaci v popisu, nezobrazujeme ji znovu (platnost Od/Do beze změny).
+ */
+export function shouldShowClientCouponLimitedScopeHint(
+  applicableToAll: boolean,
+  description: string | null | undefined,
+  translatedLimitedScopeLabel: string
+): boolean {
+  if (applicableToAll) return false;
+  const raw = description?.trim() ?? '';
+  if (!raw) return true;
+
+  const d = normalizeScopeText(raw);
+  if (d === normalizeScopeText(translatedLimitedScopeLabel)) return false;
+  for (const p of LIMITED_SCOPE_REPEAT_PHRASES) {
+    if (d === normalizeScopeText(p)) return false;
+  }
+  return true;
+}
