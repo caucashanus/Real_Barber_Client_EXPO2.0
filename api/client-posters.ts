@@ -1,4 +1,5 @@
 import { CRM_BASE } from '@/api/bookings';
+import { checkAuthResponse } from './http';
 
 /** Záznam marketingového plakátu z GET /api/client/posters (bez interních CRM polí). */
 export interface ClientPoster {
@@ -18,7 +19,7 @@ export async function getClientPosters(apiToken: string): Promise<ClientPoster[]
     headers: { Authorization: `Bearer ${apiToken}` },
   });
 
-  if (res.status === 401) throw new Error('Unauthorized');
+  checkAuthResponse(res);
   if (!res.ok) throw new Error(`Error ${res.status}`);
 
   const data = (await res.json()) as unknown;

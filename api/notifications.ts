@@ -1,3 +1,4 @@
+import { checkAuthResponse } from './http';
 const CRM_BASE = 'https://crm.xrb.cz';
 
 export interface NotificationHistoryRecipient {
@@ -66,7 +67,7 @@ export async function getNotificationHistory(
     headers: { Authorization: `Bearer ${apiToken}` },
   });
 
-  if (res.status === 401) throw new Error('Unauthorized');
+  checkAuthResponse(res);
   if (!res.ok) throw new Error(`Error ${res.status}`);
 
   const json = (await res.json()) as NotificationHistoryResponse;

@@ -1,4 +1,5 @@
 import { CRM_BASE } from '@/api/bookings';
+import { checkAuthResponse } from './http';
 
 export interface ClientCoupon {
   id: string;
@@ -23,7 +24,7 @@ export async function getClientCoupons(apiToken: string): Promise<ClientCoupon[]
     headers: { Authorization: `Bearer ${apiToken}` },
   });
 
-  if (res.status === 401) throw new Error('Unauthorized');
+  checkAuthResponse(res);
   if (!res.ok) throw new Error(`Error ${res.status}`);
 
   const data = (await res.json()) as unknown;

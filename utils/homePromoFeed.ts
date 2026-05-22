@@ -1,6 +1,5 @@
 import type { ClientCoupon } from '@/api/client-coupons';
 import type { ClientPoster } from '@/api/client-posters';
-import { compareHomePromoCoupons } from '@/utils/homePromoCoupon';
 
 export type HomePromoFeedItem =
   | { kind: 'coupon'; coupon: ClientCoupon }
@@ -29,7 +28,8 @@ export function mergePostersAndCouponsRoundRobin(
     if (a.sortOrder !== b.sortOrder) return a.sortOrder - b.sortOrder;
     return a.id.localeCompare(b.id);
   });
-  const sortedCoupons = [...coupons].sort(compareHomePromoCoupons);
+  // Pořadí kupónů už řídí buildHomePromoCouponCarouselList — zde jen kopie.
+  const sortedCoupons = [...coupons];
 
   const out: HomePromoFeedItem[] = [];
   let i = 0;

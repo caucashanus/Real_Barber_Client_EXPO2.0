@@ -1,4 +1,5 @@
 import { CRM_BASE } from '@/api/bookings';
+import { checkAuthResponse } from './http';
 
 export interface CouponPreviewBody {
   couponCode: string;
@@ -62,7 +63,7 @@ export async function previewCoupon(
     body: JSON.stringify(body),
   });
   const text = await res.text();
-  if (res.status === 401) throw new Error('Unauthorized');
+  checkAuthResponse(res);
   if (!res.ok) {
     throw new Error(parseApiErrorMessage(text, res.status));
   }

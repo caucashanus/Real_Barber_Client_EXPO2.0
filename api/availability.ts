@@ -1,3 +1,4 @@
+import { checkAuthResponse } from './http';
 const CRM_BASE = 'https://crm.xrb.cz';
 
 export interface EmployeesNearestNextSlot {
@@ -57,7 +58,7 @@ export async function getEmployeesNearest(
   });
 
   const text = await res.text();
-  if (res.status === 401) throw new Error('Unauthorized');
+  checkAuthResponse(res);
   if (!res.ok) {
     let msg = `Error ${res.status}`;
     try {

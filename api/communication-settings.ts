@@ -1,3 +1,4 @@
+import { checkAuthResponse } from './http';
 const CRM_BASE = 'https://crm.xrb.cz';
 
 export interface CommunicationChannels {
@@ -61,7 +62,7 @@ export async function getCommunicationSettings(
     headers: { Authorization: `Bearer ${apiToken}` },
   });
 
-  if (res.status === 401) throw new Error('Unauthorized');
+  checkAuthResponse(res);
   if (res.status === 404) throw new Error('Not found');
   if (!res.ok) throw new Error(`Error ${res.status}`);
 
@@ -83,7 +84,7 @@ export async function patchCommunicationSettings(
     body: JSON.stringify(body),
   });
 
-  if (res.status === 401) throw new Error('Unauthorized');
+  checkAuthResponse(res);
   if (res.status === 400) throw new Error('Bad request');
   if (res.status === 404) throw new Error('Not found');
   if (!res.ok) throw new Error(`Error ${res.status}`);

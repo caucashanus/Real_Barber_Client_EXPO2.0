@@ -1,3 +1,4 @@
+import { checkAuthResponse } from './http';
 const CRM_BASE = 'https://crm.xrb.cz';
 
 /** Reservation/product from client overview with optional reviews. */
@@ -26,7 +27,7 @@ export async function getClientOverview(apiToken: string): Promise<ClientOvervie
     method: 'GET',
     headers: { Authorization: `Bearer ${apiToken}` },
   });
-  if (res.status === 401) throw new Error('Unauthorized');
+  checkAuthResponse(res);
   if (!res.ok) throw new Error(`Error ${res.status}`);
   return res.json() as Promise<ClientOverviewResponse>;
 }
@@ -96,7 +97,7 @@ export async function getClientReviewsList(
     method: 'GET',
     headers: { Authorization: `Bearer ${apiToken}` },
   });
-  if (res.status === 401) throw new Error('Unauthorized');
+  checkAuthResponse(res);
   if (!res.ok) throw new Error(`Error ${res.status}`);
   return res.json() as Promise<GetClientReviewsListResponse>;
 }
@@ -118,7 +119,7 @@ export async function getEntityReviews(
     method: 'GET',
     headers: { Authorization: `Bearer ${apiToken}` },
   });
-  if (res.status === 401) throw new Error('Unauthorized');
+  checkAuthResponse(res);
   if (res.status === 404) throw new Error('Not found');
   if (!res.ok) throw new Error(`Error ${res.status}`);
   return res.json() as Promise<GetEntityReviewsResponse>;
@@ -162,7 +163,7 @@ export async function createReview(
     }),
   });
 
-  if (res.status === 401) throw new Error('Unauthorized');
+  checkAuthResponse(res);
   if (res.status === 409) throw new Error('You have already reviewed this.');
   if (!res.ok) throw new Error(`Error ${res.status}`);
 
@@ -204,7 +205,7 @@ export async function updateReview(
     }),
   });
 
-  if (res.status === 401) throw new Error('Unauthorized');
+  checkAuthResponse(res);
   if (res.status === 403) throw new Error('Forbidden');
   if (res.status === 404) throw new Error('Review not found');
   if (!res.ok) throw new Error(`Error ${res.status}`);
@@ -219,7 +220,7 @@ export async function deleteReview(apiToken: string, reviewId: string): Promise<
     headers: { Authorization: `Bearer ${apiToken}` },
   });
 
-  if (res.status === 401) throw new Error('Unauthorized');
+  checkAuthResponse(res);
   if (res.status === 403) throw new Error('Forbidden');
   if (res.status === 404) throw new Error('Review not found');
   if (!res.ok) throw new Error(`Error ${res.status}`);

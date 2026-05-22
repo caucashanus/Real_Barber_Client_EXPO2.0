@@ -1,3 +1,4 @@
+import { checkAuthResponse } from './http';
 const CRM_BASE = 'https://crm.xrb.cz';
 
 /** Flag „Prodejní“ – katalog produktů v aplikaci (GET …/by-flag). */
@@ -176,7 +177,7 @@ export async function getClientProductsByFlag(
     headers: { Authorization: `Bearer ${apiToken}` },
   });
 
-  if (res.status === 401) throw new Error('Unauthorized');
+  checkAuthResponse(res);
   if (!res.ok) throw new Error(`Error ${res.status}`);
 
   return res.json() as Promise<ClientProductsByFlagResponse>;
@@ -191,7 +192,7 @@ export async function getClientProducts(apiToken: string): Promise<ClientProduct
     headers: { Authorization: `Bearer ${apiToken}` },
   });
 
-  if (res.status === 401) throw new Error('Unauthorized');
+  checkAuthResponse(res);
   if (!res.ok) throw new Error(`Error ${res.status}`);
 
   return res.json() as Promise<ClientProductsResponse>;

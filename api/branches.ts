@@ -1,3 +1,4 @@
+import { checkAuthResponse } from './http';
 const CRM_BASE = 'https://crm.xrb.cz';
 
 export interface BranchService {
@@ -61,7 +62,7 @@ export async function getBranches(
     },
   });
 
-  if (res.status === 401) throw new Error('Unauthorized');
+  checkAuthResponse(res);
   if (!res.ok) throw new Error(`Error ${res.status}`);
 
   return res.json() as Promise<Branch[]>;
@@ -75,7 +76,7 @@ export async function getBranchById(token: string, branchId: string): Promise<Br
     headers: { Authorization: `Bearer ${token}` },
   });
 
-  if (res.status === 401) throw new Error('Unauthorized');
+  checkAuthResponse(res);
   if (res.status === 404) throw new Error('Branch not found');
   if (!res.ok) throw new Error(`Error ${res.status}`);
 

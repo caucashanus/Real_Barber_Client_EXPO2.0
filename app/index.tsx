@@ -3,6 +3,7 @@ import React from 'react';
 import { ActivityIndicator, View } from 'react-native';
 
 import { useAuth } from '@/app/contexts/AuthContext';
+import { LOGIN_PATH } from '@/constants/authRoutes';
 
 export default function Index() {
   const { apiToken, isLoading } = useAuth();
@@ -15,5 +16,5 @@ export default function Index() {
     );
   }
 
-  return apiToken ? <Redirect href="/real-barber" /> : <Redirect href="/screens/welcome" />;
+  return apiToken ? <Redirect href="/real-barber" /> : <Redirect href={LOGIN_PATH} />;
 }

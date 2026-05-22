@@ -1,3 +1,4 @@
+import { checkAuthResponse } from './http';
 const CRM_BASE = 'https://crm.xrb.cz';
 
 export interface Employee {
@@ -44,7 +45,7 @@ export async function getEmployees(
     },
   });
 
-  if (res.status === 401) throw new Error('Unauthorized');
+  checkAuthResponse(res);
   if (!res.ok) throw new Error(`Error ${res.status}`);
 
   return res.json() as Promise<Employee[]>;
@@ -91,7 +92,7 @@ export async function getEmployeeById(
     },
   });
 
-  if (res.status === 401) throw new Error('Unauthorized');
+  checkAuthResponse(res);
   if (res.status === 404) throw new Error('Employee not found');
   if (!res.ok) throw new Error(`Error ${res.status}`);
 

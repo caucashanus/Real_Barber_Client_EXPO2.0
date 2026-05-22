@@ -14,6 +14,8 @@ async function incrementAppOpens(): Promise<void> {
 }
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
+import AuthGuard from '@/components/AuthGuard';
+
 import { AccentColorProvider } from './contexts/AccentColorContext';
 import { AuthProvider } from './contexts/AuthContext';
 import { BranchFilterProvider } from './contexts/BranchFilterContext';
@@ -60,7 +62,9 @@ export default function RootLayout() {
                     <BranchFilterProvider>
                       <FavoritesSyncProvider>
                         <PushNotificationsProvider>
-                          <ThemedLayout />
+                          <AuthGuard>
+                            <ThemedLayout />
+                          </AuthGuard>
                         </PushNotificationsProvider>
                       </FavoritesSyncProvider>
                     </BranchFilterProvider>

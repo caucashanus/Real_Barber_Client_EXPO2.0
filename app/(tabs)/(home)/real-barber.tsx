@@ -22,7 +22,7 @@ import ThemedText from '@/components/ThemedText';
 import Section from '@/components/layout/Section';
 import { getBookingEndDate, isBookingPast } from '@/utils/bookingHelpers';
 import { getClientCouponValidityA11y } from '@/utils/clientCouponFormat';
-import { pickDailyFeaturedHomePromoCoupon, homePromoClientSeed } from '@/utils/homePromoCoupon';
+import { buildHomePromoCouponCarouselList, homePromoClientSeed } from '@/utils/homePromoCoupon';
 import { mergePostersAndCouponsRoundRobin, filterHomePosters } from '@/utils/homePromoFeed';
 import { pickHomeSpotlight, formatHomeBookingSlotLabel } from '@/utils/homeSpotlight';
 import { isReservationIntroCooldownActive } from '@/utils/reservation-intro-cooldown';
@@ -210,18 +210,13 @@ export default function RealBarberHomeTab() {
     [client?.id, apiToken]
   );
 
-  const featuredHomePromoCoupon = useMemo(
+  const homePromoCouponsForMerge = useMemo(
     () =>
-      pickDailyFeaturedHomePromoCoupon(homePromoCoupons, {
+      buildHomePromoCouponCarouselList(homePromoCoupons, {
         nowMs: now,
         clientSeed: clientPromoSeed,
       }),
     [homePromoCoupons, now, clientPromoSeed]
-  );
-
-  const homePromoCouponsForMerge = useMemo(
-    () => (featuredHomePromoCoupon ? [featuredHomePromoCoupon] : []),
-    [featuredHomePromoCoupon]
   );
 
   const homePromoFeed = useMemo(
@@ -320,8 +315,7 @@ export default function RealBarberHomeTab() {
                         coupon.validFrom,
                         coupon.validUntil,
                         locale,
-                        t,
-                        { homeCardUntilOnly: true }
+                        t
                       );
                       const hasValidity = validityA11y != null;
                       const hasImage = Boolean(coupon.imageUrl?.trim());

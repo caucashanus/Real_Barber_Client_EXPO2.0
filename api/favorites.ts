@@ -1,3 +1,4 @@
+import { checkAuthResponse } from './http';
 const CRM_BASE = 'https://crm.xrb.cz';
 
 export type FavoriteEntityType =
@@ -52,7 +53,7 @@ export async function addFavorite(apiToken: string, body: AddFavoriteBody): Prom
     }),
   });
 
-  if (res.status === 401) throw new Error('Unauthorized');
+  checkAuthResponse(res);
   if (res.status === 409) throw new Error('Already in favorites');
   if (!res.ok) throw new Error(`Error ${res.status}`);
 
@@ -80,7 +81,7 @@ export async function getFavorites(
     headers: { Authorization: `Bearer ${apiToken}` },
   });
 
-  if (res.status === 401) throw new Error('Unauthorized');
+  checkAuthResponse(res);
   if (!res.ok) throw new Error(`Error ${res.status}`);
 
   const data = await res.json();
@@ -94,7 +95,7 @@ export async function getFavoriteById(apiToken: string, id: string): Promise<Fav
     headers: { Authorization: `Bearer ${apiToken}` },
   });
 
-  if (res.status === 401) throw new Error('Unauthorized');
+  checkAuthResponse(res);
   if (res.status === 404) throw new Error('Not found');
   if (!res.ok) throw new Error(`Error ${res.status}`);
 
@@ -124,7 +125,7 @@ export async function updateFavorite(
     body: JSON.stringify(body),
   });
 
-  if (res.status === 401) throw new Error('Unauthorized');
+  checkAuthResponse(res);
   if (res.status === 404) throw new Error('Not found');
   if (!res.ok) throw new Error(`Error ${res.status}`);
 
@@ -138,7 +139,7 @@ export async function deleteFavorite(apiToken: string, id: string): Promise<void
     headers: { Authorization: `Bearer ${apiToken}` },
   });
 
-  if (res.status === 401) throw new Error('Unauthorized');
+  checkAuthResponse(res);
   if (res.status === 404) throw new Error('Not found');
   if (!res.ok) throw new Error(`Error ${res.status}`);
 }

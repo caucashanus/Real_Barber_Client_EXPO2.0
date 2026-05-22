@@ -1,3 +1,4 @@
+import { checkAuthResponse } from './http';
 const CRM_BASE = 'https://crm.xrb.cz';
 
 export interface RbCoinsBalanceEntity {
@@ -19,7 +20,7 @@ export async function getRbCoinsBalance(apiToken: string): Promise<RbCoinsBalanc
     headers: { Authorization: `Bearer ${apiToken}` },
   });
 
-  if (res.status === 401) throw new Error('Unauthorized');
+  checkAuthResponse(res);
   if (!res.ok) throw new Error(`Error ${res.status}`);
 
   return res.json() as Promise<RbCoinsBalanceResponse>;
@@ -70,7 +71,7 @@ export async function getRbCoinsHistory(
     headers: { Authorization: `Bearer ${apiToken}` },
   });
 
-  if (res.status === 401) throw new Error('Unauthorized');
+  checkAuthResponse(res);
   if (!res.ok) throw new Error(`Error ${res.status}`);
 
   const json = await res.json();
@@ -103,7 +104,7 @@ export async function rbCoinsTransfer(
     body: JSON.stringify(params),
   });
 
-  if (res.status === 401) throw new Error('Unauthorized');
+  checkAuthResponse(res);
   if (!res.ok) throw new Error(`Error ${res.status}`);
 
   return res.json() as Promise<RbCoinsHistoryItem>;

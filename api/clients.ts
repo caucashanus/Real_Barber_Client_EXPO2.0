@@ -1,3 +1,4 @@
+import { checkAuthResponse } from './http';
 const CRM_BASE = 'https://crm.xrb.cz';
 
 export interface ClientSearchItem {
@@ -53,7 +54,7 @@ export async function searchClients(
     headers: { Authorization: `Bearer ${apiToken}` },
   });
 
-  if (res.status === 401) throw new Error('Unauthorized');
+  checkAuthResponse(res);
   if (res.status === 400) {
     const body = await res.json().catch(() => ({}));
     throw new Error((body as { error?: string }).error ?? 'Neplatný dotaz');

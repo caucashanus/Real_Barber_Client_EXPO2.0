@@ -1,3 +1,4 @@
+import { checkAuthResponse } from './http';
 export const CRM_BASE = 'https://crm.xrb.cz';
 
 export interface BookingEmployee {
@@ -150,7 +151,7 @@ export async function getClientBookingById(
     },
   });
   const text = await res.text();
-  if (res.status === 401) throw new Error('Unauthorized');
+  checkAuthResponse(res);
   if (res.status === 404) return null;
   if (!res.ok) {
     let msg = `Error ${res.status}`;
@@ -224,7 +225,7 @@ export async function getBookings(
     },
   });
 
-  if (res.status === 401) throw new Error('Unauthorized');
+  checkAuthResponse(res);
   if (!res.ok) throw new Error(`Error ${res.status}`);
 
   const raw = await res.json();
@@ -266,7 +267,7 @@ export async function createBooking(
   });
 
   const text = await res.text();
-  if (res.status === 401) throw new Error('Unauthorized');
+  checkAuthResponse(res);
   if (res.status === 400) {
     let msg = 'Invalid booking data or slot conflict';
     try {
@@ -357,7 +358,7 @@ export async function getBookingAvailability(
   });
 
   const text = await res.text();
-  if (res.status === 401) throw new Error('Unauthorized');
+  checkAuthResponse(res);
   if (!res.ok) {
     let msg = `Error ${res.status}`;
     try {
@@ -393,7 +394,7 @@ export async function cancelBooking(
         : undefined,
   });
   const text = await res.text();
-  if (res.status === 401) throw new Error('Unauthorized');
+  checkAuthResponse(res);
   if (res.status === 403)
     throw new Error('Rezervaci nelze zrušit méně než 2 hodiny před domluveným termínem.');
   if (res.status === 404) throw new Error('Booking not found');
@@ -455,7 +456,7 @@ export async function updateBooking(
   });
 
   const text = await res.text();
-  if (res.status === 401) throw new Error('Unauthorized');
+  checkAuthResponse(res);
   if (res.status === 403)
     throw new Error('Rezervaci nelze upravit méně než 1 hodinu před domluveným termínem.');
   if (res.status === 404) throw new Error('Booking not found');

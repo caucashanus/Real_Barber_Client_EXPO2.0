@@ -1,7 +1,10 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import { router } from 'expo-router';
+import React, { createContext, useCallback, useContext, useEffect, useState } from 'react';
 
 import type { CrmClient } from '@/api/auth';
+import { setUnauthorizedHandler } from '@/api/session';
+import { LOGIN_PATH } from '@/constants/authRoutes';
 
 const TOKEN_KEY = '@crm_token';
 const API_TOKEN_KEY = '@crm_api_token';
@@ -17,6 +20,7 @@ interface AuthState {
 interface AuthContextValue extends AuthState {
   setAuth: (token: string, apiToken: string, client: CrmClient) => Promise<void>;
   clearAuth: () => Promise<void>;
+  signOutToLogin: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextValue | null>(null);
@@ -26,6 +30,26 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [apiToken, setApiTokenState] = useState<string | null>(null);
   const [client, setClient] = useState<CrmClient | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+
+  const clearAuth = useCallback(async () => {
+    setTokenState(null);
+    setApiTokenState(null);
+    setClient(null);
+    try {
+      await Promise.all([
+        AsyncStorage.removeItem(TOKEN_KEY),
+        AsyncStorage.removeItem(API_TOKEN_KEY),
+        AsyncStorage.removeItem(CLIENT_KEY),
+      ]);
+    } catch {
+      // AsyncStorage unavailable; in-memory state is still updated
+    }
+  }, []);
+
+  const signOutToLogin = useCallback(async () => {
+    await clearAuth();
+    router.replace(LOGIN_PATH);
+  }, [clearAuth]);
 
   useEffect(() => {
     const load = async () => {
@@ -38,7 +62,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         if (storedToken) setTokenState(storedToken);
         if (storedApiToken) setApiTokenState(storedApiToken);
         if (storedClient) {
-          try { setClient(JSON.parse(storedClient)); } catch { /* ignore */ }
+          try {
+            setClient(JSON.parse(storedClient));
+          } catch {
+            /* ignore */
+          }
         }
       } catch {
         // AsyncStorage unavailable (e.g. native module null in some environments)
@@ -48,6 +76,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     };
     load();
   }, []);
+
+  useEffect(() => {
+    setUnauthorizedHandler(() => {
+      void signOutToLogin();
+    });
+    return () => setUnauthorizedHandler(null);
+  }, [signOutToLogin]);
 
   const setAuth = async (newToken: string, newApiToken: string, newClient: CrmClient) => {
     setTokenState(newToken);
@@ -64,21 +99,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
-  const clearAuth = async () => {
-    setTokenState(null);
-    setApiTokenState(null);
-    setClient(null);
-    try {
-      await Promise.all([
-        AsyncStorage.removeItem(TOKEN_KEY),
-        AsyncStorage.removeItem(API_TOKEN_KEY),
-        AsyncStorage.removeItem(CLIENT_KEY),
-      ]);
-    } catch {
-      // AsyncStorage unavailable; in-memory state is still updated
-    }
-  };
-
   const value: AuthContextValue = {
     token,
     apiToken,
@@ -86,6 +106,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     isLoading,
     setAuth,
     clearAuth,
+    signOutToLogin,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

@@ -1,3 +1,4 @@
+import { checkAuthResponse } from './http';
 const CRM_BASE = 'https://crm.xrb.cz';
 
 export interface ClientMe {
@@ -30,7 +31,7 @@ export async function getClientMe(apiToken: string): Promise<ClientMe> {
     headers: { Authorization: `Bearer ${apiToken}` },
   });
 
-  if (res.status === 401) throw new Error('Unauthorized');
+  checkAuthResponse(res);
   if (!res.ok) throw new Error(`Error ${res.status}`);
 
   return res.json() as Promise<ClientMe>;
@@ -112,7 +113,7 @@ export async function uploadClientMedia(
     body: form,
   });
 
-  if (res.status === 401) throw new Error('Unauthorized');
+  checkAuthResponse(res);
   if (res.status === 413) throw new Error('Soubor je příliš velký (max 15 MB)');
   if (res.status === 400) {
     const txt = await res.text().catch(() => '');
@@ -153,7 +154,7 @@ export async function uploadClientAvatar(
     body: form,
   });
 
-  if (res.status === 401) throw new Error('Unauthorized');
+  checkAuthResponse(res);
   if (res.status === 413) throw new Error('Soubor je příliš velký');
   if (!res.ok) {
     const txt = await res.text().catch(() => '');
@@ -168,7 +169,7 @@ export async function deleteClientMedia(apiToken: string, mediaId: string): Prom
     headers: { Authorization: `Bearer ${apiToken}` },
   });
 
-  if (res.status === 401) throw new Error('Unauthorized');
+  checkAuthResponse(res);
   if (res.status === 403) throw new Error('Access denied');
   if (res.status === 404) throw new Error('Media file not found');
   if (!res.ok) throw new Error(`Media delete failed: ${res.status}`);
@@ -185,7 +186,7 @@ export async function patchClientMe(apiToken: string, body: UpdateClientMeBody):
     body: JSON.stringify(body),
   });
 
-  if (res.status === 401) throw new Error('Unauthorized');
+  checkAuthResponse(res);
   if (res.status === 400) throw new Error('Invalid input data');
   if (res.status === 409) throw new Error('Phone number already exists');
   if (res.status === 500) throw new Error('Failed to update profile');
@@ -216,7 +217,7 @@ export async function deleteClientAccount(
     ...(payload ? { body: payload } : {}),
   });
 
-  if (res.status === 401) throw new Error('Unauthorized');
+  checkAuthResponse(res);
   if (res.status === 500) throw new Error('Failed to delete account');
   if (!res.ok) {
     const txt = await res.text().catch(() => '');

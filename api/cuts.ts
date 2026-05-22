@@ -1,3 +1,4 @@
+import { checkAuthResponse } from './http';
 const CRM_BASE = 'https://crm.xrb.cz';
 
 export interface CutBarber {
@@ -92,7 +93,7 @@ export async function getClientCuts(
     headers: { Authorization: `Bearer ${apiToken}` },
   });
 
-  if (res.status === 401) throw new Error('Unauthorized');
+  checkAuthResponse(res);
   if (!res.ok) throw new Error(`Error ${res.status}`);
 
   return res.json() as Promise<GetClientCutsResponse>;
@@ -172,7 +173,7 @@ export async function createClientCut(
     const data = await res.json().catch(() => ({}));
     throw new Error((data as { message?: string }).message ?? 'Invalid input');
   }
-  if (res.status === 401) throw new Error('Unauthorized');
+  checkAuthResponse(res);
   if (!res.ok) throw new Error(`Error ${res.status}`);
 
   const raw = await res.json().catch(() => null);
@@ -222,7 +223,7 @@ export async function getClientCut(apiToken: string, id: string): Promise<Client
     headers: { Authorization: `Bearer ${apiToken}` },
   });
 
-  if (res.status === 401) throw new Error('Unauthorized');
+  checkAuthResponse(res);
   if (res.status === 404) throw new Error('Haircut not found');
   if (!res.ok) throw new Error(`Error ${res.status}`);
 
@@ -280,7 +281,7 @@ export async function patchClientCut(
     const data = await res.json().catch(() => ({}));
     throw new Error((data as { message?: string }).message ?? 'Invalid input');
   }
-  if (res.status === 401) throw new Error('Unauthorized');
+  checkAuthResponse(res);
   if (res.status === 403) throw new Error('Forbidden');
   if (res.status === 404) throw new Error('Haircut not found');
   if (res.status === 500) {
@@ -304,7 +305,7 @@ export async function deleteClientCut(
     headers: { Authorization: `Bearer ${apiToken}` },
   });
 
-  if (res.status === 401) throw new Error('Unauthorized');
+  checkAuthResponse(res);
   if (res.status === 403) throw new Error('Forbidden');
   if (res.status === 404) throw new Error('Haircut not found');
   if (!res.ok) throw new Error(`Error ${res.status}`);

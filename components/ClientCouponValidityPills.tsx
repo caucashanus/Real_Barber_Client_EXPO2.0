@@ -10,7 +10,7 @@ export interface ClientCouponValidityPillsProps {
   validFrom: string;
   validUntil: string | null;
   locale: string;
-  /** i18n — klíče: homeCouponValidityPillFrom, homeCouponValidityPillUntil */
+  /** i18n — klíč: homeCouponValidityPillUntil */
   t: (key: string) => string;
   variant: ClientCouponValidityPillsVariant;
   /** For flex alignment on cards (end = bottom-right block) */
@@ -21,27 +21,22 @@ const VARIANT_CLASSES: Record<
   ClientCouponValidityPillsVariant,
   {
     pill: string;
-    /** Navíc u pilulky „Od …“, když platnost ještě nezačala */
-    fromFuture: string;
     prefix: string;
     value: string;
   }
 > = {
   cardImage: {
     pill: 'rounded-full border border-white/25 bg-black/50 px-2 py-0.5',
-    fromFuture: 'border-amber-300/70',
     prefix: 'text-[10px] text-white/80',
     value: 'text-[10px] font-semibold text-white',
   },
   cardSolid: {
     pill: 'rounded-full border border-neutral-200 bg-light-primary px-2 py-0.5 dark:border-dark-secondary dark:bg-dark-secondary',
-    fromFuture: 'border-amber-400/60 dark:border-amber-500/50',
     prefix: 'text-[10px] text-light-subtext dark:text-dark-subtext',
     value: 'text-[10px] font-semibold text-light-text dark:text-dark-text',
   },
   sheet: {
     pill: 'rounded-full border border-neutral-200 bg-light-secondary px-3 py-1.5 dark:border-dark-secondary dark:bg-dark-secondary',
-    fromFuture: 'border-amber-400/55 dark:border-amber-500/45',
     prefix: 'text-xs text-light-subtext dark:text-dark-subtext',
     value: 'text-sm font-semibold text-light-text dark:text-dark-text',
   },
@@ -57,41 +52,18 @@ export function ClientCouponValidityPills({
 }: ClientCouponValidityPillsProps) {
   const model = resolveClientCouponValidity(validFrom, validUntil, locale);
   if (!model) return null;
+
   const c = VARIANT_CLASSES[variant];
   const justify = align === 'end' ? 'justify-end' : 'justify-start';
-  const isCardVariant = variant === 'cardImage' || variant === 'cardSolid';
-
-  /** Na kartách jen „Do datum“; bez konce platnosti žádná pilulka. */
-  if (isCardVariant) {
-    if (model.isOpenEnded || !model.untilDisplay) return null;
-    return (
-      <View className={`flex-row flex-wrap gap-1 ${justify}`} pointerEvents="none">
-        <View className={c.pill}>
-          <ThemedText className={c.prefix}>
-            {t('homeCouponValidityPillUntil')}{' '}
-            <ThemedText className={c.value}>{model.untilDisplay}</ThemedText>
-          </ThemedText>
-        </View>
-      </View>
-    );
-  }
 
   return (
     <View className={`flex-row flex-wrap gap-1 ${justify}`} pointerEvents="none">
-      <View className={`${c.pill}${model.startsInFuture ? ` ${c.fromFuture}` : ''}`}>
+      <View className={c.pill}>
         <ThemedText className={c.prefix}>
-          {t('homeCouponValidityPillFrom')}{' '}
-          <ThemedText className={c.value}>{model.fromDisplay}</ThemedText>
+          {t('homeCouponValidityPillUntil')}{' '}
+          <ThemedText className={c.value}>{model.untilDisplay}</ThemedText>
         </ThemedText>
       </View>
-      {model.isOpenEnded ? null : model.untilDisplay ? (
-        <View className={c.pill}>
-          <ThemedText className={c.prefix}>
-            {t('homeCouponValidityPillUntil')}{' '}
-            <ThemedText className={c.value}>{model.untilDisplay}</ThemedText>
-          </ThemedText>
-        </View>
-      ) : null}
     </View>
   );
 }

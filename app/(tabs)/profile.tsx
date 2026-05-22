@@ -211,7 +211,7 @@ function daysSinceCreatedAt(createdAt: string | null | undefined): number | null
 }
 
 const PersonalProfile = ({ onRegisterRefresh }: { onRegisterRefresh?: (fn: () => Promise<void>) => void }) => {
-  const { apiToken, clearAuth } = useAuth();
+  const { apiToken, signOutToLogin } = useAuth();
   const { t } = useTranslation();
   const [client, setClient] = useState<ClientMe | null>(null);
   const [loading, setLoading] = useState(false);
@@ -357,10 +357,7 @@ const PersonalProfile = ({ onRegisterRefresh }: { onRegisterRefresh?: (fn: () =>
           showChevron
           title={t('profileLogout')}
           icon="LogOut"
-          onPress={async () => {
-            await clearAuth();
-            router.replace('/screens/welcome');
-          }}
+          onPress={() => void signOutToLogin()}
         />
       </View>
       <ProfileVersionBadge />
