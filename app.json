@@ -2,8 +2,8 @@
   "expo": {
     "name": "Real Barber",
     "slug": "realbarber",
-    "version": "1.0.12",
-    "runtimeVersion": "1.0.12",
+    "version": "1.0.13",
+    "runtimeVersion": "1.0.13",
     "scheme": "realbarber",
     "experiments": {
       "tsconfigPaths": true
@@ -53,7 +53,7 @@
       "deploymentTarget": "16.2",
       "appleTeamId": "VK8YT9654D",
       "bundleIdentifier": "com.realbarber.client",
-      "buildNumber": "49",
+      "buildNumber": "50",
       "supportsTablet": false,
       "infoPlist": {
         "ITSAppUsesNonExemptEncryption": false,
@@ -70,7 +70,7 @@
     },
     "android": {
       "package": "com.realbarber.client",
-      "versionCode": 49,
+      "versionCode": 50,
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
