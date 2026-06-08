@@ -1,7 +1,7 @@
+import { Image } from 'expo-image';
 import { router } from 'expo-router';
 import React, { useContext, useEffect, useMemo, useState } from 'react';
-import {Animated, Pressable, View, ActivityIndicator} from 'react-native';
-import { Image } from 'expo-image';
+import { Animated, Pressable, View, ActivityIndicator } from 'react-native';
 
 import { ScrollContext } from './_layout';
 
@@ -28,7 +28,11 @@ function getServicesList(branch: Branch): BranchService[] {
 
 function getMediaUrlsSorted(media: Branch['media']): string[] {
   if (!media) return [];
-  const list = Array.isArray(media) ? [...media] : Object.values(media);
+  const list = (Array.isArray(media) ? [...media] : Object.values(media ?? {})) as {
+    url?: string;
+    order?: number;
+    type?: string;
+  }[];
   const withOrder = list.filter((m): m is { url: string; order?: number } => !!m?.url);
   withOrder.sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
   return withOrder.map((m) => m.url);
@@ -38,7 +42,11 @@ function getMediaUrlsSorted(media: Branch['media']): string[] {
 function getKudyVideoUrl(branch: Branch): string | null {
   const media = branch.media;
   if (!media) return null;
-  const list = Array.isArray(media) ? [...media] : Object.values(media);
+  const list = (Array.isArray(media) ? [...media] : Object.values(media ?? {})) as {
+    url?: string;
+    order?: number;
+    type?: string;
+  }[];
   const videos = list.filter(
     (m): m is { url: string; order?: number; type?: string } =>
       !!m?.url && (m as { type?: string }).type === 'video'

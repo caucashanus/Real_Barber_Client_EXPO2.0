@@ -1,7 +1,7 @@
 import Slider from '@react-native-community/slider';
-import React, { useEffect, useMemo, useRef, useState } from 'react';
-import {View, ScrollView, Pressable, Dimensions} from 'react-native';
 import { Image } from 'expo-image';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
+import { View, ScrollView, Pressable, Dimensions } from 'react-native';
 import ActionSheet, { ActionSheetRef } from 'react-native-actions-sheet';
 
 import { useAccentColor } from '@/app/contexts/AccentColorContext';
@@ -100,32 +100,32 @@ export default function HaircutNoteEditModals({
       setTypeValues(
         parseOverviewOptionValuesFromNote(
           note,
-          t('addPropertyStepHaircutType'),
+          t('haircutCreateStepHaircutType'),
           PROPERTY_TYPE_OPTIONS
         )
       );
       setSeasonValues(
-        parseOverviewOptionValuesFromNote(note, t('addPropertyStepSeason'), GUEST_ACCESS_OPTIONS)
+        parseOverviewOptionValuesFromNote(note, t('haircutCreateStepSeason'), GUEST_ACCESS_OPTIONS)
       );
     }
     if (kind === 'measurements') {
       const v = parseMeasurementValues(note, {
-        ears: t('addPropertyLengthAtEars'),
-        top: t('addPropertyLengthOnTop'),
-        weeks: t('addPropertyHowOftenTrim'),
+        ears: t('haircutCreateLengthAtEars'),
+        top: t('haircutCreateLengthOnTop'),
+        weeks: t('haircutCreateHowOftenTrim'),
       });
       setEars(v.ears);
       setTop(v.top);
       setWeeks(v.weeks);
     }
     if (kind === 'difficulty') {
-      setDifficulty(parseDifficultyPercent(note, t('addPropertyDifficulty')));
+      setDifficulty(parseDifficultyPercent(note, t('haircutCreateDifficulty')));
     }
     if (kind === 'description') {
-      setDescDraft(parseDescriptionFromNote(note, t('addPropertyDescription')));
+      setDescDraft(parseDescriptionFromNote(note, t('haircutCreateDescription')));
     }
     if (kind === 'features') {
-      const prefix = `${t('addPropertyStepFeatures')}:`;
+      const prefix = `${t('haircutCreateStepFeatures')}:`;
       const line = getNoteLines(note).find((l) => l.startsWith(prefix));
       const tags = line
         ? line
@@ -146,19 +146,19 @@ export default function HaircutNoteEditModals({
 
   const applyMeasurements = () => {
     let next = note;
-    next = upsertLabeledLine(next, t('addPropertyLengthAtEars'), `${ears} cm`);
-    next = upsertLabeledLine(next, t('addPropertyLengthOnTop'), `${top} cm`);
+    next = upsertLabeledLine(next, t('haircutCreateLengthAtEars'), `${ears} cm`);
+    next = upsertLabeledLine(next, t('haircutCreateLengthOnTop'), `${top} cm`);
     next = upsertLabeledLine(
       next,
-      t('addPropertyHowOftenTrim'),
-      `${weeks} ${t('addPropertyWeeksUnit')}`
+      t('haircutCreateHowOftenTrim'),
+      `${weeks} ${t('haircutCreateWeeksUnit')}`
     );
     onApply(next);
     onClose();
   };
 
   const applyFeatures = () => {
-    const featuresLabel = t('addPropertyStepFeatures');
+    const featuresLabel = t('haircutCreateStepFeatures');
     if (amenitySel.length === 0) {
       onApply(removeLineWithLabel(note, featuresLabel));
     } else {
@@ -172,12 +172,12 @@ export default function HaircutNoteEditModals({
   };
 
   const applyDifficulty = () => {
-    onApply(upsertLabeledLine(note, t('addPropertyDifficulty'), `${Math.round(difficulty)}%`));
+    onApply(upsertLabeledLine(note, t('haircutCreateDifficulty'), `${Math.round(difficulty)}%`));
     onClose();
   };
 
   const applyDescription = () => {
-    const label = t('addPropertyDescription');
+    const label = t('haircutCreateDescription');
     const trimmed = descDraft.trim();
     if (!trimmed) {
       onApply(removeLineWithLabel(note, label));
@@ -189,8 +189,8 @@ export default function HaircutNoteEditModals({
 
   const applyOverview = () => {
     let next = note;
-    const tl = t('addPropertyStepHaircutType');
-    const sl = t('addPropertyStepSeason');
+    const tl = t('haircutCreateStepHaircutType');
+    const sl = t('haircutCreateStepSeason');
     if (typeValues.length === 0) {
       next = removeLineWithLabel(next, tl);
     } else {
@@ -263,10 +263,10 @@ export default function HaircutNoteEditModals({
         {kind === 'overview' ? (
           <>
             <ThemedText className="mb-1 text-sm text-light-subtext dark:text-dark-subtext">
-              {t('addPropertyStepHaircutType')}
+              {t('haircutCreateStepHaircutType')}
             </ThemedText>
             <ThemedText className="mb-3 text-xs text-light-subtext dark:text-dark-subtext">
-              {t('addPropertySelectMultiple')}
+              {t('haircutCreateSelectMultiple')}
             </ThemedText>
             <View className="mb-6">
               {PROPERTY_TYPE_OPTIONS.map((option) => (
@@ -288,10 +288,10 @@ export default function HaircutNoteEditModals({
               ))}
             </View>
             <ThemedText className="mb-1 text-sm text-light-subtext dark:text-dark-subtext">
-              {t('addPropertyStepSeason')}
+              {t('haircutCreateStepSeason')}
             </ThemedText>
             <ThemedText className="mb-3 text-xs text-light-subtext dark:text-dark-subtext">
-              {t('addPropertySelectMultiple')}
+              {t('haircutCreateSelectMultiple')}
             </ThemedText>
             <View>
               {GUEST_ACCESS_OPTIONS.map((option) => (
@@ -321,27 +321,27 @@ export default function HaircutNoteEditModals({
           <>
             <View className="flex-row items-center justify-between py-3">
               <View className="flex-1 pr-4">
-                <ThemedText className="text-lg">{t('addPropertyLengthAtEars')}</ThemedText>
+                <ThemedText className="text-lg">{t('haircutCreateLengthAtEars')}</ThemedText>
                 <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext">
-                  {t('addPropertyLengthCm')}
+                  {t('haircutCreateLengthCm')}
                 </ThemedText>
               </View>
               <Counter value={ears} onChange={(v) => setEars(v ?? 0)} min={0} max={20} />
             </View>
             <View className="flex-row items-center justify-between border-t border-light-secondary py-3 dark:border-dark-secondary">
               <View className="flex-1 pr-4">
-                <ThemedText className="text-lg">{t('addPropertyLengthOnTop')}</ThemedText>
+                <ThemedText className="text-lg">{t('haircutCreateLengthOnTop')}</ThemedText>
                 <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext">
-                  {t('addPropertyLengthCm')}
+                  {t('haircutCreateLengthCm')}
                 </ThemedText>
               </View>
               <Counter value={top} onChange={(v) => setTop(v ?? 0)} min={0} max={20} />
             </View>
             <View className="flex-row items-center justify-between border-t border-light-secondary py-3 dark:border-dark-secondary">
               <View className="flex-1 pr-4">
-                <ThemedText className="text-lg">{t('addPropertyHowOftenTrim')}</ThemedText>
+                <ThemedText className="text-lg">{t('haircutCreateHowOftenTrim')}</ThemedText>
                 <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext">
-                  {t('addPropertyWeeksToComeIn')}
+                  {t('haircutCreateWeeksToComeIn')}
                 </ThemedText>
               </View>
               <Counter value={weeks} onChange={(v) => setWeeks(v ?? 4)} min={1} max={24} />
@@ -376,7 +376,7 @@ export default function HaircutNoteEditModals({
 
         {kind === 'difficulty' ? (
           <>
-            <Section title={t('addPropertyDifficulty')} titleSize="md" padding="sm">
+            <Section title={t('haircutCreateDifficulty')} titleSize="md" padding="sm">
               <Slider
                 style={{ width: '100%', height: 40 }}
                 value={difficulty}
@@ -399,7 +399,7 @@ export default function HaircutNoteEditModals({
         {kind === 'description' ? (
           <>
             <Input
-              label={t('addPropertyDescription')}
+              label={t('haircutCreateDescription')}
               value={descDraft}
               onChangeText={setDescDraft}
               isMultiline

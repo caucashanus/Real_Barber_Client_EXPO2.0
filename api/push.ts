@@ -11,7 +11,7 @@
  *
  * Volání: po loginu / při startu / po změně Expo tokenu (`registerPushToken`), při logoutu (`unregisterPushToken`).
  */
-const CRM_BASE = 'https://crm.xrb.cz';
+import { fetchCrm } from './http';
 
 /** Tělo `POST /api/client/push/register-token` (application/json). */
 export interface RegisterPushTokenPayload {
@@ -31,38 +31,21 @@ export interface PushTokenMutationResponse {
   status: number;
 }
 
-async function parseErrorBody(res: Response): Promise<string> {
-  const text = await res.text();
-  if (!text) return `Push API error ${res.status}`;
-  try {
-    const json = JSON.parse(text) as { message?: string; error?: string };
-    return json.message ?? json.error ?? text.slice(0, 200);
-  } catch {
-    return text.slice(0, 200);
-  }
-}
-
-async function postJson(apiToken: string, path: string, body: unknown): Promise<void> {
-  const res = await fetch(`${CRM_BASE}${path}`, {
-    method: 'POST',
-    headers: {
-      Authorization: `Bearer ${apiToken}`,
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(body),
-  });
-  if (res.ok) return;
-  const detail = await parseErrorBody(res);
-  throw new Error(detail || `Push API error ${res.status}`);
-}
-
 export async function registerPushToken(
   apiToken: string,
   payload: RegisterPushTokenPayload
 ): Promise<void> {
-  await postJson(apiToken, '/api/client/push/register-token', payload);
+  await fetchCrm<void>('/api/client/push/register-token', {
+    method: 'POST',
+    apiToken,
+    body: payload,
+  });
 }
 
 export async function unregisterPushToken(apiToken: string, token: string): Promise<void> {
-  await postJson(apiToken, '/api/client/push/unregister-token', { token });
+  await fetchCrm<void>('/api/client/push/unregister-token', {
+    method: 'POST',
+    apiToken,
+    body: { token },
+  });
 }

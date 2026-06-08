@@ -1,7 +1,7 @@
+import { Image } from 'expo-image';
 import { router, useLocalSearchParams } from 'expo-router';
 import React, { useEffect } from 'react';
-import {View} from 'react-native';
-import { Image } from 'expo-image';
+import { View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { useTranslation } from '@/app/hooks/useTranslation';
@@ -14,7 +14,7 @@ import {
   setHaircutIntroCooldown24h,
 } from '@/utils/haircut-intro-cooldown';
 
-export default function AddPropertyStart() {
+export default function HaircutCreateStartScreen() {
   const insets = useSafeAreaInsets();
   const { t } = useTranslation();
   const params = useLocalSearchParams<{ from?: string | string[] }>();
@@ -27,7 +27,7 @@ export default function AddPropertyStart() {
       const active = await isHaircutIntroCooldownActive();
       if (cancelled) return;
       if (active && from !== 'cta') {
-        router.replace('/screens/add-property');
+        router.replace('/screens/haircut-create');
       }
     })();
     return () => {
@@ -41,28 +41,28 @@ export default function AddPropertyStart() {
       <View className=" flex h-full  flex-1 justify-start bg-light-primary px-6 dark:bg-dark-primary">
         <View className="mt-4 pb-6">
           <ThemedText className="mb-8 text-4xl font-semibold">
-            {t('addPropertyEasyTitle')}
+            {t('haircutCreateEasyTitle')}
           </ThemedText>
         </View>
 
         <IntroStep
           number="1"
-          title={t('addPropertyStep1Title')}
-          description={t('addPropertyStep1Desc')}
+          title={t('haircutCreateStep1Title')}
+          description={t('haircutCreateStep1Desc')}
           image={require('@/assets/img/myidea.png')}
         />
         <Divider className="my-4" />
         <IntroStep
           number="2"
-          title={t('addPropertyStep2Title')}
-          description={t('addPropertyStep2Desc')}
+          title={t('haircutCreateStep2Title')}
+          description={t('haircutCreateStep2Desc')}
           image={require('@/assets/img/myrules.png')}
         />
         <Divider className="my-4" />
         <IntroStep
           number="3"
-          title={t('addPropertyStep3Title')}
-          description={t('addPropertyStep3Desc')}
+          title={t('haircutCreateStep3Title')}
+          description={t('haircutCreateStep3Desc')}
           image={require('@/assets/img/savefinish.png')}
         />
 
@@ -72,10 +72,10 @@ export default function AddPropertyStart() {
             variant="primary"
             textClassName="text-white"
             rounded="full"
-            title={t('addPropertyLetsGo')}
+            title={t('haircutCreateLetsGo')}
             onPress={async () => {
               await setHaircutIntroCooldown24h();
-              router.push('/screens/add-property');
+              router.push('/screens/haircut-create');
             }}
           />
         </View>

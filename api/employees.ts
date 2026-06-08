@@ -1,5 +1,4 @@
-import { checkAuthResponse } from './http';
-const CRM_BASE = 'https://crm.xrb.cz';
+import { CrmHttpError, fetchCrm } from './http';
 
 export interface Employee {
   id: string;
@@ -36,19 +35,8 @@ export async function getEmployees(
     params.set('includeReviews', String(options.includeReviews));
   if (options.reviewsLimit !== undefined) params.set('reviewsLimit', String(options.reviewsLimit));
   const qs = params.toString();
-  const url = `${CRM_BASE}/api/client/employees${qs ? `?${qs}` : ''}`;
 
-  const res = await fetch(url, {
-    method: 'GET',
-    headers: {
-      Authorization: `Bearer ${apiToken}`,
-    },
-  });
-
-  checkAuthResponse(res);
-  if (!res.ok) throw new Error(`Error ${res.status}`);
-
-  return res.json() as Promise<Employee[]>;
+  return fetchCrm<Employee[]>(`/api/client/employees${qs ? `?${qs}` : ''}`, { apiToken });
 }
 
 export interface EmployeeBranch {
@@ -83,18 +71,13 @@ export async function getEmployeeById(
   apiToken: string,
   employeeId: string
 ): Promise<EmployeeDetail> {
-  const url = `${CRM_BASE}/api/client/employees/${encodeURIComponent(employeeId)}`;
-
-  const res = await fetch(url, {
-    method: 'GET',
-    headers: {
-      Authorization: `Bearer ${apiToken}`,
-    },
-  });
-
-  checkAuthResponse(res);
-  if (res.status === 404) throw new Error('Employee not found');
-  if (!res.ok) throw new Error(`Error ${res.status}`);
-
-  return res.json() as Promise<EmployeeDetail>;
+  try {
+    return await fetchCrm<EmployeeDetail>(
+      `/api/client/employees/${encodeURIComponent(employeeId)}`,
+      { apiToken }
+    );
+  } catch (e) {
+    if (e instanceof CrmHttpError && e.status === 404) throw new Error('Employee not found');
+    throw e;
+  }
 }

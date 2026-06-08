@@ -1,8 +1,8 @@
 import * as Haptics from 'expo-haptics';
+import { Image } from 'expo-image';
 import { router, usePathname } from 'expo-router';
 import React, { useEffect, useRef, useState } from 'react';
-import {Animated, ScrollView, TouchableOpacity, View} from 'react-native';
-import { Image } from 'expo-image';
+import { Animated, ScrollView, TouchableOpacity, View } from 'react-native';
 
 import ThemedText from './ThemedText';
 

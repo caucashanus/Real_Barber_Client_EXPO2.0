@@ -1,5 +1,4 @@
-import { checkAuthResponse } from './http';
-const CRM_BASE = 'https://crm.xrb.cz';
+import { CrmHttpError, fetchCrm } from './http';
 
 export interface CutBarber {
   id: string;
@@ -86,17 +85,8 @@ export async function getClientCuts(
   if (options.orderDirection) params.set('orderDirection', options.orderDirection);
   if (options.barber_id) params.set('barber_id', options.barber_id);
   const qs = params.toString();
-  const url = `${CRM_BASE}/api/client/cuts${qs ? `?${qs}` : ''}`;
 
-  const res = await fetch(url, {
-    method: 'GET',
-    headers: { Authorization: `Bearer ${apiToken}` },
-  });
-
-  checkAuthResponse(res);
-  if (!res.ok) throw new Error(`Error ${res.status}`);
-
-  return res.json() as Promise<GetClientCutsResponse>;
+  return fetchCrm<GetClientCutsResponse>(`/api/client/cuts${qs ? `?${qs}` : ''}`, { apiToken });
 }
 
 export interface CreateClientCutBody {
@@ -155,28 +145,25 @@ export async function createClientCut(
 ): Promise<ClientCut> {
   const hairstyleTrimmed = body.hairstyle.trim();
 
-  const res = await fetch(`${CRM_BASE}/api/client/cuts`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${apiToken}`,
-    },
-    body: JSON.stringify({
-      hairstyle: hairstyleTrimmed,
-      note: body.note?.trim() || null,
-      barber_id: body.barber_id ?? null,
-      photos: body.photos ?? [],
-    }),
-  });
-
-  if (res.status === 400) {
-    const data = await res.json().catch(() => ({}));
-    throw new Error((data as { message?: string }).message ?? 'Invalid input');
+  let raw: unknown;
+  try {
+    raw = await fetchCrm<unknown>('/api/client/cuts', {
+      method: 'POST',
+      apiToken,
+      body: {
+        hairstyle: hairstyleTrimmed,
+        note: body.note?.trim() || null,
+        barber_id: body.barber_id ?? null,
+        photos: body.photos ?? [],
+      },
+    });
+  } catch (e) {
+    if (e instanceof CrmHttpError && e.status === 400) {
+      throw new Error(e.message || 'Invalid input');
+    }
+    throw e;
   }
-  checkAuthResponse(res);
-  if (!res.ok) throw new Error(`Error ${res.status}`);
 
-  const raw = await res.json().catch(() => null);
   let cut = parseCreateClientCutResponse(raw, hairstyleTrimmed);
 
   if (!cut?.id) {
@@ -218,16 +205,12 @@ export async function createClientCut(
 
 /** GET /api/client/cuts/[id] – get a single haircut. */
 export async function getClientCut(apiToken: string, id: string): Promise<ClientCut> {
-  const res = await fetch(`${CRM_BASE}/api/client/cuts/${id}`, {
-    method: 'GET',
-    headers: { Authorization: `Bearer ${apiToken}` },
-  });
-
-  checkAuthResponse(res);
-  if (res.status === 404) throw new Error('Haircut not found');
-  if (!res.ok) throw new Error(`Error ${res.status}`);
-
-  return res.json() as Promise<ClientCut>;
+  try {
+    return await fetchCrm<ClientCut>(`/api/client/cuts/${id}`, { apiToken });
+  } catch (e) {
+    if (e instanceof CrmHttpError && e.status === 404) throw new Error('Haircut not found');
+    throw e;
+  }
 }
 
 export interface PatchClientCutBody {
@@ -268,31 +251,23 @@ export async function patchClientCut(
     return getClientCut(apiToken, id);
   }
 
-  const res = await fetch(`${CRM_BASE}/api/client/cuts/${id}`, {
-    method: 'PATCH',
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${apiToken}`,
-    },
-    body: JSON.stringify(payload),
-  });
-
-  if (res.status === 400) {
-    const data = await res.json().catch(() => ({}));
-    throw new Error((data as { message?: string }).message ?? 'Invalid input');
+  try {
+    const raw = await fetchCrm<unknown>(`/api/client/cuts/${id}`, {
+      method: 'PATCH',
+      apiToken,
+      body: payload,
+    });
+    if (responseLooksLikeClientCut(raw)) return raw;
+    return getClientCut(apiToken, id);
+  } catch (e) {
+    if (e instanceof CrmHttpError) {
+      if (e.status === 400) throw new Error(e.message || 'Invalid input');
+      if (e.status === 403) throw new Error('Forbidden');
+      if (e.status === 404) throw new Error('Haircut not found');
+      if (e.status === 500) throw new Error(e.message || 'Failed to update haircut');
+    }
+    throw e;
   }
-  checkAuthResponse(res);
-  if (res.status === 403) throw new Error('Forbidden');
-  if (res.status === 404) throw new Error('Haircut not found');
-  if (res.status === 500) {
-    const data = await res.json().catch(() => ({}));
-    throw new Error((data as { message?: string }).message ?? 'Failed to update haircut');
-  }
-  if (!res.ok) throw new Error(`Error ${res.status}`);
-
-  const raw = await res.json().catch(() => null);
-  if (responseLooksLikeClientCut(raw)) return raw;
-  return getClientCut(apiToken, id);
 }
 
 /** DELETE /api/client/cuts/[id] – delete a haircut. */
@@ -300,15 +275,16 @@ export async function deleteClientCut(
   apiToken: string,
   id: string
 ): Promise<{ message: string; deletedPhotos?: number }> {
-  const res = await fetch(`${CRM_BASE}/api/client/cuts/${id}`, {
-    method: 'DELETE',
-    headers: { Authorization: `Bearer ${apiToken}` },
-  });
-
-  checkAuthResponse(res);
-  if (res.status === 403) throw new Error('Forbidden');
-  if (res.status === 404) throw new Error('Haircut not found');
-  if (!res.ok) throw new Error(`Error ${res.status}`);
-
-  return res.json() as Promise<{ message: string; deletedPhotos?: number }>;
+  try {
+    return await fetchCrm<{ message: string; deletedPhotos?: number }>(`/api/client/cuts/${id}`, {
+      method: 'DELETE',
+      apiToken,
+    });
+  } catch (e) {
+    if (e instanceof CrmHttpError) {
+      if (e.status === 403) throw new Error('Forbidden');
+      if (e.status === 404) throw new Error('Haircut not found');
+    }
+    throw e;
+  }
 }

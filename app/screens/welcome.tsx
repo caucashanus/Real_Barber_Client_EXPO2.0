@@ -1,35 +1,25 @@
-import { AntDesign } from '@expo/vector-icons';
+import { Image } from 'expo-image';
 import { router } from 'expo-router';
 import React from 'react';
-import {View, Text, Pressable} from 'react-native';
-import { Image } from 'expo-image';
+import { View, Text, Pressable } from 'react-native';
 import { useSafeAreaInsets, SafeAreaView } from 'react-native-safe-area-context';
-
-import useThemeColors from '../contexts/ThemeColors';
 
 import { useLanguage } from '@/app/contexts/LanguageContext';
 import { useTranslation } from '@/app/hooks/useTranslation';
-import Icon from '@/components/Icon';
 import ThemeToggle from '@/components/ThemeToggle';
 import ThemedText from '@/components/ThemedText';
 
-/** Stejná logika jako na Nastavení: v cílovém jazyce zobrazit štítek pro přepnutí na druhý jazyk. */
 const SWITCH_LABEL_CZ = 'Přepnout do češtiny';
 const SWITCH_LABEL_EN = 'Switch to English';
 const FLAG_CZ = '🇨🇿';
 const FLAG_EN = '🇬🇧';
 
-/** Welcome: tlačítka Google / Apple (mock → `/(tabs)/(home)`). Nastav na `true`, až bude znovu potřeba. */
-const SHOW_WELCOME_GOOGLE_APPLE_BUTTONS = false;
-
 export default function OnboardingScreen() {
-  const colors = useThemeColors();
   const insets = useSafeAreaInsets();
   const { locale, toggleLocale } = useLanguage();
   const { t } = useTranslation();
 
   const isEnglish = locale === 'en';
-  const switchLabel = isEnglish ? SWITCH_LABEL_CZ : SWITCH_LABEL_EN;
   const switchFlag = isEnglish ? FLAG_CZ : FLAG_EN;
 
   return (
@@ -65,33 +55,9 @@ export default function OnboardingScreen() {
             source={require('@/assets/img/welcomerb.png')}
             style={{ width: '100%', height: 320, marginBottom: -110 }}
             contentFit="contain"
+            pointerEvents="none"
           />
-          {SHOW_WELCOME_GOOGLE_APPLE_BUTTONS ? (
-            <>
-              <Pressable
-                onPress={() => router.push('/(tabs)/(home)')}
-                className="flex w-full flex-row items-center justify-center rounded-2xl border border-black py-4 dark:border-white">
-                <View className="top-4.5 absolute left-4">
-                  <AntDesign name="google" size={22} color={colors.text} />
-                </View>
-                <ThemedText className="pr-2 text-base font-medium">
-                  {t('welcomeContinueGoogle')}
-                </ThemedText>
-              </Pressable>
-              <Pressable
-                onPress={() => router.push('/(tabs)/(home)')}
-                className="flex w-full flex-row items-center justify-center rounded-2xl border border-black py-4 dark:border-white">
-                <View className="top-4.5 absolute left-4">
-                  <AntDesign name="apple" size={22} color={colors.text} />
-                </View>
-                <ThemedText className="pr-2 text-base font-medium">
-                  {t('welcomeContinueApple')}
-                </ThemedText>
-              </Pressable>
-            </>
-          ) : null}
         </View>
-
       </View>
     </SafeAreaView>
   );

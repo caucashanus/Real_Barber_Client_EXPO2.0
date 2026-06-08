@@ -1,7 +1,7 @@
+import { Image } from 'expo-image';
 import { router, useLocalSearchParams } from 'expo-router';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import {View, ScrollView, ActivityIndicator} from 'react-native';
-import { Image } from 'expo-image';
+import { View, ScrollView, ActivityIndicator } from 'react-native';
 
 import { getBookingById, updateBooking, type Booking } from '@/api/bookings';
 import { useAuth } from '@/app/contexts/AuthContext';
@@ -96,7 +96,7 @@ export default function RescheduleSummaryScreen() {
         slotStart,
         slotEnd,
       });
-      router.replace('/trips');
+      router.replace('/bookings');
     } catch (e) {
       setSubmitError(e instanceof Error ? e.message : String(e));
     } finally {

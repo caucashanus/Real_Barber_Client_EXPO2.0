@@ -1,49 +1,49 @@
 import type { IconName } from '@/components/Icon';
 import type { TranslationKey } from '@/locales';
 
-/** Krok 1 – typ účesu (stejné jako v `add-property`). */
+/** Krok 1 – typ účesu (stejné jako v `haircut-create`). */
 export const PROPERTY_TYPE_OPTIONS: readonly {
   labelKey: TranslationKey;
   iconImage: number;
   value: string;
 }[] = [
   {
-    labelKey: 'addPropertyTypeShorter',
+    labelKey: 'haircutCreateTypeShorter',
     iconImage: require('@/assets/img/type-shorter.png'),
     value: 'kratsi',
   },
   {
-    labelKey: 'addPropertyTypeMediumLength',
+    labelKey: 'haircutCreateTypeMediumLength',
     iconImage: require('@/assets/img/type-medium-length.png'),
     value: 'stredne_dlouhy',
   },
   {
-    labelKey: 'addPropertyTypeLonger',
+    labelKey: 'haircutCreateTypeLonger',
     iconImage: require('@/assets/img/type-longer.png'),
     value: 'delsi',
   },
   {
-    labelKey: 'addPropertyTypeOffice',
+    labelKey: 'haircutCreateTypeOffice',
     iconImage: require('@/assets/img/type-office.png'),
     value: 'do_kanclu',
   },
   {
-    labelKey: 'addPropertyTypeSporty',
+    labelKey: 'haircutCreateTypeSporty',
     iconImage: require('@/assets/img/type-sporty.png'),
     value: 'sportovni',
   },
   {
-    labelKey: 'addPropertyTypeModern',
+    labelKey: 'haircutCreateTypeModern',
     iconImage: require('@/assets/img/type-modern.png'),
     value: 'moderni',
   },
   {
-    labelKey: 'addPropertyTypeRetro',
+    labelKey: 'haircutCreateTypeRetro',
     iconImage: require('@/assets/img/type-retro.png'),
     value: 'retro',
   },
   {
-    labelKey: 'addPropertyTypeCasual',
+    labelKey: 'haircutCreateTypeCasual',
     iconImage: require('@/assets/img/type-casual.png'),
     value: 'podpantoflak',
   },
@@ -57,20 +57,20 @@ export const GUEST_ACCESS_OPTIONS: readonly {
   value: string;
 }[] = [
   {
-    labelKey: 'addPropertySeasonSummer',
-    descKey: 'addPropertySeasonSummerDesc',
+    labelKey: 'haircutCreateSeasonSummer',
+    descKey: 'haircutCreateSeasonSummerDesc',
     iconImage: require('@/assets/img/season-summer.png'),
     value: 'letni',
   },
   {
-    labelKey: 'addPropertySeasonWinter',
-    descKey: 'addPropertySeasonWinterDesc',
+    labelKey: 'haircutCreateSeasonWinter',
+    descKey: 'haircutCreateSeasonWinterDesc',
     iconImage: require('@/assets/img/season-winter.png'),
     value: 'zimni',
   },
   {
-    labelKey: 'addPropertySeasonAllYear',
-    descKey: 'addPropertySeasonAllYearDesc',
+    labelKey: 'haircutCreateSeasonAllYear',
+    descKey: 'haircutCreateSeasonAllYearDesc',
     iconImage: require('@/assets/img/season-all-year.png'),
     value: 'celorocni',
   },
@@ -82,24 +82,28 @@ export const AMENITY_OPTIONS: readonly {
   labelKey: TranslationKey;
   icon: IconName;
 }[] = [
-  { label: 'Want to try', labelKey: 'addPropertyAmenityWantToTry', icon: 'Sparkles' },
-  { label: 'Low maintenance', labelKey: 'addPropertyAmenityLowMaintenance', icon: 'Check' },
-  { label: 'Requires styling', labelKey: 'addPropertyAmenityRequiresStyling', icon: 'Zap' },
-  { label: "Don't need to dry hair", labelKey: 'addPropertyAmenityNoDryHair', icon: 'Wind' },
-  { label: 'Long lasting', labelKey: 'addPropertyAmenityLongLasting', icon: 'Clock' },
+  { label: 'Want to try', labelKey: 'haircutCreateAmenityWantToTry', icon: 'Sparkles' },
+  { label: 'Low maintenance', labelKey: 'haircutCreateAmenityLowMaintenance', icon: 'Check' },
+  { label: 'Requires styling', labelKey: 'haircutCreateAmenityRequiresStyling', icon: 'Zap' },
+  { label: "Don't need to dry hair", labelKey: 'haircutCreateAmenityNoDryHair', icon: 'Wind' },
+  { label: 'Long lasting', labelKey: 'haircutCreateAmenityLongLasting', icon: 'Clock' },
   {
     label: 'Haircut people compliment most',
-    labelKey: 'addPropertyAmenityPeopleCompliment',
+    labelKey: 'haircutCreateAmenityPeopleCompliment',
     icon: 'Users',
   },
-  { label: 'My favourite haircut', labelKey: 'addPropertyAmenityMyFavourite', icon: 'Star' },
-  { label: 'Looks good with beard', labelKey: 'addPropertyAmenityWithBeard', icon: 'CircleUser' },
-  { label: 'Styling', labelKey: 'addPropertyAmenityStyling', icon: 'Sparkles' },
-  { label: 'Trying something new', labelKey: 'addPropertyAmenitySomethingNew', icon: 'Lightbulb' },
+  { label: 'My favourite haircut', labelKey: 'haircutCreateAmenityMyFavourite', icon: 'Star' },
+  { label: 'Looks good with beard', labelKey: 'haircutCreateAmenityWithBeard', icon: 'CircleUser' },
+  { label: 'Styling', labelKey: 'haircutCreateAmenityStyling', icon: 'Sparkles' },
+  {
+    label: 'Trying something new',
+    labelKey: 'haircutCreateAmenitySomethingNew',
+    icon: 'Lightbulb',
+  },
   {
     label: 'Recommended by barber',
-    labelKey: 'addPropertyAmenityRecommendedByBarber',
+    labelKey: 'haircutCreateAmenityRecommendedByBarber',
     icon: 'UserCheck',
   },
-  { label: 'Came back to it', labelKey: 'addPropertyAmenityCameBack', icon: 'RotateCcw' },
+  { label: 'Came back to it', labelKey: 'haircutCreateAmenityCameBack', icon: 'RotateCcw' },
 ];

@@ -1,11 +1,7 @@
+import { Image } from 'expo-image';
 import * as ImagePicker from 'expo-image-picker';
 import React, { useCallback, useEffect, useState } from 'react';
-import {View,
-  Pressable,
-  ScrollView,
-  useWindowDimensions,
-  ActivityIndicator} from 'react-native';
-import { Image } from 'expo-image';
+import { View, Pressable, ScrollView, useWindowDimensions, ActivityIndicator } from 'react-native';
 
 import { getAllPublicMediaByFlag, type MediaFile } from '@/api/media';
 import { useTranslation } from '@/app/hooks/useTranslation';

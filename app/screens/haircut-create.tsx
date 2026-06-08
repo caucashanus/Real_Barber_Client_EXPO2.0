@@ -1,15 +1,11 @@
 import Slider from '@react-native-community/slider';
 import * as Haptics from 'expo-haptics';
+import { Image } from 'expo-image';
 import * as ImagePicker from 'expo-image-picker';
 import type { ImagePickerAsset } from 'expo-image-picker';
 import { router } from 'expo-router';
 import React, { useState, useEffect, useCallback } from 'react';
-import {View,
-  ScrollView,
-  TouchableOpacity,
-  Alert,
-  useWindowDimensions} from 'react-native';
-import { Image } from 'expo-image';
+import { View, ScrollView, TouchableOpacity, Alert, useWindowDimensions } from 'react-native';
 
 import { uploadClientMedia } from '@/api/client';
 import { createClientCut } from '@/api/cuts';
@@ -22,12 +18,12 @@ import { Button } from '@/components/Button';
 import { Chip } from '@/components/Chip';
 import Icon from '@/components/Icon';
 import MultiStep, { Step } from '@/components/MultiStep';
-import Selectable from '@/components/forms/Selectable';
 import ThemedText from '@/components/ThemedText';
+import Counter from '@/components/forms/Counter';
 import Input from '@/components/forms/Input';
+import Selectable from '@/components/forms/Selectable';
 import Grid from '@/components/layout/Grid';
 import Section from '@/components/layout/Section';
-import Counter from '@/components/forms/Counter';
 import { HAIRCUT_TITLE_SUGGESTION_KEYS } from '@/constants/haircutTitleSuggestions';
 import {
   AMENITY_OPTIONS,
@@ -65,10 +61,10 @@ const PropertyTypeStep: React.FC<StepProps> = ({ data, updateData }) => {
     <ScrollView className="p-4 px-8">
       <View className="mb-10">
         <ThemedText className="mt-auto text-3xl font-semibold">
-          {t('addPropertyWhatDescribes')}
+          {t('haircutCreateWhatDescribes')}
         </ThemedText>
         <ThemedText className="text-base text-light-subtext dark:text-dark-subtext">
-          {t('addPropertySelectMultiple')}
+          {t('haircutCreateSelectMultiple')}
         </ThemedText>
       </View>
       <View className="mt-4">
@@ -100,10 +96,10 @@ const GuestAccessStep: React.FC<StepProps> = ({ data, updateData }) => {
     <ScrollView className="p-4 px-8">
       <View className="mb-10">
         <ThemedText className="mt-auto text-3xl font-semibold">
-          {t('addPropertyForWhichSeason')}
+          {t('haircutCreateForWhichSeason')}
         </ThemedText>
         <ThemedText className="text-base text-light-subtext dark:text-dark-subtext">
-          {t('addPropertySelectMultiple')}
+          {t('haircutCreateSelectMultiple')}
         </ThemedText>
       </View>
 
@@ -137,19 +133,19 @@ const PropertyBasicsStep: React.FC<StepProps> = ({ data, updateData }) => {
     <ScrollView className="p-4 px-8">
       <View className="mb-10">
         <ThemedText className="mt-auto text-3xl font-semibold">
-          {t('addPropertyBasicDetails')}
+          {t('haircutCreateBasicDetails')}
         </ThemedText>
         <ThemedText className="text-base text-light-subtext dark:text-dark-subtext">
-          {t('addPropertyFillLengths')}
+          {t('haircutCreateFillLengths')}
         </ThemedText>
       </View>
 
       <View className="mt-4">
         <View className="flex-row items-center justify-between py-4">
           <View className="flex-1 pr-4">
-            <ThemedText className="text-lg">{t('addPropertyLengthAtEars')}</ThemedText>
+            <ThemedText className="text-lg">{t('haircutCreateLengthAtEars')}</ThemedText>
             <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext">
-              {t('addPropertyLengthCm')}
+              {t('haircutCreateLengthCm')}
             </ThemedText>
           </View>
           <Counter
@@ -162,9 +158,9 @@ const PropertyBasicsStep: React.FC<StepProps> = ({ data, updateData }) => {
 
         <View className="flex-row items-center justify-between border-t border-light-secondary py-4 dark:border-dark-secondary">
           <View className="flex-1 pr-4">
-            <ThemedText className="text-lg">{t('addPropertyLengthOnTop')}</ThemedText>
+            <ThemedText className="text-lg">{t('haircutCreateLengthOnTop')}</ThemedText>
             <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext">
-              {t('addPropertyLengthCm')}
+              {t('haircutCreateLengthCm')}
             </ThemedText>
           </View>
           <Counter
@@ -177,9 +173,9 @@ const PropertyBasicsStep: React.FC<StepProps> = ({ data, updateData }) => {
 
         <View className="flex-row items-center justify-between border-t border-light-secondary py-4 dark:border-dark-secondary">
           <View className="flex-1 pr-4">
-            <ThemedText className="text-lg">{t('addPropertyHowOftenTrim')}</ThemedText>
+            <ThemedText className="text-lg">{t('haircutCreateHowOftenTrim')}</ThemedText>
             <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext">
-              {t('addPropertyWeeksToComeIn')}
+              {t('haircutCreateWeeksToComeIn')}
             </ThemedText>
           </View>
           <Counter
@@ -201,10 +197,10 @@ const AmenitiesStep: React.FC<StepProps> = ({ data, updateData }) => {
     <ScrollView className="p-4 px-8">
       <View className="mb-10">
         <ThemedText className="mt-auto text-3xl font-semibold">
-          {t('addPropertyWhatGoesWith')}
+          {t('haircutCreateWhatGoesWith')}
         </ThemedText>
         <ThemedText className="text-base text-light-subtext dark:text-dark-subtext">
-          {t('addPropertySelectMultiple')}
+          {t('haircutCreateSelectMultiple')}
         </ThemedText>
       </View>
 
@@ -271,10 +267,10 @@ const PhotosStep: React.FC<StepProps> = ({ data, updateData }) => {
     <ScrollView className="p-4 px-8">
       <View className="mb-10">
         <ThemedText className="mt-auto text-3xl font-semibold">
-          {t('addPropertyAddPhotos')}
+          {t('haircutCreateAddPhotos')}
         </ThemedText>
         <ThemedText className="text-base text-light-subtext dark:text-dark-subtext">
-          {t('addPropertyAtLeastOnePhoto')}
+          {t('haircutCreateAtLeastOnePhoto')}
         </ThemedText>
       </View>
 
@@ -304,7 +300,7 @@ const PhotosStep: React.FC<StepProps> = ({ data, updateData }) => {
             <ThemedText
               className="mt-1 text-center text-xs text-light-subtext dark:text-dark-subtext"
               numberOfLines={2}>
-              {t('addPropertyAddPhoto')}
+              {t('haircutCreateAddPhoto')}
             </ThemedText>
           </TouchableOpacity>
 
@@ -315,7 +311,7 @@ const PhotosStep: React.FC<StepProps> = ({ data, updateData }) => {
             <ThemedText
               className="mt-1 text-center text-xs text-light-subtext dark:text-dark-subtext"
               numberOfLines={2}>
-              {t('addPropertyTakePhoto')}
+              {t('haircutCreateTakePhoto')}
             </ThemedText>
           </TouchableOpacity>
         </View>
@@ -332,14 +328,14 @@ const TitleDescriptionStep: React.FC<StepProps> = ({ data, updateData }) => {
     <ScrollView className="p-4 px-8">
       <View className="mb-10">
         <ThemedText className="mt-auto text-3xl font-semibold">
-          {t('addPropertyNowName')}
+          {t('haircutCreateNowName')}
         </ThemedText>
         <ThemedText className="text-base text-light-subtext dark:text-dark-subtext">
-          {t('addPropertyShortName')}
+          {t('haircutCreateShortName')}
         </ThemedText>
       </View>
 
-      <Section title={t('addPropertyTitle')} titleSize="md" padding="sm">
+      <Section title={t('haircutCreateTitle')} titleSize="md" padding="sm">
         <Input
           variant="classic"
           containerClassName="mt-1 mb-0"
@@ -352,7 +348,7 @@ const TitleDescriptionStep: React.FC<StepProps> = ({ data, updateData }) => {
           {data.title.length}/50
         </ThemedText>
         <ThemedText className="mb-2 mt-3 text-xs text-light-subtext dark:text-dark-subtext">
-          {t('addPropertyTitleQuickIdeas')}
+          {t('haircutCreateTitleQuickIdeas')}
         </ThemedText>
         <View
           className="mt-1"
@@ -386,7 +382,7 @@ const TitleDescriptionStep: React.FC<StepProps> = ({ data, updateData }) => {
         </View>
       </Section>
 
-      <Section title={t('addPropertyDescription')} titleSize="md" padding="sm" className="mt-6">
+      <Section title={t('haircutCreateDescription')} titleSize="md" padding="sm" className="mt-6">
         <Input
           variant="classic"
           containerClassName="mt-1 mb-0"
@@ -422,14 +418,14 @@ const CharacteristicsStep: React.FC<StepProps> = ({ data, updateData }) => {
     <ScrollView className="p-4 px-8">
       <View className="mb-10">
         <ThemedText className="mt-auto text-3xl font-semibold">
-          {t('addPropertyStylingDifficulty')}
+          {t('haircutCreateStylingDifficulty')}
         </ThemedText>
         <ThemedText className="text-base text-light-subtext dark:text-dark-subtext">
-          {t('addPropertyHowDemanding')}
+          {t('haircutCreateHowDemanding')}
         </ThemedText>
       </View>
 
-      <Section title={t('addPropertyDifficulty')} titleSize="md" padding="sm" className="mt-2">
+      <Section title={t('haircutCreateDifficulty')} titleSize="md" padding="sm" className="mt-2">
         <Slider
           style={{ width: '100%', height: 40 }}
           value={data.stylingDifficulty}
@@ -446,7 +442,7 @@ const CharacteristicsStep: React.FC<StepProps> = ({ data, updateData }) => {
         </ThemedText>
       </Section>
 
-      <Section title={t('addPropertySelectBarber')} titleSize="md" padding="sm" className="mt-6">
+      <Section title={t('haircutCreateSelectBarber')} titleSize="md" padding="sm" className="mt-6">
         <View className="-mx-8 mt-6" style={{ marginHorizontal: -32 }}>
           <BarberPicker
             employees={employees}
@@ -474,10 +470,10 @@ const SuccessStep: React.FC<StepProps> = ({ data }) => {
         contentFit="cover"
       />
       <ThemedText className="mt-8 text-center text-3xl font-bold">
-        {t('addPropertyCongratulations')}
+        {t('haircutCreateCongratulations')}
       </ThemedText>
       <ThemedText className="mb-8 mt-1 text-center text-sm text-light-subtext dark:text-dark-subtext">
-        {t('addPropertySuccessMessage')}
+        {t('haircutCreateSuccessMessage')}
       </ThemedText>
 
       {/*<View className="w-full bg-light-secondary dark:bg-dark-secondary rounded-lg p-4 mb-8">
@@ -503,7 +499,7 @@ const SuccessStep: React.FC<StepProps> = ({ data }) => {
   );
 };
 
-export default function AddPropertyScreen() {
+export default function HaircutCreateScreen() {
   const { t } = useTranslation();
   const { apiToken } = useAuth();
   const [submitting, setSubmitting] = useState(false);
@@ -539,12 +535,12 @@ export default function AddPropertyScreen() {
 
   const handleWizardComplete = useCallback(() => {
     if (!apiToken) {
-      Alert.alert('', t('addPropertyLoginRequired'));
+      Alert.alert('', t('haircutCreateLoginRequired'));
       return;
     }
     const trimmedTitle = data.title.trim();
     if (!trimmedTitle) {
-      Alert.alert('', t('addPropertyCutSaveFailed'));
+      Alert.alert('', t('haircutCreateCutSaveFailed'));
       return;
     }
 
@@ -573,7 +569,7 @@ export default function AddPropertyScreen() {
 
         router.replace(MY_HAIRCUTS_ROUTE);
       } catch (e) {
-        const msg = e instanceof Error ? e.message : t('addPropertyCutSaveFailed');
+        const msg = e instanceof Error ? e.message : t('haircutCreateCutSaveFailed');
         Alert.alert('', msg);
       } finally {
         setSubmitting(false);
@@ -588,35 +584,35 @@ export default function AddPropertyScreen() {
       showStepIndicator={false}
       footerLoading={submitting}
       isNextDisabled={isNextDisabled}>
-      <Step title={t('addPropertyStepHaircutType')}>
+      <Step title={t('haircutCreateStepHaircutType')}>
         <PropertyTypeStep data={data} updateData={updateData} />
       </Step>
 
-      <Step title={t('addPropertyStepSeason')}>
+      <Step title={t('haircutCreateStepSeason')}>
         <GuestAccessStep data={data} updateData={updateData} />
       </Step>
 
-      <Step title={t('addPropertyStepBasics')}>
+      <Step title={t('haircutCreateStepBasics')}>
         <PropertyBasicsStep data={data} updateData={updateData} />
       </Step>
 
-      <Step title={t('addPropertyStepFeatures')}>
+      <Step title={t('haircutCreateStepFeatures')}>
         <AmenitiesStep data={data} updateData={updateData} />
       </Step>
 
-      <Step title={t('addPropertyStepPhotos')}>
+      <Step title={t('haircutCreateStepPhotos')}>
         <PhotosStep data={data} updateData={updateData} />
       </Step>
 
-      <Step title={t('addPropertyStepTitleDesc')}>
+      <Step title={t('haircutCreateStepTitleDesc')}>
         <TitleDescriptionStep data={data} updateData={updateData} />
       </Step>
 
-      <Step title={t('addPropertyStepStyling')}>
+      <Step title={t('haircutCreateStepStyling')}>
         <CharacteristicsStep data={data} updateData={updateData} />
       </Step>
 
-      <Step title={t('addPropertyStepSuccess')} hideHeaderBack hideHeaderClose>
+      <Step title={t('haircutCreateStepSuccess')} hideHeaderBack hideHeaderClose>
         <SuccessStep data={data} updateData={updateData} />
       </Step>
     </MultiStep>

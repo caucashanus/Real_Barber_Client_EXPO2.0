@@ -120,7 +120,7 @@ export default function RealBarberHomeTab() {
         title: t('homeBookings'),
         subtitle: t('homeBookingsSubtitle'),
         icon: 'Calendar',
-        onPress: () => router.push('/trips' as any),
+        onPress: () => router.push('/bookings' as any),
       },
     ],
     [t]
@@ -575,7 +575,7 @@ export default function RealBarberHomeTab() {
                 <Pressable
                   key={b.id}
                   onPress={() =>
-                    router.push(`/screens/trip-detail?id=${encodeURIComponent(b.id)}` as any)
+                    router.push(`/screens/booking-detail?id=${encodeURIComponent(b.id)}` as any)
                   }
                   className="active:opacity-70">
                   {i > 0 && <View className="mx-4 h-px bg-neutral-200 dark:bg-neutral-700" />}

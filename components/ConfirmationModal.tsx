@@ -18,7 +18,7 @@ interface ConfirmationModalProps {
   onCancel: () => void;
   confirmText?: string;
   cancelText?: string;
-  actionSheetRef: React.RefObject<ActionSheetRef>;
+  actionSheetRef: React.RefObject<ActionSheetRef | null>;
   /** When set, shows an optional text input below the message; onConfirm receives its value. */
   optionalReasonPlaceholder?: string;
   /** When set with optionalReasonPlaceholder, shows chips below the input for quick reason selection. */

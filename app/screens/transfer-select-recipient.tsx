@@ -21,9 +21,9 @@ import Header from '@/components/Header';
 import Icon from '@/components/Icon';
 import ThemedScroller from '@/components/ThemeScroller';
 import ThemedText from '@/components/ThemedText';
-import Section from '@/components/layout/Section';
 import { List } from '@/components/layout/List';
 import ListItem from '@/components/layout/ListItem';
+import Section from '@/components/layout/Section';
 import {
   normalizePhoneDigitsForLookup,
   isCompleteCzPhoneForClientLookup,
@@ -46,7 +46,7 @@ export interface TransferRecipient {
 
 function buildRecipientsFromHistory(
   history: RbCoinsHistoryItem[],
-  t: (key: string) => string
+  t: (key: import('@/locales').TranslationKey) => string
 ): TransferRecipient[] {
   const byId: Record<string, TransferRecipient> = {};
   history.forEach((tx) => {

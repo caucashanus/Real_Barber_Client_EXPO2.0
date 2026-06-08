@@ -33,7 +33,7 @@ export function resolveOverviewRowIcon(value: string): number | undefined {
 
 /** Stejná logika jako ve wizardu u typu „delší“ – větší obrázek. */
 export function isLongerHaircutTypeLabel(value: string): boolean {
-  return matchesWizardLabel(value, 'addPropertyTypeLonger');
+  return matchesWizardLabel(value, 'haircutCreateTypeLonger');
 }
 
 export function resolveAmenityIcon(tag: string): IconName | undefined {

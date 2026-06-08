@@ -1,7 +1,7 @@
+import { Image } from 'expo-image';
 import { router, useLocalSearchParams } from 'expo-router';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import {View, ScrollView, Pressable, ActivityIndicator} from 'react-native';
-import { Image } from 'expo-image';
+import { View, ScrollView, Pressable, ActivityIndicator } from 'react-native';
 
 import {
   getBookingById,

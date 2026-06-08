@@ -195,7 +195,11 @@ export default function RBCScreen() {
     const end = design.gradientEnd ?? { x: 1, y: 1 };
     return (
       <Animated.View style={animatedStyle} pointerEvents="none">
-        <LinearGradient colors={colors} start={start} end={end} style={[styles.card, cardSize]}>
+        <LinearGradient
+          colors={colors as [string, string, ...string[]]}
+          start={start}
+          end={end}
+          style={[styles.card, cardSize]}>
           {cardContent(design, isBack)}
         </LinearGradient>
       </Animated.View>

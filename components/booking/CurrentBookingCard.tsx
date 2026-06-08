@@ -1,6 +1,6 @@
-import React, { useMemo } from 'react';
-import {View} from 'react-native';
 import { Image } from 'expo-image';
+import React, { useMemo } from 'react';
+import { View } from 'react-native';
 
 import type { Booking } from '@/api/bookings';
 import { useLanguage } from '@/app/contexts/LanguageContext';

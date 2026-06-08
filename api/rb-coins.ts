@@ -1,5 +1,4 @@
-import { checkAuthResponse } from './http';
-const CRM_BASE = 'https://crm.xrb.cz';
+import { fetchCrm } from './http';
 
 export interface RbCoinsBalanceEntity {
   id: string;
@@ -15,15 +14,7 @@ export interface RbCoinsBalanceResponse {
 
 /** GET /api/rb-coins/balance – current RBC balance for the authenticated client. */
 export async function getRbCoinsBalance(apiToken: string): Promise<RbCoinsBalanceResponse> {
-  const res = await fetch(`${CRM_BASE}/api/rb-coins/balance`, {
-    method: 'GET',
-    headers: { Authorization: `Bearer ${apiToken}` },
-  });
-
-  checkAuthResponse(res);
-  if (!res.ok) throw new Error(`Error ${res.status}`);
-
-  return res.json() as Promise<RbCoinsBalanceResponse>;
+  return fetchCrm<RbCoinsBalanceResponse>('/api/rb-coins/balance', { apiToken });
 }
 
 export interface RbCoinsHistoryItemOtherParty {
@@ -65,17 +56,11 @@ export async function getRbCoinsHistory(
   if (params?.limit != null) search.set('limit', String(params.limit));
   if (params?.page != null) search.set('page', String(params.page));
   const qs = search.toString();
-  const url = `${CRM_BASE}/api/rb-coins/history${qs ? `?${qs}` : ''}`;
-  const res = await fetch(url, {
-    method: 'GET',
-    headers: { Authorization: `Bearer ${apiToken}` },
-  });
 
-  checkAuthResponse(res);
-  if (!res.ok) throw new Error(`Error ${res.status}`);
-
-  const json = await res.json();
-  const parsed = json as RbCoinsHistoryResponse;
+  const parsed = await fetchCrm<RbCoinsHistoryResponse>(
+    `/api/rb-coins/history${qs ? `?${qs}` : ''}`,
+    { apiToken }
+  );
   const rows = Array.isArray(parsed.data) ? parsed.data : [];
   /** Nulové částky nemá UI zobrazovat (např. technické řádky z CRM). */
   const data = rows.filter((tx) => Number(tx.amount) !== 0);
@@ -95,17 +80,9 @@ export async function rbCoinsTransfer(
   apiToken: string,
   params: RbCoinsTransferParams
 ): Promise<RbCoinsHistoryItem> {
-  const res = await fetch(`${CRM_BASE}/api/rb-coins/transfer`, {
+  return fetchCrm<RbCoinsHistoryItem>('/api/rb-coins/transfer', {
     method: 'POST',
-    headers: {
-      Authorization: `Bearer ${apiToken}`,
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(params),
+    apiToken,
+    body: params,
   });
-
-  checkAuthResponse(res);
-  if (!res.ok) throw new Error(`Error ${res.status}`);
-
-  return res.json() as Promise<RbCoinsHistoryItem>;
 }

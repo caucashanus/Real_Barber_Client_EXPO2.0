@@ -1,4 +1,4 @@
-const CRM_BASE = 'https://crm.xrb.cz';
+import { CrmHttpError, fetchCrm } from './http';
 
 /** Vlajka „Avatarappdefault“ – veřejná média pro výběr avatara při registraci. */
 export const AVATAR_APP_DEFAULT_FLAG_ID = 'f6435e7b-e566-4995-9887-346093d52bec';
@@ -67,11 +67,14 @@ export async function getPublicMediaPage(
   q.set('limit', String(limit));
   q.set('page', String(page));
 
-  const res = await fetch(`${CRM_BASE}/api/media?${q.toString()}`);
-  if (!res.ok) {
-    throw new Error(`Media list failed: ${res.status}`);
+  try {
+    return await fetchCrm<MediaListResponse>(`/api/media?${q.toString()}`, { checkAuth: false });
+  } catch (e) {
+    if (e instanceof CrmHttpError) {
+      throw new Error(`Media list failed: ${e.status}`);
+    }
+    throw e;
   }
-  return res.json() as Promise<MediaListResponse>;
 }
 
 /** Načte všechny stránky výsledků (pro katalog avatarů). */

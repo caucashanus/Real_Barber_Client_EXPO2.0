@@ -1,7 +1,7 @@
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
-import { Link } from 'expo-router';
-import {View, Text, TouchableOpacity, Dimensions, Pressable} from 'react-native';
 import { Image } from 'expo-image';
+import { Link } from 'expo-router';
+import { View, Text, TouchableOpacity, Dimensions, Pressable } from 'react-native';
 
 import ImageCarousel from './ImageCarousel';
 import ThemedText from './ThemedText';

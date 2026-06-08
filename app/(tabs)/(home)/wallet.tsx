@@ -1,41 +1,41 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useFocusEffect } from '@react-navigation/native';
+import { Image } from 'expo-image';
 import { Link, useRouter } from 'expo-router';
 import React, { useCallback, useContext, useEffect, useRef, useState } from 'react';
-import {View,
+import {
+  View,
   RefreshControl,
   Animated,
   Pressable,
   ActivityIndicator,
   ScrollView,
-  ImageBackground} from 'react-native';
-import { Image } from 'expo-image';
+  ImageBackground,
+} from 'react-native';
 
 import { ScrollContext } from './_layout';
 
+import { getRbCoinsBalance, getRbCoinsHistory, type RbCoinsHistoryItem } from '@/api/rb-coins';
+import { getReferrals, type ReferralActiveProgram } from '@/api/referrals';
 import { useAccentColor } from '@/app/contexts/AccentColorContext';
 import { useAuth } from '@/app/contexts/AuthContext';
 import useThemeColors from '@/app/contexts/ThemeColors';
+import { useTranslation } from '@/app/hooks/useTranslation';
 import AnimatedView from '@/components/AnimatedView';
-import ThemeScroller from '@/components/ThemeScroller';
-
-import ThemedText from '@/components/ThemedText';
-
+import Avatar from '@/components/Avatar';
 import { Button } from '@/components/Button';
 import Icon from '@/components/Icon';
+import ThemeScroller from '@/components/ThemeScroller';
+import ThemedText from '@/components/ThemedText';
 import TransactionDetailModal from '@/components/TransactionDetailModal';
 import { List } from '@/components/layout/List';
 import ListItem from '@/components/layout/ListItem';
 import Section from '@/components/layout/Section';
-import Avatar from '@/components/Avatar';
-import { shadowPresets } from '@/utils/useShadow';
 import {
   getRbCoinsTransactionListTitle,
   RB_COINS_TX_LIST_KEYS_WALLET,
 } from '@/utils/rbcCoinsHistoryUi';
-import { getRbCoinsBalance, getRbCoinsHistory, type RbCoinsHistoryItem } from '@/api/rb-coins';
-import { getReferrals, type ReferralActiveProgram } from '@/api/referrals';
-import { useTranslation } from '@/app/hooks/useTranslation';
+import { shadowPresets } from '@/utils/useShadow';
 
 /** In-memory fallback when AsyncStorage native module is unavailable (e.g. web, some dev builds). */
 let memoryLastSeen: string | null = null;
@@ -90,14 +90,7 @@ function normalizeActivePrograms(raw: unknown): ReferralActiveProgram[] {
   );
 }
 
-/** Peněženka: „Více“ (tlačítko pod zůstatkem + akce v řádku) → `/screens/rbc`. */
-const SHOW_WALLET_MORE_RBC = false;
-
-/** Peněženka: akce „Přidat peníze“ a „Detail“. */
-const SHOW_WALLET_ADD_MONEY_AND_DETAILS = false;
-
 /** Peněženka: horizontálně posuvné promo karty pod akcemi. */
-const SHOW_WALLET_HORIZONTAL_PROMO_CARDS = true;
 
 const WalletScreen = () => {
   const router = useRouter();
@@ -248,15 +241,16 @@ const WalletScreen = () => {
       !dismissedReferralPromoAt[p.id] ||
       Date.now() - dismissedReferralPromoAt[p.id] >= WALLET_PROMO_HIDE_MS
   );
-  const showReferralPromoStrip =
-    SHOW_WALLET_HORIZONTAL_PROMO_CARDS && (referralsLoading || visibleReferralPrograms.length > 0);
+  const showReferralPromoStrip = referralsLoading || visibleReferralPrograms.length > 0;
 
   return (
     <ThemeScroller
       onScroll={Animated.event([{ nativeEvent: { contentOffset: { y: scrollY } } }], {
         useNativeDriver: false,
       })}
-      refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={accentColor} />}
+      refreshControl={
+        <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={accentColor} />
+      }
       scrollEventThrottle={16}>
       <AnimatedView animation="scaleIn" className="mt-4 flex-1">
         {/* 1. Stav RBC – ve light mode tmavě šedé (ne černé), v dark mode jako dřív */}
@@ -275,34 +269,12 @@ const WalletScreen = () => {
               {formatBalance(displayAmount)} {MOCK_CURRENCY}
             </ThemedText>
           )}
-          {SHOW_WALLET_MORE_RBC ? (
-            <View className="mt-4 items-center">
-              <Button
-                title={t('walletMoreButton')}
-                variant="outline"
-                size="small"
-                className="rounded-full border-white/30 bg-white/10 px-6"
-                textClassName="text-white"
-                href="/screens/rbc"
-              />
-            </View>
-          ) : null}
         </View>
 
-        {/* 2. Akční tlačítka – stejný blok se stínem */}
+        {/* 2. Akční tlačítka */}
         <View
           style={{ ...shadowPresets.large }}
           className="-mt-2 flex-row justify-around rounded-2xl bg-light-secondary p-5 dark:bg-dark-secondary">
-          {SHOW_WALLET_ADD_MONEY_AND_DETAILS ? (
-            <Pressable className="items-center">
-              <View className="h-14 w-14 items-center justify-center rounded-full bg-white dark:bg-dark-primary">
-                <Icon name="Plus" size={24} color={colors.text} />
-              </View>
-              <ThemedText className="mt-2 text-xs text-light-text dark:text-dark-text">
-                {t('walletAddMoney')}
-              </ThemedText>
-            </Pressable>
-          ) : null}
           <Pressable
             className="items-center"
             onPress={() => router.push('/screens/transfer-select-recipient')}>
@@ -313,26 +285,6 @@ const WalletScreen = () => {
               {t('walletTransfer')}
             </ThemedText>
           </Pressable>
-          {SHOW_WALLET_ADD_MONEY_AND_DETAILS ? (
-            <Pressable className="items-center">
-              <View className="h-14 w-14 items-center justify-center rounded-full bg-white dark:bg-dark-primary">
-                <Icon name="Building2" size={22} color={colors.text} />
-              </View>
-              <ThemedText className="mt-2 text-xs text-light-text dark:text-dark-text">
-                {t('walletDetails')}
-              </ThemedText>
-            </Pressable>
-          ) : null}
-          {SHOW_WALLET_MORE_RBC ? (
-            <Pressable className="items-center" onPress={() => router.push('/screens/rbc')}>
-              <View className="h-14 w-14 items-center justify-center rounded-full bg-white dark:bg-dark-primary">
-                <Icon name="MoreVertical" size={22} color={colors.text} />
-              </View>
-              <ThemedText className="mt-2 text-xs text-light-text dark:text-dark-text">
-                {t('walletMore')}
-              </ThemedText>
-            </Pressable>
-          ) : null}
         </View>
 
         {/* 3. Karty aktivních referral programů z GET /api/client/referrals – X skryje na 24 h */}

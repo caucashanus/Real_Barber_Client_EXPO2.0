@@ -1,23 +1,24 @@
 import { useFocusEffect } from '@react-navigation/native';
+import { Image } from 'expo-image';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import * as WebBrowser from 'expo-web-browser';
 import React, { useEffect, useState, useCallback, useRef } from 'react';
-import {View,
+import {
+  View,
   ActivityIndicator,
   Pressable,
   ScrollView,
   Linking,
   Modal,
   Animated,
-  type LayoutChangeEvent} from 'react-native';
-import { Image } from 'expo-image';
+  type LayoutChangeEvent,
+} from 'react-native';
 import { ActionSheetRef } from 'react-native-actions-sheet';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { getBranches, type Branch, type BranchService, type BranchEmployee } from '@/api/branches';
 import { getEntityReviews, type EntityReviewItem } from '@/api/reviews';
-import { getMockReviews } from '@/utils/mockReviews';
 import { useAuth } from '@/app/contexts/AuthContext';
 import useThemeColors from '@/app/contexts/ThemeColors';
 import { useTranslation } from '@/app/hooks/useTranslation';
@@ -27,13 +28,14 @@ import { Button } from '@/components/Button';
 import { CardScroller } from '@/components/CardScroller';
 import Favorite from '@/components/Favorite';
 import Header from '@/components/Header';
+import Icon from '@/components/Icon';
+import ImageCarousel from '@/components/ImageCarousel';
+import ShowRating from '@/components/ShowRating';
 import ThemedScroller from '@/components/ThemeScroller';
 import ThemedText from '@/components/ThemedText';
-import ImageCarousel from '@/components/ImageCarousel';
 import Divider from '@/components/layout/Divider';
 import Section from '@/components/layout/Section';
-import ShowRating from '@/components/ShowRating';
-import Icon from '@/components/Icon';
+import { getMockReviews } from '@/utils/mockReviews';
 
 function getServicesList(branch: Branch): BranchService[] {
   const s = branch.services;
@@ -51,7 +53,11 @@ function getEmployeesList(branch: Branch): BranchEmployee[] {
 
 function getMediaUrlsSorted(media: Branch['media']): string[] {
   if (!media) return [];
-  const list = Array.isArray(media) ? [...media] : Object.values(media);
+  const list = (Array.isArray(media) ? [...media] : Object.values(media ?? {})) as {
+    url?: string;
+    order?: number;
+    type?: string;
+  }[];
   const withOrder = list.filter((m): m is { url: string; order?: number } => !!m?.url);
   withOrder.sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
   return withOrder.map((m) => m.url);
@@ -60,7 +66,11 @@ function getMediaUrlsSorted(media: Branch['media']): string[] {
 /** Only image URLs from media (excludes type === 'video'). */
 function getMediaImageUrlsSorted(media: Branch['media']): string[] {
   if (!media) return [];
-  const list = Array.isArray(media) ? [...media] : Object.values(media);
+  const list = (Array.isArray(media) ? [...media] : Object.values(media ?? {})) as {
+    url?: string;
+    order?: number;
+    type?: string;
+  }[];
   const images = list.filter(
     (m): m is { url: string; order?: number; type?: string } =>
       !!m?.url && (m as { type?: string }).type !== 'video'
@@ -292,8 +302,7 @@ export default function BranchDetailScreen() {
   const webUrl = branch.webUrl ?? null;
   const branchImageUrl = getMediaUrlsSorted(branch.media)[0] ?? branch.imageUrl ?? '';
   const reviewParams = `entityType=branch&entityId=${encodeURIComponent(branch.id)}&entityName=${encodeURIComponent(branch.name)}${branchImageUrl ? `&entityImage=${encodeURIComponent(branchImageUrl)}` : ''}`;
-  const canOpenBranchNavigate =
-    getBranchNavigateMapsQuery(branch.name, branch.address) !== '';
+  const canOpenBranchNavigate = getBranchNavigateMapsQuery(branch.name, branch.address) !== '';
   const rightComponents = branch.name
     ? [
         <Favorite
@@ -320,7 +329,7 @@ export default function BranchDetailScreen() {
         })}
         scrollEventThrottle={16}>
         <ImageCarousel
-          images={images}
+          images={images as import('react-native').ImageSourcePropType[]}
           height={500}
           paginationStyle="dots"
           autoPlay

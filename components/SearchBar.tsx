@@ -1,8 +1,8 @@
 import { BlurView } from 'expo-blur';
+import { Image } from 'expo-image';
 import { router } from 'expo-router';
 import React, { useState } from 'react';
-import {Modal, Pressable, View, Platform, ImageSourcePropType} from 'react-native';
-import { Image } from 'expo-image';
+import { Modal, Pressable, View, Platform, ImageSourcePropType } from 'react-native';
 import Animated from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -24,10 +24,10 @@ const NAV_ITEM_IDS = [
 ] as const;
 const NAV_HREFS = [
   '/screens/map',
-  '/trips',
+  '/bookings',
   '/experience',
   '/services',
-  '/screens/schedule',
+  '/screens/reservation-create',
   '/favorites',
 ];
 

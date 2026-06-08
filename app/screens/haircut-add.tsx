@@ -1,9 +1,9 @@
+import { Image } from 'expo-image';
 import * as ImagePicker from 'expo-image-picker';
 import type { ImagePickerAsset } from 'expo-image-picker';
 import { router } from 'expo-router';
 import React, { useEffect, useState } from 'react';
-import {View, Pressable, Alert} from 'react-native';
-import { Image } from 'expo-image';
+import { View, Pressable, Alert } from 'react-native';
 
 import { uploadClientMedia } from '@/api/client';
 import { createClientCut } from '@/api/cuts';

@@ -122,11 +122,7 @@ export default function ClientCouponDetailScreen() {
       <View className="flex-1 bg-light-primary dark:bg-dark-primary">
         <Header showBackButton />
         <ThemeScroller>
-          <Section
-            titleSize="3xl"
-            className="px-4 pb-6 pt-4"
-            title={t('homePromoSectionTitle')}
-          />
+          <Section titleSize="3xl" className="px-4 pb-6 pt-4" title={t('homePromoSectionTitle')} />
           <View className="px-4 pb-6">
             <ThemedText className="text-sm leading-6 text-light-subtext dark:text-dark-subtext">
               {loadError}
@@ -195,7 +191,11 @@ export default function ClientCouponDetailScreen() {
                   numberOfLines={1}>
                   {coupon.code}
                 </ThemedText>
-                <Icon name="Copy" size={14} className="shrink-0 text-light-subtext dark:text-dark-subtext" />
+                <Icon
+                  name="Copy"
+                  size={14}
+                  className="shrink-0 text-light-subtext dark:text-dark-subtext"
+                />
               </Pressable>
             </View>
           </View>
@@ -225,7 +225,6 @@ export default function ClientCouponDetailScreen() {
               />
             </View>
           ) : null}
-
         </View>
       </ThemeScroller>
     </View>

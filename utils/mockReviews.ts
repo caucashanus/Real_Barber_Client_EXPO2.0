@@ -10,7 +10,13 @@ const MOCK_REVIEW_POOL: Omit<EntityReviewItem, 'id'>[] = [
     isAnonymous: false,
     createdAt: '2025-02-14T10:30:00Z',
     updatedAt: '2025-02-14T10:30:00Z',
-    client: { id: 'mock-1', name: 'Tomáš Kovář', firstName: 'Tomáš', lastName: 'Kovář', avatarUrl: 'https://randomuser.me/api/portraits/men/32.jpg' },
+    client: {
+      id: 'mock-1',
+      name: 'Tomáš Kovář',
+      firstName: 'Tomáš',
+      lastName: 'Kovář',
+      avatarUrl: 'https://randomuser.me/api/portraits/men/32.jpg',
+    },
   },
   {
     rating: 5,
@@ -21,7 +27,13 @@ const MOCK_REVIEW_POOL: Omit<EntityReviewItem, 'id'>[] = [
     isAnonymous: false,
     createdAt: '2025-02-28T14:15:00Z',
     updatedAt: '2025-02-28T14:15:00Z',
-    client: { id: 'mock-2', name: 'Markéta Veselá', firstName: 'Markéta', lastName: 'Veselá', avatarUrl: null },
+    client: {
+      id: 'mock-2',
+      name: 'Markéta Veselá',
+      firstName: 'Markéta',
+      lastName: 'Veselá',
+      avatarUrl: null,
+    },
   },
   {
     rating: 4,
@@ -32,7 +44,13 @@ const MOCK_REVIEW_POOL: Omit<EntityReviewItem, 'id'>[] = [
     isAnonymous: false,
     createdAt: '2025-03-05T09:00:00Z',
     updatedAt: '2025-03-05T09:00:00Z',
-    client: { id: 'mock-3', name: 'Jan Procházka', firstName: 'Jan', lastName: 'Procházka', avatarUrl: null },
+    client: {
+      id: 'mock-3',
+      name: 'Jan Procházka',
+      firstName: 'Jan',
+      lastName: 'Procházka',
+      avatarUrl: null,
+    },
   },
   {
     rating: 5,
@@ -43,7 +61,13 @@ const MOCK_REVIEW_POOL: Omit<EntityReviewItem, 'id'>[] = [
     isAnonymous: false,
     createdAt: '2025-03-12T16:45:00Z',
     updatedAt: '2025-03-12T16:45:00Z',
-    client: { id: 'mock-4', name: 'Lukáš Mareš', firstName: 'Lukáš', lastName: 'Mareš', avatarUrl: 'https://randomuser.me/api/portraits/men/45.jpg' },
+    client: {
+      id: 'mock-4',
+      name: 'Lukáš Mareš',
+      firstName: 'Lukáš',
+      lastName: 'Mareš',
+      avatarUrl: 'https://randomuser.me/api/portraits/men/45.jpg',
+    },
   },
   {
     rating: 4,
@@ -54,7 +78,13 @@ const MOCK_REVIEW_POOL: Omit<EntityReviewItem, 'id'>[] = [
     isAnonymous: false,
     createdAt: '2025-03-20T11:00:00Z',
     updatedAt: '2025-03-20T11:00:00Z',
-    client: { id: 'mock-5', name: 'Petra Horáková', firstName: 'Petra', lastName: 'Horáková', avatarUrl: null },
+    client: {
+      id: 'mock-5',
+      name: 'Petra Horáková',
+      firstName: 'Petra',
+      lastName: 'Horáková',
+      avatarUrl: null,
+    },
   },
   {
     rating: 5,
@@ -65,7 +95,13 @@ const MOCK_REVIEW_POOL: Omit<EntityReviewItem, 'id'>[] = [
     isAnonymous: false,
     createdAt: '2025-04-01T13:20:00Z',
     updatedAt: '2025-04-01T13:20:00Z',
-    client: { id: 'mock-6', name: 'Ondřej Svoboda', firstName: 'Ondřej', lastName: 'Svoboda', avatarUrl: 'https://randomuser.me/api/portraits/men/12.jpg' },
+    client: {
+      id: 'mock-6',
+      name: 'Ondřej Svoboda',
+      firstName: 'Ondřej',
+      lastName: 'Svoboda',
+      avatarUrl: 'https://randomuser.me/api/portraits/men/12.jpg',
+    },
   },
   {
     rating: 5,
@@ -76,7 +112,13 @@ const MOCK_REVIEW_POOL: Omit<EntityReviewItem, 'id'>[] = [
     isAnonymous: false,
     createdAt: '2025-04-08T15:10:00Z',
     updatedAt: '2025-04-08T15:10:00Z',
-    client: { id: 'mock-7', name: 'Tereza Bláhová', firstName: 'Tereza', lastName: 'Bláhová', avatarUrl: null },
+    client: {
+      id: 'mock-7',
+      name: 'Tereza Bláhová',
+      firstName: 'Tereza',
+      lastName: 'Bláhová',
+      avatarUrl: null,
+    },
   },
   {
     rating: 4,
@@ -87,7 +129,13 @@ const MOCK_REVIEW_POOL: Omit<EntityReviewItem, 'id'>[] = [
     isAnonymous: false,
     createdAt: '2025-04-10T10:00:00Z',
     updatedAt: '2025-04-10T10:00:00Z',
-    client: { id: 'mock-8', name: 'Martin Řezáč', firstName: 'Martin', lastName: 'Řezáč', avatarUrl: 'https://randomuser.me/api/portraits/men/67.jpg' },
+    client: {
+      id: 'mock-8',
+      name: 'Martin Řezáč',
+      firstName: 'Martin',
+      lastName: 'Řezáč',
+      avatarUrl: 'https://randomuser.me/api/portraits/men/67.jpg',
+    },
   },
   {
     rating: 5,
@@ -98,7 +146,13 @@ const MOCK_REVIEW_POOL: Omit<EntityReviewItem, 'id'>[] = [
     isAnonymous: false,
     createdAt: '2025-04-12T09:30:00Z',
     updatedAt: '2025-04-12T09:30:00Z',
-    client: { id: 'mock-9', name: 'Lucie Nováková', firstName: 'Lucie', lastName: 'Nováková', avatarUrl: null },
+    client: {
+      id: 'mock-9',
+      name: 'Lucie Nováková',
+      firstName: 'Lucie',
+      lastName: 'Nováková',
+      avatarUrl: null,
+    },
   },
   {
     rating: 5,
@@ -109,7 +163,13 @@ const MOCK_REVIEW_POOL: Omit<EntityReviewItem, 'id'>[] = [
     isAnonymous: false,
     createdAt: '2025-04-13T12:00:00Z',
     updatedAt: '2025-04-13T12:00:00Z',
-    client: { id: 'mock-10', name: 'Pavel Dvořák', firstName: 'Pavel', lastName: 'Dvořák', avatarUrl: 'https://randomuser.me/api/portraits/men/78.jpg' },
+    client: {
+      id: 'mock-10',
+      name: 'Pavel Dvořák',
+      firstName: 'Pavel',
+      lastName: 'Dvořák',
+      avatarUrl: 'https://randomuser.me/api/portraits/men/78.jpg',
+    },
   },
 ];
 

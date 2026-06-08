@@ -1,4 +1,4 @@
-const CRM_BASE = 'https://crm.xrb.cz';
+import { CrmHttpError, fetchCrm } from './http';
 
 export interface GuideMediaFile {
   id: string;
@@ -55,9 +55,14 @@ export function getCachedGuidesList(): ClientGuide[] {
 
 /** GET /api/client/guides – list active customer guides (no auth). */
 export async function getClientGuides(): Promise<ClientGuide[]> {
-  const res = await fetch(`${CRM_BASE}/api/client/guides`);
-  if (!res.ok) throw new Error(`Failed to fetch guides: ${res.status}`);
-  const guides = (await res.json()) as ClientGuide[];
-  setGuidesCache(guides);
-  return guides;
+  try {
+    const guides = await fetchCrm<ClientGuide[]>('/api/client/guides', { checkAuth: false });
+    setGuidesCache(guides);
+    return guides;
+  } catch (e) {
+    if (e instanceof CrmHttpError) {
+      throw new Error(`Failed to fetch guides: ${e.status}`);
+    }
+    throw e;
+  }
 }

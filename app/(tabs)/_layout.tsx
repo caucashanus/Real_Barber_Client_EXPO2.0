@@ -10,13 +10,11 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { useAuth } from '@/app/contexts/AuthContext';
 import { BookingsBadgeProvider, useBookingsBadge } from '@/app/contexts/BookingsBadgeContext';
-import { useBusinessMode } from '@/app/contexts/BusinesModeContext';
 import { useTranslation } from '@/app/hooks/useTranslation';
 
 function TabsContent() {
   const colors = useThemeColors();
   const { t } = useTranslation();
-  const { isBusinessMode } = useBusinessMode();
   const insets = useSafeAreaInsets();
   const { hasUpcomingBookings } = useBookingsBadge();
   const { apiToken } = useAuth();
@@ -27,24 +25,20 @@ function TabsContent() {
 
   useEffect(() => {
     if (!apiToken) return;
-    if (isBusinessMode) return;
 
     const KEY = '@rb_last_background_at';
-    const RESET_MS = 60 * 60 * 1000; // 1 h
+    const RESET_MS = 60 * 60 * 1000;
 
     const sub = AppState.addEventListener('change', (nextState) => {
       const prev = appStateRef.current;
       appStateRef.current = nextState;
 
-      // Persist background timestamp when leaving active
       if (prev === 'active' && nextState !== 'active') {
         AsyncStorage.setItem(KEY, String(Date.now())).catch(() => {});
         return;
       }
 
-      // On resume: if > 1h, reset to landing
       if (prev !== 'active' && nextState === 'active') {
-        // Avoid doing anything on initial mount/hydration while already active.
         if (!didHydrateRef.current) {
           didHydrateRef.current = true;
           return;
@@ -63,11 +57,9 @@ function TabsContent() {
     });
 
     return () => sub.remove();
-  }, [apiToken, isBusinessMode, pathname]);
+  }, [apiToken, pathname]);
 
-  const useNativeTabsOnIos = Platform.OS === 'ios' && !isBusinessMode;
-
-  if (useNativeTabsOnIos) {
+  if (Platform.OS === 'ios') {
     return (
       <NativeTabs tintColor={colors.highlight}>
         <NativeTabs.Trigger name="(home)">
@@ -78,7 +70,7 @@ function TabsContent() {
           <NativeTabs.Trigger.Icon sf="heart" />
           <NativeTabs.Trigger.Label>{t('navFavorites')}</NativeTabs.Trigger.Label>
         </NativeTabs.Trigger>
-        <NativeTabs.Trigger name="trips">
+        <NativeTabs.Trigger name="bookings">
           <NativeTabs.Trigger.Icon sf="calendar" />
           <NativeTabs.Trigger.Label>{t('navBookings')}</NativeTabs.Trigger.Label>
           {hasUpcomingBookings ? <NativeTabs.Trigger.Badge>1</NativeTabs.Trigger.Badge> : null}
@@ -101,51 +93,26 @@ function TabsContent() {
           borderTopWidth: 1,
           paddingBottom: insets.bottom,
         }}>
-        {isBusinessMode ? (
-          <>
-            <TabTrigger name="dashboard" href="/(tabs)/dashboard" asChild>
-              <TabButton labelAnimated={false} icon="Home">
-                {t('navHome')}
-              </TabButton>
-            </TabTrigger>
-            <TabTrigger name="calendar" href="/(tabs)/calendar" asChild>
-              <TabButton labelAnimated={false} icon="CalendarFold">
-                {t('navCalendar')}
-              </TabButton>
-            </TabTrigger>
-            <TabTrigger name="analytics" href="/(tabs)/listings" asChild>
-              <TabButton labelAnimated={false} icon="File">
-                {t('navListings')}
-              </TabButton>
-            </TabTrigger>
-          </>
-        ) : (
-          <>
-            <TabTrigger name="(home)" href="/(tabs)/(home)" asChild>
-              <TabButton labelAnimated={false} icon="Search">
-                {t('navHome')}
-              </TabButton>
-            </TabTrigger>
-            <TabTrigger name="favorites" href="/favorites" asChild>
-              <TabButton labelAnimated={false} icon="Heart">
-                {t('navFavorites')}
-              </TabButton>
-            </TabTrigger>
-            <TabTrigger name="trips" href="/trips" asChild>
-              <TabButton
-                labelAnimated={false}
-                hasBadge={hasUpcomingBookings}
-                icon="CalendarPlus">
-                {t('navBookings')}
-              </TabButton>
-            </TabTrigger>
-            <TabTrigger name="profile" href="/profile" asChild>
-              <TabButton labelAnimated={false} icon="CircleUser">
-                {t('navProfile')}
-              </TabButton>
-            </TabTrigger>
-          </>
-        )}
+        <TabTrigger name="(home)" href="/(tabs)/(home)" asChild>
+          <TabButton labelAnimated={false} icon="Search">
+            {t('navHome')}
+          </TabButton>
+        </TabTrigger>
+        <TabTrigger name="favorites" href="/favorites" asChild>
+          <TabButton labelAnimated={false} icon="Heart">
+            {t('navFavorites')}
+          </TabButton>
+        </TabTrigger>
+        <TabTrigger name="bookings" href="/bookings" asChild>
+          <TabButton labelAnimated={false} hasBadge={hasUpcomingBookings} icon="CalendarPlus">
+            {t('navBookings')}
+          </TabButton>
+        </TabTrigger>
+        <TabTrigger name="profile" href="/profile" asChild>
+          <TabButton labelAnimated={false} icon="CircleUser">
+            {t('navProfile')}
+          </TabButton>
+        </TabTrigger>
       </TabList>
     </Tabs>
   );

@@ -108,3 +108,28 @@ export function formatPhoneDisplay(text: string): string {
   if (match) return [match[1], match[2], match[3]].filter(Boolean).join(' ');
   return text;
 }
+
+export function digitsOnlyPhone(value: string): string {
+  return value.replace(/\D/g, '');
+}
+
+export function buildFullPhone(countryCode: string, localPhone: string): string {
+  return `${countryCode}${digitsOnlyPhone(localPhone)}`;
+}
+
+export interface PhoneValidationResult {
+  valid: boolean;
+  errorKey?: 'signupPhoneRequired' | 'signupPhoneInvalid';
+}
+
+/** Shared phone validation for auth screens (min 9 local digits). */
+export function validatePhoneDigits(value: string, minDigits = 9): PhoneValidationResult {
+  const digits = digitsOnlyPhone(value);
+  if (digits.length === 0) {
+    return { valid: false, errorKey: 'signupPhoneRequired' };
+  }
+  if (digits.length < minDigits) {
+    return { valid: false, errorKey: 'signupPhoneInvalid' };
+  }
+  return { valid: true };
+}

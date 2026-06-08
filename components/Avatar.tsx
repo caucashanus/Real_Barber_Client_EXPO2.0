@@ -1,7 +1,7 @@
+import { Image } from 'expo-image';
 import { Link, router } from 'expo-router';
 import React from 'react';
-import {Pressable, View, Text, ViewStyle, ImageSourcePropType} from 'react-native';
-import { Image } from 'expo-image';
+import { Pressable, View, Text, ViewStyle, ImageSourcePropType } from 'react-native';
 
 import ThemedText from './ThemedText';
 

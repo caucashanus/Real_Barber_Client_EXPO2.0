@@ -1,17 +1,19 @@
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
+import { Image } from 'expo-image';
 import * as Location from 'expo-location';
 import { router, useLocalSearchParams } from 'expo-router';
 import * as LucideIcons from 'lucide-react-native';
 import React, { useRef, useEffect, useState, useMemo } from 'react';
-import {View,
+import {
+  View,
   Text,
   Pressable,
   Dimensions,
   TouchableOpacity,
   ActivityIndicator,
   Platform,
-  Linking} from 'react-native';
-import { Image } from 'expo-image';
+  Linking,
+} from 'react-native';
 import ActionSheet, { ActionSheetRef, useSheetRef, FlatList } from 'react-native-actions-sheet';
 import MapView, { Callout, MapStyleElement, Marker } from 'react-native-maps';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -21,21 +23,20 @@ import { useAuth } from '@/app/contexts/AuthContext';
 import { useBranchFilter } from '@/app/contexts/BranchFilterContext';
 import type { BranchFilterState } from '@/app/contexts/BranchFilterContext';
 import useThemeColors from '@/app/contexts/ThemeColors';
-import CustomCard from '@/components/CustomCard';
-import Header, { HeaderIcon } from '@/components/Header';
-import ThemedText from '@/components/ThemedText';
-
-import SliderCard from '@/components/SliderCard';
-import ShowRating from '@/components/ShowRating';
-import ImageCarousel from '@/components/ImageCarousel';
+import { useTranslation } from '@/app/hooks/useTranslation';
 import { Button } from '@/components/Button';
 import { CardScroller } from '@/components/CardScroller';
+import CustomCard from '@/components/CustomCard';
+import Header, { HeaderIcon } from '@/components/Header';
 import Icon from '@/components/Icon';
-import SearchBar from '@/components/SearchBar';
+import ImageCarousel from '@/components/ImageCarousel';
 import PriceMarker from '@/components/PriceMarker';
+import SearchBar from '@/components/SearchBar';
+import ShowRating from '@/components/ShowRating';
+import SliderCard from '@/components/SliderCard';
+import ThemedText from '@/components/ThemedText';
 import { BRANCH_FILTER_DATA } from '@/constants/branch-filter-data';
 import { BRANCH_MARKER_IMAGES } from '@/constants/branch-marker-images';
-import { useTranslation } from '@/app/hooks/useTranslation';
 
 const CENTRAL_WAREHOUSE_TEL = '+420774522114';
 
@@ -62,7 +63,11 @@ function getServicesList(branch: Branch): BranchService[] {
 
 function getMediaUrlsSorted(media: Branch['media']): string[] {
   if (!media) return [];
-  const list = Array.isArray(media) ? [...media] : Object.values(media);
+  const list = (Array.isArray(media) ? [...media] : Object.values(media ?? {})) as {
+    url?: string;
+    order?: number;
+    type?: string;
+  }[];
   const withOrder = list.filter((m): m is { url: string; order?: number } => !!m?.url);
   withOrder.sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
   return withOrder.map((m) => m.url);

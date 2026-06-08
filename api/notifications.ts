@@ -1,5 +1,4 @@
-import { checkAuthResponse } from './http';
-const CRM_BASE = 'https://crm.xrb.cz';
+import { fetchCrm } from './http';
 
 export interface NotificationHistoryRecipient {
   type?: string;
@@ -60,17 +59,11 @@ export async function getNotificationHistory(
   if (options.offset != null) params.set('offset', String(options.offset));
   if (options.type) params.set('type', options.type);
   const qs = params.toString();
-  const url = `${CRM_BASE}/api/internal/notifications/history${qs ? `?${qs}` : ''}`;
 
-  const res = await fetch(url, {
-    method: 'GET',
-    headers: { Authorization: `Bearer ${apiToken}` },
-  });
-
-  checkAuthResponse(res);
-  if (!res.ok) throw new Error(`Error ${res.status}`);
-
-  const json = (await res.json()) as NotificationHistoryResponse;
+  const json = await fetchCrm<NotificationHistoryResponse>(
+    `/api/internal/notifications/history${qs ? `?${qs}` : ''}`,
+    { apiToken }
+  );
   const notifications = json.data?.notifications ?? [];
   const pagination = json.data?.pagination ?? null;
   return { notifications, pagination };

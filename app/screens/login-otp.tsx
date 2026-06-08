@@ -1,20 +1,15 @@
 import { router, useLocalSearchParams } from 'expo-router';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import {View,
-  Keyboard,
-  TouchableWithoutFeedback,
-  Pressable,
-  TextInput,
-  StyleSheet} from 'react-native';
-import { Image } from 'expo-image';
+import { View, Pressable, TextInput, StyleSheet } from 'react-native';
 
 import { requestClientOtp, verifyClientOtp } from '@/api/auth';
 import { useAuth } from '@/app/contexts/AuthContext';
+import { useTheme } from '@/app/contexts/ThemeContext';
 import { useTranslation } from '@/app/hooks/useTranslation';
 import { Button } from '@/components/Button';
 import Header from '@/components/Header';
 import ThemedText from '@/components/ThemedText';
-import { useTheme } from '@/app/contexts/ThemeContext';
+import AuthScreenLayout from '@/components/layout/AuthScreenLayout';
 
 const OTP_LENGTH = 6;
 
@@ -78,11 +73,7 @@ function OtpInput({
     }
   };
 
-  const borderColor = error
-    ? '#ef4444'
-    : isDark
-      ? '#404040'
-      : '#E2E8F0';
+  const borderColor = error ? '#ef4444' : isDark ? '#404040' : '#E2E8F0';
 
   const focusedBorderColor = isDark ? '#ffffff' : '#000000';
   const textColor = isDark ? '#ffffff' : '#000000';
@@ -94,7 +85,9 @@ function OtpInput({
         {digits.map((digit, index) => (
           <TextInput
             key={index}
-            ref={(ref) => { inputRefs.current[index] = ref; }}
+            ref={(ref) => {
+              inputRefs.current[index] = ref;
+            }}
             value={digit}
             onChangeText={(text) => handleChange(text, index)}
             onKeyPress={({ nativeEvent }) => handleKeyPress(nativeEvent.key, index)}
@@ -113,9 +106,7 @@ function OtpInput({
           />
         ))}
       </View>
-      {error ? (
-        <ThemedText style={styles.errorText}>{error}</ThemedText>
-      ) : null}
+      {error ? <ThemedText style={styles.errorText}>{error}</ThemedText> : null}
     </View>
   );
 }
@@ -167,8 +158,12 @@ export default function LoginOtpScreen() {
 
   const [expiresSec, setExpiresSec] = useState(initialExpires);
 
-  useEffect(() => { setExpiresSec(initialExpires); }, [initialExpires]);
-  useEffect(() => { setWelcomeName(displayNameFromParams); }, [displayNameFromParams]);
+  useEffect(() => {
+    setExpiresSec(initialExpires);
+  }, [initialExpires]);
+  useEffect(() => {
+    setWelcomeName(displayNameFromParams);
+  }, [displayNameFromParams]);
 
   const [otp, setOtp] = useState('');
   const [otpError, setOtpError] = useState('');
@@ -228,7 +223,8 @@ export default function LoginOtpScreen() {
         });
         return;
       }
-      await setAuth(data.token, data.apiToken, data.client);
+      const auth = data as import('@/api/auth').LoginResponse;
+      await setAuth(auth.token, auth.apiToken, auth.client);
       router.replace('/(tabs)/(home)');
     } catch (e) {
       setApiError(e instanceof Error ? e.message : t('loginOtpFailed'));
@@ -265,72 +261,63 @@ export default function LoginOtpScreen() {
   return (
     <>
       <Header showBackButton />
-      <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
-        <View className="flex-1 bg-light-primary dark:bg-dark-primary" style={{ overflow: 'hidden' }}>
-          <View className="p-6">
-            <View className="mt-8">
-              <ThemedText className="mb-3 text-3xl font-bold text-light-text dark:text-dark-text">
-                {welcomeName
-                  ? t('loginOtpGreetingWithName').replace('{name}', welcomeName)
-                  : t('loginOtpGreetingNoName')}
-              </ThemedText>
-              <ThemedText className="mb-8 text-light-subtext dark:text-dark-subtext">
-                {t('loginOtpSubtitle').replace('{minutes}', String(minutesLabel))}
-              </ThemedText>
+      <AuthScreenLayout bottomImage={require('@/assets/img/smslogin.png')}>
+        <View className="mt-8">
+          <ThemedText className="mb-3 text-3xl font-bold text-light-text dark:text-dark-text">
+            {welcomeName
+              ? t('loginOtpGreetingWithName').replace('{name}', welcomeName)
+              : t('loginOtpGreetingNoName')}
+          </ThemedText>
+          <ThemedText className="mb-8 text-light-subtext dark:text-dark-subtext">
+            {t('loginOtpSubtitle').replace('{minutes}', String(minutesLabel))}
+          </ThemedText>
 
-              <OtpInput
-                value={otp}
-                onChange={(val) => {
-                  setOtp(val);
-                  if (otpError) validateOtp(val);
-                }}
-                error={otpError}
-                onComplete={(val) => void handleVerify(val)}
-              />
-
-              {apiError ? (
-                <ThemedText className="mb-4 mt-2 text-sm text-red-500 dark:text-red-400">
-                  {apiError}
-                </ThemedText>
-              ) : null}
-
-              <Button
-                title={t('loginOtpVerify')}
-                onPress={() => void handleVerify(undefined)}
-                loading={loading}
-                size="large"
-                className="mb-4 mt-6"
-                textClassName="font-bold text-lg"
-              />
-
-              <Button
-                title={
-                  resendCooldownSec > 0
-                    ? `${t('loginOtpResend')} (${resendCooldownSec}s)`
-                    : t('loginOtpResend')
-                }
-                onPress={() => void handleResend()}
-                loading={resendLoading}
-                disabled={loading || resendLoading || resendCooldownSec > 0}
-                variant="secondary"
-                size="large"
-                className="mb-6"
-              />
-
-              <Pressable onPress={() => router.replace('/screens/login')} className="self-center">
-                <ThemedText className="text-center text-light-subtext underline dark:text-dark-subtext">
-                  {t('loginOtpChangePhone')}
-                </ThemedText>
-              </Pressable>
-            </View>
-          </View>
-          <Image
-            source={require('@/assets/img/smslogin.png')}
-            style={{ width: '100%', height: 320, position: 'absolute', bottom: 0 }}
-            contentFit="contain"
+          <OtpInput
+            value={otp}
+            onChange={(val) => {
+              setOtp(val);
+              if (otpError) validateOtp(val);
+            }}
+            error={otpError}
+            onComplete={(val) => void handleVerify(val)}
           />
+
+          {apiError ? (
+            <ThemedText className="mb-4 mt-2 text-sm text-red-500 dark:text-red-400">
+              {apiError}
+            </ThemedText>
+          ) : null}
+
+          <Button
+            title={t('loginOtpVerify')}
+            onPress={() => void handleVerify(undefined)}
+            loading={loading}
+            size="large"
+            className="mb-4 mt-6"
+            textClassName="font-bold text-lg"
+          />
+
+          <Button
+            title={
+              resendCooldownSec > 0
+                ? `${t('loginOtpResend')} (${resendCooldownSec}s)`
+                : t('loginOtpResend')
+            }
+            onPress={() => void handleResend()}
+            loading={resendLoading}
+            disabled={loading || resendLoading || resendCooldownSec > 0}
+            variant="secondary"
+            size="large"
+            className="mb-6"
+          />
+
+          <Pressable onPress={() => router.replace('/screens/login')} className="self-center">
+            <ThemedText className="text-center text-light-subtext underline dark:text-dark-subtext">
+              {t('loginOtpChangePhone')}
+            </ThemedText>
+          </Pressable>
         </View>
-      </TouchableWithoutFeedback>
+      </AuthScreenLayout>
     </>
   );
 }

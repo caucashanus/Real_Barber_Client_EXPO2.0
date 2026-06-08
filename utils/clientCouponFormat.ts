@@ -1,3 +1,5 @@
+import type { TranslationKey } from '@/locales';
+
 /** Jedno datum platnosti kupónu (lokále Real Barber / EN). */
 function formatCouponDate(d: Date, locale: string): string {
   const dl = locale === 'cs' ? 'cs-CZ' : 'en-GB';
@@ -38,7 +40,7 @@ export function getClientCouponValidityA11y(
   validFrom: string,
   validUntil: string | null,
   locale: string,
-  t: (key: string) => string
+  t: (key: TranslationKey) => string
 ): string | null {
   const m = resolveClientCouponValidity(validFrom, validUntil, locale);
   if (!m) return null;

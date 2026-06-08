@@ -3,11 +3,7 @@ import React from 'react';
 import { ActivityIndicator, View } from 'react-native';
 
 import { useAuth } from '@/app/contexts/AuthContext';
-import {
-  isAuthFlowRoute,
-  isPublicRoute,
-  LOGIN_PATH,
-} from '@/constants/authRoutes';
+import { isAuthFlowRoute, isPublicRoute, LOGIN_PATH } from '@/constants/authRoutes';
 
 export default function AuthGuard({ children }: { children: React.ReactNode }) {
   const { apiToken, isLoading } = useAuth();

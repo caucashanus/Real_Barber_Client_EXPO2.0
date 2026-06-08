@@ -2,7 +2,6 @@ import React, { createContext, useCallback, useContext, useEffect, useState } fr
 
 import { getBookings } from '@/api/bookings';
 import { useAuth } from '@/app/contexts/AuthContext';
-import { useBusinessMode } from '@/app/contexts/BusinesModeContext';
 import { isBookingUpcoming } from '@/utils/bookingHelpers';
 
 type BookingsBadgeContextType = {
@@ -14,18 +13,17 @@ const BookingsBadgeContext = createContext<BookingsBadgeContextType | undefined>
 
 export function BookingsBadgeProvider({ children }: { children: React.ReactNode }) {
   const { apiToken } = useAuth();
-  const { isBusinessMode } = useBusinessMode();
   const [hasUpcomingBookings, setHasUpcomingBookings] = useState(false);
 
   const refresh = useCallback(() => {
-    if (isBusinessMode || !apiToken) {
+    if (!apiToken) {
       setHasUpcomingBookings(false);
       return;
     }
     getBookings(apiToken)
       .then((res) => setHasUpcomingBookings(res.bookings.some(isBookingUpcoming)))
       .catch(() => setHasUpcomingBookings(false));
-  }, [apiToken, isBusinessMode]);
+  }, [apiToken]);
 
   useEffect(() => {
     refresh();

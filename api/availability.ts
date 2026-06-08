@@ -1,5 +1,4 @@
-import { checkAuthResponse } from './http';
-const CRM_BASE = 'https://crm.xrb.cz';
+import { fetchCrm } from './http';
 
 export interface EmployeesNearestNextSlot {
   date: string;
@@ -50,27 +49,8 @@ export async function getEmployeesNearest(
   if (params.maxDays != null) q.set('maxDays', String(params.maxDays));
   if (params.employeeLimit != null) q.set('employeeLimit', String(params.employeeLimit));
 
-  const url = `${CRM_BASE}/api/client/availability/employees-nearest?${q.toString()}`;
-
-  const res = await fetch(url, {
-    method: 'GET',
-    headers: { Authorization: `Bearer ${apiToken}` },
-  });
-
-  const text = await res.text();
-  checkAuthResponse(res);
-  if (!res.ok) {
-    let msg = `Error ${res.status}`;
-    try {
-      const body = JSON.parse(text) as { message?: string; error?: string };
-      if (body?.message) msg = body.message;
-      else if (body?.error) msg = body.error;
-      else if (text) msg = `${msg}: ${text.slice(0, 200)}`;
-    } catch {
-      if (text) msg = `${msg}: ${text.slice(0, 200)}`;
-    }
-    throw new Error(msg);
-  }
-
-  return JSON.parse(text) as EmployeesNearestResponse;
+  return fetchCrm<EmployeesNearestResponse>(
+    `/api/client/availability/employees-nearest?${q.toString()}`,
+    { apiToken }
+  );
 }

@@ -73,15 +73,15 @@ function ChecklistRow({
 }) {
   const isDone = state === 'done';
   const isCurrent = state === 'current';
-  const bgClass = isDone
-    ? 'bg-emerald-600'
-    : 'bg-light-secondary dark:bg-dark-secondary';
-  const borderClass = isDone || isCurrent ? 'border-emerald-600' : 'border-light-border dark:border-dark-border';
+  const bgClass = isDone ? 'bg-emerald-600' : 'bg-light-secondary dark:bg-dark-secondary';
+  const borderClass =
+    isDone || isCurrent ? 'border-emerald-600' : 'border-light-border dark:border-dark-border';
   const iconColor = isDone ? '#ffffff' : isCurrent ? '#16a34a' : '#9ca3af';
 
   return (
     <View className="flex-row items-start gap-3 py-3">
-      <View className={`h-9 w-9 items-center justify-center rounded-full border ${borderClass} ${bgClass}`}>
+      <View
+        className={`h-9 w-9 items-center justify-center rounded-full border ${borderClass} ${bgClass}`}>
         <Icon name="Check" size={18} color={iconColor} />
       </View>
       <View className="flex-1">
@@ -100,7 +100,9 @@ function InfoRow({ label, value }: { label: string; value: string }) {
   return (
     <View className="flex-row items-center justify-between py-3">
       <View className="flex-row items-center gap-2">
-        <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext">{label}</ThemedText>
+        <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext">
+          {label}
+        </ThemedText>
       </View>
       <ThemedText className="text-sm font-semibold">{value}</ThemedText>
     </View>
@@ -198,13 +200,12 @@ export default function ReferralInviteDetailScreen() {
           useNativeDriver: false,
         })}
         scrollEventThrottle={16}>
-
         {/* Hero image */}
         <View className="px-global">
           <ImageCarousel
             height={260}
             rounded="2xl"
-            images={carouselImages}
+            images={carouselImages as import('react-native').ImageSourcePropType[]}
             scrollY={heroScrollY}
             stretchOnPullDown
           />
@@ -212,7 +213,9 @@ export default function ReferralInviteDetailScreen() {
 
         {/* Title + status */}
         <View className="px-global pb-4 pt-6">
-          <ThemedText className="mb-2 text-2xl font-bold">{t('referralInviteDetailTitle')}</ThemedText>
+          <ThemedText className="mb-2 text-2xl font-bold">
+            {t('referralInviteDetailTitle')}
+          </ThemedText>
           <View className="flex-row items-center gap-2">
             <View className={`rounded-full px-2.5 py-1 ${statusPillClass(invite.status)}`}>
               <ThemedText className={`text-xs font-semibold ${statusTextClass(invite.status)}`}>
@@ -244,14 +247,11 @@ export default function ReferralInviteDetailScreen() {
         {/* Program info */}
         <Section title={t('referralAttributionLead')} titleSize="lg" className="px-global pt-4">
           <View className="mt-4 rounded-2xl bg-light-secondary p-5 dark:bg-dark-secondary">
-            <InfoRow label={t('referralProgram') ?? 'Program'} value={programName} />
+            <InfoRow label={t('referralProgramTitle')} value={programName} />
             {invite.referrerReward != null ? (
               <>
                 <Divider />
-                <InfoRow
-                  label={t('referralRewardAmount')}
-                  value={`${invite.referrerReward} RBC`}
-                />
+                <InfoRow label={t('referralRewardAmount')} value={`${invite.referrerReward} RBC`} />
               </>
             ) : null}
             {invite.rewardedAt ? (
@@ -273,13 +273,17 @@ export default function ReferralInviteDetailScreen() {
           <View className="mt-4 rounded-2xl bg-light-secondary p-5 dark:bg-dark-secondary">
             <ChecklistRow
               title={t('referralChecklistAccepted')}
-              subtitle={attribution?.createdAt ? formatDateTime(attribution.createdAt, locale) : null}
+              subtitle={
+                attribution?.createdAt ? formatDateTime(attribution.createdAt, locale) : null
+              }
               state={acceptedState}
             />
             <Divider className="my-1" />
             <ChecklistRow
               title={t('referralChecklistPaired')}
-              subtitle={attribution?.consumedAt ? formatDateTime(attribution.consumedAt, locale) : null}
+              subtitle={
+                attribution?.consumedAt ? formatDateTime(attribution.consumedAt, locale) : null
+              }
               state={pairedState}
             />
             <Divider className="my-1" />

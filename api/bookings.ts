@@ -1,5 +1,6 @@
-import { checkAuthResponse } from './http';
-export const CRM_BASE = 'https://crm.xrb.cz';
+import { CrmHttpError, fetchCrm } from './http';
+
+export { CRM_BASE } from './http';
 
 export interface BookingEmployee {
   id: string;
@@ -116,11 +117,13 @@ function normalizeBookingsPayload(raw: unknown): BookingsResponse {
   const obj = raw && typeof raw === 'object' ? (raw as Record<string, unknown>) : {};
   const fromBookings = obj.bookings;
   const fromReservations = obj.reservations;
-  const list = (Array.isArray(fromBookings)
-    ? fromBookings
-    : Array.isArray(fromReservations)
-      ? fromReservations
-      : []) as Booking[];
+  const list = (
+    Array.isArray(fromBookings)
+      ? fromBookings
+      : Array.isArray(fromReservations)
+        ? fromReservations
+        : []
+  ) as Booking[];
   const normalized = list.map((b) => normalizeBookingCouponUsages(b));
   const pag = obj.pagination;
   const pagination: BookingsPagination =
@@ -143,43 +146,23 @@ export async function getClientBookingById(
   apiToken: string,
   bookingId: string
 ): Promise<Booking | null> {
-  const url = `${CRM_BASE}/api/client/bookings/${encodeURIComponent(bookingId)}`;
-  const res = await fetch(url, {
-    method: 'GET',
-    headers: {
-      Authorization: `Bearer ${apiToken}`,
-    },
-  });
-  const text = await res.text();
-  checkAuthResponse(res);
-  if (res.status === 404) return null;
-  if (!res.ok) {
-    let msg = `Error ${res.status}`;
-    try {
-      const parsed = JSON.parse(text) as { message?: string; error?: string };
-      if (parsed?.message) msg = parsed.message;
-      else if (typeof parsed?.error === 'string') msg = parsed.error;
-      else if (text) msg = `${msg}: ${text.slice(0, 200)}`;
-    } catch {
-      if (text) msg = `${msg}: ${text.slice(0, 200)}`;
-    }
-    throw new Error(msg);
-  }
-  if (!text) return null;
-  let raw: unknown;
   try {
-    raw = JSON.parse(text);
-  } catch {
-    return null;
+    const raw = await fetchCrm<unknown>(`/api/client/bookings/${encodeURIComponent(bookingId)}`, {
+      apiToken,
+    });
+    if (!raw || typeof raw !== 'object') return null;
+    const obj = raw as Record<string, unknown>;
+    let inner: unknown = obj.booking;
+    if (!inner && typeof obj.data === 'object' && obj.data) {
+      const d = obj.data as Record<string, unknown>;
+      inner = d.booking ?? null;
+    }
+    if (!inner || typeof inner !== 'object') return null;
+    return normalizeBookingCouponUsages(inner as Booking);
+  } catch (e) {
+    if (e instanceof CrmHttpError && e.status === 404) return null;
+    throw e;
   }
-  const obj = raw && typeof raw === 'object' ? (raw as Record<string, unknown>) : {};
-  let inner: unknown = obj.booking;
-  if (!inner && typeof obj.data === 'object' && obj.data) {
-    const d = obj.data as Record<string, unknown>;
-    inner = d.booking ?? null;
-  }
-  if (!inner || typeof inner !== 'object') return null;
-  return normalizeBookingCouponUsages(inner as Booking);
 }
 
 export interface GetBookingsOptions {
@@ -216,19 +199,10 @@ export async function getBookings(
   if (options.offset !== undefined) params.set('offset', String(options.offset));
   if (options.upcoming !== undefined) params.set('upcoming', String(options.upcoming));
   const qs = params.toString();
-  const url = `${CRM_BASE}/api/client/reservations${qs ? `?${qs}` : ''}`;
 
-  const res = await fetch(url, {
-    method: 'GET',
-    headers: {
-      Authorization: `Bearer ${apiToken}`,
-    },
+  const raw = await fetchCrm<unknown>(`/api/client/reservations${qs ? `?${qs}` : ''}`, {
+    apiToken,
   });
-
-  checkAuthResponse(res);
-  if (!res.ok) throw new Error(`Error ${res.status}`);
-
-  const raw = await res.json();
   return normalizeBookingsPayload(raw);
 }
 
@@ -256,47 +230,21 @@ export async function createBooking(
   apiToken: string,
   body: CreateBookingBody
 ): Promise<CreateBookingResponse> {
-  const url = `${CRM_BASE}/api/client/bookings`;
-  const res = await fetch(url, {
-    method: 'POST',
-    headers: {
-      Authorization: `Bearer ${apiToken}`,
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(body),
-  });
-
-  const text = await res.text();
-  checkAuthResponse(res);
-  if (res.status === 400) {
-    let msg = 'Invalid booking data or slot conflict';
-    try {
-      const parsed = JSON.parse(text) as { message?: string; error?: string };
-      if (parsed?.message) msg = parsed.message;
-      else if (typeof parsed?.error === 'string') msg = parsed.error;
-      else if (text) msg = `${msg}: ${text.slice(0, 200)}`;
-    } catch {
-      if (text) msg = `${msg}: ${text.slice(0, 200)}`;
+  try {
+    return await fetchCrm<CreateBookingResponse>('/api/client/bookings', {
+      method: 'POST',
+      apiToken,
+      body,
+    });
+  } catch (e) {
+    if (e instanceof CrmHttpError) {
+      if (e.status === 400) throw new Error(e.message || 'Invalid booking data or slot conflict');
+      if (e.status === 404) throw new Error('Employee, branch, or service not found');
+      if (e.status === 409) throw new Error('Booking conflict or duplicate');
+      if (e.status === 500) throw new Error('Failed to create booking');
     }
-    throw new Error(msg);
+    throw e;
   }
-  if (res.status === 404) throw new Error('Employee, branch, or service not found');
-  if (res.status === 409) throw new Error('Booking conflict or duplicate');
-  if (res.status === 500) throw new Error('Failed to create booking');
-  if (!res.ok) {
-    let msg = `Error ${res.status}`;
-    try {
-      const parsed = JSON.parse(text) as { message?: string; error?: string };
-      if (parsed?.message) msg = parsed.message;
-      else if (parsed?.error) msg = parsed.error;
-    } catch {
-      if (text) msg = `${msg}: ${text.slice(0, 200)}`;
-    }
-    throw new Error(msg);
-  }
-
-  if (!text) return {};
-  return JSON.parse(text) as CreateBookingResponse;
 }
 
 /** Query params for availability. employeeId and date required; branchId and itemId optional. */
@@ -350,29 +298,11 @@ export async function getBookingAvailability(
   if (params.branchId) q.set('branchId', params.branchId);
   if (params.itemId) q.set('itemId', params.itemId);
   if (params.noCache) q.set('_ts', String(Date.now()));
-  const url = `${CRM_BASE}/api/client/bookings/availability?${q.toString()}`;
 
-  const res = await fetch(url, {
-    method: 'GET',
-    headers: { Authorization: `Bearer ${apiToken}` },
-  });
-
-  const text = await res.text();
-  checkAuthResponse(res);
-  if (!res.ok) {
-    let msg = `Error ${res.status}`;
-    try {
-      const body = JSON.parse(text) as { message?: string; error?: string };
-      if (body?.message) msg = body.message;
-      else if (body?.error) msg = body.error;
-      else if (text) msg = `${msg}: ${text.slice(0, 200)}`;
-    } catch {
-      if (text) msg = `${msg}: ${text.slice(0, 200)}`;
-    }
-    throw new Error(msg);
-  }
-
-  return JSON.parse(text) as BookingAvailabilityResponse;
+  return fetchCrm<BookingAvailabilityResponse>(
+    `/api/client/bookings/availability?${q.toString()}`,
+    { apiToken }
+  );
 }
 
 /** DELETE /api/client/bookings/[id] – cancel a booking for the authenticated client. */
@@ -381,36 +311,25 @@ export async function cancelBooking(
   bookingId: string,
   reason?: string
 ): Promise<{ cancelled: true }> {
-  const url = `${CRM_BASE}/api/client/bookings/${encodeURIComponent(bookingId)}`;
-  const res = await fetch(url, {
-    method: 'DELETE',
-    headers: {
-      Authorization: `Bearer ${apiToken}`,
-      'Content-Type': 'application/json',
-    },
-    body:
-      reason != null && reason.trim() !== ''
-        ? JSON.stringify({ reason: reason.trim() })
-        : undefined,
-  });
-  const text = await res.text();
-  checkAuthResponse(res);
-  if (res.status === 403)
-    throw new Error('Rezervaci nelze zrušit méně než 2 hodiny před domluveným termínem.');
-  if (res.status === 404) throw new Error('Booking not found');
-  if (res.status === 500) throw new Error('Failed to cancel booking');
-  if (!res.ok) {
-    let msg = `Error ${res.status}`;
-    try {
-      const body = JSON.parse(text) as { message?: string; error?: string };
-      if (body?.message) msg = body.message;
-      else if (body?.error) msg = body.error;
-    } catch {
-      if (text) msg = `${msg}: ${text.slice(0, 200)}`;
+  try {
+    const result = await fetchCrm<{ cancelled: true } | undefined>(
+      `/api/client/bookings/${encodeURIComponent(bookingId)}`,
+      {
+        method: 'DELETE',
+        apiToken,
+        body: reason != null && reason.trim() !== '' ? { reason: reason.trim() } : undefined,
+      }
+    );
+    return result ?? { cancelled: true };
+  } catch (e) {
+    if (e instanceof CrmHttpError) {
+      if (e.status === 403)
+        throw new Error('Rezervaci nelze zrušit méně než 2 hodiny před domluveným termínem.');
+      if (e.status === 404) throw new Error('Booking not found');
+      if (e.status === 500) throw new Error('Failed to cancel booking');
     }
-    throw new Error(msg);
+    throw e;
   }
-  return text ? (JSON.parse(text) as { cancelled: true }) : { cancelled: true };
 }
 
 /** PATCH /api/client/bookings/{id} – update booking (all body fields optional). */
@@ -445,41 +364,21 @@ export async function updateBooking(
     }
   );
 
-  const url = `${CRM_BASE}/api/client/bookings/${encodeURIComponent(bookingId)}`;
-  const res = await fetch(url, {
-    method: 'PATCH',
-    headers: {
-      Authorization: `Bearer ${apiToken}`,
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(payload),
-  });
-
-  const text = await res.text();
-  checkAuthResponse(res);
-  if (res.status === 403)
-    throw new Error('Rezervaci nelze upravit méně než 1 hodinu před domluveným termínem.');
-  if (res.status === 404) throw new Error('Booking not found');
-  if (res.status === 400) throw new Error('Invalid booking data or slot conflict');
-  if (res.status === 409) throw new Error('Booking conflict');
-  if (res.status === 500) throw new Error('Failed to update booking');
-  if (!res.ok) {
-    let msg = `Error ${res.status}`;
-    try {
-      const parsed = JSON.parse(text) as { message?: string; error?: string };
-      if (parsed?.message) msg = parsed.message;
-      else if (parsed?.error) msg = parsed.error;
-      else if (text) msg = `${msg}: ${text.slice(0, 200)}`;
-    } catch {
-      if (text) msg = `${msg}: ${text.slice(0, 200)}`;
-    }
-    throw new Error(msg);
-  }
-
-  if (!text) return { status: res.status };
   try {
-    return JSON.parse(text) as UpdateBookingResponse;
-  } catch {
-    return { status: res.status };
+    const result = await fetchCrm<UpdateBookingResponse>(
+      `/api/client/bookings/${encodeURIComponent(bookingId)}`,
+      { method: 'PATCH', apiToken, body: payload }
+    );
+    return result ?? {};
+  } catch (e) {
+    if (e instanceof CrmHttpError) {
+      if (e.status === 403)
+        throw new Error('Rezervaci nelze upravit méně než 1 hodinu před domluveným termínem.');
+      if (e.status === 404) throw new Error('Booking not found');
+      if (e.status === 400) throw new Error('Invalid booking data or slot conflict');
+      if (e.status === 409) throw new Error('Booking conflict');
+      if (e.status === 500) throw new Error('Failed to update booking');
+    }
+    throw e;
   }
 }

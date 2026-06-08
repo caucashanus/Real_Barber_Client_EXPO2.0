@@ -2,6 +2,7 @@ import React from 'react';
 import { View } from 'react-native';
 
 import ThemedText from '@/components/ThemedText';
+import type { TranslationKey } from '@/locales';
 import { resolveClientCouponValidity } from '@/utils/clientCouponFormat';
 
 export type ClientCouponValidityPillsVariant = 'cardImage' | 'cardSolid' | 'sheet';
@@ -11,7 +12,7 @@ export interface ClientCouponValidityPillsProps {
   validUntil: string | null;
   locale: string;
   /** i18n — klíč: homeCouponValidityPillUntil */
-  t: (key: string) => string;
+  t: (key: TranslationKey) => string;
   variant: ClientCouponValidityPillsVariant;
   /** For flex alignment on cards (end = bottom-right block) */
   align?: 'start' | 'end';

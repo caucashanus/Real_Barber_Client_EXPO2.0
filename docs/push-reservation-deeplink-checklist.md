@@ -2,7 +2,9 @@
 
 **Očekávaný payload (data):** `reservationId` nebo (`entityType: "reservation"` + `entityId`). Legacy: `deeplink` / `deepLink` / `route`.
 
-**Cílová route v appce:** `/screens/trip-detail?id=<id>` (scheme: `realbarber` → `realbarber:///screens/trip-detail?id=...`).
+**Cílová route v appce:** `/screens/booking-detail?id=<id>` (scheme: `realbarber` → `realbarber:///screens/booking-detail?id=...`).
+
+**Legacy route:** `/screens/trip-detail` → redirect na `booking-detail` (staré push / deep linky).
 
 ## Checklist
 
@@ -19,4 +21,4 @@
    Payload bez `reservationId` / bez platného `entityId` u rezervace → app se nerozbije, navigace se nespustí (v dev konzoli `[push] no reservation route in payload`).
 
 5. **Neexistující rezervace**  
-   Platné ID, které API nevrátí v seznamu → `trip-detail` zobrazí stav „nenalezeno“ (existující chování obrazovky).
+   Platné ID, které API nevrátí v seznamu → `booking-detail` zobrazí stav „nenalezeno“ (existující chování obrazovky).

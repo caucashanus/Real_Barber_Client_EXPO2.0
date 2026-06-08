@@ -1,5 +1,4 @@
-import { checkAuthResponse } from './http';
-const CRM_BASE = 'https://crm.xrb.cz';
+import { fetchCrm } from './http';
 
 /** Flag „Prodejní“ – katalog produktů v aplikaci (GET …/by-flag). */
 export const CLIENT_PRODUCTS_CATALOG_FLAG_ID = 'fde9d7f6-b299-4824-80f8-2f6f4a3df2c7';
@@ -170,32 +169,15 @@ export async function getClientProductsByFlag(
     limit: String(limit),
     offset: String(offset),
   });
-  const url = `${CRM_BASE}/api/client/products/by-flag?${qs.toString()}`;
 
-  const res = await fetch(url, {
-    method: 'GET',
-    headers: { Authorization: `Bearer ${apiToken}` },
+  return fetchCrm<ClientProductsByFlagResponse>(`/api/client/products/by-flag?${qs.toString()}`, {
+    apiToken,
   });
-
-  checkAuthResponse(res);
-  if (!res.ok) throw new Error(`Error ${res.status}`);
-
-  return res.json() as Promise<ClientProductsByFlagResponse>;
 }
 
 /** GET /api/client/products – purchased products for the authenticated client. */
 export async function getClientProducts(apiToken: string): Promise<ClientProductsResponse> {
-  const url = `${CRM_BASE}/api/client/products`;
-
-  const res = await fetch(url, {
-    method: 'GET',
-    headers: { Authorization: `Bearer ${apiToken}` },
-  });
-
-  checkAuthResponse(res);
-  if (!res.ok) throw new Error(`Error ${res.status}`);
-
-  return res.json() as Promise<ClientProductsResponse>;
+  return fetchCrm<ClientProductsResponse>('/api/client/products', { apiToken });
 }
 
 export type ResolvedClientProduct =

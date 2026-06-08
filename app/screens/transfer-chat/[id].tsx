@@ -33,12 +33,13 @@ import { Button } from '@/components/Button';
 import Header, { HeaderIcon } from '@/components/Header';
 import Icon from '@/components/Icon';
 import ThemedText from '@/components/ThemedText';
+import type { TranslationKey } from '@/locales';
 
 function formatBalance(value: number): string {
   return value.toLocaleString('cs-CZ', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
 }
 
-function formatChatDate(dateString: string, t: (key: string) => string): string {
+function formatChatDate(dateString: string, t: (key: TranslationKey) => string): string {
   const date = new Date(dateString);
   const now = new Date();
   const diffInHours = (now.getTime() - date.getTime()) / (1000 * 60 * 60);

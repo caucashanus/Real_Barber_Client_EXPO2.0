@@ -88,18 +88,16 @@ const ReferralsScreen = () => {
               <ThemedText className="mb-4 mt-8 text-2xl font-semibold">
                 {t('referralsInvitedList')}
               </ThemedText>
-              {referrals.referralsMade.map(
-                (r: { id?: string; referee?: { name?: string }; status?: string }) => (
-                  <View
-                    key={r.id ?? String(r)}
-                    className="my-3 flex-row items-center justify-between">
-                    <ThemedText className="text-lg">{r.referee?.name ?? '—'}</ThemedText>
-                    <ThemedText className="text-base capitalize text-light-subtext dark:text-dark-subtext">
-                      {r.status ?? '—'}
-                    </ThemedText>
-                  </View>
-                )
-              )}
+              {referrals.referralsMade.map((r) => (
+                <View
+                  key={r.id ?? String(r)}
+                  className="my-3 flex-row items-center justify-between">
+                  <ThemedText className="text-lg">{r.referee?.name ?? '—'}</ThemedText>
+                  <ThemedText className="text-base capitalize text-light-subtext dark:text-dark-subtext">
+                    {r.status ?? '—'}
+                  </ThemedText>
+                </View>
+              ))}
             </>
           )}
         </View>

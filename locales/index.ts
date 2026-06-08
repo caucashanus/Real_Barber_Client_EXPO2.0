@@ -4,6 +4,7 @@ import { en } from './en';
 import type { Locale } from '@/app/contexts/LanguageContext';
 
 export type { TranslationKey } from './en';
+export type TranslateFn = (key: import('./en').TranslationKey) => string;
 export { en, cs };
 
 const translations: Record<Locale, Record<string, string>> = {

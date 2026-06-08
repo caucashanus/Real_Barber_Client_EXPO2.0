@@ -1,7 +1,7 @@
+import { Image } from 'expo-image';
 import { useLocalSearchParams, router } from 'expo-router';
 import React, { useEffect, useState } from 'react';
-import {View, ScrollView, ActivityIndicator, Dimensions, Pressable} from 'react-native';
-import { Image } from 'expo-image';
+import { View, ScrollView, ActivityIndicator, Dimensions, Pressable } from 'react-native';
 
 import {
   getCachedGuide,

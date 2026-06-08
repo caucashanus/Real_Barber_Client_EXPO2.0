@@ -10,6 +10,7 @@ import { useTranslation } from '@/app/hooks/useTranslation';
 import Avatar from '@/components/Avatar';
 import Icon from '@/components/Icon';
 import ThemedText from '@/components/ThemedText';
+import type { TranslationKey } from '@/locales';
 import { isVisitReservationBonusTransaction } from '@/utils/rbcCoinsHistoryUi';
 
 function formatBalance(value: number): string {
@@ -25,7 +26,7 @@ function formatDateTime(iso: string, locale: string): { date: string; time: stri
   };
 }
 
-function getDetailDescription(tx: RbCoinsHistoryItem, t: (key: string) => string): string {
+function getDetailDescription(tx: RbCoinsHistoryItem, t: (key: TranslationKey) => string): string {
   if (isVisitReservationBonusTransaction(tx)) return t('walletTransactionVisitReservationDetail');
   if (tx.description?.startsWith('Created gift card:')) {
     const code = tx.description.replace('Created gift card:', '').trim();

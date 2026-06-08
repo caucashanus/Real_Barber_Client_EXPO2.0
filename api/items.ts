@@ -1,5 +1,4 @@
-import { checkAuthResponse } from './http';
-const CRM_BASE = 'https://crm.xrb.cz';
+import { fetchCrm } from './http';
 
 export interface Item {
   id: string;
@@ -46,19 +45,8 @@ export async function getItems(
   if (options.limit !== undefined) params.set('limit', String(options.limit));
   if (options.offset !== undefined) params.set('offset', String(options.offset));
   const qs = params.toString();
-  const url = `${CRM_BASE}/api/client/items${qs ? `?${qs}` : ''}`;
 
-  const res = await fetch(url, {
-    method: 'GET',
-    headers: {
-      Authorization: `Bearer ${apiToken}`,
-    },
-  });
-
-  checkAuthResponse(res);
-  if (!res.ok) throw new Error(`Error ${res.status}`);
-
-  return res.json() as Promise<ItemsResponse>;
+  return fetchCrm<ItemsResponse>(`/api/client/items${qs ? `?${qs}` : ''}`, { apiToken });
 }
 
 const DEFAULT_PAGE_SIZE = 50;

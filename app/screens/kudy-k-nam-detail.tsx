@@ -20,7 +20,11 @@ import { KUDY_K_NAM_VIDEOS } from '@/constants/kudy-k-nam-videos';
 function getKudyVideoUrl(branch: Branch): string | null {
   const media = branch.media;
   if (!media) return null;
-  const list = Array.isArray(media) ? [...media] : Object.values(media);
+  const list = (Array.isArray(media) ? [...media] : Object.values(media ?? {})) as {
+    url?: string;
+    order?: number;
+    type?: string;
+  }[];
   const videos = list.filter(
     (m): m is { url: string; order?: number; type?: string } =>
       !!m?.url && (m as { type?: string }).type === 'video'

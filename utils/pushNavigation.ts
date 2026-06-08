@@ -1,11 +1,14 @@
 import { router } from 'expo-router';
 
-/** Cesta k detailu rezervace (booking) — odpovídá `app/screens/trip-detail.tsx` + `useLocalSearchParams` `id`. */
-export const RESERVATION_DETAIL_ROUTE = '/screens/trip-detail';
+/** Cesta k detailu rezervace — `app/screens/booking-detail.tsx` + param `id`. */
+export const RESERVATION_DETAIL_ROUTE = '/screens/booking-detail';
+
+/** Stará route kvůli push / deep linkům z CRM (viz `app/screens/trip-detail.tsx` redirect). */
+export const LEGACY_RESERVATION_DETAIL_ROUTE = '/screens/trip-detail';
 
 /**
  * Deep link (scheme z `app.json`: `realbarber`):
- * `realbarber:///screens/trip-detail?id=<reservationId>`
+ * `realbarber:///screens/booking-detail?id=<reservationId>`
  */
 export function buildReservationDetailHref(reservationId: string): string {
   return `${RESERVATION_DETAIL_ROUTE}?id=${encodeURIComponent(reservationId)}`;
@@ -13,7 +16,7 @@ export function buildReservationDetailHref(reservationId: string): string {
 
 /**
  * Deep link pro widget tap (scheme `realbarber`):
- * `realbarber://screens/trip-detail?id=<reservationId>&openReview=1`
+ * `realbarber://screens/booking-detail?id=<reservationId>&openReview=1`
  */
 export function buildReservationDetailDeepLink(
   reservationId: string,
@@ -21,7 +24,7 @@ export function buildReservationDetailDeepLink(
 ): string {
   const id = encodeURIComponent(reservationId);
   const openReview = options?.openReview ? '&openReview=1' : '';
-  return `realbarber://screens/trip-detail?id=${id}${openReview}`;
+  return `realbarber://screens/booking-detail?id=${id}${openReview}`;
 }
 
 function asTrimmedString(value: unknown): string | null {
@@ -101,7 +104,8 @@ export function openFromPushNotificationData(
   const SCREEN_MAP: Record<string, string> = {
     wallet: '/wallet',
     home: '/real-barber',
-    trips: '/trips',
+    bookings: '/bookings',
+    trips: '/bookings',
     profile: '/profile',
   };
 

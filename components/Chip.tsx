@@ -1,7 +1,7 @@
+import { Image } from 'expo-image';
 import { Link } from 'expo-router';
 import React, { ReactNode } from 'react';
-import {Text, View, TouchableOpacity, ViewStyle, ImageSourcePropType} from 'react-native';
-import { Image } from 'expo-image';
+import { Text, View, TouchableOpacity, ViewStyle, ImageSourcePropType } from 'react-native';
 
 import Icon, { IconName } from './Icon';
 

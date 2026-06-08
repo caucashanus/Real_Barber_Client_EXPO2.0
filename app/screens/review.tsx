@@ -1,9 +1,9 @@
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import * as Haptics from 'expo-haptics';
+import { Image } from 'expo-image';
 import { router, useLocalSearchParams } from 'expo-router';
 import React, { useState, useEffect } from 'react';
-import {View, TouchableOpacity, Alert, ActivityIndicator} from 'react-native';
-import { Image } from 'expo-image';
+import { View, TouchableOpacity, Alert, ActivityIndicator } from 'react-native';
 
 import { createReview, getEntityReviews, updateReview, deleteReview } from '@/api/reviews';
 import { useAuth } from '@/app/contexts/AuthContext';
@@ -195,7 +195,13 @@ const ReviewScreen = () => {
   return (
     <>
       <Header
-        title={isReservation ? t('reviewReservationTitle') : (entityName ? t('reviewWriteTo') : t('reviewWriteFallback'))}
+        title={
+          isReservation
+            ? t('reviewReservationTitle')
+            : entityName
+              ? t('reviewWriteTo')
+              : t('reviewWriteFallback')
+        }
         subtitle={reservationBadge || undefined}
         showBackButton
       />

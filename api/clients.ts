@@ -1,5 +1,4 @@
-import { checkAuthResponse } from './http';
-const CRM_BASE = 'https://crm.xrb.cz';
+import { CrmHttpError, fetchCrm } from './http';
 
 export interface ClientSearchItem {
   id: string;
@@ -48,18 +47,15 @@ export async function searchClients(
   const params = new URLSearchParams({ query: q });
   if (options?.limit != null) params.set('limit', String(Math.min(options.limit, 50)));
   if (options?.offset != null) params.set('offset', String(options.offset));
-  const url = `${CRM_BASE}/api/client/clients/search?${params.toString()}`;
-  const res = await fetch(url, {
-    method: 'GET',
-    headers: { Authorization: `Bearer ${apiToken}` },
-  });
 
-  checkAuthResponse(res);
-  if (res.status === 400) {
-    const body = await res.json().catch(() => ({}));
-    throw new Error((body as { error?: string }).error ?? 'Neplatný dotaz');
+  try {
+    return await fetchCrm<ClientSearchResponse>(`/api/client/clients/search?${params.toString()}`, {
+      apiToken,
+    });
+  } catch (e) {
+    if (e instanceof CrmHttpError && e.status === 400) {
+      throw new Error(e.message || 'Neplatný dotaz');
+    }
+    throw e;
   }
-  if (!res.ok) throw new Error(`Chyba ${res.status}`);
-
-  return res.json() as Promise<ClientSearchResponse>;
 }

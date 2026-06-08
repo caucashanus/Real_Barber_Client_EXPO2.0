@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
-import {View, ImageSourcePropType, Platform, StyleSheet} from 'react-native';
 import { Image } from 'expo-image';
+import React, { useState, useEffect } from 'react';
+import { View, ImageSourcePropType, Platform, StyleSheet } from 'react-native';
 import { Marker } from 'react-native-maps';
 
 import ThemedText from './ThemedText';

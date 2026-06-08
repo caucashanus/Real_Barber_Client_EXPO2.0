@@ -8,23 +8,10 @@ import ListLink from '@/components/ListLink';
 import ThemedScroller from '@/components/ThemeScroller';
 import Section from '@/components/layout/Section';
 
-/** Text v cílovém jazyce: v EN verzi zobrazit česky, v ČJ verzi anglicky. */
 const SWITCH_LABEL_CZ = 'Přepnout do češtiny';
 const SWITCH_LABEL_EN = 'Switch to English';
 const FLAG_CZ = '🇨🇿';
 const FLAG_EN = '🇬🇧';
-
-/** Nastavení → Platby (→ `/screens/profile/payments`). Nastav na `true`, až bude sekce znovu potřeba. */
-const SHOW_SETTINGS_PAYMENTS_SECTION = false;
-
-/** Nastavení → Měna (`/screens/profile/currency`). Nastav na `true`, až bude znovu potřeba. */
-const SHOW_SETTINGS_CURRENCY_SECTION = false;
-
-/** Nastavení → Nápověda (`/screens/help`). Obsah stránky lze dál doladit. */
-const SHOW_SETTINGS_HELP_SECTION = true;
-
-/** Nastavení → Oznámení (`/screens/profile/notifications`). */
-const SHOW_SETTINGS_NOTIFICATIONS_SECTION = false;
 
 export default function SettingsScreen() {
   const { locale, toggleLocale } = useLanguage();
@@ -62,52 +49,24 @@ export default function SettingsScreen() {
             icon="MessagesSquare"
             href="/screens/communication-settings"
           />
-          {SHOW_SETTINGS_PAYMENTS_SECTION ? (
-            <ListLink
-              title={t('settingsPayments')}
-              description={t('settingsPaymentsDesc')}
-              icon="CreditCard"
-              href="/screens/profile/payments"
-            />
-          ) : null}
-          {SHOW_SETTINGS_NOTIFICATIONS_SECTION ? (
-            <ListLink
-              title={t('settingsNotifications')}
-              description={t('settingsNotificationsDesc')}
-              icon="Bell"
-              href="/screens/profile/notifications"
-            />
-          ) : null}
-          {SHOW_SETTINGS_CURRENCY_SECTION ? (
-            <ListLink
-              title={t('settingsCurrency')}
-              description={t('settingsCurrencyDesc')}
-              icon="DollarSign"
-              href="/screens/profile/currency"
-            />
-          ) : null}
-          {/* TODO: Změnit heslo - dočasně skryto
           <ListLink
             title={t('settingsChangePassword')}
             description={t('settingsChangePasswordDesc')}
             icon="KeyRound"
             href="/screens/change-password"
           />
-          */}
           <ListLink
             title={t('settingsDeleteAccount')}
             description={t('settingsDeleteAccountSectionDesc')}
             icon="X"
             href="/screens/delete-account"
           />
-          {SHOW_SETTINGS_HELP_SECTION ? (
-            <ListLink
-              title={t('settingsHelp')}
-              description={t('settingsHelpDesc')}
-              icon="HelpCircle"
-              href="/screens/help"
-            />
-          ) : null}
+          <ListLink
+            title={t('settingsHelp')}
+            description={t('settingsHelpDesc')}
+            icon="HelpCircle"
+            href="/screens/help"
+          />
         </View>
 
         <View className="items-center justify-center pb-8 pt-6">

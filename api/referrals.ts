@@ -1,5 +1,4 @@
-import { checkAuthResponse } from './http';
-const CRM_BASE = 'https://crm.xrb.cz';
+import { fetchCrm } from './http';
 
 export interface ClientReferralsStats {
   totalReferralsMade: number;
@@ -119,16 +118,10 @@ export async function getReferrals(
   const search = new URLSearchParams();
   if (options?.includeProgress) search.set('includeProgress', 'true');
   const qs = search.toString();
-  const url = `${CRM_BASE}/api/client/referrals${qs ? `?${qs}` : ''}`;
-  const res = await fetch(url, {
-    method: 'GET',
-    headers: { Authorization: `Bearer ${apiToken}` },
+
+  return fetchCrm<ClientReferralsResponse>(`/api/client/referrals${qs ? `?${qs}` : ''}`, {
+    apiToken,
   });
-
-  checkAuthResponse(res);
-  if (!res.ok) throw new Error(`Error ${res.status}`);
-
-  return res.json() as Promise<ClientReferralsResponse>;
 }
 
 export interface GenerateReferralBody {
@@ -154,29 +147,10 @@ export async function generateReferral(
   apiToken: string,
   body: GenerateReferralBody
 ): Promise<GenerateReferralResponse> {
-  const authHeader = apiToken.trim().toLowerCase().startsWith('bearer ')
-    ? apiToken.trim()
-    : `Bearer ${apiToken.trim()}`;
-  const res = await fetch(`${CRM_BASE}/api/client/referrals/generate`, {
+  const token = apiToken.trim().replace(/^Bearer\s+/i, '');
+  return fetchCrm<GenerateReferralResponse>('/api/client/referrals/generate', {
     method: 'POST',
-    headers: {
-      Authorization: authHeader,
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(body),
+    apiToken: token,
+    body,
   });
-
-  checkAuthResponse(res);
-  if (!res.ok) {
-    const raw = await res.text().catch(() => '');
-    let message = `Error ${res.status}`;
-    try {
-      const data = JSON.parse(raw) as { message?: string; error?: string };
-      message = data.message || data.error || message;
-    } catch {
-      if (raw) message = raw.slice(0, 200);
-    }
-    throw new Error(message);
-  }
-  return res.json() as Promise<GenerateReferralResponse>;
 }

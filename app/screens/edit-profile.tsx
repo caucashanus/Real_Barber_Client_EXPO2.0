@@ -1,8 +1,8 @@
+import { Image } from 'expo-image';
 import type { ImagePickerAsset } from 'expo-image-picker';
 import { router } from 'expo-router';
 import React, { useState, useEffect, useRef, useMemo } from 'react';
-import {View, TouchableOpacity, ActivityIndicator, Pressable, Linking} from 'react-native';
-import { Image } from 'expo-image';
+import { View, TouchableOpacity, ActivityIndicator, Pressable, Linking } from 'react-native';
 import { ActionSheetRef } from 'react-native-actions-sheet';
 
 import { getClientMe, patchClientMe, uploadClientMedia, type ClientMe } from '@/api/client';
@@ -109,12 +109,16 @@ export default function EditProfileScreen() {
 
   const onChooseLibrary = () => {
     photoSourceSheetRef.current?.hide();
-    setTimeout(() => { void pickFromLibrary(); }, 500);
+    setTimeout(() => {
+      void pickFromLibrary();
+    }, 500);
   };
 
   const onChooseCamera = () => {
     photoSourceSheetRef.current?.hide();
-    setTimeout(() => { void takePhoto(); }, 500);
+    setTimeout(() => {
+      void takePhoto();
+    }, 500);
   };
 
   const saveChanges = async () => {

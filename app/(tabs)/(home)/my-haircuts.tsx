@@ -1,8 +1,8 @@
 import { useFocusEffect } from '@react-navigation/native';
+import { Image } from 'expo-image';
 import { router } from 'expo-router';
 import React, { useCallback, useContext, useMemo, useState } from 'react';
-import {View, Animated, Pressable, ActivityIndicator} from 'react-native';
-import { Image } from 'expo-image';
+import { View, Animated, Pressable, ActivityIndicator } from 'react-native';
 
 import { ScrollContext } from './_layout';
 
@@ -11,14 +11,13 @@ import { useAuth } from '@/app/contexts/AuthContext';
 import useThemeColors from '@/app/contexts/ThemeColors';
 import { useTranslation } from '@/app/hooks/useTranslation';
 import AnimatedView from '@/components/AnimatedView';
+import { Button } from '@/components/Button';
+import Card from '@/components/Card';
+import { CardScroller } from '@/components/CardScroller';
+import Icon from '@/components/Icon';
 import ThemeScroller from '@/components/ThemeScroller';
-
 import ThemedText from '@/components/ThemedText';
 import Section from '@/components/layout/Section';
-import { CardScroller } from '@/components/CardScroller';
-import Card from '@/components/Card';
-import { Button } from '@/components/Button';
-import Icon from '@/components/Icon';
 import {
   isHaircutIntroCooldownActive,
   setHaircutIntroCooldown24h,
@@ -163,7 +162,7 @@ const MyHaircutsScreen = () => {
               onPress={async () => {
                 await setHaircutIntroCooldown24h();
                 setHaircutIntroCooldown(true);
-                router.push('/screens/add-property-start?from=cta');
+                router.push('/screens/haircut-create-start?from=cta');
               }}
             />
           </View>
@@ -182,7 +181,7 @@ const MyHaircutsScreen = () => {
           <Pressable
             onPress={async () => {
               const skip = await isHaircutIntroCooldownActive();
-              router.push(skip ? '/screens/add-property' : '/screens/add-property-start');
+              router.push(skip ? '/screens/haircut-create' : '/screens/haircut-create-start');
             }}
             className="h-10 w-10 shrink-0 items-center justify-center rounded-full bg-light-secondary active:opacity-70 dark:bg-dark-secondary"
             accessibilityRole="button"

@@ -1,17 +1,16 @@
+import { LinearGradient } from 'expo-linear-gradient';
 import { router } from 'expo-router';
 import React, { useState, useEffect, useRef } from 'react';
-import {View, Keyboard, TouchableWithoutFeedback, Animated, StyleSheet} from 'react-native';
-import { Image } from 'expo-image';
-import { LinearGradient } from 'expo-linear-gradient';
+import { View, Animated, StyleSheet } from 'react-native';
 
 import { requestClientOtp } from '@/api/auth';
 import { useTranslation } from '@/app/hooks/useTranslation';
 import { Button } from '@/components/Button';
 import Header from '@/components/Header';
 import ThemedText from '@/components/ThemedText';
-import Input from '@/components/forms/Input';
-import Select from '@/components/forms/Select';
-import { COUNTRY_CODE_OPTIONS, formatPhoneDisplay } from '@/utils/phone';
+import PhoneInput from '@/components/forms/PhoneInput';
+import AuthScreenLayout from '@/components/layout/AuthScreenLayout';
+import { buildFullPhone, validatePhoneDigits } from '@/utils/phone';
 
 function ShimmerButton({ children }: { children: React.ReactNode }) {
   const shimmerX = useRef(new Animated.Value(-1)).current;
@@ -77,27 +76,18 @@ export default function LoginScreen() {
   const [apiError, setApiError] = useState('');
   const [isLoading, setLoading] = useState(false);
 
-  const validatePhone = (value: string) => {
-    const digits = value.replace(/\D/g, '');
-    if (digits.length === 0) {
-      setPhoneError(t('signupPhoneRequired'));
-      return false;
-    }
-    if (digits.length < 9) {
-      setPhoneError(t('signupPhoneInvalid'));
-      return false;
-    }
-    setPhoneError('');
-    return true;
-  };
-
   const handleContinue = async () => {
     setApiError('');
-    if (!validatePhone(phone)) return;
+    const validation = validatePhoneDigits(phone);
+    if (!validation.valid) {
+      setPhoneError(t(validation.errorKey!));
+      return;
+    }
+    setPhoneError('');
+
     setLoading(true);
     try {
-      const digitsOnly = phone.replace(/\D/g, '');
-      const fullPhone = `${countryCode}${digitsOnly}`;
+      const fullPhone = buildFullPhone(countryCode, phone);
       const data = await requestClientOtp(fullPhone);
 
       if (!data.challengeSent) {
@@ -136,71 +126,43 @@ export default function LoginScreen() {
           </View>,
         ]}
       />
-      <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
-        <View className="flex-1 bg-light-primary dark:bg-dark-primary" style={{ overflow: 'hidden' }}>
-          <View className="p-6">
-            <View className="mt-8">
-              <ThemedText className="mb-1 text-3xl font-bold">{t('loginWelcomeBack')}</ThemedText>
-              <ThemedText className="mb-6 text-light-subtext dark:text-dark-subtext">
-                {t('loginPhoneStepSubtitle')}
-              </ThemedText>
+      <AuthScreenLayout bottomImage={require('@/assets/img/loginrb.png')}>
+        <View className="mt-8">
+          <ThemedText className="mb-1 text-3xl font-bold">{t('loginWelcomeBack')}</ThemedText>
+          <ThemedText className="mb-6 text-light-subtext dark:text-dark-subtext">
+            {t('loginPhoneStepSubtitle')}
+          </ThemedText>
 
-              <View className="mb-4">
-                <ThemedText className="mb-1 font-medium text-light-text dark:text-dark-text">
-                  {t('signupPhoneLabel')}
-                </ThemedText>
-                <View className="flex-row items-stretch gap-2">
-                  <View style={{ width: 100 }}>
-                    <Select
-                      options={COUNTRY_CODE_OPTIONS}
-                      value={countryCode}
-                      onChange={(v) => setCountryCode(String(v))}
-                      placeholder="+420"
-                      variant="classic"
-                      className="mb-0"
-                    />
-                  </View>
-                  <View className="flex-1">
-                    <Input
-                      value={phone}
-                      onChangeText={(text) => {
-                        setPhone(formatPhoneDisplay(text));
-                        if (phoneError) validatePhone(text);
-                      }}
-                      error={phoneError}
-                      keyboardType="phone-pad"
-                      placeholder="123 456 789"
-                      autoComplete="tel"
-                      containerClassName="mb-0"
-                    />
-                  </View>
-                </View>
-              </View>
-
-              {apiError ? (
-                <ThemedText className="mb-4 text-sm text-red-500 dark:text-red-400">
-                  {apiError}
-                </ThemedText>
-              ) : null}
-
-              <ShimmerButton>
-                <Button
-                  title={t('loginContinue')}
-                  onPress={() => void handleContinue()}
-                  loading={isLoading}
-                  size="large"
-                  textClassName="font-bold text-lg"
-                />
-              </ShimmerButton>
-            </View>
-          </View>
-          <Image
-            source={require('@/assets/img/loginrb.png')}
-            style={{ width: '100%', height: 320, position: 'absolute', bottom: 0 }}
-            contentFit="contain"
+          <PhoneInput
+            label={t('signupPhoneLabel')}
+            countryCode={countryCode}
+            onCountryCodeChange={setCountryCode}
+            phone={phone}
+            onPhoneChange={setPhone}
+            error={phoneError}
+            onValidate={(result) => {
+              if (result.valid) setPhoneError('');
+              else if (result.errorKey) setPhoneError(t(result.errorKey));
+            }}
           />
+
+          {apiError ? (
+            <ThemedText className="mb-4 text-sm text-red-500 dark:text-red-400">
+              {apiError}
+            </ThemedText>
+          ) : null}
+
+          <ShimmerButton>
+            <Button
+              title={t('loginContinue')}
+              onPress={() => void handleContinue()}
+              loading={isLoading}
+              size="large"
+              textClassName="font-bold text-lg"
+            />
+          </ShimmerButton>
         </View>
-      </TouchableWithoutFeedback>
+      </AuthScreenLayout>
     </>
   );
 }

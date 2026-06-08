@@ -10,11 +10,12 @@ import { useTranslation } from '@/app/hooks/useTranslation';
 import AnimatedView from '@/components/AnimatedView';
 import Card from '@/components/Card';
 import Header, { HeaderIcon } from '@/components/Header';
+import Icon from '@/components/Icon';
 import { Placeholder } from '@/components/Placeholder';
 import ThemeScroller from '@/components/ThemeScroller';
 import ThemedText from '@/components/ThemedText';
 import Grid from '@/components/layout/Grid';
-import Icon from '@/components/Icon';
+import type { TranslationKey } from '@/locales';
 
 function favoriteHref(fav: Favorite): string {
   switch (fav.entityType) {
@@ -31,7 +32,7 @@ function favoriteHref(fav: Favorite): string {
   }
 }
 
-function favoriteCategoryBadgeText(fav: Favorite, t: (key: string) => string): string {
+function favoriteCategoryBadgeText(fav: Favorite, t: (key: TranslationKey) => string): string {
   const raw = fav.category?.trim();
   if (raw) return raw;
 

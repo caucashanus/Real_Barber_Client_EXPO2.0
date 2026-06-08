@@ -1,6 +1,6 @@
-import React, { useMemo, useState } from 'react';
-import {View, Pressable} from 'react-native';
 import { Image } from 'expo-image';
+import React, { useMemo, useState } from 'react';
+import { View, Pressable } from 'react-native';
 
 import { useTranslation } from '@/app/hooks/useTranslation';
 import HaircutNoteEditModals, {
@@ -231,8 +231,8 @@ export default function HaircutNoteSections({
     applyNote(removeLineAt(note, idx));
   };
 
-  const typeLineLabel = t('addPropertyStepHaircutType');
-  const seasonLineLabel = t('addPropertyStepSeason');
+  const typeLineLabel = t('haircutCreateStepHaircutType');
+  const seasonLineLabel = t('haircutCreateStepSeason');
 
   const sectionAddButton = (sectionId: HaircutNoteSectionId) => {
     if (!editNote || sectionId === 'other') return null;
@@ -394,7 +394,7 @@ export default function HaircutNoteSections({
                                     removeFeatureTagFromNote(
                                       note,
                                       tag,
-                                      row.label || t('addPropertyStepFeatures')
+                                      row.label || t('haircutCreateStepFeatures')
                                     )
                                   )
                               : undefined

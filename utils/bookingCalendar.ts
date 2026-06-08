@@ -1,6 +1,6 @@
-import type { Booking } from '@/api/bookings';
 import { Alert, Linking } from 'react-native';
 
+import type { Booking } from '@/api/bookings';
 import { getBookingEndDate, getBookingStartDate } from '@/utils/bookingHelpers';
 
 /** Začátek a konec události v lokálním čase zařízení (kalendářní den z `date`, časy ze slotů). */

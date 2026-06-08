@@ -1,5 +1,4 @@
-import { CRM_BASE } from '@/api/bookings';
-import { checkAuthResponse } from './http';
+import { fetchCrm } from './http';
 
 export interface CouponPreviewBody {
   couponCode: string;
@@ -35,44 +34,17 @@ function unwrapRecord(raw: unknown): Record<string, unknown> | null {
   return o;
 }
 
-function parseApiErrorMessage(text: string, status: number): string {
-  let msg = `Error ${status}`;
-  try {
-    const parsed = JSON.parse(text) as { message?: string; error?: string };
-    if (parsed?.message) msg = parsed.message;
-    else if (typeof parsed?.error === 'string') msg = parsed.error;
-    else if (text) msg = `${msg}: ${text.slice(0, 200)}`;
-  } catch {
-    if (text) msg = `${msg}: ${text.slice(0, 200)}`;
-  }
-  return msg;
-}
-
 /** POST /api/client/coupons/preview — náhled ceny bez spotřebování kupónu. */
 export async function previewCoupon(
   apiToken: string,
   body: CouponPreviewBody
 ): Promise<CouponPreviewSuccess> {
-  const url = `${CRM_BASE}/api/client/coupons/preview`;
-  const res = await fetch(url, {
+  const raw = await fetchCrm<unknown>('/api/client/coupons/preview', {
     method: 'POST',
-    headers: {
-      Authorization: `Bearer ${apiToken}`,
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(body),
+    apiToken,
+    body,
   });
-  const text = await res.text();
-  checkAuthResponse(res);
-  if (!res.ok) {
-    throw new Error(parseApiErrorMessage(text, res.status));
-  }
-  let raw: unknown;
-  try {
-    raw = text ? JSON.parse(text) : {};
-  } catch {
-    throw new Error('Invalid response from server');
-  }
+
   const obj = unwrapRecord(raw);
   if (!obj) throw new Error('Invalid response from server');
 

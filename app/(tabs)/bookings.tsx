@@ -58,7 +58,6 @@ function resolveCrmMediaUrl(raw: string | null | undefined): string {
   return s;
 }
 
-
 function formatBookingDate(b: Booking, locale: string = 'en'): string {
   const d = new Date(b.date);
   const dateLocale = locale === 'cs' ? 'cs-CZ' : 'en-GB';
@@ -255,9 +254,13 @@ const TripsScreen = () => {
                   return status === 'cancelled' || status === 'canceled';
                 })
               : selectedFilter === 'rated'
-                ? bookings.filter((b) => isBookingPast(b) && getBookingClientReviewRating(b) != null)
+                ? bookings.filter(
+                    (b) => isBookingPast(b) && getBookingClientReviewRating(b) != null
+                  )
                 : selectedFilter === 'pending_review'
-                  ? bookings.filter((b) => isBookingPast(b) && getBookingClientReviewRating(b) == null)
+                  ? bookings.filter(
+                      (b) => isBookingPast(b) && getBookingClientReviewRating(b) == null
+                    )
                   : bookings;
 
   const loadData = useCallback(async () => {
@@ -343,7 +346,13 @@ const TripsScreen = () => {
             className="px-global pt-4"
             onScroll={scrollHandler}
             scrollEventThrottle={scrollEventThrottle}
-            refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={accentColor} />}>
+            refreshControl={
+              <RefreshControl
+                refreshing={refreshing}
+                onRefresh={onRefresh}
+                tintColor={accentColor}
+              />
+            }>
             <CardScroller className="mb-4">
               {counts.current > 0 && (
                 <Chip
@@ -424,9 +433,14 @@ const TripsScreen = () => {
                           ? `&entityEmployeeAvatar=${encodeURIComponent(booking.employee.avatarUrl)}`
                           : '';
                         const [, m, d] = (booking.date ?? '').slice(0, 10).split('-');
-                        const dateParam = m && d ? `&entityDate=${encodeURIComponent(`${d}.${m}.`)}` : '';
-                        const timeParam = booking.slotStart ? `&entityTime=${encodeURIComponent(booking.slotStart)}` : '';
-                        const branchParam = booking.branch?.name ? `&entityBranch=${encodeURIComponent(booking.branch.name)}` : '';
+                        const dateParam =
+                          m && d ? `&entityDate=${encodeURIComponent(`${d}.${m}.`)}` : '';
+                        const timeParam = booking.slotStart
+                          ? `&entityTime=${encodeURIComponent(booking.slotStart)}`
+                          : '';
+                        const branchParam = booking.branch?.name
+                          ? `&entityBranch=${encodeURIComponent(booking.branch.name)}`
+                          : '';
                         router.push(
                           `/screens/review?entityType=reservation&entityId=${encodeURIComponent(booking.id)}&entityName=${encodeURIComponent(booking.item?.name ?? 'Booking')}${imageParam}${employeeNameParam}${employeeAvatarParam}${dateParam}${timeParam}${branchParam}`
                         );
@@ -468,9 +482,7 @@ const BookingCard = (props: {
   const couponUsages = booking.couponUsages ?? [];
   const hasCoupon = couponUsages.length > 0;
   const couponBagLabel = hasCoupon
-    ? (couponUsages[0]?.coupon?.name?.trim() ||
-        couponUsages[0]?.coupon?.code?.trim() ||
-        null)
+    ? couponUsages[0]?.coupon?.name?.trim() || couponUsages[0]?.coupon?.code?.trim() || null
     : null;
   const isPast = isPastAndNotCancelled(booking);
   const isCurrent = isBookingCurrent(booking);
@@ -498,7 +510,7 @@ const BookingCard = (props: {
 
   const cardOpacity = isCancelled ? 'opacity-70' : 'opacity-100';
 
-  const goToDetail = () => router.push(`/screens/trip-detail?id=${booking.id}`);
+  const goToDetail = () => router.push(`/screens/booking-detail?id=${booking.id}`);
 
   return (
     <View
@@ -598,7 +610,7 @@ const BookingCard = (props: {
                 <Button
                   variant="ghost"
                   size="small"
-                  title={t('tripDetailMoveButton')}
+                  title={t('bookingDetailMoveButton')}
                   iconStart="Calendar"
                   iconSize={16}
                   onPress={() =>

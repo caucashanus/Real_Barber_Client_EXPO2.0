@@ -1,10 +1,10 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
-
-import { ScrollContext } from './_layout';
 import { useRouter } from 'expo-router';
 import React, { useContext, useState, useEffect } from 'react';
 import { View, Animated, ActivityIndicator, Pressable, ScrollView } from 'react-native';
-import { useAuth } from '@/app/contexts/AuthContext';
+
+import { ScrollContext } from './_layout';
+
 import {
   CLIENT_PRODUCTS_GIFTS_FLAG_ID,
   getClientProducts,
@@ -12,6 +12,7 @@ import {
   type ClientCatalogProduct,
   type ClientProductPurchase,
 } from '@/api/products';
+import { useAuth } from '@/app/contexts/AuthContext';
 import {
   useSetSelectedCatalogProduct,
   useSetSelectedPurchase,
@@ -179,110 +180,115 @@ const ProductsScreen = () => {
           </ThemedText>
         </View>
       ) : (
-      <AnimatedView animation="scaleIn" className="mt-4 flex-1">
-        <Section title={t('productsMyPurchased')} titleSize="lg" className="mb-2">
-          {purchasedProducts.length === 0 ? (
-            <ThemedText className="py-4 text-light-subtext dark:text-dark-subtext">
-              {t('productsNoPurchased')}
-            </ThemedText>
-          ) : (
-            <CardScroller space={15} className="mt-1.5 pb-2">
-              {purchasedProducts.map((purchase) => {
-                const imgUrl = productImageUrl(purchase);
-                return (
-                  <Card
-                    key={purchase.purchaseId}
-                    title={purchase.product.name}
-                    rounded="2xl"
-                    price={`${purchase.totalPrice} Kč`}
-                    badgeSecondary={purchase.paymentMethod}
-                    hasFavorite
-                    favoriteEntityType="product"
-                    favoriteEntityId={purchase.product.id}
-                    width={160}
-                    imageHeight={160}
-                    image={imgUrl || require('@/assets/img/barbers.png')}
-                    onPress={() => {
-                      setSelectedCatalogProduct(null);
-                      setSelectedPurchase(purchase);
-                      router.push(`/screens/product-detail?id=${purchase.product.id}`);
-                    }}
-                  />
-                );
-              })}
-            </CardScroller>
-          )}
-        </Section>
-
-        {/* Promo cards hidden */}
-        {false && <ScrollView
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          className="-mx-global mb-6"
-          contentContainerStyle={{
-            paddingHorizontal: 16,
-            paddingRight: 24,
-            paddingTop: 8,
-            paddingBottom: 18,
-          }}>
-          {[
-            { titleKey: 'productsPromoTitle', subtitleKey: 'productsPromoSubtitle' },
-            { titleKey: 'productsPromoTitle2', subtitleKey: 'productsPromoSubtitle2' },
-            { titleKey: 'productsPromoTitle3', subtitleKey: 'productsPromoSubtitle3' },
-            { titleKey: 'productsPromoTitle4', subtitleKey: 'productsPromoSubtitle4' },
-            { titleKey: 'productsPromoTitle5', subtitleKey: 'productsPromoSubtitle5' },
-          ]
-            .map((item, index) => ({ item, index }))
-            .filter(
-              ({ index }) =>
-                !dismissedPromoAt[index] || Date.now() - dismissedPromoAt[index] >= PROMO_HIDE_MS
-            )
-            .map(({ item, index }) => (
-              <View
-                key={index}
-                style={{ ...shadowPresets.large, width: 280, marginRight: 15 }}
-                className="flex-shrink-0 rounded-2xl bg-light-secondary p-5 dark:bg-dark-secondary">
-                <View className="flex-row items-start justify-between">
-                  <View className="flex-1 pr-2">
-                    <ThemedText className="text-lg font-bold text-light-text dark:text-dark-text">
-                      {t(item.titleKey)}
-                    </ThemedText>
-                    <ThemedText className="mt-1 text-sm text-light-subtext dark:text-dark-subtext">
-                      {t(item.subtitleKey)}
-                    </ThemedText>
-                  </View>
-                  <Pressable className="p-1" onPress={() => handleDismissPromo(index)}>
-                    <Icon
-                      name="X"
-                      size={18}
-                      className="text-light-subtext dark:text-dark-subtext"
+        <AnimatedView animation="scaleIn" className="mt-4 flex-1">
+          <Section title={t('productsMyPurchased')} titleSize="lg" className="mb-2">
+            {purchasedProducts.length === 0 ? (
+              <ThemedText className="py-4 text-light-subtext dark:text-dark-subtext">
+                {t('productsNoPurchased')}
+              </ThemedText>
+            ) : (
+              <CardScroller space={15} className="mt-1.5 pb-2">
+                {purchasedProducts.map((purchase) => {
+                  const imgUrl = productImageUrl(purchase);
+                  return (
+                    <Card
+                      key={purchase.purchaseId}
+                      title={purchase.product.name}
+                      rounded="2xl"
+                      price={`${purchase.totalPrice} Kč`}
+                      badgeSecondary={purchase.paymentMethod}
+                      hasFavorite
+                      favoriteEntityType="product"
+                      favoriteEntityId={purchase.product.id}
+                      width={160}
+                      imageHeight={160}
+                      image={imgUrl || require('@/assets/img/barbers.png')}
+                      onPress={() => {
+                        setSelectedCatalogProduct(null);
+                        setSelectedPurchase(purchase);
+                        router.push(`/screens/product-detail?id=${purchase.product.id}`);
+                      }}
                     />
-                  </Pressable>
-                </View>
-              </View>
-            ))}
-        </ScrollView>}
+                  );
+                })}
+              </CardScroller>
+            )}
+          </Section>
 
-        <Section
-          title={t('productsTitle')}
-          titleSize="lg"
-          link="/screens/map"
-          linkText={t('commonViewAll')}>
-          <CardScroller space={15} className="mt-1.5 pb-4">
-            {renderFlagCatalogCards(catalogProducts, 'productsCatalogEmpty')}
-          </CardScroller>
-        </Section>
+          {/* Promo cards hidden */}
+          {false && (
+            <ScrollView
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              className="-mx-global mb-6"
+              contentContainerStyle={{
+                paddingHorizontal: 16,
+                paddingRight: 24,
+                paddingTop: 8,
+                paddingBottom: 18,
+              }}>
+              {(
+                [
+                  { titleKey: 'productsPromoTitle', subtitleKey: 'productsPromoSubtitle' },
+                  { titleKey: 'productsPromoTitle2', subtitleKey: 'productsPromoSubtitle2' },
+                  { titleKey: 'productsPromoTitle3', subtitleKey: 'productsPromoSubtitle3' },
+                  { titleKey: 'productsPromoTitle4', subtitleKey: 'productsPromoSubtitle4' },
+                  { titleKey: 'productsPromoTitle5', subtitleKey: 'productsPromoSubtitle5' },
+                ] as { titleKey: TranslationKey; subtitleKey: TranslationKey }[]
+              )
+                .map((item, index) => ({ item, index }))
+                .filter(
+                  ({ index }) =>
+                    !dismissedPromoAt[index] ||
+                    Date.now() - dismissedPromoAt[index] >= PROMO_HIDE_MS
+                )
+                .map(({ item, index }) => (
+                  <View
+                    key={index}
+                    style={{ ...shadowPresets.large, width: 280, marginRight: 15 }}
+                    className="flex-shrink-0 rounded-2xl bg-light-secondary p-5 dark:bg-dark-secondary">
+                    <View className="flex-row items-start justify-between">
+                      <View className="flex-1 pr-2">
+                        <ThemedText className="text-lg font-bold text-light-text dark:text-dark-text">
+                          {t(item.titleKey)}
+                        </ThemedText>
+                        <ThemedText className="mt-1 text-sm text-light-subtext dark:text-dark-subtext">
+                          {t(item.subtitleKey)}
+                        </ThemedText>
+                      </View>
+                      <Pressable className="p-1" onPress={() => handleDismissPromo(index)}>
+                        <Icon
+                          name="X"
+                          size={18}
+                          className="text-light-subtext dark:text-dark-subtext"
+                        />
+                      </Pressable>
+                    </View>
+                  </View>
+                ))}
+            </ScrollView>
+          )}
 
-        <Section
-          title={t('productsGiftsTitle')}
-          titleSize="lg"
-          link="/screens/map"
-          linkText={t('commonViewAll')}>
-          <CardScroller space={15} className="mt-1.5 pb-4">
-            {renderFlagCatalogCards(giftProducts, 'productsGiftsEmpty')}
-          </CardScroller>
-        </Section>
-      </AnimatedView>
+          <Section
+            title={t('productsTitle')}
+            titleSize="lg"
+            link="/screens/map"
+            linkText={t('commonViewAll')}>
+            <CardScroller space={15} className="mt-1.5 pb-4">
+              {renderFlagCatalogCards(catalogProducts, 'productsCatalogEmpty')}
+            </CardScroller>
+          </Section>
+
+          <Section
+            title={t('productsGiftsTitle')}
+            titleSize="lg"
+            link="/screens/map"
+            linkText={t('commonViewAll')}>
+            <CardScroller space={15} className="mt-1.5 pb-4">
+              {renderFlagCatalogCards(giftProducts, 'productsGiftsEmpty')}
+            </CardScroller>
+          </Section>
+        </AnimatedView>
       )}
     </ThemeScroller>
   );

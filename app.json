@@ -8,10 +8,7 @@
     "experiments": {
       "tsconfigPaths": true
     },
-    "platforms": [
-      "ios",
-      "android"
-    ],
+    "platforms": ["ios", "android"],
     "plugins": [
       "expo-router",
       "expo-font",
@@ -46,9 +43,7 @@
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
-    "assetBundlePatterns": [
-      "**/*"
-    ],
+    "assetBundlePatterns": ["**/*"],
     "ios": {
       "deploymentTarget": "16.2",
       "appleTeamId": "VK8YT9654D",
@@ -63,9 +58,7 @@
         "NSRemindersFullAccessUsageDescription": "Aplikace může přidat připomínku k termínu."
       },
       "entitlements": {
-        "com.apple.security.application-groups": [
-          "group.com.realbarber.client"
-        ]
+        "com.apple.security.application-groups": ["group.com.realbarber.client"]
       }
     },
     "android": {

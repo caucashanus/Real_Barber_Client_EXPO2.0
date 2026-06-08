@@ -1,7 +1,9 @@
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
+import { Image } from 'expo-image';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Link, router } from 'expo-router';
-import {View,
+import {
+  View,
   Text,
   Pressable,
   ImageBackground,
@@ -9,8 +11,8 @@ import {View,
   ViewStyle,
   Dimensions,
   ImageSourcePropType,
-  StyleSheet} from 'react-native';
-import { Image } from 'expo-image';
+  StyleSheet,
+} from 'react-native';
 
 import { Button } from './Button';
 import Favorite from './Favorite';

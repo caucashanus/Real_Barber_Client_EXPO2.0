@@ -104,7 +104,7 @@ export const TabButton = forwardRef<View, TabButtonProps>(
 
     return (
       <Pressable
-        className={`flex-1 overflow-hidden`}
+        className="flex-1 overflow-hidden"
         ref={ref}
         {...props}
         onPress={onPress}

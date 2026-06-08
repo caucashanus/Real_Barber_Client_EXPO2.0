@@ -1,15 +1,17 @@
+import { Image } from 'expo-image';
 import * as ImagePicker from 'expo-image-picker';
 import type { ImagePickerAsset } from 'expo-image-picker';
 import { useLocalSearchParams, router } from 'expo-router';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import {View,
+import {
+  View,
   ActivityIndicator,
   Alert,
   Animated,
   TouchableOpacity,
   ScrollView,
-  Pressable} from 'react-native';
-import { Image } from 'expo-image';
+  Pressable,
+} from 'react-native';
 
 import { deleteClientMedia, uploadClientMedia } from '@/api/client';
 import { getClientCut, patchClientCut, deleteClientCut, type ClientCut } from '@/api/cuts';
@@ -21,21 +23,21 @@ import AnimatedView from '@/components/AnimatedView';
 import Avatar from '@/components/Avatar';
 import BarberPicker from '@/components/BarberPicker';
 import { Button } from '@/components/Button';
+import HaircutNoteSections from '@/components/HaircutNoteSections';
 import Header from '@/components/Header';
-import ThemedScroller from '@/components/ThemeScroller';
+import Icon from '@/components/Icon';
+import ImageCarousel from '@/components/ImageCarousel';
+import ListLink from '@/components/ListLink';
+import ShowRating from '@/components/ShowRating';
 import ThemedFooter from '@/components/ThemeFooter';
+import ThemedScroller from '@/components/ThemeScroller';
 import ThemedText from '@/components/ThemedText';
 import Input from '@/components/forms/Input';
-import Section from '@/components/layout/Section';
-import ImageCarousel from '@/components/ImageCarousel';
-import ShowRating from '@/components/ShowRating';
-import ListLink from '@/components/ListLink';
 import Divider from '@/components/layout/Divider';
-import HaircutNoteSections from '@/components/HaircutNoteSections';
-import Icon from '@/components/Icon';
+import Section from '@/components/layout/Section';
 
 const PLACEHOLDER_IMAGE = require('@/assets/img/barbers.png');
-/** Stejný limit jako ve wizardu `add-property`. */
+/** Stejný limit jako ve wizardu `haircut-create`. */
 const MAX_CUT_PHOTOS = 5;
 
 /** Rozdělí `createdAt` na datum a čas pro dvousloupcovou kartu (jako check-in / check-out). */
@@ -521,7 +523,7 @@ export default function HaircutDetailScreen() {
                           className="text-light-subtext dark:text-dark-subtext"
                         />
                         <ThemedText className="mt-1 px-1 text-center text-xs text-light-subtext dark:text-dark-subtext">
-                          {t('addPropertyAddPhoto')}
+                          {t('haircutCreateAddPhoto')}
                         </ThemedText>
                       </TouchableOpacity>
                       <TouchableOpacity
@@ -534,7 +536,7 @@ export default function HaircutDetailScreen() {
                           className="text-light-subtext dark:text-dark-subtext"
                         />
                         <ThemedText className="mt-1 px-1 text-center text-xs text-light-subtext dark:text-dark-subtext">
-                          {t('addPropertyTakePhoto')}
+                          {t('haircutCreateTakePhoto')}
                         </ThemedText>
                       </TouchableOpacity>
                     </View>

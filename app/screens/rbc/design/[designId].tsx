@@ -154,7 +154,13 @@ export default function CardDesignDetailScreen() {
                 </View>
               ) : (
                 <LinearGradient
-                  colors={design.gradientColors ?? ['#667eea', '#764ba2']}
+                  colors={
+                    (design.gradientColors ?? ['#667eea', '#764ba2']) as [
+                      string,
+                      string,
+                      ...string[],
+                    ]
+                  }
                   start={design.gradientStart ?? { x: 0, y: 0 }}
                   end={design.gradientEnd ?? { x: 1, y: 1 }}
                   style={[styles.card, cardSize]}>

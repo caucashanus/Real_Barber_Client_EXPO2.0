@@ -1,5 +1,4 @@
-import { CRM_BASE } from '@/api/bookings';
-import { checkAuthResponse } from './http';
+import { fetchCrm } from './http';
 
 export interface ClientCoupon {
   id: string;
@@ -19,15 +18,7 @@ export interface ClientCoupon {
 
 /** GET /api/client/coupons — kupony dostupné klientovi (server filtruje neplatné řádky). */
 export async function getClientCoupons(apiToken: string): Promise<ClientCoupon[]> {
-  const res = await fetch(`${CRM_BASE}/api/client/coupons`, {
-    method: 'GET',
-    headers: { Authorization: `Bearer ${apiToken}` },
-  });
-
-  checkAuthResponse(res);
-  if (!res.ok) throw new Error(`Error ${res.status}`);
-
-  const data = (await res.json()) as unknown;
+  const data = await fetchCrm<unknown>('/api/client/coupons', { apiToken });
   if (!Array.isArray(data)) return [];
   return data as ClientCoupon[];
 }

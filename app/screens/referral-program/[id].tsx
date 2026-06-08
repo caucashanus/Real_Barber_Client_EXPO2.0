@@ -145,13 +145,12 @@ export default function ReferralProgramDetailScreen() {
         })}
         scrollEventThrottle={16}>
         <AnimatedView animation="fadeIn" duration={400} delay={100}>
-
           {/* Hero image */}
           <View className="px-global">
             <ImageCarousel
               height={300}
               rounded="2xl"
-              images={carouselImages}
+              images={carouselImages as import('react-native').ImageSourcePropType[]}
               scrollY={heroScrollY}
               stretchOnPullDown
             />
@@ -266,15 +265,13 @@ export default function ReferralProgramDetailScreen() {
               iconStart="Users"
               iconSize={16}
               onPress={() =>
-                router.push(
-                  `/screens/referral-program/${encodeURIComponent(programId)}/invites`
-                )
+                router.push(`/screens/referral-program/${encodeURIComponent(programId)}/invites`)
               }
               className="rounded-none rounded-br-2xl px-0 py-3.5"
               textClassName="text-sm font-semibold text-neutral-800 dark:text-neutral-200"
             />
             {programReferrals.length > 0 && (
-              <View className="absolute right-4 top-1 h-5 min-w-5 items-center justify-center rounded-full bg-red-500 px-1">
+              <View className="min-w-5 absolute right-4 top-1 h-5 items-center justify-center rounded-full bg-red-500 px-1">
                 <ThemedText className="text-xs font-bold text-white">
                   {programReferrals.length}
                 </ThemedText>

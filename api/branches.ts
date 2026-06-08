@@ -1,5 +1,4 @@
-import { checkAuthResponse } from './http';
-const CRM_BASE = 'https://crm.xrb.cz';
+import { CrmHttpError, fetchCrm } from './http';
 
 export interface BranchService {
   id: string;
@@ -53,38 +52,24 @@ export async function getBranches(
     params.set('includeReviews', String(options.includeReviews));
   if (options.reviewsLimit !== undefined) params.set('reviewsLimit', String(options.reviewsLimit));
   const qs = params.toString();
-  const url = `${CRM_BASE}/api/client/branches${qs ? `?${qs}` : ''}`;
 
-  const res = await fetch(url, {
-    method: 'GET',
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  });
-
-  checkAuthResponse(res);
-  if (!res.ok) throw new Error(`Error ${res.status}`);
-
-  return res.json() as Promise<Branch[]>;
+  return fetchCrm<Branch[]>(`/api/client/branches${qs ? `?${qs}` : ''}`, { apiToken: token });
 }
 
 /** GET /api/client/branches/:id — detail pobočky včetně služeb (EmployeeItemPrice / vazby na holiče). */
 export async function getBranchById(token: string, branchId: string): Promise<Branch> {
-  const url = `${CRM_BASE}/api/client/branches/${encodeURIComponent(branchId)}`;
-  const res = await fetch(url, {
-    method: 'GET',
-    headers: { Authorization: `Bearer ${token}` },
-  });
-
-  checkAuthResponse(res);
-  if (res.status === 404) throw new Error('Branch not found');
-  if (!res.ok) throw new Error(`Error ${res.status}`);
-
-  const json: unknown = await res.json();
-  if (json && typeof json === 'object') {
-    const o = json as Record<string, unknown>;
-    if (o.branch && typeof o.branch === 'object') return o.branch as Branch;
-    if (o.data && typeof o.data === 'object') return o.data as Branch;
+  try {
+    const json = await fetchCrm<unknown>(`/api/client/branches/${encodeURIComponent(branchId)}`, {
+      apiToken: token,
+    });
+    if (json && typeof json === 'object') {
+      const o = json as Record<string, unknown>;
+      if (o.branch && typeof o.branch === 'object') return o.branch as Branch;
+      if (o.data && typeof o.data === 'object') return o.data as Branch;
+    }
+    return json as Branch;
+  } catch (e) {
+    if (e instanceof CrmHttpError && e.status === 404) throw new Error('Branch not found');
+    throw e;
   }
-  return json as Branch;
 }

@@ -51,7 +51,7 @@ export function HomeSpotlightCard({
             router.push(getHomeSpotlightReviewScreenPath(booking) as any);
             return;
           }
-          router.push(`/screens/trip-detail?id=${encodeURIComponent(booking.id)}` as any);
+          router.push(`/screens/booking-detail?id=${encodeURIComponent(booking.id)}` as any);
         }}
         className="active:opacity-70">
         <View style={{ overflow: 'visible' }}>

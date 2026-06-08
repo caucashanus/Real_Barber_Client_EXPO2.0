@@ -1,8 +1,10 @@
 import { useFocusEffect } from '@react-navigation/native';
+import { Image } from 'expo-image';
 import { router, useLocalSearchParams } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import React, { useEffect, useState, useCallback, useRef, useMemo } from 'react';
-import {View,
+import {
+  View,
   ActivityIndicator,
   Pressable,
   ScrollView,
@@ -10,8 +12,8 @@ import {View,
   Animated,
   useWindowDimensions,
   FlatList,
-  type LayoutChangeEvent} from 'react-native';
-import { Image } from 'expo-image';
+  type LayoutChangeEvent,
+} from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import {
@@ -23,7 +25,6 @@ import {
   type EmployeeMediaItem,
 } from '@/api/employees';
 import { getEntityReviews, type EntityReviewItem } from '@/api/reviews';
-import { getMockReviews } from '@/utils/mockReviews';
 import { useAuth } from '@/app/contexts/AuthContext';
 import useThemeColors from '@/app/contexts/ThemeColors';
 import { useTranslation } from '@/app/hooks/useTranslation';
@@ -32,13 +33,14 @@ import { Button } from '@/components/Button';
 import { CardScroller } from '@/components/CardScroller';
 import Favorite from '@/components/Favorite';
 import Header from '@/components/Header';
-import VideoPlayer from '@/components/VideoPlayer';
-import ThemedText from '@/components/ThemedText';
-import ThemedScroller from '@/components/ThemeScroller';
-import Divider from '@/components/layout/Divider';
-import ShowRating from '@/components/ShowRating';
-import Section from '@/components/layout/Section';
 import Icon from '@/components/Icon';
+import ShowRating from '@/components/ShowRating';
+import ThemedScroller from '@/components/ThemeScroller';
+import ThemedText from '@/components/ThemedText';
+import VideoPlayer from '@/components/VideoPlayer';
+import Divider from '@/components/layout/Divider';
+import Section from '@/components/layout/Section';
+import { getMockReviews } from '@/utils/mockReviews';
 
 type TopSlide = { type: 'image' | 'video'; uri: string };
 
@@ -154,7 +156,7 @@ export default function BarberDetailScreen() {
     ])
       .then(([detail, list]) => {
         setEmployee(detail);
-        const arr = Array.isArray(list) ? list : Object.values(list);
+        const arr = (Array.isArray(list) ? list : Object.values(list)) as EmployeeDetail[];
         const fromList = arr.find((e) => e.id === id);
         if (fromList?.description) setDescription(fromList.description);
       })
@@ -162,16 +164,23 @@ export default function BarberDetailScreen() {
       .finally(() => setLoading(false));
   }, [apiToken, id]);
 
-  const buildOwnReviewIds = useCallback((data: Awaited<ReturnType<typeof getEntityReviews>>) => {
-    const ids = new Set<string>();
-    if (data.clientReview?.id) ids.add(data.clientReview.id);
-    data.reviews.forEach((r) => {
-      if (r.client?.id != null && client?.id != null && String(r.client.id) === String(client.id)) {
-        ids.add(r.id);
-      }
-    });
-    return ids;
-  }, [client?.id]);
+  const buildOwnReviewIds = useCallback(
+    (data: Awaited<ReturnType<typeof getEntityReviews>>) => {
+      const ids = new Set<string>();
+      if (data.clientReview?.id) ids.add(data.clientReview.id);
+      data.reviews.forEach((r) => {
+        if (
+          r.client?.id != null &&
+          client?.id != null &&
+          String(r.client.id) === String(client.id)
+        ) {
+          ids.add(r.id);
+        }
+      });
+      return ids;
+    },
+    [client?.id]
+  );
 
   // Přepočítej ownReviewIds když se client načte po reviews
   useEffect(() => {
@@ -579,9 +588,10 @@ export default function BarberDetailScreen() {
                 <CardScroller className="mt-1" space={10}>
                   {reviews.map((review) => {
                     const isOwnReview = ownReviewIds.has(review.id);
-                    const editParams = review.entityType === 'reservation' && review.entityId
-                      ? `entityType=reservation&entityId=${encodeURIComponent(review.entityId)}`
-                      : reviewParams;
+                    const editParams =
+                      review.entityType === 'reservation' && review.entityId
+                        ? `entityType=reservation&entityId=${encodeURIComponent(review.entityId)}`
+                        : reviewParams;
                     return (
                       <View
                         key={review.id}

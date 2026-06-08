@@ -1,0 +1,32 @@
+import { describe, expect, it, vi } from 'vitest';
+
+vi.mock('expo-router', () => ({
+  router: { push: vi.fn() },
+}));
+
+import {
+  LEGACY_RESERVATION_DETAIL_ROUTE,
+  RESERVATION_DETAIL_ROUTE,
+  buildReservationDetailDeepLink,
+  buildReservationDetailHref,
+  resolveReservationIdFromPushData,
+} from '@/utils/pushNavigation';
+
+describe('pushNavigation', () => {
+  it('resolves reservation id from push payload', () => {
+    expect(resolveReservationIdFromPushData({ reservationId: 'abc-123' })).toBe('abc-123');
+    expect(resolveReservationIdFromPushData({ entityType: 'reservation', entityId: '42' })).toBe(
+      '42'
+    );
+    expect(resolveReservationIdFromPushData({ entityType: 'sale_log', entityId: '99' })).toBeNull();
+  });
+
+  it('builds in-app and deep-link routes for booking detail', () => {
+    expect(RESERVATION_DETAIL_ROUTE).toBe('/screens/booking-detail');
+    expect(LEGACY_RESERVATION_DETAIL_ROUTE).toBe('/screens/trip-detail');
+    expect(buildReservationDetailHref('x/y')).toBe('/screens/booking-detail?id=x%2Fy');
+    expect(buildReservationDetailDeepLink('x/y', { openReview: true })).toBe(
+      'realbarber://screens/booking-detail?id=x%2Fy&openReview=1'
+    );
+  });
+});

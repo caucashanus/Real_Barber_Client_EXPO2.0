@@ -186,7 +186,8 @@ function mapHistoryTypeToUiType(item: NotificationHistoryItem): NotificationType
   if (joined.includes('cancel')) return 'cancellation';
   if (joined.includes('reservation') || joined.includes('booking') || joined.includes('rezervac'))
     return 'booking';
-  if (joined.includes('payment') || joined.includes('platb') || joined.includes('rbc')) return 'payment';
+  if (joined.includes('payment') || joined.includes('platb') || joined.includes('rbc'))
+    return 'payment';
   if (joined.includes('review') || joined.includes('recenz')) return 'review';
   if (joined.includes('inquiry') || joined.includes('dotaz') || joined.includes('question'))
     return 'inquiry';

@@ -1,21 +1,18 @@
+import { Image } from 'expo-image';
 import { useLocalSearchParams, router } from 'expo-router';
 import React, { useEffect, useState, useRef } from 'react';
-import {View,
-  ActivityIndicator,
-  Animated,
-  type LayoutChangeEvent} from 'react-native';
-import { Image } from 'expo-image';
+import { View, ActivityIndicator, Animated, type LayoutChangeEvent } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { getItemsAll, type Item } from '@/api/items';
 import { useAuth } from '@/app/contexts/AuthContext';
 import { useTranslation } from '@/app/hooks/useTranslation';
 import { Button } from '@/components/Button';
+import { Chip } from '@/components/Chip';
 import Favorite from '@/components/Favorite';
 import Header from '@/components/Header';
 import ThemedScroller from '@/components/ThemeScroller';
 import ThemedText from '@/components/ThemedText';
-import { Chip } from '@/components/Chip';
 import Divider from '@/components/layout/Divider';
 import Section from '@/components/layout/Section';
 
@@ -24,8 +21,9 @@ function itemImages(item: Item): (string | number)[] {
   if (item.imageUrl) out.push(item.imageUrl);
   const media = item.media;
   if (media && Array.isArray(media)) {
-    media.forEach((m: { url?: string }) => {
-      if (m?.url) out.push(m.url);
+    media.forEach((m) => {
+      const item = m as { url?: string };
+      if (item?.url) out.push(item.url);
     });
   }
   if (out.length === 0) out.push(require('@/assets/img/barbers.png'));

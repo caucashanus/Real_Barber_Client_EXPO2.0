@@ -1,5 +1,4 @@
-import { checkAuthResponse } from './http';
-const CRM_BASE = 'https://crm.xrb.cz';
+import { CrmHttpError, fetchCrm } from './http';
 
 export interface CommunicationChannels {
   phoneCall: boolean;
@@ -57,17 +56,16 @@ function normalizeSettings(data: CommunicationSettingsResponse): CommunicationSe
 export async function getCommunicationSettings(
   apiToken: string
 ): Promise<CommunicationSettingsResponse> {
-  const res = await fetch(`${CRM_BASE}/api/client/communication-settings`, {
-    method: 'GET',
-    headers: { Authorization: `Bearer ${apiToken}` },
-  });
-
-  checkAuthResponse(res);
-  if (res.status === 404) throw new Error('Not found');
-  if (!res.ok) throw new Error(`Error ${res.status}`);
-
-  const json = (await res.json()) as CommunicationSettingsResponse;
-  return normalizeSettings(json);
+  try {
+    const json = await fetchCrm<CommunicationSettingsResponse>(
+      '/api/client/communication-settings',
+      { apiToken }
+    );
+    return normalizeSettings(json);
+  } catch (e) {
+    if (e instanceof CrmHttpError && e.status === 404) throw new Error('Not found');
+    throw e;
+  }
 }
 
 /** PATCH /api/client/communication-settings */
@@ -75,20 +73,17 @@ export async function patchCommunicationSettings(
   apiToken: string,
   body: PatchCommunicationSettingsBody
 ): Promise<CommunicationSettingsResponse> {
-  const res = await fetch(`${CRM_BASE}/api/client/communication-settings`, {
-    method: 'PATCH',
-    headers: {
-      Authorization: `Bearer ${apiToken}`,
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(body),
-  });
-
-  checkAuthResponse(res);
-  if (res.status === 400) throw new Error('Bad request');
-  if (res.status === 404) throw new Error('Not found');
-  if (!res.ok) throw new Error(`Error ${res.status}`);
-
-  const json = (await res.json()) as CommunicationSettingsResponse;
-  return normalizeSettings(json);
+  try {
+    const json = await fetchCrm<CommunicationSettingsResponse>(
+      '/api/client/communication-settings',
+      { method: 'PATCH', apiToken, body }
+    );
+    return normalizeSettings(json);
+  } catch (e) {
+    if (e instanceof CrmHttpError) {
+      if (e.status === 400) throw new Error('Bad request');
+      if (e.status === 404) throw new Error('Not found');
+    }
+    throw e;
+  }
 }

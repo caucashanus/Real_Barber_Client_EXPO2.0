@@ -12,6 +12,7 @@ import TransactionDetailModal from '@/components/TransactionDetailModal';
 import { List } from '@/components/layout/List';
 import ListItem from '@/components/layout/ListItem';
 import Section from '@/components/layout/Section';
+import type { TranslationKey } from '@/locales';
 import {
   getRbCoinsTransactionListTitle,
   RB_COINS_TX_LIST_KEYS_RBC,
@@ -33,7 +34,7 @@ function formatTransactionTime(iso: string): string {
 
 function getSectionTitle(
   dateKey: string,
-  t: (key: string) => string,
+  t: (key: TranslationKey) => string,
   locale: string
 ): string {
   const now = new Date();

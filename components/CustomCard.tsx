@@ -1,13 +1,15 @@
+import { Image } from 'expo-image';
 import { Link } from 'expo-router';
 import React, { ReactNode } from 'react';
-import {View,
+import {
+  View,
   ViewStyle,
   ImageBackground,
   ImageSourcePropType,
   StyleSheet,
   Platform,
-  TouchableOpacity} from 'react-native';
-import { Image } from 'expo-image';
+  TouchableOpacity,
+} from 'react-native';
 
 interface CustomCardProps {
   children: ReactNode;

@@ -1,8 +1,8 @@
 import { useFocusEffect } from '@react-navigation/native';
+import { Image } from 'expo-image';
 import { router } from 'expo-router';
 import React, { useCallback, useContext, useEffect, useState } from 'react';
-import {View, Pressable, Animated, ActivityIndicator} from 'react-native';
-import { Image } from 'expo-image';
+import { View, Pressable, Animated, ActivityIndicator } from 'react-native';
 
 import { ScrollContext } from './_layout';
 

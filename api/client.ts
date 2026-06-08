@@ -1,5 +1,4 @@
-import { checkAuthResponse } from './http';
-const CRM_BASE = 'https://crm.xrb.cz';
+import { CrmHttpError, fetchCrm } from './http';
 
 export interface ClientMe {
   id: string;
@@ -26,15 +25,7 @@ export interface ClientMe {
 
 /** GET /api/client/me – current client information. */
 export async function getClientMe(apiToken: string): Promise<ClientMe> {
-  const res = await fetch(`${CRM_BASE}/api/client/me`, {
-    method: 'GET',
-    headers: { Authorization: `Bearer ${apiToken}` },
-  });
-
-  checkAuthResponse(res);
-  if (!res.ok) throw new Error(`Error ${res.status}`);
-
-  return res.json() as Promise<ClientMe>;
+  return fetchCrm<ClientMe>('/api/client/me', { apiToken });
 }
 
 export interface UpdateClientMeBody {
@@ -105,30 +96,33 @@ export async function uploadClientMedia(
   if (input.alt?.trim()) form.append('alt', input.alt.trim());
   if (input.flagId?.trim()) form.append('flagId', input.flagId.trim());
 
-  const res = await fetch(`${CRM_BASE}/api/client/media`, {
-    method: 'POST',
-    headers: {
-      Authorization: `Bearer ${apiToken}`,
-    },
-    body: form,
-  });
+  try {
+    const data = await fetchCrm<unknown>('/api/client/media', {
+      method: 'POST',
+      apiToken,
+      body: form,
+    });
 
-  checkAuthResponse(res);
-  if (res.status === 413) throw new Error('Soubor je příliš velký (max 15 MB)');
-  if (res.status === 400) {
-    const txt = await res.text().catch(() => '');
-    throw new Error(txt || 'Neplatný soubor nebo parametry uploadu');
+    const wrapped = data as
+      | { mediaFile?: ClientMediaFile; file?: ClientMediaFile }
+      | ClientMediaFile;
+    const media =
+      wrapped && typeof wrapped === 'object' && 'mediaFile' in wrapped
+        ? wrapped.mediaFile
+        : wrapped && typeof wrapped === 'object' && 'file' in wrapped
+          ? wrapped.file
+          : (wrapped as ClientMediaFile);
+    if (!media?.id || !media?.url) {
+      throw new Error('Media upload response is missing file url');
+    }
+    return media;
+  } catch (e) {
+    if (e instanceof CrmHttpError) {
+      if (e.status === 413) throw new Error('Soubor je příliš velký (max 15 MB)');
+      if (e.status === 400) throw new Error(e.message || 'Neplatný soubor nebo parametry uploadu');
+    }
+    throw e;
   }
-  if (!res.ok) throw new Error(`Media upload failed: ${res.status}`);
-
-  const data = (await res.json()) as
-    | { mediaFile?: ClientMediaFile; file?: ClientMediaFile }
-    | ClientMediaFile;
-  const media = 'mediaFile' in data ? data.mediaFile : 'file' in data ? data.file : data;
-  if (!media?.id || !media?.url) {
-    throw new Error('Media upload response is missing file url');
-  }
-  return media;
 }
 
 /** POST /api/client/avatar – nahrání profilové fotky (pouze po přihlášení klienta). */
@@ -146,53 +140,44 @@ export async function uploadClientAvatar(
     type: mimeType,
   } as unknown as Blob);
 
-  const res = await fetch(`${CRM_BASE}/api/client/avatar`, {
-    method: 'POST',
-    headers: {
-      Authorization: `Bearer ${apiToken}`,
-    },
-    body: form,
-  });
-
-  checkAuthResponse(res);
-  if (res.status === 413) throw new Error('Soubor je příliš velký');
-  if (!res.ok) {
-    const txt = await res.text().catch(() => '');
-    throw new Error(txt || `Avatar upload failed: ${res.status}`);
+  try {
+    await fetchCrm<void>('/api/client/avatar', { method: 'POST', apiToken, body: form });
+  } catch (e) {
+    if (e instanceof CrmHttpError) {
+      if (e.status === 413) throw new Error('Soubor je příliš velký');
+    }
+    throw e;
   }
 }
 
 /** DELETE /api/client/media/{id} – delete client's own media file. */
 export async function deleteClientMedia(apiToken: string, mediaId: string): Promise<void> {
-  const res = await fetch(`${CRM_BASE}/api/client/media/${encodeURIComponent(mediaId)}`, {
-    method: 'DELETE',
-    headers: { Authorization: `Bearer ${apiToken}` },
-  });
-
-  checkAuthResponse(res);
-  if (res.status === 403) throw new Error('Access denied');
-  if (res.status === 404) throw new Error('Media file not found');
-  if (!res.ok) throw new Error(`Media delete failed: ${res.status}`);
+  try {
+    await fetchCrm<void>(`/api/client/media/${encodeURIComponent(mediaId)}`, {
+      method: 'DELETE',
+      apiToken,
+    });
+  } catch (e) {
+    if (e instanceof CrmHttpError) {
+      if (e.status === 403) throw new Error('Access denied');
+      if (e.status === 404) throw new Error('Media file not found');
+    }
+    throw e;
+  }
 }
 
 /** PATCH /api/client/me – update current client profile (partial). */
 export async function patchClientMe(apiToken: string, body: UpdateClientMeBody): Promise<ClientMe> {
-  const res = await fetch(`${CRM_BASE}/api/client/me`, {
-    method: 'PATCH',
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${apiToken}`,
-    },
-    body: JSON.stringify(body),
-  });
-
-  checkAuthResponse(res);
-  if (res.status === 400) throw new Error('Invalid input data');
-  if (res.status === 409) throw new Error('Phone number already exists');
-  if (res.status === 500) throw new Error('Failed to update profile');
-  if (!res.ok) throw new Error(`Error ${res.status}`);
-
-  return res.json() as Promise<ClientMe>;
+  try {
+    return await fetchCrm<ClientMe>('/api/client/me', { method: 'PATCH', apiToken, body });
+  } catch (e) {
+    if (e instanceof CrmHttpError) {
+      if (e.status === 400) throw new Error('Invalid input data');
+      if (e.status === 409) throw new Error('Phone number already exists');
+      if (e.status === 500) throw new Error('Failed to update profile');
+    }
+    throw e;
+  }
 }
 
 export interface DeleteClientAccountResponse {
@@ -206,23 +191,16 @@ export async function deleteClientAccount(
   apiToken: string,
   reason?: string
 ): Promise<DeleteClientAccountResponse> {
-  const payload = reason && reason.trim() ? JSON.stringify({ reason: reason.trim() }) : undefined;
-
-  const res = await fetch(`${CRM_BASE}/api/client/account`, {
-    method: 'DELETE',
-    headers: {
-      Authorization: `Bearer ${apiToken}`,
-      ...(payload ? { 'Content-Type': 'application/json' } : {}),
-    },
-    ...(payload ? { body: payload } : {}),
-  });
-
-  checkAuthResponse(res);
-  if (res.status === 500) throw new Error('Failed to delete account');
-  if (!res.ok) {
-    const txt = await res.text().catch(() => '');
-    throw new Error(txt || `Error ${res.status}`);
+  try {
+    return await fetchCrm<DeleteClientAccountResponse>('/api/client/account', {
+      method: 'DELETE',
+      apiToken,
+      body: reason && reason.trim() ? { reason: reason.trim() } : undefined,
+    });
+  } catch (e) {
+    if (e instanceof CrmHttpError && e.status === 500) {
+      throw new Error('Failed to delete account');
+    }
+    throw e;
   }
-
-  return res.json() as Promise<DeleteClientAccountResponse>;
 }

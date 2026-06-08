@@ -5,7 +5,7 @@ import {
 } from '@/constants/haircutWizardOptions';
 import type { TranslationKey } from '@/locales';
 
-/** Stejné pole jako ve wizardu `add-property` – serializuje se do `note` přes `buildHaircutNote`. */
+/** Stejné pole jako ve wizardu `haircut-create` – serializuje se do `note` přes `buildHaircutNote`. */
 export interface HaircutWizardPropertyData {
   /** Hodnoty z `PROPERTY_TYPE_OPTIONS` (např. `kratsi`) – může jich být víc. */
   propertyTypes: string[];
@@ -45,7 +45,7 @@ export function buildHaircutNote(
       })
       .filter(Boolean);
     if (labels.length > 0) {
-      lines.push(`${t('addPropertyStepHaircutType')}: ${labels.join(', ')}`);
+      lines.push(`${t('haircutCreateStepHaircutType')}: ${labels.join(', ')}`);
     }
   }
   if (data.guestAccessTypes.length > 0) {
@@ -56,24 +56,24 @@ export function buildHaircutNote(
       })
       .filter(Boolean);
     if (labels.length > 0) {
-      lines.push(`${t('addPropertyStepSeason')}: ${labels.join(', ')}`);
+      lines.push(`${t('haircutCreateStepSeason')}: ${labels.join(', ')}`);
     }
   }
   lines.push(
-    `${t('addPropertyLengthAtEars')}: ${data.guests} cm`,
-    `${t('addPropertyLengthOnTop')}: ${data.bedrooms} cm`,
-    `${t('addPropertyHowOftenTrim')}: ${data.beds} ${t('addPropertyWeeksUnit')}`
+    `${t('haircutCreateLengthAtEars')}: ${data.guests} cm`,
+    `${t('haircutCreateLengthOnTop')}: ${data.bedrooms} cm`,
+    `${t('haircutCreateHowOftenTrim')}: ${data.beds} ${t('haircutCreateWeeksUnit')}`
   );
   if (data.amenities.length > 0) {
     const labels = data.amenities.map((label) => {
       const opt = AMENITY_OPTIONS.find((a) => a.label === label);
       return opt ? t(opt.labelKey as TranslationKey) : label;
     });
-    lines.push(`${t('addPropertyStepFeatures')}: ${labels.join(', ')}`);
+    lines.push(`${t('haircutCreateStepFeatures')}: ${labels.join(', ')}`);
   }
-  lines.push(`${t('addPropertyDifficulty')}: ${Math.round(data.stylingDifficulty)}%`);
+  lines.push(`${t('haircutCreateDifficulty')}: ${Math.round(data.stylingDifficulty)}%`);
   if (data.description.trim()) {
-    lines.push(`${t('addPropertyDescription')}: ${data.description.trim()}`);
+    lines.push(`${t('haircutCreateDescription')}: ${data.description.trim()}`);
   }
   return lines.join('\n');
 }

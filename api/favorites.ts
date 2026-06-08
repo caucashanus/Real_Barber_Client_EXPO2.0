@@ -1,5 +1,4 @@
-import { checkAuthResponse } from './http';
-const CRM_BASE = 'https://crm.xrb.cz';
+import { CrmHttpError, fetchCrm } from './http';
 
 export type FavoriteEntityType =
   | 'product'
@@ -36,28 +35,24 @@ export interface Favorite {
 
 /** POST /api/client/favorites – add a new favorite. Returns 200 with created favorite, 409 if already exists. */
 export async function addFavorite(apiToken: string, body: AddFavoriteBody): Promise<Favorite> {
-  const res = await fetch(`${CRM_BASE}/api/client/favorites`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${apiToken}`,
-    },
-    body: JSON.stringify({
-      entityType: body.entityType,
-      entityId: body.entityId,
-      title: body.title ?? '',
-      note: body.note ?? '',
-      tags: body.tags ?? [],
-      category: body.category ?? '',
-      order: body.order ?? 1,
-    }),
-  });
-
-  checkAuthResponse(res);
-  if (res.status === 409) throw new Error('Already in favorites');
-  if (!res.ok) throw new Error(`Error ${res.status}`);
-
-  return res.json() as Promise<Favorite>;
+  try {
+    return await fetchCrm<Favorite>('/api/client/favorites', {
+      method: 'POST',
+      apiToken,
+      body: {
+        entityType: body.entityType,
+        entityId: body.entityId,
+        title: body.title ?? '',
+        note: body.note ?? '',
+        tags: body.tags ?? [],
+        category: body.category ?? '',
+        order: body.order ?? 1,
+      },
+    });
+  } catch (e) {
+    if (e instanceof CrmHttpError && e.status === 409) throw new Error('Already in favorites');
+    throw e;
+  }
 }
 
 export interface GetFavoritesOptions {
@@ -74,32 +69,25 @@ export async function getFavorites(
   if (options.entityType != null) params.set('entityType', options.entityType);
   if (options.category != null) params.set('category', options.category);
   const qs = params.toString();
-  const url = `${CRM_BASE}/api/client/favorites${qs ? `?${qs}` : ''}`;
 
-  const res = await fetch(url, {
-    method: 'GET',
-    headers: { Authorization: `Bearer ${apiToken}` },
-  });
-
-  checkAuthResponse(res);
-  if (!res.ok) throw new Error(`Error ${res.status}`);
-
-  const data = await res.json();
-  return Array.isArray(data) ? data : (data.items ?? data.favorites ?? []);
+  const data = await fetchCrm<unknown>(`/api/client/favorites${qs ? `?${qs}` : ''}`, { apiToken });
+  if (Array.isArray(data)) return data;
+  const obj = data && typeof data === 'object' ? (data as Record<string, unknown>) : {};
+  return (
+    Array.isArray(obj.items) ? obj.items : Array.isArray(obj.favorites) ? obj.favorites : []
+  ) as Favorite[];
 }
 
 /** GET /api/client/favorites/[id] – get one favorite by id. */
 export async function getFavoriteById(apiToken: string, id: string): Promise<Favorite> {
-  const res = await fetch(`${CRM_BASE}/api/client/favorites/${encodeURIComponent(id)}`, {
-    method: 'GET',
-    headers: { Authorization: `Bearer ${apiToken}` },
-  });
-
-  checkAuthResponse(res);
-  if (res.status === 404) throw new Error('Not found');
-  if (!res.ok) throw new Error(`Error ${res.status}`);
-
-  return res.json() as Promise<Favorite>;
+  try {
+    return await fetchCrm<Favorite>(`/api/client/favorites/${encodeURIComponent(id)}`, {
+      apiToken,
+    });
+  } catch (e) {
+    if (e instanceof CrmHttpError && e.status === 404) throw new Error('Not found');
+    throw e;
+  }
 }
 
 export interface UpdateFavoriteBody {
@@ -116,30 +104,27 @@ export async function updateFavorite(
   id: string,
   body: UpdateFavoriteBody
 ): Promise<Favorite> {
-  const res = await fetch(`${CRM_BASE}/api/client/favorites/${encodeURIComponent(id)}`, {
-    method: 'PATCH',
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${apiToken}`,
-    },
-    body: JSON.stringify(body),
-  });
-
-  checkAuthResponse(res);
-  if (res.status === 404) throw new Error('Not found');
-  if (!res.ok) throw new Error(`Error ${res.status}`);
-
-  return res.json() as Promise<Favorite>;
+  try {
+    return await fetchCrm<Favorite>(`/api/client/favorites/${encodeURIComponent(id)}`, {
+      method: 'PATCH',
+      apiToken,
+      body,
+    });
+  } catch (e) {
+    if (e instanceof CrmHttpError && e.status === 404) throw new Error('Not found');
+    throw e;
+  }
 }
 
 /** DELETE /api/client/favorites/[id] – remove a favorite. */
 export async function deleteFavorite(apiToken: string, id: string): Promise<void> {
-  const res = await fetch(`${CRM_BASE}/api/client/favorites/${encodeURIComponent(id)}`, {
-    method: 'DELETE',
-    headers: { Authorization: `Bearer ${apiToken}` },
-  });
-
-  checkAuthResponse(res);
-  if (res.status === 404) throw new Error('Not found');
-  if (!res.ok) throw new Error(`Error ${res.status}`);
+  try {
+    await fetchCrm<void>(`/api/client/favorites/${encodeURIComponent(id)}`, {
+      method: 'DELETE',
+      apiToken,
+    });
+  } catch (e) {
+    if (e instanceof CrmHttpError && e.status === 404) throw new Error('Not found');
+    throw e;
+  }
 }

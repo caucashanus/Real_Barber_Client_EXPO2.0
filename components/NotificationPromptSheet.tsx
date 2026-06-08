@@ -1,13 +1,7 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import * as Notifications from 'expo-notifications';
 import { Image } from 'expo-image';
-import React, {
-  forwardRef,
-  useCallback,
-  useEffect,
-  useImperativeHandle,
-  useRef,
-} from 'react';
+import * as Notifications from 'expo-notifications';
+import React, { forwardRef, useCallback, useEffect, useImperativeHandle, useRef } from 'react';
 import { Linking, View } from 'react-native';
 import { ActionSheetRef } from 'react-native-actions-sheet';
 
@@ -115,20 +109,12 @@ const NotificationPromptSheet = forwardRef<
           className="mb-4"
         />
         <ThemedText className="mb-6 text-left text-light-subtext dark:text-dark-subtext">
-          Doporučujeme zapnout notifikace — dostanete připomínku před každou návštěvou a přehled o stavu rezervace. Slibujeme, že vás nebudeme obtěžovat zbytečnými zprávami.
+          Doporučujeme zapnout notifikace — dostanete připomínku před každou návštěvou a přehled o
+          stavu rezervace. Slibujeme, že vás nebudeme obtěžovat zbytečnými zprávami.
         </ThemedText>
         <View className="w-full flex-col gap-3">
-          <Button
-            title="Otevřít Nastavení"
-            className="w-full"
-            onPress={handleOpenSettings}
-          />
-          <Button
-            title="Teď ne"
-            variant="outline"
-            className="w-full"
-            onPress={handleDismiss}
-          />
+          <Button title="Otevřít Nastavení" className="w-full" onPress={handleOpenSettings} />
+          <Button title="Teď ne" variant="outline" className="w-full" onPress={handleDismiss} />
         </View>
       </View>
     </ActionSheetThemed>

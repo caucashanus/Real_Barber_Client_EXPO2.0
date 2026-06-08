@@ -1,5 +1,4 @@
-import { checkAuthResponse } from './http';
-const CRM_BASE = 'https://crm.xrb.cz';
+import { CrmHttpError, fetchCrm } from './http';
 
 /** Reservation/product from client overview with optional reviews. */
 export interface ClientOverviewReservation {
@@ -23,13 +22,7 @@ export interface ClientOverviewResponse {
 
 /** GET /api/client/overview – reservations/products with and without reviews (for Rated / Pending review). */
 export async function getClientOverview(apiToken: string): Promise<ClientOverviewResponse> {
-  const res = await fetch(`${CRM_BASE}/api/client/overview`, {
-    method: 'GET',
-    headers: { Authorization: `Bearer ${apiToken}` },
-  });
-  checkAuthResponse(res);
-  if (!res.ok) throw new Error(`Error ${res.status}`);
-  return res.json() as Promise<ClientOverviewResponse>;
+  return fetchCrm<ClientOverviewResponse>('/api/client/overview', { apiToken });
 }
 
 export interface EntityReviewClient {
@@ -92,14 +85,10 @@ export async function getClientReviewsList(
   if (options.limit != null) params.set('limit', String(options.limit));
   if (options.page != null) params.set('page', String(options.page));
   const qs = params.toString();
-  const url = `${CRM_BASE}/api/client/reviews${qs ? `?${qs}` : ''}`;
-  const res = await fetch(url, {
-    method: 'GET',
-    headers: { Authorization: `Bearer ${apiToken}` },
+
+  return fetchCrm<GetClientReviewsListResponse>(`/api/client/reviews${qs ? `?${qs}` : ''}`, {
+    apiToken,
   });
-  checkAuthResponse(res);
-  if (!res.ok) throw new Error(`Error ${res.status}`);
-  return res.json() as Promise<GetClientReviewsListResponse>;
 }
 
 /** GET /api/client/reviews/entity/[entityType]/[entityId] – list reviews for one entity (e.g. branch). */
@@ -114,15 +103,16 @@ export async function getEntityReviews(
   if (options.limit != null) params.set('limit', String(options.limit));
   if (options.includeOwn === true) params.set('includeOwn', 'true');
   const qs = params.toString();
-  const url = `${CRM_BASE}/api/client/reviews/entity/${entityType}/${entityId}${qs ? `?${qs}` : ''}`;
-  const res = await fetch(url, {
-    method: 'GET',
-    headers: { Authorization: `Bearer ${apiToken}` },
-  });
-  checkAuthResponse(res);
-  if (res.status === 404) throw new Error('Not found');
-  if (!res.ok) throw new Error(`Error ${res.status}`);
-  return res.json() as Promise<GetEntityReviewsResponse>;
+
+  try {
+    return await fetchCrm<GetEntityReviewsResponse>(
+      `/api/client/reviews/entity/${entityType}/${entityId}${qs ? `?${qs}` : ''}`,
+      { apiToken }
+    );
+  } catch (e) {
+    if (e instanceof CrmHttpError && e.status === 404) throw new Error('Not found');
+    throw e;
+  }
 }
 
 export interface CreateReviewParams {
@@ -146,28 +136,26 @@ export async function createReview(
   createdAt: string;
   [key: string]: unknown;
 }> {
-  const res = await fetch(`${CRM_BASE}/api/client/reviews`, {
-    method: 'POST',
-    headers: {
-      Authorization: `Bearer ${apiToken}`,
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({
-      entityType: params.entityType,
-      entityId: params.entityId,
-      rating: params.rating,
-      description: params.description ?? '',
-      positiveFeedback: params.positiveFeedback ?? params.description ?? '',
-      negativeFeedback: params.negativeFeedback ?? '',
-      isAnonymous: params.isAnonymous ?? false,
-    }),
-  });
-
-  checkAuthResponse(res);
-  if (res.status === 409) throw new Error('You have already reviewed this.');
-  if (!res.ok) throw new Error(`Error ${res.status}`);
-
-  return res.json();
+  try {
+    return await fetchCrm('/api/client/reviews', {
+      method: 'POST',
+      apiToken,
+      body: {
+        entityType: params.entityType,
+        entityId: params.entityId,
+        rating: params.rating,
+        description: params.description ?? '',
+        positiveFeedback: params.positiveFeedback ?? params.description ?? '',
+        negativeFeedback: params.negativeFeedback ?? '',
+        isAnonymous: params.isAnonymous ?? false,
+      },
+    });
+  } catch (e) {
+    if (e instanceof CrmHttpError && e.status === 409) {
+      throw new Error('You have already reviewed this.');
+    }
+    throw e;
+  }
 }
 
 export interface UpdateReviewParams {
@@ -190,38 +178,39 @@ export async function updateReview(
   updatedAt: string;
   [key: string]: unknown;
 }> {
-  const res = await fetch(`${CRM_BASE}/api/client/reviews/${reviewId}`, {
-    method: 'PATCH',
-    headers: {
-      Authorization: `Bearer ${apiToken}`,
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({
-      rating: params.rating,
-      description: params.description ?? '',
-      positiveFeedback: params.positiveFeedback ?? params.description ?? '',
-      negativeFeedback: params.negativeFeedback ?? '',
-      isAnonymous: params.isAnonymous,
-    }),
-  });
-
-  checkAuthResponse(res);
-  if (res.status === 403) throw new Error('Forbidden');
-  if (res.status === 404) throw new Error('Review not found');
-  if (!res.ok) throw new Error(`Error ${res.status}`);
-
-  return res.json();
+  try {
+    return await fetchCrm(`/api/client/reviews/${reviewId}`, {
+      method: 'PATCH',
+      apiToken,
+      body: {
+        rating: params.rating,
+        description: params.description ?? '',
+        positiveFeedback: params.positiveFeedback ?? params.description ?? '',
+        negativeFeedback: params.negativeFeedback ?? '',
+        isAnonymous: params.isAnonymous,
+      },
+    });
+  } catch (e) {
+    if (e instanceof CrmHttpError) {
+      if (e.status === 403) throw new Error('Forbidden');
+      if (e.status === 404) throw new Error('Review not found');
+    }
+    throw e;
+  }
 }
 
 /** DELETE /api/client/reviews/[id] – delete own review. */
 export async function deleteReview(apiToken: string, reviewId: string): Promise<void> {
-  const res = await fetch(`${CRM_BASE}/api/client/reviews/${reviewId}`, {
-    method: 'DELETE',
-    headers: { Authorization: `Bearer ${apiToken}` },
-  });
-
-  checkAuthResponse(res);
-  if (res.status === 403) throw new Error('Forbidden');
-  if (res.status === 404) throw new Error('Review not found');
-  if (!res.ok) throw new Error(`Error ${res.status}`);
+  try {
+    await fetchCrm<void>(`/api/client/reviews/${reviewId}`, {
+      method: 'DELETE',
+      apiToken,
+    });
+  } catch (e) {
+    if (e instanceof CrmHttpError) {
+      if (e.status === 403) throw new Error('Forbidden');
+      if (e.status === 404) throw new Error('Review not found');
+    }
+    throw e;
+  }
 }
