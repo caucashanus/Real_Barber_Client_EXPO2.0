@@ -180,7 +180,6 @@ export default function PushNotificationsProvider({ children }: { children: Reac
 
     if (!apiToken) return;
 
-    let cancelled = false;
     (async () => {
       try {
         await ensureRegistered(apiToken);
@@ -195,9 +194,7 @@ export default function PushNotificationsProvider({ children }: { children: Reac
       }
     })();
 
-    return () => {
-      cancelled = true;
-    };
+    return undefined;
   }, [apiToken, locale]);
 
   useEffect(() => {

@@ -79,7 +79,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     setUnauthorizedHandler(() => {
-      void signOutToLogin();
+      signOutToLogin().catch(() => {});
     });
     return () => setUnauthorizedHandler(null);
   }, [signOutToLogin]);

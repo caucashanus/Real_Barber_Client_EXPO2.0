@@ -12,7 +12,6 @@ import { CardScroller } from '@/components/CardScroller';
 import { Chip } from '@/components/Chip';
 import Header from '@/components/Header';
 import ThemedText from '@/components/ThemedText';
-import Section from '@/components/layout/Section';
 
 interface ChatUser {
   id: string;

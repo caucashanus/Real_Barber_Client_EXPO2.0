@@ -44,10 +44,6 @@ export default function FiltersScreen() {
     setAmenities((prev) => ({ ...prev, [key]: !prev[key] }));
   };
 
-  const toggleOption = (key: keyof BranchFilterState['options']) => {
-    setOptions((prev) => ({ ...prev, [key]: !prev[key] }));
-  };
-
   const handleApplyFilters = () => {
     const next: BranchFilterState = {
       minSizeM2,

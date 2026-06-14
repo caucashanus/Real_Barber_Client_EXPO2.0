@@ -1,7 +1,7 @@
 import { Image } from 'expo-image';
-import { useLocalSearchParams, router } from 'expo-router';
+import { useLocalSearchParams } from 'expo-router';
 import React, { useEffect, useState, useRef } from 'react';
-import { View, ActivityIndicator, Animated, type LayoutChangeEvent } from 'react-native';
+import { View, ActivityIndicator, Animated } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { getItemsAll, type Item } from '@/api/items';

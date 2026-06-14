@@ -1,19 +1,9 @@
 import React, { useState } from 'react';
-import {
-  View,
-  Pressable,
-  Modal,
-  FlatList,
-  ScrollView,
-  Keyboard,
-  Alert,
-  Text,
-  TextInput,
-} from 'react-native';
+import { View, Pressable, Modal, FlatList, Keyboard, Alert, Text, TextInput } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { Button } from './Button';
-import Icon, { IconName } from './Icon';
+import Icon from './Icon';
 import ThemedText from './ThemedText';
 import Input from './forms/Input';
 

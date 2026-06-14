@@ -12,7 +12,7 @@ import Header from '@/components/Header';
 import RBLogo from '@/components/RBLogo';
 import ThemedScroller from '@/components/ThemeScroller';
 import ThemedText from '@/components/ThemedText';
-import { cardDesigns, RBC_SELECTED_CARD_KEY, type CardDesign } from '@/constants/card-designs';
+import { cardDesigns, RBC_SELECTED_CARD_KEY } from '@/constants/card-designs';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 const CARD_ASPECT_RATIO = 1.625;

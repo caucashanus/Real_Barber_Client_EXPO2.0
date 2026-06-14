@@ -20,7 +20,6 @@ import Icon from '@/components/Icon';
 import ThemedText from '@/components/ThemedText';
 import Toggle from '@/components/Toggle';
 import Input from '@/components/forms/Input';
-import Section from '@/components/layout/Section';
 import { shadowPresets } from '@/utils/useShadow';
 
 const { width } = Dimensions.get('window');
@@ -56,30 +55,6 @@ export default function PaymentsScreen() {
   const [expiryDate, setExpiryDate] = useState('');
   const [cvv, setCvv] = useState('');
   const [isDefault, setIsDefault] = useState(false);
-
-  // Get card brand icon based on card number
-  const getCardBrandIcon = (brand: string) => {
-    switch (brand) {
-      case 'Visa':
-        return 'CreditCard' as const; // Using Icon component - ideally would use specific card logos
-      case 'Mastercard':
-        return 'CreditCard' as const;
-      case 'Amex':
-        return 'CreditCard' as const;
-      default:
-        return 'CreditCard' as const;
-    }
-  };
-
-  // Handle add new card
-  const handleAddCard = () => {
-    setCardNumber('');
-    setCardHolder('');
-    setExpiryDate('');
-    setCvv('');
-    setIsDefault(paymentMethods.length === 0);
-    setIsModalVisible(true);
-  };
 
   // Handle save card
   const handleSaveCard = () => {

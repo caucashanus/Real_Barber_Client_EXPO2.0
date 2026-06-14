@@ -1,5 +1,5 @@
 import { useState, useRef, useCallback } from 'react';
-import { NativeSyntheticEvent, NativeScrollEvent, Animated } from 'react-native';
+import { NativeSyntheticEvent, NativeScrollEvent } from 'react-native';
 
 /**
  * Hook to manage collapsible header state based on scroll position.

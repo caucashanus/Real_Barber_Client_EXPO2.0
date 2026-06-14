@@ -1,13 +1,5 @@
 import React, { useState, useRef } from 'react';
-import {
-  View,
-  Pressable,
-  Animated,
-  Switch as RNSwitch,
-  TouchableOpacity,
-  StyleProp,
-  ViewStyle,
-} from 'react-native';
+import { View, Animated, TouchableOpacity, StyleProp, ViewStyle } from 'react-native';
 
 import Icon, { IconName } from '../Icon';
 import ThemedText from '../ThemedText';

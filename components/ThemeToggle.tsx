@@ -1,5 +1,5 @@
 import { useTheme } from 'app/contexts/ThemeContext';
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useRef, useEffect } from 'react';
 import { View, Animated, TouchableOpacity } from 'react-native';
 
 import Icon from './Icon';

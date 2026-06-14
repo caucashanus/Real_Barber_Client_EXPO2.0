@@ -155,7 +155,9 @@ export default function LoginScreen() {
           <ShimmerButton>
             <Button
               title={t('loginContinue')}
-              onPress={() => void handleContinue()}
+              onPress={() => {
+                handleContinue().catch(() => {});
+              }}
               loading={isLoading}
               size="large"
               textClassName="font-bold text-lg"

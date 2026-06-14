@@ -36,8 +36,6 @@ export default function EditProfileScreen() {
   const [lastName, setLastName] = useState('');
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
-  const [bio, setBio] = useState('');
-  const [displayName, setDisplayName] = useState('');
   const [birthday, setBirthday] = useState('');
   const [avatarLocalUri, setAvatarLocalUri] = useState<string | null>(null);
   const [avatarAsset, setAvatarAsset] = useState<ImagePickerAsset | null>(null);
@@ -78,8 +76,6 @@ export default function EditProfileScreen() {
         setLastName(data.lastName ?? '');
         setEmail(data.email ?? '');
         setPhone(data.phone ?? '');
-        setBio(data.bio ?? '');
-        setDisplayName(data.displayName ?? '');
         setBirthday(data.birthday ? data.birthday.slice(0, 10) : '');
         setStreet(data.address ?? '');
         setCity(data.city ?? '');
@@ -110,14 +106,14 @@ export default function EditProfileScreen() {
   const onChooseLibrary = () => {
     photoSourceSheetRef.current?.hide();
     setTimeout(() => {
-      void pickFromLibrary();
+      pickFromLibrary().catch(() => {});
     }, 500);
   };
 
   const onChooseCamera = () => {
     photoSourceSheetRef.current?.hide();
     setTimeout(() => {
-      void takePhoto();
+      takePhoto().catch(() => {});
     }, 500);
   };
 

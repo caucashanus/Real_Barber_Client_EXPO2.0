@@ -80,9 +80,7 @@ export default function NotificationsScreen() {
         }
       }
     };
-
-    void loadData();
-
+    loadData().catch(() => {});
     return () => {
       cancelled = true;
     };

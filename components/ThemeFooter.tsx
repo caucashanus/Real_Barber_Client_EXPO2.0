@@ -1,6 +1,6 @@
 import { styled } from 'nativewind';
 import React from 'react';
-import { ScrollView, View, ViewProps } from 'react-native';
+import { View, ViewProps } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 interface ThemeFooterProps extends ViewProps {

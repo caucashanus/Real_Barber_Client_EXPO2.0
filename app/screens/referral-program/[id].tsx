@@ -132,7 +132,6 @@ export default function ReferralProgramDetailScreen() {
   const coverUri = program.coverImageUrl?.trim() || null;
   const carouselImages: (string | number)[] = coverUri ? [coverUri] : [FALLBACK_COVER];
   const validUntilText = program.validUntil?.trim() ? formatDate(program.validUntil, locale) : null;
-  const validFromText = program.validFrom?.trim() ? formatDate(program.validFrom, locale) : null;
 
   return (
     <>

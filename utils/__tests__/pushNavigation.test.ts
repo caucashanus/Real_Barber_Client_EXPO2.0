@@ -1,9 +1,5 @@
 import { describe, expect, it, vi } from 'vitest';
 
-vi.mock('expo-router', () => ({
-  router: { push: vi.fn() },
-}));
-
 import {
   LEGACY_RESERVATION_DETAIL_ROUTE,
   RESERVATION_DETAIL_ROUTE,
@@ -11,6 +7,10 @@ import {
   buildReservationDetailHref,
   resolveReservationIdFromPushData,
 } from '@/utils/pushNavigation';
+
+vi.mock('expo-router', () => ({
+  router: { push: vi.fn() },
+}));
 
 describe('pushNavigation', () => {
   it('resolves reservation id from push payload', () => {

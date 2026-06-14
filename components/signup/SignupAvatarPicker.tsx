@@ -62,7 +62,7 @@ export default function SignupAvatarPicker({
   }, [t]);
 
   useEffect(() => {
-    void loadCatalog();
+    loadCatalog().catch(() => {});
   }, [loadCatalog]);
 
   const previewSource = (() => {
@@ -134,7 +134,9 @@ export default function SignupAvatarPicker({
                 {loadError}
               </ThemedText>
               <Pressable
-                onPress={() => void loadCatalog()}
+                onPress={() => {
+                  loadCatalog().catch(() => {});
+                }}
                 className="rounded-full bg-light-secondary px-4 py-2 active:opacity-80 dark:bg-dark-secondary">
                 <ThemedText className="text-sm font-medium text-light-text dark:text-dark-text">
                   {t('signupAvatarRetry')}

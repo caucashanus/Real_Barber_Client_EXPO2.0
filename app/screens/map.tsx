@@ -1,22 +1,9 @@
-import MaterialIcons from '@expo/vector-icons/MaterialIcons';
-import { Image } from 'expo-image';
 import * as Location from 'expo-location';
 import { router, useLocalSearchParams } from 'expo-router';
-import * as LucideIcons from 'lucide-react-native';
 import React, { useRef, useEffect, useState, useMemo } from 'react';
-import {
-  View,
-  Text,
-  Pressable,
-  Dimensions,
-  TouchableOpacity,
-  ActivityIndicator,
-  Platform,
-  Linking,
-} from 'react-native';
-import ActionSheet, { ActionSheetRef, useSheetRef, FlatList } from 'react-native-actions-sheet';
-import MapView, { Callout, MapStyleElement, Marker } from 'react-native-maps';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { View, Text, Pressable, ActivityIndicator, Platform, Linking } from 'react-native';
+import ActionSheet, { ActionSheetRef, FlatList } from 'react-native-actions-sheet';
+import MapView, { Callout, Marker } from 'react-native-maps';
 
 import { getBranches, type Branch, type BranchService } from '@/api/branches';
 import { useAuth } from '@/app/contexts/AuthContext';
@@ -24,25 +11,17 @@ import { useBranchFilter } from '@/app/contexts/BranchFilterContext';
 import type { BranchFilterState } from '@/app/contexts/BranchFilterContext';
 import useThemeColors from '@/app/contexts/ThemeColors';
 import { useTranslation } from '@/app/hooks/useTranslation';
-import { Button } from '@/components/Button';
-import { CardScroller } from '@/components/CardScroller';
 import CustomCard from '@/components/CustomCard';
 import Header, { HeaderIcon } from '@/components/Header';
-import Icon from '@/components/Icon';
 import ImageCarousel from '@/components/ImageCarousel';
 import PriceMarker from '@/components/PriceMarker';
 import SearchBar from '@/components/SearchBar';
 import ShowRating from '@/components/ShowRating';
-import SliderCard from '@/components/SliderCard';
 import ThemedText from '@/components/ThemedText';
 import { BRANCH_FILTER_DATA } from '@/constants/branch-filter-data';
 import { BRANCH_MARKER_IMAGES } from '@/constants/branch-marker-images';
 
 const CENTRAL_WAREHOUSE_TEL = '+420774522114';
-
-type IconName = Exclude<keyof typeof LucideIcons, 'createLucideIcon' | 'default'>;
-
-const { height } = Dimensions.get('window');
 
 const PRAGUE_CENTER = { lat: 50.0755, lng: 14.4378 };
 
@@ -181,11 +160,9 @@ const MapScreen = () => {
   }, [resetFilter]);
   const actionSheetRef = useRef<ActionSheetRef>(null);
   const mapRef = useRef<MapView>(null);
-  const insets = useSafeAreaInsets();
   const [allBranches, setAllBranches] = useState<MapBranchItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedMarkerId, setSelectedMarkerId] = useState<string | null>(null);
-  const [currentSnapIndex, setCurrentSnapIndex] = useState(0);
 
   const branches = useMemo(() => applyBranchFilter(allBranches, filter), [allBranches, filter]);
 
@@ -258,7 +235,6 @@ const MapScreen = () => {
     </>,
   ];
 
-  const [snapIndex, setSnapIndex] = React.useState(0);
   return (
     <>
       <Header showBackButton rightComponents={rightComponents} middleComponent={<SearchBar />} />

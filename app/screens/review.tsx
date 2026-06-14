@@ -62,7 +62,6 @@ const ReviewScreen = () => {
   const [initialReview, setInitialReview] = useState('');
   const [initialAnonymous, setInitialAnonymous] = useState(false);
   const [loadingExisting, setLoadingExisting] = useState(true);
-  const colors = useThemeColors();
   const { apiToken } = useAuth();
   const { t } = useTranslation();
   const {

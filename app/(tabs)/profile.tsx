@@ -5,15 +5,7 @@ import * as Notifications from 'expo-notifications';
 import { router } from 'expo-router';
 import * as StoreReview from 'expo-store-review';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import {
-  View,
-  RefreshControl,
-  ImageBackground,
-  Text,
-  TouchableOpacity,
-  ActivityIndicator,
-  Share,
-} from 'react-native';
+import { View, RefreshControl, Text, ActivityIndicator, Share } from 'react-native';
 
 import { getBookings } from '@/api/bookings';
 import { getClientMe, type ClientMe } from '@/api/client';
@@ -111,7 +103,9 @@ export default function ProfileScreen() {
             key="notifications"
             icon="Bell"
             badge={notifBadge}
-            onPress={() => void handleProfileBellPress()}
+            onPress={() => {
+              handleProfileBellPress().catch(() => {});
+            }}
           />,
         ]}
       />
@@ -270,7 +264,7 @@ const PersonalProfile = ({
           title="Poslat apku kamarádovi"
           icon="Share2"
           onPress={() =>
-            void Share.share({
+            Share.share({
               message: 'https://apps.apple.com/ca/app/rb/id6760221388',
             })
           }
@@ -280,7 +274,9 @@ const PersonalProfile = ({
           showChevron
           title={t('profileLogout')}
           icon="LogOut"
-          onPress={() => void signOutToLogin()}
+          onPress={() => {
+            signOutToLogin().catch(() => {});
+          }}
         />
       </View>
       <ProfileVersionBadge />

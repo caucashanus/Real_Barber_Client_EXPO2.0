@@ -1,28 +1,24 @@
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import { Image } from 'expo-image';
 import { LinearGradient } from 'expo-linear-gradient';
-import { Link, router } from 'expo-router';
+import { router } from 'expo-router';
 import {
   View,
   Text,
-  Pressable,
   ImageBackground,
   TouchableOpacity,
   ViewStyle,
-  Dimensions,
   ImageSourcePropType,
   StyleSheet,
 } from 'react-native';
 
 import { Button } from './Button';
 import Favorite from './Favorite';
-import Icon from './Icon';
 import ThemedText from './ThemedText';
 
 import useThemeColors from '@/app/contexts/ThemeColors';
 import { shadowPresets } from '@/utils/useShadow';
 
-const { width: windowWidth } = Dimensions.get('window');
 interface CardProps {
   title: string;
   description?: string;

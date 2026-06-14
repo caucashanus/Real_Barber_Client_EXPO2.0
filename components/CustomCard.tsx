@@ -1,11 +1,9 @@
-import { Image } from 'expo-image';
 import { Link } from 'expo-router';
 import React, { ReactNode } from 'react';
 import {
   View,
   ViewStyle,
   ImageBackground,
-  ImageSourcePropType,
   StyleSheet,
   Platform,
   TouchableOpacity,

@@ -52,7 +52,7 @@ export default function CommunicationSettingsScreen() {
 
   useFocusEffect(
     useCallback(() => {
-      void refreshPushPermission();
+      refreshPushPermission().catch(() => {});
     }, [refreshPushPermission])
   );
 
@@ -182,7 +182,9 @@ export default function CommunicationSettingsScreen() {
                 key={key}
                 label={t(label)}
                 value={channels[key]}
-                onChange={(v) => void onChannelChange(key, v)}
+                onChange={(v) => {
+                  onChannelChange(key, v).catch(() => {});
+                }}
                 className="mb-4"
               />
             ))}
@@ -191,7 +193,9 @@ export default function CommunicationSettingsScreen() {
               label={t('communicationChannel_pushBasic')}
               description={t('communicationChannel_pushBasicHint')}
               value={pushPermissionStatus === 'granted'}
-              onChange={(v) => void onPushBasicChange(v)}
+              onChange={(v) => {
+                onPushBasicChange(v).catch(() => {});
+              }}
               className="mb-4"
             />
 
@@ -200,7 +204,9 @@ export default function CommunicationSettingsScreen() {
                 label={t('communicationChannel_pushNotification')}
                 description={t('communicationChannel_pushNotificationHint')}
                 value={channels.pushNotification}
-                onChange={(v) => void onChannelChange('pushNotification', v)}
+                onChange={(v) => {
+                  onChannelChange('pushNotification', v).catch(() => {});
+                }}
                 className="mb-4"
               />
             ) : null}
@@ -215,7 +221,9 @@ export default function CommunicationSettingsScreen() {
                 key={key}
                 label={t(label)}
                 value={contentTypes[key]}
-                onChange={(v) => void onContentChange(key, v)}
+                onChange={(v) => {
+                  onContentChange(key, v).catch(() => {});
+                }}
                 className="mb-4"
               />
             ))}

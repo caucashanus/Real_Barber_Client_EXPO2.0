@@ -168,12 +168,12 @@ export function HomeSpotlightCard({
               accessibilityLabel={t('bookingAddToCalendar')}
               onPress={(e) => {
                 e.stopPropagation?.();
-                void addBookingToCalendar(booking, {
+                addBookingToCalendar(booking, {
                   noteBarberPrefix: t('bookingCalendarNoteBarber'),
                   reservationNumberPrefix: t('bookingReservationNumber'),
                   errorTitle: t('commonError'),
                   errorMessage: t('bookingAddToCalendarFailed'),
-                });
+                }).catch(() => {});
               }}
               className="absolute max-w-[68%] flex-row items-center gap-1 rounded-full bg-neutral-800 px-2.5 py-1 active:opacity-70 dark:bg-neutral-200"
               style={{ bottom: -10, right: 12 }}>

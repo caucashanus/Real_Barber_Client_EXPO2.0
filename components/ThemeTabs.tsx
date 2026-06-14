@@ -1,13 +1,5 @@
-import React, { useState, useRef, ReactNode, useEffect } from 'react';
-import {
-  View,
-  ScrollView,
-  Animated,
-  Dimensions,
-  TouchableOpacity,
-  ViewStyle,
-  BackHandler,
-} from 'react-native';
+import React, { useState, useRef, ReactNode } from 'react';
+import { View, ScrollView, Animated, Dimensions, TouchableOpacity, ViewStyle } from 'react-native';
 
 import AnimatedView from './AnimatedView';
 import ThemedText from './ThemedText';
@@ -54,26 +46,6 @@ const ThemeTabs: React.FC<ThemeTabsProps> = ({
   const tabContentRef = useRef<ScrollView>(null);
   const mainScrollRef = useRef<ScrollView>(null);
 
-  // Add back button handler
-  {
-    /*useEffect(() => {
-        const backHandler = BackHandler.addEventListener('hardwareBackPress', () => {
-            if (activeTab > 0) {
-                handleTabPress(activeTab - 1);
-                return true; // Prevent default back action
-            }
-            return false; // Allow default back action
-        });
-
-        return () => backHandler.remove();
-    }, [activeTab]);*/
-  }
-
-  // Filter out only ThemeTab components from children
-  const tabs = React.Children.toArray(children).filter(
-    (child) => React.isValidElement(child) && child.type === ThemeTab
-  );
-
   const handleTabPress = (index: number) => {
     setActiveTab(index);
     tabContentRef.current?.scrollTo({
@@ -91,6 +63,8 @@ const ThemeTabs: React.FC<ThemeTabsProps> = ({
     const index = Math.round(position / SCREEN_WIDTH);
     setActiveTab(index);
   };
+
+  const tabs = React.Children.toArray(children);
 
   // Calculate sticky header indices correctly based on whether headerComponent exists
   const stickyHeaderIndices = headerComponent ? [1] : [0];

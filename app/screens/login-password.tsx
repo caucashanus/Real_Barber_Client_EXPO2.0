@@ -97,7 +97,9 @@ export default function LoginPasswordScreen() {
 
           <Button
             title={t('loginTitle')}
-            onPress={() => void handleLogin()}
+            onPress={() => {
+              handleLogin().catch(() => {});
+            }}
             loading={isLoading}
             size="large"
             className="mb-4"

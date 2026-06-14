@@ -1,13 +1,12 @@
 // components/Button.tsx
 import * as Haptics from 'expo-haptics';
-import { Link, router } from 'expo-router';
+import { router } from 'expo-router';
 import React from 'react';
 import {
   Text,
   ActivityIndicator,
   TouchableOpacity,
   View,
-  Pressable,
   type StyleProp,
   type ViewStyle,
 } from 'react-native';

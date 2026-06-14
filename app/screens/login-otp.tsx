@@ -279,7 +279,9 @@ export default function LoginOtpScreen() {
               if (otpError) validateOtp(val);
             }}
             error={otpError}
-            onComplete={(val) => void handleVerify(val)}
+            onComplete={(val) => {
+              handleVerify(val).catch(() => {});
+            }}
           />
 
           {apiError ? (
@@ -290,7 +292,9 @@ export default function LoginOtpScreen() {
 
           <Button
             title={t('loginOtpVerify')}
-            onPress={() => void handleVerify(undefined)}
+            onPress={() => {
+              handleVerify(undefined).catch(() => {});
+            }}
             loading={loading}
             size="large"
             className="mb-4 mt-6"
@@ -303,7 +307,9 @@ export default function LoginOtpScreen() {
                 ? `${t('loginOtpResend')} (${resendCooldownSec}s)`
                 : t('loginOtpResend')
             }
-            onPress={() => void handleResend()}
+            onPress={() => {
+              handleResend().catch(() => {});
+            }}
             loading={resendLoading}
             disabled={loading || resendLoading || resendCooldownSec > 0}
             variant="secondary"

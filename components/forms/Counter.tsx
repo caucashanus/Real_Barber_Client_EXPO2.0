@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Pressable, Text, StyleProp, ViewStyle } from 'react-native';
+import { View, Pressable, StyleProp, ViewStyle } from 'react-native';
 
 import ThemedText from '../ThemedText';
 

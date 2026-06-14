@@ -7,8 +7,6 @@ import {
   View,
   Text,
   TouchableOpacity,
-  StyleSheet,
-  Pressable,
   ViewStyle,
   Animated,
   NativeScrollEvent,

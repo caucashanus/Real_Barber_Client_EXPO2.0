@@ -1,6 +1,6 @@
 import { Stack } from 'expo-router';
 import React from 'react';
-import { Dimensions, View } from 'react-native';
+import { View } from 'react-native';
 
 import { useTranslation } from '@/app/hooks/useTranslation';
 import { Button } from '@/components/Button';
@@ -8,7 +8,6 @@ import Header from '@/components/Header';
 import Icon from '@/components/Icon';
 import ThemedText from '@/components/ThemedText';
 
-const windowWidth = Dimensions.get('window').width;
 export default function NotFoundScreen() {
   const { t } = useTranslation();
   return (

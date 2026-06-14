@@ -9,8 +9,6 @@ import { useTranslation } from '@/app/hooks/useTranslation';
 import ThemeToggle from '@/components/ThemeToggle';
 import ThemedText from '@/components/ThemedText';
 
-const SWITCH_LABEL_CZ = 'Přepnout do češtiny';
-const SWITCH_LABEL_EN = 'Switch to English';
 const FLAG_CZ = '🇨🇿';
 const FLAG_EN = '🇬🇧';
 

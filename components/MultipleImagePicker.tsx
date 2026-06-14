@@ -1,7 +1,7 @@
 import { Image } from 'expo-image';
 import * as ImagePicker from 'expo-image-picker';
 import React, { useState } from 'react';
-import { View, Pressable, Dimensions, Text, ScrollView } from 'react-native';
+import { View, Pressable, Text } from 'react-native';
 
 import { CardScroller } from './CardScroller';
 import Icon from './Icon';
@@ -10,8 +10,6 @@ interface MultipleImagePickerProps {
   onImageSelect?: (uri: string) => void;
   hasMainImage?: boolean;
 }
-
-const windowWidth = Dimensions.get('window').width;
 
 export const MultipleImagePicker: React.FC<MultipleImagePickerProps> = ({
   onImageSelect,

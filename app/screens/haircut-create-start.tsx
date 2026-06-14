@@ -23,13 +23,13 @@ export default function HaircutCreateStartScreen() {
 
   useEffect(() => {
     let cancelled = false;
-    void (async () => {
+    (async () => {
       const active = await isHaircutIntroCooldownActive();
       if (cancelled) return;
       if (active && from !== 'cta') {
         router.replace('/screens/haircut-create');
       }
-    })();
+    })().catch(() => {});
     return () => {
       cancelled = true;
     };

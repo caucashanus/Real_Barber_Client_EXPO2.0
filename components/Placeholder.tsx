@@ -1,4 +1,3 @@
-import { Link } from 'expo-router';
 import { View, StyleProp, ViewStyle } from 'react-native';
 
 import { Button } from '@/components/Button';

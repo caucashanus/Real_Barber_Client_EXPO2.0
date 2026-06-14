@@ -82,7 +82,9 @@ const MyHaircutsScreen = () => {
 
   useFocusEffect(
     useCallback(() => {
-      void isHaircutIntroCooldownActive().then(setHaircutIntroCooldown);
+      isHaircutIntroCooldownActive()
+        .then(setHaircutIntroCooldown)
+        .catch(() => {});
     }, [])
   );
 

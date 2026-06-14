@@ -6,6 +6,8 @@
 
 **Legacy route:** `/screens/trip-detail` → redirect na `booking-detail` (staré push / deep linky).
 
+**Migrace pro CRM:** viz [crm-push-route-migration.md](./crm-push-route-migration.md).
+
 ## Checklist
 
 1. **App ukončená (swipe away) → tap na push**  

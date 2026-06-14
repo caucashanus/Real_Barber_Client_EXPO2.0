@@ -99,12 +99,6 @@ const ImageCarousel: React.FC<ImageCarouselProps> = ({
     setActiveIndex(index);
   };
 
-  const handleImagePress = () => {
-    if (onImagePress) {
-      onImagePress(activeIndex);
-    }
-  };
-
   const renderPagination = () => {
     if (!showPagination || images.length <= 1) return null;
 

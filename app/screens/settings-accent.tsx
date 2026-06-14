@@ -3,7 +3,7 @@ import * as Haptics from 'expo-haptics';
 import React, { useRef, useState, useEffect } from 'react';
 import { View } from 'react-native';
 
-import { useAccentColor, DEFAULT_ACCENT } from '@/app/contexts/AccentColorContext';
+import { useAccentColor } from '@/app/contexts/AccentColorContext';
 import useThemeColors from '@/app/contexts/ThemeColors';
 import { useTranslation } from '@/app/hooks/useTranslation';
 import Header from '@/components/Header';
@@ -48,7 +48,9 @@ function hslToRgb(h: number, s: number, l: number): { r: number; g: number; b: n
   h = h / 360;
   let r: number, g: number, b: number;
   if (s === 0) {
-    r = g = b = l;
+    r = l;
+    g = l;
+    b = l;
   } else {
     const q = l < 0.5 ? l * (1 + s) : l + s - l * s;
     const p = 2 * l - q;

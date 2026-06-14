@@ -1,13 +1,11 @@
 // app/(tabs)/(home)/_layout.tsx
-import { Link, router, Stack } from 'expo-router';
+import { Stack } from 'expo-router';
 import { useRef, createContext } from 'react';
-import { View, Text, Pressable, Animated } from 'react-native';
+import { View, Animated } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import HomeTabs from '@/components/HomeTabs';
-import Icon from '@/components/Icon';
 import SearchBar from '@/components/SearchBar';
-import ThemedText from '@/components/ThemedText';
 
 // Create a context to share the scrollY value
 export const ScrollContext = createContext<Animated.Value>(new Animated.Value(0));

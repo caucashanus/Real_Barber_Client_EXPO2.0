@@ -1,4 +1,3 @@
-import { Link, useLocalSearchParams } from 'expo-router';
 import React, { useState, useRef, useCallback, useEffect } from 'react';
 import {
   View,
@@ -7,10 +6,9 @@ import {
   TouchableOpacity,
   KeyboardAvoidingView,
   Platform,
-  ScrollView,
   Keyboard,
 } from 'react-native';
-import ActionSheet, { ActionSheetRef } from 'react-native-actions-sheet';
+import { ActionSheetRef } from 'react-native-actions-sheet';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { useThemeColors } from '@/app/contexts/ThemeColors';
@@ -79,14 +77,12 @@ const mockUser = {
 export default function ChatDetailScreen() {
   const insets = useSafeAreaInsets();
   const colors = useThemeColors();
-  const { id } = useLocalSearchParams();
   const [message, setMessage] = useState('');
   const [messages, setMessages] = useState(mockMessages);
   const actionSheetRef = useRef<ActionSheetRef>(null);
   const inputRef = useRef<TextInput>(null);
   const flatListRef = useRef<FlatList>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [keyboardHeight, setKeyboardHeight] = useState(0);
 
   const scrollToBottom = useCallback(() => {
     if (flatListRef.current && messages.length > 0) {
@@ -105,9 +101,7 @@ export default function ChatDetailScreen() {
     // Set up keyboard listeners
     const keyboardWillShowListener = Keyboard.addListener(
       Platform.OS === 'ios' ? 'keyboardWillShow' : 'keyboardDidShow',
-      (e) => {
-        setKeyboardHeight(e.endCoordinates.height);
-        // Scroll to bottom when keyboard shows
+      (_e) => {
         setTimeout(scrollToBottom, 100);
       }
     );
@@ -115,7 +109,6 @@ export default function ChatDetailScreen() {
     const keyboardWillHideListener = Keyboard.addListener(
       Platform.OS === 'ios' ? 'keyboardWillHide' : 'keyboardDidHide',
       () => {
-        setKeyboardHeight(0);
         // Scroll to bottom when keyboard hides
         setTimeout(scrollToBottom, 100);
       }

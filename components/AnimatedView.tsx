@@ -168,7 +168,7 @@ function AnimatedViewComponent({
   };
 
   // Handle layout to initialize position tracking
-  const handleLayout = (e: LayoutChangeEvent) => {
+  const handleLayout = (event: LayoutChangeEvent) => {
     if (!triggerOnVisible || hasAnimatedOnce.current) return;
 
     // After layout, start visibility detection if not already started
@@ -199,7 +199,9 @@ function AnimatedViewComponent({
       delay,
       easing,
       useNativeDriver: true,
-    }).start(({ finished }) => {
+    }).start((result) => {
+      const { finished } = result ?? {};
+      if (!finished) return;
       // Only mark as animated if this is the most recent animation and it finished
       if (finished && currentAnimationId === animationId) {
         hasAnimatedOnce.current = true;

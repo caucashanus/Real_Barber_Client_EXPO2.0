@@ -1,14 +1,11 @@
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
-import { Image } from 'expo-image';
 import { Link } from 'expo-router';
-import { View, Text, TouchableOpacity, Dimensions, Pressable } from 'react-native';
+import { View, Text, TouchableOpacity } from 'react-native';
 
 import ImageCarousel from './ImageCarousel';
 import ThemedText from './ThemedText';
 
 import useThemeColors from '@/app/contexts/ThemeColors';
-
-const windowWidth = Dimensions.get('window').width;
 
 interface SliderCardProps {
   title: string;

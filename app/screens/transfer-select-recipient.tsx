@@ -158,7 +158,6 @@ export default function TransferSelectRecipientScreen() {
   const setTransferRecipient = useSetTransferRecipient();
   const helpSheetRef = useRef<ActionSheetRef>(null);
   const [balance, setBalance] = useState<number>(0);
-  const [history, setHistory] = useState<RbCoinsHistoryItem[]>([]);
   const [recipientsList, setRecipients] = useState<TransferRecipient[]>([]);
   const [clientSearchResults, setClientSearchResults] = useState<TransferRecipient[]>([]);
   const [clientSearchLoading, setClientSearchLoading] = useState(false);
@@ -179,14 +178,12 @@ export default function TransferSelectRecipientScreen() {
     ])
       .then(([bal, historyData, employeesList]) => {
         setBalance(bal);
-        setHistory(historyData);
         const fromHistory = buildRecipientsFromHistory(historyData, tRef.current);
         const employees = Array.isArray(employeesList) ? employeesList : [];
         setRecipients(buildRecipientListFromEmployeesAndHistory(employees, fromHistory));
       })
       .catch(() => {
         setBalance(0);
-        setHistory([]);
         setRecipients([]);
       })
       .finally(() => setLoading(false));

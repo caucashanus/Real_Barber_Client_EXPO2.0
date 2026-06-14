@@ -1,4 +1,4 @@
-import React, { useRef, useContext, useEffect, useState, useMemo } from 'react';
+import React, { useContext, useEffect, useState, useMemo } from 'react';
 import { View, Animated, ActivityIndicator } from 'react-native';
 
 import { ScrollContext } from './_layout';
@@ -9,7 +9,6 @@ import { useTranslation } from '@/app/hooks/useTranslation';
 import AnimatedView from '@/components/AnimatedView';
 import Card from '@/components/Card';
 import { CardScroller } from '@/components/CardScroller';
-import Header from '@/components/Header';
 import ThemeScroller from '@/components/ThemeScroller';
 import ThemedText from '@/components/ThemedText';
 import Section from '@/components/layout/Section';

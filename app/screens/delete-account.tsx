@@ -95,7 +95,7 @@ export default function DeleteAccountScreen() {
         confirmText={t('settingsDeleteAccountConfirm')}
         onCancel={() => {}}
         onConfirm={(reason) => {
-          void handleDeleteAccount(reason);
+          handleDeleteAccount(reason).catch(() => {});
         }}
       />
     </View>

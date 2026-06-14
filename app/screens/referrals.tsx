@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, Pressable, Share, ActivityIndicator } from 'react-native';
+import { View, Pressable, Share } from 'react-native';
 
 import { getReferrals, type ClientReferralsResponse } from '@/api/referrals';
 import { useAuth } from '@/app/contexts/AuthContext';
@@ -9,7 +9,6 @@ import Header from '@/components/Header';
 import Icon from '@/components/Icon';
 import ThemedScroller from '@/components/ThemeScroller';
 import ThemedText from '@/components/ThemedText';
-import Divider from '@/components/layout/Divider';
 
 const ReferralsScreen = () => {
   const { apiToken } = useAuth();
@@ -43,7 +42,9 @@ const ReferralsScreen = () => {
         message: `Join me on the app — use my link to get started: ${inviteUrl}`,
         title: 'Invite',
       });
-    } catch (_) {}
+    } catch {
+      /* share cancelled */
+    }
   };
 
   return (

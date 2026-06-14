@@ -10,7 +10,7 @@ import {
   RefreshControl,
 } from 'react-native';
 
-import { CRM_BASE, getBookings, type Booking } from '@/api/bookings';
+import { getBookings, type Booking } from '@/api/bookings';
 import { useAccentColor } from '@/app/contexts/AccentColorContext';
 import { useAuth } from '@/app/contexts/AuthContext';
 import { useBookingsBadge } from '@/app/contexts/BookingsBadgeContext';
@@ -47,16 +47,6 @@ type BookingFilter =
   | 'cancelled'
   | 'rated'
   | 'pending_review';
-
-/** Absolutní URL pro stažení avatara (CRM často vrací relativní cesty). */
-function resolveCrmMediaUrl(raw: string | null | undefined): string {
-  const s = raw?.trim() ?? '';
-  if (!s) return '';
-  if (/^https?:\/\//i.test(s)) return s;
-  if (s.startsWith('//')) return `https:${s}`;
-  if (s.startsWith('/')) return `${CRM_BASE}${s}`;
-  return s;
-}
 
 function formatBookingDate(b: Booking, locale: string = 'en'): string {
   const d = new Date(b.date);

@@ -399,7 +399,9 @@ const MultiStep = forwardRef<MultiStepHandle, MultiStepProps>(function MultiStep
             size="large"
             rounded="full"
             title={isLastStep ? t('multiStepComplete') : t('multiStepNext')}
-            onPress={() => void handleNext()}
+            onPress={() => {
+              handleNext().catch(() => {});
+            }}
             impactFeedbackStyle={Haptics.ImpactFeedbackStyle.Heavy}
             className="w-full"
             textClassName="text-white font-semibold"
