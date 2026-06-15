@@ -121,6 +121,13 @@ const MyHaircutsScreen = () => {
     }, [apiToken, t])
   );
 
+  const showIntroBanner = useMemo(() => {
+    if (haircutIntroCooldown) return false;
+    if (cuts.length > 0) return false;
+    if (apiToken && loading) return false;
+    return true;
+  }, [haircutIntroCooldown, cuts.length, apiToken, loading]);
+
   return (
     <ThemeScroller
       onScroll={Animated.event([{ nativeEvent: { contentOffset: { y: scrollY } } }], {
@@ -128,7 +135,7 @@ const MyHaircutsScreen = () => {
       })}
       scrollEventThrottle={16}>
       <AnimatedView animation="scaleIn" className="mt-4 flex-1">
-        {!haircutIntroCooldown ? (
+        {showIntroBanner ? (
           <View className="mb-6 items-center rounded-3xl bg-slate-200 p-10 dark:bg-dark-secondary">
             <View className="relative h-20 w-20">
               <View className="relative z-20 h-full w-full overflow-hidden rounded-xl border-2 border-light-primary dark:border-dark-primary">
