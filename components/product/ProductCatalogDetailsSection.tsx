@@ -82,7 +82,7 @@ export default function ProductCatalogDetailsSection({
       />
       {catalog.stockByWarehouse && catalog.stockByWarehouse.length > 0 ? (
         <View className="mt-2 border-t border-neutral-200 pt-4 dark:border-dark-secondary">
-          <ThemedText className="mb-2 text-sm font-semibold text-light-text dark:text-dark-text">
+          <ThemedText variant="bodySm" className="mb-2">
             {t('productStockByWarehouse')}
           </ThemedText>
           {[...catalog.stockByWarehouse]
@@ -118,7 +118,7 @@ export default function ProductCatalogDetailsSection({
                       );
                     }}
                     className={`min-w-0 flex-1 pr-3 ${canOpenMap ? 'active:opacity-70' : ''}`}>
-                    <ThemedText className="text-sm font-medium text-light-text dark:text-dark-text">
+                    <ThemedText variant="bodySm">
                       {whDisplayName}
                     </ThemedText>
                     {loc && !separateAddress && !addressLineOnly ? (
@@ -147,7 +147,7 @@ export default function ProductCatalogDetailsSection({
                       </View>
                     ) : null}
                   </Pressable>
-                  <ThemedText className="shrink-0 text-sm font-semibold text-light-text dark:text-dark-text">
+                  <ThemedText variant="bodySm" className="shrink-0">
                     {row.quantity} {t('productPiecesAbbr')}
                   </ThemedText>
                 </View>

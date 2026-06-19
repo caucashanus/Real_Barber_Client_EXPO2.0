@@ -150,7 +150,7 @@ export default function PaymentsScreen() {
               <AntDesign name="apple" size={24} color={colors.icon} />
             </View>
             <View className="flex-1">
-              <ThemedText className="font-semibold">{t('paymentsApplePay')}</ThemedText>
+              <ThemedText variant="emphasis">{t('paymentsApplePay')}</ThemedText>
               <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext">
                 {t('paymentsApplePaySetup')}
               </ThemedText>
@@ -164,7 +164,7 @@ export default function PaymentsScreen() {
               <AntDesign name="google" size={24} color={colors.icon} />
             </View>
             <View className="flex-1">
-              <ThemedText className="font-semibold">{t('paymentsGooglePay')}</ThemedText>
+              <ThemedText variant="emphasis">{t('paymentsGooglePay')}</ThemedText>
               <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext">
                 {t('paymentsGooglePaySetup')}
               </ThemedText>
@@ -179,7 +179,7 @@ export default function PaymentsScreen() {
         <View className="h-screen flex-1 justify-center bg-black/50 p-global">
           <View className="rounded-xl bg-light-primary p-4 dark:bg-dark-primary">
             <View className="mb-6 flex-row items-center justify-between">
-              <ThemedText className="text-xl font-semibold">{t('paymentsAddCard')}</ThemedText>
+              <ThemedText variant="h3">{t('paymentsAddCard')}</ThemedText>
               <TouchableOpacity onPress={() => setIsModalVisible(false)}>
                 <Icon name="X" size={24} />
               </TouchableOpacity>
@@ -266,26 +266,26 @@ const CardPreview = (props: {
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 0 }}
         className="flex h-full flex-col justify-end rounded-2xl p-6">
-        <Text className="font-outfit-bold text-xl">•••• •••• •••• {props.cardNumber}</Text>
+        <Text className="font-archivo font-outfit-bold text-xl">•••• •••• •••• {props.cardNumber}</Text>
         <View className="flex-row justify-between">
           <Text>{props.cardHolder}</Text>
           <Text>{props.expiryDate}</Text>
         </View>
 
         <View className="absolute right-6 top-6 w-full flex-row justify-between">
-          <Text className="font-outfit-bold text-lg">{props.brand}</Text>
+          <Text className="font-archivo font-outfit-bold text-lg">{props.brand}</Text>
           {/*<TouchableOpacity onPress={props.onDelete} className='ml-auto mr-4'>
             <Icon name="Trash2" size={20} color="black" />
           </TouchableOpacity>*/}
           {props.isDefault ? (
             <View className="items-center justify-center rounded-full bg-black px-2 py-1">
-              <Text className="text-xs text-white">Default</Text>
+              <Text className="font-archivo text-xs text-white">Default</Text>
             </View>
           ) : (
             <Pressable
               onPress={props.onSetDefault}
               className="items-center justify-center rounded-full bg-white px-2 py-1">
-              <Text className="text-xs text-black">Set as default</Text>
+              <Text className="font-archivo text-xs text-black">Set as default</Text>
             </Pressable>
           )}
         </View>

@@ -70,14 +70,14 @@ function MediaItem({ item }: { item: GuideMedia }) {
             params: { url: encodeURIComponent(file.url) },
           })
         }
-        className="mr-3 flex-row items-center justify-center rounded-xl bg-light-secondary p-4 dark:bg-dark-secondary"
+        className="mr-3 flex-row items-center justify-center rounded-xl bg-light-secondary p-card dark:bg-dark-secondary"
         style={{ width: screenWidth * 0.6, minHeight: 80 }}>
         <Icon
           name="FileText"
           size={28}
           className="mr-3 text-light-subtext dark:text-dark-subtext"
         />
-        <ThemedText className="text-sm font-medium">Otevřít</ThemedText>
+        <ThemedText variant="bodySm">Otevřít</ThemedText>
       </Pressable>
     );
   }
@@ -185,7 +185,7 @@ export default function GuideDetailScreen() {
               <Icon name="ChevronRight" size={24} className="translate-x-px" />
             </Pressable>
           </View>
-          <ThemedText className="text-4xl font-semibold" numberOfLines={5}>
+          <ThemedText variant="display" numberOfLines={5}>
             {guide.title}
           </ThemedText>
           <ThemedText className="mt-2 text-lg text-light-subtext dark:text-dark-subtext">
@@ -209,7 +209,7 @@ export default function GuideDetailScreen() {
         ) : null}
 
         <View className="border-t-8 border-light-secondary px-global pt-global dark:border-dark-secondary">
-          <ThemedText className="mb-4 text-2xl font-semibold">Popis</ThemedText>
+          <ThemedText variant="h2" className="mb-4">Popis</ThemedText>
           <ThemedText className="text-base text-light-text dark:text-dark-text">
             {guide.content || '—'}
           </ThemedText>

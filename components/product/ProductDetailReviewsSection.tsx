@@ -62,7 +62,7 @@ export default function ProductDetailReviewsSection({
       <Section title={t('productBuyerReviews')} titleSize="lg" subtitle={subtitle} className="mb-6">
         {purchase ? (
           <>
-            <View className="mt-4 rounded-lg bg-light-secondary p-4 dark:bg-dark-secondary">
+            <View className="mt-4 rounded-lg bg-light-secondary p-card dark:bg-dark-secondary">
               <View className="mb-4 flex-row items-center">
                 <ShowRating rating={average} size="lg" />
                 <ThemedText className="ml-2 text-light-subtext dark:text-dark-subtext">
@@ -81,11 +81,11 @@ export default function ProductDetailReviewsSection({
               </View>
             </View>
             <View className="mb-3 mt-6 flex-row items-center justify-between">
-              <ThemedText className="text-lg font-semibold">{t('productBuyerReviews')}</ThemedText>
+              <ThemedText variant="h4">{t('productBuyerReviews')}</ThemedText>
               <Pressable
                 onPress={() => router.push(`/screens/review?${reviewParams}`)}
                 className="rounded-lg bg-light-secondary px-3 py-2 dark:bg-dark-secondary">
-                <ThemedText className="text-sm font-medium">
+                <ThemedText variant="bodySm">
                   {hasReviewed ? t('reviewUpdate') : t('productNapsatRecenzi')}
                 </ThemedText>
               </Pressable>
@@ -104,7 +104,7 @@ export default function ProductDetailReviewsSection({
                   return (
                     <View
                       key={review.id}
-                      className="w-[280px] rounded-lg bg-light-secondary p-4 dark:bg-dark-secondary">
+                      className="w-[280px] rounded-lg bg-light-secondary p-card dark:bg-dark-secondary">
                       <View className="mb-2 flex-row items-center justify-between">
                         <View className="min-w-0 flex-1 flex-row items-center">
                           {review.client?.avatarUrl ? (
@@ -116,7 +116,7 @@ export default function ProductDetailReviewsSection({
                             <Avatar size="sm" name={review.client?.name ?? '?'} className="mr-2" />
                           )}
                           <View className="min-w-0">
-                            <ThemedText className="font-medium" numberOfLines={1}>
+                            <ThemedText variant="body" numberOfLines={1}>
                               {review.client?.name ?? t('productReviewAuthorAnonymous')}
                             </ThemedText>
                             <ThemedText className="text-xs text-light-subtext dark:text-dark-subtext">
@@ -128,7 +128,7 @@ export default function ProductDetailReviewsSection({
                           <View
                             style={{ backgroundColor: colors.highlight }}
                             className="ml-2 rounded-md px-2 py-1">
-                            <ThemedText className="text-xs font-medium text-white">
+                            <ThemedText variant="caption" className="text-white">
                               {t('productEdit')}
                             </ThemedText>
                           </View>
@@ -146,7 +146,7 @@ export default function ProductDetailReviewsSection({
           </>
         ) : (
           <>
-            <View className="mt-4 rounded-lg bg-light-secondary p-4 dark:bg-dark-secondary">
+            <View className="mt-4 rounded-lg bg-light-secondary p-card dark:bg-dark-secondary">
               <View className="mb-4 flex-row items-center">
                 <ShowRating rating={catalogReviewStats.average} size="lg" />
                 <ThemedText className="ml-2 text-light-subtext dark:text-dark-subtext">
@@ -165,7 +165,7 @@ export default function ProductDetailReviewsSection({
               </View>
             </View>
             <View className="mb-3 mt-6 flex-row items-center justify-between">
-              <ThemedText className="text-lg font-semibold">{t('productBuyerReviews')}</ThemedText>
+              <ThemedText variant="h4">{t('productBuyerReviews')}</ThemedText>
             </View>
             <CardScroller className="mt-1" space={10}>
               {catalogReviewsList.map((review) => {
@@ -177,7 +177,7 @@ export default function ProductDetailReviewsSection({
                 return (
                   <View
                     key={review.id}
-                    className="w-[280px] rounded-lg bg-light-secondary p-4 dark:bg-dark-secondary">
+                    className="w-[280px] rounded-lg bg-light-secondary p-card dark:bg-dark-secondary">
                     <View className="mb-2 flex-row items-center">
                       {avatarUri ? (
                         <Image
@@ -188,7 +188,7 @@ export default function ProductDetailReviewsSection({
                         <Avatar size="sm" name={authorName} className="mr-2" />
                       )}
                       <View className="min-w-0 flex-1">
-                        <ThemedText className="font-medium" numberOfLines={1}>
+                        <ThemedText variant="body" numberOfLines={1}>
                           {authorName}
                         </ThemedText>
                         <ThemedText className="text-xs text-light-subtext dark:text-dark-subtext">

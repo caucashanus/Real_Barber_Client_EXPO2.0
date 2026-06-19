@@ -74,7 +74,7 @@ const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
   return (
     <ActionSheetThemed ref={actionSheetRef} gestureEnabled>
       <View className="p-4 pb-6">
-        <ThemedText className="mb-1 mt-4 text-left text-lg font-bold">{title}</ThemedText>
+        <ThemedText variant="h4" className="mb-1 mt-4 text-left">{title}</ThemedText>
         <ThemedText
           className={`text-left text-light-text dark:text-dark-text ${optionalReasonPlaceholder ? 'mb-4' : 'mb-6'}`}>
           {message}

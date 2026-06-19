@@ -18,7 +18,7 @@ export default function NotFoundScreen() {
         <View className=" mb-8">
           <Icon name="AlertCircle" strokeWidth={1} size={70} />
         </View>
-        <ThemedText className="mb-2 text-2xl font-bold">Page Not Found</ThemedText>
+        <ThemedText variant="h2" className="mb-2">Page Not Found</ThemedText>
         <ThemedText className="mb-8 w-2/3 text-center text-base text-light-subtext dark:text-dark-subtext">
           The page you're looking for doesn't exist or has been moved.
         </ThemedText>

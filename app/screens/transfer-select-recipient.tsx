@@ -259,17 +259,17 @@ export default function TransferSelectRecipientScreen() {
   return (
     <>
       <Header showBackButton title={t('transferNewPayment')} onBackPress={() => router.back()} />
-      <ThemedScroller className="flex-1 p-global">
+      <ThemedScroller className="flex-1">
         {/* Balance */}
         <View
           style={{ ...shadowPresets.large }}
-          className="mb-4 rounded-2xl bg-light-secondary p-4 dark:bg-dark-secondary">
+          className="mb-4 rounded-2xl bg-light-secondary p-card dark:bg-dark-secondary">
           <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext">
             {t('transferAvailable')}
           </ThemedText>
-          <ThemedText className="mt-1 text-xl font-bold text-light-text dark:text-dark-text">
+          <ThemedText variant="h3" className="mt-1">
             {formatBalance(balance)}{' '}
-            <ThemedText className="text-base font-semibold">RBC</ThemedText>
+            <ThemedText variant="emphasis">RBC</ThemedText>
           </ThemedText>
         </View>
 
@@ -321,7 +321,7 @@ export default function TransferSelectRecipientScreen() {
             <Pressable
               onPress={() => helpSheetRef.current?.show()}
               className="mt-4 self-center rounded-full bg-light-secondary px-3 py-2 active:opacity-80 dark:bg-dark-secondary">
-              <ThemedText className="text-sm font-semibold text-light-text dark:text-dark-text">
+              <ThemedText variant="bodySm">
                 {t('transferHelpCta')}
               </ThemedText>
             </Pressable>
@@ -348,7 +348,7 @@ export default function TransferSelectRecipientScreen() {
 
       <ActionSheetThemed ref={helpSheetRef}>
         <View className="p-5 pb-7">
-          <ThemedText className="text-lg font-bold text-light-text dark:text-dark-text">
+          <ThemedText variant="h4">
             {t('transferHelpTitle')}
           </ThemedText>
           <ThemedText className="mt-2 text-sm text-light-subtext dark:text-dark-subtext">

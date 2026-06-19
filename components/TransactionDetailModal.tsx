@@ -136,7 +136,7 @@ export default function TransactionDetailModal({
             <View className="mb-4 flex-row items-center">
               <Avatar src={transactionAvatarSrc(transaction)} size="md" />
               <View className="ml-3 flex-1">
-                <ThemedText className="text-base font-semibold">
+                <ThemedText variant="emphasis">
                   {getTypeLabel(transaction)}
                 </ThemedText>
                 <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext">
@@ -145,7 +145,8 @@ export default function TransactionDetailModal({
               </View>
             </View>
             <ThemedText
-              className={`my-4 text-center text-2xl font-bold ${isSent ? 'text-light-text dark:text-dark-text' : 'text-green-600 dark:text-green-400'}`}>
+              variant="h2"
+              className={`my-4 text-center ${isSent ? 'text-light-text dark:text-dark-text' : 'text-green-600 dark:text-green-400'}`}>
               {amountStr}
             </ThemedText>
 
@@ -168,7 +169,7 @@ export default function TransactionDetailModal({
                   <View className="flex-row items-center gap-2">
                     <Avatar src={transactionAvatarSrc(transaction)} size="sm" />
                     <View>
-                      <ThemedText className="text-base font-medium">
+                      <ThemedText variant="body">
                         {transaction.otherParty.name}
                       </ThemedText>
                       {transaction.otherParty.identifier && (
@@ -221,7 +222,7 @@ export default function TransactionDetailModal({
                   onPress={handleOdeslat}
                   style={{ backgroundColor: colors.highlight }}
                   className="mt-4 items-center rounded-xl py-3 active:opacity-80">
-                  <ThemedText className="text-base font-semibold text-white">
+                  <ThemedText variant="emphasis" className="text-white">
                     {t('walletDetailSend')}
                   </ThemedText>
                 </Pressable>

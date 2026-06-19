@@ -20,7 +20,7 @@ export default function BarberHeaderInfo({
 }: BarberHeaderInfoProps) {
   return (
     <View>
-      <ThemedText className="text-center text-3xl font-semibold">{name}</ThemedText>
+      <ThemedText variant="h1" className="text-center">{name}</ThemedText>
       <View className="mt-4 flex-row items-center justify-center">
         <Pressable onPress={onScrollToReviews} className="flex-row items-center active:opacity-70">
           <ShowRating

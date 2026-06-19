@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { View } from 'react-native';
 
 import { useBranchFilter, type BranchFilterState } from '@/app/contexts/BranchFilterContext';
+import useThemeColors from '@/app/contexts/ThemeColors';
 import { useTranslation } from '@/app/hooks/useTranslation';
 import { Button } from '@/components/Button';
 import { Chip } from '@/components/Chip';
@@ -18,6 +19,7 @@ import Section from '@/components/layout/Section';
 export default function FiltersScreen() {
   const router = useRouter();
   const { t } = useTranslation();
+  const colors = useThemeColors();
   const { filter: savedFilter, setFilter } = useBranchFilter();
 
   const [minSizeM2, setMinSizeM2] = useState(savedFilter.minSizeM2);
@@ -70,7 +72,7 @@ export default function FiltersScreen() {
             minimumValue={20}
             maximumValue={85}
             onValueChange={setMinSizeM2}
-            minimumTrackTintColor="#FF2358"
+            minimumTrackTintColor={colors.highlight}
             maximumTrackTintColor="rgba(0,0,0,0.2)"
             step={5}
           />
@@ -210,7 +212,7 @@ function CounterRow(props: {
   return (
     <View className="flex-row items-center justify-between py-2">
       <View>
-        <ThemedText className="text-base font-normal">{props.label}</ThemedText>
+        <ThemedText className="text-base font-archivo">{props.label}</ThemedText>
       </View>
       <Counter value={props.value} onChange={props.onChange} min={0} max={99} />
     </View>

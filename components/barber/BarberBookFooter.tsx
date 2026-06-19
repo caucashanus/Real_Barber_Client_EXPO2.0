@@ -17,7 +17,7 @@ export default function BarberBookFooter({ employeeId, bottomInset, t }: BarberB
       style={{ paddingBottom: bottomInset }}
       className="flex-row items-center justify-start border-t border-neutral-200 bg-light-primary px-global pt-4 dark:border-dark-secondary dark:bg-dark-primary">
       <View>
-        <ThemedText className="text-xl font-bold">{t('barberBook')}</ThemedText>
+        <ThemedText variant="h3">{t('barberBook')}</ThemedText>
         <ThemedText className="text-xs opacity-60">{t('barberReserveWith')}</ThemedText>
       </View>
       <View className="ml-auto flex-row items-center">

@@ -124,7 +124,7 @@ const KudyKNamDetail = () => {
         <View
           style={{ borderTopLeftRadius: 30, borderTopRightRadius: 30 }}
           className={`bg-light-primary p-global dark:bg-dark-primary ${hasVideo ? '-mt-[30px]' : ''}`}>
-          <ThemedText className="text-center text-3xl font-semibold">{title}</ThemedText>
+          <ThemedText variant="h1" className="text-center">{title}</ThemedText>
 
           <Section title={t('kudyTransportParking')} titleSize="lg" className="mb-6 mt-8">
             <ThemedText className="mb-4 text-base text-light-subtext dark:text-dark-subtext">
@@ -137,7 +137,7 @@ const KudyKNamDetail = () => {
                 onPress={() => Linking.openURL(item.mapsUrl!)}
                 className="mb-3 flex-row items-center rounded-xl bg-light-secondary px-4 py-3 active:opacity-80 dark:bg-dark-secondary">
                 <Icon name="MapPin" size={22} color={colors.highlight} className="mr-3" />
-                <ThemedText className="text-base font-medium">{t('kudyOpenGoogleMaps')}</ThemedText>
+                <ThemedText variant="body">{t('kudyOpenGoogleMaps')}</ThemedText>
               </Pressable>
             ) : null}
             {item?.wazeUrl ? (
@@ -145,7 +145,7 @@ const KudyKNamDetail = () => {
                 onPress={() => Linking.openURL(item.wazeUrl!)}
                 className="mb-3 flex-row items-center rounded-xl bg-light-secondary px-4 py-3 active:opacity-80 dark:bg-dark-secondary">
                 <Icon name="Car" size={22} color={colors.highlight} className="mr-3" />
-                <ThemedText className="text-base font-medium">{t('kudyOpenWaze')}</ThemedText>
+                <ThemedText variant="body">{t('kudyOpenWaze')}</ThemedText>
               </Pressable>
             ) : null}
             {item?.uberUrl ? (
@@ -153,7 +153,7 @@ const KudyKNamDetail = () => {
                 onPress={() => Linking.openURL(item.uberUrl!)}
                 className="flex-row items-center rounded-xl bg-light-secondary px-4 py-3 active:opacity-80 dark:bg-dark-secondary">
                 <Icon name="Car" size={22} color={colors.highlight} className="mr-3" />
-                <ThemedText className="text-base font-medium">{t('kudyRideUber')}</ThemedText>
+                <ThemedText variant="body">{t('kudyRideUber')}</ThemedText>
               </Pressable>
             ) : null}
           </Section>
@@ -164,7 +164,7 @@ const KudyKNamDetail = () => {
         style={{ paddingBottom: insets.bottom }}
         className="flex-row items-center justify-start border-t border-neutral-200 bg-light-primary px-global pb-2 pt-4 dark:border-dark-secondary dark:bg-dark-primary">
         <View>
-          <ThemedText className="text-xl font-bold">{branch.name}</ThemedText>
+          <ThemedText variant="h3">{branch.name}</ThemedText>
           <ThemedText className="text-xs opacity-60">{t('kudyHowToGetToUs')}</ThemedText>
         </View>
         {hasVideo && (

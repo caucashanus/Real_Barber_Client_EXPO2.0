@@ -88,8 +88,8 @@ export const Button: React.FC<ButtonProps> = ({
   const textColor = 'text-black dark:text-white';
   const titleClassName =
     variant === 'primary'
-      ? `font-medium text-white ${textClassName}`.trim()
-      : `${textColor} font-medium ${textClassName}`.trim();
+      ? `font-archivo text-body text-white ${textClassName}`.trim()
+      : `font-archivo text-body ${textColor} ${textClassName}`.trim();
   const disabledStyle = disabled ? 'opacity-50' : '';
 
   // Default icon sizes based on button size

@@ -9,8 +9,8 @@ import { View, RefreshControl, Text, ActivityIndicator, Share } from 'react-nati
 
 import { getBookings } from '@/api/bookings';
 import { getClientMe, type ClientMe } from '@/api/client';
-import { useAccentColor } from '@/app/contexts/AccentColorContext';
 import { useAuth } from '@/app/contexts/AuthContext';
+import useThemeColors from '@/app/contexts/ThemeColors';
 import { useTranslation } from '@/app/hooks/useTranslation';
 import AnimatedView from '@/components/AnimatedView';
 import Avatar from '@/components/Avatar';
@@ -45,7 +45,7 @@ function ProfileVersionBadge() {
 }
 
 export default function ProfileScreen() {
-  const { accentColor } = useAccentColor();
+  const colors = useThemeColors();
   const [notifStatus, setNotifStatus] = useState<'granted' | 'denied' | 'undetermined' | null>(
     null
   );
@@ -112,7 +112,7 @@ export default function ProfileScreen() {
       <View className="flex-1 bg-light-primary dark:bg-dark-primary">
         <ThemedScroller
           refreshControl={
-            <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={accentColor} />
+            <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={colors.highlight} />
           }>
           <PersonalProfile
             onRegisterRefresh={(fn) => {
@@ -219,7 +219,7 @@ const PersonalProfile = ({
             <Avatar src={avatarSrc} size="xxl" />
           )}
           <View className="flex-1 items-center justify-center">
-            <ThemedText className="text-2xl font-bold">
+            <ThemedText variant="h2">
               {displayName ?? t('profileGuest')}
             </ThemedText>
             {error && (
@@ -236,11 +236,11 @@ const PersonalProfile = ({
         </View>
         <View className="w-1/2 flex-col items-start justify-center pl-12">
           <View className="w-full">
-            <ThemedText className="text-xl font-bold">{reservationsCount}</ThemedText>
+            <ThemedText variant="h3">{reservationsCount}</ThemedText>
             <ThemedText className="text-xs">{t('profileReservations')}</ThemedText>
           </View>
           <View className="mt-3 w-full border-t border-neutral-300 pt-3 dark:border-dark-primary">
-            <ThemedText className="text-xl font-bold">{memberDaysDisplay}</ThemedText>
+            <ThemedText variant="h3">{memberDaysDisplay}</ThemedText>
             <ThemedText className="text-xs">{t('profileMemberDays')}</ThemedText>
           </View>
         </View>

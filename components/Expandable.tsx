@@ -65,7 +65,7 @@ const Expandable: React.FC<ExpandableProps> = ({
           </View>
         )}
         <View className="flex-1">
-          <ThemedText className="text-base font-medium">{title}</ThemedText>
+          <ThemedText variant="body">{title}</ThemedText>
           {description && (
             <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext">
               {description}

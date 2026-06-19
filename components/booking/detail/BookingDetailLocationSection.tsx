@@ -29,7 +29,7 @@ export default function BookingDetailLocationSection({
         className="px-global pb-6 pt-4"
         header={
           <View className="w-full flex-row items-center justify-between">
-            <ThemedText className="text-lg font-semibold">{t('bookingDetailLocation')}</ThemedText>
+            <ThemedText variant="h4">{t('bookingDetailLocation')}</ThemedText>
             <Button
               title={t('bookingDetailFullMap')}
               iconStart="Map"

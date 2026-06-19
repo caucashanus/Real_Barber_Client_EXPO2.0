@@ -29,7 +29,7 @@ export default function ReservationEmployeeStep({ flow }: ReservationCreateStepP
         />
       </View>
       <View className="mb-5">
-        <ThemedText className="text-2xl font-semibold">
+        <ThemedText variant="h2">
           {t('reservationStepEmployeeTitle')}
         </ThemedText>
         <ThemedText className="text-base text-light-subtext dark:text-dark-subtext">
@@ -103,8 +103,8 @@ export default function ReservationEmployeeStep({ flow }: ReservationCreateStepP
                       <View
                         className="min-w-0 max-w-full shrink rounded-full bg-light-secondary px-2 py-1 dark:bg-dark-secondary"
                         style={{ borderWidth: 1, borderColor: flow.colors.highlight }}>
-                        <ThemedText
-                          className="text-[11px] font-medium leading-snug text-light-text dark:text-dark-text"
+                        <ThemedText variant="body"
+                          className="text-[11px]"
                           numberOfLines={2}>
                           {nearestPillText}
                         </ThemedText>

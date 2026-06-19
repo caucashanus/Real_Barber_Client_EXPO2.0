@@ -27,7 +27,7 @@ export default function DeleteAccountDetailsScreen() {
           </ThemedText>
 
           <View className="gap-2">
-            <ThemedText className="text-base font-semibold text-light-text dark:text-dark-text">
+            <ThemedText variant="emphasis">
               1) {t('settingsDeleteAccountDetailsAccessTitle')}
             </ThemedText>
             <ThemedText className="text-sm leading-6 text-light-subtext dark:text-dark-subtext">
@@ -36,7 +36,7 @@ export default function DeleteAccountDetailsScreen() {
           </View>
 
           <View className="gap-2">
-            <ThemedText className="text-base font-semibold text-light-text dark:text-dark-text">
+            <ThemedText variant="emphasis">
               2) {t('settingsDeleteAccountDetailsAnonymizationTitle')}
             </ThemedText>
             <ThemedText className="text-sm leading-6 text-light-subtext dark:text-dark-subtext">
@@ -45,7 +45,7 @@ export default function DeleteAccountDetailsScreen() {
           </View>
 
           <View className="gap-2">
-            <ThemedText className="text-base font-semibold text-light-text dark:text-dark-text">
+            <ThemedText variant="emphasis">
               3) {t('settingsDeleteAccountDetailsAuditTitle')}
             </ThemedText>
             <ThemedText className="text-sm leading-6 text-light-subtext dark:text-dark-subtext">
@@ -54,7 +54,7 @@ export default function DeleteAccountDetailsScreen() {
           </View>
 
           <View className="gap-2">
-            <ThemedText className="text-base font-semibold text-light-text dark:text-dark-text">
+            <ThemedText variant="emphasis">
               4) {t('settingsDeleteAccountDetailsKeepTitle')}
             </ThemedText>
             <ThemedText className="text-sm leading-6 text-light-subtext dark:text-dark-subtext">
@@ -62,8 +62,8 @@ export default function DeleteAccountDetailsScreen() {
             </ThemedText>
           </View>
 
-          <View className="rounded-xl bg-light-secondary p-4 dark:bg-dark-secondary">
-            <ThemedText className="text-sm font-semibold leading-6 text-light-text dark:text-dark-text">
+          <View className="rounded-xl bg-light-secondary p-card dark:bg-dark-secondary">
+            <ThemedText variant="bodySm">
               {t('settingsDeleteAccountDetailsSummary')}
             </ThemedText>
           </View>

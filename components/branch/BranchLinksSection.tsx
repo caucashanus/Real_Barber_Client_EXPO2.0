@@ -25,10 +25,10 @@ export default function BranchLinksSection({
       {vrTourUrl ? (
         <Pressable
           onPress={() => WebBrowser.openBrowserAsync(vrTourUrl)}
-          className="mb-3 flex-row items-center rounded-xl bg-light-secondary p-4 dark:bg-dark-secondary">
+          className="mb-3 flex-row items-center rounded-xl bg-light-secondary p-card dark:bg-dark-secondary">
           <Icon name="Box" size={24} className="mr-3" />
           <View className="flex-1">
-            <ThemedText className="font-medium">3D VR tour</ThemedText>
+            <ThemedText variant="body">3D VR tour</ThemedText>
             <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext">
               {t('branchView3d')}
             </ThemedText>
@@ -39,10 +39,10 @@ export default function BranchLinksSection({
       {webUrl ? (
         <Pressable
           onPress={() => WebBrowser.openBrowserAsync(webUrl)}
-          className="mb-3 flex-row items-center rounded-xl bg-light-secondary p-4 dark:bg-dark-secondary">
+          className="mb-3 flex-row items-center rounded-xl bg-light-secondary p-card dark:bg-dark-secondary">
           <Icon name="Globe" size={24} className="mr-3" />
           <View className="flex-1">
-            <ThemedText className="font-medium">{t('branchWeb')}</ThemedText>
+            <ThemedText variant="body">{t('branchWeb')}</ThemedText>
             <ThemedText
               className="text-sm text-light-subtext dark:text-dark-subtext"
               numberOfLines={1}>
@@ -54,10 +54,10 @@ export default function BranchLinksSection({
       ) : null}
       <Pressable
         onPress={() => router.push(`/screens/kudy-k-nam-detail?id=${encodeURIComponent(branchId)}`)}
-        className="mb-3 flex-row items-center rounded-xl bg-light-secondary p-4 dark:bg-dark-secondary">
+        className="mb-3 flex-row items-center rounded-xl bg-light-secondary p-card dark:bg-dark-secondary">
         <Icon name="MapPin" size={24} className="mr-3" />
         <View className="flex-1">
-          <ThemedText className="font-medium">{t('howToGetToUs')}</ThemedText>
+          <ThemedText variant="body">{t('howToGetToUs')}</ThemedText>
           <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext">
             {t('kudyTransportParking')}
           </ThemedText>

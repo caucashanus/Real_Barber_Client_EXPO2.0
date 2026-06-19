@@ -84,7 +84,7 @@ export default function SettingsScreen() {
             }}
             className="min-w-[220px] rounded-full bg-neutral-900 px-6 py-3 dark:bg-neutral-100">
             <Text style={{ fontSize: 16 }}>{switchFlag}</Text>
-            <Text className="ml-2 text-base font-medium text-white dark:text-neutral-900">
+            <Text className="ml-2 text-base font-archivo text-white dark:text-neutral-900">
               {switchLabel}
             </Text>
           </Pressable>

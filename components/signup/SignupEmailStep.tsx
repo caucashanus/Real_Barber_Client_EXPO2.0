@@ -35,7 +35,7 @@ export default function SignupEmailStep({
 
   return (
     <View className="px-6 pb-8 pt-4">
-      <ThemedText className="text-2xl font-semibold text-light-text dark:text-dark-text">
+      <ThemedText variant="h2">
         {t('signupStepEmailTitle')}
       </ThemedText>
       <ThemedText className="mb-6 mt-1 text-base text-light-subtext dark:text-dark-subtext">

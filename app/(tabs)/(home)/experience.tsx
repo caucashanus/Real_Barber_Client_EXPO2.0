@@ -578,7 +578,7 @@ const ExperienceScreen = () => {
 
       <ActionSheetThemed ref={newBarbersInfoSheetRef} gestureEnabled>
         <View className="p-4 pb-8">
-          <ThemedText className="mb-3 text-lg font-semibold">
+          <ThemedText variant="h4" className="mb-3">
             {t('experienceNewBarbers')}
           </ThemedText>
           <ThemedText className="text-base leading-6 text-light-subtext dark:text-dark-subtext">

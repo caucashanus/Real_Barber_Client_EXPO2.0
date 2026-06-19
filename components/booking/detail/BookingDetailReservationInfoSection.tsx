@@ -37,13 +37,13 @@ export default function BookingDetailReservationInfoSection({
             <ThemedText className="text-light-subtext dark:text-dark-subtext">
               {t('bookingReservationNumber')}
             </ThemedText>
-            <ThemedText className="font-medium">#{booking.id.slice(0, 8)}</ThemedText>
+            <ThemedText variant="body">#{booking.id.slice(0, 8)}</ThemedText>
           </View>
           <View className="flex-row justify-between">
             <ThemedText className="text-light-subtext dark:text-dark-subtext">
               {t('bookingStatus')}
             </ThemedText>
-            <ThemedText className="font-medium">
+            <ThemedText variant="body">
               {t(getBookingUiStatusTranslationKey(booking))}
             </ThemedText>
           </View>

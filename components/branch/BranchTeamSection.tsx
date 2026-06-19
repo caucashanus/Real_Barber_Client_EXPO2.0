@@ -28,7 +28,7 @@ export default function BranchTeamSection({ employees, t }: BranchTeamSectionPro
               onPress={() => router.push(`/screens/barber-detail?id=${emp.id}`)}
               className="items-center active:opacity-70">
               <Avatar size="lg" src={emp.avatarUrl ?? undefined} name={emp.name} />
-              <ThemedText className="mt-2 text-sm font-medium" numberOfLines={1}>
+              <ThemedText variant="bodySm" className="mt-2" numberOfLines={1}>
                 {emp.name}
               </ThemedText>
             </Pressable>

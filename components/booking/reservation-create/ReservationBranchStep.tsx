@@ -25,7 +25,7 @@ export default function ReservationBranchStep({ flow }: ReservationCreateStepPro
         />
       </View>
       <View className="mb-5">
-        <ThemedText className="text-2xl font-semibold">
+        <ThemedText variant="h2">
           {t('reservationStepBranchTitle')}
         </ThemedText>
         <ThemedText className="text-base text-light-subtext dark:text-dark-subtext">

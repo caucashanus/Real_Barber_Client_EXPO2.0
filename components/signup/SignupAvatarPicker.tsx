@@ -138,7 +138,7 @@ export default function SignupAvatarPicker({
                   loadCatalog().catch(() => {});
                 }}
                 className="rounded-full bg-light-secondary px-4 py-2 active:opacity-80 dark:bg-dark-secondary">
-                <ThemedText className="text-sm font-medium text-light-text dark:text-dark-text">
+                <ThemedText variant="bodySm">
                   {t('signupAvatarRetry')}
                 </ThemedText>
               </Pressable>

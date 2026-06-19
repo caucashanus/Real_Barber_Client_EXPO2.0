@@ -57,7 +57,7 @@ export default function ChatListScreen() {
         <Avatar size="md" src={item.avatar} name={item.name} />
         <View className="ml-3 flex-1">
           <View className="flex-row items-center justify-between">
-            <ThemedText className="text-base font-medium">{item.name}</ThemedText>
+            <ThemedText variant="body">{item.name}</ThemedText>
             <ThemedText className="text-xs text-light-subtext dark:text-dark-subtext">
               {item.timestamp}
             </ThemedText>
@@ -65,7 +65,7 @@ export default function ChatListScreen() {
           <View className="mt-1 flex-row items-center">
             <ThemedText
               numberOfLines={1}
-              className={`flex-1 pr-10 text-sm ${item.unread ? 'font-medium text-black dark:text-white' : 'text-light-subtext dark:text-dark-subtext'}`}>
+              className={`flex-1 pr-10 text-sm ${item.unread ? 'font-archivo text-black dark:text-white' : 'text-light-subtext dark:text-dark-subtext'}`}>
               {item.lastMessage}
             </ThemedText>
             {item.unread && (

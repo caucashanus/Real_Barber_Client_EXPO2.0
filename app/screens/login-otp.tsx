@@ -263,7 +263,7 @@ export default function LoginOtpScreen() {
       <Header showBackButton />
       <AuthScreenLayout bottomImage={require('@/assets/img/smslogin.png')}>
         <View className="mt-8">
-          <ThemedText className="mb-3 text-3xl font-bold text-light-text dark:text-dark-text">
+          <ThemedText variant="h1" className="mb-3">
             {welcomeName
               ? t('loginOtpGreetingWithName').replace('{name}', welcomeName)
               : t('loginOtpGreetingNoName')}
@@ -298,7 +298,7 @@ export default function LoginOtpScreen() {
             loading={loading}
             size="large"
             className="mb-4 mt-6"
-            textClassName="font-bold text-lg"
+            textClassName="font-archivo-bold text-lg"
           />
 
           <Button

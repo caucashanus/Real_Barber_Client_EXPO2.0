@@ -30,7 +30,7 @@ export default function BranchRatingModal({
           className="rounded-t-3xl bg-light-primary p-global pb-8 dark:bg-dark-primary"
           onPress={(e) => e.stopPropagation()}>
           <View className="mb-4 flex-row items-center justify-between">
-            <ThemedText className="text-lg font-semibold">{t('branchFullRating')}</ThemedText>
+            <ThemedText variant="h4">{t('branchFullRating')}</ThemedText>
             <Pressable onPress={onClose} hitSlop={12} className="p-2">
               <Icon name="X" size={24} className="text-light-subtext dark:text-dark-subtext" />
             </Pressable>

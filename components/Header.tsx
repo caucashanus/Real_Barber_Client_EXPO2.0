@@ -142,7 +142,7 @@ const Header: React.FC<HeaderProps> = ({
             <View className="relative z-50 flex-row items-center">
               {leftComponent}
 
-              {title && <Text className="text-lg font-bold text-white">{title}</Text>}
+              {title && <Text className="font-archivo-bold text-h3 text-white">{title}</Text>}
             </View>
           </View>
 
@@ -184,7 +184,7 @@ const Header: React.FC<HeaderProps> = ({
             <View className="relative z-50 flex-row items-center">
               {leftComponent}
 
-              {title && <Text className="text-lg font-bold text-white">{title}</Text>}
+              {title && <Text className="font-archivo-bold text-h3 text-white">{title}</Text>}
             </View>
           </View>
 
@@ -263,7 +263,7 @@ const Header: React.FC<HeaderProps> = ({
                           numberOfLines={2}
                           ellipsizeMode="tail"
                           style={{ fontSize: titleFontSize }}
-                          className="font-semibold text-black dark:text-white">
+                          className="font-archivo-bold text-black dark:text-white">
                           {title}
                         </Animated.Text>
                       </Animated.View>
@@ -315,7 +315,7 @@ const Header: React.FC<HeaderProps> = ({
 
               {title ? (
                 <Text
-                  className="text-lg font-bold text-black dark:text-white"
+                  className="font-archivo-bold text-h3 text-black dark:text-white"
                   numberOfLines={subtitle ? 2 : 3}
                   ellipsizeMode="tail">
                   {title}
@@ -323,7 +323,7 @@ const Header: React.FC<HeaderProps> = ({
               ) : null}
               {subtitle ? (
                 <Text
-                  className="mt-1 text-sm font-medium leading-5 text-neutral-600 dark:text-neutral-300"
+                  className="font-archivo mt-1 text-body-sm leading-body-sm text-neutral-600 dark:text-neutral-300"
                   numberOfLines={5}
                   ellipsizeMode="tail">
                   {subtitle}

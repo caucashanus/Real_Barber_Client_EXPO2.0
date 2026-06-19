@@ -36,7 +36,7 @@ export default function BookingDetailEmployeeSection({
               size="lg"
             />
             <View className="ml-3 min-w-0 flex-1">
-              <ThemedText className="text-lg font-semibold">
+              <ThemedText variant="h4">
                 {booking.employee?.name ?? '—'}
               </ThemedText>
               {booking.item?.name ? (

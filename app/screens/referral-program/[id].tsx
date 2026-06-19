@@ -42,7 +42,7 @@ function InfoRow({ label, value }: { label: string; value: string }) {
   return (
     <View className="flex-row items-center justify-between py-3">
       <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext">{label}</ThemedText>
-      <ThemedText className="text-sm font-semibold">{value}</ThemedText>
+      <ThemedText variant="label">{value}</ThemedText>
     </View>
   );
 }
@@ -157,7 +157,7 @@ export default function ReferralProgramDetailScreen() {
 
           {/* Title + description */}
           <View className="px-global pb-4 pt-6">
-            <ThemedText className="mb-2 text-2xl font-bold">{program.name}</ThemedText>
+            <ThemedText variant="h2" className="mb-2">{program.name}</ThemedText>
             {program.description?.trim() ? (
               <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext">
                 {program.description}
@@ -209,7 +209,7 @@ export default function ReferralProgramDetailScreen() {
                       {i > 0 && <Divider />}
                       <View className="flex-row items-center justify-between px-5 py-3.5">
                         <View className="min-w-0 flex-1">
-                          <ThemedText className="text-sm font-semibold" numberOfLines={1}>
+                          <ThemedText variant="bodySm" numberOfLines={1}>
                             {ref.referee?.name ?? ref.referralCode ?? '—'}
                           </ThemedText>
                           <ThemedText className="mt-0.5 text-xs text-light-subtext dark:text-dark-subtext">
@@ -253,7 +253,7 @@ export default function ReferralProgramDetailScreen() {
             loading={joining}
             onPress={onJoinProgram}
             className="flex-1 rounded-none rounded-bl-2xl px-0 py-3.5"
-            textClassName="text-sm font-semibold text-neutral-800 dark:text-neutral-200"
+            textClassName="text-sm font-archivo text-neutral-800 dark:text-neutral-200"
           />
           <View className="w-px self-stretch bg-neutral-200 dark:bg-neutral-700" />
           <View className="flex-1">
@@ -267,11 +267,11 @@ export default function ReferralProgramDetailScreen() {
                 router.push(`/screens/referral-program/${encodeURIComponent(programId)}/invites`)
               }
               className="rounded-none rounded-br-2xl px-0 py-3.5"
-              textClassName="text-sm font-semibold text-neutral-800 dark:text-neutral-200"
+              textClassName="text-sm font-archivo text-neutral-800 dark:text-neutral-200"
             />
             {programReferrals.length > 0 && (
               <View className="min-w-5 absolute right-4 top-1 h-5 items-center justify-center rounded-full bg-red-500 px-1">
-                <ThemedText className="text-xs font-bold text-white">
+                <ThemedText variant="label" className="text-white">
                   {programReferrals.length}
                 </ThemedText>
               </View>

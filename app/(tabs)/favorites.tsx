@@ -121,7 +121,7 @@ const FavoritesScreen = () => {
         <ThemeScroller
           onScroll={scrollHandler}
           scrollEventThrottle={scrollEventThrottle}
-          className="px-global pt-4">
+          className="pt-4">
           {loading ? (
             <View className="items-center py-12">
               <ActivityIndicator size="large" />

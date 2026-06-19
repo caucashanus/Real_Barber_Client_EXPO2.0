@@ -62,7 +62,7 @@ export default function Counter({
           </Pressable>
 
           <View className="min-w-[80px] items-center justify-center px-4">
-            <ThemedText className="text-base font-medium">
+            <ThemedText variant="body">
               {value === undefined ? 'any' : value}
             </ThemedText>
           </View>

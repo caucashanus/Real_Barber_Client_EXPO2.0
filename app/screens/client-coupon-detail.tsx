@@ -160,7 +160,7 @@ export default function ClientCouponDetailScreen() {
             <ThemedText className="mb-1 text-xs uppercase tracking-wide text-light-subtext dark:text-dark-subtext">
               {t('homeCouponDetailBenefitLabel')}
             </ThemedText>
-            <ThemedText className="text-lg font-semibold text-emerald-600 dark:text-emerald-400">
+            <ThemedText variant="h4" className="text-emerald-600 dark:text-emerald-400">
               {coupon.benefitLabel}
             </ThemedText>
           </View>
@@ -186,8 +186,8 @@ export default function ClientCouponDetailScreen() {
                 accessibilityLabel={`${coupon.code}. ${t('homeCouponCopyCode')}`}
                 onPress={() => Clipboard.setString(coupon.code)}
                 className="flex-row items-center justify-center gap-1.5 rounded-full border border-neutral-200 bg-light-secondary px-3 py-1.5 active:opacity-80 dark:border-dark-secondary dark:bg-dark-secondary">
-                <ThemedText
-                  className="text-center font-mono text-sm font-semibold text-light-text dark:text-dark-text"
+                <ThemedText variant="bodySm"
+                  className="text-center font-mono"
                   numberOfLines={1}>
                   {coupon.code}
                 </ThemedText>

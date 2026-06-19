@@ -117,8 +117,7 @@ export default function SettingsAccentScreen() {
           <View
             className="border-light-border dark:border-dark-border mb-6 h-24 items-center justify-center rounded-2xl border"
             style={{ backgroundColor: accentColor }}>
-            <ThemedText
-              className="text-lg font-medium"
+            <ThemedText variant="emphasis"
               style={{
                 color: (() => {
                   const { r, g, b } = hexToRgb(accentColor);

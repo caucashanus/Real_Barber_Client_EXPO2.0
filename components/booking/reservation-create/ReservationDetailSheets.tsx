@@ -18,7 +18,7 @@ export default function ReservationDetailSheets({ flow }: ReservationCreateStepP
         <ScrollView
           className="max-h-[75vh]"
           contentContainerStyle={{ padding: 16, paddingBottom: 24 }}>
-          <ThemedText className="mb-2 mt-2 text-left text-lg font-bold">
+          <ThemedText variant="h4" className="mb-2 mt-2 text-left">
             {flow.detailsEmployee?.name ?? t('sheetSpecialistFallback')}
           </ThemedText>
           <ThemedText className="mb-5 text-sm text-light-subtext dark:text-dark-subtext">
@@ -26,7 +26,7 @@ export default function ReservationDetailSheets({ flow }: ReservationCreateStepP
           </ThemedText>
           {flow.detailsMedia.length > 0 ? (
             <View className="mb-5">
-              <ThemedText className="mb-2 text-sm font-semibold">{t('sheetPortfolio')}</ThemedText>
+              <ThemedText variant="label" className="mb-2">{t('sheetPortfolio')}</ThemedText>
               <ScrollView
                 horizontal
                 showsHorizontalScrollIndicator={false}
@@ -49,7 +49,7 @@ export default function ReservationDetailSheets({ flow }: ReservationCreateStepP
         <ScrollView
           className="max-h-[75vh]"
           contentContainerStyle={{ padding: 16, paddingBottom: 24 }}>
-          <ThemedText className="mb-2 mt-2 text-left text-lg font-bold">
+          <ThemedText variant="h4" className="mb-2 mt-2 text-left">
             {flow.detailsBranch?.name ?? t('sheetBranchFallback')}
           </ThemedText>
           <ThemedText
@@ -72,7 +72,7 @@ export default function ReservationDetailSheets({ flow }: ReservationCreateStepP
           )}
           {flow.detailsBranchVideo ? (
             <View className="mb-4 overflow-hidden rounded-xl bg-black">
-              <ThemedText className="text-sm font-semibold">{t('sheetHowToBranch')}</ThemedText>
+              <ThemedText variant="label">{t('sheetHowToBranch')}</ThemedText>
               <VideoPlayer
                 uri={flow.detailsBranchVideo.url}
                 style={{ width: '100%', height: 220 }}
@@ -86,7 +86,7 @@ export default function ReservationDetailSheets({ flow }: ReservationCreateStepP
           ) : null}
           {flow.detailsBranchImages.length > 0 ? (
             <View className="mb-5">
-              <ThemedText className="mb-2 text-sm font-semibold">
+              <ThemedText variant="bodySm" className="mb-2">
                 {t('sheetBranchInterior')}
               </ThemedText>
               <ScrollView

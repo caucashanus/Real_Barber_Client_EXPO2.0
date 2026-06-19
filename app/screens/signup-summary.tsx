@@ -85,7 +85,7 @@ export default function SignupSummaryScreen() {
                 )}
               </View>
 
-              <ThemedText className="px-4 text-center text-2xl font-bold text-light-text dark:text-dark-text">
+              <ThemedText variant="h2" className="px-4 text-center">
                 {client.name}
               </ThemedText>
             </View>
@@ -97,7 +97,7 @@ export default function SignupSummaryScreen() {
               title={t('signupWelcomeJoinTeam')}
               onPress={() => router.replace('/(tabs)/(home)')}
               className="w-full"
-              textClassName="text-white font-semibold"
+              textClassName="text-white font-archivo"
               style={{ backgroundColor: colors.highlight }}
               impactFeedbackStyle={Haptics.ImpactFeedbackStyle.Heavy}
             />

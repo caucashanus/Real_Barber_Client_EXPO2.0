@@ -144,7 +144,7 @@ export default function RBCHistorieScreen() {
                         subtitle={formatTransactionTime(tx.createdAt)}
                         trailing={
                           <ThemedText
-                            className={`text-base font-semibold ${isSent ? 'text-light-text dark:text-dark-text' : 'text-green-600 dark:text-green-400'}`}>
+                            className={`text-base font-archivo ${isSent ? 'text-light-text dark:text-dark-text' : 'text-green-600 dark:text-green-400'}`}>
                             {amountStr}
                           </ThemedText>
                         }

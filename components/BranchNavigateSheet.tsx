@@ -52,7 +52,7 @@ export const BranchNavigateSheet = forwardRef<ActionSheetRef, BranchNavigateShee
     return (
       <ActionSheetThemed ref={setRef} gestureEnabled>
         <View className="gap-3 px-4 pb-8 pt-2">
-          <ThemedText className="mb-1 text-center text-base font-semibold">
+          <ThemedText variant="emphasis" className="mb-1 text-center">
             {t('branchNavigateSheetHeading')}
             {branchName?.trim() ? ` ${branchName.trim()}` : ''}
           </ThemedText>

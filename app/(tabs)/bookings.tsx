@@ -11,8 +11,8 @@ import {
 } from 'react-native';
 
 import { getBookings, type Booking } from '@/api/bookings';
-import { useAccentColor } from '@/app/contexts/AccentColorContext';
 import { useAuth } from '@/app/contexts/AuthContext';
+import useThemeColors from '@/app/contexts/ThemeColors';
 import { useBookingsBadge } from '@/app/contexts/BookingsBadgeContext';
 import { useCollapsibleTitle } from '@/app/hooks/useCollapsibleTitle';
 import { useTranslation } from '@/app/hooks/useTranslation';
@@ -218,7 +218,7 @@ const CountdownDisplay = ({ target }: { target: Date }) => {
 const TripsScreen = () => {
   const router = useRouter();
   const { t, locale } = useTranslation();
-  const { accentColor } = useAccentColor();
+  const colors = useThemeColors();
   const { scrollY, scrollHandler, scrollEventThrottle } = useCollapsibleTitle();
   const { apiToken } = useAuth();
   const { refresh: refreshBookingsBadge } = useBookingsBadge();
@@ -333,14 +333,14 @@ const TripsScreen = () => {
           </View>
         ) : (
           <ThemeScroller
-            className="px-global pt-4"
+            className="pt-4"
             onScroll={scrollHandler}
             scrollEventThrottle={scrollEventThrottle}
             refreshControl={
               <RefreshControl
                 refreshing={refreshing}
                 onRefresh={onRefresh}
-                tintColor={accentColor}
+                tintColor={colors.highlight}
               />
             }>
             <CardScroller className="mb-4">
@@ -449,7 +449,7 @@ const TripsScreen = () => {
 
 const YearDivider = (props: { year: string }) => (
   <View className="mb-3 mt-1 w-full">
-    <ThemedText className="text-xs font-medium uppercase tracking-wider text-light-subtext dark:text-dark-subtext">
+    <ThemedText variant="caption" className="uppercase tracking-wider text-light-subtext dark:text-dark-subtext">
       {props.year}
     </ThemedText>
   </View>
@@ -510,7 +510,7 @@ const BookingCard = (props: {
         <View className="mb-4 flex-row items-center justify-between gap-3">
           <View className="min-w-0 flex-1 flex-row items-center">
             <View className={`rounded-full px-2.5 py-1 ${getStatusPillClass()}`}>
-              <ThemedText className={`text-xs font-semibold ${getStatusTextClass()}`}>
+              <ThemedText variant="caption" className={getStatusTextClass()}>
                 {statusLabel}
               </ThemedText>
             </View>
@@ -528,7 +528,7 @@ const BookingCard = (props: {
         </View>
         <View className="flex-row items-start justify-between gap-3">
           <View className="min-w-0 flex-1">
-            <ThemedText className="text-lg font-semibold" numberOfLines={2}>
+            <ThemedText variant="h4" numberOfLines={2}>
               {title}
             </ThemedText>
             <ThemedText className="mt-0.5 text-sm text-light-subtext dark:text-dark-subtext">
@@ -543,8 +543,7 @@ const BookingCard = (props: {
             ) : null}
             {couponBagLabel ? (
               <View className="mt-1.5 max-w-full self-start rounded-full bg-light-secondary px-2.5 py-1 dark:bg-dark-secondary">
-                <ThemedText
-                  className="text-xs font-semibold text-light-text dark:text-dark-text"
+                <ThemedText variant="caption"
                   numberOfLines={1}>
                   {couponBagLabel}
                 </ThemedText>
@@ -567,7 +566,7 @@ const BookingCard = (props: {
               title="Zobrazit probíhající rezervaci"
               onPress={goToDetail}
               className="flex-1 rounded-none rounded-b-2xl px-0 py-3.5"
-              textClassName="text-sm font-semibold text-green-600 dark:text-green-400"
+              textClassName="text-sm font-archivo text-green-600 dark:text-green-400"
             />
           ) : (
             <>
@@ -577,7 +576,7 @@ const BookingCard = (props: {
                 title={t('tripsViewBooking')}
                 onPress={goToDetail}
                 className="flex-1 rounded-none rounded-bl-2xl px-0 py-3.5"
-                textClassName="text-sm font-semibold text-neutral-800 dark:text-neutral-200"
+                textClassName="text-sm font-archivo text-neutral-800 dark:text-neutral-200"
               />
               <View className="w-px self-stretch bg-neutral-200 dark:bg-neutral-700" />
               {isPast && !hasReview ? (
@@ -587,7 +586,7 @@ const BookingCard = (props: {
                   title={t('tripsAddReview')}
                   onPress={onOpenReview}
                   className="flex-1 rounded-none rounded-br-2xl px-0 py-3.5"
-                  textClassName="text-sm font-semibold text-neutral-800 dark:text-neutral-200"
+                  textClassName="text-sm font-archivo text-neutral-800 dark:text-neutral-200"
                 />
               ) : isPast && hasReview ? (
                 <TouchableOpacity
@@ -607,7 +606,7 @@ const BookingCard = (props: {
                     router.push(`/screens/reschedule?id=${encodeURIComponent(booking.id)}`)
                   }
                   className="flex-1 rounded-none rounded-br-2xl px-0 py-3.5"
-                  textClassName="text-sm font-semibold text-neutral-800 dark:text-neutral-200"
+                  textClassName="text-sm font-archivo text-neutral-800 dark:text-neutral-200"
                 />
               ) : (
                 <Button
@@ -616,7 +615,7 @@ const BookingCard = (props: {
                   title={t('tripsMessage')}
                   onPress={() => router.push('/screens/chat/user')}
                   className="flex-1 rounded-none rounded-br-2xl px-0 py-3.5"
-                  textClassName="text-sm font-semibold text-neutral-800 dark:text-neutral-200"
+                  textClassName="text-sm font-archivo text-neutral-800 dark:text-neutral-200"
                 />
               )}
             </>

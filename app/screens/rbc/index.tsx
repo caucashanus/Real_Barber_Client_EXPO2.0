@@ -224,10 +224,10 @@ export default function RBCScreen() {
               </ThemedText>
             ) : (
               <View className="mt-1 flex-row items-baseline">
-                <ThemedText className="text-3xl font-bold text-light-text dark:text-dark-text">
+                <ThemedText variant="h1">
                   {formatBalance(balance ?? 0)}
                 </ThemedText>
-                <ThemedText className="ml-2 text-lg font-semibold text-light-subtext dark:text-dark-subtext">
+                <ThemedText variant="h4" className="ml-2 text-light-subtext dark:text-dark-subtext">
                   RBC
                 </ThemedText>
               </View>

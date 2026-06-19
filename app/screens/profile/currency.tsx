@@ -76,7 +76,7 @@ const CurrencyItem = ({ title, code, selected, onSelect }: CurrencyItemProps) =>
       onPress={onSelect}
       className={`flex-row items-center justify-between border-b border-light-secondary py-4 dark:border-dark-secondary ${selected ? 'opacity-100' : 'opacity-100 '}`}>
       <View>
-        <ThemedText className="text-lg font-bold">{code}</ThemedText>
+        <ThemedText variant="h4">{code}</ThemedText>
         <ThemedText className="text-light-subtext dark:text-dark-subtext">{title}</ThemedText>
       </View>
       {selected && (

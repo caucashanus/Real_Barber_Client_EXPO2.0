@@ -16,7 +16,6 @@ import { ScrollContext } from './_layout';
 
 import { getRbCoinsBalance, getRbCoinsHistory, type RbCoinsHistoryItem } from '@/api/rb-coins';
 import { getReferrals, type ReferralActiveProgram } from '@/api/referrals';
-import { useAccentColor } from '@/app/contexts/AccentColorContext';
 import { useAuth } from '@/app/contexts/AuthContext';
 import useThemeColors from '@/app/contexts/ThemeColors';
 import { useTranslation } from '@/app/hooks/useTranslation';
@@ -94,7 +93,6 @@ const WalletScreen = () => {
   const router = useRouter();
   const scrollY = useContext(ScrollContext);
   const colors = useThemeColors();
-  const { accentColor } = useAccentColor();
   const { apiToken } = useAuth();
   const { t } = useTranslation();
   const [balance, setBalance] = useState<number | null>(null);
@@ -247,7 +245,7 @@ const WalletScreen = () => {
         useNativeDriver: false,
       })}
       refreshControl={
-        <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={accentColor} />
+        <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={colors.highlight} />
       }
       scrollEventThrottle={16}>
       <AnimatedView animation="scaleIn" className="mt-4 flex-1">
@@ -263,7 +261,7 @@ const WalletScreen = () => {
               {balanceError}
             </ThemedText>
           ) : (
-            <ThemedText className="mt-1 text-center text-5xl font-bold text-white">
+            <ThemedText variant="h4" className="mt-1 text-center text-5xl text-white">
               {formatBalance(displayAmount)} {MOCK_CURRENCY}
             </ThemedText>
           )}
@@ -290,10 +288,8 @@ const WalletScreen = () => {
           <ScrollView
             horizontal
             showsHorizontalScrollIndicator={false}
-            className="-mx-global mb-0 mt-4"
+            className="-mx-global mb-0 mt-4 px-global"
             contentContainerStyle={{
-              paddingHorizontal: 16,
-              paddingRight: 24,
               paddingVertical: 18,
             }}>
             {referralsLoading && visibleReferralPrograms.length === 0 ? (
@@ -312,7 +308,7 @@ const WalletScreen = () => {
                 <View className="flex-row items-start justify-between">
                   <Pressable className="flex-1 pr-2" onPress={openProgramDetail}>
                     <ThemedText
-                      className={`text-lg font-bold ${coverUri ? 'text-white' : 'text-light-text dark:text-dark-text'}`}>
+                      className={`text-lg font-archivo-bold ${coverUri ? 'text-white' : 'text-light-text dark:text-dark-text'}`}>
                       {program.name}
                     </ThemedText>
                     <ThemedText
@@ -360,6 +356,7 @@ const WalletScreen = () => {
                 </View>
               );
             })}
+            <View className="h-px w-4" />
           </ScrollView>
         ) : null}
 
@@ -397,7 +394,7 @@ const WalletScreen = () => {
                       subtitle={formatTransactionTime(tx.createdAt)}
                       trailing={
                         <ThemedText
-                          className={`text-base font-semibold ${isSent ? 'text-light-text dark:text-dark-text' : 'text-green-600 dark:text-green-400'}`}>
+                          className={`text-base font-archivo ${isSent ? 'text-light-text dark:text-dark-text' : 'text-green-600 dark:text-green-400'}`}>
                           {amountStr}
                         </ThemedText>
                       }
@@ -410,7 +407,7 @@ const WalletScreen = () => {
           </View>
           <Link href="/screens/wallet-history" asChild>
             <Pressable className="mt-3 items-center py-3">
-              <ThemedText className="text-base font-medium text-light-text dark:text-dark-text">
+              <ThemedText variant="body">
                 {t('walletShowAll')}
               </ThemedText>
             </Pressable>

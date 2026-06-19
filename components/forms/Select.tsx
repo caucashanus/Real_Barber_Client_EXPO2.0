@@ -182,7 +182,7 @@ const Select: React.FC<SelectProps> = ({
   if (variant === 'classic') {
     return (
       <View className={`mb-4 ${className || ''}`} style={style}>
-        {label && <ThemedText className="mb-1 font-medium">{label}</ThemedText>}
+        {label && <ThemedText variant="body" className="mb-1">{label}</ThemedText>}
         <View className="relative">
           <TouchableOpacity
             onPress={handlePress}
@@ -196,7 +196,7 @@ const Select: React.FC<SelectProps> = ({
             <Icon name="ChevronDown" size={20} />
           </TouchableOpacity>
         </View>
-        {error && <Text className="mt-1 text-sm text-red-500 dark:text-red-400">{error}</Text>}
+        {error && <Text className="font-archivo mt-1 text-sm text-red-500 dark:text-red-400">{error}</Text>}
         {renderActionSheet()}
       </View>
     );
@@ -228,7 +228,7 @@ const Select: React.FC<SelectProps> = ({
             <Icon name="ChevronDown" size={20} />
           </TouchableOpacity>
         </View>
-        {error && <Text className="mt-1 text-sm text-red-500 dark:text-red-400">{error}</Text>}
+        {error && <Text className="font-archivo mt-1 text-sm text-red-500 dark:text-red-400">{error}</Text>}
         {renderActionSheet()}
       </View>
     );
@@ -258,7 +258,7 @@ const Select: React.FC<SelectProps> = ({
           <Icon name="ChevronDown" size={20} />
         </TouchableOpacity>
       </View>
-      {error && <Text className="mt-1 text-sm text-red-500 dark:text-red-400">{error}</Text>}
+      {error && <Text className="font-archivo mt-1 text-sm text-red-500 dark:text-red-400">{error}</Text>}
       {renderActionSheet()}
     </View>
   );

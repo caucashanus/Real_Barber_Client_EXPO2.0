@@ -77,7 +77,7 @@ const ListItem = forwardRef<View, ListItemProps>((props, ref) => {
 
       <View className="flex-1">
         {typeof title === 'string' ? (
-          <ThemedText className="text-base font-semibold">{title}</ThemedText>
+          <ThemedText variant="emphasis">{title}</ThemedText>
         ) : (
           title
         )}

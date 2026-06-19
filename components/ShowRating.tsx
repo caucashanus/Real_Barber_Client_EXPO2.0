@@ -47,7 +47,7 @@ const ShowRating: React.FC<ShowRatingProps> = ({
       <View className={`flex-row  items-center gap-x-1 ${className}`} style={style}>
         <Ionicons name="star" size={getSize().icon} color={starColor} />
         <ThemedText
-          className={`font-medium ${getSize().text}`}
+          className={`font-archivo ${getSize().text}`}
           style={color ? { color: starColor } : undefined}>
           {rating.toFixed(1)}
         </ThemedText>

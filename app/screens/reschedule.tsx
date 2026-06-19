@@ -297,7 +297,7 @@ export default function RescheduleScreen() {
             className="mb-4"
             header={
               <View className="w-full flex-row items-center justify-between gap-3">
-                <ThemedText className="min-w-0 flex-1 pr-2 text-lg font-semibold" numberOfLines={2}>
+                <ThemedText variant="h4" className="min-w-0 flex-1 pr-2" numberOfLines={2}>
                   {t('rescheduleCurrentTitle')}
                 </ThemedText>
                 <Image
@@ -316,7 +316,7 @@ export default function RescheduleScreen() {
             className="mb-4"
             header={
               <View className="w-full flex-row items-center justify-between gap-3">
-                <ThemedText className="min-w-0 flex-1 pr-2 text-lg font-semibold" numberOfLines={2}>
+                <ThemedText variant="h4" className="min-w-0 flex-1 pr-2" numberOfLines={2}>
                   {t('reschedulePickTitle')}
                 </ThemedText>
                 <Image
@@ -335,7 +335,7 @@ export default function RescheduleScreen() {
                 className={`rounded-full p-2 ${monthOffset === 0 ? 'opacity-40' : 'opacity-100'}`}>
                 <Icon name="ChevronLeft" size={24} className="-translate-x-px" />
               </Pressable>
-              <ThemedText className="text-base font-semibold">{monthLabel}</ThemedText>
+              <ThemedText variant="emphasis">{monthLabel}</ThemedText>
               <Pressable
                 onPress={() => setMonthOffset((prev) => prev + 1)}
                 className="rounded-full p-2">
@@ -365,7 +365,7 @@ export default function RescheduleScreen() {
             ) : null}
 
             <View className="mb-2 mt-6">
-              <ThemedText className="text-lg font-semibold">
+              <ThemedText variant="h4">
                 {t('reservationAvailableTimes')}
               </ThemedText>
               <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext">
@@ -472,8 +472,8 @@ export default function RescheduleScreen() {
               className={`w-full min-w-0 flex-1 rounded-none px-0 py-3.5 ${!canSave ? 'opacity-60' : ''}`}
               textClassName={
                 canSave
-                  ? 'text-sm font-semibold text-white'
-                  : 'text-sm font-semibold text-neutral-800 dark:text-neutral-200'
+                  ? 'text-sm font-archivo text-white'
+                  : 'text-sm font-archivo text-neutral-800 dark:text-neutral-200'
               }
               style={canSave ? { backgroundColor: colors.highlight } : undefined}
             />

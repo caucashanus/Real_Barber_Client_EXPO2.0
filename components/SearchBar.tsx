@@ -59,7 +59,7 @@ const SearchBar = () => {
             }}
             className="relative z-50 mb-4 mt-3 flex-row justify-center rounded-full bg-light-primary px-10  py-4 dark:bg-white/20">
             <Icon name="Search" size={16} strokeWidth={3} />
-            <ThemedText className="ml-2 mr-4 font-medium text-black dark:text-white">
+            <ThemedText variant="body" className="ml-2 mr-4">
               {t('searchPlaceholder')}
             </ThemedText>
           </Animated.View>
@@ -146,7 +146,7 @@ const SearchModal = ({ showModal, setShowModal }: SearchModalProps) => {
                     />
                   </View>
                   <View className="flex-1">
-                    <ThemedText className="text-lg font-semibold">{t(TITLE_KEYS[i])}</ThemedText>
+                    <ThemedText variant="h4">{t(TITLE_KEYS[i])}</ThemedText>
                     <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext">
                       {t(SUBTITLE_KEYS[i])}
                     </ThemedText>

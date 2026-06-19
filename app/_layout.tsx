@@ -1,9 +1,15 @@
 import '../global.css';
+import {
+  Archivo_300Light,
+  Archivo_400Regular,
+  Archivo_700Bold,
+} from '@expo-google-fonts/archivo';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useFonts } from 'expo-font';
 import { Stack } from 'expo-router';
 import { NativeWindStyleSheet } from 'nativewind';
 import React, { useEffect } from 'react';
-import { Platform } from 'react-native';
+import { ActivityIndicator, Platform, View } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 import { AccentColorProvider } from './contexts/AccentColorContext';
@@ -47,6 +53,20 @@ function ThemedLayout() {
 }
 
 export default function RootLayout() {
+  const [fontsLoaded] = useFonts({
+    Archivo_300Light,
+    Archivo_400Regular,
+    Archivo_700Bold,
+  });
+
+  if (!fontsLoaded) {
+    return (
+      <View className="flex-1 items-center justify-center bg-light-primary dark:bg-dark-primary">
+        <ActivityIndicator />
+      </View>
+    );
+  }
+
   return (
     <GestureHandlerRootView
       className={`bg-light-primary dark:bg-dark-primary ${Platform.OS === 'ios' ? 'pb-0 ' : ''}`}

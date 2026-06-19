@@ -17,7 +17,7 @@ export default function TitleDescriptionStep({ data, updateData }: HaircutStepPr
   return (
     <ScrollView className="p-4 px-8">
       <View className="mb-10">
-        <ThemedText className="mt-auto text-3xl font-semibold">
+        <ThemedText variant="h1" className="mt-auto">
           {t('haircutCreateNowName')}
         </ThemedText>
         <ThemedText className="text-base text-light-subtext dark:text-dark-subtext">

@@ -53,7 +53,7 @@ export const MultipleImagePicker: React.FC<MultipleImagePickerProps> = ({
 
   return (
     <>
-      <Text className="mb-2 text-sm dark:text-white">Images</Text>
+      <Text className="font-archivo mb-2 text-sm dark:text-white">Images</Text>
       <CardScroller>
         {mainImage ? (
           <View className="relative">
@@ -76,7 +76,7 @@ export const MultipleImagePicker: React.FC<MultipleImagePickerProps> = ({
               className="relative flex h-28 w-28 flex-col items-center justify-center rounded-xl border border-black p-4 dark:border-white"
               android_ripple={{ color: 'rgba(0,0,0,0.3)', borderless: false }}>
               <Icon name="Camera" size={24} />
-              <Text className="absolute bottom-4 w-full text-center text-xs text-black dark:text-white">
+              <Text className="font-archivo absolute bottom-4 w-full text-center text-xs text-black dark:text-white">
                 Main photo
               </Text>
             </Pressable>

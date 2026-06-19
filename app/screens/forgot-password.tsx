@@ -93,7 +93,7 @@ export default function ForgotPasswordScreen() {
             <View className="mb-4 h-20 w-20 items-center justify-center rounded-full bg-green-500/20">
               <Icon name="Check" size={40} className="text-green-600 dark:text-green-400" />
             </View>
-            <ThemedText className="mb-2 text-center text-xl font-semibold text-light-text dark:text-dark-text">
+            <ThemedText variant="h3" className="mb-2 text-center">
               Žádost odeslána
             </ThemedText>
             <ThemedText className="mb-6 text-center text-light-subtext dark:text-dark-subtext">
@@ -119,7 +119,7 @@ export default function ForgotPasswordScreen() {
         className="flex-1 bg-light-primary p-6 dark:bg-dark-primary"
         style={{ paddingTop: insets.top }}>
         <View className="mt-8">
-          <ThemedText className="mb-1 text-3xl font-bold">Zapomenuté heslo</ThemedText>
+          <ThemedText variant="h1" className="mb-1">Zapomenuté heslo</ThemedText>
           <ThemedText className="mb-6 text-light-subtext dark:text-dark-subtext">
             {resetMode === 'email'
               ? 'Zadejte email a pošleme vám odkaz pro obnovení hesla.'
@@ -134,7 +134,7 @@ export default function ForgotPasswordScreen() {
                   ? 'border-black bg-light-secondary dark:border-white dark:bg-dark-secondary'
                   : 'border-light-secondary dark:border-dark-secondary'
               }`}>
-              <ThemedText className="text-center font-medium">Email</ThemedText>
+              <ThemedText variant="body" className="text-center">Email</ThemedText>
             </Pressable>
             <Pressable
               onPress={() => setResetMode('phone')}
@@ -143,7 +143,7 @@ export default function ForgotPasswordScreen() {
                   ? 'border-black bg-light-secondary dark:border-white dark:bg-dark-secondary'
                   : 'border-light-secondary dark:border-dark-secondary'
               }`}>
-              <ThemedText className="text-center font-medium">Pomocí tel. čísla</ThemedText>
+              <ThemedText variant="body" className="text-center">Pomocí tel. čísla</ThemedText>
             </Pressable>
           </View>
 
@@ -163,7 +163,7 @@ export default function ForgotPasswordScreen() {
             />
           ) : (
             <View className="mb-4">
-              <ThemedText className="mb-1 font-medium text-light-text dark:text-dark-text">
+              <ThemedText variant="body" className="mb-1">
                 Telefonní číslo
               </ThemedText>
               <View className="flex-row items-stretch gap-2">

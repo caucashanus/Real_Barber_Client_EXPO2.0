@@ -29,19 +29,19 @@ export default function BookingDetailAppointmentSection({
 
       <Section title={t('bookingYourAppointment')} titleSize="lg" className="px-global pt-4">
         <View className="mt-4 space-y-4">
-          <ThemedText className="text-lg font-semibold">{appointment.dateStr}</ThemedText>
-          <View className="flex-row items-center justify-between rounded-xl bg-light-secondary p-4 dark:bg-dark-secondary">
+          <ThemedText variant="h4">{appointment.dateStr}</ThemedText>
+          <View className="flex-row items-center justify-between rounded-xl bg-light-secondary p-card dark:bg-dark-secondary">
             <View>
               <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext">
                 {t('bookingFrom')}
               </ThemedText>
-              <ThemedText className="text-lg font-semibold">{appointment.fromTime}</ThemedText>
+              <ThemedText variant="h4">{appointment.fromTime}</ThemedText>
             </View>
             <View className="items-end">
               <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext">
                 {t('bookingTo')}
               </ThemedText>
-              <ThemedText className="text-lg font-semibold">{appointment.toTime}</ThemedText>
+              <ThemedText variant="h4">{appointment.toTime}</ThemedText>
             </View>
           </View>
           {canAddToCalendar ? (
@@ -59,7 +59,7 @@ export default function BookingDetailAppointmentSection({
               <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext">
                 {t('bookingDuration')}
               </ThemedText>
-              <ThemedText className="text-lg font-semibold">
+              <ThemedText variant="h4">
                 {booking.duration} {t('bookingMinutesShort')}
               </ThemedText>
             </View>

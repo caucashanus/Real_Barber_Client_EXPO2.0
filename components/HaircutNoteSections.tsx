@@ -70,7 +70,7 @@ function NoteRow({
             {label}
           </ThemedText>
         ) : null}
-        <ThemedText className="text-base font-medium text-light-text dark:text-dark-text">
+        <ThemedText variant="body">
           {value}
         </ThemedText>
       </View>
@@ -252,7 +252,7 @@ export default function HaircutNoteSections({
     if (!editNote) {
       return (
         <Section title={t('haircutDetailNoteTitle')} titleSize="lg" className="px-global pt-4">
-          <View className="mt-4 rounded-xl bg-light-secondary p-4 dark:bg-dark-secondary">
+          <View className="mt-4 rounded-xl bg-light-secondary p-card dark:bg-dark-secondary">
             <ThemedText className="text-sm text-light-text dark:text-dark-text">—</ThemedText>
           </View>
         </Section>
@@ -293,7 +293,7 @@ export default function HaircutNoteSections({
           onApply={(next) => applyNote(next)}
         />
         <Section title={t('haircutDetailNoteTitle')} titleSize="lg" className="px-global pt-4">
-          <View className="relative mt-4 rounded-xl bg-light-secondary p-4 dark:bg-dark-secondary">
+          <View className="relative mt-4 rounded-xl bg-light-secondary p-card dark:bg-dark-secondary">
             {editNote ? (
               <Pressable
                 onPress={() => applyNote('')}
@@ -407,7 +407,7 @@ export default function HaircutNoteSections({
                     return (
                       <View
                         key={`${row.label}-${rowIndex}`}
-                        className="relative rounded-xl bg-light-secondary p-4 dark:bg-dark-secondary">
+                        className="relative rounded-xl bg-light-secondary p-card dark:bg-dark-secondary">
                         {editNote ? (
                           <Pressable
                             onPress={() => removeRow(row)}
@@ -436,7 +436,7 @@ export default function HaircutNoteSections({
                           <ThemedText className="flex-1 pr-2 text-sm text-light-subtext dark:text-dark-subtext">
                             {row.label}
                           </ThemedText>
-                          <ThemedText className="shrink-0 text-xl font-bold text-light-text dark:text-dark-text">
+                          <ThemedText variant="h3" className="shrink-0">
                             {row.value}
                           </ThemedText>
                         </View>

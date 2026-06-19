@@ -74,7 +74,7 @@ export function HomeSpotlightCard({
               <View className="min-w-0 flex-1">
                 {state === 'review' ? (
                   <View>
-                    <ThemedText className="text-sm font-semibold" numberOfLines={1}>
+                    <ThemedText variant="bodySm" numberOfLines={1}>
                       {t(titleKey)}
                     </ThemedText>
                     <View className="mt-3 flex-row gap-1.5">
@@ -102,7 +102,7 @@ export function HomeSpotlightCard({
                     </View>
                   </View>
                 ) : (
-                  <ThemedText className="text-sm font-semibold" numberOfLines={1}>
+                  <ThemedText variant="bodySm" numberOfLines={1}>
                     {t(titleKey)}
                   </ThemedText>
                 )}
@@ -140,7 +140,7 @@ export function HomeSpotlightCard({
             <View
               className="absolute flex-row items-center rounded-full bg-neutral-800 px-2.5 py-1 dark:bg-neutral-200"
               style={{ top: -8, right: 12 }}>
-              <ThemedText className="text-xs font-semibold text-white dark:text-neutral-900">
+              <ThemedText variant="caption" className="text-white dark:text-neutral-900">
                 {state === 'soon'
                   ? formatHomeSpotlightCountdown(msUntilStart, locale)
                   : formatHomeBookingSlotLabel(booking)}
@@ -156,7 +156,7 @@ export function HomeSpotlightCard({
               className="absolute flex-row items-center gap-1 rounded-full bg-neutral-800 px-2.5 py-1 active:opacity-70 dark:bg-neutral-200"
               style={{ bottom: -10, right: 12 }}>
               <Icon name="Navigation" size={11} color={isDark ? '#171717' : '#ffffff'} />
-              <ThemedText className="text-xs font-semibold text-white dark:text-neutral-900">
+              <ThemedText variant="caption" className="text-white dark:text-neutral-900">
                 {t('branchNavigateSectionTitle')}
               </ThemedText>
             </Pressable>
@@ -178,8 +178,8 @@ export function HomeSpotlightCard({
               className="absolute max-w-[68%] flex-row items-center gap-1 rounded-full bg-neutral-800 px-2.5 py-1 active:opacity-70 dark:bg-neutral-200"
               style={{ bottom: -10, right: 12 }}>
               <Icon name="CalendarPlus" size={11} color={isDark ? '#171717' : '#ffffff'} />
-              <ThemedText
-                className="text-xs font-semibold text-white dark:text-neutral-900"
+              <ThemedText variant="caption"
+                className="text-white dark:text-neutral-900"
                 numberOfLines={1}>
                 {t('bookingAddToCalendar')}
               </ThemedText>

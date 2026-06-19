@@ -144,7 +144,7 @@ const ProductsScreen = () => {
           topLeftBadge={
             catalogOutOfStock ? (
               <View className="rounded-lg bg-red-500 px-2 py-1.5 shadow-sm dark:bg-red-600">
-                <ThemedText className="text-center text-[10px] font-bold leading-tight text-white">
+                <ThemedText variant="h4" className="text-center text-[10px] text-white">
                   {t('productsCatalogOutOfStockBadge')}
                 </ThemedText>
               </View>
@@ -249,7 +249,7 @@ const ProductsScreen = () => {
                     className="flex-shrink-0 rounded-2xl bg-light-secondary p-5 dark:bg-dark-secondary">
                     <View className="flex-row items-start justify-between">
                       <View className="flex-1 pr-2">
-                        <ThemedText className="text-lg font-bold text-light-text dark:text-dark-text">
+                        <ThemedText variant="h4">
                           {t(item.titleKey)}
                         </ThemedText>
                         <ThemedText className="mt-1 text-sm text-light-subtext dark:text-dark-subtext">

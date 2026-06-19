@@ -46,7 +46,7 @@ export default function BranchReviewsSection({
       <Section className="mb-6">
         <View className="mb-3 mt-4 flex-row items-center justify-between">
           <View>
-            <ThemedText className="text-lg font-semibold">{t('profileReviews')}</ThemedText>
+            <ThemedText variant="h4">{t('profileReviews')}</ThemedText>
             <ThemedText className="mt-0.5 text-xs text-light-subtext dark:text-dark-subtext">
               {displayTotal} {t('branchReviews')}
             </ThemedText>
@@ -54,7 +54,7 @@ export default function BranchReviewsSection({
           <Pressable
             onPress={() => router.push(`/screens/review?${reviewParams}`)}
             className="rounded-lg bg-light-secondary px-3 py-2 dark:bg-dark-secondary">
-            <ThemedText className="text-sm font-medium">
+            <ThemedText variant="bodySm">
               {hasReviewed ? t('branchUpdateReview') : t('branchWriteReview')}
             </ThemedText>
           </Pressable>
@@ -84,7 +84,7 @@ export default function BranchReviewsSection({
             })}
           </CardScroller>
         )}
-        <View className="mt-6 flex-row items-center justify-between rounded-lg bg-light-secondary p-4 dark:bg-dark-secondary">
+        <View className="mt-6 flex-row items-center justify-between rounded-lg bg-light-secondary p-card dark:bg-dark-secondary">
           <View className="flex-row items-center">
             <ShowRating rating={average} size="lg" />
             <ThemedText className="ml-2 text-light-subtext dark:text-dark-subtext">
@@ -95,7 +95,7 @@ export default function BranchReviewsSection({
             onPress={onOpenRatingModal}
             style={{ backgroundColor: colors.highlight }}
             className="rounded-lg px-3 py-2">
-            <ThemedText className="text-sm font-medium text-white">
+            <ThemedText variant="bodySm" className="text-white">
               {t('branchFullRating')}
             </ThemedText>
           </Pressable>

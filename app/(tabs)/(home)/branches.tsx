@@ -147,7 +147,7 @@ export default function BranchesScreen() {
           onPress={() => router.push('/screens/map')}
           style={{ ...shadowPresets.large }}
           className="mb-8 flex flex-row items-center rounded-2xl bg-light-primary p-5 dark:bg-dark-secondary">
-          <ThemedText className="flex-1 pr-2 text-base font-medium">
+          <ThemedText variant="body" className="flex-1 pr-2">
             {t('homeContinueSearchBarbershops')}
           </ThemedText>
           <View className="h-20 w-20 items-center justify-center">
@@ -244,7 +244,7 @@ export default function BranchesScreen() {
                       )}
                     </View>
                     <View className="w-full py-2">
-                      <ThemedText className="text-sm font-medium" numberOfLines={1}>
+                      <ThemedText variant="bodySm" numberOfLines={1}>
                         {branch.name}
                       </ThemedText>
                     </View>

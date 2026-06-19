@@ -341,13 +341,13 @@ const PropertyDetail = () => {
           }}>
           {catalog && (!catalog.inStock || catalog.totalStock <= 0) ? (
             <View className="mb-4 items-center justify-center rounded-xl bg-red-500 px-3 py-3 dark:bg-red-600">
-              <ThemedText className="text-sm font-bold tracking-wide text-white">
+              <ThemedText variant="label" className="tracking-wide text-white">
                 {t('productsCatalogOutOfStockBadge')}
               </ThemedText>
             </View>
           ) : null}
           <View>
-            <ThemedText className="text-center text-3xl font-semibold">{title}</ThemedText>
+            <ThemedText variant="h1" className="text-center">{title}</ThemedText>
             {showHeaderReviewRow ? (
               <View className="mt-4 flex-row items-center justify-center">
                 <Pressable
@@ -364,7 +364,7 @@ const PropertyDetail = () => {
                   <Pressable
                     onPress={() => router.push(`/screens/review?${reviewParams}`)}
                     className="ml-4 rounded-lg bg-light-secondary px-3 py-2 dark:bg-dark-secondary">
-                    <ThemedText className="text-sm font-medium">
+                    <ThemedText variant="bodySm">
                       {hasReviewed ? t('reviewUpdate') : t('productRecenzovat')}
                     </ThemedText>
                   </Pressable>
@@ -382,7 +382,7 @@ const PropertyDetail = () => {
                 className="mr-4"
               />
               <View className="ml-0">
-                <ThemedText className="text-base font-semibold">
+                <ThemedText variant="emphasis">
                   {t('productSeller')}: {sellerName}
                 </ThemedText>
                 <View className="flex-row items-center">

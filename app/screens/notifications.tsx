@@ -234,7 +234,7 @@ export const renderNotification = (notification: Notification) => (
         <Icon name={notification.icon} size={20} />
       </View>
     }
-    title={<ThemedText className="font-bold">{notification.title}</ThemedText>}
+    title={<ThemedText variant="h4">{notification.title}</ThemedText>}
     subtitle={notification.message}
     trailing={
       <ThemedText className="text-xs text-light-subtext dark:text-dark-subtext">

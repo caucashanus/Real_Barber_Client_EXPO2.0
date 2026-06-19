@@ -153,19 +153,19 @@ export default function RescheduleSummaryScreen() {
           <Divider className="mt-4 h-2 bg-light-secondary dark:bg-dark-darker" />
 
           <Section title={t('reschedulePickTitle')} titleSize="lg" className="pb-1 pt-3">
-            <ThemedText className="mt-2 text-base font-semibold">{nextDateLabel}</ThemedText>
+            <ThemedText variant="emphasis" className="mt-2">{nextDateLabel}</ThemedText>
             <View className="mt-2 flex-row items-center justify-between rounded-xl bg-light-secondary p-3 dark:bg-dark-secondary">
               <View>
                 <ThemedText className="text-xs text-light-subtext dark:text-dark-subtext">
                   {t('reservationSummaryFrom')}
                 </ThemedText>
-                <ThemedText className="text-base font-semibold">{slotStart}</ThemedText>
+                <ThemedText variant="emphasis">{slotStart}</ThemedText>
               </View>
               <View className="items-end">
                 <ThemedText className="text-xs text-light-subtext dark:text-dark-subtext">
                   {t('reservationSummaryTo')}
                 </ThemedText>
-                <ThemedText className="text-base font-semibold">{slotEnd}</ThemedText>
+                <ThemedText variant="emphasis">{slotEnd}</ThemedText>
               </View>
             </View>
             {nextDuration > 0 ? (
@@ -173,7 +173,7 @@ export default function RescheduleSummaryScreen() {
                 <ThemedText className="text-xs text-light-subtext dark:text-dark-subtext">
                   {t('reservationSummaryEstimatedDuration')}
                 </ThemedText>
-                <ThemedText className="text-sm font-semibold">{nextDuration} min</ThemedText>
+                <ThemedText variant="label">{nextDuration} min</ThemedText>
               </View>
             ) : null}
           </Section>
@@ -199,7 +199,7 @@ export default function RescheduleSummaryScreen() {
               }}
               disabled={saving}
               className="w-full min-w-0 flex-1 rounded-none px-0 py-3.5"
-              textClassName="text-sm font-semibold text-white"
+              textClassName="text-sm font-archivo text-white"
               style={{ backgroundColor: colors.highlight }}
             />
           </View>

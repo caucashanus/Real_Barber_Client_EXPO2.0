@@ -118,8 +118,7 @@ export default function LoginScreen() {
           <View
             key="password-login-badge"
             className="rounded-full border border-black px-3 py-1.5 dark:border-white">
-            <ThemedText
-              className="text-xs font-medium"
+            <ThemedText variant="caption"
               onPress={() => router.push('/screens/login-password')}>
               {t('welcomePasswordLoginBadge')}
             </ThemedText>
@@ -128,7 +127,7 @@ export default function LoginScreen() {
       />
       <AuthScreenLayout bottomImage={require('@/assets/img/loginrb.png')}>
         <View className="mt-8">
-          <ThemedText className="mb-1 text-3xl font-bold">{t('loginWelcomeBack')}</ThemedText>
+          <ThemedText variant="h1" className="mb-1">{t('loginWelcomeBack')}</ThemedText>
           <ThemedText className="mb-6 text-light-subtext dark:text-dark-subtext">
             {t('loginPhoneStepSubtitle')}
           </ThemedText>
@@ -160,7 +159,7 @@ export default function LoginScreen() {
               }}
               loading={isLoading}
               size="large"
-              textClassName="font-bold text-lg"
+              textClassName="font-archivo-bold text-lg"
             />
           </ShimmerButton>
         </View>

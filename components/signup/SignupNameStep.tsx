@@ -22,7 +22,7 @@ export default function SignupNameStep({
 
   return (
     <View className="px-6 pb-8 pt-4">
-      <ThemedText className="mb-1 text-3xl font-bold text-light-text dark:text-dark-text">
+      <ThemedText variant="h1" className="mb-1">
         {t('signupCreateAccount')}
       </ThemedText>
       <ThemedText className="mb-6 text-light-subtext dark:text-dark-subtext">

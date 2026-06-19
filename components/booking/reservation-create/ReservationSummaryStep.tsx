@@ -25,7 +25,7 @@ export default function ReservationSummaryStep({ flow }: ReservationCreateStepPr
           accessibilityIgnoresInvertColors
         />
       </View>
-      <ThemedText className="text-2xl font-bold">{t('reservationSummaryTitle')}</ThemedText>
+      <ThemedText variant="h2">{t('reservationSummaryTitle')}</ThemedText>
       <ThemedText className="mt-1 text-sm text-light-subtext dark:text-dark-subtext">
         {t('reservationSummarySubtitle')}
       </ThemedText>
@@ -44,7 +44,7 @@ export default function ReservationSummaryStep({ flow }: ReservationCreateStepPr
             contentFit="cover"
           />
           <View className="p-3">
-            <ThemedText className="text-base font-semibold">
+            <ThemedText variant="emphasis">
               {flow.branchForServiceStep?.name ?? '—'}
             </ThemedText>
             {flow.branchForServiceStep?.address ? (
@@ -81,7 +81,7 @@ export default function ReservationSummaryStep({ flow }: ReservationCreateStepPr
             </View>
           )}
           <View className="ml-3 min-w-0 flex-1">
-            <ThemedText className="text-base font-semibold" numberOfLines={1}>
+            <ThemedText variant="emphasis" numberOfLines={1}>
               {flow.selectedEmployeeName}
             </ThemedText>
             {flow.selectedServiceName !== '—' ? (
@@ -105,13 +105,13 @@ export default function ReservationSummaryStep({ flow }: ReservationCreateStepPr
       <Divider className="mt-4 h-2 bg-light-secondary dark:bg-dark-darker" />
 
       <Section title={t('reservationSummaryAppointment')} titleSize="lg" className="pb-1 pt-3">
-        <ThemedText className="mt-2 text-base font-semibold">{flow.selectedDateLabel}</ThemedText>
+        <ThemedText variant="emphasis" className="mt-2">{flow.selectedDateLabel}</ThemedText>
         <View className="mt-2 flex-row items-center justify-between rounded-xl bg-light-secondary p-3 dark:bg-dark-secondary">
           <View>
             <ThemedText className="text-xs text-light-subtext dark:text-dark-subtext">
               {t('reservationSummaryFrom')}
             </ThemedText>
-            <ThemedText className="text-base font-semibold">
+            <ThemedText variant="emphasis">
               {flow.data.slotStart || '—'}
             </ThemedText>
           </View>
@@ -119,7 +119,7 @@ export default function ReservationSummaryStep({ flow }: ReservationCreateStepPr
             <ThemedText className="text-xs text-light-subtext dark:text-dark-subtext">
               {t('reservationSummaryTo')}
             </ThemedText>
-            <ThemedText className="text-base font-semibold">{flow.data.slotEnd || '—'}</ThemedText>
+            <ThemedText variant="emphasis">{flow.data.slotEnd || '—'}</ThemedText>
           </View>
         </View>
         {flow.data.duration > 0 ? (
@@ -127,7 +127,7 @@ export default function ReservationSummaryStep({ flow }: ReservationCreateStepPr
             <ThemedText className="text-xs text-light-subtext dark:text-dark-subtext">
               {t('reservationSummaryEstimatedDuration')}
             </ThemedText>
-            <ThemedText className="text-sm font-semibold">{flow.data.duration} min</ThemedText>
+            <ThemedText variant="label">{flow.data.duration} min</ThemedText>
           </View>
         ) : null}
       </Section>
@@ -159,7 +159,7 @@ export default function ReservationSummaryStep({ flow }: ReservationCreateStepPr
         {flow.couponPreview ? (
           <View className="mt-3 rounded-xl bg-light-secondary p-3 dark:bg-dark-secondary">
             {flow.couponPreview.couponName ? (
-              <ThemedText className="mb-2 text-sm font-semibold text-light-text dark:text-dark-text">
+              <ThemedText variant="bodySm" className="mb-2">
                 {flow.couponPreview.couponName}
               </ThemedText>
             ) : null}
@@ -167,7 +167,7 @@ export default function ReservationSummaryStep({ flow }: ReservationCreateStepPr
               <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext">
                 {t('reservationCouponOriginalPrice')}
               </ThemedText>
-              <ThemedText className="text-sm font-medium">
+              <ThemedText variant="bodySm">
                 {flow.formatReservationPrice(flow.couponPreview.originalPrice)}{' '}
                 {t('reservationCurrencySuffix')}
               </ThemedText>
@@ -176,16 +176,16 @@ export default function ReservationSummaryStep({ flow }: ReservationCreateStepPr
               <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext">
                 {t('reservationCouponDiscount')}
               </ThemedText>
-              <ThemedText className="text-sm font-medium text-emerald-600 dark:text-emerald-400">
+              <ThemedText variant="bodySm" className="text-emerald-600 dark:text-emerald-400">
                 −{flow.formatReservationPrice(flow.couponPreview.discountAmount)}{' '}
                 {t('reservationCurrencySuffix')}
               </ThemedText>
             </View>
             <View className="mt-1 flex-row items-center justify-between border-t border-neutral-400/20 pt-2 dark:border-neutral-500/25">
-              <ThemedText className="text-sm font-semibold">
+              <ThemedText variant="bodySm">
                 {t('reservationCouponFinalPrice')}
               </ThemedText>
-              <ThemedText className="text-base font-bold">
+              <ThemedText variant="h4">
                 {flow.formatReservationPrice(flow.couponPreview.finalPrice)}{' '}
                 {t('reservationCurrencySuffix')}
               </ThemedText>

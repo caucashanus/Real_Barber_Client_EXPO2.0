@@ -33,7 +33,7 @@ export const CardScroller = ({
       style={style}>
       <View
         className={`flex w-full flex-row items-center justify-between ${title ? 'mb-2' : 'mb-0'}`}>
-        {title && <ThemedText className="text-base font-bold dark:text-white">{title}</ThemedText>}
+        {title && <ThemedText variant="h4">{title}</ThemedText>}
         {allUrl && (
           <View className="flex flex-col">
             <Link href={allUrl} className="dark:text-white">
