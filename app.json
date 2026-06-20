@@ -48,7 +48,7 @@
       "deploymentTarget": "16.2",
       "appleTeamId": "VK8YT9654D",
       "bundleIdentifier": "com.realbarber.client",
-      "buildNumber": "50",
+      "buildNumber": "52",
       "supportsTablet": false,
       "infoPlist": {
         "ITSAppUsesNonExemptEncryption": false,
@@ -63,7 +63,7 @@
     },
     "android": {
       "package": "com.realbarber.client",
-      "versionCode": 50,
+      "versionCode": 52,
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
