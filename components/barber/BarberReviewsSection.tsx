@@ -54,12 +54,12 @@ export default function BarberReviewsSection({
           />
         </View>
         <View className="mb-3 mt-6 flex-row items-center justify-between">
-          <ThemedText variant="h4">{t('profileReviews')}</ThemedText>
+          <ThemedText className="text-lg font-semibold">{t('profileReviews')}</ThemedText>
           {!hasReviewed ? (
             <Pressable
               onPress={() => router.push(`/screens/review?${reviewParams}` as any)}
               className="rounded-lg bg-light-secondary px-3 py-2 dark:bg-dark-secondary">
-              <ThemedText variant="bodySm">{t('barberWriteReview')}</ThemedText>
+              <ThemedText className="text-sm font-medium">{t('barberWriteReview')}</ThemedText>
             </Pressable>
           ) : null}
         </View>

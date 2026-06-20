@@ -85,7 +85,7 @@ function ChecklistRow({
         <Icon name="Check" size={18} color={iconColor} />
       </View>
       <View className="flex-1">
-        <ThemedText variant="emphasis">{title}</ThemedText>
+        <ThemedText className="text-base font-semibold">{title}</ThemedText>
         {subtitle ? (
           <ThemedText className="mt-1 text-sm text-light-subtext dark:text-dark-subtext">
             {subtitle}
@@ -104,7 +104,7 @@ function InfoRow({ label, value }: { label: string; value: string }) {
           {label}
         </ThemedText>
       </View>
-      <ThemedText variant="label">{value}</ThemedText>
+      <ThemedText className="text-sm font-semibold">{value}</ThemedText>
     </View>
   );
 }
@@ -213,12 +213,12 @@ export default function ReferralInviteDetailScreen() {
 
         {/* Title + status */}
         <View className="px-global pb-4 pt-6">
-          <ThemedText variant="h2" className="mb-2">
+          <ThemedText className="mb-2 text-2xl font-bold">
             {t('referralInviteDetailTitle')}
           </ThemedText>
           <View className="flex-row items-center gap-2">
             <View className={`rounded-full px-2.5 py-1 ${statusPillClass(invite.status)}`}>
-              <ThemedText variant="caption" className={statusTextClass(invite.status)}>
+              <ThemedText className={`text-xs font-semibold ${statusTextClass(invite.status)}`}>
                 {statusLabel(invite.status, t)}
               </ThemedText>
             </View>
@@ -232,7 +232,7 @@ export default function ReferralInviteDetailScreen() {
           <View className="mb-4 mt-4 flex-row items-center gap-3">
             <Avatar src={refereeAvatarUrl} name={refereeName} size="lg" />
             <View className="min-w-0 flex-1">
-              <ThemedText variant="h4">{refereeName}</ThemedText>
+              <ThemedText className="text-lg font-semibold">{refereeName}</ThemedText>
               {invitedOn ? (
                 <ThemedText className="mt-0.5 text-sm text-light-subtext dark:text-dark-subtext">
                   {t('referralInviteInvitedOn')} {invitedOn}

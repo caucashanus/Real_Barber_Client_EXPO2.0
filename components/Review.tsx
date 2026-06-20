@@ -58,7 +58,7 @@ const Review: React.FC<ReviewProps> = ({
       <View className="flex-row">
         {(avatar || username) && <Avatar src={avatar} name={username} size="xs" className="mr-3" />}
         <View className="flex-1">
-          {username && <ThemedText variant="h4" className="mb-1">{username}</ThemedText>}
+          {username && <ThemedText className="mb-1 font-bold">{username}</ThemedText>}
           <View className="mb-2 flex-row items-center justify-between">
             {renderStars()}
             <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext">

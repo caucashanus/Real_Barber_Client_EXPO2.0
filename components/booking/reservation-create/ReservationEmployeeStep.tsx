@@ -5,13 +5,11 @@ import { Pressable, ScrollView, View } from 'react-native';
 import type { ReservationCreateStepProps } from './types';
 
 import Avatar from '@/components/Avatar';
-import ShowRating from '@/components/ShowRating';
 import ThemedText from '@/components/ThemedText';
 import Selectable from '@/components/forms/Selectable';
 import {
   employeeDescription,
   formatEmployeeNearestSlotLabel,
-  getEmployeeAverageRating,
 } from '@/utils/reservationCreateHelpers';
 
 export default function ReservationEmployeeStep({ flow }: ReservationCreateStepProps) {
@@ -29,7 +27,7 @@ export default function ReservationEmployeeStep({ flow }: ReservationCreateStepP
         />
       </View>
       <View className="mb-5">
-        <ThemedText variant="h2">
+        <ThemedText className="text-2xl font-semibold">
           {t('reservationStepEmployeeTitle')}
         </ThemedText>
         <ThemedText className="text-base text-light-subtext dark:text-dark-subtext">
@@ -37,7 +35,6 @@ export default function ReservationEmployeeStep({ flow }: ReservationCreateStepP
         </ThemedText>
       </View>
       {flow.employeesDisplayOrder.map((emp) => {
-        const empRating = getEmployeeAverageRating(emp);
         const itemIdReady = flow.data.itemId.trim() !== '';
         const nearestEntry = itemIdReady ? flow.employeesNearestMap?.get(emp.id) : undefined;
         const empServicePrice =
@@ -103,8 +100,8 @@ export default function ReservationEmployeeStep({ flow }: ReservationCreateStepP
                       <View
                         className="min-w-0 max-w-full shrink rounded-full bg-light-secondary px-2 py-1 dark:bg-dark-secondary"
                         style={{ borderWidth: 1, borderColor: flow.colors.highlight }}>
-                        <ThemedText variant="body"
-                          className="text-[11px]"
+                        <ThemedText
+                          className="text-[11px] font-medium leading-snug text-light-text dark:text-dark-text"
                           numberOfLines={2}>
                           {nearestPillText}
                         </ThemedText>
@@ -131,16 +128,6 @@ export default function ReservationEmployeeStep({ flow }: ReservationCreateStepP
                 onPress={() => flow.selectEmployee(emp.id)}
               />
             </View>
-            {empRating != null ? (
-              <View className="ml-16 mt-1 flex-row items-center gap-2">
-                <ShowRating rating={empRating} size="sm" displayMode="stars" />
-                <View className="rounded-full bg-light-secondary px-2 py-1 dark:bg-dark-secondary">
-                  <ThemedText className="text-xs text-light-subtext dark:text-dark-subtext">
-                    {empRating.toFixed(1)}
-                  </ThemedText>
-                </View>
-              </View>
-            ) : null}
           </View>
         );
       })}

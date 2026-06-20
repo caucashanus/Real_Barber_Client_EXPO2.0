@@ -40,7 +40,7 @@ export default function HaircutCreateStartScreen() {
       <Header showBackButton />
       <View className=" flex h-full  flex-1 justify-start bg-light-primary px-6 dark:bg-dark-primary">
         <View className="mt-4 pb-6">
-          <ThemedText variant="display" className="mb-8">
+          <ThemedText className="mb-8 text-4xl font-semibold">
             {t('haircutCreateEasyTitle')}
           </ThemedText>
         </View>
@@ -92,9 +92,9 @@ const IntroStep = (props: {
 }) => {
   return (
     <View className="flex-row items-start py-4">
-      <ThemedText variant="h4" className="mr-4">{props.number}</ThemedText>
+      <ThemedText className="mr-4 text-lg font-semibold">{props.number}</ThemedText>
       <View className="mr-6 flex-1">
-        <ThemedText variant="h4">{props.title}</ThemedText>
+        <ThemedText className="text-lg font-semibold">{props.title}</ThemedText>
         <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext">
           {props.description}
         </ThemedText>

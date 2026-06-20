@@ -52,7 +52,7 @@ export default function ReferralAttributionDetailScreen() {
   return (
     <View className="flex-1 bg-light-primary dark:bg-dark-primary">
       <Header title={t('referralAttributionTitle')} showBackButton />
-      <ThemedScroller className="flex-1">
+      <ThemedScroller className="flex-1 p-global">
         {loading ? (
           <View className="items-center py-8">
             <ActivityIndicator size="small" />
@@ -80,13 +80,13 @@ export default function ReferralAttributionDetailScreen() {
                 <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext">
                   {t('referralAttributionPhone')}
                 </ThemedText>
-                <ThemedText variant="label">{item.phone}</ThemedText>
+                <ThemedText className="text-sm font-semibold">{item.phone}</ThemedText>
               </View>
               <View className="mt-3 flex-row justify-between">
                 <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext">
                   {t('referralAttributionStatus')}
                 </ThemedText>
-                <ThemedText variant="label">{item.status}</ThemedText>
+                <ThemedText className="text-sm font-semibold">{item.status}</ThemedText>
               </View>
             </View>
 
@@ -94,7 +94,7 @@ export default function ReferralAttributionDetailScreen() {
 
             <Section title={t('referralAttributionTimeline')} titleSize="lg" />
             <View className="rounded-2xl bg-light-secondary p-5 dark:bg-dark-secondary">
-              <ThemedText variant="bodySm">
+              <ThemedText className="text-sm font-semibold">
                 {t('referralStepPhoneEntered')}
               </ThemedText>
               <ThemedText className="mt-1 text-xs text-light-subtext dark:text-dark-subtext">

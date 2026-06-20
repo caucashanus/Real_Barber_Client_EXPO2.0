@@ -369,7 +369,7 @@ export default function HaircutDetailScreen() {
                 ) : null}
               </>
             ) : (
-              <ThemedText variant="h2">
+              <ThemedText className="text-2xl font-bold">
                 {cut.hairstyle || t('haircutTitle')}
               </ThemedText>
             )}
@@ -395,7 +395,7 @@ export default function HaircutDetailScreen() {
                       name={barberName !== '—' ? barberName : undefined}
                     />
                     <View className="ml-3 flex-1">
-                      <ThemedText variant="h4">{barberName}</ThemedText>
+                      <ThemedText className="text-lg font-semibold">{barberName}</ThemedText>
                       <View className="mt-px flex-row items-center">
                         <ShowRating rating={5} size="sm" />
                         <ThemedText className="ml-2 text-sm text-light-subtext dark:text-dark-subtext">
@@ -437,18 +437,18 @@ export default function HaircutDetailScreen() {
             titleSize="lg"
             className="px-global pt-4">
             <View className="mt-4">
-              <View className="flex-row items-center justify-between rounded-xl bg-light-secondary p-card dark:bg-dark-secondary">
+              <View className="flex-row items-center justify-between rounded-xl bg-light-secondary p-4 dark:bg-dark-secondary">
                 <View>
                   <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext">
                     {t('haircutDetailCreatedDateLabel')}
                   </ThemedText>
-                  <ThemedText variant="h4">{createdParts.date}</ThemedText>
+                  <ThemedText className="text-lg font-semibold">{createdParts.date}</ThemedText>
                 </View>
                 <View className="items-end">
                   <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext">
                     {t('haircutDetailCreatedTimeLabel')}
                   </ThemedText>
-                  <ThemedText variant="h4">{createdParts.time}</ThemedText>
+                  <ThemedText className="text-lg font-semibold">{createdParts.time}</ThemedText>
                 </View>
               </View>
             </View>

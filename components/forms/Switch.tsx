@@ -71,7 +71,7 @@ const Switch: React.FC<SwitchProps> = ({
       )}
 
       <View className="flex-1">
-        {label && <ThemedText variant="body">{label}</ThemedText>}
+        {label && <ThemedText className="text-base font-medium">{label}</ThemedText>}
         {description && (
           <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext">
             {description}

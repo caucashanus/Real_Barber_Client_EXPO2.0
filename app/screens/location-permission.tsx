@@ -25,7 +25,7 @@ export default function LocationPermissionScreen() {
     <View className="flex-1 bg-light-primary p-6 dark:bg-dark-primary">
       <View className="flex-1 items-center justify-center">
         <Icon name="MapPinned" size={80} strokeWidth={0.7} />
-        <ThemedText variant="h1" className="mb-4 mt-8 text-center">
+        <ThemedText className="mb-4 mt-8 text-center text-3xl font-bold">
           {t('permissionAllowLocation')}
         </ThemedText>
         <ThemedText className="mb-12 text-center text-light-subtext dark:text-dark-subtext">

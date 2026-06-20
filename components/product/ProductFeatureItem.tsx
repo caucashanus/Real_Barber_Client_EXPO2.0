@@ -16,7 +16,7 @@ export function ProductFeatureItem({ icon, label, value }: ProductFeatureItemPro
     <View className="flex-row items-center py-4">
       <Icon name={icon} size={24} strokeWidth={1.5} className="mr-3" />
       <ThemedText className="flex-1">{label}</ThemedText>
-      <ThemedText variant="body">{value}</ThemedText>
+      <ThemedText className="font-medium">{value}</ThemedText>
     </View>
   );
 }

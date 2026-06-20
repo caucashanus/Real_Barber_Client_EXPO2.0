@@ -165,7 +165,7 @@ export default function ChatListScreen() {
         <View className="ml-5 flex-1">
           {/* Name and Time */}
           <View className="mb-1 flex-row items-center justify-between">
-            <ThemedText variant="body" numberOfLines={1}>
+            <ThemedText className="text-base font-medium" numberOfLines={1}>
               {item.name}
             </ThemedText>
             <View className="flex-row items-center">
@@ -184,7 +184,7 @@ export default function ChatListScreen() {
           {/* Message */}
           <ThemedText
             numberOfLines={1}
-            className={`mb-1 text-sm ${item.unread ? 'font-archivo text-black dark:text-white' : 'text-light-subtext dark:text-dark-subtext'}`}>
+            className={`mb-1 text-sm ${item.unread ? 'font-medium text-black dark:text-white' : 'text-light-subtext dark:text-dark-subtext'}`}>
             {item.lastMessage}
           </ThemedText>
 

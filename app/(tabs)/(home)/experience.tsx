@@ -10,6 +10,7 @@ import { getFavorites } from '@/api/favorites';
 import { getClientReviewsList, type ClientReviewListItem } from '@/api/reviews';
 import { useAuth } from '@/app/contexts/AuthContext';
 import { useTranslation } from '@/app/hooks/useTranslation';
+import { CLIENT_APP_V1_ENABLED } from '@/constants/clientAppApi';
 import ActionSheetThemed from '@/components/ActionSheetThemed';
 import AnimatedView from '@/components/AnimatedView';
 import { Button } from '@/components/Button';
@@ -46,6 +47,7 @@ function isEmployeeNew(emp: Employee): boolean {
 }
 
 function hasShiftToday(emp: Employee): boolean {
+  if (typeof emp.hasShiftToday === 'boolean') return emp.hasShiftToday;
   const ws = emp.workSchedule as
     | { weeklySchedule?: Record<string, { validFrom?: string; validUntil?: string }[]> }
     | undefined;
@@ -97,8 +99,10 @@ const ExperienceScreen = () => {
     setEmployeesLoading(true);
     setEmployeesError(null);
     Promise.all([
-      getEmployees(apiToken, { includeReviews: true, reviewsLimit: 1 }),
-      getClientReviewsList(apiToken, { entityType: 'employee', limit: 500 }),
+      getEmployees(apiToken, CLIENT_APP_V1_ENABLED ? {} : { includeReviews: true, reviewsLimit: 1 }),
+      CLIENT_APP_V1_ENABLED
+        ? Promise.resolve({ reviews: [] as ClientReviewListItem[] })
+        : getClientReviewsList(apiToken, { entityType: 'employee', limit: 500 }),
     ])
       .then(([empList, reviewsData]) => {
         setEmployees(Array.isArray(empList) ? empList : Object.values(empList));
@@ -140,6 +144,18 @@ const ExperienceScreen = () => {
   );
 
   const { bestRatedBarbers, employeeAverageRating } = useMemo(() => {
+    if (CLIENT_APP_V1_ENABLED) {
+      const withRating = employees.filter(
+        (emp) => typeof emp.averageRating === 'number' && (emp.reviewCount ?? 0) > 0
+      );
+      withRating.sort((a, b) => (b.averageRating ?? 0) - (a.averageRating ?? 0));
+      const ratingMap: Record<string, number> = {};
+      for (const emp of employees) {
+        if (typeof emp.averageRating === 'number') ratingMap[emp.id] = emp.averageRating;
+      }
+      return { bestRatedBarbers: withRating, employeeAverageRating: ratingMap };
+    }
+
     const byId: Record<string, { sum: number; count: number }> = {};
     for (const r of employeeReviewsList) {
       const id = r.entityId;
@@ -578,7 +594,7 @@ const ExperienceScreen = () => {
 
       <ActionSheetThemed ref={newBarbersInfoSheetRef} gestureEnabled>
         <View className="p-4 pb-8">
-          <ThemedText variant="h4" className="mb-3">
+          <ThemedText className="mb-3 text-lg font-semibold">
             {t('experienceNewBarbers')}
           </ThemedText>
           <ThemedText className="text-base leading-6 text-light-subtext dark:text-dark-subtext">

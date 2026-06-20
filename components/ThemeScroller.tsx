@@ -39,7 +39,6 @@ const ThemedScroller = React.forwardRef<ScrollView, ThemeScrollerProps>(function
       style={{ width: '100%' }}
       //bounces={false}
       overScrollMode="never"
-      // Screen gutter: px-global (24px) lives here only — do not add px-global/p-global on direct children.
       className={`flex-1 bg-light-primary px-global dark:bg-dark-primary ${className || ''}`}
       onScroll={onScroll}
       scrollEventThrottle={scrollEventThrottle}

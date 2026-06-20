@@ -13,7 +13,7 @@ export default function AmenitiesStep({ data, updateData }: HaircutStepProps) {
   return (
     <ScrollView className="p-4 px-8">
       <View className="mb-10">
-        <ThemedText variant="h1" className="mt-auto">
+        <ThemedText className="mt-auto text-3xl font-semibold">
           {t('haircutCreateWhatGoesWith')}
         </ThemedText>
         <ThemedText className="text-base text-light-subtext dark:text-dark-subtext">

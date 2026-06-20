@@ -215,7 +215,7 @@ export default function EditProfileScreen() {
             )}
 
             <View className="mb-8">
-              <ThemedText variant="h4" className="mb-4">
+              <ThemedText className="mb-4 text-lg font-bold text-light-primary dark:text-dark-primary">
                 {t('editProfilePhoto')}
               </ThemedText>
               <View className="flex-row items-center gap-4">
@@ -273,7 +273,7 @@ export default function EditProfileScreen() {
             </ActionSheetThemed>
 
             <View className="mb-8">
-              <ThemedText variant="h4" className="mb-4">
+              <ThemedText className="mb-4 text-lg font-bold text-light-primary dark:text-dark-primary">
                 {t('editProfilePersonalInfo')}
               </ThemedText>
               <View className="gap-3">
@@ -312,7 +312,7 @@ export default function EditProfileScreen() {
             </View>
 
             <View className="mb-8">
-              <ThemedText variant="h4" className="mb-4">
+              <ThemedText className="mb-4 text-lg font-bold text-light-primary dark:text-dark-primary">
                 {t('editProfileContact')}
               </ThemedText>
               <View className="gap-3">
@@ -326,7 +326,7 @@ export default function EditProfileScreen() {
                 />
                 <View>
                   <View className="mb-2 flex-row items-center justify-between">
-                    <ThemedText variant="body">
+                    <ThemedText className="text-base font-medium text-light-primary dark:text-dark-primary">
                       {t('editProfilePhone')}
                     </ThemedText>
                     <Pressable
@@ -352,7 +352,7 @@ export default function EditProfileScreen() {
             </View>
 
             <View className="mb-8">
-              <ThemedText variant="h4" className="mb-4">
+              <ThemedText className="mb-4 text-lg font-bold text-light-primary dark:text-dark-primary">
                 {t('editProfileAddress')}
               </ThemedText>
               <View className="gap-3">
@@ -392,14 +392,14 @@ export default function EditProfileScreen() {
 
       <ActionSheetThemed ref={phoneInfoSheetRef} gestureEnabled>
         <View className="p-4 pb-6">
-          <ThemedText variant="h4" className="mb-3">
+          <ThemedText className="mb-3 text-lg font-semibold text-light-text dark:text-dark-text">
             {t('editProfilePhoneNumber')}
           </ThemedText>
           <ThemedText className="mb-6 text-base leading-6 text-light-subtext dark:text-dark-subtext">
             {t('editProfilePhoneInfoBeforeCall')}{' '}
-            <ThemedText variant="emphasis"
+            <ThemedText
               style={{ color: colors.highlight }}
-              className="underline"
+              className="text-base font-semibold underline"
               onPress={() => Linking.openURL('sms:+420608332881')}>
               +420 608 332 881
             </ThemedText>{' '}

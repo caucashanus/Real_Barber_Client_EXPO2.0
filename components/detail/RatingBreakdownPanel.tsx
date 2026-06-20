@@ -44,7 +44,7 @@ export default function RatingBreakdownPanel({
   }
 
   return (
-    <View className="rounded-lg bg-light-secondary p-card dark:bg-dark-secondary">
+    <View className="rounded-lg bg-light-secondary p-4 dark:bg-dark-secondary">
       {showHeader ? (
         <View className="mb-4 flex-row items-center">
           <ShowRating rating={average} size="lg" />

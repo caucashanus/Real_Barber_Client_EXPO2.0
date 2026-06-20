@@ -113,8 +113,8 @@ const NotificationsScreen = () => {
         />
 
         {isSignedIn ? (
-          <View className="border-light-border dark:border-dark-border mb-8 rounded-2xl border bg-light-secondary/30 p-card dark:bg-dark-secondary/30">
-            <ThemedText variant="h4" className="mb-2">
+          <View className="border-light-border dark:border-dark-border mb-8 rounded-2xl border bg-light-secondary/30 p-4 dark:bg-dark-secondary/30">
+            <ThemedText className="mb-2 text-lg font-bold text-light-primary dark:text-dark-primary">
               {t('notifTestLocalSectionTitle')}
             </ThemedText>
             <ThemedText className="mb-4 text-sm text-light-subtext dark:text-dark-subtext">
@@ -130,7 +130,7 @@ const NotificationsScreen = () => {
         ) : null}
 
         <View className="mb-8">
-          <ThemedText variant="h4" className="mb-4">
+          <ThemedText className="mb-4 text-lg font-bold">
             {t('notifSettingsBookingTravel')}
           </ThemedText>
 
@@ -181,7 +181,7 @@ const NotificationsScreen = () => {
         </View>
 
         <View className="mt-8">
-          <ThemedText variant="h4" className="mb-4">
+          <ThemedText className="mb-4 text-lg font-bold">
             {t('notifSettingsPromotionsMarketing')}
           </ThemedText>
 

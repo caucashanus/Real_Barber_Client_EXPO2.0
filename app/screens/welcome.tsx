@@ -30,7 +30,7 @@ export default function OnboardingScreen() {
             onPress={toggleLocale}
             className="flex-row items-center gap-1.5 rounded-full border border-neutral-300 px-3 py-1.5 dark:border-neutral-600">
             <Text style={{ fontSize: 14 }}>{switchFlag}</Text>
-            <Text className="text-xs font-archivo text-neutral-800 dark:text-neutral-200">
+            <Text className="text-xs font-medium text-neutral-800 dark:text-neutral-200">
               {isEnglish ? 'CZ' : 'EN'}
             </Text>
           </Pressable>
@@ -39,7 +39,7 @@ export default function OnboardingScreen() {
 
         <View className="flex w-full flex-1 flex-col items-start justify-end gap-2 px-global pb-4">
           <View className="mb-8">
-            <ThemedText variant="display">{t('loginWelcomeBack')}</ThemedText>
+            <ThemedText className="text-4xl font-bold">{t('loginWelcomeBack')}</ThemedText>
             <ThemedText className="text-base text-light-subtext dark:text-dark-subtext">
               {t('welcomeSubtitle')}
             </ThemedText>
@@ -47,7 +47,7 @@ export default function OnboardingScreen() {
           <Pressable
             onPress={() => router.push('/screens/login')}
             className="flex w-full flex-row items-center justify-center rounded-2xl border border-black py-4 dark:border-white">
-            <ThemedText variant="body">{t('welcomeStart')}</ThemedText>
+            <ThemedText className="text-base font-medium">{t('welcomeStart')}</ThemedText>
           </Pressable>
           <Image
             source={require('@/assets/img/welcomerb.png')}

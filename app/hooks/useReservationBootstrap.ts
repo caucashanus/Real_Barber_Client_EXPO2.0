@@ -54,9 +54,7 @@ export function useReservationBootstrap({
     setLoadingBranches(true);
     Promise.all([
       getBranches(apiToken),
-      getEmployees(apiToken, { includeReviews: true, reviewsLimit: 99 }).catch(
-        () => [] as Employee[]
-      ),
+      getEmployees(apiToken).catch(() => [] as Employee[]),
     ])
       .then(([list, employees]) => {
         setBranches(list);

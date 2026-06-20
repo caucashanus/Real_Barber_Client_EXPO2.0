@@ -40,7 +40,7 @@ function GuideCard({ guide }: { guide: ClientGuide }) {
       style={{ ...shadowPresets.large }}
       className="mb-8 flex flex-row items-center rounded-2xl bg-light-primary p-5 dark:bg-dark-secondary">
       <View className="flex-1 pr-3">
-        <ThemedText variant="body" numberOfLines={2}>
+        <ThemedText className="text-base font-medium" numberOfLines={2}>
           {guide.title}
         </ThemedText>
         <ThemedText className="mt-1 text-sm text-light-subtext dark:text-dark-subtext">

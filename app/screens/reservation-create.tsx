@@ -1,6 +1,6 @@
 import { router } from 'expo-router';
 import React from 'react';
-import { ActivityIndicator, View } from 'react-native';
+import { View } from 'react-native';
 
 import { useReservationCreateFlow } from '@/app/hooks/useReservationCreateFlow';
 import Header from '@/components/Header';
@@ -20,12 +20,6 @@ export default function ReservationCreateScreen() {
     return (
       <View className="flex-1 bg-light-primary dark:bg-dark-primary">
         <Header showBackButton />
-        <View className="flex-1 items-center justify-center">
-          <ActivityIndicator size="small" />
-          <ThemedText className="mt-3 text-sm text-light-subtext dark:text-dark-subtext">
-            {flow.t('commonLoading')}
-          </ThemedText>
-        </View>
       </View>
     );
   }

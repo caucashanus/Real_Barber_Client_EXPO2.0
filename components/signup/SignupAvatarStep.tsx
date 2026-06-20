@@ -20,7 +20,7 @@ export default function SignupAvatarStep({
 
   return (
     <View className="px-6 pb-8 pt-4">
-      <ThemedText variant="h2">
+      <ThemedText className="text-2xl font-semibold text-light-text dark:text-dark-text">
         {t('signupStepAvatarTitle')}
       </ThemedText>
       <ThemedText className="mb-6 mt-1 text-base text-light-subtext dark:text-dark-subtext">

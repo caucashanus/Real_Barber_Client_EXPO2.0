@@ -23,7 +23,7 @@ export default function ReservationServiceStep({ flow }: ReservationCreateStepPr
         />
       </View>
       <View className="mb-5">
-        <ThemedText variant="h2">
+        <ThemedText className="text-2xl font-semibold">
           {t('reservationStepServiceTitle')}
         </ThemedText>
         <ThemedText className="text-base text-light-subtext dark:text-dark-subtext">
@@ -79,7 +79,7 @@ export default function ReservationServiceStep({ flow }: ReservationCreateStepPr
                         </View>
                       </View>
                       <View className="w-full py-2">
-                        <ThemedText variant="bodySm" className="min-w-0" numberOfLines={2}>
+                        <ThemedText className="min-w-0 text-sm font-medium" numberOfLines={2}>
                           {service.name}
                         </ThemedText>
                       </View>

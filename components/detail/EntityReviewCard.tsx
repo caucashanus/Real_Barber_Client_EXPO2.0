@@ -39,7 +39,7 @@ export default function EntityReviewCard({
       : reviewParams;
 
   return (
-    <View className="w-[280px] rounded-lg bg-light-secondary p-card dark:bg-dark-secondary">
+    <View className="w-[280px] rounded-lg bg-light-secondary p-4 dark:bg-dark-secondary">
       <View className="mb-2 flex-row items-center justify-between">
         <View className="min-w-0 flex-1 flex-row items-center">
           {review.isAnonymous ? (
@@ -57,7 +57,7 @@ export default function EntityReviewCard({
             <Avatar size="sm" name={review.client?.name ?? '?'} className="mr-2" />
           )}
           <View className="min-w-0">
-            <ThemedText variant="body" numberOfLines={1}>
+            <ThemedText className="font-medium" numberOfLines={1}>
               {review.isAnonymous ? 'Anonymous' : (review.client?.name ?? 'Anonymous')}
             </ThemedText>
             <ThemedText className="text-xs text-light-subtext dark:text-dark-subtext">
@@ -69,12 +69,12 @@ export default function EntityReviewCard({
           <Pressable
             onPress={() => router.push(`/screens/review?${editParams}` as any)}
             className="ml-2 rounded-md bg-light-primary px-2 py-1 dark:bg-dark-primary">
-            <ThemedText variant="caption">{t(editLabelKey)}</ThemedText>
+            <ThemedText className="text-xs font-medium">{t(editLabelKey)}</ThemedText>
           </Pressable>
         ) : null}
         {isOwnReview && ownReviewMode === 'badge' ? (
           <View style={{ backgroundColor: colors.highlight }} className="ml-2 rounded-md px-2 py-1">
-            <ThemedText variant="caption" className="text-white">{t(badgeLabelKey)}</ThemedText>
+            <ThemedText className="text-xs font-medium text-white">{t(badgeLabelKey)}</ThemedText>
           </View>
         ) : null}
       </View>

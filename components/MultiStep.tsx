@@ -404,7 +404,7 @@ const MultiStep = forwardRef<MultiStepHandle, MultiStepProps>(function MultiStep
             }}
             impactFeedbackStyle={Haptics.ImpactFeedbackStyle.Heavy}
             className="w-full"
-            textClassName="text-white font-archivo"
+            textClassName="text-white font-semibold"
             loading={footerLoading}
             style={{
               backgroundColor: nextDisabled || footerLoading ? colors.secondary : colors.highlight,

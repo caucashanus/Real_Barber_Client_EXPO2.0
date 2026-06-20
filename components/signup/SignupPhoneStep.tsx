@@ -28,13 +28,13 @@ export default function SignupPhoneStep({
 
   return (
     <View className="px-6 pb-8 pt-4">
-      <ThemedText variant="h2">
+      <ThemedText className="text-2xl font-semibold text-light-text dark:text-dark-text">
         {t('signupStepPhoneTitle')}
       </ThemedText>
       <ThemedText className="mb-6 mt-1 text-base text-light-subtext dark:text-dark-subtext">
         {t('signupStepPhoneSubtitle')}
       </ThemedText>
-      <ThemedText variant="body" className="mb-1">
+      <ThemedText className="mb-1 font-medium text-light-text dark:text-dark-text">
         {t('signupPhoneLabel')}
       </ThemedText>
       <View className="mb-4 flex-row items-stretch gap-2">

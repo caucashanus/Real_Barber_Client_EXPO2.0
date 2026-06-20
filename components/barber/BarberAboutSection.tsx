@@ -22,7 +22,7 @@ export default function BarberAboutSection({
     <View className="mb-8 mt-8 border-y border-neutral-200 py-global dark:border-dark-secondary">
       <View className="mb-3 flex-row items-center">
         <Avatar size="md" src={avatarUrl ?? undefined} name={name} className="mr-4" />
-        <ThemedText variant="emphasis">{t('barberAboutMe')}</ThemedText>
+        <ThemedText className="text-base font-semibold">{t('barberAboutMe')}</ThemedText>
       </View>
       {description ? (
         <ThemedText

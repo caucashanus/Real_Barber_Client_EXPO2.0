@@ -9,6 +9,7 @@ import {
 } from '@/api/employees';
 import { getEntityReviews, type EntityReviewItem } from '@/api/reviews';
 import { useAuth } from '@/app/contexts/AuthContext';
+import { CLIENT_APP_V1_ENABLED } from '@/constants/clientAppApi';
 import { buildOwnReviewIds, computeReviewStats } from '@/utils/barberDetailHelpers';
 import { getMockReviews } from '@/utils/mockReviews';
 
@@ -35,17 +36,22 @@ export function useBarberDetailScreen(id: string) {
     setLoading(true);
     setError(null);
     setDescription(null);
-    Promise.all([
-      getEmployeeById(apiToken, id),
-      getEmployees(apiToken, { includeReviews: true, reviewsLimit: 1 }).catch(
-        () => [] as EmployeeDetail[]
-      ),
-    ])
+    const listPromise = CLIENT_APP_V1_ENABLED
+      ? Promise.resolve([] as EmployeeDetail[])
+      : getEmployees(apiToken, { includeReviews: true, reviewsLimit: 1 }).catch(
+          () => [] as EmployeeDetail[]
+        );
+
+    Promise.all([getEmployeeById(apiToken, id), listPromise])
       .then(([detail, list]) => {
         setEmployee(detail);
         const arr = (Array.isArray(list) ? list : Object.values(list)) as EmployeeDetail[];
         const fromList = arr.find((e) => e.id === id);
-        if (fromList?.description) setDescription(fromList.description);
+        const text =
+          (typeof detail.description === 'string' && detail.description.trim()) ||
+          (typeof fromList?.description === 'string' && fromList.description.trim()) ||
+          '';
+        setDescription(text || null);
       })
       .catch((e) => setError(e instanceof Error ? e.message : 'Failed to load'))
       .finally(() => setLoading(false));

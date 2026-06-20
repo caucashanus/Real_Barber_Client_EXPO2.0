@@ -160,7 +160,7 @@ const MyHaircutsScreen = () => {
                 />
               </View>
             </View>
-            <ThemedText variant="h2" className="mt-4">{t('myHaircutsCreate')}</ThemedText>
+            <ThemedText className="mt-4 text-2xl font-semibold">{t('myHaircutsCreate')}</ThemedText>
             <ThemedText className="px-4 text-center text-sm font-light leading-6">
               {t('myHaircutsCreateDesc')}
             </ThemedText>
@@ -183,7 +183,7 @@ const MyHaircutsScreen = () => {
             className="min-w-0 flex-1 shrink py-1"
             accessibilityRole="link"
             accessibilityLabel={t('myHaircutsWhatsFor')}>
-            <ThemedText variant="body" style={{ color: colors.highlight }}>
+            <ThemedText style={{ color: colors.highlight }} className="text-base font-medium">
               {t('myHaircutsWhatsFor')}
             </ThemedText>
           </Pressable>

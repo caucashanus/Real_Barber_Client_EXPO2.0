@@ -9,8 +9,8 @@ import { ActivityIndicator, Pressable, RefreshControl, ScrollView, View } from '
 import { getBookings, type Booking } from '@/api/bookings';
 import { getClientCoupons, type ClientCoupon } from '@/api/client-coupons';
 import { getClientPosters, type ClientPoster } from '@/api/client-posters';
+import { useAccentColor } from '@/app/contexts/AccentColorContext';
 import { useAuth } from '@/app/contexts/AuthContext';
-import useThemeColors from '@/app/contexts/ThemeColors';
 import { useTranslation } from '@/app/hooks/useTranslation';
 import Avatar from '@/components/Avatar';
 import { ClientCouponValidityPills } from '@/components/ClientCouponValidityPills';
@@ -85,7 +85,7 @@ function openPosterTarget(poster: ClientPoster): void {
 
 export default function RealBarberHomeTab() {
   const { apiToken, client } = useAuth();
-  const colors = useThemeColors();
+  const { accentColor } = useAccentColor();
   const { t, locale } = useTranslation();
   const actions = useMemo(
     () => [
@@ -229,23 +229,23 @@ export default function RealBarberHomeTab() {
       <ThemeScroller
         className="flex-1"
         refreshControl={
-          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={colors.highlight} />
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={accentColor} />
         }>
         <NotificationPromptSheet />
-        <View className="mt-4">
+        <View className="mt-4 px-global">
           {recentLoading ? null : spotlight ? (
-            <View className="mt-4">
+            <View className="-mx-global mt-4">
               <HomeSpotlightCard spotlight={spotlight} t={t} locale={locale} />
             </View>
           ) : null}
 
-          <View className="mt-6 flex-row flex-wrap justify-between">
+          <View className="-mx-global mt-6 flex-row flex-wrap justify-between px-0">
             {actions.map((a) => (
               <Pressable
                 key={a.id}
                 onPress={a.onPress}
                 className="mb-2 w-[48.7%] rounded-2xl bg-light-secondary dark:bg-dark-secondary">
-                <View className="items-center p-card">
+                <View className="items-center p-4">
                   {a.id === 'create' && (
                     <Image
                       source={require('@/assets/img/plus-ikon.png')}
@@ -278,7 +278,7 @@ export default function RealBarberHomeTab() {
                       className="mb-2"
                     />
                   )}
-                  <ThemedText variant="emphasis">{a.title}</ThemedText>
+                  <ThemedText className="text-base font-semibold">{a.title}</ThemedText>
                   <ThemedText className="mt-0.5 text-xs text-light-subtext dark:text-dark-subtext">
                     {a.subtitle}
                   </ThemedText>
@@ -288,10 +288,10 @@ export default function RealBarberHomeTab() {
           </View>
 
           {apiToken && (recentLoading || homePromoFeed.length > 0) ? (
-            <View className="mt-6">
+            <View className="-mx-global mt-6">
               <Section title={t('homePromoSectionTitle')} titleSize="md" />
               {recentLoading ? (
-                <View className="h-[200px] items-center justify-center rounded-2xl bg-light-secondary py-12 dark:bg-dark-secondary">
+                <View className="mx-4 h-[200px] items-center justify-center rounded-2xl bg-light-secondary py-12 dark:bg-dark-secondary">
                   <ActivityIndicator size="small" />
                   <ThemedText className="mt-2 text-sm text-light-subtext dark:text-dark-subtext">
                     {t('commonLoading')}
@@ -301,8 +301,10 @@ export default function RealBarberHomeTab() {
                 <ScrollView
                   horizontal
                   showsHorizontalScrollIndicator={false}
-                  className="-mx-global px-global"
+                  className="-mx-global"
                   contentContainerStyle={{
+                    paddingHorizontal: 16,
+                    paddingRight: 24,
                     paddingTop: 8,
                     paddingBottom: 4,
                   }}>
@@ -318,8 +320,8 @@ export default function RealBarberHomeTab() {
                       const hasValidity = validityA11y != null;
                       const hasImage = Boolean(coupon.imageUrl?.trim());
                       const titleCls = hasImage
-                        ? 'text-base font-archivo-bold leading-tight text-white'
-                        : 'text-base font-archivo-bold leading-tight text-light-text dark:text-dark-text';
+                        ? 'text-base font-bold leading-tight text-white'
+                        : 'text-base font-bold leading-tight text-light-text dark:text-dark-text';
 
                       return (
                         <Pressable
@@ -357,8 +359,8 @@ export default function RealBarberHomeTab() {
                             <ThemedText
                               className={
                                 hasImage
-                                  ? 'text-[10px] font-archivo uppercase tracking-wide text-white'
-                                  : 'text-[10px] font-archivo uppercase tracking-wide text-light-subtext dark:text-dark-subtext'
+                                  ? 'text-[10px] font-semibold uppercase tracking-wide text-white'
+                                  : 'text-[10px] font-semibold uppercase tracking-wide text-light-subtext dark:text-dark-subtext'
                               }>
                               {t('homePromoBadgeCoupon')}
                             </ThemedText>
@@ -429,8 +431,8 @@ export default function RealBarberHomeTab() {
                                 <ThemedText
                                   className={
                                     hasImage
-                                      ? 'text-[10px] font-archivo leading-tight text-emerald-300'
-                                      : 'text-[10px] font-archivo leading-tight text-emerald-600 dark:text-emerald-400'
+                                      ? 'text-[10px] font-semibold leading-tight text-emerald-300'
+                                      : 'text-[10px] font-semibold leading-tight text-emerald-600 dark:text-emerald-400'
                                   }
                                   numberOfLines={1}>
                                   {coupon.benefitLabel}
@@ -448,8 +450,8 @@ export default function RealBarberHomeTab() {
                     const hasVideoOnly = !hasImage && Boolean(poster.videoUrl?.trim());
                     const hasMediaHero = hasImage || hasVideoOnly;
                     const titleCls = hasMediaHero
-                      ? 'text-base font-archivo-bold leading-tight text-white'
-                      : 'text-base font-archivo-bold leading-tight text-light-text dark:text-dark-text';
+                      ? 'text-base font-bold leading-tight text-white'
+                      : 'text-base font-bold leading-tight text-light-text dark:text-dark-text';
 
                     return (
                       <Pressable
@@ -535,8 +537,8 @@ export default function RealBarberHomeTab() {
                               <ThemedText
                                 className={
                                   hasMediaHero
-                                    ? 'mt-1 text-sm font-archivo leading-tight text-white'
-                                    : 'mt-1 text-sm font-archivo leading-tight text-light-text dark:text-dark-text'
+                                    ? 'mt-1 text-sm font-semibold leading-tight text-white'
+                                    : 'mt-1 text-sm font-semibold leading-tight text-light-text dark:text-dark-text'
                                 }
                                 style={hasMediaHero ? COUPON_IMAGE_TEXT_SHADOW_STYLE : undefined}
                                 numberOfLines={2}>
@@ -548,7 +550,6 @@ export default function RealBarberHomeTab() {
                       </Pressable>
                     );
                   })}
-                  <View className="h-px w-4" />
                 </ScrollView>
               )}
             </View>
@@ -569,7 +570,7 @@ export default function RealBarberHomeTab() {
               </ThemedText>
             </View>
           ) : (
-            <View className="overflow-hidden rounded-2xl bg-light-secondary dark:bg-dark-secondary">
+            <View className="-mx-global overflow-hidden rounded-2xl bg-light-secondary dark:bg-dark-secondary">
               {recentBookings.map((b, i) => (
                 <Pressable
                   key={b.id}
@@ -585,7 +586,7 @@ export default function RealBarberHomeTab() {
                       name={b.employee?.name ?? undefined}
                     />
                     <View className="min-w-0 flex-1">
-                      <ThemedText variant="bodySm" numberOfLines={1}>
+                      <ThemedText className="text-sm font-semibold" numberOfLines={1}>
                         {b.item?.name ?? t('homeRecentDefaultName')}
                       </ThemedText>
                       <ThemedText

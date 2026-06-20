@@ -38,7 +38,7 @@ export default function BarberBranchesSection({ branches, t }: BarberBranchesSec
                 <View className="h-12 w-12 rounded-lg bg-light-primary dark:bg-dark-primary" />
               )}
               <View className="ml-3 flex-1">
-                <ThemedText variant="body">{branch.name}</ThemedText>
+                <ThemedText className="font-medium">{branch.name}</ThemedText>
                 {branch.address ? (
                   <ThemedText
                     className="text-xs text-light-subtext dark:text-dark-subtext"

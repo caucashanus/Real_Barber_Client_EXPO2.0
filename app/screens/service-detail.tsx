@@ -136,7 +136,7 @@ export default function ServiceDetailScreen() {
         </Animated.View>
 
         <View className="p-global">
-          <ThemedText variant="h2">{item.name}</ThemedText>
+          <ThemedText className="text-2xl font-bold">{item.name}</ThemedText>
 
           {item.category ? (
             <View className="mt-3">
@@ -168,7 +168,7 @@ export default function ServiceDetailScreen() {
         style={{ paddingBottom: insets.bottom }}
         className="flex-row items-center justify-start border-t border-neutral-200 bg-light-primary px-global pt-4 dark:border-dark-secondary dark:bg-dark-primary">
         <View>
-          <ThemedText variant="h3">{t('serviceBookThisService')}</ThemedText>
+          <ThemedText className="text-xl font-bold">{t('serviceBookThisService')}</ThemedText>
           <ThemedText className="text-xs opacity-60">{t('serviceChooseBranchBarber')}</ThemedText>
         </View>
         <View className="ml-auto flex-row items-center">

@@ -120,7 +120,7 @@ const Input: React.FC<CustomTextInputProps> = ({
   if (variant === 'classic') {
     return (
       <View className={`relative mb-global ${containerClassName}`} style={{ position: 'relative' }}>
-        {label && <ThemedText variant="body" className="mb-2">{label}</ThemedText>}
+        {label && <ThemedText className="mb-2 font-medium">{label}</ThemedText>}
         <View className="relative">
           <StyledTextInput
             ref={inputRef}

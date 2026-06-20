@@ -43,7 +43,7 @@ export default function BookingDetailFooterActions({
         <View className="flex-row overflow-hidden rounded-2xl bg-light-secondary dark:bg-dark-secondary">
           {isCancelled && (
             <View className="flex-1 flex-row items-center justify-center gap-2 py-3.5">
-              <ThemedText variant="bodySm" className="text-red-500 dark:text-red-400">
+              <ThemedText className="text-sm font-semibold text-red-500 dark:text-red-400">
                 Zrušená rezervace
               </ThemedText>
             </View>
@@ -51,7 +51,7 @@ export default function BookingDetailFooterActions({
           {isCurrent && (
             <View className="flex-1 flex-row items-center justify-center gap-2 py-3.5">
               <LiveIndicator variant="green" size="default" />
-              <ThemedText variant="bodySm">
+              <ThemedText className="text-sm font-semibold">
                 {t('bookingStatusInProgress')}
               </ThemedText>
             </View>
@@ -65,7 +65,7 @@ export default function BookingDetailFooterActions({
                 iconStart="CalendarPlus"
                 iconSize={16}
                 className="min-w-0 flex-1 rounded-none px-0 py-3.5"
-                textClassName="text-sm font-archivo text-neutral-800 dark:text-neutral-200"
+                textClassName="text-sm font-semibold text-neutral-800 dark:text-neutral-200"
                 href={`/screens/reservation-create?branchId=${encodeURIComponent(booking.branchId)}&employeeId=${encodeURIComponent(booking.employeeId)}&itemId=${encodeURIComponent(booking.itemId)}&itemName=${encodeURIComponent(booking.item?.name ?? '')}`}
               />
               <View className="w-px self-stretch bg-neutral-200 dark:bg-neutral-700" />
@@ -76,7 +76,7 @@ export default function BookingDetailFooterActions({
                 iconStart="Star"
                 iconSize={16}
                 className="min-w-0 flex-1 rounded-none px-0 py-3.5"
-                textClassName="text-sm font-archivo text-neutral-800 dark:text-neutral-200"
+                textClassName="text-sm font-semibold text-neutral-800 dark:text-neutral-200"
                 href={`/screens/review?entityType=reservation&entityId=${encodeURIComponent(booking.id)}&entityName=${encodeURIComponent(booking.item?.name ?? booking.branch?.name ?? 'Booking')}${booking.item?.imageUrl ? `&entityImage=${encodeURIComponent(booking.item.imageUrl)}` : ''}${booking.employee?.name ? `&entityEmployeeName=${encodeURIComponent(booking.employee.name)}` : ''}${booking.employee?.avatarUrl ? `&entityEmployeeAvatar=${encodeURIComponent(booking.employee.avatarUrl)}` : ''}`}
               />
             </>
@@ -90,7 +90,7 @@ export default function BookingDetailFooterActions({
                 iconStart="Calendar"
                 iconSize={16}
                 className="min-w-0 flex-1 rounded-none px-0 py-3.5"
-                textClassName="text-sm font-archivo text-neutral-800 dark:text-neutral-200"
+                textClassName="text-sm font-semibold text-neutral-800 dark:text-neutral-200"
                 href={`/screens/reschedule?id=${encodeURIComponent(booking.id)}`}
               />
               <View className="w-px self-stretch bg-neutral-200 dark:bg-neutral-700" />
@@ -101,7 +101,7 @@ export default function BookingDetailFooterActions({
                 iconStart="X"
                 iconSize={16}
                 className="min-w-0 flex-1 rounded-none px-0 py-3.5"
-                textClassName="text-sm font-archivo text-red-600 dark:text-red-400"
+                textClassName="text-sm font-semibold text-red-600 dark:text-red-400"
                 onPress={() => cancelSheetRef.current?.show()}
               />
             </>

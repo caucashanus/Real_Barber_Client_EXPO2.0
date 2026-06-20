@@ -15,6 +15,7 @@ import {
   type ServiceOption,
   buildBranchServicePickerData,
   buildReservationServiceStepCategories,
+  calendarTargetFromNearestSlot,
   employeeNearestSortKey,
   findServiceOptionOnBranch,
   getEmployeeServicesList,
@@ -64,6 +65,24 @@ export function useReservationCatalog({
     { price: number; nextSlot: EmployeesNearestNextSlot | null }
   > | null>(null);
   const [loadingEmployeesNearest, setLoadingEmployeesNearest] = useState(false);
+  const nearestCalendarEmployeeRef = useRef<string | null>(null);
+
+  const applyNearestCalendarForEmployee = useCallback(
+    (employeeId: string) => {
+      const iso = employeesNearestMap?.get(employeeId)?.nextSlot?.date;
+      if (!iso) {
+        setMonthOffset(0);
+        nearestCalendarEmployeeRef.current = employeeId;
+        return;
+      }
+      const target = calendarTargetFromNearestSlot(iso);
+      if (!target) return;
+      setMonthOffset(target.monthOffset);
+      setLastSelectedDateByMonth((prev) => ({ ...prev, [target.monthKey]: target.dateIso }));
+      nearestCalendarEmployeeRef.current = employeeId;
+    },
+    [employeesNearestMap, setMonthOffset, setLastSelectedDateByMonth]
+  );
 
   const selectBranchId = useCallback(
     (branchId: string) => {
@@ -91,6 +110,7 @@ export function useReservationCatalog({
       if (branchChanged) {
         setLastSelectedDateByMonth({});
         setMonthOffset(0);
+        nearestCalendarEmployeeRef.current = null;
       }
     },
     [presetEmployeeId, presetItemId, branches, setData, setLastSelectedDateByMonth, setMonthOffset]
@@ -98,6 +118,7 @@ export function useReservationCatalog({
 
   const selectEmployee = useCallback(
     (employeeId: string) => {
+      nearestCalendarEmployeeRef.current = null;
       setData((prev) => ({
         ...prev,
         employeeId,
@@ -108,8 +129,9 @@ export function useReservationCatalog({
         duration: prev.duration,
       }));
       setLastSelectedDateByMonth({});
+      applyNearestCalendarForEmployee(employeeId);
     },
-    [setData, setLastSelectedDateByMonth]
+    [setData, setLastSelectedDateByMonth, applyNearestCalendarForEmployee]
   );
 
   const selectServiceOption = useCallback(
@@ -126,8 +148,10 @@ export function useReservationCatalog({
         duration: service.duration,
       }));
       setLastSelectedDateByMonth({});
+      nearestCalendarEmployeeRef.current = null;
+      setMonthOffset(0);
     },
-    [barberEntryMode, presetEmployeeId, setData, setLastSelectedDateByMonth]
+    [barberEntryMode, presetEmployeeId, setData, setLastSelectedDateByMonth, setMonthOffset]
   );
 
   const selectedBranch = useMemo(
@@ -308,6 +332,21 @@ export function useReservationCatalog({
       cancelled = true;
     };
   }, [apiToken, data.branchId, data.itemId]);
+
+  useEffect(() => {
+    nearestCalendarEmployeeRef.current = null;
+  }, [data.branchId, data.itemId]);
+
+  useEffect(() => {
+    if (!data.employeeId || loadingEmployeesNearest || employeesNearestMap === null) return;
+    if (nearestCalendarEmployeeRef.current === data.employeeId) return;
+    applyNearestCalendarForEmployee(data.employeeId);
+  }, [
+    data.employeeId,
+    employeesNearestMap,
+    loadingEmployeesNearest,
+    applyNearestCalendarForEmployee,
+  ]);
 
   useEffect(() => {
     if (!apiToken || !data.employeeId) {

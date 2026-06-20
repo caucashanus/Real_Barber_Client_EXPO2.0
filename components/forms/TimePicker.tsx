@@ -135,14 +135,14 @@ export const TimePicker: React.FC<TimePickerProps> = ({
                 title="Cancel"
                 variant="ghost"
                 onPress={hideTimePicker}
-                textClassName="text-base font-archivo"
+                textClassName="text-base font-normal"
               />
-              <ThemedText variant="h4">{label || 'Select Time'}</ThemedText>
+              <ThemedText className="text-lg font-medium">{label || 'Select Time'}</ThemedText>
               <Button
                 title="Done"
                 variant="ghost"
                 onPress={handleConfirm}
-                textClassName="text-base font-archivo"
+                textClassName="text-base font-semibold"
               />
             </View>
             <DateTimePicker
@@ -176,7 +176,7 @@ export const TimePicker: React.FC<TimePickerProps> = ({
   if (variant === 'classic') {
     return (
       <View className={`mb-global ${containerClassName}`}>
-        {label && <ThemedText variant="body" className="mb-1">{label}</ThemedText>}
+        {label && <ThemedText className="mb-1 font-medium">{label}</ThemedText>}
         <View className="relative">
           <TouchableOpacity
             onPress={showTimePicker}

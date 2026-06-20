@@ -115,7 +115,7 @@ const ServiceVariantCreator: React.FC<ServiceVariantCreatorProps> = ({ hasStock 
             key={index}
             className="-mb-px border-b border-neutral-300 p-4">
             <View className="flex-row items-center justify-between">
-              <ThemedText variant="emphasis">{option.name}</ThemedText>
+              <ThemedText className="font-semibold">{option.name}</ThemedText>
               <View className="rounded-lg">
                 <Icon name="Edit" size={20} />
               </View>
@@ -137,21 +137,21 @@ const ServiceVariantCreator: React.FC<ServiceVariantCreatorProps> = ({ hasStock 
           onPress={addOption} // Calls addValue to add a new empty input
           className=" relative z-50 flex-row items-center justify-center rounded-lg border border-neutral-400 px-4 py-3">
           <Icon name="Plus" size={20} />
-          <Text className="font-archivo ml-2 dark:text-white">Add option </Text>
+          <Text className="ml-2 dark:text-white">Add option </Text>
         </Pressable>
       ) : (
         <View className=" relative z-50 flex-row items-center justify-center rounded-lg bg-neutral-100 px-4 py-3">
-          <Text className="font-archivo text-neutral-400 dark:text-white">You've reached 3 options limit </Text>
+          <Text className="text-neutral-400 dark:text-white">You've reached 3 options limit </Text>
         </View>
       )}
 
       {variants.length > 0 && (
         <View className="mt-4">
-          <Text className="mb-2 mt-0 text-xl font-archivo dark:text-white">Service Packages</Text>
+          <Text className="mb-2 mt-0 text-xl font-medium dark:text-white">Service Packages</Text>
           {variants.map((variant, index) => (
             <View key={index} className="mb-2 rounded-lg border border-neutral-400 p-2">
               <View className="flex-row items-center justify-start">
-                <Text className="font-archivo ml-2">{Object.values(variant).slice(0, -3).join(' / ')}</Text>
+                <Text className="ml-2">{Object.values(variant).slice(0, -3).join(' / ')}</Text>
                 <View className="ml-auto flex-row">
                   <View className="w-[80px]">
                     <Input
@@ -215,7 +215,7 @@ const ServiceVariantCreator: React.FC<ServiceVariantCreatorProps> = ({ hasStock 
             </View>
             <View className="mt-8 flex-1">
               <View className="w-full  px-4">
-                <ThemedText variant="h3">Option name</ThemedText>
+                <ThemedText className=" text-xl font-medium">Option name</ThemedText>
                 <ThemedText className="mb-4 w-full text-sm">
                   Package type, delivery time, revisions
                 </ThemedText>
@@ -224,7 +224,7 @@ const ServiceVariantCreator: React.FC<ServiceVariantCreatorProps> = ({ hasStock 
                   value={currentOption.name}
                   onChangeText={(text) => setCurrentOption({ ...currentOption, name: text })}
                 />
-                <ThemedText variant="h3" className="mt-8">Values</ThemedText>
+                <ThemedText className="mt-8 text-xl font-medium">Values</ThemedText>
                 <ThemedText className="w-full text-sm text-light-subtext dark:text-dark-subtext">
                   Basic, Standard, Premium, etc.
                 </ThemedText>

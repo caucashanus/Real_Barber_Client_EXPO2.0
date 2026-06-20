@@ -5,8 +5,6 @@ import { View, ViewStyle } from 'react-native';
 import Icon, { IconName } from '../Icon';
 import ThemedText from '../ThemedText';
 
-import { sectionTitleVariant } from '@/constants/typography';
-
 type TitleSize = 'sm' | 'md' | 'lg' | 'xl' | '2xl' | '3xl' | '4xl';
 
 interface SectionProps {
@@ -69,7 +67,26 @@ export const Section: React.FC<SectionProps> = ({
     }
   };
 
-  const getTitleVariant = () => sectionTitleVariant[titleSize];
+  const getTitleClass = () => {
+    switch (titleSize) {
+      case 'sm':
+        return 'text-sm';
+      case 'md':
+        return 'text-base';
+      case 'lg':
+        return 'text-lg';
+      case 'xl':
+        return 'text-xl';
+      case '2xl':
+        return 'text-2xl';
+      case '3xl':
+        return 'text-3xl';
+      case '4xl':
+        return 'text-4xl';
+      default:
+        return 'text-xl';
+    }
+  };
 
   return (
     <View className={`w-full ${getPaddingClass()} ${className}`} style={style}>
@@ -99,8 +116,9 @@ export const Section: React.FC<SectionProps> = ({
                       titleAlign === 'right' ? 'justify-end' : 'justify-start'
                     }${titleTrailing ? ' gap-2' : ''}`}>
                     <ThemedText
-                      variant={getTitleVariant()}
-                      className={titleAlign === 'right' ? 'text-right' : ''}>
+                      className={`${getTitleClass()} font-semibold${
+                        titleAlign === 'right' ? ' text-right' : ''
+                      }`}>
                       {title}
                     </ThemedText>
                     {titleTrailing}
@@ -115,7 +133,6 @@ export const Section: React.FC<SectionProps> = ({
                 )}
                 {subtitle && (
                   <ThemedText
-                    variant="bodySm"
                     className={`text-light-subtext dark:text-dark-subtext${
                       titleAlign === 'right' ? ' w-full text-right' : ''
                     }`}>

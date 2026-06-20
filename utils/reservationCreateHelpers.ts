@@ -221,6 +221,10 @@ export function employeeDescription(employee: BranchEmployee): string {
 }
 
 export function getEmployeeAverageRating(employee: BranchEmployee): number | null {
+  const inline = (employee as { averageRating?: unknown }).averageRating;
+  if (typeof inline === 'number' && Number.isFinite(inline)) {
+    return Math.round(inline * 10) / 10;
+  }
   const rawReviews = (employee as { reviews?: unknown }).reviews;
   if (!Array.isArray(rawReviews) || rawReviews.length === 0) return null;
   const ratings = rawReviews
@@ -244,6 +248,9 @@ export function mergeEmployee(base: BranchEmployee, full?: Employee): BranchEmpl
       (full as { description?: string | null }).description ??
       (base as { description?: string | null }).description,
     reviews: (full as { reviews?: unknown }).reviews ?? (base as { reviews?: unknown }).reviews,
+    averageRating:
+      (full as { averageRating?: number }).averageRating ??
+      (base as { averageRating?: number }).averageRating,
   } as BranchEmployee;
 }
 
@@ -307,6 +314,24 @@ export function timeToMinutes(time: string): number {
 export function getMonthOffsetFromToday(target: Date): number {
   const now = new Date();
   return (target.getFullYear() - now.getFullYear()) * 12 + (target.getMonth() - now.getMonth());
+}
+
+/** Kalendář v rezervaci: skok na měsíc nejbližšího volného slotu (ISO YYYY-MM-DD). */
+export function calendarTargetFromNearestSlot(isoDate: string): {
+  monthOffset: number;
+  monthKey: string;
+  dateIso: string;
+} | null {
+  const parts = isoDate.split('-').map((x) => parseInt(x, 10));
+  if (parts.length !== 3 || parts.some((n) => Number.isNaN(n))) return null;
+  const [year, month, day] = parts;
+  const target = new Date(year, month - 1, day);
+  if (Number.isNaN(target.getTime())) return null;
+  return {
+    monthOffset: Math.max(0, getMonthOffsetFromToday(target)),
+    monthKey: getMonthKeyFromDate(target),
+    dateIso: isoDate,
+  };
 }
 
 export function getMonthKeyFromDate(date: Date): string {

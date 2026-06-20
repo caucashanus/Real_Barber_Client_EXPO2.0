@@ -12,6 +12,7 @@ import { useAuth } from '@/app/contexts/AuthContext';
 import { useTranslation } from '@/app/hooks/useTranslation';
 import type { MultiStepHandle, StepNavigationReason } from '@/components/MultiStep';
 import type { AvatarChoice } from '@/components/signup/SignupAvatarPicker';
+import { CLIENT_APP_V1_ENABLED } from '@/constants/clientAppApi';
 import { MOCK_SIGNUP } from '@/constants/mockSignup';
 import { formatBirthdayToIsoUtcMidnight } from '@/utils/date';
 import { getEmailDomainChipSuggestions } from '@/utils/emailSuggestions';
@@ -170,10 +171,14 @@ export function useSignupFlow() {
         ? await registerWithOtpToken({
             phone: fullPhone,
             registrationToken: registrationTokenFromOtp,
-            password: DEFAULT_SIGNUP_PASSWORD,
+            ...(CLIENT_APP_V1_ENABLED ? {} : { password: DEFAULT_SIGNUP_PASSWORD }),
             ...registerOpts,
           })
-        : await registerWithPhone(fullPhone, DEFAULT_SIGNUP_PASSWORD, registerOpts);
+        : await registerWithPhone(
+            fullPhone,
+            CLIENT_APP_V1_ENABLED ? '' : DEFAULT_SIGNUP_PASSWORD,
+            registerOpts
+          );
       sessionRef.current = { token: data.token, apiToken: data.apiToken };
       registerDoneRef.current = true;
       await setAuth(data.token, data.apiToken, data.client);

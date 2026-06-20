@@ -38,7 +38,7 @@ export default function BarberServicesSection({
                 <Pressable
                   onPress={() => onToggleCategory(group.categoryId)}
                   className="flex-row items-center justify-between p-3">
-                  <ThemedText variant="body">{group.categoryName}</ThemedText>
+                  <ThemedText className="font-medium">{group.categoryName}</ThemedText>
                   <Icon
                     name="ChevronDown"
                     size={20}
@@ -61,12 +61,12 @@ export default function BarberServicesSection({
                           <View className="h-12 w-12 rounded-lg bg-light-secondary dark:bg-dark-secondary" />
                         )}
                         <View className="ml-3 flex-1">
-                          <ThemedText variant="bodySm">{svc.name}</ThemedText>
+                          <ThemedText className="text-sm font-medium">{svc.name}</ThemedText>
                           <ThemedText className="text-xs text-light-subtext dark:text-dark-subtext">
                             {svc.duration ?? '—'} min
                           </ThemedText>
                         </View>
-                        <ThemedText variant="bodySm">
+                        <ThemedText className="text-sm font-semibold">
                           {svc.price != null ? `${svc.price} Kč` : '—'}
                         </ThemedText>
                       </View>

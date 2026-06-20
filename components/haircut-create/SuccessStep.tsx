@@ -21,7 +21,7 @@ export default function SuccessStep(_props: HaircutStepProps) {
         className="h-32 w-32 rounded-lg"
         contentFit="cover"
       />
-      <ThemedText variant="h1" className="mt-8 text-center">
+      <ThemedText className="mt-8 text-center text-3xl font-bold">
         {t('haircutCreateCongratulations')}
       </ThemedText>
       <ThemedText className="mb-8 mt-1 text-center text-sm text-light-subtext dark:text-dark-subtext">

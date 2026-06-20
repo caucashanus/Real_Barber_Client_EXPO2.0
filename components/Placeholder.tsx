@@ -31,7 +31,7 @@ export function Placeholder({
         <Icon name={icon} size={30} className="text-light-tertiary dark:text-dark-tertiary" />
       </View>
 
-      <ThemedText variant="h3" className="text-center">{title}</ThemedText>
+      <ThemedText className="text-center text-xl font-bold">{title}</ThemedText>
 
       {subtitle && (
         <ThemedText className="mb-4 text-center text-light-subtext dark:text-dark-subtext">

@@ -28,9 +28,10 @@ export default function BranchDescriptionPreview({
           ? `${descriptionClean.slice(0, 50).trim()}… `
           : descriptionClean}
         {descriptionClean.length > 50 ? (
-          <ThemedText variant="body"
+          <ThemedText
             onPress={onReadMore}
-            style={{ color: colors.highlight }}>
+            style={{ color: colors.highlight }}
+            className="text-base font-medium">
             {t('branchReadMore')}
           </ThemedText>
         ) : null}

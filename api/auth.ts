@@ -1,7 +1,9 @@
 import Constants from 'expo-constants';
 import { Platform } from 'react-native';
 
-import { CrmHttpError, fetchCrm } from './http';
+import { CLIENT_APP_V1_ENABLED } from '@/constants/clientAppApi';
+
+import { CrmHttpError, fetchClientAppV1, fetchCrm } from './http';
 
 function authPlatform(): string {
   return Platform.OS === 'ios'
@@ -54,7 +56,9 @@ export interface OtpRequestNewClient {
 export type OtpRequestResponse = OtpRequestExisting | OtpRequestNewClient;
 
 export async function requestClientOtp(phone: string): Promise<OtpRequestResponse> {
-  const data = await fetchCrm<Record<string, unknown>>('/api/client/auth/otp/request', {
+  const path = CLIENT_APP_V1_ENABLED ? '/auth/otp/request' : '/api/client/auth/otp/request';
+  const fetcher = CLIENT_APP_V1_ENABLED ? fetchClientAppV1 : fetchCrm;
+  const data = await fetcher<Record<string, unknown>>(path, {
     method: 'POST',
     checkAuth: false,
     body: { phone: phone.trim() },
@@ -89,7 +93,9 @@ export type OtpVerifyResponse = LoginResponse | OtpVerifyRequiresRegistration;
 
 /** POST /api/client/auth/otp/verify — ověření kódu; buď rovnou přihlásí, nebo vrátí registrationToken. */
 export async function verifyClientOtp(phone: string, otpCode: string): Promise<OtpVerifyResponse> {
-  const json = await fetchCrm<Record<string, unknown>>('/api/client/auth/otp/verify', {
+  const path = CLIENT_APP_V1_ENABLED ? '/auth/otp/verify' : '/api/client/auth/otp/verify';
+  const fetcher = CLIENT_APP_V1_ENABLED ? fetchClientAppV1 : fetchCrm;
+  const json = await fetcher<Record<string, unknown>>(path, {
     method: 'POST',
     checkAuth: false,
     body: {
@@ -149,10 +155,12 @@ export async function registerWithPhone(
 ): Promise<LoginResponse> {
   const body: Record<string, unknown> = {
     phone: phone.trim(),
-    password,
     platform: authPlatform(),
     appVersion: authAppVersion(),
   };
+  if (!CLIENT_APP_V1_ENABLED) {
+    body.password = password;
+  }
   const email = options?.email?.trim();
   if (email) body.email = email;
   const fn = options?.firstName?.trim();
@@ -166,7 +174,9 @@ export async function registerWithPhone(
   const birthday = options?.birthday?.trim();
   if (birthday) body.birthday = birthday;
 
-  return fetchCrm<LoginResponse>('/api/client/auth/register', {
+  const path = CLIENT_APP_V1_ENABLED ? '/auth/register' : '/api/client/auth/register';
+  const fetcher = CLIENT_APP_V1_ENABLED ? fetchClientAppV1 : fetchCrm;
+  return fetcher<LoginResponse>(path, {
     method: 'POST',
     checkAuth: false,
     body,
@@ -176,7 +186,7 @@ export async function registerWithPhone(
 export interface RegisterWithOtpTokenBody extends RegisterOptions {
   phone: string;
   registrationToken: string;
-  password: string;
+  password?: string;
   platform?: string;
   appVersion?: string;
   name?: string;
@@ -192,18 +202,24 @@ export async function registerWithOtpToken(body: RegisterWithOtpTokenBody): Prom
   const ln = body.lastName?.trim();
   const fullName = [fn, ln].filter(Boolean).join(' ').trim();
 
-  return fetchCrm<LoginResponse>('/api/client/auth/register', {
+  const payload: Record<string, unknown> = {
+    ...body,
+    phone: body.phone.trim(),
+    registrationToken: body.registrationToken.trim(),
+    name: body.name?.trim() || fullName || undefined,
+    platform: authPlatform(),
+    appVersion: authAppVersion(),
+  };
+  if (!CLIENT_APP_V1_ENABLED) {
+    payload.password = body.password;
+  }
+
+  const path = CLIENT_APP_V1_ENABLED ? '/auth/register' : '/api/client/auth/register';
+  const fetcher = CLIENT_APP_V1_ENABLED ? fetchClientAppV1 : fetchCrm;
+  return fetcher<LoginResponse>(path, {
     method: 'POST',
     checkAuth: false,
-    body: {
-      ...body,
-      phone: body.phone.trim(),
-      registrationToken: body.registrationToken.trim(),
-      password: body.password,
-      name: body.name?.trim() || fullName || undefined,
-      platform: authPlatform(),
-      appVersion: authAppVersion(),
-    },
+    body: payload,
   });
 }
 

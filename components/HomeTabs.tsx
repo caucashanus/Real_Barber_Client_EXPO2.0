@@ -148,7 +148,7 @@ const TabItem = (props: any) => {
         <Image source={props.icon} className="h-full w-full" contentFit="contain" />
       </Animated.View>
       <ThemedText
-        className={`mt-2 text-xs ${props.active ? 'font-archivo-bold' : 'font-archivo text-gray-500 dark:text-gray-400'}`}>
+        className={`mt-2 text-xs ${props.active ? 'font-bold' : 'font-normal text-gray-500 dark:text-gray-400'}`}>
         {props.label}
       </ThemedText>
     </TouchableOpacity>

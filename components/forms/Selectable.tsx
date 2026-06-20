@@ -93,7 +93,7 @@ const Selectable: React.FC<SelectableProps> = ({
               </View>
             ))}
           <View className="flex-1">
-            <ThemedText variant="emphasis">{title}</ThemedText>
+            <ThemedText className="text-base font-semibold">{title}</ThemedText>
             {descriptionContent ? (
               <View className="mt-1">{descriptionContent}</View>
             ) : description ? (

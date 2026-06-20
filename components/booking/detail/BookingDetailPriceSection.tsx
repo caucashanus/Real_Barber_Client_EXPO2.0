@@ -28,7 +28,7 @@ export default function BookingDetailPriceSection({
         <View className="mt-4 space-y-3">
           {booking.couponUsages && booking.couponUsages.length > 0 ? (
             <View className="space-y-4">
-              <ThemedText variant="emphasis">
+              <ThemedText className="text-base font-semibold text-light-text dark:text-dark-text">
                 {t('bookingCouponSectionTitle')}
               </ThemedText>
               {booking.couponUsages.map((usage: BookingCouponUsage, idx: number) => {
@@ -43,11 +43,11 @@ export default function BookingDetailPriceSection({
                         : ''
                     }>
                     {(booking.couponUsages?.length ?? 0) > 1 ? (
-                      <ThemedText variant="caption" className="mb-2 text-light-subtext dark:text-dark-subtext">
+                      <ThemedText className="mb-2 text-xs font-semibold text-light-subtext dark:text-dark-subtext">
                         {idx + 1}. {t('bookingCouponUsageShort')}
                       </ThemedText>
                     ) : null}
-                    <ThemedText variant="emphasis">{c?.name ?? '—'}</ThemedText>
+                    <ThemedText className="text-base font-semibold">{c?.name ?? '—'}</ThemedText>
                     {c?.code ? (
                       <ThemedText className="mt-0.5 text-sm text-light-subtext dark:text-dark-subtext">
                         {t('bookingCouponCodeLabel')}: {c.code}
@@ -58,7 +58,7 @@ export default function BookingDetailPriceSection({
                         <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext">
                           {t('reservationCouponOriginalPrice')}
                         </ThemedText>
-                        <ThemedText variant="bodySm">
+                        <ThemedText className="text-sm font-medium">
                           {formatDetailMoney(amounts?.original)} {t('reservationCurrencySuffix')}
                         </ThemedText>
                       </View>
@@ -66,7 +66,7 @@ export default function BookingDetailPriceSection({
                         <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext">
                           {t('reservationCouponDiscount')}
                         </ThemedText>
-                        <ThemedText variant="bodySm" className="text-emerald-600 dark:text-emerald-400">
+                        <ThemedText className="text-sm font-medium text-emerald-600 dark:text-emerald-400">
                           −{formatDetailMoney(amounts?.discount)} {t('reservationCurrencySuffix')}
                         </ThemedText>
                       </View>
@@ -92,8 +92,8 @@ export default function BookingDetailPriceSection({
           </View>
           <Divider className="my-3" />
           <View className="flex-row justify-between">
-            <ThemedText variant="h4">{t('bookingTotal')}</ThemedText>
-            <ThemedText variant="h4">
+            <ThemedText className="text-lg font-bold">{t('bookingTotal')}</ThemedText>
+            <ThemedText className="text-lg font-bold">
               {booking.price} {t('reservationCurrencySuffix')}
             </ThemedText>
           </View>

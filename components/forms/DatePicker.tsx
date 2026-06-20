@@ -133,16 +133,16 @@ export const DatePicker: React.FC<DatePickerProps> = ({
                 title={t('datePickerCancel')}
                 variant="ghost"
                 onPress={hideDatePicker}
-                textClassName="text-base font-archivo"
+                textClassName="text-base font-normal"
               />
-              <ThemedText variant="h4">
+              <ThemedText className="text-lg font-medium">
                 {label || t('datePickerPlaceholder')}
               </ThemedText>
               <Button
                 title={t('datePickerDone')}
                 variant="ghost"
                 onPress={handleConfirm}
-                textClassName="text-base font-archivo"
+                textClassName="text-base font-semibold"
               />
             </View>
             <DateTimePicker
@@ -180,7 +180,7 @@ export const DatePicker: React.FC<DatePickerProps> = ({
   if (variant === 'classic') {
     return (
       <View className={`mb-global ${containerClassName}`}>
-        {label && <ThemedText variant="body" className="mb-1">{label}</ThemedText>}
+        {label && <ThemedText className="mb-1 font-medium">{label}</ThemedText>}
         <View className="relative">
           <TouchableOpacity
             onPress={showDatePicker}

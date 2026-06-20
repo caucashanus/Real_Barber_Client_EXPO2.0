@@ -127,7 +127,7 @@ export const Chip = ({
       <View className="flex-row items-center">
         {renderLeftContent()}
         <Text
-          className={`font-archivo text-${textSizeClass} ${isChipSelected ? 'text-white ' : 'text-gray-700 dark:text-white'}`}>
+          className={`text-${textSizeClass} ${isChipSelected ? 'text-white ' : 'text-gray-700 dark:text-white'}`}>
           {label}
         </Text>
       </View>

@@ -75,7 +75,7 @@ const Toast: React.FC<ToastProps> = ({
           className="mr-2 h-2 w-2 rounded-full"
           style={{ backgroundColor: getBackgroundColor() }}
         />
-        <Text className="font-archivo text-white dark:text-dark-primary">{message}</Text>
+        <Text className="text-white dark:text-dark-primary">{message}</Text>
       </View>
     </Animated.View>
   );

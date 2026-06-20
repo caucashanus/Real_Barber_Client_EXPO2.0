@@ -1,4 +1,6 @@
-import { CrmHttpError, fetchCrm } from './http';
+import { CLIENT_APP_V1_ENABLED } from '@/constants/clientAppApi';
+
+import { CrmHttpError, fetchClientAppV1, fetchCrm } from './http';
 
 export interface Employee {
   id: string;
@@ -8,6 +10,10 @@ export interface Employee {
   avatarUrl?: string | null;
   isActive?: boolean;
   assignedAt?: string;
+  hasShiftToday?: boolean;
+  averageRating?: number;
+  reviewCount?: number;
+  branchIds?: string[];
   media?: EmployeeMediaItem[] | Record<string, EmployeeMediaItem>;
   [key: string]: unknown;
 }
@@ -24,12 +30,20 @@ export interface EmployeeMediaItem {
 export interface GetEmployeesOptions {
   includeReviews?: boolean;
   reviewsLimit?: number;
+  bookableOnly?: boolean;
 }
 
 export async function getEmployees(
   apiToken: string,
   options: GetEmployeesOptions = {}
 ): Promise<Employee[]> {
+  if (CLIENT_APP_V1_ENABLED) {
+    const params = new URLSearchParams();
+    if (options.bookableOnly) params.set('bookableOnly', 'true');
+    const qs = params.toString();
+    return fetchClientAppV1<Employee[]>(`/employees${qs ? `?${qs}` : ''}`, { apiToken });
+  }
+
   const params = new URLSearchParams();
   if (options.includeReviews !== undefined)
     params.set('includeReviews', String(options.includeReviews));
@@ -71,11 +85,13 @@ export async function getEmployeeById(
   apiToken: string,
   employeeId: string
 ): Promise<EmployeeDetail> {
+  const path = CLIENT_APP_V1_ENABLED
+    ? `/employees/${encodeURIComponent(employeeId)}`
+    : `/api/client/employees/${encodeURIComponent(employeeId)}`;
+  const fetcher = CLIENT_APP_V1_ENABLED ? fetchClientAppV1 : fetchCrm;
+
   try {
-    return await fetchCrm<EmployeeDetail>(
-      `/api/client/employees/${encodeURIComponent(employeeId)}`,
-      { apiToken }
-    );
+    return await fetcher<EmployeeDetail>(path, { apiToken });
   } catch (e) {
     if (e instanceof CrmHttpError && e.status === 404) throw new Error('Employee not found');
     throw e;

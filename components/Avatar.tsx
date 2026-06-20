@@ -49,7 +49,7 @@ const Avatar: React.FC<AvatarProps> = ({
       .split(' ')
       .map((part) => part[0].toUpperCase())
       .join('');
-    return <ThemedText variant="body" className="text-center">{initials}</ThemedText>;
+    return <ThemedText className=" text-center font-medium">{initials}</ThemedText>;
   };
 
   // Convert the src prop to an appropriate Image source prop

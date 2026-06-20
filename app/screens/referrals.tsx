@@ -53,14 +53,14 @@ const ReferralsScreen = () => {
       <ThemedScroller className="flex-1 px-0" keyboardShouldPersistTaps="handled">
         {/* Hero block – same layout as Earnings */}
         <View className="mb-20 mt-14 px-global">
-          <ThemedText variant="emphasis" className="text-5xl">{t('referralsInvited')}</ThemedText>
-          <ThemedText variant="emphasis" style={{ color: colors.highlight }} className="text-5xl">
+          <ThemedText className="text-5xl font-semibold">{t('referralsInvited')}</ThemedText>
+          <ThemedText style={{ color: colors.highlight }} className="text-5xl font-semibold">
             {loading ? '…' : invited}
           </ThemedText>
-          <ThemedText variant="emphasis" className="text-5xl">{t('referralsFriends')}</ThemedText>
+          <ThemedText className="text-5xl font-semibold">{t('referralsFriends')}</ThemedText>
           <ThemedText className="mt-2 text-lg">
             Rewards earned{' '}
-            <ThemedText variant="h4">{rewardsRbc} RBC</ThemedText>
+            <ThemedText className="text-lg font-semibold">{rewardsRbc} RBC</ThemedText>
           </ThemedText>
           {error && (
             <ThemedText className="mt-2 text-sm text-red-500 dark:text-red-400">{error}</ThemedText>
@@ -69,7 +69,7 @@ const ReferralsScreen = () => {
 
         {/* Content block – same border/section style as Earnings */}
         <View className="border-t-8 border-light-secondary px-global pt-global dark:border-dark-secondary">
-          <ThemedText variant="h2" className="mb-2">
+          <ThemedText className="mb-2 text-2xl font-semibold">
             {t('referralsInviteFriends')}
           </ThemedText>
           <ThemedText className="mb-4 text-base text-light-subtext dark:text-dark-subtext">
@@ -79,14 +79,14 @@ const ReferralsScreen = () => {
             onPress={handleShare}
             className="flex-row items-center justify-center rounded-xl bg-light-secondary px-6 py-4 dark:bg-dark-secondary">
             <Icon name="Share2" size={22} />
-            <ThemedText variant="emphasis" className="ml-3">
+            <ThemedText className="ml-3 text-base font-semibold">
               {t('referralsShareLink')}
             </ThemedText>
           </Pressable>
 
           {referrals && referrals.referralsMade.length > 0 && (
             <>
-              <ThemedText variant="h2" className="mb-4 mt-8">
+              <ThemedText className="mb-4 mt-8 text-2xl font-semibold">
                 {t('referralsInvitedList')}
               </ThemedText>
               {referrals.referralsMade.map((r) => (

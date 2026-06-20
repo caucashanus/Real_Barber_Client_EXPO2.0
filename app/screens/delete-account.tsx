@@ -71,7 +71,7 @@ export default function DeleteAccountScreen() {
             rounded="full"
             size="large"
             className="border-red-500"
-            textClassName="text-red-600 dark:text-red-400 font-archivo"
+            textClassName="text-red-600 dark:text-red-400 font-semibold"
             loading={isDeleting}
             disabled={isDeleting}
             onPress={() => deleteSheetRef.current?.show()}

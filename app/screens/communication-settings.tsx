@@ -173,7 +173,7 @@ export default function CommunicationSettingsScreen() {
           <ThemedText className="text-light-subtext dark:text-dark-subtext">{error}</ThemedText>
         ) : channels && contentTypes ? (
           <>
-            <ThemedText variant="h4" className="mb-3">
+            <ThemedText className="mb-3 text-lg font-semibold text-light-text dark:text-dark-text">
               {t('communicationSettingsChannelsSection')}
             </ThemedText>
 
@@ -213,7 +213,7 @@ export default function CommunicationSettingsScreen() {
 
             <Divider className="my-6" />
 
-            <ThemedText variant="h4" className="mb-3">
+            <ThemedText className="mb-3 text-lg font-semibold text-light-text dark:text-dark-text">
               {t('communicationSettingsContentSection')}
             </ThemedText>
             {CONTENT_ROWS.map(({ key, label }) => (

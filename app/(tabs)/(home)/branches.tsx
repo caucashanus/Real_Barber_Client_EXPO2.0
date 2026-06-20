@@ -9,6 +9,7 @@ import { getBranches, type Branch, type BranchService } from '@/api/branches';
 import { getClientReviewsList, type ClientReviewListItem } from '@/api/reviews';
 import { useAuth } from '@/app/contexts/AuthContext';
 import { useTranslation } from '@/app/hooks/useTranslation';
+import { CLIENT_APP_V1_ENABLED } from '@/constants/clientAppApi';
 import AnimatedView from '@/components/AnimatedView';
 import Card from '@/components/Card';
 import { CardScroller } from '@/components/CardScroller';
@@ -106,7 +107,9 @@ export default function BranchesScreen() {
     setBranchesError(null);
     Promise.all([
       getBranches(apiToken),
-      getClientReviewsList(apiToken, { entityType: 'branch', limit: 500 }),
+      CLIENT_APP_V1_ENABLED
+        ? Promise.resolve({ reviews: [] as ClientReviewListItem[] })
+        : getClientReviewsList(apiToken, { entityType: 'branch', limit: 500 }),
     ])
       .then(([branchList, reviewsData]) => {
         setBranches(Array.isArray(branchList) ? branchList : []);
@@ -119,10 +122,16 @@ export default function BranchesScreen() {
       .finally(() => setBranchesLoading(false));
   }, [apiToken]);
 
-  const branchRatingsMap = useMemo(
-    () => computeBranchRatingsMap(branchReviewsList),
-    [branchReviewsList]
-  );
+  const branchRatingsMap = useMemo(() => {
+    if (CLIENT_APP_V1_ENABLED) {
+      const out = new Map<string, number>();
+      for (const b of branches) {
+        if (typeof b.averageRating === 'number') out.set(b.id, b.averageRating);
+      }
+      return out;
+    }
+    return computeBranchRatingsMap(branchReviewsList);
+  }, [branches, branchReviewsList]);
   const popularBranches = branches.length > 0 ? branches : null;
 
   if (branchesLoading) {
@@ -147,7 +156,7 @@ export default function BranchesScreen() {
           onPress={() => router.push('/screens/map')}
           style={{ ...shadowPresets.large }}
           className="mb-8 flex flex-row items-center rounded-2xl bg-light-primary p-5 dark:bg-dark-secondary">
-          <ThemedText variant="body" className="flex-1 pr-2">
+          <ThemedText className="flex-1 pr-2 text-base font-medium">
             {t('homeContinueSearchBarbershops')}
           </ThemedText>
           <View className="h-20 w-20 items-center justify-center">
@@ -244,7 +253,7 @@ export default function BranchesScreen() {
                       )}
                     </View>
                     <View className="w-full py-2">
-                      <ThemedText variant="bodySm" numberOfLines={1}>
+                      <ThemedText className="text-sm font-medium" numberOfLines={1}>
                         {branch.name}
                       </ThemedText>
                     </View>

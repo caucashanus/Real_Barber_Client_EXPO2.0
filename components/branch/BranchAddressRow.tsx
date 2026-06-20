@@ -32,7 +32,7 @@ export default function BranchAddressRow({ branch, t }: BranchAddressRowProps) {
         <Avatar size="md" name={branch.name} className="mr-4" />
       )}
       <View className="ml-0">
-        <ThemedText variant="emphasis">{t('branchTitle')}</ThemedText>
+        <ThemedText className="text-base font-semibold">{t('branchTitle')}</ThemedText>
         <View className="flex-row items-center">
           <Icon name="MapPin" size={12} className="mr-1" />
           <ThemedText

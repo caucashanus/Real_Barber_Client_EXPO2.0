@@ -99,7 +99,7 @@ export default function HelpScreen() {
                   <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext">
                     {t(contact.typeKey)}
                   </ThemedText>
-                  <ThemedText variant="body">{t(contact.valueKey)}</ThemedText>
+                  <ThemedText className="font-medium">{t(contact.valueKey)}</ThemedText>
                 </View>
                 {contact.action && (
                   <Icon

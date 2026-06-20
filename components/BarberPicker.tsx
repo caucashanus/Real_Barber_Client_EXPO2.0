@@ -47,7 +47,7 @@ export default function BarberPicker({
                 <Avatar size="xl" src={e.avatarUrl ?? undefined} name={e.name} />
               </View>
               <ThemedText
-                className={`mt-2 max-w-[80px] text-center text-sm ${selected ? 'font-archivo text-light-text dark:text-dark-text' : 'text-light-subtext dark:text-dark-subtext'}`}
+                className={`mt-2 max-w-[80px] text-center text-sm ${selected ? 'font-medium text-light-text dark:text-dark-text' : 'text-light-subtext dark:text-dark-subtext'}`}
                 numberOfLines={2}>
                 {e.name}
               </ThemedText>

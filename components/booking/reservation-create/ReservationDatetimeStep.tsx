@@ -25,7 +25,7 @@ export default function ReservationDatetimeStep({ flow }: ReservationCreateStepP
         />
       </View>
       <View className="mb-5">
-        <ThemedText variant="h2">
+        <ThemedText className="text-2xl font-semibold">
           {t('reservationStepDatetimeTitle')}
         </ThemedText>
         <ThemedText className="text-base text-light-subtext dark:text-dark-subtext">
@@ -65,7 +65,7 @@ export default function ReservationDatetimeStep({ flow }: ReservationCreateStepP
           className={`rounded-full p-2 ${flow.monthOffset === 0 ? 'opacity-40' : 'opacity-100'}`}>
           <Icon name="ChevronLeft" size={24} className="-translate-x-px" />
         </Pressable>
-        <ThemedText variant="emphasis">{flow.monthLabel}</ThemedText>
+        <ThemedText className="text-base font-semibold">{flow.monthLabel}</ThemedText>
         <Pressable
           onPress={() => flow.setMonthOffset((prev) => prev + 1)}
           className="rounded-full p-2">
@@ -94,7 +94,7 @@ export default function ReservationDatetimeStep({ flow }: ReservationCreateStepP
         </ThemedText>
       ) : null}
       <View className="mb-2 mt-6">
-        <ThemedText variant="h4">{t('reservationAvailableTimes')}</ThemedText>
+        <ThemedText className="text-lg font-semibold">{t('reservationAvailableTimes')}</ThemedText>
         <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext">
           {t('reservationAvailableTimesSubtitle')}
         </ThemedText>

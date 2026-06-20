@@ -27,7 +27,7 @@ export default function BranchDescriptionModal({
           onPress={(e) => e.stopPropagation()}>
           <View className="p-global pb-8">
             <View className="mb-4 flex-row items-center justify-between">
-              <ThemedText variant="h4">{t('branchDescription')}</ThemedText>
+              <ThemedText className="text-lg font-semibold">{t('branchDescription')}</ThemedText>
               <Pressable onPress={onClose} hitSlop={12} className="p-2">
                 <Icon name="X" size={24} className="text-light-subtext dark:text-dark-subtext" />
               </Pressable>

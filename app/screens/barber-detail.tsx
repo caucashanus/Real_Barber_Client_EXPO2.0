@@ -3,7 +3,6 @@ import { StatusBar } from 'expo-status-bar';
 import React, { useCallback, useMemo, useRef } from 'react';
 import {
   View,
-  ActivityIndicator,
   Animated,
   ScrollView,
   useWindowDimensions,
@@ -72,21 +71,7 @@ export default function BarberDetailScreen() {
 
   const topSlides = useMemo(() => (employee ? employeeTopSlides(employee) : []), [employee]);
 
-  if (loading) {
-    return (
-      <>
-        <Header showBackButton />
-        <View className="flex-1 items-center justify-center bg-light-primary dark:bg-dark-primary">
-          <ActivityIndicator size="large" />
-          <ThemedText className="mt-4 text-light-subtext dark:text-dark-subtext">
-            {t('commonLoading')}
-          </ThemedText>
-        </View>
-      </>
-    );
-  }
-
-  if (error || !employee) {
+  if (!loading && (error || !employee)) {
     return (
       <>
         <Header showBackButton />
@@ -95,6 +80,15 @@ export default function BarberDetailScreen() {
             {error ?? 'Barber not found'}
           </ThemedText>
         </View>
+      </>
+    );
+  }
+
+  if (!employee) {
+    return (
+      <>
+        <Header showBackButton />
+        <View className="flex-1 bg-light-primary dark:bg-dark-primary" />
       </>
     );
   }

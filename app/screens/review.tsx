@@ -225,7 +225,7 @@ const ReviewScreen = () => {
                     contentFit="cover"
                   />
                 ) : null}
-                <ThemedText variant="label" className="mt-2 text-center" numberOfLines={2}>
+                <ThemedText className="mt-2 text-center text-sm font-bold" numberOfLines={2}>
                   {displayName}
                 </ThemedText>
               </View>
@@ -233,7 +233,7 @@ const ReviewScreen = () => {
               {employeeName || employeeAvatarUrl ? (
                 <View className="border-light-border dark:border-dark-border min-w-0 flex-1 flex-col items-center justify-center border-l pl-4">
                   <Avatar src={employeeAvatarUrl || undefined} name={employeeName} size="md" />
-                  <ThemedText variant="bodySm" className="mt-2 text-center" numberOfLines={2}>
+                  <ThemedText className="mt-2 text-center text-sm font-medium" numberOfLines={2}>
                     {employeeName || '—'}
                   </ThemedText>
                 </View>
@@ -284,7 +284,7 @@ const ReviewScreen = () => {
                 onPress={handleSubmit}
                 disabled={!canSubmit || submitting || deleting}
                 className={`min-w-0 flex-1 rounded-none px-0 py-3.5 ${!canSubmit || submitting || deleting ? 'opacity-100' : ''}`}
-                textClassName={`text-sm font-archivo ${!canSubmit || submitting || deleting ? 'text-neutral-400 dark:text-neutral-500' : 'text-neutral-800 dark:text-neutral-200'}`}
+                textClassName={`text-sm font-semibold ${!canSubmit || submitting || deleting ? 'text-neutral-400 dark:text-neutral-500' : 'text-neutral-800 dark:text-neutral-200'}`}
               />
               <View className="w-px self-stretch bg-neutral-200 dark:bg-neutral-700" />
               <Button
@@ -294,7 +294,7 @@ const ReviewScreen = () => {
                 onPress={handleDelete}
                 disabled={submitting || deleting}
                 className={`min-w-0 flex-1 rounded-none px-0 py-3.5 ${submitting || deleting ? 'opacity-100' : ''}`}
-                textClassName={`text-sm font-archivo ${submitting || deleting ? 'text-red-400 dark:text-red-500 opacity-70' : 'text-red-600 dark:text-red-400'}`}
+                textClassName={`text-sm font-semibold ${submitting || deleting ? 'text-red-400 dark:text-red-500 opacity-70' : 'text-red-600 dark:text-red-400'}`}
               />
             </>
           ) : (
@@ -305,7 +305,7 @@ const ReviewScreen = () => {
               onPress={handleSubmit}
               disabled={!canSubmit || submitting || deleting}
               className={`flex-1 rounded-2xl px-0 py-3.5 ${!canSubmit || submitting || deleting ? 'opacity-100' : ''}`}
-              textClassName={`text-sm font-archivo ${!canSubmit || submitting || deleting ? 'text-neutral-400 dark:text-neutral-500' : 'text-neutral-800 dark:text-neutral-200'}`}
+              textClassName={`text-sm font-semibold ${!canSubmit || submitting || deleting ? 'text-neutral-400 dark:text-neutral-500' : 'text-neutral-800 dark:text-neutral-200'}`}
             />
           )}
         </View>

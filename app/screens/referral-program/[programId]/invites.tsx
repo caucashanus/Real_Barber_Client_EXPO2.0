@@ -94,7 +94,7 @@ export default function ReferralInvitesScreen() {
   return (
     <>
       <Header title={t('referralInvitesTitle')} showBackButton />
-      <ThemedScroller className="flex-1">
+      <ThemedScroller className="flex-1 p-global">
         <Section title={t('referralInvitesSection')} titleSize="lg" />
 
         {loading ? (

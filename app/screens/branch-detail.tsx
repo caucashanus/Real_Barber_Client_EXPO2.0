@@ -3,7 +3,6 @@ import { StatusBar } from 'expo-status-bar';
 import React, { useCallback, useRef } from 'react';
 import {
   View,
-  ActivityIndicator,
   Animated,
   ScrollView,
   type ImageSourcePropType,
@@ -73,21 +72,7 @@ export default function BranchDetailScreen() {
     scrollRef.current?.scrollTo({ y: Math.max(0, y - 16), animated: true });
   }, []);
 
-  if (loading) {
-    return (
-      <>
-        <Header showBackButton />
-        <View className="flex-1 items-center justify-center bg-light-primary dark:bg-dark-primary">
-          <ActivityIndicator size="large" />
-          <ThemedText className="mt-4 text-light-subtext dark:text-dark-subtext">
-            {t('commonLoading')}
-          </ThemedText>
-        </View>
-      </>
-    );
-  }
-
-  if (error || !branch) {
+  if (!loading && (error || !branch)) {
     return (
       <>
         <Header showBackButton />
@@ -96,6 +81,15 @@ export default function BranchDetailScreen() {
             {error ?? 'Branch not found'}
           </ThemedText>
         </View>
+      </>
+    );
+  }
+
+  if (!branch) {
+    return (
+      <>
+        <Header showBackButton />
+        <View className="flex-1 bg-light-primary dark:bg-dark-primary" />
       </>
     );
   }

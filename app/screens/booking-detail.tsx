@@ -1,6 +1,6 @@
 import { useLocalSearchParams } from 'expo-router';
 import React, { useCallback, useRef } from 'react';
-import { View, ActivityIndicator, Animated, Platform, ImageSourcePropType } from 'react-native';
+import { View, Animated, Platform, ImageSourcePropType } from 'react-native';
 import { ActionSheetRef } from 'react-native-actions-sheet';
 
 import type { Booking } from '@/api/bookings';
@@ -105,21 +105,7 @@ const BookingDetailScreen = () => {
     }, 320);
   }, [booking, setCalendarPromoVisible, t]);
 
-  if (loading) {
-    return (
-      <>
-        <Header title={t('bookingDetailTitle')} showBackButton />
-        <View className="flex-1 items-center justify-center bg-light-primary dark:bg-dark-primary">
-          <ActivityIndicator size="large" />
-          <ThemedText className="mt-2 text-light-subtext dark:text-dark-subtext">
-            {t('commonLoading')}
-          </ThemedText>
-        </View>
-      </>
-    );
-  }
-
-  if (error || !booking) {
+  if (!loading && (error || !booking)) {
     return (
       <>
         <Header title={t('bookingDetailTitle')} showBackButton />
@@ -128,6 +114,15 @@ const BookingDetailScreen = () => {
             {error ?? t('bookingNotFound')}
           </ThemedText>
         </View>
+      </>
+    );
+  }
+
+  if (!booking) {
+    return (
+      <>
+        <Header title={t('bookingDetailTitle')} showBackButton />
+        <View className="flex-1 bg-light-primary dark:bg-dark-primary" />
       </>
     );
   }
@@ -162,7 +157,7 @@ const BookingDetailScreen = () => {
           useNativeDriver: false,
         })}
         scrollEventThrottle={16}>
-        <AnimatedView animation="fadeIn" duration={400} delay={100}>
+        <View>
           <BookingDetailHeroSection
             carouselImages={carouselImages}
             heroScrollY={heroScrollY}
@@ -188,7 +183,7 @@ const BookingDetailScreen = () => {
             t={t}
           />
           <BookingDetailLocationSection booking={booking} location={location} t={t} />
-        </AnimatedView>
+        </View>
       </ThemedScroller>
 
       <BranchNavigateSheet

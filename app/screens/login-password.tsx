@@ -58,7 +58,7 @@ export default function LoginPasswordScreen() {
       <Header showBackButton />
       <AuthScreenLayout>
         <View className="mt-8">
-          <ThemedText variant="h1" className="mb-1">{t('loginWelcomeBack')}</ThemedText>
+          <ThemedText className="mb-1 text-3xl font-bold">{t('loginWelcomeBack')}</ThemedText>
           <ThemedText className="mb-6 text-light-subtext dark:text-dark-subtext">
             {t('loginPasswordOtpHint')}
           </ThemedText>
@@ -103,7 +103,7 @@ export default function LoginPasswordScreen() {
             loading={isLoading}
             size="large"
             className="mb-4"
-            textClassName="font-archivo-bold text-lg"
+            textClassName="font-bold text-lg"
           />
 
           <Link href="/screens/forgot-password?mode=phone" asChild>
@@ -113,7 +113,7 @@ export default function LoginPasswordScreen() {
           </Link>
 
           <Link href="/screens/login" asChild>
-            <ThemedText variant="bodySm" className="mt-4 text-center text-light-subtext dark:text-dark-subtext">
+            <ThemedText className="mt-4 text-center text-sm font-medium text-light-subtext dark:text-dark-subtext">
               {t('loginPasswordBackToOtp')}
             </ThemedText>
           </Link>

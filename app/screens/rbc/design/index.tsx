@@ -145,7 +145,7 @@ export default function CardDesignGalleryScreen() {
           </LinearGradient>
         )}
         <ThemedText
-          className={`mt-2 text-center text-xs ${isSelected ? 'font-archivo text-[#0EA5E9]' : 'text-light-subtext dark:text-dark-subtext'}`}
+          className={`mt-2 text-center text-xs ${isSelected ? 'font-semibold text-[#0EA5E9]' : 'text-light-subtext dark:text-dark-subtext'}`}
           numberOfLines={1}>
           {design.name}
         </ThemedText>
@@ -163,7 +163,7 @@ export default function CardDesignGalleryScreen() {
           {designSections.map(({ title, designs }) => (
             <View key={title} style={styles.section}>
               <View className="mb-2 px-global">
-                <ThemedText variant="bodySm" className="text-light-subtext dark:text-dark-subtext">
+                <ThemedText className="text-sm font-medium text-light-subtext dark:text-dark-subtext">
                   {title}
                 </ThemedText>
               </View>

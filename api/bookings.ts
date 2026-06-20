@@ -1,4 +1,6 @@
-import { CrmHttpError, fetchCrm } from './http';
+import { CLIENT_APP_V1_ENABLED } from '@/constants/clientAppApi';
+
+import { CrmHttpError, fetchClientAppV1, fetchCrm } from './http';
 
 export { CRM_BASE } from './http';
 
@@ -260,8 +262,8 @@ export interface GetBookingAvailabilityParams {
 /** Response shape from GET /api/client/bookings/availability (see CRM for actual fields). */
 export interface BookingAvailabilityResponse {
   date: string;
-  employee: { id: string; name: string };
-  service: { id: string; name: string; duration: number; price: number } | null;
+  employee?: { id: string; name: string };
+  service?: { id: string; name: string; duration: number; price: number } | null;
   schedule?: {
     hasDayOff?: boolean;
     shifts?: {
@@ -287,6 +289,109 @@ export interface BookingAvailabilityResponse {
   [key: string]: unknown;
 }
 
+export interface BookingAvailabilityDayV1 {
+  date: string;
+  slots: { branchId?: string; start: string; end: string; duration: number }[];
+}
+
+export interface BookingAvailabilityMonthResponse {
+  year: number;
+  month: number;
+  days: { date: string; hasSlots: boolean; slotCount?: number }[];
+}
+
+export interface GetBookingAvailabilityMonthParams {
+  employeeId: string;
+  branchId: string;
+  itemId: string;
+  year: number;
+  month: number;
+}
+
+function normalizeV1DayAvailability(raw: BookingAvailabilityDayV1): BookingAvailabilityResponse {
+  const slots = raw.slots ?? [];
+  return {
+    date: raw.date,
+    workingHours: { start: '', end: '' },
+    existingBookings: [],
+    availability: {
+      totalSlots: slots.length,
+      slots,
+    },
+  };
+}
+
+/** GET /api/client/app/v1/bookings/availability/month — one request per calendar month. */
+export async function getBookingAvailabilityMonth(
+  apiToken: string,
+  params: GetBookingAvailabilityMonthParams
+): Promise<BookingAvailabilityMonthResponse> {
+  const q = new URLSearchParams();
+  q.set('employeeId', params.employeeId);
+  q.set('branchId', params.branchId);
+  q.set('itemId', params.itemId);
+  q.set('year', String(params.year));
+  q.set('month', String(params.month));
+
+  return fetchClientAppV1<BookingAvailabilityMonthResponse>(
+    `/bookings/availability/month?${q.toString()}`,
+    { apiToken }
+  );
+}
+
+/** Available ISO dates in a month (v1: single HTTP; legacy: parallel daily calls). */
+export async function fetchAvailableDatesInMonth(
+  apiToken: string,
+  params: {
+    employeeId: string;
+    branchId?: string;
+    itemId?: string;
+    monthOffset: number;
+    monthDays: { value: string }[];
+  }
+): Promise<string[]> {
+  const branchId = params.branchId?.trim() ?? '';
+  const itemId = params.itemId?.trim() ?? '';
+
+  if (CLIENT_APP_V1_ENABLED && branchId && itemId) {
+    const anchor = new Date();
+    anchor.setMonth(anchor.getMonth() + params.monthOffset);
+    const res = await getBookingAvailabilityMonth(apiToken, {
+      employeeId: params.employeeId,
+      branchId,
+      itemId,
+      year: anchor.getFullYear(),
+      month: anchor.getMonth() + 1,
+    });
+    const available = new Set(
+      (res.days ?? []).filter((d) => d.hasSlots).map((d) => d.date)
+    );
+    return params.monthDays
+      .map((d) => d.value)
+      .filter((v) => available.has(v))
+      .sort();
+  }
+
+  const values = await Promise.all(
+    params.monthDays.map(async (day) => {
+      try {
+        const res = await getBookingAvailability(apiToken, {
+          employeeId: params.employeeId,
+          date: day.value,
+          branchId: branchId || undefined,
+          itemId: itemId || undefined,
+          noCache: true,
+        });
+        const count = res?.availability?.slots?.length ?? 0;
+        return count > 0 ? day.value : null;
+      } catch {
+        return null;
+      }
+    })
+  );
+  return values.filter((v): v is string => v != null).sort();
+}
+
 /** GET /api/client/bookings/availability – slots for branch + employee. */
 export async function getBookingAvailability(
   apiToken: string,
@@ -297,7 +402,15 @@ export async function getBookingAvailability(
   q.set('date', params.date);
   if (params.branchId) q.set('branchId', params.branchId);
   if (params.itemId) q.set('itemId', params.itemId);
-  if (params.noCache) q.set('_ts', String(Date.now()));
+  if (params.noCache && !CLIENT_APP_V1_ENABLED) q.set('_ts', String(Date.now()));
+
+  if (CLIENT_APP_V1_ENABLED) {
+    const raw = await fetchClientAppV1<BookingAvailabilityDayV1>(
+      `/bookings/availability?${q.toString()}`,
+      { apiToken }
+    );
+    return normalizeV1DayAvailability(raw);
+  }
 
   return fetchCrm<BookingAvailabilityResponse>(
     `/api/client/bookings/availability?${q.toString()}`,

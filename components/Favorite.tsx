@@ -139,7 +139,7 @@ const Favorite: React.FC<FavoriteProps> = ({
 
       <ActionSheetThemed ref={actionSheetRef} gestureEnabled>
         <View className="p-4 pb-6">
-          <ThemedText variant="h4" className="mb-1 mt-4 text-left">
+          <ThemedText className="mb-1 mt-4 text-left text-lg font-bold">
             {isFavorite ? t('favoritesSheetTitleAdded') : t('favoritesSheetTitleRemoved')}
           </ThemedText>
 

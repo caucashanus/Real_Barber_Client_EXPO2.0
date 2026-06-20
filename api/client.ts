@@ -1,4 +1,6 @@
-import { CrmHttpError, fetchCrm } from './http';
+import { CLIENT_APP_V1_ENABLED } from '@/constants/clientAppApi';
+
+import { CrmHttpError, fetchClientAppV1, fetchCrm } from './http';
 
 export interface ClientMe {
   id: string;
@@ -25,7 +27,9 @@ export interface ClientMe {
 
 /** GET /api/client/me – current client information. */
 export async function getClientMe(apiToken: string): Promise<ClientMe> {
-  return fetchCrm<ClientMe>('/api/client/me', { apiToken });
+  const path = CLIENT_APP_V1_ENABLED ? '/me' : '/api/client/me';
+  const fetcher = CLIENT_APP_V1_ENABLED ? fetchClientAppV1 : fetchCrm;
+  return fetcher<ClientMe>(path, { apiToken });
 }
 
 export interface UpdateClientMeBody {
@@ -168,8 +172,10 @@ export async function deleteClientMedia(apiToken: string, mediaId: string): Prom
 
 /** PATCH /api/client/me – update current client profile (partial). */
 export async function patchClientMe(apiToken: string, body: UpdateClientMeBody): Promise<ClientMe> {
+  const path = CLIENT_APP_V1_ENABLED ? '/me' : '/api/client/me';
+  const fetcher = CLIENT_APP_V1_ENABLED ? fetchClientAppV1 : fetchCrm;
   try {
-    return await fetchCrm<ClientMe>('/api/client/me', { method: 'PATCH', apiToken, body });
+    return await fetcher<ClientMe>(path, { method: 'PATCH', apiToken, body });
   } catch (e) {
     if (e instanceof CrmHttpError) {
       if (e.status === 400) throw new Error('Invalid input data');

@@ -78,14 +78,14 @@ const PriceMarker: React.FC<PriceMarkerProps> = ({
               onLoadEnd={handleImageLoad}
             />
             <View className="min-w-0 max-w-[100px] bg-black px-2 py-1">
-              <ThemedText variant="label" className="text-white" numberOfLines={1}>
+              <ThemedText className="text-xs font-bold text-white" numberOfLines={1}>
                 {title || '—'}
               </ThemedText>
             </View>
           </>
         ) : (
           <View style={styles.priceWrap} className="min-w-[60px] rounded-lg bg-black px-3 py-2">
-            <ThemedText variant="label" className="text-white" numberOfLines={1}>
+            <ThemedText className="text-sm font-bold text-white" numberOfLines={1}>
               {price}
             </ThemedText>
           </View>

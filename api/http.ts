@@ -1,3 +1,5 @@
+import { CLIENT_APP_V1_PREFIX } from '@/constants/clientAppApi';
+
 import { notifyUnauthorized } from './session';
 
 export const CRM_BASE = 'https://crm.xrb.cz';
@@ -72,4 +74,13 @@ export async function fetchCrm<T>(path: string, options: FetchCrmOptions = {}): 
   }
 
   return JSON.parse(text) as T;
+}
+
+/** CRM Client App API v1 — `/api/client/app/v1/*` */
+export async function fetchClientAppV1<T>(
+  path: string,
+  options: FetchCrmOptions = {}
+): Promise<T> {
+  const normalized = path.startsWith('/') ? path : `/${path}`;
+  return fetchCrm<T>(`${CLIENT_APP_V1_PREFIX}${normalized}`, options);
 }

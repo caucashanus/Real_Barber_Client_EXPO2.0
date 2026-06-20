@@ -27,7 +27,7 @@ export default function BookingDetailCalendarPromoModal({
           className="gap-3 rounded-t-3xl px-4 pb-10 pt-4"
           style={{ backgroundColor: sheetBackgroundColor }}
           onPress={(e) => e.stopPropagation?.()}>
-          <ThemedText variant="emphasis" className="mb-1 text-center">
+          <ThemedText className="mb-1 text-center text-base font-semibold">
             {t('bookingDetailPostBookingCalendarTitle')}
           </ThemedText>
           <ThemedText className="text-center text-sm text-light-subtext dark:text-dark-subtext">

@@ -29,17 +29,17 @@ const VARIANT_CLASSES: Record<
   cardImage: {
     pill: 'rounded-full border border-white/25 bg-black/50 px-2 py-0.5',
     prefix: 'text-[10px] text-white/80',
-    value: 'text-[10px] font-archivo text-white',
+    value: 'text-[10px] font-semibold text-white',
   },
   cardSolid: {
     pill: 'rounded-full border border-neutral-200 bg-light-primary px-2 py-0.5 dark:border-dark-secondary dark:bg-dark-secondary',
     prefix: 'text-[10px] text-light-subtext dark:text-dark-subtext',
-    value: 'text-[10px] font-archivo text-light-text dark:text-dark-text',
+    value: 'text-[10px] font-semibold text-light-text dark:text-dark-text',
   },
   sheet: {
     pill: 'rounded-full border border-neutral-200 bg-light-secondary px-3 py-1.5 dark:border-dark-secondary dark:bg-dark-secondary',
     prefix: 'text-xs text-light-subtext dark:text-dark-subtext',
-    value: 'text-sm font-archivo text-light-text dark:text-dark-text',
+    value: 'text-sm font-semibold text-light-text dark:text-dark-text',
   },
 };
 

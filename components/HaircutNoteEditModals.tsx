@@ -4,6 +4,7 @@ import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { View, ScrollView, Pressable, Dimensions } from 'react-native';
 import ActionSheet, { ActionSheetRef } from 'react-native-actions-sheet';
 
+import { useAccentColor } from '@/app/contexts/AccentColorContext';
 import useThemeColors from '@/app/contexts/ThemeColors';
 import { useTranslation } from '@/app/hooks/useTranslation';
 import { Button } from '@/components/Button';
@@ -53,6 +54,7 @@ export default function HaircutNoteEditModals({
   onApply,
 }: HaircutNoteEditModalsProps) {
   const { t } = useTranslation();
+  const { accentColor } = useAccentColor();
   const colors = useThemeColors();
   const actionSheetRef = useRef<ActionSheetRef>(null);
   const visible = kind != null;
@@ -239,7 +241,7 @@ export default function HaircutNoteEditModals({
           <View className="w-10" />
           <View className="flex-1 items-center px-1">
             <View className="mt-1 h-2 w-14 rounded-full bg-light-secondary dark:bg-dark-secondary" />
-            <ThemedText variant="h4" className="mt-2 text-center" numberOfLines={2}>
+            <ThemedText className="mt-2 text-center font-bold" numberOfLines={2}>
               {sheetTitle}
             </ThemedText>
           </View>
@@ -381,9 +383,9 @@ export default function HaircutNoteEditModals({
                 minimumValue={0}
                 maximumValue={100}
                 onValueChange={(v) => setDifficulty(v)}
-                minimumTrackTintColor={colors.highlight}
+                minimumTrackTintColor={accentColor}
                 maximumTrackTintColor="rgba(0,0,0,0.2)"
-                thumbTintColor={colors.highlight}
+                thumbTintColor={accentColor}
                 step={1}
               />
               <ThemedText className="mt-1 text-sm text-light-subtext dark:text-dark-subtext">

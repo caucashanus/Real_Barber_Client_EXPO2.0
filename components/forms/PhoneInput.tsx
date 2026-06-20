@@ -39,7 +39,7 @@ export default function PhoneInput({
   return (
     <View className="mb-4">
       {label ? (
-        <ThemedText variant="body" className="mb-1">
+        <ThemedText className="mb-1 font-medium text-light-text dark:text-dark-text">
           {label}
         </ThemedText>
       ) : null}

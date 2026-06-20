@@ -130,7 +130,7 @@ export default function CardDesignDetailScreen() {
       <ThemedScroller className="flex-1 bg-light-primary dark:bg-dark-primary">
         <View className="px-6 pb-8 pt-4">
           <View className="mb-6 items-center">
-            <ThemedText variant="h3">
+            <ThemedText className="text-xl font-semibold text-light-text dark:text-dark-text">
               {design.name}
             </ThemedText>
             <ThemedText className="mt-1 max-w-xs text-center text-sm text-light-subtext dark:text-dark-subtext">

@@ -1,11 +1,11 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import type {
   ReservationFlowDataState,
   ReservationMonthState,
 } from './reservationCreateFlowShared';
 
-import { getBookingAvailability, type BookingAvailabilityResponse } from '@/api/bookings';
+import { fetchAvailableDatesInMonth, getBookingAvailability, type BookingAvailabilityResponse } from '@/api/bookings';
 import { dedupeAvailabilitySlots } from '@/utils/availabilitySlots';
 import {
   type AvailabilitySlot,
@@ -35,6 +35,7 @@ export function useReservationAvailability({
   const [availabilityError, setAvailabilityError] = useState<string | null>(null);
   const [availableDatesInMonth, setAvailableDatesInMonth] = useState<Set<string>>(new Set());
   const [loadingMonthAvailability, setLoadingMonthAvailability] = useState(false);
+  const emptyMonthAdvanceKeyRef = useRef<string | null>(null);
 
   const groupedSlots = useMemo(() => {
     const slots = dedupeAvailabilitySlots(availability?.availability?.slots ?? []);
@@ -105,6 +106,10 @@ export function useReservationAvailability({
   }, [apiToken, data.employeeId, data.date, data.branchId, data.itemId]);
 
   useEffect(() => {
+    emptyMonthAdvanceKeyRef.current = null;
+  }, [data.employeeId, data.branchId, data.itemId]);
+
+  useEffect(() => {
     if (!apiToken || !data.employeeId || monthDays.length === 0) {
       setAvailableDatesInMonth(new Set());
       setLoadingMonthAvailability(false);
@@ -113,26 +118,23 @@ export function useReservationAvailability({
     let cancelled = false;
     setAvailableDatesInMonth(new Set());
     setLoadingMonthAvailability(true);
-    Promise.all(
-      monthDays.map(async (day) => {
-        try {
-          const res = await getBookingAvailability(apiToken, {
-            employeeId: data.employeeId,
-            date: day.value,
-            branchId: data.branchId.trim() !== '' ? data.branchId : undefined,
-            itemId: data.itemId.trim() !== '' ? data.itemId : undefined,
-            noCache: true,
-          });
-          const count = res?.availability?.slots?.length ?? 0;
-          return count > 0 ? day.value : null;
-        } catch {
-          return null;
-        }
-      })
-    )
-      .then((values) => {
+    fetchAvailableDatesInMonth(apiToken, {
+      employeeId: data.employeeId,
+      branchId: data.branchId,
+      itemId: data.itemId,
+      monthOffset,
+      monthDays,
+    })
+      .then((available) => {
         if (cancelled) return;
-        const available = values.filter((v): v is string => v != null).sort();
+        if (available.length === 0 && monthOffset < 6) {
+          const advanceKey = `${data.employeeId}|${data.branchId}|${data.itemId}|${monthOffset}`;
+          if (emptyMonthAdvanceKeyRef.current !== advanceKey) {
+            emptyMonthAdvanceKeyRef.current = advanceKey;
+            setMonthOffset(monthOffset + 1);
+            return;
+          }
+        }
         const next = new Set(available);
         setAvailableDatesInMonth(next);
         const remembered = lastSelectedDateByMonth[currentMonthKey];

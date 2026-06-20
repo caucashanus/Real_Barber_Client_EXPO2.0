@@ -123,7 +123,7 @@ const Card: React.FC<CardProps> = ({
     return (
       <View
         className={`absolute left-2 top-2 z-10 rounded-full bg-white/70 px-2 py-1 dark:bg-black/70 `}>
-        <ThemedText variant="caption">{badge}</ThemedText>
+        <ThemedText className=" text-xs font-medium">{badge}</ThemedText>
       </View>
     );
   };
@@ -189,9 +189,9 @@ const Card: React.FC<CardProps> = ({
                   colors={overlayGradient}
                   className="relative flex h-full w-full flex-col justify-end">
                   <View className="absolute bottom-0 left-0 right-0 p-4">
-                    <Text className="text-base font-archivo-bold text-white">{title}</Text>
+                    <Text className="text-base font-bold text-white">{title}</Text>
                     {description && (
-                      <Text numberOfLines={1} className="font-archivo text-xs text-white">
+                      <Text numberOfLines={1} className="text-xs text-white">
                         {description}
                       </Text>
                     )}
@@ -226,7 +226,7 @@ const Card: React.FC<CardProps> = ({
         {variant !== 'overlay' && (
           <View className="w-full flex-1 py-2 ">
             <View className="flex-row items-center gap-1">
-              <ThemedText variant="bodySm" className="min-w-0 flex-1" numberOfLines={1}>
+              <ThemedText className="min-w-0 flex-1 text-sm font-medium" numberOfLines={1}>
                 {title}
               </ThemedText>
               {rating ? (

@@ -1,4 +1,6 @@
-import { fetchCrm } from './http';
+import { CLIENT_APP_V1_ENABLED } from '@/constants/clientAppApi';
+
+import { fetchClientAppV1, fetchCrm } from './http';
 
 export interface EmployeesNearestNextSlot {
   date: string;
@@ -49,8 +51,10 @@ export async function getEmployeesNearest(
   if (params.maxDays != null) q.set('maxDays', String(params.maxDays));
   if (params.employeeLimit != null) q.set('employeeLimit', String(params.employeeLimit));
 
-  return fetchCrm<EmployeesNearestResponse>(
-    `/api/client/availability/employees-nearest?${q.toString()}`,
-    { apiToken }
-  );
+  const path = CLIENT_APP_V1_ENABLED
+    ? `/availability/employees-nearest?${q.toString()}`
+    : `/api/client/availability/employees-nearest?${q.toString()}`;
+  const fetcher = CLIENT_APP_V1_ENABLED ? fetchClientAppV1 : fetchCrm;
+
+  return fetcher<EmployeesNearestResponse>(path, { apiToken });
 }

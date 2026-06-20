@@ -24,7 +24,7 @@ export default function ProductDetailBottomBar({
       style={{ paddingBottom }}
       className=" flex-row items-center justify-start border-t border-neutral-200 px-global pt-4 dark:border-dark-secondary">
       <View>
-        <ThemedText variant="h3">
+        <ThemedText className="text-xl font-bold">
           {totalPrice}
           {priceLabel ? ` ${priceLabel}` : ''}
         </ThemedText>

@@ -269,7 +269,7 @@ const MapScreen = () => {
                 pinColor={colors.highlight}>
                 <Callout>
                   <View className="max-w-[300px] px-1 py-1">
-                    <ThemedText variant="h4" className="mb-2">
+                    <ThemedText className="mb-2 text-base font-bold text-black dark:text-white">
                       {mapFocus.title}
                     </ThemedText>
                     <View className="flex-row flex-wrap items-baseline">
@@ -281,8 +281,8 @@ const MapScreen = () => {
                         accessibilityLabel={t('mapCentralWarehousePhoneA11y')}
                         onPress={() => Linking.openURL(`tel:${CENTRAL_WAREHOUSE_TEL}`)}
                         hitSlop={{ top: 6, bottom: 6, left: 4, right: 4 }}>
-                        <ThemedText variant="bodySm"
-                          className="underline"
+                        <ThemedText
+                          className="text-sm font-semibold leading-5 underline"
                           style={{ color: colors.highlight }}>
                           {t('mapCentralWarehousePhoneDisplay')}
                         </ThemedText>
@@ -307,7 +307,7 @@ const MapScreen = () => {
           CustomHeaderComponent={
             <View className="mb-2 w-full items-center justify-center">
               <View className="mt-2 h-2 w-14 rounded-full bg-light-secondary dark:bg-dark-secondary" />
-              <ThemedText variant="h4" className="mt-3">
+              <ThemedText className="mt-3 font-bold">
                 {loading ? '…' : `${branches.length} Branches`}
               </ThemedText>
             </View>
@@ -346,10 +346,10 @@ const MapScreen = () => {
                 <ImageCarousel rounded="xl" height={300} className="w-full" images={item.image} />
                 <View className="pb-global pt-2">
                   <View className="flex-row items-center justify-between">
-                    <ThemedText variant="h4">{item.title}</ThemedText>
+                    <ThemedText className="text-base font-bold">{item.title}</ThemedText>
                     <ShowRating rating={Number(item.rating)} size="md" />
                   </View>
-                  <Text className="font-archivo text-sm text-light-subtext dark:text-dark-subtext">
+                  <Text className="text-sm text-light-subtext dark:text-dark-subtext">
                     {item.description}
                   </Text>
                 </View>

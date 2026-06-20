@@ -74,7 +74,7 @@ export default function ChangePasswordScreen() {
           <View className="mb-6 h-20 w-20 items-center justify-center rounded-full bg-green-100 dark:bg-green-900/30">
             <Icon name="Check" size={40} color="#22c55e" />
           </View>
-          <ThemedText variant="h3" className="mb-2 text-center">
+          <ThemedText className="mb-2 text-center text-xl font-semibold">
             {t('changePasswordSuccessTitle')}
           </ThemedText>
           <ThemedText className="text-center text-base text-light-subtext dark:text-dark-subtext">
@@ -139,7 +139,7 @@ export default function ChangePasswordScreen() {
               className="mb-6"
             />
             <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext">
-              <ThemedText variant="emphasis">
+              <ThemedText className="font-semibold text-light-text dark:text-dark-text">
                 {t('changePasswordTipLabel')}
               </ThemedText>{' '}
               {t('changePasswordTipText')}

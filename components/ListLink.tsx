@@ -50,7 +50,7 @@ const ListLink: React.FC<ListLinkProps> = ({
         </View>
       ) : null}
       <View className="flex-1">
-        <ThemedText className="text-base font-archivo">{title}</ThemedText>
+        <ThemedText className="text-base font-normal">{title}</ThemedText>
         {description && (
           <ThemedText className="text-xs text-light-subtext dark:text-dark-subtext">
             {description}

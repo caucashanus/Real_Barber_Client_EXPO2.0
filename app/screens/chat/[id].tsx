@@ -172,7 +172,7 @@ export default function ChatDetailScreen() {
           className="border-b border-light-secondary dark:border-dark-secondary"
           showBackButton
           middleComponent={
-            <ThemedText variant="h4">{mockUser.name}</ThemedText>
+            <ThemedText className="text-lg font-semibold">{mockUser.name}</ThemedText>
           }
           rightComponents={[
             <Avatar key="avatar" size="sm" src={mockUser.avatar} name={mockUser.name} link="0" />,
