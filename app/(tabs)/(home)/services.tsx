@@ -3,7 +3,7 @@ import { View, Animated } from 'react-native';
 
 import { ScrollContext } from './_layout';
 
-import { getItemsAll, type Item } from '@/api/items';
+import { getItemsAll, itemListImageUrl, type Item } from '@/api/items';
 import { useAuth } from '@/app/contexts/AuthContext';
 import { useTranslation } from '@/app/hooks/useTranslation';
 import Card from '@/components/Card';
@@ -39,6 +39,10 @@ function sortItemsByNameOrder(items: Item[], orderedNames: readonly string[]): I
   });
 }
 
+function serviceCardImage(item: Item): string | number {
+  return itemListImageUrl(item) || require('@/assets/img/barbers.png');
+}
+
 const ServicesScreen = () => {
   const scrollY = useContext(ScrollContext);
   const { apiToken } = useAuth();
@@ -49,7 +53,7 @@ const ServicesScreen = () => {
   useEffect(() => {
     if (!apiToken) return;
     setError(null);
-    getItemsAll(apiToken, { includeMedia: true, includeEmployees: false, limit: 50 })
+    getItemsAll(apiToken)
       .then(setItems)
       .catch((e) => setError(e instanceof Error ? e.message : 'Failed to load'));
   }, [apiToken]);
@@ -94,7 +98,7 @@ const ServicesScreen = () => {
                   favoriteEntityId={item.id}
                   width={100}
                   imageHeight={100}
-                  image={item.imageUrl || require('@/assets/img/barbers.png')}
+                  image={serviceCardImage(item)}
                   href={`/screens/service-detail?id=${item.id}`}
                 />
               ))
@@ -123,7 +127,7 @@ const ServicesScreen = () => {
                   favoriteEntityId={item.id}
                   width={160}
                   imageHeight={160}
-                  image={item.imageUrl || require('@/assets/img/barbers.png')}
+                  image={serviceCardImage(item)}
                   href={`/screens/service-detail?id=${item.id}`}
                 />
               ))
@@ -152,7 +156,7 @@ const ServicesScreen = () => {
                   favoriteEntityId={item.id}
                   width={160}
                   imageHeight={160}
-                  image={item.imageUrl || require('@/assets/img/barbers.png')}
+                  image={serviceCardImage(item)}
                   href={`/screens/service-detail?id=${item.id}`}
                 />
               ))
@@ -181,7 +185,7 @@ const ServicesScreen = () => {
                   favoriteEntityId={item.id}
                   width={160}
                   imageHeight={160}
-                  image={item.imageUrl || require('@/assets/img/barbers.png')}
+                  image={serviceCardImage(item)}
                   href={`/screens/service-detail?id=${item.id}`}
                 />
               ))
@@ -210,7 +214,7 @@ const ServicesScreen = () => {
                   favoriteEntityId={item.id}
                   width={160}
                   imageHeight={160}
-                  image={item.imageUrl || require('@/assets/img/barbers.png')}
+                  image={serviceCardImage(item)}
                   href={`/screens/service-detail?id=${item.id}`}
                 />
               ))

@@ -288,10 +288,10 @@ export default function RealBarberHomeTab() {
           </View>
 
           {apiToken && (recentLoading || homePromoFeed.length > 0) ? (
-            <View className="-mx-global mt-6">
+            <View className="mt-6">
               <Section title={t('homePromoSectionTitle')} titleSize="md" />
               {recentLoading ? (
-                <View className="mx-4 h-[200px] items-center justify-center rounded-2xl bg-light-secondary py-12 dark:bg-dark-secondary">
+                <View className="mt-2 h-[200px] items-center justify-center rounded-2xl bg-light-secondary py-12 dark:bg-dark-secondary">
                   <ActivityIndicator size="small" />
                   <ThemedText className="mt-2 text-sm text-light-subtext dark:text-dark-subtext">
                     {t('commonLoading')}
@@ -301,11 +301,10 @@ export default function RealBarberHomeTab() {
                 <ScrollView
                   horizontal
                   showsHorizontalScrollIndicator={false}
-                  className="-mx-global"
+                  className="-mx-global mt-2"
                   contentContainerStyle={{
                     paddingHorizontal: 16,
                     paddingRight: 24,
-                    paddingTop: 8,
                     paddingBottom: 4,
                   }}>
                   {homePromoFeed.map((item) => {
@@ -557,20 +556,20 @@ export default function RealBarberHomeTab() {
 
           <Section title={t('homeRecentTitle')} titleSize="md" className="mt-6" />
           {recentLoading ? (
-            <View className="items-center py-6">
+            <View className="mt-2 items-center py-6">
               <ActivityIndicator size="small" />
               <ThemedText className="mt-2 text-sm text-light-subtext dark:text-dark-subtext">
                 {t('homeRecentLoading')}
               </ThemedText>
             </View>
           ) : recentBookings.length === 0 ? (
-            <View className="py-4">
+            <View className="mt-2 py-4">
               <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext">
                 {t('homeRecentEmpty')}
               </ThemedText>
             </View>
           ) : (
-            <View className="-mx-global overflow-hidden rounded-2xl bg-light-secondary dark:bg-dark-secondary">
+            <View className="-mx-global mt-2 overflow-hidden rounded-2xl bg-light-secondary dark:bg-dark-secondary">
               {recentBookings.map((b, i) => (
                 <Pressable
                   key={b.id}

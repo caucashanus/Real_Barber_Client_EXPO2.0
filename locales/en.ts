@@ -286,6 +286,7 @@ export const en = {
   homeContinueSearchBarbershops: 'Find a branch on the map',
   howToGetToUs: 'How to get to us?',
   topPicks: 'Top picks',
+  branchesGallery: 'Gallery',
 
   // Services
   servicesHaircuts: 'Haircuts',

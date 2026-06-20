@@ -4,7 +4,7 @@ import React, { useEffect, useState, useRef } from 'react';
 import { View, ActivityIndicator, Animated } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { getItemsAll, type Item } from '@/api/items';
+import { getItemById, type Item } from '@/api/items';
 import { useAuth } from '@/app/contexts/AuthContext';
 import { useTranslation } from '@/app/hooks/useTranslation';
 import { Button } from '@/components/Button';
@@ -47,12 +47,8 @@ export default function ServiceDetailScreen() {
     }
     setLoading(true);
     setError(null);
-    getItemsAll(apiToken, { includeMedia: true, includeEmployees: false, limit: 50 })
-      .then((all) => {
-        const found = all.find((i) => i.id === id) ?? null;
-        setItem(found);
-        if (!found) setError('Service not found');
-      })
+    getItemById(apiToken, id)
+      .then(setItem)
       .catch((e) => setError(e instanceof Error ? e.message : 'Failed to load'))
       .finally(() => setLoading(false));
   }, [apiToken, id]);

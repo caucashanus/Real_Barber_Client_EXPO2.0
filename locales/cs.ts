@@ -290,6 +290,7 @@ export const cs: Record<TranslationKey, string> = {
   homeContinueSearchBarbershops: 'Najít pobočku na mapě',
   howToGetToUs: 'Kudy k nám?',
   topPicks: 'Top výběr',
+  branchesGallery: 'Galerie',
 
   // Services
   servicesHaircuts: 'Střihy',

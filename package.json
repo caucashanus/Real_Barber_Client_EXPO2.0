@@ -9,6 +9,7 @@
     "prebuild": "expo prebuild",
     "lint": "eslint \"**/*.{js,jsx,ts,tsx}\" && prettier -c \"**/*.{js,jsx,ts,tsx,json}\"",
     "typecheck": "tsc --noEmit",
+    "sync:gallery": "node scripts/sync-branches-gallery.mjs",
     "test": "vitest run",
     "format": "eslint \"**/*.{js,jsx,ts,tsx}\" --fix && prettier \"**/*.{js,jsx,ts,tsx,json}\" --write"
   },
