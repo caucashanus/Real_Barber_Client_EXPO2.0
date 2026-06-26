@@ -16,8 +16,13 @@ import {
   formatMonthName,
   computeChartMonthsForYear,
   computeRbcWalletStats,
+  getDefaultMonthKeyForYear,
   getWalletChartYearBounds,
+  heroMonthFromChartMonth,
+  isMonthKeySelectableInYear,
   RBC_WALLET_MIN_YEAR,
+  shiftMonthKeyInYear,
+  monthKeyFromDate,
   type RbcWalletChartMonth,
   type RbcWalletHeroMonth,
 } from '@/utils/rbcWalletStats';
@@ -98,6 +103,7 @@ const GroupedWalletBarChart = ({
   selectedMonthKey,
   onSelectMonth,
   selectionColor,
+  isMonthSelectable,
 }: {
   months: RbcWalletChartMonth[];
   borderColor: string;
@@ -105,6 +111,7 @@ const GroupedWalletBarChart = ({
   selectedMonthKey: string | null;
   onSelectMonth: (monthKey: string) => void;
   selectionColor: string;
+  isMonthSelectable: (monthKey: string) => boolean;
 }) => {
   const maxValue = useMemo(() => {
     const peak = Math.max(...months.flatMap((month) => [month.received, month.sent]), 0);
@@ -155,24 +162,10 @@ const GroupedWalletBarChart = ({
 
           {months.map((month, index) => {
             const isSelected = selectedMonthKey === month.monthKey;
-            const dimmed = selectedMonthKey != null && !isSelected;
-
-            return (
-              <Pressable
-                key={month.monthKey}
-                onPress={() => onSelectMonth(month.monthKey)}
-                accessibilityRole="button"
-                accessibilityState={{ selected: isSelected }}
-                className="absolute bottom-0 flex-row items-end justify-center active:opacity-80"
-                style={{
-                  left: index * GROUP_WIDTH,
-                  width: GROUP_WIDTH,
-                  height: PLOT_HEIGHT,
-                  gap: BAR_GAP,
-                  opacity: dimmed ? 0.4 : 1,
-                  backgroundColor: isSelected ? `${selectionColor}22` : 'transparent',
-                  borderRadius: 8,
-                }}>
+            const selectable = isMonthSelectable(month.monthKey);
+            const dimmed = !selectable || (selectedMonthKey != null && !isSelected);
+            const barGroup = (
+              <>
                 <View
                   style={{
                     width: BAR_WIDTH,
@@ -191,6 +184,38 @@ const GroupedWalletBarChart = ({
                     borderTopRightRadius: 4,
                   }}
                 />
+              </>
+            );
+            const groupStyle = {
+              left: index * GROUP_WIDTH,
+              width: GROUP_WIDTH,
+              height: PLOT_HEIGHT,
+              gap: BAR_GAP,
+              opacity: dimmed ? 0.35 : 1,
+              backgroundColor: isSelected ? `${selectionColor}22` : 'transparent',
+              borderRadius: 8,
+            } as const;
+
+            if (!selectable) {
+              return (
+                <View
+                  key={month.monthKey}
+                  className="absolute bottom-0 flex-row items-end justify-center"
+                  style={groupStyle}>
+                  {barGroup}
+                </View>
+              );
+            }
+
+            return (
+              <Pressable
+                key={month.monthKey}
+                onPress={() => onSelectMonth(month.monthKey)}
+                accessibilityRole="button"
+                accessibilityState={{ selected: isSelected }}
+                className="absolute bottom-0 flex-row items-end justify-center active:opacity-80"
+                style={groupStyle}>
+                {barGroup}
               </Pressable>
             );
           })}
@@ -200,17 +225,33 @@ const GroupedWalletBarChart = ({
       <View className="mt-2 flex-row" style={{ marginLeft: Y_AXIS_WIDTH }}>
         {months.map((month) => {
           const isSelected = selectedMonthKey === month.monthKey;
+          const selectable = isMonthSelectable(month.monthKey);
+          const label = (
+            <ThemedText
+              className={`text-xs font-medium text-light-subtext dark:text-dark-subtext ${isSelected ? 'font-semibold' : ''}`}
+              style={isSelected ? { color: selectionColor } : undefined}>
+              {month.shortLabel}
+            </ThemedText>
+          );
+
+          if (!selectable) {
+            return (
+              <View
+                key={`${month.monthKey}-label`}
+                style={{ width: GROUP_WIDTH, opacity: 0.35 }}
+                className="items-center py-1">
+                {label}
+              </View>
+            );
+          }
+
           return (
             <Pressable
               key={`${month.monthKey}-label`}
               onPress={() => onSelectMonth(month.monthKey)}
               style={{ width: GROUP_WIDTH }}
               className="items-center py-1 active:opacity-70">
-              <ThemedText
-                className={`text-xs font-medium text-light-subtext dark:text-dark-subtext ${isSelected ? 'font-semibold' : ''}`}
-                style={isSelected ? { color: selectionColor } : undefined}>
-                {month.shortLabel}
-              </ThemedText>
+              {label}
             </Pressable>
           );
         })}
@@ -284,7 +325,10 @@ const WalletStatsScreen = () => {
   const [error, setError] = useState<string | null>(null);
   const [history, setHistory] = useState<RbCoinsHistoryItem[]>([]);
   const [selectedChartYear, setSelectedChartYear] = useState(() => new Date().getFullYear());
-  const [selectedMonthKey, setSelectedMonthKey] = useState<string | null>(null);
+  const [selectedMonthKey, setSelectedMonthKey] = useState<string | null>(() =>
+    getDefaultMonthKeyForYear(new Date().getFullYear())
+  );
+  const chartScrollRef = useRef<ScrollView>(null);
 
   const { minYear, maxYear } = useMemo(() => getWalletChartYearBounds(), []);
   const stats = useMemo(
@@ -309,7 +353,9 @@ const WalletStatsScreen = () => {
     try {
       const loadedHistory = await fetchAllRbCoinsHistory(apiToken);
       setHistory(loadedHistory);
-      setSelectedChartYear(getWalletChartYearBounds().maxYear);
+      const nextYear = getWalletChartYearBounds().maxYear;
+      setSelectedChartYear(nextYear);
+      setSelectedMonthKey(getDefaultMonthKeyForYear(nextYear));
     } catch (e) {
       setHistory([]);
       setError(e instanceof Error ? e.message : t('commonError'));
@@ -325,12 +371,61 @@ const WalletStatsScreen = () => {
   );
 
   useEffect(() => {
-    setSelectedMonthKey(null);
+    setSelectedMonthKey(getDefaultMonthKeyForYear(selectedChartYear));
   }, [selectedChartYear]);
 
-  const handleSelectMonth = useCallback((monthKey: string) => {
-    setSelectedMonthKey((current) => (current === monthKey ? null : monthKey));
-  }, []);
+  useEffect(() => {
+    if (!selectedMonthKey) return;
+    const index = chartMonths.findIndex((month) => month.monthKey === selectedMonthKey);
+    if (index < 0) return;
+    chartScrollRef.current?.scrollTo({
+      x: Math.max(0, index * GROUP_WIDTH - 24),
+      animated: true,
+    });
+  }, [selectedMonthKey, chartMonths]);
+
+  const isMonthSelectable = useCallback(
+    (monthKey: string) => isMonthKeySelectableInYear(monthKey, selectedChartYear),
+    [selectedChartYear]
+  );
+
+  const handleSelectMonth = useCallback(
+    (monthKey: string) => {
+      if (!isMonthKeySelectableInYear(monthKey, selectedChartYear)) return;
+      setSelectedMonthKey((current) => (current === monthKey ? null : monthKey));
+    },
+    [selectedChartYear]
+  );
+
+  const handleNavigateMonth = useCallback(
+    (direction: 'older' | 'newer') => {
+      const anchor =
+        selectedMonthKey ?? getDefaultMonthKeyForYear(selectedChartYear);
+      const nextKey = shiftMonthKeyInYear(anchor, selectedChartYear, direction);
+      if (nextKey) setSelectedMonthKey(nextKey);
+    },
+    [selectedChartYear, selectedMonthKey]
+  );
+
+  const heroMonth = useMemo((): RbcWalletHeroMonth => {
+    const fallbackKey = getDefaultMonthKeyForYear(selectedChartYear);
+    const key = selectedMonthKey ?? fallbackKey;
+    const chartMonth = chartMonths.find((month) => month.monthKey === key);
+    if (chartMonth) return heroMonthFromChartMonth(chartMonth, locale);
+    return {
+      monthKey: key,
+      isCurrentMonth: key === monthKeyFromDate(new Date()),
+      monthName: formatMonthName(key, locale),
+      received: 0,
+      sent: 0,
+    };
+  }, [chartMonths, locale, selectedChartYear, selectedMonthKey]);
+
+  const heroNavAnchorKey = selectedMonthKey ?? getDefaultMonthKeyForYear(selectedChartYear);
+  const canNavigateOlderMonth =
+    shiftMonthKeyInYear(heroNavAnchorKey, selectedChartYear, 'older') != null;
+  const canNavigateNewerMonth =
+    shiftMonthKeyInYear(heroNavAnchorKey, selectedChartYear, 'newer') != null;
 
   const displayedTransactions = useMemo(() => {
     if (selectedMonthKey) {
@@ -370,7 +465,13 @@ const WalletStatsScreen = () => {
           </View>
         ) : (
           <>
-            <StatsCounter heroMonths={stats.heroMonths} />
+            <StatsCounter
+              heroMonth={heroMonth}
+              canNavigateOlder={canNavigateOlderMonth}
+              canNavigateNewer={canNavigateNewerMonth}
+              onNavigateOlder={() => handleNavigateMonth('older')}
+              onNavigateNewer={() => handleNavigateMonth('newer')}
+            />
 
             <ChartYearSelector
               year={selectedChartYear}
@@ -386,6 +487,7 @@ const WalletStatsScreen = () => {
 
             <View className="mb-6">
               <ScrollView
+                ref={chartScrollRef}
                 horizontal
                 showsHorizontalScrollIndicator={false}
                 contentContainerStyle={{ paddingHorizontal: 20 }}>
@@ -396,6 +498,7 @@ const WalletStatsScreen = () => {
                   selectedMonthKey={selectedMonthKey}
                   onSelectMonth={handleSelectMonth}
                   selectionColor={colors.highlight}
+                  isMonthSelectable={isMonthSelectable}
                 />
               </ScrollView>
               {!hasChartActivity && (
@@ -461,33 +564,28 @@ const RecentMoveRow = (props: {
   );
 };
 
-const StatsCounter = ({ heroMonths }: { heroMonths: RbcWalletHeroMonth[] }) => {
+const StatsCounter = ({
+  heroMonth,
+  canNavigateOlder,
+  canNavigateNewer,
+  onNavigateOlder,
+  onNavigateNewer,
+}: {
+  heroMonth: RbcWalletHeroMonth;
+  canNavigateOlder: boolean;
+  canNavigateNewer: boolean;
+  onNavigateOlder: () => void;
+  onNavigateNewer: () => void;
+}) => {
   const { t } = useTranslation();
   const colors = useThemeColors();
-  const [currentMonthIndex, setCurrentMonthIndex] = useState(0);
   const fadeAnim = useRef(new Animated.Value(1)).current;
   const countAnim = useRef(new Animated.Value(0)).current;
-
-  const monthsData = heroMonths.length > 0 ? heroMonths : [];
-  const currentData = monthsData[currentMonthIndex] ?? {
-    monthKey: '',
-    isCurrentMonth: true,
-    monthName: '',
-    received: 0,
-    sent: 0,
-  };
-  const [displayAmount, setDisplayAmount] = useState(currentData.received);
-
-  useEffect(() => {
-    if (monthsData.length === 0) return;
-    if (currentMonthIndex >= monthsData.length) {
-      setCurrentMonthIndex(0);
-    }
-  }, [monthsData.length, currentMonthIndex]);
+  const [displayAmount, setDisplayAmount] = useState(heroMonth.received);
 
   useEffect(() => {
     const startValue = displayAmount;
-    const endValue = currentData.received;
+    const endValue = heroMonth.received;
 
     countAnim.setValue(0);
 
@@ -505,7 +603,7 @@ const StatsCounter = ({ heroMonths }: { heroMonths: RbcWalletHeroMonth[] }) => {
     return () => {
       countAnim.removeListener(listener);
     };
-  }, [currentMonthIndex, currentData.received]);
+  }, [heroMonth.monthKey, heroMonth.received]);
 
   const animateTransition = (callback: () => void) => {
     Animated.sequence([
@@ -525,19 +623,13 @@ const StatsCounter = ({ heroMonths }: { heroMonths: RbcWalletHeroMonth[] }) => {
   };
 
   const goToPrevious = () => {
-    if (currentMonthIndex < monthsData.length - 1) {
-      animateTransition(() => {
-        setCurrentMonthIndex(currentMonthIndex + 1);
-      });
-    }
+    if (!canNavigateOlder) return;
+    animateTransition(onNavigateOlder);
   };
 
   const goToNext = () => {
-    if (currentMonthIndex > 0) {
-      animateTransition(() => {
-        setCurrentMonthIndex(currentMonthIndex - 1);
-      });
-    }
+    if (!canNavigateNewer) return;
+    animateTransition(onNavigateNewer);
   };
 
   return (
@@ -548,32 +640,30 @@ const StatsCounter = ({ heroMonths }: { heroMonths: RbcWalletHeroMonth[] }) => {
       </ThemedText>
       <View className="flex-row items-center justify-between">
         <Animated.View style={{ opacity: fadeAnim }} className="min-w-0 flex-1 pr-3">
-          <ThemedText className="text-5xl font-semibold">{heroMonthLabel(currentData, t)}</ThemedText>
+          <ThemedText className="text-5xl font-semibold">{heroMonthLabel(heroMonth, t)}</ThemedText>
         </Animated.View>
         <View className="flex-row items-center justify-center">
           <Pressable
             onPress={goToPrevious}
             className={`mr-2 h-10 w-10 items-center justify-center rounded-full border border-neutral-300 ${
-              currentMonthIndex >= monthsData.length - 1 ? 'opacity-30' : 'opacity-100'
+              canNavigateOlder ? 'opacity-100' : 'opacity-30'
             }`}
-            disabled={currentMonthIndex >= monthsData.length - 1}>
+            disabled={!canNavigateOlder}>
             <Icon name="ChevronLeft" size={24} className="-translate-x-px" />
           </Pressable>
           <Pressable
             onPress={goToNext}
             className={`h-10 w-10 items-center justify-center rounded-full border border-neutral-300 ${
-              currentMonthIndex <= 0 ? 'opacity-30' : 'opacity-100'
+              canNavigateNewer ? 'opacity-100' : 'opacity-30'
             }`}
-            disabled={currentMonthIndex <= 0}>
+            disabled={!canNavigateNewer}>
             <Icon name="ChevronRight" size={24} className="translate-x-px" />
           </Pressable>
         </View>
       </View>
       <ThemedText className="text-lg">
-        {spentLineLabel(currentData, t)}{' '}
-        <ThemedText className="text-lg font-semibold">
-          {formatRbcAmount(currentData.sent)}
-        </ThemedText>
+        {spentLineLabel(heroMonth, t)}{' '}
+        <ThemedText className="text-lg font-semibold">{formatRbcAmount(heroMonth.sent)}</ThemedText>
       </ThemedText>
     </View>
   );

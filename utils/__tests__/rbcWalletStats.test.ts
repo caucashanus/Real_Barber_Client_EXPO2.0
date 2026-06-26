@@ -7,6 +7,10 @@ import {
   buildMonthKeysForYear,
   clampWalletChartYear,
   filterRbCoinsHistoryByMonth,
+  getDefaultMonthKeyForYear,
+  getLatestSelectableMonthKeyForYear,
+  isMonthKeySelectableInYear,
+  shiftMonthKeyInYear,
   computeChartMonthsForYear,
   computeRbcWalletStats,
   monthKeyFromDate,
@@ -74,6 +78,29 @@ describe('rbcWalletStats', () => {
     expect(clampWalletChartYear(2024, now)).toBe(RBC_WALLET_MIN_YEAR);
     expect(clampWalletChartYear(2027, now)).toBe(2027);
     expect(clampWalletChartYear(2030, now)).toBe(2028);
+  });
+
+  it('shifts month within a calendar year', () => {
+    const now = new Date(2026, 5, 15);
+    expect(shiftMonthKeyInYear('2026-06', 2026, 'older', now)).toBe('2026-05');
+    expect(shiftMonthKeyInYear('2026-06', 2026, 'newer', now)).toBeNull();
+    expect(shiftMonthKeyInYear('2026-01', 2026, 'older', now)).toBeNull();
+    expect(shiftMonthKeyInYear('2026-05', 2026, 'newer', now)).toBe('2026-06');
+    expect(shiftMonthKeyInYear('2025-12', 2025, 'newer', now)).toBeNull();
+  });
+
+  it('blocks future months in the current year', () => {
+    const now = new Date(2026, 5, 15);
+    expect(getLatestSelectableMonthKeyForYear(2026, now)).toBe('2026-06');
+    expect(isMonthKeySelectableInYear('2026-06', 2026, now)).toBe(true);
+    expect(isMonthKeySelectableInYear('2026-07', 2026, now)).toBe(false);
+    expect(isMonthKeySelectableInYear('2025-12', 2025, now)).toBe(true);
+  });
+
+  it('picks default month key for year', () => {
+    const now = new Date(2026, 5, 15);
+    expect(getDefaultMonthKeyForYear(2026, now)).toBe('2026-06');
+    expect(getDefaultMonthKeyForYear(2025, now)).toBe('2025-12');
   });
 
   it('computes chart months for selected year only', () => {

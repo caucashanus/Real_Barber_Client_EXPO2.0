@@ -960,7 +960,7 @@ export const en = {
   walletStatsSpentThisMonth: 'Spent this month',
   walletStatsSpentInMonth: 'Spent in {month}',
   walletStatsRecentMoves: 'Recent activity',
-  walletStatsMovesInMonth: 'Activity ({month})',
+  walletStatsMovesInMonth: 'Activity {month}',
   walletStatsEmptyMonth: 'No activity this month.',
   walletStatsLegendReceived: 'Income',
   walletStatsLegendSent: 'Spending',

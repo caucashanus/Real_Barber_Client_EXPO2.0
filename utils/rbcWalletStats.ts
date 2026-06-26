@@ -107,6 +107,56 @@ export function formatMonthShortLabel(monthKey: string, locale: string): string 
   );
 }
 
+export function getDefaultMonthKeyForYear(year: number, now: Date = new Date()): string {
+  return getLatestSelectableMonthKeyForYear(year, now);
+}
+
+/** Poslední měsíc, na který lze v daném roce přepnout (u běžícího roku = aktuální měsíc). */
+export function getLatestSelectableMonthKeyForYear(year: number, now: Date = new Date()): string {
+  const currentYear = now.getFullYear();
+  if (year < currentYear) return `${year}-12`;
+  return monthKeyFromDate(now);
+}
+
+export function isMonthKeySelectableInYear(
+  monthKey: string,
+  year: number,
+  now: Date = new Date()
+): boolean {
+  return monthKey <= getLatestSelectableMonthKeyForYear(year, now);
+}
+
+/** `older` = předchozí kalendářní měsíc v daném roce, `newer` = další (ne do budoucnosti). */
+export function shiftMonthKeyInYear(
+  monthKey: string,
+  year: number,
+  direction: 'older' | 'newer',
+  now: Date = new Date()
+): string | null {
+  const months = buildMonthKeysForYear(year);
+  const index = months.indexOf(monthKey);
+  if (index === -1) return null;
+  const nextIndex = direction === 'older' ? index - 1 : index + 1;
+  if (nextIndex < 0 || nextIndex >= months.length) return null;
+  const nextKey = months[nextIndex];
+  if (!nextKey || !isMonthKeySelectableInYear(nextKey, year, now)) return null;
+  return nextKey;
+}
+
+export function heroMonthFromChartMonth(
+  month: RbcWalletChartMonth,
+  locale: string,
+  now: Date = new Date()
+): RbcWalletHeroMonth {
+  return {
+    monthKey: month.monthKey,
+    isCurrentMonth: month.monthKey === monthKeyFromDate(now),
+    monthName: formatMonthName(month.monthKey, locale),
+    received: month.received,
+    sent: month.sent,
+  };
+}
+
 export function computeChartMonthsForYear(
   history: RbCoinsHistoryItem[],
   year: number,
