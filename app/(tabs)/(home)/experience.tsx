@@ -423,7 +423,7 @@ const ExperienceScreen = () => {
                       rounded="lg"
                       className="ml-auto px-3 py-1.5"
                       textClassName="text-xs"
-                      href="/screens/reservation-create"
+                      href="/screens/schedule"
                     />
                   ) : undefined
                 }

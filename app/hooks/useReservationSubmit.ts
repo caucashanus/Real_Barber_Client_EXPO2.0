@@ -8,6 +8,7 @@ import { useBookings } from '@/app/contexts/BookingsBadgeContext';
 import { setFreshBookingSnapshot } from '@/utils/freshBookingSnapshot';
 import { buildOptimisticBooking, mergeApiBookingWithOptimistic } from '@/utils/optimisticBooking';
 import { setPendingCalendarPromo } from '@/utils/pendingCalendarPromo';
+import { setPendingStoreReviewAfterBooking } from '@/utils/pendingStoreReview';
 import type { ReservationFlowData, ServiceOption } from '@/utils/reservationCreateHelpers';
 
 interface SelectedEmployeeSummary {
@@ -104,6 +105,7 @@ export function useReservationSubmit({
             : fallback;
         setFreshBookingSnapshot(merged);
         setPendingCalendarPromo(createdId);
+        setPendingStoreReviewAfterBooking();
         router.replace(`/screens/booking-detail?id=${encodeURIComponent(createdId)}`);
       } else {
         router.replace('/bookings');

@@ -27,7 +27,7 @@ const NAV_HREFS = [
   '/bookings',
   '/experience',
   '/services',
-  '/screens/reservation-create',
+  '/screens/schedule',
   '/favorites',
 ];
 

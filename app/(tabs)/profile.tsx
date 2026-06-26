@@ -1,9 +1,7 @@
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useFocusEffect } from '@react-navigation/native';
 import Constants from 'expo-constants';
 import * as Notifications from 'expo-notifications';
 import { router } from 'expo-router';
-import * as StoreReview from 'expo-store-review';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { View, RefreshControl, Text, ActivityIndicator, Share } from 'react-native';
 
@@ -23,12 +21,9 @@ import ThemedScroller from '@/components/ThemeScroller';
 import ThemeToggle from '@/components/ThemeToggle';
 import ThemedText from '@/components/ThemedText';
 import Divider from '@/components/layout/Divider';
+import { maybeRequestAppStoreReview } from '@/utils/appStoreReview';
 import { shouldStaleRefresh } from '@/utils/staleRefresh';
 import { shadowPresets } from '@/utils/useShadow';
-
-const APP_REVIEW_PROMPTED_KEY = '@app_review_prompted';
-const APP_REVIEW_MIN_RESERVATIONS = 1;
-const APP_REVIEW_MIN_OPENS = 10;
 
 /** Spodní badge s číslem verze (přizpůsobeno iOS/Android buildu). */
 function ProfileVersionBadge() {
@@ -147,23 +142,18 @@ const PersonalProfile = ({
   const [error, setError] = useState<string | null>(null);
   const lastProfileFetchRef = useRef(0);
   const profileInflightRef = useRef<Promise<void> | null>(null);
+  const didProfileReviewAttemptRef = useRef(false);
 
   const reservationsCount = bookings.length;
 
-  useEffect(() => {
-    if (reservationsCount < APP_REVIEW_MIN_RESERVATIONS) return;
-    (async () => {
-      const alreadyPrompted = await AsyncStorage.getItem(APP_REVIEW_PROMPTED_KEY).catch(() => null);
-      if (alreadyPrompted) return;
-      const { APP_OPENS_KEY } = await import('@/app/_layout');
-      const raw = await AsyncStorage.getItem(APP_OPENS_KEY).catch(() => null);
-      const opens = parseInt(raw ?? '0', 10) || 0;
-      if (opens >= APP_REVIEW_MIN_OPENS && (await StoreReview.hasAction())) {
-        await AsyncStorage.setItem(APP_REVIEW_PROMPTED_KEY, '1').catch(() => {});
-        setTimeout(() => StoreReview.requestReview(), 1500);
-      }
-    })().catch(() => {});
-  }, [reservationsCount]);
+  useFocusEffect(
+    useCallback(() => {
+      if (didProfileReviewAttemptRef.current) return;
+      if (reservationsCount < 1) return;
+      didProfileReviewAttemptRef.current = true;
+      void maybeRequestAppStoreReview({ trigger: 'profile', delayMs: 1200 });
+    }, [reservationsCount])
+  );
 
   const fetchData = useCallback(async (options?: { force?: boolean }) => {
     if (!apiToken) {

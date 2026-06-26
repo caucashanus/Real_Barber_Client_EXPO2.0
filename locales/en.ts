@@ -304,6 +304,13 @@ export const en = {
   experienceNewBarbersInfoP2:
     '"New" simply means they\'re new with us—not necessarily new to the profession. Many are experienced barbers who have just joined our company.',
   experienceNewBarbersBadge: 'New',
+  scheduleTitle: 'Schedule',
+  scheduleDate: 'Date',
+  scheduleAll: 'All',
+  scheduleRezervovat: 'Book',
+  scheduleProfil: 'Profile',
+  scheduleEmpty: 'No barbers are scheduled for this day.',
+  scheduleEmptyBranch: 'No barbers are scheduled at this branch on this day.',
   experienceSchedule: 'Schedule',
   experiencePopularToday: 'Popular barbers available today',
   experienceAllBarbers: 'All barbers',

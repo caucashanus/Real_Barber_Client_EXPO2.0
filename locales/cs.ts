@@ -309,6 +309,13 @@ export const cs: Record<TranslationKey, string> = {
   experienceNewBarbersInfoP2:
     '„Nový“ u nás znamená, že jsou noví u nás — nemusí jít o nováčky v oboru. Mnoho z nich jsou zkušení holiči, kteří se právě přidali k naší firmě.',
   experienceNewBarbersBadge: 'Nový',
+  scheduleTitle: 'Rozvrh',
+  scheduleDate: 'Datum',
+  scheduleAll: 'Vše',
+  scheduleRezervovat: 'Rezervovat',
+  scheduleProfil: 'Profil',
+  scheduleEmpty: 'Na tento den nemáme nikoho ve směně.',
+  scheduleEmptyBranch: 'Na tento den není ve směně nikdo v této pobočce.',
   experienceSchedule: 'Rozvrh',
   experiencePopularToday: 'Dnes dostupní oblíbení barbeři',
   experienceAllBarbers: 'Všichni barbeři',

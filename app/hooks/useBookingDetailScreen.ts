@@ -13,6 +13,12 @@ import {
   peekFreshBookingSnapshot,
 } from '@/utils/freshBookingSnapshot';
 import { clearPendingCalendarPromo, peekPendingCalendarPromo } from '@/utils/pendingCalendarPromo';
+import {
+  clearPendingStoreReviewAfterBooking,
+  consumePendingStoreReviewAfterBooking,
+  peekPendingStoreReviewAfterBooking,
+} from '@/utils/pendingStoreReview';
+import { maybeRequestAppStoreReview } from '@/utils/appStoreReview';
 
 export function useBookingDetailScreen(params: {
   id: string;
@@ -24,7 +30,9 @@ export function useBookingDetailScreen(params: {
   const { t } = useTranslation();
 
   const promoTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const reviewTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const didShowCalendarPromoRef = useRef(false);
+  const didScheduleStoreReviewRef = useRef(false);
   const didAutoReviewRef = useRef(false);
 
   const [calendarPromoVisible, setCalendarPromoVisible] = useState(false);
@@ -124,6 +132,7 @@ export function useBookingDetailScreen(params: {
 
   useEffect(() => {
     didShowCalendarPromoRef.current = false;
+    didScheduleStoreReviewRef.current = false;
     setCalendarPromoVisible(false);
   }, [id]);
 
@@ -132,6 +141,7 @@ export function useBookingDetailScreen(params: {
 
     if (!(Platform.OS === 'ios' || Platform.OS === 'android')) {
       if (peekPendingCalendarPromo(booking.id)) clearPendingCalendarPromo();
+      clearPendingStoreReviewAfterBooking();
       return;
     }
 
@@ -142,6 +152,7 @@ export function useBookingDetailScreen(params: {
     const isPast = !isCancelled && !isCurrent && (isCompleted || isBookingPast(booking));
     if (isCancelled || isPast) {
       if (peekPendingCalendarPromo(booking.id)) clearPendingCalendarPromo();
+      clearPendingStoreReviewAfterBooking();
       return;
     }
 
@@ -172,6 +183,51 @@ export function useBookingDetailScreen(params: {
       }
     };
   }, [loading, booking, justBooked, id]);
+
+  useEffect(() => {
+    if (loading || !booking) return;
+    if (!peekPendingStoreReviewAfterBooking()) return;
+    if (didScheduleStoreReviewRef.current) return;
+
+    const scheduleReview = () => {
+      if (didScheduleStoreReviewRef.current) return;
+      if (!consumePendingStoreReviewAfterBooking()) return;
+      didScheduleStoreReviewRef.current = true;
+      void maybeRequestAppStoreReview({ trigger: 'booking_created', delayMs: 500 });
+    };
+
+    if (calendarPromoVisible) return;
+
+    if (didShowCalendarPromoRef.current) {
+      scheduleReview();
+      return;
+    }
+
+    reviewTimerRef.current = setTimeout(() => {
+      reviewTimerRef.current = null;
+      if (didShowCalendarPromoRef.current) return;
+      scheduleReview();
+    }, 2500);
+
+    return () => {
+      if (reviewTimerRef.current != null) {
+        clearTimeout(reviewTimerRef.current);
+        reviewTimerRef.current = null;
+      }
+    };
+  }, [loading, booking, calendarPromoVisible]);
+
+  useEffect(() => {
+    if (calendarPromoVisible) return;
+    if (!didShowCalendarPromoRef.current) return;
+    if (!peekPendingStoreReviewAfterBooking()) return;
+    if (didScheduleStoreReviewRef.current) return;
+
+    didScheduleStoreReviewRef.current = true;
+    if (consumePendingStoreReviewAfterBooking()) {
+      void maybeRequestAppStoreReview({ trigger: 'booking_created', delayMs: 500 });
+    }
+  }, [calendarPromoVisible]);
 
   useEffect(() => {
     if (!booking) return;
