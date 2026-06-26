@@ -1,6 +1,5 @@
 import type { RbCoinsHistoryItem } from '@/api/rb-coins';
 
-export const RBC_WALLET_HERO_MONTHS = 6;
 export const RBC_WALLET_RECENT_TX_LIMIT = 5;
 /** RBC peněženka v appce — data od tohoto roku. */
 export const RBC_WALLET_MIN_YEAR = 2026;
@@ -20,24 +19,10 @@ export interface RbcWalletChartMonth {
   sent: number;
 }
 
-export interface RbcWalletStatsResult {
-  heroMonths: RbcWalletHeroMonth[];
-  recentTransactions: RbCoinsHistoryItem[];
-}
-
 export function monthKeyFromDate(date: Date): string {
   const y = date.getFullYear();
   const m = String(date.getMonth() + 1).padStart(2, '0');
   return `${y}-${m}`;
-}
-
-export function buildMonthKeys(count: number, now: Date = new Date()): string[] {
-  const keys: string[] = [];
-  for (let i = count - 1; i >= 0; i--) {
-    const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
-    keys.push(monthKeyFromDate(d));
-  }
-  return keys;
 }
 
 export function buildMonthKeysForYear(year: number): string[] {
@@ -107,10 +92,6 @@ export function formatMonthShortLabel(monthKey: string, locale: string): string 
   );
 }
 
-export function getDefaultMonthKeyForYear(year: number, now: Date = new Date()): string {
-  return getLatestSelectableMonthKeyForYear(year, now);
-}
-
 /** Poslední měsíc, na který lze v daném roce přepnout (u běžícího roku = aktuální měsíc). */
 export function getLatestSelectableMonthKeyForYear(year: number, now: Date = new Date()): string {
   const currentYear = now.getFullYear();
@@ -174,34 +155,13 @@ export function computeChartMonthsForYear(
   }));
 }
 
-export function computeRbcWalletStats(
+export function getRecentRbCoinsTransactions(
   history: RbCoinsHistoryItem[],
-  options?: {
-    now?: Date;
-    locale?: string;
-    recentLimit?: number;
-  }
-): RbcWalletStatsResult {
-  const now = options?.now ?? new Date();
-  const locale = options?.locale ?? 'en';
-  const recentLimit = options?.recentLimit ?? RBC_WALLET_RECENT_TX_LIMIT;
-  const currentMonthKey = monthKeyFromDate(now);
-
-  const heroKeys = buildMonthKeys(RBC_WALLET_HERO_MONTHS, now);
-  const heroBuckets = aggregateRbCoinsByMonth(history, heroKeys);
-  const heroMonths: RbcWalletHeroMonth[] = [...heroKeys].reverse().map((monthKey) => ({
-    monthKey,
-    isCurrentMonth: monthKey === currentMonthKey,
-    monthName: formatMonthName(monthKey, locale),
-    received: heroBuckets[monthKey].received,
-    sent: heroBuckets[monthKey].sent,
-  }));
-
-  const recentTransactions = [...history]
+  limit: number = RBC_WALLET_RECENT_TX_LIMIT
+): RbCoinsHistoryItem[] {
+  return [...history]
     .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
-    .slice(0, recentLimit);
-
-  return { heroMonths, recentTransactions };
+    .slice(0, limit);
 }
 
 export function filterRbCoinsHistoryByMonth(

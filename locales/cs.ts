@@ -966,8 +966,6 @@ export const cs: Record<TranslationKey, string> = {
   walletStatsRecentMoves: 'Poslední pohyby',
   walletStatsMovesInMonth: 'Pohyby {month}',
   walletStatsEmptyMonth: 'V tomto měsíci žádné pohyby.',
-  walletStatsLegendReceived: 'Příjmy',
-  walletStatsLegendSent: 'Výdaje',
   walletStatsLoading: 'Načítání…',
   walletStatsLoginRequired: 'Přihlaste se pro zobrazení statistik.',
   walletStatsEmpty: 'Zatím nemáte žádné transakce.',

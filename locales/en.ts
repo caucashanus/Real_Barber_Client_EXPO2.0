@@ -962,8 +962,6 @@ export const en = {
   walletStatsRecentMoves: 'Recent activity',
   walletStatsMovesInMonth: 'Activity {month}',
   walletStatsEmptyMonth: 'No activity this month.',
-  walletStatsLegendReceived: 'Income',
-  walletStatsLegendSent: 'Spending',
   walletStatsLoading: 'Loading…',
   walletStatsLoginRequired: 'Sign in to view statistics.',
   walletStatsEmpty: 'No transactions yet.',

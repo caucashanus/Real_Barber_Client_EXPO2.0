@@ -15,8 +15,8 @@ import {
   filterRbCoinsHistoryByMonth,
   formatMonthName,
   computeChartMonthsForYear,
-  computeRbcWalletStats,
-  getDefaultMonthKeyForYear,
+  getRecentRbCoinsTransactions,
+  getLatestSelectableMonthKeyForYear,
   getWalletChartYearBounds,
   heroMonthFromChartMonth,
   isMonthKeySelectableInYear,
@@ -103,7 +103,7 @@ const GroupedWalletBarChart = ({
   selectedMonthKey,
   onSelectMonth,
   selectionColor,
-  isMonthSelectable,
+  chartYear,
 }: {
   months: RbcWalletChartMonth[];
   borderColor: string;
@@ -111,7 +111,7 @@ const GroupedWalletBarChart = ({
   selectedMonthKey: string | null;
   onSelectMonth: (monthKey: string) => void;
   selectionColor: string;
-  isMonthSelectable: (monthKey: string) => boolean;
+  chartYear: number;
 }) => {
   const maxValue = useMemo(() => {
     const peak = Math.max(...months.flatMap((month) => [month.received, month.sent]), 0);
@@ -162,7 +162,7 @@ const GroupedWalletBarChart = ({
 
           {months.map((month, index) => {
             const isSelected = selectedMonthKey === month.monthKey;
-            const selectable = isMonthSelectable(month.monthKey);
+            const selectable = isMonthKeySelectableInYear(month.monthKey, chartYear);
             const dimmed = !selectable || (selectedMonthKey != null && !isSelected);
             const barGroup = (
               <>
@@ -225,7 +225,7 @@ const GroupedWalletBarChart = ({
       <View className="mt-2 flex-row" style={{ marginLeft: Y_AXIS_WIDTH }}>
         {months.map((month) => {
           const isSelected = selectedMonthKey === month.monthKey;
-          const selectable = isMonthSelectable(month.monthKey);
+          const selectable = isMonthKeySelectableInYear(month.monthKey, chartYear);
           const label = (
             <ThemedText
               className={`text-xs font-medium text-light-subtext dark:text-dark-subtext ${isSelected ? 'font-semibold' : ''}`}
@@ -326,19 +326,21 @@ const WalletStatsScreen = () => {
   const [history, setHistory] = useState<RbCoinsHistoryItem[]>([]);
   const [selectedChartYear, setSelectedChartYear] = useState(() => new Date().getFullYear());
   const [selectedMonthKey, setSelectedMonthKey] = useState<string | null>(() =>
-    getDefaultMonthKeyForYear(new Date().getFullYear())
+    getLatestSelectableMonthKeyForYear(new Date().getFullYear())
   );
   const chartScrollRef = useRef<ScrollView>(null);
 
   const { minYear, maxYear } = useMemo(() => getWalletChartYearBounds(), []);
-  const stats = useMemo(
-    () => computeRbcWalletStats(history, { locale }),
-    [history, locale]
-  );
+  const recentTransactions = useMemo(() => getRecentRbCoinsTransactions(history), [history]);
   const chartMonths = useMemo(
     () => computeChartMonthsForYear(history, selectedChartYear, locale),
     [history, selectedChartYear, locale]
   );
+
+  const selectChartYear = useCallback((year: number) => {
+    setSelectedChartYear(year);
+    setSelectedMonthKey(getLatestSelectableMonthKeyForYear(year));
+  }, []);
 
   const loadStats = useCallback(async () => {
     if (!apiToken) {
@@ -353,26 +355,20 @@ const WalletStatsScreen = () => {
     try {
       const loadedHistory = await fetchAllRbCoinsHistory(apiToken);
       setHistory(loadedHistory);
-      const nextYear = getWalletChartYearBounds().maxYear;
-      setSelectedChartYear(nextYear);
-      setSelectedMonthKey(getDefaultMonthKeyForYear(nextYear));
+      selectChartYear(getWalletChartYearBounds().maxYear);
     } catch (e) {
       setHistory([]);
       setError(e instanceof Error ? e.message : t('commonError'));
     } finally {
       setLoading(false);
     }
-  }, [apiToken, t]);
+  }, [apiToken, selectChartYear, t]);
 
   useFocusEffect(
     useCallback(() => {
       void loadStats();
     }, [loadStats])
   );
-
-  useEffect(() => {
-    setSelectedMonthKey(getDefaultMonthKeyForYear(selectedChartYear));
-  }, [selectedChartYear]);
 
   useEffect(() => {
     if (!selectedMonthKey) return;
@@ -384,23 +380,14 @@ const WalletStatsScreen = () => {
     });
   }, [selectedMonthKey, chartMonths]);
 
-  const isMonthSelectable = useCallback(
-    (monthKey: string) => isMonthKeySelectableInYear(monthKey, selectedChartYear),
-    [selectedChartYear]
-  );
-
-  const handleSelectMonth = useCallback(
-    (monthKey: string) => {
-      if (!isMonthKeySelectableInYear(monthKey, selectedChartYear)) return;
-      setSelectedMonthKey((current) => (current === monthKey ? null : monthKey));
-    },
-    [selectedChartYear]
-  );
+  const handleSelectMonth = useCallback((monthKey: string) => {
+    setSelectedMonthKey((current) => (current === monthKey ? null : monthKey));
+  }, []);
 
   const handleNavigateMonth = useCallback(
     (direction: 'older' | 'newer') => {
       const anchor =
-        selectedMonthKey ?? getDefaultMonthKeyForYear(selectedChartYear);
+        selectedMonthKey ?? getLatestSelectableMonthKeyForYear(selectedChartYear);
       const nextKey = shiftMonthKeyInYear(anchor, selectedChartYear, direction);
       if (nextKey) setSelectedMonthKey(nextKey);
     },
@@ -408,7 +395,7 @@ const WalletStatsScreen = () => {
   );
 
   const heroMonth = useMemo((): RbcWalletHeroMonth => {
-    const fallbackKey = getDefaultMonthKeyForYear(selectedChartYear);
+    const fallbackKey = getLatestSelectableMonthKeyForYear(selectedChartYear);
     const key = selectedMonthKey ?? fallbackKey;
     const chartMonth = chartMonths.find((month) => month.monthKey === key);
     if (chartMonth) return heroMonthFromChartMonth(chartMonth, locale);
@@ -421,7 +408,8 @@ const WalletStatsScreen = () => {
     };
   }, [chartMonths, locale, selectedChartYear, selectedMonthKey]);
 
-  const heroNavAnchorKey = selectedMonthKey ?? getDefaultMonthKeyForYear(selectedChartYear);
+  const heroNavAnchorKey =
+    selectedMonthKey ?? getLatestSelectableMonthKeyForYear(selectedChartYear);
   const canNavigateOlderMonth =
     shiftMonthKeyInYear(heroNavAnchorKey, selectedChartYear, 'older') != null;
   const canNavigateNewerMonth =
@@ -431,8 +419,8 @@ const WalletStatsScreen = () => {
     if (selectedMonthKey) {
       return filterRbCoinsHistoryByMonth(history, selectedMonthKey);
     }
-    return stats.recentTransactions;
-  }, [history, selectedMonthKey, stats.recentTransactions]);
+    return recentTransactions;
+  }, [history, selectedMonthKey, recentTransactions]);
 
   const movesSectionTitle = useMemo(() => {
     if (!selectedMonthKey) return t('walletStatsRecentMoves');
@@ -478,10 +466,10 @@ const WalletStatsScreen = () => {
               minYear={minYear}
               maxYear={maxYear}
               onPrevious={() => {
-                setSelectedChartYear((year) => Math.max(RBC_WALLET_MIN_YEAR, year - 1));
+                selectChartYear(Math.max(RBC_WALLET_MIN_YEAR, selectedChartYear - 1));
               }}
               onNext={() => {
-                setSelectedChartYear((year) => Math.min(maxYear, year + 1));
+                selectChartYear(Math.min(maxYear, selectedChartYear + 1));
               }}
             />
 
@@ -498,7 +486,7 @@ const WalletStatsScreen = () => {
                   selectedMonthKey={selectedMonthKey}
                   onSelectMonth={handleSelectMonth}
                   selectionColor={colors.highlight}
-                  isMonthSelectable={isMonthSelectable}
+                  chartYear={selectedChartYear}
                 />
               </ScrollView>
               {!hasChartActivity && (

@@ -3,17 +3,14 @@ import { describe, expect, it } from 'vitest';
 import type { RbCoinsHistoryItem } from '@/api/rb-coins';
 import {
   aggregateRbCoinsByMonth,
-  buildMonthKeys,
   buildMonthKeysForYear,
   clampWalletChartYear,
   filterRbCoinsHistoryByMonth,
-  getDefaultMonthKeyForYear,
   getLatestSelectableMonthKeyForYear,
   isMonthKeySelectableInYear,
   shiftMonthKeyInYear,
   computeChartMonthsForYear,
-  computeRbcWalletStats,
-  monthKeyFromDate,
+  getRecentRbCoinsTransactions,
   RBC_WALLET_MIN_YEAR,
 } from '@/utils/rbcWalletStats';
 
@@ -37,11 +34,6 @@ function tx(
 }
 
 describe('rbcWalletStats', () => {
-  it('builds month keys ending at current month', () => {
-    const keys = buildMonthKeys(3, new Date(2026, 5, 15));
-    expect(keys).toEqual(['2026-04', '2026-05', '2026-06']);
-  });
-
   it('aggregates received and sent per month', () => {
     const keys = ['2026-01', '2026-02'];
     const buckets = aggregateRbCoinsByMonth(
@@ -97,10 +89,10 @@ describe('rbcWalletStats', () => {
     expect(isMonthKeySelectableInYear('2025-12', 2025, now)).toBe(true);
   });
 
-  it('picks default month key for year', () => {
+  it('picks latest selectable month key for year', () => {
     const now = new Date(2026, 5, 15);
-    expect(getDefaultMonthKeyForYear(2026, now)).toBe('2026-06');
-    expect(getDefaultMonthKeyForYear(2025, now)).toBe('2025-12');
+    expect(getLatestSelectableMonthKeyForYear(2026, now)).toBe('2026-06');
+    expect(getLatestSelectableMonthKeyForYear(2025, now)).toBe('2025-12');
   });
 
   it('computes chart months for selected year only', () => {
@@ -132,21 +124,18 @@ describe('rbcWalletStats', () => {
     expect(filtered.map((row) => row.id)).toEqual(['3', '1']);
   });
 
-  it('computes hero stats and recent transactions', () => {
-    const now = new Date(2026, 5, 15);
-    const stats = computeRbcWalletStats(
+  it('returns recent transactions sorted newest first', () => {
+    const recent = getRecentRbCoinsTransactions(
       [
         tx('1', '2026-06-01T10:00:00.000Z', 500, 'received'),
         tx('2', '2026-06-10T10:00:00.000Z', 120, 'sent'),
         tx('3', '2026-05-04T10:00:00.000Z', 300, 'received'),
       ],
-      { now, locale: 'en', recentLimit: 2 }
+      2
     );
 
-    expect(stats.heroMonths[0].monthKey).toBe(monthKeyFromDate(now));
-    expect(stats.heroMonths[0].received).toBe(500);
-    expect(stats.heroMonths[0].sent).toBe(120);
-    expect(stats.recentTransactions).toHaveLength(2);
-    expect(stats.recentTransactions[0].id).toBe('2');
+    expect(recent).toHaveLength(2);
+    expect(recent[0].id).toBe('2');
+    expect(recent[1].id).toBe('1');
   });
 });
