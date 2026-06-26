@@ -178,15 +178,26 @@ const MyHaircutsScreen = () => {
         ) : null}
 
         <View className="mb-4 flex-row items-center justify-between gap-2 py-2">
-          <Pressable
-            onPress={() => router.push('/screens/guide-my-haircuts')}
-            className="min-w-0 flex-1 shrink py-1"
-            accessibilityRole="link"
-            accessibilityLabel={t('myHaircutsWhatsFor')}>
-            <ThemedText style={{ color: colors.highlight }} className="text-base font-medium">
-              {t('myHaircutsWhatsFor')}
-            </ThemedText>
-          </Pressable>
+          <View className="min-w-0 flex-1 flex-row flex-wrap items-center gap-x-4 gap-y-2">
+            <Pressable
+              onPress={() => router.push('/screens/guide-my-haircuts')}
+              className="py-1"
+              accessibilityRole="link"
+              accessibilityLabel={t('myHaircutsWhatsFor')}>
+              <ThemedText style={{ color: colors.highlight }} className="text-base font-medium">
+                {t('myHaircutsWhatsFor')}
+              </ThemedText>
+            </Pressable>
+            <Pressable
+              onPress={() => router.push('/screens/earnings')}
+              className="py-1"
+              accessibilityRole="link"
+              accessibilityLabel={t('haircutStatsLink')}>
+              <ThemedText style={{ color: colors.highlight }} className="text-base font-medium">
+                {t('haircutStatsLink')}
+              </ThemedText>
+            </Pressable>
+          </View>
           <Pressable
             onPress={async () => {
               const skip = await isHaircutIntroCooldownActive();

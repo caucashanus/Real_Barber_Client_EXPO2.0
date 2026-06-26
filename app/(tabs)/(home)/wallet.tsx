@@ -296,6 +296,16 @@ const WalletScreen = () => {
               {t('walletTransfer')}
             </ThemedText>
           </Pressable>
+          <Pressable
+            className="items-center"
+            onPress={() => router.push('/screens/wallet-stats')}>
+            <View className="h-14 w-14 items-center justify-center rounded-full bg-white dark:bg-dark-primary">
+              <Icon name="ChartColumn" size={22} color={colors.text} />
+            </View>
+            <ThemedText className="mt-2 text-xs text-light-text dark:text-dark-text">
+              {t('walletStats')}
+            </ThemedText>
+          </Pressable>
         </View>
 
         {/* 3. Karty aktivních referral programů z GET /api/client/referrals – X skryje na 24 h */}

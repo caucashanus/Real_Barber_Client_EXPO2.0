@@ -957,6 +957,20 @@ export const cs: Record<TranslationKey, string> = {
   walletPersonalRbcCaption: 'Osobní · RBC',
   walletAddMoney: 'Přidat peníze',
   walletTransfer: 'Převod',
+  walletStats: 'Statistika',
+  walletStatsReceived: 'Přijato',
+  walletStatsThisMonth: 'tento měsíc',
+  walletStatsInMonth: 'v {month}',
+  walletStatsSpentThisMonth: 'Utraceno tento měsíc',
+  walletStatsSpentInMonth: 'Utraceno v {month}',
+  walletStatsRecentMoves: 'Poslední pohyby',
+  walletStatsMovesInMonth: 'Pohyby ({month})',
+  walletStatsEmptyMonth: 'V tomto měsíci žádné pohyby.',
+  walletStatsLegendReceived: 'Příjmy',
+  walletStatsLegendSent: 'Výdaje',
+  walletStatsLoading: 'Načítání…',
+  walletStatsLoginRequired: 'Přihlaste se pro zobrazení statistik.',
+  walletStatsEmpty: 'Zatím nemáte žádné transakce.',
   walletDetails: 'Detail',
   walletMore: 'Více',
   walletShowAll: 'Zobrazit vše',
@@ -1218,4 +1232,27 @@ export const cs: Record<TranslationKey, string> = {
   // Earnings
   earningsUpcoming: 'Nadcházející',
   earningsYouveMade: 'Vydělali jste',
+
+  // Statistiky návštěv (stříhání)
+  haircutStatsTitle: 'Statistiky',
+  haircutStatsSubtitle: 'Jak často se chodíte stříhat',
+  haircutStatsLink: 'Statistiky návštěv',
+  haircutStatsAvgInterval: 'Průměrný interval',
+  haircutStatsLongestPause: 'Nejdelší pauza',
+  haircutStatsNextVisit: 'Další návštěva',
+  haircutStatsDaysCount: '{count} dní',
+  haircutStatsRecommendedIn: 'Za {count} dní',
+  haircutStatsRecommendedNow: 'Nyní',
+  haircutStatsInsightRegular:
+    'Chodíte se stříhat přibližně každých {avg} dní, což je velmi pravidelné. Doporučujeme objednat další termín během příštího týdne.',
+  haircutStatsInsightOverdue:
+    'Tentokrát už uplynulo {days} dní, což je déle než je váš obvyklý interval ({avg} dní).',
+  haircutStatsInsufficient:
+    'Zatím nemáme dostatek návštěv pro vytvoření statistiky. Graf se zobrazí po druhém stříhání.',
+  haircutStatsTimeline: 'Historie návštěv',
+  haircutStatsTimelineGap: '{count} dní',
+  haircutStatsStatusOk: 'Vše v pořádku',
+  haircutStatsStatusApproaching: 'Blíží se čas na stříhání',
+  haircutStatsStatusOverdue: 'Je čas se objednat',
+  haircutStatsBookCta: 'Objednat nový termín',
 };

@@ -953,6 +953,20 @@ export const en = {
   walletPersonalRbcCaption: 'Personal · RBC',
   walletAddMoney: 'Add money',
   walletTransfer: 'Transfer',
+  walletStats: 'Statistics',
+  walletStatsReceived: 'Received',
+  walletStatsThisMonth: 'this month',
+  walletStatsInMonth: 'in {month}',
+  walletStatsSpentThisMonth: 'Spent this month',
+  walletStatsSpentInMonth: 'Spent in {month}',
+  walletStatsRecentMoves: 'Recent activity',
+  walletStatsMovesInMonth: 'Activity ({month})',
+  walletStatsEmptyMonth: 'No activity this month.',
+  walletStatsLegendReceived: 'Income',
+  walletStatsLegendSent: 'Spending',
+  walletStatsLoading: 'Loading…',
+  walletStatsLoginRequired: 'Sign in to view statistics.',
+  walletStatsEmpty: 'No transactions yet.',
   walletDetails: 'Details',
   walletMore: 'More',
   walletShowAll: 'Show all',
@@ -1214,6 +1228,29 @@ export const en = {
   // Earnings
   earningsUpcoming: 'Upcoming',
   earningsYouveMade: "You've made",
+
+  // Visit frequency stats
+  haircutStatsTitle: 'Statistics',
+  haircutStatsSubtitle: 'How often you get a haircut',
+  haircutStatsLink: 'Visit statistics',
+  haircutStatsAvgInterval: 'Average interval',
+  haircutStatsLongestPause: 'Longest gap',
+  haircutStatsNextVisit: 'Next visit',
+  haircutStatsDaysCount: '{count} days',
+  haircutStatsRecommendedIn: 'In {count} days',
+  haircutStatsRecommendedNow: 'Now',
+  haircutStatsInsightRegular:
+    'You get a haircut about every {avg} days, which is very regular. We recommend booking your next appointment within the next week.',
+  haircutStatsInsightOverdue:
+    'It has already been {days} days since your last visit, which is longer than your usual interval ({avg} days).',
+  haircutStatsInsufficient:
+    'We do not have enough visits yet to show statistics. The chart appears after your second haircut.',
+  haircutStatsTimeline: 'Visit history',
+  haircutStatsTimelineGap: '{count} days',
+  haircutStatsStatusOk: 'All good',
+  haircutStatsStatusApproaching: 'Time is approaching',
+  haircutStatsStatusOverdue: 'Time to book',
+  haircutStatsBookCta: 'Book a new appointment',
 } as const;
 
 export type TranslationKey = keyof typeof en;
