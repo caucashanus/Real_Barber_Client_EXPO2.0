@@ -4,6 +4,7 @@ import { useCallback, useState } from 'react';
 import { createBooking, type Booking } from '@/api/bookings';
 import type { Branch } from '@/api/branches';
 import type { CouponPreviewSuccess } from '@/api/coupons';
+import { useBookings } from '@/app/contexts/BookingsBadgeContext';
 import { setFreshBookingSnapshot } from '@/utils/freshBookingSnapshot';
 import { buildOptimisticBooking, mergeApiBookingWithOptimistic } from '@/utils/optimisticBooking';
 import { setPendingCalendarPromo } from '@/utils/pendingCalendarPromo';
@@ -38,6 +39,7 @@ export function useReservationSubmit({
 }: UseReservationSubmitParams) {
   const [creatingBooking, setCreatingBooking] = useState(false);
   const [createBookingError, setCreateBookingError] = useState<string | null>(null);
+  const { refresh: refreshBookings } = useBookings();
 
   const handleCreateBooking = useCallback(async () => {
     if (!apiToken || creatingBooking) return;
@@ -61,6 +63,7 @@ export function useReservationSubmit({
         ...(verifiedCoupon ? { couponCode: trimmedCoupon } : {}),
       };
       const created = await createBooking(apiToken, payload);
+      await refreshBookings({ force: true });
       const createdId =
         (typeof created.id === 'string' ? created.id : undefined) ??
         (created.booking && typeof created.booking.id === 'string'
@@ -120,6 +123,7 @@ export function useReservationSubmit({
     clientId,
     branchForServiceStep,
     selectedEmployee,
+    refreshBookings,
   ]);
 
   return {

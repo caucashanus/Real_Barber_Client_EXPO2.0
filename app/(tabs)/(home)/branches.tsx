@@ -17,39 +17,21 @@ import ThemeScroller from '@/components/ThemeScroller';
 import ThemedText from '@/components/ThemedText';
 import Section from '@/components/layout/Section';
 import { BRANCHES_GALLERY_CARD, BRANCHES_GALLERY_ITEMS } from '@/constants/branchesGallery';
+import { getBranchServicesList, getMediaUrlsSorted } from '@/utils/branchMediaHelpers';
 import { shadowPresets } from '@/utils/useShadow';
-
-function getServicesList(branch: Branch): BranchService[] {
-  const s = branch.services;
-  if (!s) return [];
-  if (Array.isArray(s)) return s;
-  return Object.values(s);
-}
-
-function getMediaUrlsSorted(media: Branch['media']): string[] {
-  if (!media) return [];
-  const list = (Array.isArray(media) ? [...media] : Object.values(media ?? {})) as {
-    url?: string;
-    order?: number;
-    type?: string;
-  }[];
-  const withOrder = list.filter((m): m is { url: string; order?: number } => !!m?.url);
-  withOrder.sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
-  return withOrder.map((m) => m.url);
-}
 
 function branchCardImage(branch: Branch): string | number {
   const mediaUrls = getMediaUrlsSorted(branch.media);
   if (mediaUrls.length > 0) return mediaUrls[0];
   if (branch.imageUrl) return branch.imageUrl;
-  const servicesList = getServicesList(branch);
+  const servicesList = getBranchServicesList(branch);
   const firstService = servicesList[0];
   if (firstService?.imageUrl) return firstService.imageUrl;
   return require('@/assets/img/barbers.png');
 }
 
 function branchPrice(branch: Branch): string {
-  const servicesList = getServicesList(branch);
+  const servicesList = getBranchServicesList(branch);
   const prices = servicesList.map((s) => s.price).filter((p) => p != null);
   if (prices.length === 0) return '';
   const min = Math.min(...prices);

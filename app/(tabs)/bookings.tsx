@@ -10,10 +10,10 @@ import {
   RefreshControl,
 } from 'react-native';
 
-import { getBookings, type Booking } from '@/api/bookings';
+import type { Booking } from '@/api/bookings';
 import { useAccentColor } from '@/app/contexts/AccentColorContext';
 import { useAuth } from '@/app/contexts/AuthContext';
-import { useBookingsBadge } from '@/app/contexts/BookingsBadgeContext';
+import { useBookings } from '@/app/contexts/BookingsBadgeContext';
 import { useCollapsibleTitle } from '@/app/hooks/useCollapsibleTitle';
 import { useTranslation } from '@/app/hooks/useTranslation';
 import AnimatedView from '@/components/AnimatedView';
@@ -221,9 +221,12 @@ const TripsScreen = () => {
   const { accentColor } = useAccentColor();
   const { scrollY, scrollHandler, scrollEventThrottle } = useCollapsibleTitle();
   const { apiToken } = useAuth();
-  const { refresh: refreshBookingsBadge } = useBookingsBadge();
-  const [bookings, setBookings] = useState<Booking[]>([]);
-  const [loading, setLoading] = useState(true);
+  const {
+    bookings,
+    loading,
+    refresh: refreshBookings,
+    refreshIfStale: refreshBookingsIfStale,
+  } = useBookings();
   const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [selectedFilter, setSelectedFilter] = useState<BookingFilter>('all');
@@ -253,44 +256,24 @@ const TripsScreen = () => {
                     )
                   : bookings;
 
-  const loadData = useCallback(async () => {
-    if (!apiToken) {
-      setLoading(false);
-      return;
-    }
+  const onRefresh = useCallback(async () => {
+    if (!apiToken) return;
+    setRefreshing(true);
     setError(null);
     try {
-      const res = await getBookings(apiToken);
-      setBookings(res.bookings);
-      refreshBookingsBadge();
+      await refreshBookings({ force: true });
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Failed to load');
     } finally {
-      setLoading(false);
+      setRefreshing(false);
     }
-  }, [apiToken, refreshBookingsBadge]);
-
-  const onRefresh = useCallback(async () => {
-    setRefreshing(true);
-    await loadData();
-    setRefreshing(false);
-  }, [loadData]);
-
-  useEffect(() => {
-    setLoading(true);
-    loadData();
-  }, [loadData]);
+  }, [apiToken, refreshBookings]);
 
   useFocusEffect(
     useCallback(() => {
       if (!apiToken) return;
-      getBookings(apiToken)
-        .then((res) => {
-          setBookings(res.bookings);
-          refreshBookingsBadge();
-        })
-        .catch(() => {});
-    }, [apiToken, refreshBookingsBadge])
+      refreshBookingsIfStale();
+    }, [apiToken, refreshBookingsIfStale])
   );
 
   const byYear = groupBookingsByYear(filteredBookings, { upcomingFirst: selectedFilter === 'all' });

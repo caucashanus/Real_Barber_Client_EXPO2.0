@@ -5,6 +5,7 @@ import { ActionSheetRef } from 'react-native-actions-sheet';
 
 import { cancelBooking, type Booking } from '@/api/bookings';
 import { useAuth } from '@/app/contexts/AuthContext';
+import { useBookings } from '@/app/contexts/BookingsBadgeContext';
 import { Button } from '@/components/Button';
 import ConfirmationModal from '@/components/ConfirmationModal';
 import LiveIndicator from '@/components/LiveIndicator';
@@ -36,6 +37,7 @@ export default function BookingDetailFooterActions({
   t,
 }: BookingDetailFooterActionsProps) {
   const { apiToken } = useAuth();
+  const { refresh: refreshBookings } = useBookings();
 
   return (
     <>
@@ -119,6 +121,7 @@ export default function BookingDetailFooterActions({
           onConfirm={() => {
             if (!apiToken) return;
             cancelBooking(apiToken, booking.id)
+              .then(() => refreshBookings({ force: true }))
               .then(() => {
                 router.back();
               })

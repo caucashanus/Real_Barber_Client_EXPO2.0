@@ -6,6 +6,7 @@ import { View, ScrollView, ActivityIndicator, Dimensions, Pressable } from 'reac
 import {
   getCachedGuide,
   getCachedGuidesList,
+  getClientGuides,
   type ClientGuide,
   type GuideMedia,
 } from '@/api/guides';
@@ -97,16 +98,43 @@ export default function GuideDetailScreen() {
       setError('Missing guide');
       return;
     }
-    setLoading(true);
-    setError(null);
+
     const cached = getCachedGuide(id);
     if (cached) {
       setGuide(cached);
       setError(null);
-    } else {
-      setError('Guide not found. Open it from the Guides list.');
+      setLoading(false);
+      return;
     }
-    setLoading(false);
+
+    let cancelled = false;
+    setLoading(true);
+    setError(null);
+    getClientGuides()
+      .then((guides) => {
+        if (cancelled) return;
+        const found = guides.find((g) => g.id === id) ?? null;
+        if (found) {
+          setGuide(found);
+          setError(null);
+        } else {
+          setGuide(null);
+          setError('Guide not found');
+        }
+      })
+      .catch((e) => {
+        if (!cancelled) {
+          setGuide(null);
+          setError(e instanceof Error ? e.message : 'Failed to load');
+        }
+      })
+      .finally(() => {
+        if (!cancelled) setLoading(false);
+      });
+
+    return () => {
+      cancelled = true;
+    };
   }, [id]);
 
   if (loading) {

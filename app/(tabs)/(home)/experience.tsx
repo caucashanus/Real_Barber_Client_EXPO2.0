@@ -9,6 +9,7 @@ import { getEmployees, type Employee } from '@/api/employees';
 import { getFavorites } from '@/api/favorites';
 import { getClientReviewsList, type ClientReviewListItem } from '@/api/reviews';
 import { useAuth } from '@/app/contexts/AuthContext';
+import { useFavoritesSync } from '@/app/contexts/FavoritesSyncContext';
 import { useTranslation } from '@/app/hooks/useTranslation';
 import { CLIENT_APP_V1_ENABLED } from '@/constants/clientAppApi';
 import ActionSheetThemed from '@/components/ActionSheetThemed';
@@ -22,6 +23,7 @@ import ThemeScroller from '@/components/ThemeScroller';
 import ThemedText from '@/components/ThemedText';
 import Section from '@/components/layout/Section';
 import type { TranslationKey } from '@/locales';
+import { shouldStaleRefresh } from '@/utils/staleRefresh';
 
 const NEW_BARBERS_DAYS = 30;
 
@@ -87,12 +89,16 @@ const SECTION_TITLE_KEYS: Record<string, string> = {
 const ExperienceScreen = () => {
   const scrollY = useContext(ScrollContext);
   const { apiToken } = useAuth();
+  const { favoritesVersion } = useFavoritesSync();
   const { t } = useTranslation();
   const [employees, setEmployees] = useState<Employee[]>([]);
   const [employeeReviewsList, setEmployeeReviewsList] = useState<ClientReviewListItem[]>([]);
   const [employeesLoading, setEmployeesLoading] = useState(false);
   const [employeesError, setEmployeesError] = useState<string | null>(null);
   const [favoriteEmployeeIds, setFavoriteEmployeeIds] = useState<string[]>([]);
+  const lastFavoritesFetchRef = useRef(0);
+  const lastFavoritesVersionRef = useRef(favoritesVersion);
+  const favoritesInflightRef = useRef<Promise<void> | null>(null);
 
   useEffect(() => {
     if (!apiToken) return;
@@ -115,16 +121,38 @@ const ExperienceScreen = () => {
       .finally(() => setEmployeesLoading(false));
   }, [apiToken]);
 
-  const loadFavoriteEmployees = useCallback(() => {
-    if (!apiToken) return;
-    getFavorites(apiToken, { entityType: 'employee' })
-      .then((list) => setFavoriteEmployeeIds(list.map((f) => f.entityId)))
-      .catch(() => setFavoriteEmployeeIds([]));
-  }, [apiToken]);
+  const loadFavoriteEmployees = useCallback(
+    async (options?: { force?: boolean }) => {
+      if (!apiToken) {
+        setFavoriteEmployeeIds([]);
+        lastFavoritesFetchRef.current = 0;
+        return;
+      }
+
+      const versionChanged = lastFavoritesVersionRef.current !== favoritesVersion;
+      lastFavoritesVersionRef.current = favoritesVersion;
+      const force = options?.force || versionChanged;
+      if (!shouldStaleRefresh(lastFavoritesFetchRef.current, { force })) return;
+      if (favoritesInflightRef.current) return favoritesInflightRef.current;
+
+      favoritesInflightRef.current = getFavorites(apiToken, { entityType: 'employee' })
+        .then((list) => {
+          setFavoriteEmployeeIds(list.map((f) => f.entityId));
+          lastFavoritesFetchRef.current = Date.now();
+        })
+        .catch(() => setFavoriteEmployeeIds([]))
+        .finally(() => {
+          favoritesInflightRef.current = null;
+        });
+
+      return favoritesInflightRef.current;
+    },
+    [apiToken, favoritesVersion]
+  );
 
   useFocusEffect(
     useCallback(() => {
-      loadFavoriteEmployees();
+      void loadFavoriteEmployees();
     }, [loadFavoriteEmployees])
   );
 

@@ -1,43 +1,97 @@
-import React, { createContext, useCallback, useContext, useEffect, useState } from 'react';
+import React, {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 
-import { getBookings } from '@/api/bookings';
+import { getBookings, type Booking } from '@/api/bookings';
 import { useAuth } from '@/app/contexts/AuthContext';
 import { isBookingUpcoming } from '@/utils/bookingHelpers';
+import { shouldStaleRefresh } from '@/utils/staleRefresh';
 
-type BookingsBadgeContextType = {
+const BOOKINGS_STALE_MS = 60_000;
+
+type BookingsContextType = {
+  bookings: Booking[];
+  loading: boolean;
   hasUpcomingBookings: boolean;
-  refresh: () => void;
+  refresh: (options?: { force?: boolean }) => Promise<void>;
+  refreshIfStale: () => void;
 };
 
-const BookingsBadgeContext = createContext<BookingsBadgeContextType | undefined>(undefined);
+const BookingsContext = createContext<BookingsContextType | undefined>(undefined);
 
 export function BookingsBadgeProvider({ children }: { children: React.ReactNode }) {
   const { apiToken } = useAuth();
-  const [hasUpcomingBookings, setHasUpcomingBookings] = useState(false);
+  const [bookings, setBookings] = useState<Booking[]>([]);
+  const [loading, setLoading] = useState(false);
+  const lastFetchedAtRef = useRef(0);
+  const inflightRef = useRef<Promise<void> | null>(null);
 
-  const refresh = useCallback(() => {
+  const hasUpcomingBookings = useMemo(
+    () => bookings.some(isBookingUpcoming),
+    [bookings]
+  );
+
+  const refresh = useCallback(async (options?: { force?: boolean }) => {
     if (!apiToken) {
-      setHasUpcomingBookings(false);
+      setBookings([]);
+      lastFetchedAtRef.current = 0;
       return;
     }
-    getBookings(apiToken)
-      .then((res) => setHasUpcomingBookings(res.bookings.some(isBookingUpcoming)))
-      .catch(() => setHasUpcomingBookings(false));
+
+    const isStale = shouldStaleRefresh(lastFetchedAtRef.current, {
+      force: options?.force,
+      staleMs: BOOKINGS_STALE_MS,
+    });
+    if (!isStale) return;
+
+    if (inflightRef.current) return inflightRef.current;
+
+    setLoading(true);
+    inflightRef.current = (async () => {
+      try {
+        const res = await getBookings(apiToken);
+        setBookings(res.bookings);
+        lastFetchedAtRef.current = Date.now();
+      } catch {
+        if (options?.force && lastFetchedAtRef.current === 0) setBookings([]);
+      } finally {
+        setLoading(false);
+        inflightRef.current = null;
+      }
+    })();
+
+    return inflightRef.current;
   }, [apiToken]);
 
+  const refreshIfStale = useCallback(() => {
+    void refresh();
+  }, [refresh]);
+
   useEffect(() => {
-    refresh();
+    void refresh({ force: true });
   }, [refresh]);
 
   return (
-    <BookingsBadgeContext.Provider value={{ hasUpcomingBookings, refresh }}>
+    <BookingsContext.Provider
+      value={{ bookings, loading, hasUpcomingBookings, refresh, refreshIfStale }}>
       {children}
-    </BookingsBadgeContext.Provider>
+    </BookingsContext.Provider>
   );
 }
 
-export function useBookingsBadge() {
-  const ctx = useContext(BookingsBadgeContext);
-  if (!ctx) throw new Error('useBookingsBadge must be used within BookingsBadgeProvider');
+export function useBookings() {
+  const ctx = useContext(BookingsContext);
+  if (!ctx) throw new Error('useBookings must be used within BookingsBadgeProvider');
   return ctx;
+}
+
+export function useBookingsBadge() {
+  const { hasUpcomingBookings, refresh, refreshIfStale } = useBookings();
+  return { hasUpcomingBookings, refresh, refreshIfStale };
 }

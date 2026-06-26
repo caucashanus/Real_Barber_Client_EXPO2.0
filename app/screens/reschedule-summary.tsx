@@ -5,6 +5,7 @@ import { View, ScrollView, ActivityIndicator } from 'react-native';
 
 import { getBookingById, updateBooking, type Booking } from '@/api/bookings';
 import { useAuth } from '@/app/contexts/AuthContext';
+import { useBookings } from '@/app/contexts/BookingsBadgeContext';
 import { useLanguage } from '@/app/contexts/LanguageContext';
 import useThemeColors from '@/app/contexts/ThemeColors';
 import { useTranslation } from '@/app/hooks/useTranslation';
@@ -29,6 +30,7 @@ function formatDateLabel(date: string, locale: string): string {
 
 export default function RescheduleSummaryScreen() {
   const { apiToken } = useAuth();
+  const { refresh: refreshBookings } = useBookings();
   const { t } = useTranslation();
   const { locale } = useLanguage();
   const colors = useThemeColors();
@@ -96,13 +98,14 @@ export default function RescheduleSummaryScreen() {
         slotStart,
         slotEnd,
       });
+      await refreshBookings({ force: true });
       router.replace('/bookings');
     } catch (e) {
       setSubmitError(e instanceof Error ? e.message : String(e));
     } finally {
       setSaving(false);
     }
-  }, [apiToken, booking, date, slotEnd, slotStart, t]);
+  }, [apiToken, booking, date, slotEnd, slotStart, t, refreshBookings]);
 
   if (loading) {
     return (

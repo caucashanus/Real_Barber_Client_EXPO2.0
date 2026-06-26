@@ -9,7 +9,7 @@ import { AppState, Platform } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { useAuth } from '@/app/contexts/AuthContext';
-import { BookingsBadgeProvider, useBookingsBadge } from '@/app/contexts/BookingsBadgeContext';
+import { useBookingsBadge } from '@/app/contexts/BookingsBadgeContext';
 import { useTranslation } from '@/app/hooks/useTranslation';
 
 function TabsContent() {
@@ -119,9 +119,5 @@ function TabsContent() {
 }
 
 export default function Layout() {
-  return (
-    <BookingsBadgeProvider>
-      <TabsContent />
-    </BookingsBadgeProvider>
-  );
+  return <TabsContent />;
 }

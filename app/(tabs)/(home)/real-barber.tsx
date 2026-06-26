@@ -6,11 +6,11 @@ import * as WebBrowser from 'expo-web-browser';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { ActivityIndicator, Pressable, RefreshControl, ScrollView, View } from 'react-native';
 
-import { getBookings, type Booking } from '@/api/bookings';
 import { getClientCoupons, type ClientCoupon } from '@/api/client-coupons';
 import { getClientPosters, type ClientPoster } from '@/api/client-posters';
 import { useAccentColor } from '@/app/contexts/AccentColorContext';
 import { useAuth } from '@/app/contexts/AuthContext';
+import { useBookings } from '@/app/contexts/BookingsBadgeContext';
 import { useTranslation } from '@/app/hooks/useTranslation';
 import Avatar from '@/components/Avatar';
 import { ClientCouponValidityPills } from '@/components/ClientCouponValidityPills';
@@ -126,13 +126,20 @@ export default function RealBarberHomeTab() {
     [t]
   );
 
-  const [recentLoading, setRecentLoading] = useState(false);
+  const {
+    bookings: allBookings,
+    loading: bookingsLoading,
+    refresh: refreshBookings,
+    refreshIfStale: refreshBookingsIfStale,
+  } = useBookings();
+  const [promoLoading, setPromoLoading] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
-  const [allBookings, setAllBookings] = useState<Booking[]>([]);
   const [coupons, setCoupons] = useState<ClientCoupon[]>([]);
   const [posters, setPosters] = useState<ClientPoster[]>([]);
   const [now, setNow] = useState(() => Date.now());
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const lastPromoFetchRef = useRef(0);
+  const recentLoading = promoLoading || bookingsLoading;
 
   useEffect(() => {
     intervalRef.current = setInterval(() => setNow(Date.now()), 15000);
@@ -141,17 +148,13 @@ export default function RealBarberHomeTab() {
     };
   }, []);
 
-  const loadData = useCallback(async () => {
+  const loadPromoData = useCallback(async () => {
     if (!apiToken) {
-      setAllBookings([]);
       setCoupons([]);
       setPosters([]);
       return;
     }
     await Promise.allSettled([
-      getBookings(apiToken, { limit: 50, offset: 0 })
-        .then((res) => setAllBookings(res.bookings))
-        .catch(() => setAllBookings([])),
       getClientCoupons(apiToken)
         .then((list) => setCoupons(list))
         .catch(() => setCoupons([])),
@@ -159,34 +162,28 @@ export default function RealBarberHomeTab() {
         .then((list) => setPosters(list))
         .catch(() => setPosters([])),
     ]);
+    lastPromoFetchRef.current = Date.now();
   }, [apiToken]);
 
   const onRefresh = useCallback(async () => {
     setRefreshing(true);
-    await loadData();
+    await Promise.allSettled([refreshBookings({ force: true }), loadPromoData()]);
     setRefreshing(false);
-  }, [loadData]);
+  }, [refreshBookings, loadPromoData]);
 
   useEffect(() => {
-    setRecentLoading(true);
-    loadData().finally(() => setRecentLoading(false));
-  }, [loadData]);
+    setPromoLoading(true);
+    loadPromoData().finally(() => setPromoLoading(false));
+  }, [loadPromoData]);
 
   useFocusEffect(
     useCallback(() => {
       if (!apiToken) return;
-      Promise.allSettled([
-        getBookings(apiToken, { limit: 50, offset: 0 })
-          .then((res) => setAllBookings(res.bookings))
-          .catch(() => {}),
-        getClientCoupons(apiToken)
-          .then((list) => setCoupons(list))
-          .catch(() => {}),
-        getClientPosters(apiToken)
-          .then((list) => setPosters(list))
-          .catch(() => {}),
-      ]).catch(() => {});
-    }, [apiToken])
+      refreshBookingsIfStale();
+      if (Date.now() - lastPromoFetchRef.current >= 60_000) {
+        loadPromoData().catch(() => {});
+      }
+    }, [apiToken, refreshBookingsIfStale, loadPromoData])
   );
 
   const spotlight = useMemo(() => pickHomeSpotlight(allBookings, now), [allBookings, now]);

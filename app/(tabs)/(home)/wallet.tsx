@@ -33,6 +33,7 @@ import {
   getRbCoinsTransactionListTitle,
   RB_COINS_TX_LIST_KEYS_WALLET,
 } from '@/utils/rbcCoinsHistoryUi';
+import { shouldStaleRefresh } from '@/utils/staleRefresh';
 import { shadowPresets } from '@/utils/useShadow';
 
 /** In-memory fallback when AsyncStorage native module is unavailable (e.g. web, some dev builds). */
@@ -112,6 +113,8 @@ const WalletScreen = () => {
   const [referralPrograms, setReferralPrograms] = useState<ReferralActiveProgram[]>([]);
   const [referralsLoading, setReferralsLoading] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
+  const lastWalletFetchRef = useRef(0);
+  const walletInflightRef = useRef<Promise<void> | null>(null);
 
   useEffect(() => {
     AsyncStorage.getItem(WALLET_REFERRAL_PROMO_DISMISSED_KEY).then((raw) => {
@@ -159,52 +162,62 @@ const WalletScreen = () => {
       setHistoryLoading(false);
       setReferralsLoading(false);
       lastAnimatedBalanceRef.current = null;
+      lastWalletFetchRef.current = 0;
       return;
     }
-    setBalanceLoading(true);
-    setBalanceError(null);
-    getRbCoinsBalance(apiToken)
-      .then((r) => setBalance(r.balance))
-      .catch((e) => setBalanceError(e instanceof Error ? e.message : 'Error'))
-      .finally(() => setBalanceLoading(false));
-
-    setHistoryLoading(true);
-    getRbCoinsHistory(apiToken)
-      .then((r) => setHistory(r.data.slice(0, 3)))
-      .catch(() => setHistory([]))
-      .finally(() => setHistoryLoading(false));
-
-    setReferralsLoading(true);
-    getReferrals(apiToken)
-      .then((r) => setReferralPrograms(normalizeActivePrograms(r.activePrograms)))
-      .catch(() => setReferralPrograms([]))
-      .finally(() => setReferralsLoading(false));
   }, [apiToken]);
 
-  const fetchWalletData = useCallback(async () => {
+  const fetchWalletData = useCallback(async (options?: { force?: boolean }) => {
     if (!apiToken) return;
-    await Promise.allSettled([
-      getRbCoinsBalance(apiToken)
-        .then((r) => setBalance(r.balance))
-        .catch((e) => setBalanceError(e instanceof Error ? e.message : 'Error')),
-      getRbCoinsHistory(apiToken)
-        .then((r) => setHistory(r.data.slice(0, 3)))
-        .catch(() => {}),
-      getReferrals(apiToken)
-        .then((r) => setReferralPrograms(normalizeActivePrograms(r.activePrograms)))
-        .catch(() => {}),
-    ]);
+    if (!shouldStaleRefresh(lastWalletFetchRef.current, options)) return;
+    if (walletInflightRef.current) return walletInflightRef.current;
+
+    const isInitial = lastWalletFetchRef.current === 0;
+    if (isInitial || options?.force) {
+      setBalanceLoading(true);
+      setHistoryLoading(true);
+      setReferralsLoading(true);
+    }
+    setBalanceError(null);
+
+    walletInflightRef.current = (async () => {
+      try {
+        await Promise.allSettled([
+          getRbCoinsBalance(apiToken)
+            .then((r) => setBalance(r.balance))
+            .catch((e) => setBalanceError(e instanceof Error ? e.message : 'Error')),
+          getRbCoinsHistory(apiToken)
+            .then((r) => setHistory(r.data.slice(0, 3)))
+            .catch(() => setHistory([])),
+          getReferrals(apiToken)
+            .then((r) => setReferralPrograms(normalizeActivePrograms(r.activePrograms)))
+            .catch(() => setReferralPrograms([])),
+        ]);
+        lastWalletFetchRef.current = Date.now();
+      } finally {
+        setBalanceLoading(false);
+        setHistoryLoading(false);
+        setReferralsLoading(false);
+        walletInflightRef.current = null;
+      }
+    })();
+
+    return walletInflightRef.current;
   }, [apiToken]);
+
+  useEffect(() => {
+    void fetchWalletData({ force: true });
+  }, [fetchWalletData]);
 
   const onRefresh = useCallback(async () => {
     setRefreshing(true);
-    await fetchWalletData();
+    await fetchWalletData({ force: true });
     setRefreshing(false);
   }, [fetchWalletData]);
 
   useFocusEffect(
     useCallback(() => {
-      fetchWalletData();
+      void fetchWalletData();
     }, [fetchWalletData])
   );
 

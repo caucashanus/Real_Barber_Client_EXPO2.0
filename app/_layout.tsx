@@ -8,6 +8,7 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 import { AccentColorProvider } from './contexts/AccentColorContext';
 import { AuthProvider } from './contexts/AuthContext';
+import { BookingsBadgeProvider } from './contexts/BookingsBadgeContext';
 import { BranchFilterProvider } from './contexts/BranchFilterContext';
 import { FavoritesSyncProvider } from './contexts/FavoritesSyncContext';
 import { LanguageProvider } from './contexts/LanguageContext';
@@ -55,6 +56,7 @@ export default function RootLayout() {
         <ThemeProvider>
           <AccentColorProvider>
             <AuthProvider>
+              <BookingsBadgeProvider>
               <TransferRecipientProvider>
                 <SelectedPurchaseProvider>
                   <BranchFilterProvider>
@@ -68,6 +70,7 @@ export default function RootLayout() {
                   </BranchFilterProvider>
                 </SelectedPurchaseProvider>
               </TransferRecipientProvider>
+              </BookingsBadgeProvider>
             </AuthProvider>
           </AccentColorProvider>
         </ThemeProvider>

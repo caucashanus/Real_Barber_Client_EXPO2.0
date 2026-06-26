@@ -20,6 +20,7 @@ import ShowRating from '@/components/ShowRating';
 import ThemedText from '@/components/ThemedText';
 import { BRANCH_FILTER_DATA } from '@/constants/branch-filter-data';
 import { BRANCH_MARKER_IMAGES } from '@/constants/branch-marker-images';
+import { getBranchServicesList, getMediaUrlsSorted } from '@/utils/branchMediaHelpers';
 
 const CENTRAL_WAREHOUSE_TEL = '+420774522114';
 
@@ -33,30 +34,11 @@ const BRANCH_COORDINATES: Record<string, { lat: number; lng: number }> = {
   Barrandov: { lat: 50.030533187365194, lng: 14.361240910745531 },
 };
 
-function getServicesList(branch: Branch): BranchService[] {
-  const s = branch.services;
-  if (!s) return [];
-  if (Array.isArray(s)) return s;
-  return Object.values(s);
-}
-
-function getMediaUrlsSorted(media: Branch['media']): string[] {
-  if (!media) return [];
-  const list = (Array.isArray(media) ? [...media] : Object.values(media ?? {})) as {
-    url?: string;
-    order?: number;
-    type?: string;
-  }[];
-  const withOrder = list.filter((m): m is { url: string; order?: number } => !!m?.url);
-  withOrder.sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
-  return withOrder.map((m) => m.url);
-}
-
 function branchImages(branch: Branch): string[] {
   const urls = getMediaUrlsSorted(branch.media);
   if (urls.length > 0) return urls;
   if (branch.imageUrl) return [branch.imageUrl];
-  const firstService = getServicesList(branch)[0];
+  const firstService = getBranchServicesList(branch)[0];
   if (firstService?.imageUrl) return [firstService.imageUrl];
   return [];
 }

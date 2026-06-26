@@ -1,7 +1,7 @@
 import { useFocusEffect } from '@react-navigation/native';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 
-import { getBranches, type Branch } from '@/api/branches';
+import { getBranchById, type Branch } from '@/api/branches';
 import { getEntityReviews, type EntityReviewItem } from '@/api/reviews';
 import { useAuth } from '@/app/contexts/AuthContext';
 import { computeReviewStats } from '@/utils/barberDetailHelpers';
@@ -27,13 +27,14 @@ export function useBranchDetailScreen(id: string) {
     }
     setLoading(true);
     setError(null);
-    getBranches(apiToken, { includeReviews: true, reviewsLimit: 1 })
-      .then((list) => {
-        const found = list.find((b) => b.id === id) ?? null;
+    getBranchById(apiToken, id)
+      .then((found) => {
         setBranch(found);
-        if (!found) setError('Branch not found');
       })
-      .catch((e) => setError(e instanceof Error ? e.message : 'Failed to load'))
+      .catch((e) => {
+        setBranch(null);
+        setError(e instanceof Error ? e.message : 'Failed to load');
+      })
       .finally(() => setLoading(false));
   }, [apiToken, id]);
 

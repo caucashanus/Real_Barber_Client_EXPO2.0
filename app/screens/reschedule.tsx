@@ -4,6 +4,7 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { View, ScrollView, Pressable, ActivityIndicator } from 'react-native';
 
 import {
+  fetchAvailableDatesInMonth,
   getBookingById,
   getBookingAvailability,
   type Booking,
@@ -197,25 +198,15 @@ export default function RescheduleScreen() {
     }
     let cancelled = false;
     setLoadingMonthAvailability(true);
-    Promise.all(
-      monthDays.map(async (day) => {
-        try {
-          const res = await getBookingAvailability(apiToken, {
-            employeeId,
-            date: day.value,
-            branchId: branchId || undefined,
-            itemId: itemId || undefined,
-          });
-          const count = res?.availability?.slots?.length ?? 0;
-          return count > 0 ? day.value : null;
-        } catch {
-          return null;
-        }
-      })
-    )
-      .then((values) => {
+    fetchAvailableDatesInMonth(apiToken, {
+      employeeId,
+      branchId,
+      itemId,
+      monthOffset,
+      monthDays,
+    })
+      .then((available) => {
         if (cancelled) return;
-        const available = values.filter((v): v is string => v != null).sort();
         setAvailableDatesInMonth(new Set(available));
       })
       .finally(() => {
@@ -224,7 +215,7 @@ export default function RescheduleScreen() {
     return () => {
       cancelled = true;
     };
-  }, [apiToken, employeeId, branchId, itemId, monthDays]);
+  }, [apiToken, employeeId, branchId, itemId, monthDays, monthOffset]);
 
   const selectDate = useCallback((dateValue: string) => {
     setDate(dateValue);

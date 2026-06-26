@@ -1,5 +1,5 @@
 import { useFocusEffect } from '@react-navigation/native';
-import React, { useState } from 'react';
+import React, { useCallback, useRef, useState } from 'react';
 import { View, Pressable, ActivityIndicator } from 'react-native';
 
 import { getFavorites, deleteFavorite, type Favorite } from '@/api/favorites';
@@ -16,6 +16,7 @@ import ThemeScroller from '@/components/ThemeScroller';
 import ThemedText from '@/components/ThemedText';
 import Grid from '@/components/layout/Grid';
 import type { TranslationKey } from '@/locales';
+import { shouldStaleRefresh } from '@/utils/staleRefresh';
 
 function favoriteHref(fav: Favorite): string {
   switch (fav.entityType) {
@@ -27,6 +28,8 @@ function favoriteHref(fav: Favorite): string {
       return `/screens/service-detail?id=${fav.entityId}`;
     case 'product':
       return `/screens/product-detail?id=${encodeURIComponent(fav.entityId)}`;
+    case 'guide':
+      return `/screens/guide-detail?id=${encodeURIComponent(fav.entityId)}`;
     default:
       return '/screens/favorite-list';
   }
@@ -74,24 +77,51 @@ const FavoritesScreen = () => {
   const [favorites, setFavorites] = useState<Favorite[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const lastFetchRef = useRef(0);
+  const lastVersionRef = useRef(favoritesVersion);
+  const inflightRef = useRef<Promise<void> | null>(null);
 
-  const loadFavorites = () => {
-    if (!apiToken) {
-      setLoading(false);
-      return;
-    }
-    setLoading(true);
-    setError(null);
-    getFavorites(apiToken)
-      .then(setFavorites)
-      .catch((e) => setError(e instanceof Error ? e.message : 'Failed to load'))
-      .finally(() => setLoading(false));
-  };
+  const loadFavorites = useCallback(
+    async (options?: { force?: boolean }) => {
+      if (!apiToken) {
+        setLoading(false);
+        setFavorites([]);
+        lastFetchRef.current = 0;
+        return;
+      }
+
+      const versionChanged = lastVersionRef.current !== favoritesVersion;
+      lastVersionRef.current = favoritesVersion;
+      const force = options?.force || versionChanged;
+      if (!shouldStaleRefresh(lastFetchRef.current, { force }) && !versionChanged) return;
+      if (inflightRef.current) return inflightRef.current;
+
+      const isInitial = lastFetchRef.current === 0;
+      if (isInitial || force) {
+        setLoading(true);
+        setError(null);
+      }
+
+      inflightRef.current = getFavorites(apiToken)
+        .then((list) => {
+          setFavorites(list);
+          lastFetchRef.current = Date.now();
+        })
+        .catch((e) => setError(e instanceof Error ? e.message : 'Failed to load'))
+        .finally(() => {
+          setLoading(false);
+          inflightRef.current = null;
+        });
+
+      return inflightRef.current;
+    },
+    [apiToken, favoritesVersion]
+  );
 
   useFocusEffect(
-    React.useCallback(() => {
-      loadFavorites();
-    }, [apiToken, favoritesVersion])
+    useCallback(() => {
+      void loadFavorites();
+    }, [loadFavorites])
   );
 
   const handleRemove = (favoriteId: string) => {

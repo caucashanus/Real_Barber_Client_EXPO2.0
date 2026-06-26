@@ -1,5 +1,6 @@
 import type { Booking } from '@/api/bookings';
-import type { Branch, BranchService } from '@/api/branches';
+import type { Branch } from '@/api/branches';
+import { getBranchServicesList, getMediaUrlsSorted } from '@/utils/branchMediaHelpers';
 
 export const BRANCH_IMAGES: Record<string, number> = {
   Modřany: require('@/assets/img/branches/Modrany.jpg'),
@@ -8,32 +9,13 @@ export const BRANCH_IMAGES: Record<string, number> = {
   Barrandov: require('@/assets/img/branches/Barrandov.jpg'),
 };
 
-export function getServicesList(branch: Branch): BranchService[] {
-  const s = branch.services;
-  if (!s) return [];
-  if (Array.isArray(s)) return s;
-  return Object.values(s);
-}
-
-export function getMediaUrlsSorted(media: Branch['media']): string[] {
-  if (!media) return [];
-  const list = (Array.isArray(media) ? [...media] : Object.values(media ?? {})) as {
-    url?: string;
-    order?: number;
-    type?: string;
-  }[];
-  const withOrder = list.filter((m): m is { url: string; order?: number } => !!m?.url);
-  withOrder.sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
-  return withOrder.map((m) => m.url);
-}
-
 /** Same image list as branch-detail: media, imageUrl, service images; fallback to local BRANCH_IMAGES. */
 export function branchImages(branch: Branch): (string | number)[] {
   const out: (string | number)[] = [];
   const mediaUrls = getMediaUrlsSorted(branch.media);
   mediaUrls.forEach((url) => out.push(url));
   if (branch.imageUrl) out.push(branch.imageUrl);
-  const servicesList = getServicesList(branch);
+  const servicesList = getBranchServicesList(branch);
   servicesList.forEach((svc) => {
     if (svc.imageUrl) out.push(svc.imageUrl);
   });

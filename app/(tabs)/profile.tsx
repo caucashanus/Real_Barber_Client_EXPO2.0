@@ -7,10 +7,10 @@ import * as StoreReview from 'expo-store-review';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { View, RefreshControl, Text, ActivityIndicator, Share } from 'react-native';
 
-import { getBookings } from '@/api/bookings';
 import { getClientMe, type ClientMe } from '@/api/client';
 import { useAccentColor } from '@/app/contexts/AccentColorContext';
 import { useAuth } from '@/app/contexts/AuthContext';
+import { useBookings } from '@/app/contexts/BookingsBadgeContext';
 import { useTranslation } from '@/app/hooks/useTranslation';
 import AnimatedView from '@/components/AnimatedView';
 import Avatar from '@/components/Avatar';
@@ -23,6 +23,7 @@ import ThemedScroller from '@/components/ThemeScroller';
 import ThemeToggle from '@/components/ThemeToggle';
 import ThemedText from '@/components/ThemedText';
 import Divider from '@/components/layout/Divider';
+import { shouldStaleRefresh } from '@/utils/staleRefresh';
 import { shadowPresets } from '@/utils/useShadow';
 
 const APP_REVIEW_PROMPTED_KEY = '@app_review_prompted';
@@ -139,57 +140,69 @@ const PersonalProfile = ({
   onRegisterRefresh?: (fn: () => Promise<void>) => void;
 }) => {
   const { apiToken, signOutToLogin } = useAuth();
+  const { bookings } = useBookings();
   const { t } = useTranslation();
   const [client, setClient] = useState<ClientMe | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [reservationsCount, setReservationsCount] = useState<number>(0);
+  const lastProfileFetchRef = useRef(0);
+  const profileInflightRef = useRef<Promise<void> | null>(null);
 
-  const fetchData = useCallback(async () => {
+  const reservationsCount = bookings.length;
+
+  useEffect(() => {
+    if (reservationsCount < APP_REVIEW_MIN_RESERVATIONS) return;
+    (async () => {
+      const alreadyPrompted = await AsyncStorage.getItem(APP_REVIEW_PROMPTED_KEY).catch(() => null);
+      if (alreadyPrompted) return;
+      const { APP_OPENS_KEY } = await import('@/app/_layout');
+      const raw = await AsyncStorage.getItem(APP_OPENS_KEY).catch(() => null);
+      const opens = parseInt(raw ?? '0', 10) || 0;
+      if (opens >= APP_REVIEW_MIN_OPENS && (await StoreReview.hasAction())) {
+        await AsyncStorage.setItem(APP_REVIEW_PROMPTED_KEY, '1').catch(() => {});
+        setTimeout(() => StoreReview.requestReview(), 1500);
+      }
+    })().catch(() => {});
+  }, [reservationsCount]);
+
+  const fetchData = useCallback(async (options?: { force?: boolean }) => {
     if (!apiToken) {
       setClient(null);
-      setReservationsCount(0);
+      lastProfileFetchRef.current = 0;
       return;
     }
-    await Promise.allSettled([
-      getClientMe(apiToken)
-        .then(setClient)
-        .catch((e) => setError(e instanceof Error ? e.message : 'Failed to load')),
-      getBookings(apiToken, { limit: 1 })
-        .then(async (res) => {
-          const count = res.pagination?.total ?? res.bookings?.length ?? 0;
-          setReservationsCount(count);
-          if (count >= APP_REVIEW_MIN_RESERVATIONS) {
-            const alreadyPrompted = await AsyncStorage.getItem(APP_REVIEW_PROMPTED_KEY).catch(
-              () => null
-            );
-            if (!alreadyPrompted) {
-              const { APP_OPENS_KEY } = await import('@/app/_layout');
-              const raw = await AsyncStorage.getItem(APP_OPENS_KEY).catch(() => null);
-              const opens = parseInt(raw ?? '0', 10) || 0;
-              if (opens >= APP_REVIEW_MIN_OPENS && (await StoreReview.hasAction())) {
-                await AsyncStorage.setItem(APP_REVIEW_PROMPTED_KEY, '1').catch(() => {});
-                setTimeout(() => StoreReview.requestReview(), 1500);
-              }
-            }
-          }
-        })
-        .catch(() => setReservationsCount(0)),
-    ]);
+    if (!shouldStaleRefresh(lastProfileFetchRef.current, options)) return;
+    if (profileInflightRef.current) return profileInflightRef.current;
+
+    const isInitial = lastProfileFetchRef.current === 0;
+    if (isInitial || options?.force) setLoading(true);
+
+    profileInflightRef.current = getClientMe(apiToken)
+      .then((me) => {
+        setClient(me);
+        setError(null);
+        lastProfileFetchRef.current = Date.now();
+      })
+      .catch((e) => setError(e instanceof Error ? e.message : 'Failed to load'))
+      .finally(() => {
+        setLoading(false);
+        profileInflightRef.current = null;
+      });
+
+    return profileInflightRef.current;
   }, [apiToken]);
 
   useEffect(() => {
-    setLoading(true);
-    fetchData().finally(() => setLoading(false));
+    void fetchData({ force: true });
   }, [fetchData]);
 
   useEffect(() => {
-    if (onRegisterRefresh) onRegisterRefresh(fetchData);
+    if (onRegisterRefresh) onRegisterRefresh(() => fetchData({ force: true }));
   }, [fetchData, onRegisterRefresh]);
 
   useFocusEffect(
     useCallback(() => {
-      fetchData();
+      void fetchData();
     }, [fetchData])
   );
 
