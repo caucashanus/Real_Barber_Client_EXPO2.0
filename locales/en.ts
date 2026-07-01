@@ -106,6 +106,7 @@ export const en = {
   profileCustomerStatus: 'Customer status',
   profileAccountSettings: 'Account settings',
   profileEditProfile: 'Edit profile',
+  profileNotificationHistory: 'Notification history',
   profileGetHelp: 'Get help',
   profileReferrals: 'Referrals',
   profileLogout: 'Logout',
@@ -410,6 +411,9 @@ export const en = {
 
   // Notifications
   notificationsTitle: 'Notifications',
+  notificationsHistoryTitle: 'Notification history',
+  notificationsLoadMore: 'Load more',
+  notificationsDetailEmptyBody: 'No additional text.',
   notificationsSubtitle: 'Stay updated on your bookings and travel plans',
   notificationsAll: 'All',
   notificationsBookings: 'Bookings',

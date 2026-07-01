@@ -61,22 +61,8 @@ export default function ProfileScreen() {
     }, [])
   );
 
-  const handleProfileBellPress = useCallback(async () => {
-    const { status } = await Notifications.getPermissionsAsync();
-    if (status === 'granted') {
-      router.push('/screens/notifications');
-      return;
-    }
-    if (status === 'undetermined') {
-      const { status: newStatus } = await Notifications.requestPermissionsAsync();
-      const { status: latest } = await Notifications.getPermissionsAsync();
-      setNotifStatus(latest);
-      if (newStatus === 'granted') {
-        router.push('/screens/notifications');
-        return;
-      }
-    }
-    notifPromptRef.current?.openPromptSheet();
+  const handleProfileBellPress = useCallback(() => {
+    router.push('/screens/notifications');
   }, []);
 
   const notifBadge =
@@ -99,9 +85,7 @@ export default function ProfileScreen() {
             key="notifications"
             icon="Bell"
             badge={notifBadge}
-            onPress={() => {
-              handleProfileBellPress().catch(() => {});
-            }}
+            onPress={handleProfileBellPress}
           />,
         ]}
       />
@@ -261,6 +245,12 @@ const PersonalProfile = ({
           title={t('profileEditProfile')}
           icon="UserRoundPen"
           href="/screens/edit-profile"
+        />
+        <ListLink
+          showChevron
+          title={t('profileNotificationHistory')}
+          icon="Bell"
+          href="/screens/notifications"
         />
         <ListLink
           showChevron

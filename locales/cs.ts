@@ -110,6 +110,7 @@ export const cs: Record<TranslationKey, string> = {
   profileCustomerStatus: 'Status zákazníka',
   profileAccountSettings: 'Nastavení účtu',
   profileEditProfile: 'Upravit profil',
+  profileNotificationHistory: 'Historie notifikací',
   profileGetHelp: 'Nápověda',
   profileReferrals: 'Doporučení',
   profileLogout: 'Odhlásit se',
@@ -415,6 +416,9 @@ export const cs: Record<TranslationKey, string> = {
 
   // Notifications
   notificationsTitle: 'Oznámení',
+  notificationsHistoryTitle: 'Historie notifikací',
+  notificationsLoadMore: 'Načíst další',
+  notificationsDetailEmptyBody: 'Bez dalšího textu.',
   notificationsSubtitle: 'Mějte přehled o rezervacích a cestách',
   notificationsAll: 'Vše',
   notificationsBookings: 'Rezervace',

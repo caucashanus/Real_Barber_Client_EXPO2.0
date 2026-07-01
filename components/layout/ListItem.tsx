@@ -81,11 +81,17 @@ const ListItem = forwardRef<View, ListItemProps>((props, ref) => {
         ) : (
           title
         )}
-        {subtitle && (
-          <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext">
-            {subtitle}
-          </ThemedText>
-        )}
+        {subtitle ? (
+          typeof subtitle === 'string' ? (
+            <ThemedText
+              className="text-sm text-light-subtext dark:text-dark-subtext"
+              numberOfLines={2}>
+              {subtitle}
+            </ThemedText>
+          ) : (
+            subtitle
+          )
+        ) : null}
       </View>
 
       {hasTrailing && <View className="ml-4">{renderTrailing()}</View>}
