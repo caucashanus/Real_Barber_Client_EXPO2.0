@@ -1,4 +1,5 @@
-import React, { useEffect, useState } from 'react';
+import { useLocalSearchParams } from 'expo-router';
+import React, { useEffect, useRef, useState } from 'react';
 import { View, ActivityIndicator } from 'react-native';
 
 import { getRbCoinsHistory, type RbCoinsHistoryItem } from '@/api/rb-coins';
@@ -80,6 +81,11 @@ function transactionAvatarSrc(
 export default function WalletHistoryScreen() {
   const { t, locale } = useTranslation();
   const { apiToken } = useAuth();
+  const params = useLocalSearchParams<{ transactionId?: string | string[] }>();
+  const transactionIdParam = Array.isArray(params.transactionId)
+    ? params.transactionId[0]
+    : params.transactionId;
+  const pendingTransactionIdRef = useRef(transactionIdParam?.trim() || null);
   const [history, setHistory] = useState<RbCoinsHistoryItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -98,6 +104,15 @@ export default function WalletHistoryScreen() {
       .catch((e) => setError(e instanceof Error ? e.message : 'Failed to load'))
       .finally(() => setLoading(false));
   }, [apiToken]);
+
+  useEffect(() => {
+    if (loading || !pendingTransactionIdRef.current || history.length === 0) return;
+    const targetId = pendingTransactionIdRef.current;
+    const found = history.find((tx) => tx.id === targetId);
+    if (!found) return;
+    pendingTransactionIdRef.current = null;
+    setSelectedTransaction(found);
+  }, [loading, history]);
 
   return (
     <>

@@ -29,4 +29,15 @@ describe('pushNavigation', () => {
       'realbarber://screens/booking-detail?id=x%2Fy&openReview=1'
     );
   });
+
+  it('prefers notificationId over legacy reservation fallback', async () => {
+    const { resolveNotificationIdFromPushData } = await import('@/utils/pushNavigation');
+    expect(
+      resolveNotificationIdFromPushData({
+        notificationId: 'notif-1',
+        entityType: 'Reservation',
+        entityId: 'res-1',
+      })
+    ).toBe('notif-1');
+  });
 });

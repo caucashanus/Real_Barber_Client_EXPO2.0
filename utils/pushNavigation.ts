@@ -1,5 +1,7 @@
 import { router } from 'expo-router';
 
+import { setPendingNotificationOpen } from '@/utils/pendingNotificationOpen';
+
 /** Cesta k detailu rezervace — `app/screens/booking-detail.tsx` + param `id`. */
 export const RESERVATION_DETAIL_ROUTE = '/screens/booking-detail';
 
@@ -43,6 +45,14 @@ export function parseIdValue(value: unknown): string | null {
 function normalizeEntityType(value: unknown): string | null {
   const s = asTrimmedString(value);
   return s ? s.toLowerCase() : null;
+}
+
+function resolveQuickReviewBookingHref(data: Record<string, unknown>): string | null {
+  const token = asTrimmedString(data.quickReviewToken);
+  if (!token) return null;
+  const reservationId = resolveReservationIdFromPushData(data);
+  if (!reservationId) return null;
+  return `${buildReservationDetailHref(reservationId)}&openReview=1`;
 }
 
 /**
@@ -89,10 +99,65 @@ export type OpenFromPushOptions = {
   deferMs?: number;
 };
 
+/** ID záznamu v historii notifikací z push payloadu. */
+export function resolveNotificationIdFromPushData(
+  data: Record<string, unknown> | undefined
+): string | null {
+  if (!data) return null;
+
+  const explicit =
+    parseIdValue(data.notificationId) ??
+    parseIdValue(data.notification_id) ??
+    parseIdValue(data.historyId) ??
+    parseIdValue(data.history_id);
+
+  if (explicit) return explicit;
+
+  const screen = asTrimmedString(data.screen)?.toLowerCase();
+  if (
+    screen === 'notifications' ||
+    screen === 'notification' ||
+    screen === 'notification_history' ||
+    screen === 'notificationhistory'
+  ) {
+    return parseIdValue(data.id);
+  }
+
+  const reservationId = resolveReservationIdFromPushData(data);
+  const entityId = parseIdValue(data.entityId);
+  const genericId = parseIdValue(data.id);
+  if (genericId && genericId !== reservationId && genericId !== entityId) {
+    return genericId;
+  }
+
+  return null;
+}
+
+export function buildNotificationHistoryHref(notificationId: string): string {
+  return `/screens/notifications?openId=${encodeURIComponent(notificationId)}`;
+}
+
+export function openNotificationHistoryFromPush(
+  notificationId: string,
+  options?: OpenFromPushOptions
+): void {
+  setPendingNotificationOpen(notificationId);
+  const href = buildNotificationHistoryHref(notificationId);
+
+  const run = () => safePush(href);
+  const ms = options?.deferMs ?? 0;
+  if (ms > 0) {
+    setTimeout(run, ms);
+    return;
+  }
+  requestAnimationFrame(run);
+}
+
 /**
  * Zpracuje data z push (Expo `content.data`).
- * 1) Legacy: `deeplink` | `deepLink` | `route`
- * 2) Rezervace: `reservationId` nebo (`entityType === reservation` + `entityId`)
+ * 1) Historie notifikací: `notificationId` / `notification_id` (+ volitelně `screen`)
+ * 2) Legacy: `deeplink` | `deepLink` | `route`
+ * 3) Rezervace: `reservationId` nebo (`entityType === reservation` + `entityId`)
  * Při chybějícím / neplatném ID se nevolá navigace (žádný pád).
  */
 export function openFromPushNotificationData(
@@ -110,6 +175,18 @@ export function openFromPushNotificationData(
   };
 
   const run = () => {
+    const notificationId = resolveNotificationIdFromPushData(data);
+    if (notificationId) {
+      openNotificationHistoryFromPush(notificationId);
+      return;
+    }
+
+    const quickReviewHref = resolveQuickReviewBookingHref(data);
+    if (quickReviewHref) {
+      safePush(quickReviewHref);
+      return;
+    }
+
     const legacy = legacyDeepLinkHref(data);
     if (legacy) {
       safePush(legacy);

@@ -1,6 +1,6 @@
 import { useFocusEffect } from '@react-navigation/native';
-import { router } from 'expo-router';
-import React, { useCallback, useMemo, useRef, useState } from 'react';
+import { router, useLocalSearchParams } from 'expo-router';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { View } from 'react-native';
 import { ActionSheetRef } from 'react-native-actions-sheet';
 
@@ -16,36 +16,47 @@ import ActionSheetThemed from '@/components/ActionSheetThemed';
 import { Button } from '@/components/Button';
 import { Chip } from '@/components/Chip';
 import Header from '@/components/Header';
-import Icon, { IconName } from '@/components/Icon';
+import Icon from '@/components/Icon';
 import SkeletonLoader from '@/components/SkeletonLoader';
 import ThemedScroller from '@/components/ThemeScroller';
 import ThemedText from '@/components/ThemedText';
 import { CLIENT_APP_V1_ENABLED } from '@/constants/clientAppApi';
 import List from '@/components/layout/List';
 import ListItem from '@/components/layout/ListItem';
+import {
+  isNotificationRead,
+  loadReadNotificationIds,
+  markNotificationRead,
+} from '@/utils/notificationReadState';
+import { consumePendingNotificationOpen } from '@/utils/pendingNotificationOpen';
+import {
+  buildNotificationActionHref,
+  getNotificationActionLabelKey,
+  iconForNotificationCategory,
+  matchesNotificationListFilter,
+  resolveNotificationDetailAction,
+  resolveNotificationUiCategory,
+  type NotificationDetailAction,
+  type NotificationListFilter,
+  type NotificationUiCategory,
+} from '@/utils/notificationAction';
 
-type NotificationType =
-  | 'purchase'
-  | 'message'
-  | 'review'
-  | 'offer'
-  | 'seller'
-  | 'all'
-  | 'booking'
-  | 'payment'
-  | 'inquiry'
-  | 'cancellation';
+type NotificationType = NotificationUiCategory;
 
 interface NotificationListItem {
   id: string;
-  type: NotificationType;
+  category: NotificationUiCategory;
   title: string;
   message: string;
   time: string;
   createdAtIso: string;
-  icon: IconName;
+  read: boolean;
+  icon: ReturnType<typeof iconForNotificationCategory>;
   entityId?: string;
-  deepLinkScreen?: string;
+  eventKey?: string;
+  entityType?: string;
+  source?: string;
+  detailAction: NotificationDetailAction;
 }
 
 const PAGE_SIZE = 20;
@@ -53,19 +64,18 @@ const PAGE_SIZE = 20;
 interface NotificationDetailSheetProps {
   notification: NotificationListItem;
   locale: string;
-  onViewBooking: () => void;
+  onPrimaryAction: () => void;
   emptyBodyLabel: string;
-  viewBookingLabel: string;
+  primaryActionLabel: string | null;
 }
 
 function NotificationDetailSheet({
   notification,
   locale,
-  onViewBooking,
+  onPrimaryAction,
   emptyBodyLabel,
-  viewBookingLabel,
+  primaryActionLabel,
 }: NotificationDetailSheetProps) {
-  const bookingHref = getBookingDetailHref(notification);
   const bodyText = notification.message.trim();
 
   return (
@@ -86,12 +96,12 @@ function NotificationDetailSheet({
         {bodyText || emptyBodyLabel}
       </ThemedText>
 
-      {bookingHref ? (
+      {primaryActionLabel ? (
         <Button
-          title={viewBookingLabel}
+          title={primaryActionLabel}
           variant="primary"
           className="mt-6 w-full"
-          onPress={onViewBooking}
+          onPress={onPrimaryAction}
         />
       ) : null}
     </View>
@@ -100,10 +110,14 @@ function NotificationDetailSheet({
 
 export default function NotificationsScreen() {
   const { t, locale } = useTranslation();
-  const { apiToken } = useAuth();
+  const { apiToken, client } = useAuth();
+  const clientId = client?.id ?? '';
+  const params = useLocalSearchParams<{ openId?: string | string[] }>();
+  const openIdParam = Array.isArray(params.openId) ? params.openId[0] : params.openId;
   const detailSheetRef = useRef<ActionSheetRef>(null);
   const detailNotificationRef = useRef<NotificationListItem | null>(null);
-  const [selectedType, setSelectedType] = useState<NotificationType>('all');
+  const pendingOpenHandledRef = useRef(false);
+  const [selectedType, setSelectedType] = useState<NotificationListFilter>('all');
   const [isLoading, setIsLoading] = useState(true);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
   const [loadError, setLoadError] = useState<string | null>(null);
@@ -111,6 +125,15 @@ export default function NotificationsScreen() {
   const [hasMore, setHasMore] = useState(false);
   const [offset, setOffset] = useState(0);
   const [detailNotification, setDetailNotification] = useState<NotificationListItem | null>(null);
+
+  const withReadState = useCallback(
+    (items: NotificationListItem[], readSet: Set<string>) =>
+      items.map((item) => ({
+        ...item,
+        read: isNotificationRead(readSet, item.id),
+      })),
+    []
+  );
 
   const loadPage = useCallback(
     async (nextOffset: number, append: boolean) => {
@@ -131,12 +154,14 @@ export default function NotificationsScreen() {
       }
 
       try {
+        const readSet = clientId ? await loadReadNotificationIds(clientId) : new Set<string>();
+
         if (CLIENT_APP_V1_ENABLED) {
           const { items, pagination } = await getClientNotifications(apiToken, {
             limit: PAGE_SIZE,
             offset: nextOffset,
           });
-          const mapped = items.map(mapClientItemToNotification);
+          const mapped = withReadState(items.map(mapClientItemToNotification), readSet);
           setNotificationsData((prev) => (append ? [...prev, ...mapped] : mapped));
           setHasMore(Boolean(pagination?.hasMore));
           setOffset(nextOffset + items.length);
@@ -145,9 +170,12 @@ export default function NotificationsScreen() {
             limit: PAGE_SIZE,
             offset: nextOffset,
           });
-          const mapped = notifications
-            .filter((item) => (item.channel ?? '').trim().toUpperCase() === 'PUSH')
-            .map(mapHistoryItemToNotification);
+          const mapped = withReadState(
+            notifications
+              .filter((item) => (item.channel ?? '').trim().toUpperCase() === 'PUSH')
+              .map(mapHistoryItemToNotification),
+            readSet
+          );
           setNotificationsData((prev) => (append ? [...prev, ...mapped] : mapped));
           setHasMore(mapped.length >= PAGE_SIZE);
           setOffset(nextOffset + mapped.length);
@@ -163,49 +191,103 @@ export default function NotificationsScreen() {
         setIsLoadingMore(false);
       }
     },
-    [apiToken, t]
+    [apiToken, clientId, t, withReadState]
+  );
+
+  const markRead = useCallback(
+    async (notificationId: string) => {
+      const id = notificationId.trim();
+      if (!id) return;
+
+      setNotificationsData((prev) =>
+        prev.map((item) => (item.id === id ? { ...item, read: true } : item))
+      );
+
+      if (!clientId) return;
+      await markNotificationRead(clientId, id);
+    },
+    [clientId]
+  );
+
+  const openDetail = useCallback(
+    (notification: NotificationListItem) => {
+      detailNotificationRef.current = notification;
+      setDetailNotification({ ...notification, read: true });
+      void markRead(notification.id);
+      setTimeout(() => {
+        detailSheetRef.current?.show();
+      }, 50);
+    },
+    [markRead]
   );
 
   useFocusEffect(
     useCallback(() => {
+      pendingOpenHandledRef.current = false;
       void loadPage(0, false);
     }, [loadPage])
+  );
+
+  useEffect(() => {
+    if (isLoading || pendingOpenHandledRef.current || notificationsData.length === 0) return;
+
+    const targetId = openIdParam?.trim() || consumePendingNotificationOpen();
+    if (!targetId) return;
+
+    const found = notificationsData.find((item) => item.id === targetId);
+    if (!found) return;
+
+    pendingOpenHandledRef.current = true;
+    openDetail(found);
+  }, [isLoading, notificationsData, openIdParam, openDetail]);
+
+  const unreadCount = useMemo(
+    () => notificationsData.filter((item) => !item.read).length,
+    [notificationsData]
   );
 
   const filteredNotifications = useMemo(
     () =>
       notificationsData.filter((notification) =>
-        selectedType === 'all' ? true : notification.type === selectedType
+        matchesNotificationListFilter(notification.category, selectedType)
       ),
     [notificationsData, selectedType]
   );
-
-  const openDetail = useCallback((notification: NotificationListItem) => {
-    detailNotificationRef.current = notification;
-    setDetailNotification(notification);
-    setTimeout(() => {
-      detailSheetRef.current?.show();
-    }, 50);
-  }, []);
 
   const closeDetail = useCallback(() => {
     detailSheetRef.current?.hide();
   }, []);
 
-  const handleViewBooking = useCallback(() => {
+  const handlePrimaryAction = useCallback(() => {
     const notification = detailNotificationRef.current;
     if (!notification) return;
-    const href = getBookingDetailHref(notification);
+    const href = buildNotificationActionHref(
+      notification.detailAction,
+      notification.entityId ?? ''
+    );
     if (!href) return;
     closeDetail();
     router.push(href as never);
   }, [closeDetail]);
 
   const activeDetail = detailNotification ?? detailNotificationRef.current;
+  const primaryActionLabelKey = activeDetail
+    ? getNotificationActionLabelKey(activeDetail.detailAction)
+    : null;
+  const primaryActionLabel = primaryActionLabelKey ? t(primaryActionLabelKey) : null;
+
+  const unreadSubtitle =
+    unreadCount > 0
+      ? t('notificationsUnreadSubtitle').replace('{{count}}', String(unreadCount))
+      : undefined;
 
   return (
     <>
-      <Header showBackButton title={t('notificationsHistoryTitle')} />
+      <Header
+        showBackButton
+        title={t('notificationsHistoryTitle')}
+        subtitle={unreadSubtitle}
+      />
       <View className="flex-1 bg-light-primary dark:bg-dark-primary">
         <View className="flex-row gap-1 p-4">
           <Chip
@@ -243,12 +325,19 @@ export default function NotificationsScreen() {
                       key={notification.id}
                       onPress={() => openDetail(notification)}
                       leading={
-                        <View className="h-10 w-10 items-center justify-center rounded-full bg-light-secondary/30 dark:bg-dark-subtext/30">
-                          <Icon name={notification.icon} size={20} />
+                        <View className="relative">
+                          <View className="h-10 w-10 items-center justify-center rounded-full bg-light-secondary/30 dark:bg-dark-subtext/30">
+                            <Icon name={notification.icon} size={20} />
+                          </View>
+                          {!notification.read ? (
+                            <View className="absolute -right-0.5 -top-0.5 h-2.5 w-2.5 rounded-full bg-highlight" />
+                          ) : null}
                         </View>
                       }
                       title={
-                        <ThemedText className="font-bold" numberOfLines={1}>
+                        <ThemedText
+                          className={notification.read ? 'font-medium' : 'font-bold'}
+                          numberOfLines={1}>
                           {notification.title}
                         </ThemedText>
                       }
@@ -265,7 +354,7 @@ export default function NotificationsScreen() {
                           />
                         </View>
                       }
-                      className="px-4 py-4"
+                      className={`px-4 py-4 ${notification.read ? '' : 'bg-light-secondary/5 dark:bg-dark-secondary/10'}`}
                     />
                   ))
                 ) : (
@@ -305,8 +394,8 @@ export default function NotificationsScreen() {
             notification={activeDetail}
             locale={locale}
             emptyBodyLabel={t('notificationsDetailEmptyBody')}
-            viewBookingLabel={t('reservationsViewBooking')}
-            onViewBooking={handleViewBooking}
+            primaryActionLabel={primaryActionLabel}
+            onPrimaryAction={handlePrimaryAction}
           />
         ) : null}
       </ActionSheetThemed>
@@ -314,11 +403,7 @@ export default function NotificationsScreen() {
   );
 }
 
-function normalizeForMatch(value: string | null | undefined): string {
-  return (value ?? '').trim().toLowerCase();
-}
-
-function stripHtml(input: string | null | undefined): string {
+function stripHtml(input: string): string {
   if (!input) return '';
   return input
     .replace(/<style[\s\S]*?<\/style>/gi, ' ')
@@ -363,118 +448,60 @@ function formatNotificationDateTime(iso: string, locale: string): string {
   });
 }
 
-function getBookingDetailHref(notification: NotificationListItem): string | null {
-  const entityId = notification.entityId?.trim();
-  if (!entityId) return null;
-
-  const screen = normalizeForMatch(notification.deepLinkScreen);
-  const type = notification.type;
-
-  if (screen === 'booking' || type === 'booking') {
-    return `/screens/booking-detail?id=${encodeURIComponent(entityId)}`;
-  }
-  return null;
-}
-
 function mapClientItemToNotification(item: ClientNotificationItem): NotificationListItem {
-  const type = mapClientItemType(item);
+  const semantic = {
+    eventKey: item.eventKey,
+    entityType: item.entityType,
+    entityId: item.entityId,
+    source: item.source,
+  };
+  const category = resolveNotificationUiCategory(semantic);
+  const detailAction = resolveNotificationDetailAction(semantic);
   const createdAtIso = item.deliveredAt ?? item.createdAt;
   const message = stripHtml(item.body) || '';
 
   return {
     id: item.id,
-    type,
+    category,
     title: item.title?.trim() || 'Notification',
     message,
     time: toRelativeTime(createdAtIso),
     createdAtIso,
-    icon: iconForType(type),
+    read: false,
+    icon: iconForNotificationCategory(category),
     entityId: item.entityId,
-    deepLinkScreen: typeof item.data?.screen === 'string' ? item.data.screen : undefined,
+    eventKey: item.eventKey,
+    entityType: item.entityType,
+    source: item.source,
+    detailAction,
   };
 }
 
-function mapClientItemType(item: ClientNotificationItem): NotificationType {
-  const joined = [
-    normalizeForMatch(item.eventKey),
-    normalizeForMatch(item.entityType),
-    normalizeForMatch(typeof item.data?.screen === 'string' ? item.data.screen : ''),
-    normalizeForMatch(item.title),
-    normalizeForMatch(item.body),
-  ].join(' ');
-
-  if (joined.includes('cancel')) return 'cancellation';
-  if (
-    joined.includes('reservation') ||
-    joined.includes('booking') ||
-    joined.includes('rezervac')
-  ) {
-    return 'booking';
-  }
-  if (joined.includes('payment') || joined.includes('platb') || joined.includes('rbc')) {
-    return 'payment';
-  }
-  if (joined.includes('review') || joined.includes('recenz')) return 'review';
-  if (joined.includes('inquiry') || joined.includes('dotaz') || joined.includes('question')) {
-    return 'inquiry';
-  }
-  if (joined.includes('message') || joined.includes('zpr')) return 'message';
-  return 'all';
-}
-
-function mapHistoryTypeToUiType(item: NotificationHistoryItem): NotificationType {
-  const joined = [
-    normalizeForMatch(item.type),
-    normalizeForMatch(item.category),
-    normalizeForMatch(item.entityType),
-    normalizeForMatch(item.title),
-    normalizeForMatch(item.message),
-  ].join(' ');
-
-  if (joined.includes('cancel')) return 'cancellation';
-  if (joined.includes('reservation') || joined.includes('booking') || joined.includes('rezervac'))
-    return 'booking';
-  if (joined.includes('payment') || joined.includes('platb') || joined.includes('rbc'))
-    return 'payment';
-  if (joined.includes('review') || joined.includes('recenz')) return 'review';
-  if (joined.includes('inquiry') || joined.includes('dotaz') || joined.includes('question'))
-    return 'inquiry';
-  if (joined.includes('message') || joined.includes('zpr')) return 'message';
-  return 'all';
-}
-
-function iconForType(type: NotificationType): IconName {
-  switch (type) {
-    case 'booking':
-      return 'Calendar';
-    case 'payment':
-      return 'CreditCard';
-    case 'review':
-      return 'Star';
-    case 'inquiry':
-      return 'HelpCircle';
-    case 'message':
-      return 'MessageCircle';
-    case 'cancellation':
-      return 'X';
-    default:
-      return 'Bell';
-  }
-}
-
 function mapHistoryItemToNotification(item: NotificationHistoryItem): NotificationListItem {
-  const type = mapHistoryTypeToUiType(item);
+  const semantic = {
+    eventKey: item.type ?? undefined,
+    entityType: item.entityType ?? undefined,
+    entityId: undefined,
+    source: item.category ?? undefined,
+  };
+  const category = resolveNotificationUiCategory(semantic);
+  const detailAction = resolveNotificationDetailAction(semantic);
   const title = item.title?.trim() || 'Notification';
-  const message = stripHtml(item.message) || '';
+  const message = stripHtml(item.message ?? '') || '';
+
   return {
     id: item.notificationId,
-    type,
+    category,
     title,
     message,
     time: toRelativeTime(item.createdAt),
     createdAtIso: item.createdAt,
-    icon: iconForType(type),
+    read: false,
+    icon: iconForNotificationCategory(category),
     entityId: undefined,
-    deepLinkScreen: undefined,
+    eventKey: item.type ?? undefined,
+    entityType: item.entityType ?? undefined,
+    source: item.category ?? undefined,
+    detailAction,
   };
 }
