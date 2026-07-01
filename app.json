@@ -2,8 +2,8 @@
   "expo": {
     "name": "Real Barber",
     "slug": "realbarber",
-    "version": "1.0.15",
-    "runtimeVersion": "1.0.15",
+    "version": "1.0.16",
+    "runtimeVersion": "1.0.16",
     "scheme": "realbarber",
     "experiments": {
       "tsconfigPaths": true
@@ -53,7 +53,7 @@
       "deploymentTarget": "16.2",
       "appleTeamId": "VK8YT9654D",
       "bundleIdentifier": "com.realbarber.client",
-      "buildNumber": "57",
+      "buildNumber": "58",
       "appStoreUrl": "https://apps.apple.com/app/id6760221388",
       "supportsTablet": false,
       "infoPlist": {
@@ -71,7 +71,7 @@
     },
     "android": {
       "package": "com.realbarber.client",
-      "versionCode": 52,
+      "versionCode": 53,
       "playStoreUrl": "https://play.google.com/store/apps/details?id=com.realbarber.client",
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
