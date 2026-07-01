@@ -8,7 +8,7 @@ import Avatar from '@/components/Avatar';
 import Header from '@/components/Header';
 import ThemedScroller from '@/components/ThemeScroller';
 import ThemedText from '@/components/ThemedText';
-import TransactionDetailModal from '@/components/TransactionDetailModal';
+import TransactionDetailSheet from '@/components/TransactionDetailSheet';
 import { List } from '@/components/layout/List';
 import ListItem from '@/components/layout/ListItem';
 import Section from '@/components/layout/Section';
@@ -158,7 +158,7 @@ export default function RBCHistorieScreen() {
           ))
         )}
       </ThemedScroller>
-      <TransactionDetailModal
+      <TransactionDetailSheet
         transaction={selectedTransaction}
         visible={!!selectedTransaction}
         onClose={() => setSelectedTransaction(null)}

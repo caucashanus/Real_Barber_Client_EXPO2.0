@@ -420,9 +420,11 @@ export const en = {
   notificationsSubtitle: 'Stay updated on your bookings and travel plans',
   notificationsAll: 'All',
   notificationsBookings: 'Bookings',
+  notificationsCancellations: 'Cancellations',
   notificationsMessages: 'Messages',
   notificationsPayments: 'Payments',
   notificationsReviews: 'Reviews',
+  notificationsMarketing: 'Marketing',
   notificationsInquiries: 'Inquiries',
   notificationsNoFound: 'No notifications found',
 

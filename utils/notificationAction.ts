@@ -163,18 +163,40 @@ export function iconForNotificationCategory(category: NotificationUiCategory): I
 }
 
 /** UI list filter type used on notifications screen. */
-export type NotificationListFilter = 'all' | 'booking' | 'payment';
+export type NotificationListFilter = 'all' | Exclude<NotificationUiCategory, 'all'>;
+
+export const NOTIFICATION_LIST_FILTERS: NotificationListFilter[] = [
+  'all',
+  'booking',
+  'cancellation',
+  'payment',
+  'review',
+  'marketing',
+];
+
+export function getNotificationFilterLabelKey(
+  filter: NotificationListFilter
+): TranslationKey {
+  switch (filter) {
+    case 'all':
+      return 'notificationsAll';
+    case 'booking':
+      return 'notificationsBookings';
+    case 'cancellation':
+      return 'notificationsCancellations';
+    case 'payment':
+      return 'notificationsPayments';
+    case 'review':
+      return 'notificationsReviews';
+    case 'marketing':
+      return 'notificationsMarketing';
+  }
+}
 
 export function matchesNotificationListFilter(
   category: NotificationUiCategory,
   filter: NotificationListFilter
 ): boolean {
   if (filter === 'all') return true;
-  if (filter === 'booking') {
-    return category === 'booking' || category === 'cancellation' || category === 'review';
-  }
-  if (filter === 'payment') {
-    return category === 'payment';
-  }
-  return true;
+  return category === filter;
 }

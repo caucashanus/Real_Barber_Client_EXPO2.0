@@ -5,7 +5,7 @@ import { ActivityIndicator, Pressable, View } from 'react-native';
 import { ActionSheetRef } from 'react-native-actions-sheet';
 
 import { getBranches, type Branch } from '@/api/branches';
-import { getEmployeeById, getEmployees, type Employee, type EmployeeBranch } from '@/api/employees';
+import { getEmployees, type Employee } from '@/api/employees';
 import { useAuth } from '@/app/contexts/AuthContext';
 import { useTranslation } from '@/app/hooks/useTranslation';
 import ActionSheetThemed from '@/components/ActionSheetThemed';
@@ -23,7 +23,7 @@ import Section from '@/components/layout/Section';
 import { CLIENT_APP_V1_ENABLED } from '@/constants/clientAppApi';
 import { shadowPresets } from '@/utils/useShadow';
 
-/** API uses Cyrillic day names: Sun .. Sat */
+/** Legacy API uses Cyrillic day names: Sun .. Sat */
 const WEEKDAY_API_KEYS = [
   'Воскресенье',
   'Понедельник',
@@ -53,7 +53,7 @@ function isSameCalendarDay(a: Date, b: Date): boolean {
   );
 }
 
-function hasShiftOnDate(emp: Employee, date: Date): boolean {
+function hasShiftOnDateLegacy(emp: Employee, date: Date): boolean {
   const today = new Date();
   if (isSameCalendarDay(date, today) && typeof emp.hasShiftToday === 'boolean') {
     return emp.hasShiftToday;
@@ -76,7 +76,7 @@ function hasShiftOnDate(emp: Employee, date: Date): boolean {
   return false;
 }
 
-function getBranchNamesFromShiftsOnDate(emp: Employee, date: Date): string[] {
+function getBranchNamesLegacy(emp: Employee, date: Date): string[] {
   const ws = emp.workSchedule as
     | { weeklySchedule?: Record<string, WorkScheduleSlot[]> }
     | undefined;
@@ -101,68 +101,15 @@ function getBranchNamesFromShiftsOnDate(emp: Employee, date: Date): string[] {
   return names;
 }
 
-function getEmployeeBranchIds(emp: Employee): string[] {
-  if (Array.isArray(emp.branchIds) && emp.branchIds.length > 0) {
-    return emp.branchIds.filter((id): id is string => typeof id === 'string' && Boolean(id));
-  }
-  const b = emp.branches as EmployeeBranch[] | Record<string, EmployeeBranch> | undefined;
-  if (!b) return [];
-  if (Array.isArray(b)) return b.map((x) => x.id);
-  return Object.values(b).map((x) => x.id);
+function getShiftBranchNames(emp: Employee): string[] {
+  if (!Array.isArray(emp.shiftBranches)) return [];
+  return emp.shiftBranches
+    .map((branch) => branch.name?.trim())
+    .filter((name): name is string => Boolean(name));
 }
 
-function getBranchNamesForDate(
-  emp: Employee,
-  date: Date,
-  branches: Branch[],
-  selectedBranchId: string | null
-): string[] {
-  const namesFromSlots = getBranchNamesFromShiftsOnDate(emp, date);
-  if (namesFromSlots.length > 0) return namesFromSlots;
-  if (selectedBranchId !== null) {
-    const name = branches.find((b) => b.id === selectedBranchId)?.name;
-    return name ? [name] : [];
-  }
-  const b = emp.branches as EmployeeBranch[] | Record<string, EmployeeBranch> | undefined;
-  if (!b) return [];
-  const list = Array.isArray(b) ? b : Object.values(b);
-  return list.map((x) => x.name).filter(Boolean);
-}
-
-function employeeNeedsScheduleDetail(emp: Employee): boolean {
-  return !emp.workSchedule;
-}
-
-async function enrichEmployeesWithSchedule(
-  apiToken: string,
-  employees: Employee[]
-): Promise<Employee[]> {
-  if (!CLIENT_APP_V1_ENABLED) return employees;
-  const needsDetail = employees.filter(employeeNeedsScheduleDetail);
-  if (needsDetail.length === 0) return employees;
-
-  const detailById = new Map<string, Employee>();
-  await Promise.all(
-    needsDetail.map((emp) =>
-      getEmployeeById(apiToken, emp.id)
-        .then((detail) => {
-          detailById.set(emp.id, detail);
-        })
-        .catch(() => {})
-    )
-  );
-
-  return employees.map((emp) => {
-    const detail = detailById.get(emp.id);
-    if (!detail) return emp;
-    return {
-      ...emp,
-      workSchedule: detail.workSchedule ?? emp.workSchedule,
-      branches: detail.branches ?? emp.branches,
-      branchIds: detail.branchIds ?? emp.branchIds,
-      hasShiftToday: detail.hasShiftToday ?? emp.hasShiftToday,
-    };
-  });
+function normalizeEmployeeList(list: Employee[] | Record<string, Employee>): Employee[] {
+  return (Array.isArray(list) ? list : Object.values(list)) as Employee[];
 }
 
 export default function ScheduleScreen() {
@@ -179,34 +126,58 @@ export default function ScheduleScreen() {
   useEffect(() => {
     if (!apiToken) return;
     let cancelled = false;
-    setLoading(true);
-    Promise.all([getEmployees(apiToken, {}), getBranches(apiToken, {})])
-      .then(async ([empList, branchList]) => {
-        const list = (Array.isArray(empList) ? empList : Object.values(empList)) as Employee[];
-        const enriched = await enrichEmployeesWithSchedule(apiToken, list);
-        if (cancelled) return;
-        setEmployees(enriched);
-        setBranches(Array.isArray(branchList) ? branchList : []);
+    getBranches(apiToken, {})
+      .then((branchList) => {
+        if (!cancelled) setBranches(Array.isArray(branchList) ? branchList : []);
       })
       .catch(() => {
-        if (!cancelled) {
-          setEmployees([]);
-          setBranches([]);
-        }
-      })
-      .finally(() => {
-        if (!cancelled) setLoading(false);
+        if (!cancelled) setBranches([]);
       });
     return () => {
       cancelled = true;
     };
   }, [apiToken]);
 
+  useEffect(() => {
+    if (!apiToken) return;
+    let cancelled = false;
+    setLoading(true);
+
+    const shiftDateIso = toIsoDate(selectedDate);
+    const options = CLIENT_APP_V1_ENABLED
+      ? {
+          shiftDate: shiftDateIso,
+          ...(selectedBranchId ? { branchId: selectedBranchId } : {}),
+        }
+      : {};
+
+    getEmployees(apiToken, options)
+      .then((empList) => {
+        if (cancelled) return;
+        setEmployees(normalizeEmployeeList(empList));
+      })
+      .catch(() => {
+        if (!cancelled) setEmployees([]);
+      })
+      .finally(() => {
+        if (!cancelled) setLoading(false);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [apiToken, selectedDate, selectedBranchId]);
+
   const filteredEmployees = useMemo(() => {
+    if (CLIENT_APP_V1_ENABLED) {
+      return employees.filter((emp) => emp.hasShiftOnDate === true);
+    }
+
     return employees.filter((emp) => {
-      if (!hasShiftOnDate(emp, selectedDate)) return false;
+      if (!hasShiftOnDateLegacy(emp, selectedDate)) return false;
       if (selectedBranchId === null) return true;
-      return getEmployeeBranchIds(emp).includes(selectedBranchId);
+      const branchIds = Array.isArray(emp.branchIds) ? emp.branchIds : [];
+      return branchIds.includes(selectedBranchId);
     });
   }, [employees, selectedDate, selectedBranchId]);
 
@@ -304,12 +275,9 @@ export default function ScheduleScreen() {
         ) : (
           <Grid columns={2} spacing={10}>
             {filteredEmployees.map((emp) => {
-              const branchNames = getBranchNamesForDate(
-                emp,
-                selectedDate,
-                branches,
-                selectedBranchId
-              );
+              const branchNames = CLIENT_APP_V1_ENABLED
+                ? getShiftBranchNames(emp)
+                : getBranchNamesLegacy(emp, selectedDate);
               return (
                 <Pressable
                   key={emp.id}

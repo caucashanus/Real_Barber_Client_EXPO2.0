@@ -25,7 +25,7 @@ import Avatar from '@/components/Avatar';
 import Icon from '@/components/Icon';
 import ThemeScroller from '@/components/ThemeScroller';
 import ThemedText from '@/components/ThemedText';
-import TransactionDetailModal from '@/components/TransactionDetailModal';
+import TransactionDetailSheet from '@/components/TransactionDetailSheet';
 import { List } from '@/components/layout/List';
 import ListItem from '@/components/layout/ListItem';
 import Section from '@/components/layout/Section';
@@ -439,7 +439,7 @@ const WalletScreen = () => {
             </Pressable>
           </Link>
         </Section>
-        <TransactionDetailModal
+        <TransactionDetailSheet
           transaction={selectedTransaction}
           visible={!!selectedTransaction}
           onClose={() => setSelectedTransaction(null)}

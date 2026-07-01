@@ -74,6 +74,17 @@ describe('notificationAction', () => {
     expect(matchesNotificationListFilter('payment', 'payment')).toBe(true);
   });
 
+  it('filters notifications by exact UI category', () => {
+    expect(matchesNotificationListFilter('booking', 'all')).toBe(true);
+    expect(matchesNotificationListFilter('booking', 'booking')).toBe(true);
+    expect(matchesNotificationListFilter('booking', 'payment')).toBe(false);
+    expect(matchesNotificationListFilter('cancellation', 'booking')).toBe(false);
+    expect(matchesNotificationListFilter('cancellation', 'cancellation')).toBe(true);
+    expect(matchesNotificationListFilter('review', 'review')).toBe(true);
+    expect(matchesNotificationListFilter('marketing', 'marketing')).toBe(true);
+    expect(matchesNotificationListFilter('all', 'booking')).toBe(false);
+  });
+
   it('returns label keys for supported actions', () => {
     expect(getNotificationActionLabelKey({ kind: 'booking' })).toBe('reservationsViewBooking');
     expect(getNotificationActionLabelKey({ kind: 'booking_review' })).toBe(

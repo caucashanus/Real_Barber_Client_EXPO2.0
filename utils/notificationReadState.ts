@@ -1,10 +1,39 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const KEY_PREFIX = '@rb_notification_read_v1';
+const BASELINE_KEY_PREFIX = '@rb_notification_read_baseline_v1';
 const MAX_READ_IDS = 500;
 
 function storageKey(clientId: string): string {
   return `${KEY_PREFIX}:${clientId}`;
+}
+
+function baselineStorageKey(clientId: string): string {
+  return `${BASELINE_KEY_PREFIX}:${clientId}`;
+}
+
+/** Local midnight for the given date — used as read-tracking baseline ("from today"). */
+export function startOfLocalDayMs(date = new Date()): number {
+  return new Date(date.getFullYear(), date.getMonth(), date.getDate()).getTime();
+}
+
+/**
+ * First time read tracking runs for a client, store start of that local day.
+ * Notifications older than this baseline are treated as already read.
+ */
+export async function getReadTrackingBaseline(clientId: string): Promise<number> {
+  if (!clientId.trim()) return startOfLocalDayMs();
+
+  const key = baselineStorageKey(clientId);
+  const raw = await AsyncStorage.getItem(key).catch(() => null);
+  if (raw) {
+    const parsed = Number(raw);
+    if (Number.isFinite(parsed) && parsed > 0) return parsed;
+  }
+
+  const baseline = startOfLocalDayMs();
+  await AsyncStorage.setItem(key, String(baseline)).catch(() => {});
+  return baseline;
 }
 
 export async function loadReadNotificationIds(clientId: string): Promise<Set<string>> {
@@ -40,6 +69,20 @@ export async function markNotificationRead(
   return new Set(trimmed);
 }
 
-export function isNotificationRead(readIds: Set<string>, notificationId: string): boolean {
-  return readIds.has(notificationId.trim());
+export function isNotificationRead(
+  readIds: Set<string>,
+  notificationId: string,
+  createdAtIso?: string | null,
+  baselineMs?: number
+): boolean {
+  const id = notificationId.trim();
+  if (!id) return true;
+  if (readIds.has(id)) return true;
+
+  if (baselineMs != null && createdAtIso) {
+    const created = new Date(createdAtIso).getTime();
+    if (Number.isFinite(created) && created < baselineMs) return true;
+  }
+
+  return false;
 }

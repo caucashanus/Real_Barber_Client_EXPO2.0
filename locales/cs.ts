@@ -425,9 +425,11 @@ export const cs: Record<TranslationKey, string> = {
   notificationsSubtitle: 'Mějte přehled o rezervacích a cestách',
   notificationsAll: 'Vše',
   notificationsBookings: 'Rezervace',
+  notificationsCancellations: 'Zrušení',
   notificationsMessages: 'Zprávy',
   notificationsPayments: 'Platby',
   notificationsReviews: 'Recenze',
+  notificationsMarketing: 'Marketing',
   notificationsInquiries: 'Dotazy',
   notificationsNoFound: 'Žádná oznámení',
 

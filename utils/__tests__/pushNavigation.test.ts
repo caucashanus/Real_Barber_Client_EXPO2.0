@@ -5,6 +5,7 @@ import {
   RESERVATION_DETAIL_ROUTE,
   buildReservationDetailDeepLink,
   buildReservationDetailHref,
+  resolveDirectPushNavigationHref,
   resolveReservationIdFromPushData,
 } from '@/utils/pushNavigation';
 
@@ -39,5 +40,47 @@ describe('pushNavigation', () => {
         entityId: 'res-1',
       })
     ).toBe('notif-1');
+  });
+
+  it('routes booking push directly to reservation detail', () => {
+    expect(
+      resolveDirectPushNavigationHref({
+        notificationId: 'notif-1',
+        eventKey: 'reservation_created',
+        entityType: 'Reservation',
+        entityId: 'res-1',
+      })
+    ).toBe('/screens/booking-detail?id=res-1');
+  });
+
+  it('routes RBC payment push directly to wallet transaction detail', () => {
+    expect(
+      resolveDirectPushNavigationHref({
+        notificationId: 'notif-2',
+        eventKey: 'rbc_deposit',
+        entityType: 'RbCoinsTransaction',
+        entityId: 'tx-1',
+      })
+    ).toBe('/screens/wallet-history?transactionId=tx-1');
+  });
+
+  it('keeps marketing push on notification history flow', () => {
+    expect(
+      resolveDirectPushNavigationHref({
+        notificationId: 'notif-3',
+        eventKey: 'marketing_campaign',
+        entityType: 'Marketing',
+      })
+    ).toBeNull();
+  });
+
+  it('routes review push directly to booking detail with review sheet', () => {
+    expect(
+      resolveDirectPushNavigationHref({
+        eventKey: 'review_requested',
+        entityType: 'Reservation',
+        entityId: 'res-9',
+      })
+    ).toBe('/screens/booking-detail?id=res-9&openReview=1');
   });
 });

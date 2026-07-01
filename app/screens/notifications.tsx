@@ -14,6 +14,7 @@ import { useAuth } from '@/app/contexts/AuthContext';
 import { useTranslation } from '@/app/hooks/useTranslation';
 import ActionSheetThemed from '@/components/ActionSheetThemed';
 import { Button } from '@/components/Button';
+import { CardScroller } from '@/components/CardScroller';
 import { Chip } from '@/components/Chip';
 import Header from '@/components/Header';
 import Icon from '@/components/Icon';
@@ -24,6 +25,7 @@ import { CLIENT_APP_V1_ENABLED } from '@/constants/clientAppApi';
 import List from '@/components/layout/List';
 import ListItem from '@/components/layout/ListItem';
 import {
+  getReadTrackingBaseline,
   isNotificationRead,
   loadReadNotificationIds,
   markNotificationRead,
@@ -32,16 +34,16 @@ import { consumePendingNotificationOpen } from '@/utils/pendingNotificationOpen'
 import {
   buildNotificationActionHref,
   getNotificationActionLabelKey,
+  getNotificationFilterLabelKey,
   iconForNotificationCategory,
   matchesNotificationListFilter,
+  NOTIFICATION_LIST_FILTERS,
   resolveNotificationDetailAction,
   resolveNotificationUiCategory,
   type NotificationDetailAction,
   type NotificationListFilter,
   type NotificationUiCategory,
 } from '@/utils/notificationAction';
-
-type NotificationType = NotificationUiCategory;
 
 interface NotificationListItem {
   id: string;
@@ -127,10 +129,10 @@ export default function NotificationsScreen() {
   const [detailNotification, setDetailNotification] = useState<NotificationListItem | null>(null);
 
   const withReadState = useCallback(
-    (items: NotificationListItem[], readSet: Set<string>) =>
+    (items: NotificationListItem[], readSet: Set<string>, baselineMs: number) =>
       items.map((item) => ({
         ...item,
-        read: isNotificationRead(readSet, item.id),
+        read: isNotificationRead(readSet, item.id, item.createdAtIso, baselineMs),
       })),
     []
   );
@@ -155,13 +157,14 @@ export default function NotificationsScreen() {
 
       try {
         const readSet = clientId ? await loadReadNotificationIds(clientId) : new Set<string>();
+        const baselineMs = clientId ? await getReadTrackingBaseline(clientId) : Date.now();
 
         if (CLIENT_APP_V1_ENABLED) {
           const { items, pagination } = await getClientNotifications(apiToken, {
             limit: PAGE_SIZE,
             offset: nextOffset,
           });
-          const mapped = withReadState(items.map(mapClientItemToNotification), readSet);
+          const mapped = withReadState(items.map(mapClientItemToNotification), readSet, baselineMs);
           setNotificationsData((prev) => (append ? [...prev, ...mapped] : mapped));
           setHasMore(Boolean(pagination?.hasMore));
           setOffset(nextOffset + items.length);
@@ -174,7 +177,8 @@ export default function NotificationsScreen() {
             notifications
               .filter((item) => (item.channel ?? '').trim().toUpperCase() === 'PUSH')
               .map(mapHistoryItemToNotification),
-            readSet
+            readSet,
+            baselineMs
           );
           setNotificationsData((prev) => (append ? [...prev, ...mapped] : mapped));
           setHasMore(mapped.length >= PAGE_SIZE);
@@ -241,11 +245,6 @@ export default function NotificationsScreen() {
     openDetail(found);
   }, [isLoading, notificationsData, openIdParam, openDetail]);
 
-  const unreadCount = useMemo(
-    () => notificationsData.filter((item) => !item.read).length,
-    [notificationsData]
-  );
-
   const filteredNotifications = useMemo(
     () =>
       notificationsData.filter((notification) =>
@@ -276,35 +275,22 @@ export default function NotificationsScreen() {
     : null;
   const primaryActionLabel = primaryActionLabelKey ? t(primaryActionLabelKey) : null;
 
-  const unreadSubtitle =
-    unreadCount > 0
-      ? t('notificationsUnreadSubtitle').replace('{{count}}', String(unreadCount))
-      : undefined;
-
   return (
     <>
-      <Header
-        showBackButton
-        title={t('notificationsHistoryTitle')}
-        subtitle={unreadSubtitle}
-      />
+      <Header showBackButton title={t('notificationsHistoryTitle')} />
       <View className="flex-1 bg-light-primary dark:bg-dark-primary">
-        <View className="flex-row gap-1 p-4">
-          <Chip
-            label={t('notificationsAll')}
-            isSelected={selectedType === 'all'}
-            onPress={() => setSelectedType('all')}
-          />
-          <Chip
-            label={t('notificationsBookings')}
-            isSelected={selectedType === 'booking'}
-            onPress={() => setSelectedType('booking')}
-          />
-          <Chip
-            label={t('notificationsPayments')}
-            isSelected={selectedType === 'payment'}
-            onPress={() => setSelectedType('payment')}
-          />
+        <View className="px-4 pb-2 pt-4">
+          <CardScroller space={8}>
+            {NOTIFICATION_LIST_FILTERS.map((filter) => (
+              <Chip
+                key={filter}
+                size="lg"
+                label={t(getNotificationFilterLabelKey(filter))}
+                isSelected={selectedType === filter}
+                onPress={() => setSelectedType(filter)}
+              />
+            ))}
+          </CardScroller>
         </View>
 
         <ThemedScroller>

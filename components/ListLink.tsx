@@ -21,6 +21,7 @@ interface ListLinkProps {
   disabled?: boolean;
   style?: ViewStyle;
   hasBorder?: boolean;
+  hasBadge?: boolean;
 }
 
 const ListLink: React.FC<ListLinkProps> = ({
@@ -37,6 +38,7 @@ const ListLink: React.FC<ListLinkProps> = ({
   disabled = false,
   style,
   hasBorder = false,
+  hasBadge = false,
 }) => {
   // Component for the actual content
   const Content = () => (
@@ -45,8 +47,11 @@ const ListLink: React.FC<ListLinkProps> = ({
       style={style}>
       {leading ? <View className="mr-4">{leading}</View> : null}
       {!leading && icon ? (
-        <View className="mr-4">
+        <View className="relative mr-4">
           <Icon name={icon} size={iconSize} strokeWidth={1.3} />
+          {hasBadge ? (
+            <View className="absolute -right-0.5 -top-0.5 z-10 h-2.5 w-2.5 rounded-full border border-light-primary bg-red-500 dark:border-dark-primary" />
+          ) : null}
         </View>
       ) : null}
       <View className="flex-1">

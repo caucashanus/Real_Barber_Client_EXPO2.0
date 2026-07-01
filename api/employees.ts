@@ -2,6 +2,11 @@ import { CLIENT_APP_V1_ENABLED } from '@/constants/clientAppApi';
 
 import { CrmHttpError, fetchClientAppV1, fetchCrm } from './http';
 
+export interface EmployeeShiftBranch {
+  id: string;
+  name: string;
+}
+
 export interface Employee {
   id: string;
   name: string;
@@ -11,6 +16,10 @@ export interface Employee {
   isActive?: boolean;
   assignedAt?: string;
   hasShiftToday?: boolean;
+  /** Present when GET /employees is called with shiftDate (v1). */
+  hasShiftOnDate?: boolean;
+  shiftBranchIds?: string[];
+  shiftBranches?: EmployeeShiftBranch[];
   averageRating?: number;
   reviewCount?: number;
   branchIds?: string[];
@@ -31,6 +40,10 @@ export interface GetEmployeesOptions {
   includeReviews?: boolean;
   reviewsLimit?: number;
   bookableOnly?: boolean;
+  /** v1 — YYYY-MM-DD; returns hasShiftOnDate + shiftBranches per employee. */
+  shiftDate?: string;
+  /** v1 — filter to employees with a shift at this branch on shiftDate. */
+  branchId?: string;
 }
 
 export async function getEmployees(
@@ -40,6 +53,8 @@ export async function getEmployees(
   if (CLIENT_APP_V1_ENABLED) {
     const params = new URLSearchParams();
     if (options.bookableOnly) params.set('bookableOnly', 'true');
+    if (options.shiftDate) params.set('shiftDate', options.shiftDate);
+    if (options.branchId) params.set('branchId', options.branchId);
     const qs = params.toString();
     return fetchClientAppV1<Employee[]>(`/employees${qs ? `?${qs}` : ''}`, { apiToken });
   }

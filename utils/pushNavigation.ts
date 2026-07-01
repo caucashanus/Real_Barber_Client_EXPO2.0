@@ -1,5 +1,11 @@
 import { router } from 'expo-router';
 
+import {
+  buildNotificationActionHref,
+  resolveNotificationDetailAction,
+  resolveNotificationUiCategory,
+  type NotificationSemanticFields,
+} from '@/utils/notificationAction';
 import { setPendingNotificationOpen } from '@/utils/pendingNotificationOpen';
 
 /** Cesta k detailu rezervace — `app/screens/booking-detail.tsx` + param `id`. */
@@ -70,6 +76,52 @@ export function resolveReservationIdFromPushData(
   if (entityType === 'reservation') {
     const fromEntity = parseIdValue(data.entityId);
     if (fromEntity) return fromEntity;
+  }
+
+  return null;
+}
+
+function resolveSemanticFieldsFromPushData(
+  data: Record<string, unknown>
+): NotificationSemanticFields {
+  return {
+    eventKey:
+      asTrimmedString(data.eventKey) ??
+      asTrimmedString(data.event_key) ??
+      asTrimmedString(data.type),
+    entityType: asTrimmedString(data.entityType) ?? asTrimmedString(data.entity_type),
+    entityId: parseIdValue(data.entityId) ?? parseIdValue(data.entity_id),
+    source: asTrimmedString(data.source),
+  };
+}
+
+/**
+ * Direct target for push tap by category:
+ * - booking / cancellation / review / payment (RBC) → entity screen
+ * - marketing / unknown → null (open notification history + ActionSheet)
+ */
+export function resolveDirectPushNavigationHref(
+  data: Record<string, unknown> | undefined
+): string | null {
+  if (!data) return null;
+
+  const fields = resolveSemanticFieldsFromPushData(data);
+  const category = resolveNotificationUiCategory(fields);
+
+  if (category === 'marketing' || category === 'all') return null;
+
+  const action = resolveNotificationDetailAction(fields);
+  const hrefFromAction = buildNotificationActionHref(action, fields.entityId ?? '');
+  if (hrefFromAction) return hrefFromAction;
+
+  if (category === 'booking' || category === 'cancellation') {
+    const reservationId = resolveReservationIdFromPushData(data);
+    if (reservationId) return buildReservationDetailHref(reservationId);
+  }
+
+  if (category === 'review') {
+    const reservationId = resolveReservationIdFromPushData(data);
+    if (reservationId) return `${buildReservationDetailHref(reservationId)}&openReview=1`;
   }
 
   return null;
@@ -155,10 +207,10 @@ export function openNotificationHistoryFromPush(
 
 /**
  * Zpracuje data z push (Expo `content.data`).
- * 1) Historie notifikací: `notificationId` / `notification_id` (+ volitelně `screen`)
- * 2) Legacy: `deeplink` | `deepLink` | `route`
- * 3) Rezervace: `reservationId` nebo (`entityType === reservation` + `entityId`)
- * Při chybějícím / neplatném ID se nevolá navigace (žádný pád).
+ * 1) Rezervace / platby (RBC) → přímo na detail entity
+ * 2) Marketing / neznámé → historie notifikací + ActionSheet (`notificationId`)
+ * 3) Legacy: `deeplink` | `deepLink` | `route`
+ * 4) Rezervace fallback: `reservationId` nebo (`entityType === reservation` + `entityId`)
  */
 export function openFromPushNotificationData(
   data: Record<string, unknown> | undefined,
@@ -175,9 +227,15 @@ export function openFromPushNotificationData(
   };
 
   const run = () => {
+    const directHref = resolveDirectPushNavigationHref(data);
+    if (directHref) {
+      safePush(directHref);
+      return;
+    }
+
     const notificationId = resolveNotificationIdFromPushData(data);
     if (notificationId) {
-      openNotificationHistoryFromPush(notificationId);
+      openNotificationHistoryFromPush(notificationId, options);
       return;
     }
 

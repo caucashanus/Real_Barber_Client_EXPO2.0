@@ -8,7 +8,7 @@
       <string>com.apple.widgetkit-extension</string>
     </dict>
     <key>CFBundleVersion</key>
-    <string>56</string>
+    <string>57</string>
     <key>CFBundleShortVersionString</key>
     <string>1.0.15</string>
   </dict>

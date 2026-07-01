@@ -10,6 +10,7 @@ import { useAccentColor } from '@/app/contexts/AccentColorContext';
 import { useAuth } from '@/app/contexts/AuthContext';
 import { useBookings } from '@/app/contexts/BookingsBadgeContext';
 import { useTranslation } from '@/app/hooks/useTranslation';
+import { useUnreadNotificationBadge } from '@/app/hooks/useUnreadNotificationBadge';
 import AnimatedView from '@/components/AnimatedView';
 import Avatar from '@/components/Avatar';
 import Header, { HeaderIcon } from '@/components/Header';
@@ -121,6 +122,7 @@ const PersonalProfile = ({
   const { apiToken, signOutToLogin } = useAuth();
   const { bookings } = useBookings();
   const { t } = useTranslation();
+  const hasUnreadNotifications = useUnreadNotificationBadge();
   const [client, setClient] = useState<ClientMe | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -248,6 +250,7 @@ const PersonalProfile = ({
         />
         <ListLink
           showChevron
+          hasBadge={hasUnreadNotifications}
           title={t('profileNotificationHistory')}
           icon="Bell"
           href="/screens/notifications"
