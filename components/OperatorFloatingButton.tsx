@@ -4,6 +4,7 @@ import { Dimensions, Pressable, View } from 'react-native';
 import { ActionSheetRef } from 'react-native-actions-sheet';
 
 import { useTranslation } from '@/app/hooks/useTranslation';
+import { useOperatorSupportAvailable } from '@/app/hooks/useOperatorSupportAvailable';
 import LiveIndicator from '@/components/LiveIndicator';
 import { OperatorSupportSheet } from '@/components/OperatorSupportSheet';
 import { shadowPresets } from '@/utils/useShadow';
@@ -22,6 +23,9 @@ function operatorBottomOffset(): number {
 export default function OperatorFloatingButton() {
   const { t } = useTranslation();
   const sheetRef = useRef<ActionSheetRef>(null);
+  const isSupportAvailable = useOperatorSupportAvailable();
+
+  if (!isSupportAvailable) return null;
 
   return (
     <>

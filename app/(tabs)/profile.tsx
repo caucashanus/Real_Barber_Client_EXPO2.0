@@ -1,9 +1,8 @@
 import { useFocusEffect } from '@react-navigation/native';
 import Constants from 'expo-constants';
 import * as Notifications from 'expo-notifications';
-import { router } from 'expo-router';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { View, RefreshControl, Text, ActivityIndicator, Share } from 'react-native';
+import { View, RefreshControl, Text, ActivityIndicator, Share, Linking } from 'react-native';
 
 import { getClientMe, type ClientMe } from '@/api/client';
 import { useAccentColor } from '@/app/contexts/AccentColorContext';
@@ -15,9 +14,6 @@ import AnimatedView from '@/components/AnimatedView';
 import Avatar from '@/components/Avatar';
 import Header, { HeaderIcon } from '@/components/Header';
 import ListLink from '@/components/ListLink';
-import NotificationPromptSheet, {
-  type NotificationPromptSheetHandle,
-} from '@/components/NotificationPromptSheet';
 import ThemedScroller from '@/components/ThemeScroller';
 import ThemeToggle from '@/components/ThemeToggle';
 import ThemedText from '@/components/ThemedText';
@@ -48,7 +44,6 @@ export default function ProfileScreen() {
   );
   const [refreshing, setRefreshing] = useState(false);
   const refreshFnRef = useRef<(() => Promise<void>) | null>(null);
-  const notifPromptRef = useRef<NotificationPromptSheetHandle>(null);
 
   const onRefresh = useCallback(async () => {
     setRefreshing(true);
@@ -63,7 +58,7 @@ export default function ProfileScreen() {
   );
 
   const handleProfileBellPress = useCallback(() => {
-    router.push('/screens/notifications');
+    void Linking.openSettings();
   }, []);
 
   const notifBadge =
@@ -78,7 +73,6 @@ export default function ProfileScreen() {
 
   return (
     <View className="flex-1 bg-light-primary dark:bg-dark-primary">
-      <NotificationPromptSheet ref={notifPromptRef} enableAutoCheck={false} />
       <Header
         leftComponent={<ThemeToggle />}
         rightComponents={[
