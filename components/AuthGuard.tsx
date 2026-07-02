@@ -3,6 +3,7 @@ import React from 'react';
 
 import { useAuth } from '@/app/contexts/AuthContext';
 import { isAuthFlowRoute, isPublicRoute, LOGIN_PATH } from '@/constants/authRoutes';
+import OperatorFloatingButton from '@/components/OperatorFloatingButton';
 
 export default function AuthGuard({ children }: { children: React.ReactNode }) {
   const { apiToken, isLoading } = useAuth();
@@ -20,5 +21,10 @@ export default function AuthGuard({ children }: { children: React.ReactNode }) {
     return <Redirect href="/real-barber" />;
   }
 
-  return <>{children}</>;
+  return (
+    <>
+      {children}
+      {apiToken ? <OperatorFloatingButton /> : null}
+    </>
+  );
 }

@@ -243,6 +243,11 @@ export const en = {
   helpContactPhoneValue: '+420 608 332 881',
   helpContactHoursType: 'Support hours',
   helpContactHoursValue: 'Mon–Fri 8:30–21:30, Sat–Sun 9:30–18:30',
+  operatorSheetTitle: 'Contact support',
+  operatorContactPhone: 'Phone call',
+  operatorContactWhatsApp: 'WhatsApp',
+  operatorContactTelegram: 'Telegram',
+  operatorFabAccessibility: 'Contact support',
   helpFaq1Q: 'How do I book an appointment?',
   helpFaq1A:
     'Open Schedule from the home area or go to a branch or barber profile. Follow the booking steps (branch, service, barber, time). You need to be signed in to complete a booking.',

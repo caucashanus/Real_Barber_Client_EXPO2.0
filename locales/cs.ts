@@ -247,6 +247,11 @@ export const cs: Record<TranslationKey, string> = {
   helpContactPhoneValue: '+420 608 332 881',
   helpContactHoursType: 'Hodiny podpory',
   helpContactHoursValue: 'Po–Pá 8:30–21:30, So–Ne 9:30–18:30',
+  operatorSheetTitle: 'Kontaktovat podporu',
+  operatorContactPhone: 'Telefon',
+  operatorContactWhatsApp: 'WhatsApp',
+  operatorContactTelegram: 'Telegram',
+  operatorFabAccessibility: 'Kontaktovat podporu',
   helpFaq1Q: 'Jak si rezervuji návštěvu u barbera?',
   helpFaq1A:
     'Otevřete Rozvrh z úvodní oblasti aplikace nebo profil pobočky či barbera. Postupujte v průvodci rezervací (pobočka, služba, holič, čas). Rezervaci dokončíte jen po přihlášení.',

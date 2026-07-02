@@ -10,6 +10,7 @@ import Icon from '@/components/Icon';
 import ThemedText from '@/components/ThemedText';
 import Section from '@/components/layout/Section';
 import type { TranslationKey } from '@/locales';
+import { buildOperatorPhoneUrl } from '@/utils/operatorContact';
 
 const FAQ_KEYS: { q: TranslationKey; a: TranslationKey }[] = [
   { q: 'helpFaq1Q', a: 'helpFaq1A' },
@@ -25,7 +26,7 @@ const FAQ_KEYS: { q: TranslationKey; a: TranslationKey }[] = [
 ];
 
 const HELP_EMAIL = 'info@realbarber.cz';
-const HELP_TEL_URI = 'tel:+420608332881';
+const HELP_TEL_URI = buildOperatorPhoneUrl();
 
 const CONTACT_ROWS: {
   id: string;
