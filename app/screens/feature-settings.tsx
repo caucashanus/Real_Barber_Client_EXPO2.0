@@ -9,7 +9,6 @@ import Header from '@/components/Header';
 import Icon from '@/components/Icon';
 import ThemedScroller from '@/components/ThemeScroller';
 import Switch from '@/components/forms/Switch';
-import Divider from '@/components/layout/Divider';
 import Section from '@/components/layout/Section';
 import { useHapticFeedbackEnabled } from '@/utils/hapticFeedbackPreference';
 import { useOperatorButtonEnabled } from '@/utils/operatorButtonPreference';
@@ -34,7 +33,7 @@ function FeatureSettingRow({
   disabled?: boolean;
 }) {
   return (
-    <View className="flex-row items-center">
+    <View className="flex-row items-center py-4">
       <View
         className="items-center justify-center"
         style={{ width: LEADING_SIZE, height: LEADING_SIZE, marginRight: LEADING_GAP }}>
@@ -72,12 +71,12 @@ export default function FeatureSettingsScreen() {
       <ThemedScroller>
         <Section
           titleSize="3xl"
-          className="px-4 pb-6 pt-4"
+          className="px-4 pb-10 pt-4"
           title={t('profileFeatureSettings')}
           subtitle={t('profileFeatureSettingsSubtitle')}
         />
 
-        <View className="gap-4 px-4">
+        <View className="px-4">
           <FeatureSettingRow
             leading={
               <Image
@@ -92,8 +91,6 @@ export default function FeatureSettingsScreen() {
             onChange={setOperatorEnabled}
             disabled={isOperatorLoading}
           />
-
-          <Divider className="my-0" />
 
           <FeatureSettingRow
             leading={<Icon name="Vibrate" size={20} color={colors.text} />}

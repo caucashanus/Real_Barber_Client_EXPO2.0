@@ -233,7 +233,6 @@ const PersonalProfile = ({
         <ListLink
           showChevron
           title={t('profileFeatureSettings')}
-          description={t('profileFeatureSettingsDesc')}
           icon="SlidersHorizontal"
           href="/screens/feature-settings"
         />

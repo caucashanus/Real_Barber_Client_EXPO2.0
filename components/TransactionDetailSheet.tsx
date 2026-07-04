@@ -11,7 +11,7 @@ import Avatar from '@/components/Avatar';
 import { Button } from '@/components/Button';
 import ThemedText from '@/components/ThemedText';
 import type { TranslationKey } from '@/locales';
-import { isVisitReservationBonusTransaction } from '@/utils/rbcCoinsHistoryUi';
+import { isVisitReservationBonusTransaction, getRbCoinsTransactionAvatarSrc } from '@/utils/rbcCoinsHistoryUi';
 
 function formatBalance(value: number): string {
   return value.toLocaleString('cs-CZ', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
@@ -36,14 +36,6 @@ function getDetailDescription(tx: RbCoinsHistoryItem, t: (key: TranslationKey) =
   if (tx.description?.startsWith('Cashback z nákupu')) return tx.description;
   if (tx.description?.trim()) return tx.description.trim();
   return '–';
-}
-
-function transactionAvatarSrc(
-  item: RbCoinsHistoryItem
-): string | import('react-native').ImageSourcePropType {
-  if (item.otherParty?.avatarUrl) return item.otherParty.avatarUrl;
-  if (item.type === 'TRANSFER') return require('@/assets/img/wallet/RB.avatar.jpg');
-  return require('@/assets/img/wallet/realbarber.png');
 }
 
 interface TransactionDetailContentProps {
@@ -107,7 +99,7 @@ function TransactionDetailContent({ transaction, onClose }: TransactionDetailCon
     <ScrollView showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
       <View className="px-global pb-8 pt-2">
       <View className="mb-4 flex-row items-center">
-        <Avatar src={transactionAvatarSrc(transaction)} size="md" />
+        <Avatar src={getRbCoinsTransactionAvatarSrc(transaction)} size="md" />
         <View className="ml-3 flex-1">
           <ThemedText className="text-base font-semibold">{getTypeLabel(transaction)}</ThemedText>
           <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext">
@@ -137,7 +129,7 @@ function TransactionDetailContent({ transaction, onClose }: TransactionDetailCon
                 : t('walletDetailSender')}
             </ThemedText>
             <View className="flex-row items-center gap-2">
-              <Avatar src={transactionAvatarSrc(transaction)} size="sm" />
+              <Avatar src={getRbCoinsTransactionAvatarSrc(transaction)} size="sm" />
               <View>
                 <ThemedText className="text-base font-medium">{transaction.otherParty.name}</ThemedText>
                 {transaction.otherParty.identifier && (

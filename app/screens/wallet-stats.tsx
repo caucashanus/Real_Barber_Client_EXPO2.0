@@ -6,10 +6,14 @@ import { getRbCoinsHistory, type RbCoinsHistoryItem } from '@/api/rb-coins';
 import { useAuth } from '@/app/contexts/AuthContext';
 import useThemeColors from '@/app/contexts/ThemeColors';
 import { useTranslation } from '@/app/hooks/useTranslation';
+import Avatar from '@/components/Avatar';
 import Header from '@/components/Header';
 import Icon from '@/components/Icon';
 import ThemedScroller from '@/components/ThemeScroller';
 import ThemedText from '@/components/ThemedText';
+import TransactionDetailSheet from '@/components/TransactionDetailSheet';
+import { List } from '@/components/layout/List';
+import ListItem from '@/components/layout/ListItem';
 import type { TranslationKey } from '@/locales';
 import {
   filterRbCoinsHistoryByMonth,
@@ -27,6 +31,9 @@ import {
   type RbcWalletHeroMonth,
 } from '@/utils/rbcWalletStats';
 import {
+  formatRbCoinsTransactionAmount,
+  formatRbCoinsTransactionListSubtitle,
+  getRbCoinsTransactionAvatarSrc,
   getRbCoinsTransactionListTitle,
   RB_COINS_TX_LIST_KEYS_WALLET,
 } from '@/utils/rbcCoinsHistoryUi';
@@ -48,11 +55,6 @@ function formatBalance(value: number): string {
 
 function formatRbcAmount(value: number): string {
   return `${formatBalance(value)} RBC`;
-}
-
-function formatTransactionDate(iso: string, locale: string): string {
-  const tag = locale === 'cs' ? 'cs-CZ' : 'en-GB';
-  return new Date(iso).toLocaleDateString(tag, { day: 'numeric', month: 'long' });
 }
 
 async function fetchAllRbCoinsHistory(apiToken: string): Promise<RbCoinsHistoryItem[]> {
@@ -328,6 +330,7 @@ const WalletStatsScreen = () => {
   const [selectedMonthKey, setSelectedMonthKey] = useState<string | null>(() =>
     getLatestSelectableMonthKeyForYear(new Date().getFullYear())
   );
+  const [selectedTransaction, setSelectedTransaction] = useState<RbCoinsHistoryItem | null>(null);
   const chartScrollRef = useRef<ScrollView>(null);
 
   const { minYear, maxYear } = useMemo(() => getWalletChartYearBounds(), []);
@@ -503,52 +506,42 @@ const WalletStatsScreen = () => {
                   {selectedMonthKey ? t('walletStatsEmptyMonth') : t('walletStatsEmpty')}
                 </ThemedText>
               ) : (
-                displayedTransactions.map((tx) => {
-                  const isSent = tx.direction === 'sent';
-                  const title = getRbCoinsTransactionListTitle(
-                    tx,
-                    t,
-                    RB_COINS_TX_LIST_KEYS_WALLET
-                  );
-                  const amountStr = isSent
-                    ? `-${formatRbcAmount(tx.amount)}`
-                    : `+${formatRbcAmount(tx.amount)}`;
-                  return (
-                    <RecentMoveRow
-                      key={tx.id}
-                      status={title}
-                      date={formatTransactionDate(tx.createdAt, locale)}
-                      amount={amountStr}
-                      isSent={isSent}
-                    />
-                  );
-                })
+                <List variant="divided" spacing={12}>
+                  {displayedTransactions.map((tx) => {
+                    const isSent = tx.direction === 'sent';
+                    return (
+                      <ListItem
+                        key={tx.id}
+                        className="py-2"
+                        leading={<Avatar src={getRbCoinsTransactionAvatarSrc(tx)} size="sm" />}
+                        title={getRbCoinsTransactionListTitle(
+                          tx,
+                          t,
+                          RB_COINS_TX_LIST_KEYS_WALLET
+                        )}
+                        subtitle={formatRbCoinsTransactionListSubtitle(tx.createdAt, locale)}
+                        trailing={
+                          <ThemedText
+                            className={`text-base font-semibold ${isSent ? 'text-light-text dark:text-dark-text' : 'text-green-600 dark:text-green-400'}`}>
+                            {formatRbCoinsTransactionAmount(tx)}
+                          </ThemedText>
+                        }
+                        onPress={() => setSelectedTransaction(tx)}
+                      />
+                    );
+                  })}
+                </List>
               )}
             </View>
           </>
         )}
       </ThemedScroller>
+      <TransactionDetailSheet
+        transaction={selectedTransaction}
+        visible={!!selectedTransaction}
+        onClose={() => setSelectedTransaction(null)}
+      />
     </>
-  );
-};
-
-const RecentMoveRow = (props: {
-  status: string;
-  date: string;
-  amount: string;
-  isSent: boolean;
-}) => {
-  return (
-    <View className="my-3 flex-row items-center justify-between">
-      <View className="min-w-0 flex-1 pr-4">
-        <ThemedText className="text-base opacity-50">{props.status}</ThemedText>
-        <ThemedText className="text-lg">{props.date}</ThemedText>
-      </View>
-      <ThemedText
-        className={`text-lg font-semibold ${props.isSent ? 'text-red-500 dark:text-red-400' : 'text-green-600 dark:text-green-400'}`}>
-        {props.amount}
-      </ThemedText>
-    </View>
   );
 };
 

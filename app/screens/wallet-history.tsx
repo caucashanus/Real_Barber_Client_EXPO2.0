@@ -15,6 +15,7 @@ import ListItem from '@/components/layout/ListItem';
 import Section from '@/components/layout/Section';
 import type { TranslationKey } from '@/locales';
 import {
+  getRbCoinsTransactionAvatarSrc,
   getRbCoinsTransactionListTitle,
   RB_COINS_TX_LIST_KEYS_WALLET,
 } from '@/utils/rbcCoinsHistoryUi';
@@ -68,14 +69,6 @@ function groupByDate(
   });
   const sorted = Object.keys(map).sort((a, b) => b.localeCompare(a));
   return sorted.map((dateKey) => ({ dateKey, items: map[dateKey] }));
-}
-
-function transactionAvatarSrc(
-  item: RbCoinsHistoryItem
-): string | import('react-native').ImageSourcePropType {
-  if (item.otherParty?.avatarUrl) return item.otherParty.avatarUrl;
-  if (item.type === 'TRANSFER') return require('@/assets/img/wallet/RB.avatar.jpg');
-  return require('@/assets/img/wallet/realbarber.png');
 }
 
 export default function WalletHistoryScreen() {
@@ -157,7 +150,7 @@ export default function WalletHistoryScreen() {
                       <ListItem
                         key={tx.id}
                         className="py-2"
-                        leading={<Avatar src={transactionAvatarSrc(tx)} size="sm" />}
+                        leading={<Avatar src={getRbCoinsTransactionAvatarSrc(tx)} size="sm" />}
                         title={getRbCoinsTransactionListTitle(tx, t, RB_COINS_TX_LIST_KEYS_WALLET)}
                         subtitle={formatTransactionTime(tx.createdAt)}
                         trailing={
