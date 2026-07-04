@@ -14,6 +14,7 @@ import { useBookings } from '@/app/contexts/BookingsBadgeContext';
 import { useTranslation } from '@/app/hooks/useTranslation';
 import Avatar from '@/components/Avatar';
 import { ClientCouponValidityPills } from '@/components/ClientCouponValidityPills';
+import { HomeRepeatBookingCard } from '@/components/HomeRepeatBookingCard';
 import { HomeSpotlightCard } from '@/components/HomeSpotlightCard';
 import Icon from '@/components/Icon';
 import NotificationPromptSheet from '@/components/NotificationPromptSheet';
@@ -21,6 +22,7 @@ import ThemeScroller from '@/components/ThemeScroller';
 import ThemedText from '@/components/ThemedText';
 import Section from '@/components/layout/Section';
 import { getBookingEndDate, isBookingPast } from '@/utils/bookingHelpers';
+import { pickRepeatBookingCandidate } from '@/utils/repeatBooking';
 import { getClientCouponValidityA11y } from '@/utils/clientCouponFormat';
 import { buildHomePromoCouponCarouselList, homePromoClientSeed } from '@/utils/homePromoCoupon';
 import { mergePostersAndCouponsRoundRobin, filterHomePosters } from '@/utils/homePromoFeed';
@@ -188,6 +190,11 @@ export default function RealBarberHomeTab() {
 
   const spotlight = useMemo(() => pickHomeSpotlight(allBookings, now), [allBookings, now]);
 
+  const repeatBooking = useMemo(
+    () => pickRepeatBookingCandidate(allBookings, now),
+    [allBookings, now]
+  );
+
   const recentBookings = useMemo(
     () =>
       allBookings
@@ -230,7 +237,13 @@ export default function RealBarberHomeTab() {
         }>
         <NotificationPromptSheet />
         <View className="mt-4 px-global">
-          {recentLoading ? null : spotlight ? (
+          {!recentLoading && repeatBooking ? (
+            <View className="-mx-global mt-4">
+              <HomeRepeatBookingCard booking={repeatBooking} t={t} />
+            </View>
+          ) : null}
+
+          {!recentLoading && spotlight ? (
             <View className="-mx-global mt-4">
               <HomeSpotlightCard spotlight={spotlight} t={t} locale={locale} />
             </View>

@@ -148,6 +148,7 @@ export const en = {
   // Real Barber home screen
   homeCreateBooking: 'Create booking',
   homeCreateBookingSubtitle: 'Choose a service and time',
+  homeRepeatBookingTitle: 'Repeat last booking',
   homeBranches: 'Branches',
   homeBranchesSubtitle: 'Choose a location',
   homeBarbers: 'Barbers',
@@ -252,7 +253,7 @@ export const en = {
   helpContactHoursValue: 'Mon–Fri 8:30–21:30, Sat–Sun 9:30–18:30',
   operatorSheetTitle: 'Contact support',
   operatorSheetIntro:
-    "I'm your live assistant during support hours (Mon–Fri 8:30–21:30, Sat–Sun 9:30–18:30). Outside those hours I won't appear here.",
+    "I'm your live assistant during support hours. Outside those hours I won't appear here.",
   operatorSheetDisableBefore: "If I'm in your way, ",
   operatorSheetDisableLink: 'turn me off in Feature settings',
   operatorContactPhone: 'Phone call',

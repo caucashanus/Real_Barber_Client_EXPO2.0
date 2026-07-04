@@ -152,6 +152,7 @@ export const cs: Record<TranslationKey, string> = {
   // Real Barber home screen
   homeCreateBooking: 'Vytvořit rezervaci',
   homeCreateBookingSubtitle: 'Vyber službu a čas',
+  homeRepeatBookingTitle: 'Zopakovat minulou rezervaci',
   homeBranches: 'Pobočky',
   homeBranchesSubtitle: 'Vyber místo',
   homeBarbers: 'Barbeři',
@@ -256,7 +257,7 @@ export const cs: Record<TranslationKey, string> = {
   helpContactHoursValue: 'Po–Pá 8:30–21:30, So–Ne 9:30–18:30',
   operatorSheetTitle: 'Kontaktovat podporu',
   operatorSheetIntro:
-    'Jsem váš živý pomocník v pracovní době (Po–Pá 8:30–21:30, So–Ne 9:30–18:30). Mimo ni se tu nezobrazuji.',
+    'Jsem váš živý pomocník v pracovní době. Mimo ni se tu nezobrazuji.',
   operatorSheetDisableBefore: 'Pokud vás ruším, ',
   operatorSheetDisableLink: 'vypněte si mě v Nastavení funkcí',
   operatorContactPhone: 'Telefon',
