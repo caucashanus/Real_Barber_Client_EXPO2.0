@@ -7,6 +7,7 @@ import { useTranslation } from '@/app/hooks/useTranslation';
 import { useOperatorSupportAvailable } from '@/app/hooks/useOperatorSupportAvailable';
 import LiveIndicator from '@/components/LiveIndicator';
 import { OperatorSupportSheet } from '@/components/OperatorSupportSheet';
+import { useOperatorButtonEnabled } from '@/utils/operatorButtonPreference';
 import { shadowPresets } from '@/utils/useShadow';
 
 const OPERATOR_ICON = require('@/assets/img/operator.png');
@@ -24,8 +25,9 @@ export default function OperatorFloatingButton() {
   const { t } = useTranslation();
   const sheetRef = useRef<ActionSheetRef>(null);
   const isSupportAvailable = useOperatorSupportAvailable();
+  const { enabled: isOperatorEnabled, isLoading: isOperatorPrefLoading } = useOperatorButtonEnabled();
 
-  if (!isSupportAvailable) return null;
+  if (!isSupportAvailable || isOperatorPrefLoading || !isOperatorEnabled) return null;
 
   return (
     <>

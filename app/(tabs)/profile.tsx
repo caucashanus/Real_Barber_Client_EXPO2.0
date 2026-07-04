@@ -232,6 +232,13 @@ const PersonalProfile = ({
       <View className="gap-1 px-4">
         <ListLink
           showChevron
+          title={t('profileFeatureSettings')}
+          description={t('profileFeatureSettingsDesc')}
+          icon="SlidersHorizontal"
+          href="/screens/feature-settings"
+        />
+        <ListLink
+          showChevron
           title={t('profileAccountSettings')}
           icon="Settings"
           href="/screens/settings"

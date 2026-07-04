@@ -1,5 +1,6 @@
-import React from 'react';
+import React, { useRef } from 'react';
 import { View, ScrollView, TouchableOpacity, Linking } from 'react-native';
+import { ActionSheetRef } from 'react-native-actions-sheet';
 
 import { useTranslation } from '@/app/hooks/useTranslation';
 import AnimatedView from '@/components/AnimatedView';
@@ -7,6 +8,7 @@ import { Button } from '@/components/Button';
 import Expandable from '@/components/Expandable';
 import Header from '@/components/Header';
 import Icon from '@/components/Icon';
+import { OperatorSupportSheet } from '@/components/OperatorSupportSheet';
 import ThemedText from '@/components/ThemedText';
 import Section from '@/components/layout/Section';
 import type { TranslationKey } from '@/locales';
@@ -59,6 +61,8 @@ const CONTACT_ROWS: {
 
 export default function HelpScreen() {
   const { t } = useTranslation();
+  const supportSheetRef = useRef<ActionSheetRef>(null);
+
   return (
     <View className="flex-1 bg-light-primary dark:bg-dark-primary">
       <Header title={t('helpTitle')} showBackButton />
@@ -116,11 +120,12 @@ export default function HelpScreen() {
               title={t('helpContactSupport')}
               iconStart="MessageCircle"
               className="mt-8"
-              onPress={() => Linking.openURL(`mailto:${HELP_EMAIL}`)}
+              onPress={() => supportSheetRef.current?.show()}
             />
           </View>
         </AnimatedView>
       </ScrollView>
+      <OperatorSupportSheet ref={supportSheetRef} />
     </View>
   );
 }

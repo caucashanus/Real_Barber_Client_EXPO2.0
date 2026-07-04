@@ -17,6 +17,7 @@ import ThemedScroller from '@/components/ThemeScroller';
 import ThemedText from '@/components/ThemedText';
 import Input from '@/components/forms/Input';
 import Switch from '@/components/forms/Switch';
+import { triggerImpact } from '@/utils/appHaptics';
 
 const StarRating = ({
   rating,
@@ -28,7 +29,7 @@ const StarRating = ({
   const colors = useThemeColors();
 
   const handlePress = (starIndex: number) => {
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(() => {});
+    triggerImpact(Haptics.ImpactFeedbackStyle.Light);
     const newRating = starIndex + 1;
     setRating(newRating === rating ? 0 : newRating);
   };
@@ -262,10 +263,7 @@ const ReviewScreen = () => {
                   label={t('reviewAnonymous')}
                   description={t('reviewAnonymousDesc')}
                   value={isAnonymous}
-                  onChange={(value) => {
-                    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(() => {});
-                    setIsAnonymous(value);
-                  }}
+                  onChange={setIsAnonymous}
                   className="py-3"
                 />
               </View>

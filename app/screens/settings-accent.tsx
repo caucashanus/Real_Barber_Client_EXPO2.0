@@ -1,5 +1,4 @@
 import Slider from '@react-native-community/slider';
-import * as Haptics from 'expo-haptics';
 import React, { useRef, useState, useEffect } from 'react';
 import { View } from 'react-native';
 
@@ -11,6 +10,7 @@ import Icon from '@/components/Icon';
 import ThemedScroller from '@/components/ThemeScroller';
 import ThemedText from '@/components/ThemedText';
 import Section from '@/components/layout/Section';
+import { triggerSelection } from '@/utils/appHaptics';
 
 const SAT = 0.85;
 const LIGHT = 0.5;
@@ -98,7 +98,7 @@ export default function SettingsAccentScreen() {
     const step = Math.round(value / 6); // ~60 ticks across full range
     if (lastHapticStepRef.current !== step) {
       lastHapticStepRef.current = step;
-      Haptics.selectionAsync().catch(() => {});
+      triggerSelection();
     }
 
     const h = hueToHex(value);

@@ -14,6 +14,7 @@ import {
 import Icon, { IconName } from './Icon';
 
 import useThemeColors from '@/app/contexts/ThemeColors';
+import { triggerImpact } from '@/utils/appHaptics';
 
 type RoundedOption = 'none' | 'xs' | 'sm' | 'md' | 'lg' | 'xl' | 'full';
 
@@ -147,7 +148,7 @@ export const Button: React.FC<ButtonProps> = ({
 
   const triggerHaptic = () => {
     if (disableHaptic) return;
-    Haptics.impactAsync(impactFeedbackStyle).catch(() => {});
+    triggerImpact(impactFeedbackStyle);
   };
 
   const primaryBg: ViewStyle | undefined =

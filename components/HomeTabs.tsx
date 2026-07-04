@@ -1,4 +1,3 @@
-import * as Haptics from 'expo-haptics';
 import { Image } from 'expo-image';
 import { router, usePathname } from 'expo-router';
 import React, { useEffect, useRef, useState } from 'react';
@@ -8,6 +7,8 @@ import ThemedText from './ThemedText';
 
 import { useTheme } from '@/app/contexts/ThemeContext';
 import { useTranslation } from '@/app/hooks/useTranslation';
+import { triggerImpact } from '@/utils/appHaptics';
+import * as Haptics from 'expo-haptics';
 
 const HomeTabs = (props: any) => {
   const currentPath = usePathname();
@@ -128,7 +129,7 @@ const TabItem = (props: any) => {
   }, [props.scrollY, animatedSize, isExpanded]);
 
   const handlePress = () => {
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy).catch(() => {});
+    triggerImpact(Haptics.ImpactFeedbackStyle.Heavy);
     router.push(props.href);
   };
 

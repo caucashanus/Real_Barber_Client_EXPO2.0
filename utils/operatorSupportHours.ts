@@ -1,3 +1,6 @@
+/** Dočasně true = operátor viditelný mimo pracovní dobu (test). Před release nastavit na false. */
+export const BYPASS_OPERATOR_SUPPORT_HOURS = true;
+
 function toMinutes(hours: number, minutes: number): number {
   return hours * 60 + minutes;
 }
@@ -9,6 +12,8 @@ const WEEKEND_END = toMinutes(18, 30);
 
 /** Po–Pá 8:30–21:30, So–Ne 9:30–18:30 (lokální čas zařízení). */
 export function isOperatorSupportAvailable(date = new Date()): boolean {
+  if (BYPASS_OPERATOR_SUPPORT_HOURS) return true;
+
   const day = date.getDay();
   const minutes = date.getHours() * 60 + date.getMinutes();
 

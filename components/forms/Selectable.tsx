@@ -7,6 +7,7 @@ import Icon, { IconName } from '../Icon';
 import ThemedText from '../ThemedText';
 
 import useThemeColors from '@/app/contexts/ThemeColors';
+import { triggerImpact } from '@/utils/appHaptics';
 
 interface SelectableProps {
   title: string;
@@ -51,7 +52,7 @@ const Selectable: React.FC<SelectableProps> = ({
 }) => {
   const colors = useThemeColors();
   const handlePress = () => {
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light).catch(() => {});
+    triggerImpact(Haptics.ImpactFeedbackStyle.Light);
     onPress?.();
   };
 

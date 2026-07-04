@@ -28,6 +28,7 @@ import { Button } from '@/components/Button';
 import Header from '@/components/Header';
 import Icon from '@/components/Icon';
 import ThemedText from '@/components/ThemedText';
+import { triggerImpact } from '@/utils/appHaptics';
 
 // Step component that will be used as children
 export interface StepProps {
@@ -240,7 +241,7 @@ const MultiStep = forwardRef<MultiStepHandle, MultiStepProps>(function MultiStep
   };
 
   const stepTransitionHaptic = () => {
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy).catch(() => {});
+    triggerImpact(Haptics.ImpactFeedbackStyle.Heavy);
   };
 
   const handleBack = () => {

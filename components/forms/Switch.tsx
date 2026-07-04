@@ -5,6 +5,8 @@ import Icon, { IconName } from '../Icon';
 import ThemedText from '../ThemedText';
 
 import useThemeColors from '@/app/contexts/ThemeColors';
+import { triggerImpact } from '@/utils/appHaptics';
+import * as Haptics from 'expo-haptics';
 
 interface SwitchProps {
   value?: boolean;
@@ -47,6 +49,8 @@ const Switch: React.FC<SwitchProps> = ({
 
     // Call callback if provided
     onChange?.(newValue);
+
+    triggerImpact(Haptics.ImpactFeedbackStyle.Light);
 
     // Animate the switch
     Animated.spring(slideAnim, {
