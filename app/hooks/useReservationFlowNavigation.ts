@@ -117,13 +117,18 @@ export function useReservationFlowNavigation({
   );
 
   const useFlowNextResolver =
+    barberEntryMode === 'slotHandoff' ||
     ((barberEntryMode === 'multi' || barberEntryMode === 'single') && Boolean(presetEmployeeId)) ||
     (barberEntryMode === 'service' && Boolean(presetItemId));
   const useFlowPrevResolver =
-    Boolean(presetEmployeeId) || barberEntryMode === 'branch' || barberEntryMode === 'service';
+    barberEntryMode === 'slotHandoff' ||
+    Boolean(presetEmployeeId) ||
+    barberEntryMode === 'branch' ||
+    barberEntryMode === 'service';
 
   const flowStepNextIndex = useCallback(
     (currentStepIndex: number) => {
+      if (barberEntryMode === 'slotHandoff' && currentStepIndex === 1) return 4;
       if (barberEntryMode === 'service' && presetItemId && currentStepIndex === 0) return 2;
       if (
         (barberEntryMode === 'multi' || barberEntryMode === 'single') &&
@@ -139,6 +144,10 @@ export function useReservationFlowNavigation({
 
   const flowStepPrevIndex = useCallback(
     (currentStepIndex: number) => {
+      if (barberEntryMode === 'slotHandoff') {
+        if (currentStepIndex === 4) return 1;
+        if (currentStepIndex === 1) return -1;
+      }
       if (presetEmployeeId) {
         if (barberEntryMode === 'single' && currentStepIndex === 3) return 1;
         if (barberEntryMode === 'single' && currentStepIndex === 1) return -1;

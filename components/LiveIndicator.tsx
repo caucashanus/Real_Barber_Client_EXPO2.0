@@ -30,7 +30,7 @@ const LiveIndicator = ({
   }, [opacity, animated]);
   const colorClass =
     variant === 'red'
-      ? 'bg-gray-400 dark:bg-gray-500'
+      ? 'bg-red-500 dark:bg-red-400'
       : variant === 'orange'
         ? 'bg-amber-500 dark:bg-amber-400'
         : 'bg-emerald-500 dark:bg-emerald-400';

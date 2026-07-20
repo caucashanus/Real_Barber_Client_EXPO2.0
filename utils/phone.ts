@@ -133,3 +133,82 @@ export function validatePhoneDigits(value: string, minDigits = 9): PhoneValidati
   }
   return { valid: true };
 }
+
+function normalizeLanguageKey(value: string): string {
+  return value
+    .trim()
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '');
+}
+
+/** First grapheme from labels like `🇨🇿 +420` (same as phone prefix picker). */
+export function extractCountryFlagEmoji(label: string): string {
+  const trimmed = label.trim();
+  const spaceIndex = trimmed.indexOf(' ');
+  return spaceIndex === -1 ? trimmed : trimmed.slice(0, spaceIndex);
+}
+
+export function getCountryCodeFlagEmoji(countryCode: string): string | null {
+  const option = COUNTRY_CODE_OPTIONS.find((row) => row.value === countryCode);
+  return option ? extractCountryFlagEmoji(option.label) : null;
+}
+
+const LANGUAGE_TO_COUNTRY_CODE: Array<[string, string]> = [
+  ['anglictina', '+44'],
+  ['english', '+44'],
+  ['nemcina', '+49'],
+  ['german', '+49'],
+  ['deutsch', '+49'],
+  ['cestina', '+420'],
+  ['czech', '+420'],
+  ['slovencina', '+421'],
+  ['slovak', '+421'],
+  ['ukrajin', '+380'],
+  ['ukrainian', '+380'],
+  ['polstina', '+48'],
+  ['polish', '+48'],
+  ['rustina', '+7'],
+  ['russian', '+7'],
+  ['francouzstina', '+33'],
+  ['french', '+33'],
+  ['spanelsky', '+34'],
+  ['spanish', '+34'],
+  ['italstina', '+39'],
+  ['italian', '+39'],
+  ['portugal', '+351'],
+  ['portuguese', '+351'],
+  ['madarsky', '+36'],
+  ['hungarian', '+36'],
+  ['en', '+44'],
+  ['de', '+49'],
+  ['cs', '+420'],
+  ['sk', '+421'],
+  ['uk', '+380'],
+  ['pl', '+48'],
+  ['ru', '+7'],
+  ['fr', '+33'],
+  ['es', '+34'],
+  ['it', '+39'],
+  ['pt', '+351'],
+  ['hu', '+36'],
+];
+
+export function getLanguageFlagEmoji(language: string): string | null {
+  const normalized = normalizeLanguageKey(language);
+  if (!normalized) return null;
+
+  const sorted = [...LANGUAGE_TO_COUNTRY_CODE].sort((a, b) => b[0].length - a[0].length);
+
+  for (const [key, countryCode] of sorted) {
+    if (normalized === key) return getCountryCodeFlagEmoji(countryCode);
+  }
+
+  for (const [key, countryCode] of sorted) {
+    if (key.length >= 4 && normalized.includes(key)) {
+      return getCountryCodeFlagEmoji(countryCode);
+    }
+  }
+
+  return null;
+}

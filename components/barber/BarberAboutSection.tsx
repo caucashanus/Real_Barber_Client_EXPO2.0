@@ -1,36 +1,41 @@
 import React from 'react';
 import { View } from 'react-native';
 
-import Avatar from '@/components/Avatar';
 import ThemedText from '@/components/ThemedText';
+import Section from '@/components/layout/Section';
 import type { TranslationKey } from '@/locales';
 
 interface BarberAboutSectionProps {
-  avatarUrl?: string | null;
-  name: string;
   description: string | null;
+  embedded?: boolean;
   t: (key: TranslationKey) => string;
 }
 
 export default function BarberAboutSection({
-  avatarUrl,
-  name,
   description,
+  embedded = false,
   t,
 }: BarberAboutSectionProps) {
-  return (
-    <View className="mb-8 mt-8 border-y border-neutral-200 py-global dark:border-dark-secondary">
-      <View className="mb-3 flex-row items-center">
-        <Avatar size="md" src={avatarUrl ?? undefined} name={name} className="mr-4" />
-        <ThemedText className="text-base font-semibold">{t('barberAboutMe')}</ThemedText>
+  if (!description?.trim()) return null;
+
+  const body = (
+    <ThemedText className="text-sm leading-6 text-light-subtext dark:text-dark-subtext">
+      {description}
+    </ThemedText>
+  );
+
+  if (embedded) {
+    return (
+      <View className="mb-6">
+        <ThemedText className="mb-2 text-lg font-semibold">{t('barberAboutMe')}</ThemedText>
+        {body}
       </View>
-      {description ? (
-        <ThemedText
-          className="text-sm text-light-subtext dark:text-dark-subtext"
-          style={{ lineHeight: 22 }}>
-          {description}
-        </ThemedText>
-      ) : null}
-    </View>
+    );
+  }
+
+  return (
+    <Section title={t('barberAboutMe')} titleSize="lg" className="mb-6 mt-8">
+      <View className="mt-3">{body}</View>
+    </Section>
   );
 }

@@ -3,7 +3,6 @@ import { View } from 'react-native';
 
 import type { Booking, BookingCouponUsage } from '@/api/bookings';
 import ThemedText from '@/components/ThemedText';
-import Divider from '@/components/layout/Divider';
 import Section from '@/components/layout/Section';
 import type { TranslationKey } from '@/locales';
 
@@ -22,9 +21,7 @@ export default function BookingDetailPriceSection({
 }: BookingDetailPriceSectionProps) {
   return (
     <>
-      <Divider className="mt-6 h-2 bg-light-secondary dark:bg-dark-darker" />
-
-      <Section title={t('bookingPriceDetails')} titleSize="lg" className="px-global pt-4">
+      <Section title={t('bookingPriceDetails')} titleSize="lg" className="mt-6 px-global pt-4">
         <View className="mt-4 space-y-3">
           {booking.couponUsages && booking.couponUsages.length > 0 ? (
             <View className="space-y-4">
@@ -37,11 +34,7 @@ export default function BookingDetailPriceSection({
                 return (
                   <View
                     key={usage.id || `coupon-use-${idx}`}
-                    className={
-                      idx > 0
-                        ? 'border-t border-neutral-400/20 pt-4 dark:border-neutral-500/25'
-                        : ''
-                    }>
+                    className={idx > 0 ? 'pt-4' : ''}>
                     {(booking.couponUsages?.length ?? 0) > 1 ? (
                       <ThemedText className="mb-2 text-xs font-semibold text-light-subtext dark:text-dark-subtext">
                         {idx + 1}. {t('bookingCouponUsageShort')}
@@ -79,7 +72,6 @@ export default function BookingDetailPriceSection({
                   </View>
                 );
               })}
-              <Divider className="my-2 w-full" />
             </View>
           ) : null}
           <View className="flex-row justify-between">
@@ -90,8 +82,7 @@ export default function BookingDetailPriceSection({
               {booking.price} {t('reservationCurrencySuffix')}
             </ThemedText>
           </View>
-          <Divider className="my-3" />
-          <View className="flex-row justify-between">
+          <View className="mt-3 flex-row justify-between">
             <ThemedText className="text-lg font-bold">{t('bookingTotal')}</ThemedText>
             <ThemedText className="text-lg font-bold">
               {booking.price} {t('reservationCurrencySuffix')}

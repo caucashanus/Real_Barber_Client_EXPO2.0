@@ -8,7 +8,6 @@ import { useTranslation } from '@/app/hooks/useTranslation';
 import { Button } from '@/components/Button';
 import Header from '@/components/Header';
 import ThemedText from '@/components/ThemedText';
-import Divider from '@/components/layout/Divider';
 import { setReservationIntroCooldown24h } from '@/utils/reservation-intro-cooldown';
 
 export default function ReservationCreateStartScreen() {
@@ -31,14 +30,12 @@ export default function ReservationCreateStartScreen() {
           description={t('reservationStartStep1Desc')}
           image={require('@/assets/img/myidea.png')}
         />
-        <Divider className="my-4" />
         <IntroStep
           number="2"
           title={t('reservationStartStep2Title')}
           description={t('reservationStartStep2Desc')}
           image={require('@/assets/img/reservation-specialist.png')}
         />
-        <Divider className="my-4" />
         <IntroStep
           number="3"
           title={t('reservationStartStep3Title')}

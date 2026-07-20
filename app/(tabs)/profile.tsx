@@ -17,7 +17,6 @@ import ListLink from '@/components/ListLink';
 import ThemedScroller from '@/components/ThemeScroller';
 import ThemeToggle from '@/components/ThemeToggle';
 import ThemedText from '@/components/ThemedText';
-import Divider from '@/components/layout/Divider';
 import { maybeRequestAppStoreReview } from '@/utils/appStoreReview';
 import { shouldStaleRefresh } from '@/utils/staleRefresh';
 import { shadowPresets } from '@/utils/useShadow';
@@ -265,7 +264,6 @@ const PersonalProfile = ({
             })
           }
         />
-        <Divider />
         <ListLink
           showChevron
           title={t('profileLogout')}

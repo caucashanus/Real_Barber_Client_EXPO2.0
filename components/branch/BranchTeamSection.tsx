@@ -5,7 +5,6 @@ import { Pressable, View } from 'react-native';
 import type { BranchEmployee } from '@/api/branches';
 import Avatar from '@/components/Avatar';
 import ThemedText from '@/components/ThemedText';
-import Divider from '@/components/layout/Divider';
 import Section from '@/components/layout/Section';
 import type { TranslationKey } from '@/locales';
 
@@ -18,9 +17,7 @@ export default function BranchTeamSection({ employees, t }: BranchTeamSectionPro
   if (employees.length === 0) return null;
 
   return (
-    <>
-      <Divider className="mb-4 mt-4" />
-      <Section title={t('branchTeam')} titleSize="lg" className="mb-6 mt-2">
+    <Section title={t('branchTeam')} titleSize="lg" className="mb-6 mt-8">
         <View className="mt-3 flex-row flex-wrap gap-6">
           {employees.map((emp) => (
             <Pressable
@@ -34,7 +31,6 @@ export default function BranchTeamSection({ employees, t }: BranchTeamSectionPro
             </Pressable>
           ))}
         </View>
-      </Section>
-    </>
+    </Section>
   );
 }

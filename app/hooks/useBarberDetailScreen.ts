@@ -1,136 +1,204 @@
 import { useFocusEffect } from '@react-navigation/native';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import {
-  getEmployeeById,
-  getEmployees,
-  type EmployeeDetail,
-  type EmployeeMediaItem,
-} from '@/api/employees';
-import { getEntityReviews, type EntityReviewItem } from '@/api/reviews';
+  getEmployeeTodaySlots,
+  getTeamMemberPage,
+  type EmployeeTodaySlot,
+  type TeamMemberMediaItem,
+  type TeamMemberPageEmployee,
+} from '@/api/publicTeamMember';
+import { getEntityReviews } from '@/api/reviews';
 import { useAuth } from '@/app/contexts/AuthContext';
-import { CLIENT_APP_V1_ENABLED } from '@/constants/clientAppApi';
-import { buildOwnReviewIds, computeReviewStats } from '@/utils/barberDetailHelpers';
-import { getMockReviews } from '@/utils/mockReviews';
+import { useLanguage } from '@/app/contexts/LanguageContext';
+import { TEAM_MEMBER_PAGE_CACHE_MS } from '@/constants/teamMemberPage';
+import {
+  branchesFromShiftCalendar,
+  buildBarberReviewParamsFromPage,
+  buildReviewStatsFromPage,
+  filterValidTodaySlots,
+  getPragueTodayDateString,
+  getTeamMemberBio,
+  getTeamMemberDisplayName,
+  getTeamMemberPhone,
+  getTodayShiftStatus,
+  hasShiftOnDate,
+  hasSkillContent,
+  isShiftCalendarConfigured,
+} from '@/utils/teamMemberPageHelpers';
 
-export function useBarberDetailScreen(id: string) {
+const pageCache = new Map<string, { expiresAt: number; employee: TeamMemberPageEmployee | null }>();
+
+function cacheKey(idOrSlug: string, date: string): string {
+  return `${idOrSlug}:${date}`;
+}
+
+export function useBarberDetailScreen(idOrSlug: string) {
   const { apiToken, client } = useAuth();
+  const { locale } = useLanguage();
+  const today = useMemo(() => getPragueTodayDateString(), []);
 
-  const [employee, setEmployee] = useState<EmployeeDetail | null>(null);
+  const [employee, setEmployee] = useState<TeamMemberPageEmployee | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [expandedCategoryId, setExpandedCategoryId] = useState<string | null>(null);
-  const [fullscreenMedia, setFullscreenMedia] = useState<EmployeeMediaItem | null>(null);
-  const [description, setDescription] = useState<string | null>(null);
-  const [reviews, setReviews] = useState<EntityReviewItem[]>([]);
-  const [reviewsTotal, setReviewsTotal] = useState<number | null>(null);
-  const [loadingReviews, setLoadingReviews] = useState(false);
+  const [todaySlots, setTodaySlots] = useState<EmployeeTodaySlot[]>([]);
+  const [loadingSlots, setLoadingSlots] = useState(false);
   const [hasReviewed, setHasReviewed] = useState(false);
-  const [ownReviewIds, setOwnReviewIds] = useState<Set<string>>(new Set());
+  const [fullscreenMedia, setFullscreenMedia] = useState<TeamMemberMediaItem | null>(null);
+  const employeeIdRef = useRef<string | null>(null);
 
-  useEffect(() => {
-    if (!apiToken || !id) {
+  const loadPage = useCallback(async () => {
+    if (!idOrSlug) {
+      setLoading(false);
+      setError('Barber not found');
+      return;
+    }
+
+    const key = cacheKey(idOrSlug, today);
+    const cached = pageCache.get(key);
+    if (cached && cached.expiresAt > Date.now()) {
+      setEmployee(cached.employee);
+      setError(cached.employee ? null : 'Barber not found');
       setLoading(false);
       return;
     }
+
     setLoading(true);
     setError(null);
-    setDescription(null);
-    const listPromise = CLIENT_APP_V1_ENABLED
-      ? Promise.resolve([] as EmployeeDetail[])
-      : getEmployees(apiToken, { includeReviews: true, reviewsLimit: 1 }).catch(
-          () => [] as EmployeeDetail[]
-        );
-
-    Promise.all([getEmployeeById(apiToken, id), listPromise])
-      .then(([detail, list]) => {
-        setEmployee(detail);
-        const arr = (Array.isArray(list) ? list : Object.values(list)) as EmployeeDetail[];
-        const fromList = arr.find((e) => e.id === id);
-        const text =
-          (typeof detail.description === 'string' && detail.description.trim()) ||
-          (typeof fromList?.description === 'string' && fromList.description.trim()) ||
-          '';
-        setDescription(text || null);
-      })
-      .catch((e) => setError(e instanceof Error ? e.message : 'Failed to load'))
-      .finally(() => setLoading(false));
-  }, [apiToken, id]);
-
-  useEffect(() => {
-    if (!client?.id || reviews.length === 0) return;
-    setOwnReviewIds((prev) => {
-      const ids = new Set(prev);
-      reviews.forEach((r) => {
-        if (r.client?.id != null && String(r.client.id) === String(client.id)) ids.add(r.id);
+    try {
+      const data = await getTeamMemberPage(idOrSlug, { date: today });
+      const nextEmployee = data.employee ?? null;
+      pageCache.set(key, {
+        employee: nextEmployee,
+        expiresAt: Date.now() + TEAM_MEMBER_PAGE_CACHE_MS,
       });
-      return ids;
-    });
-  }, [client?.id, reviews]);
+      setEmployee(nextEmployee);
+      if (!nextEmployee) setError('Barber not found');
+    } catch (e) {
+      setEmployee(null);
+      setError(e instanceof Error ? e.message : 'Failed to load');
+    } finally {
+      setLoading(false);
+    }
+  }, [idOrSlug, today]);
 
-  const loadReviews = useCallback(() => {
-    if (!apiToken || !id) return;
-    setLoadingReviews(true);
-    getEntityReviews(apiToken, 'employee', id, { page: 1, limit: 9999, includeOwn: true })
-      .then((data) => {
-        const mock = getMockReviews(id);
-        setReviews([...data.reviews, ...mock]);
-        setReviewsTotal((data.pagination.total ?? 0) + mock.length);
-        setHasReviewed(!!data.hasReviewed);
-        setOwnReviewIds(buildOwnReviewIds(data, client?.id));
-      })
-      .catch(() => {
-        const mock = getMockReviews(id);
-        setReviews(mock);
-        setReviewsTotal(mock.length);
-        setHasReviewed(false);
-        setOwnReviewIds(new Set());
-      })
-      .finally(() => setLoadingReviews(false));
-  }, [apiToken, id, client?.id]);
+  const loadTodaySlots = useCallback(async (employeeId: string) => {
+    setLoadingSlots(true);
+    try {
+      const data = await getEmployeeTodaySlots(employeeId, { date: today });
+      setTodaySlots(filterValidTodaySlots(data.slots));
+    } catch {
+      setTodaySlots([]);
+    } finally {
+      setLoadingSlots(false);
+    }
+  }, [today]);
 
   useEffect(() => {
-    loadReviews();
-  }, [loadReviews]);
+    loadPage().catch(() => {});
+  }, [loadPage]);
+
+  useEffect(() => {
+    if (!employee?.id) {
+      employeeIdRef.current = null;
+      setTodaySlots([]);
+      return;
+    }
+    if (employeeIdRef.current === employee.id) return;
+    employeeIdRef.current = employee.id;
+    loadTodaySlots(employee.id).catch(() => {});
+  }, [employee?.id, loadTodaySlots]);
 
   useFocusEffect(
     useCallback(() => {
-      if (!apiToken || !id) return;
-      getEntityReviews(apiToken, 'employee', id, { page: 1, limit: 9999, includeOwn: true })
-        .then((data) => {
-          const mock = getMockReviews(id);
-          setReviews([...data.reviews, ...mock]);
-          setReviewsTotal((data.pagination.total ?? 0) + mock.length);
-          setHasReviewed(!!data.hasReviewed);
-          setOwnReviewIds(buildOwnReviewIds(data, client?.id));
-        })
-        .catch(() => {});
-    }, [apiToken, id, client?.id])
+      if (!employee?.id) return;
+      loadTodaySlots(employee.id).catch(() => {});
+    }, [employee?.id, loadTodaySlots])
   );
 
-  const {
-    countByRating,
-    average,
-    total: reviewsComputedTotal,
-  } = useMemo(() => computeReviewStats(reviews), [reviews]);
-  const displayTotal = reviewsTotal ?? reviewsComputedTotal;
+  useEffect(() => {
+    if (!apiToken || !employee?.id) {
+      setHasReviewed(false);
+      return;
+    }
+    getEntityReviews(apiToken, 'employee', employee.id, { page: 1, limit: 1, includeOwn: true })
+      .then((data) => setHasReviewed(!!data.hasReviewed))
+      .catch(() => setHasReviewed(false));
+  }, [apiToken, employee?.id]);
+
+  const displayName = useMemo(
+    () => (employee ? getTeamMemberDisplayName(employee, locale) : ''),
+    [employee, locale]
+  );
+  const bio = useMemo(
+    () => (employee ? getTeamMemberBio(employee, locale) : null),
+    [employee, locale]
+  );
+  const shiftBranches = useMemo(
+    () => (employee ? branchesFromShiftCalendar(employee, employee.shiftCalendar) : []),
+    [employee]
+  );
+  const statsAverage = employee?.stats?.averageRating ?? 0;
+  const statsTotal = employee?.stats?.totalReviews ?? 0;
+  const pageReviews = employee?.reviews ?? [];
+  const pageReviewStats = useMemo(() => buildReviewStatsFromPage(pageReviews), [pageReviews]);
+  const countByRating = pageReviewStats.countByRating;
+  const average = statsTotal > 0 ? statsAverage : pageReviewStats.average;
+  const displayTotal = statsTotal > 0 ? statsTotal : pageReviewStats.total;
+  const hasShiftToday = useMemo(
+    () => hasShiftOnDate(employee?.shiftCalendar, today),
+    [employee?.shiftCalendar, today]
+  );
+  const todayShiftStatus = useMemo(
+    () => getTodayShiftStatus(employee?.shiftCalendar, today),
+    [employee?.shiftCalendar, today]
+  );
+  const employeePhone = useMemo(
+    () => (employee ? getTeamMemberPhone(employee) : null),
+    [employee]
+  );
+  const shiftCalendarConfigured = useMemo(
+    () => isShiftCalendarConfigured(employee?.shiftCalendar),
+    [employee?.shiftCalendar]
+  );
+  const showTodaySlotsSection = useMemo(
+    () => todaySlots.length > 0 || hasShiftToday,
+    [todaySlots.length, hasShiftToday]
+  );
+  const reviewParams = employee ? buildBarberReviewParamsFromPage(employee) : '';
+  const showSkills = employee ? hasSkillContent(employee) : false;
+  const showAbout = Boolean(bio?.trim());
+  const showMedia = (employee?.media?.length ?? 0) > 0;
+  const showStoriesGallery = (employee?.stories?.length ?? 0) > 0;
 
   return {
     employee,
     loading,
     error,
-    description,
-    reviews,
-    reviewsTotal,
-    loadingReviews,
+    displayName,
+    bio,
+    todaySlots,
+    loadingSlots,
+    hasShiftToday,
+    todayShiftStatus,
+    employeePhone,
+    shiftCalendarConfigured,
+    today,
+    shiftBranches,
+    showTodaySlotsSection,
+    showAbout,
+    showSkills,
+    showMedia,
+    showStoriesGallery,
+    reviews: pageReviews,
     hasReviewed,
-    ownReviewIds,
-    expandedCategoryId,
-    setExpandedCategoryId,
-    fullscreenMedia,
-    setFullscreenMedia,
+    reviewParams,
     countByRating,
     average,
     displayTotal,
+    locale,
+    clientId: client?.id,
+    fullscreenMedia,
+    setFullscreenMedia,
   };
 }

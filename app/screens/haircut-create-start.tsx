@@ -8,7 +8,6 @@ import { useTranslation } from '@/app/hooks/useTranslation';
 import { Button } from '@/components/Button';
 import Header from '@/components/Header';
 import ThemedText from '@/components/ThemedText';
-import Divider from '@/components/layout/Divider';
 import {
   isHaircutIntroCooldownActive,
   setHaircutIntroCooldown24h,
@@ -51,14 +50,12 @@ export default function HaircutCreateStartScreen() {
           description={t('haircutCreateStep1Desc')}
           image={require('@/assets/img/myidea.png')}
         />
-        <Divider className="my-4" />
         <IntroStep
           number="2"
           title={t('haircutCreateStep2Title')}
           description={t('haircutCreateStep2Desc')}
           image={require('@/assets/img/myrules.png')}
         />
-        <Divider className="my-4" />
         <IntroStep
           number="3"
           title={t('haircutCreateStep3Title')}

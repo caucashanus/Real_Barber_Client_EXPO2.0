@@ -8,7 +8,6 @@ import { useTranslation } from '@/app/hooks/useTranslation';
 import Header from '@/components/Header';
 import ThemedScroller from '@/components/ThemeScroller';
 import ThemedText from '@/components/ThemedText';
-import Divider from '@/components/layout/Divider';
 import Section from '@/components/layout/Section';
 
 function formatDateTime(iso: string, locale: string): string {
@@ -90,9 +89,7 @@ export default function ReferralAttributionDetailScreen() {
               </View>
             </View>
 
-            <Divider className="my-6" />
-
-            <Section title={t('referralAttributionTimeline')} titleSize="lg" />
+            <Section title={t('referralAttributionTimeline')} titleSize="lg" className="mt-6" />
             <View className="rounded-2xl bg-light-secondary p-5 dark:bg-dark-secondary">
               <ThemedText className="text-sm font-semibold">
                 {t('referralStepPhoneEntered')}

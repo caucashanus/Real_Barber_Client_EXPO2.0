@@ -50,7 +50,10 @@ export default function ReservationCreateScreen() {
         onClose={() => router.back()}
         showStepIndicator={false}
         onStepIndexChange={flow.onStepIndexChange}
-        isNextDisabled={flow.isNextDisabled}>
+        isNextDisabled={flow.isNextDisabled}
+        getFooterTitle={flow.getFooterTitle}
+        onFooterPrimaryPress={flow.onFooterPrimaryPress}
+        footerLoading={flow.creatingBooking}>
         <Step title={flow.t('reservationStepBranchTitle')}>
           <ReservationBranchStep flow={flow} />
         </Step>

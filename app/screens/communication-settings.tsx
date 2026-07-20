@@ -15,7 +15,6 @@ import Header from '@/components/Header';
 import ThemedScroller from '@/components/ThemeScroller';
 import ThemedText from '@/components/ThemedText';
 import Switch from '@/components/forms/Switch';
-import Divider from '@/components/layout/Divider';
 import Section from '@/components/layout/Section';
 import type { TranslationKey } from '@/locales';
 
@@ -211,9 +210,7 @@ export default function CommunicationSettingsScreen() {
               />
             ) : null}
 
-            <Divider className="my-6" />
-
-            <ThemedText className="mb-3 text-lg font-semibold text-light-text dark:text-dark-text">
+            <ThemedText className="mb-3 mt-6 text-lg font-semibold text-light-text dark:text-dark-text">
               {t('communicationSettingsContentSection')}
             </ThemedText>
             {CONTENT_ROWS.map(({ key, label }) => (

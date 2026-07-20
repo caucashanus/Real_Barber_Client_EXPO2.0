@@ -9,7 +9,6 @@ import HaircutNoteEditModals, {
 import Icon from '@/components/Icon';
 import ThemedText from '@/components/ThemedText';
 import Selectable from '@/components/forms/Selectable';
-import Divider from '@/components/layout/Divider';
 import Section from '@/components/layout/Section';
 import type { TranslationKey } from '@/locales';
 import {
@@ -266,18 +265,14 @@ export default function HaircutNoteSections({
           onClose={() => setPickerKind(null)}
           onApply={(next) => applyNote(next)}
         />
-        {HAIRCUT_NOTE_SECTION_ORDER.filter((id) => id !== 'other').map((sectionId, index) => (
-          <React.Fragment key={sectionId}>
-            {index > 0 ? (
-              <Divider className="mt-6 h-2 bg-light-secondary dark:bg-dark-darker" />
-            ) : null}
-            <Section
-              title={t(SECTION_TITLE_KEY[sectionId])}
-              titleSize="lg"
-              className="px-global pt-4"
-              titleTrailing={sectionAddButton(sectionId)}
-            />
-          </React.Fragment>
+        {HAIRCUT_NOTE_SECTION_ORDER.filter((id) => id !== 'other').map((sectionId) => (
+          <Section
+            key={sectionId}
+            title={t(SECTION_TITLE_KEY[sectionId])}
+            titleSize="lg"
+            className="mt-6 px-global pt-4"
+            titleTrailing={sectionAddButton(sectionId)}
+          />
         ))}
       </>
     );
@@ -319,16 +314,13 @@ export default function HaircutNoteSections({
         onClose={() => setPickerKind(null)}
         onApply={(next) => applyNote(next)}
       />
-      {sectionOrderList.map((sectionId, index) => (
-        <React.Fragment key={sectionId}>
-          {index > 0 ? (
-            <Divider className="mt-6 h-2 bg-light-secondary dark:bg-dark-darker" />
-          ) : null}
-          <Section
-            title={t(SECTION_TITLE_KEY[sectionId])}
-            titleSize="lg"
-            className="px-global pt-4"
-            titleTrailing={editNote ? sectionAddButton(sectionId) : undefined}>
+      {sectionOrderList.map((sectionId) => (
+        <Section
+          key={sectionId}
+          title={t(SECTION_TITLE_KEY[sectionId])}
+          titleSize="lg"
+          className="mt-6 px-global pt-4"
+          titleTrailing={editNote ? sectionAddButton(sectionId) : undefined}>
             {buckets[sectionId].length === 0 ? null : (
               <View className={`gap-1 ${sectionId === 'overview' ? 'mt-5' : 'mt-4'}`}>
                 {buckets[sectionId].map((row, rowIndex) => {
@@ -479,7 +471,6 @@ export default function HaircutNoteSections({
               </View>
             )}
           </Section>
-        </React.Fragment>
       ))}
     </>
   );

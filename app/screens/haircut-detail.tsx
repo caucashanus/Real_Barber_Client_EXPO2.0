@@ -33,7 +33,6 @@ import ThemedFooter from '@/components/ThemeFooter';
 import ThemedScroller from '@/components/ThemeScroller';
 import ThemedText from '@/components/ThemedText';
 import Input from '@/components/forms/Input';
-import Divider from '@/components/layout/Divider';
 import Section from '@/components/layout/Section';
 
 const PLACEHOLDER_IMAGE = require('@/assets/img/barbers.png');
@@ -375,9 +374,7 @@ export default function HaircutDetailScreen() {
             )}
           </View>
 
-          <Divider className="h-2 bg-light-secondary dark:bg-dark-darker" />
-
-          <Section title={t('haircutDetailCreatedWith')} titleSize="lg" className="px-global pt-4">
+          <Section title={t('haircutDetailCreatedWith')} titleSize="lg" className="mt-6 px-global pt-4">
             {editing ? (
               <BarberPicker
                 label={t('haircutBarber')}
@@ -430,12 +427,10 @@ export default function HaircutDetailScreen() {
             )}
           </Section>
 
-          <Divider className="mt-6 h-2 bg-light-secondary dark:bg-dark-darker" />
-
           <Section
             title={t('haircutDetailCreatedAtPrefix')}
             titleSize="lg"
-            className="px-global pt-4">
+            className="mt-6 px-global pt-4">
             <View className="mt-4">
               <View className="flex-row items-center justify-between rounded-xl bg-light-secondary p-4 dark:bg-dark-secondary">
                 <View>
@@ -454,21 +449,17 @@ export default function HaircutDetailScreen() {
             </View>
           </Section>
 
-          <Divider className="mt-6 h-2 bg-light-secondary dark:bg-dark-darker" />
-
           <HaircutNoteSections
             note={editing ? draftNote : cut.note}
             editing={editing}
             onNoteChange={setDraftNote}
           />
 
-          <Divider className="mt-6 h-2 bg-light-secondary dark:bg-dark-darker" />
-
           <Section
             title={t('haircutDetailPhotosSection')}
             titleSize="lg"
             titleAlign="right"
-            className="px-global pb-6 pt-4">
+            className="mt-6 px-global pb-6 pt-4">
             <View className="mt-4">
               {haircutPhotoUrls.length === 0 ? (
                 <ThemedText className="mb-3 text-center text-sm text-light-subtext dark:text-dark-subtext">

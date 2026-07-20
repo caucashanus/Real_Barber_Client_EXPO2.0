@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 
 import { useAuth } from '@/app/contexts/AuthContext';
 import { useLanguage } from '@/app/contexts/LanguageContext';
@@ -9,10 +9,27 @@ import { useReservationCatalog } from '@/app/hooks/useReservationCatalog';
 import { useReservationCoupon } from '@/app/hooks/useReservationCoupon';
 import { useReservationDetailSheets } from '@/app/hooks/useReservationDetailSheets';
 import { useReservationFlowNavigation } from '@/app/hooks/useReservationFlowNavigation';
+import { useReservationSlotHandoff } from '@/app/hooks/useReservationSlotHandoff';
 import { useReservationSubmit } from '@/app/hooks/useReservationSubmit';
 import { useReservationSummaryLabels } from '@/app/hooks/useReservationSummaryLabels';
 import { useTranslation } from '@/app/hooks/useTranslation';
-import { isReservationStepValid, type ReservationFlowData } from '@/utils/reservationCreateHelpers';
+import {
+  isReservationStepValid,
+  type ReservationFlowData,
+  type ServiceOption,
+} from '@/utils/reservationCreateHelpers';
+import type { BookingSlotServiceItem } from '@/api/bookings';
+
+function serviceOptionFromSlotService(service: BookingSlotServiceItem): ServiceOption {
+  return {
+    id: service.id,
+    name: service.name,
+    imageUrl: service.imageUrl,
+    price: service.price ?? 0,
+    duration: service.duration ?? 0,
+    category: service.category,
+  };
+}
 
 export function useReservationCreateFlow() {
   const { apiToken, client } = useAuth();
@@ -45,6 +62,14 @@ export function useReservationCreateFlow() {
 
   const bootstrap = useReservationBootstrap({ apiToken, ...sharedFlowState, ...sharedMonthState });
 
+  const slotHandoff = useReservationSlotHandoff({
+    apiToken,
+    client,
+    barberEntryMode: bootstrap.barberEntryMode,
+    presetEmployeeId: bootstrap.presetEmployeeId,
+    ...sharedFlowState,
+  });
+
   const catalog = useReservationCatalog({
     apiToken,
     branches: bootstrap.branches,
@@ -67,15 +92,33 @@ export function useReservationCreateFlow() {
 
   const coupon = useReservationCoupon({ apiToken, data, t });
 
+  const selectedSlotService = useMemo(
+    () => slotHandoff.slotServices.find((service) => service.id === data.itemId) ?? null,
+    [slotHandoff.slotServices, data.itemId]
+  );
+
+  const selectedService = catalog.selectedService ??
+    (selectedSlotService ? serviceOptionFromSlotService(selectedSlotService) : null);
+
+  const selectedEmployee = catalog.selectedEmployee ??
+    (slotHandoff.handoff
+      ? {
+          id: slotHandoff.handoff.employeeId,
+          name: slotHandoff.handoff.employeeName,
+          avatarUrl: null,
+        }
+      : null);
+
   const submit = useReservationSubmit({
     apiToken,
     clientId: client?.id,
     data,
     couponCodeInput: coupon.couponCodeInput,
     couponPreview: coupon.couponPreview,
-    selectedService: catalog.selectedService,
-    selectedEmployee: catalog.selectedEmployee,
+    selectedService,
+    selectedEmployee,
     branchForServiceStep: catalog.branchForServiceStep,
+    onBookingSuccess: slotHandoff.consumeHandoffAfterBooking,
   });
 
   const navigation = useReservationFlowNavigation({
@@ -100,12 +143,33 @@ export function useReservationCreateFlow() {
   const summary = useReservationSummaryLabels({
     data,
     dateLocaleTag,
-    selectedEmployee: catalog.selectedEmployee,
-    selectedService: catalog.selectedService,
+    selectedEmployee,
+    selectedService,
     presetItemName: bootstrap.presetItemName,
     presetItemId: bootstrap.presetItemId,
     branchForServiceStep: catalog.branchForServiceStep,
   });
+
+  const getFooterTitle = useCallback(
+    (stepIndex: number, isLastStep: boolean) => {
+      if (slotHandoff.skipDatetime && stepIndex === 1 && !isLastStep) {
+        return t('commonReserve');
+      }
+      return undefined;
+    },
+    [slotHandoff.skipDatetime, t]
+  );
+
+  const onFooterPrimaryPress = useCallback(
+    (stepIndex: number, proceed: () => void) => {
+      if (slotHandoff.skipDatetime && stepIndex === 1) {
+        submit.handleCreateBooking();
+        return;
+      }
+      proceed();
+    },
+    [slotHandoff.skipDatetime, submit.handleCreateBooking]
+  );
 
   return {
     t,
@@ -144,9 +208,9 @@ export function useReservationCreateFlow() {
     availabilityError: availability.availabilityError,
     availability: availability.availability,
     selectAvailabilitySlot: availability.selectAvailabilitySlot,
-    selectedEmployee: catalog.selectedEmployee,
+    selectedEmployee,
     selectedEmployeeName: summary.selectedEmployeeName,
-    selectedService: catalog.selectedService,
+    selectedService,
     selectedServiceName: summary.selectedServiceName,
     selectedDateLabel: summary.selectedDateLabel,
     branchForServiceStep: catalog.branchForServiceStep,
@@ -183,6 +247,18 @@ export function useReservationCreateFlow() {
     flowStepPrevIndex: navigation.flowStepPrevIndex,
     onStepIndexChange: navigation.onStepIndexChange,
     isNextDisabled: (stepIndex: number) => !isReservationStepValid(stepIndex, data),
+    isSlotHandoffFlow: slotHandoff.isSlotHandoffFlow,
+    slotHandoff: slotHandoff.handoff,
+    slotServices: slotHandoff.slotServices,
+    loadingSlotServices: slotHandoff.loadingSlotServices,
+    slotServicesError: slotHandoff.slotServicesError,
+    slotHandoffContextLabel: slotHandoff.slotHandoffContextLabel,
+    slotHandoffSkipDatetime: slotHandoff.skipDatetime,
+    selectSlotService: slotHandoff.selectSlotService,
+    isServiceAvailableInHandoffSlot: slotHandoff.isServiceAvailableInHandoffSlot,
+    selectedSlotServiceId: slotHandoff.selectedSlotServiceId,
+    getFooterTitle,
+    onFooterPrimaryPress,
   };
 }
 

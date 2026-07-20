@@ -18,7 +18,6 @@ import ImageCarousel from '@/components/ImageCarousel';
 import ThemedFooter from '@/components/ThemeFooter';
 import ThemedScroller from '@/components/ThemeScroller';
 import ThemedText from '@/components/ThemedText';
-import Divider from '@/components/layout/Divider';
 import Section from '@/components/layout/Section';
 
 const REFERRAL_SHARE_BASE = 'https://crm.xrb.cz/ref/';
@@ -165,49 +164,36 @@ export default function ReferralProgramDetailScreen() {
             ) : null}
           </View>
 
-          <Divider className="h-2 bg-light-secondary dark:bg-dark-darker" />
-
-          {/* Rewards section */}
-          <Section title={t('referralProgramDetails')} titleSize="lg" className="px-global pt-4">
+          <Section title={t('referralProgramDetails')} titleSize="lg" className="mt-6 px-global pt-4">
             <View className="mt-4 overflow-hidden rounded-2xl bg-light-secondary dark:bg-dark-secondary">
-              <View className="px-5">
+              <View className="gap-1 px-5">
                 <InfoRow
                   label={t('referralProgramReferrerReward')}
                   value={`${program.referrerRewardAmount} RBC`}
                 />
-                <Divider />
                 <InfoRow
                   label={t('referralProgramRefereeReward')}
                   value={`${program.refereeRewardAmount ?? 0} RBC`}
                 />
-                <Divider />
                 <InfoRow
                   label={t('referralProgramMinPurchase')}
                   value={`${program.minPurchaseAmount} Kč`}
                 />
                 {validUntilText ? (
-                  <>
-                    <Divider />
-                    <InfoRow label={t('referralProgramValidUntil')} value={validUntilText} />
-                  </>
+                  <InfoRow label={t('referralProgramValidUntil')} value={validUntilText} />
                 ) : null}
               </View>
             </View>
           </Section>
 
-          {/* My invites section */}
           {programReferrals.length > 0 ? (
-            <>
-              <Divider className="mt-6 h-2 bg-light-secondary dark:bg-dark-darker" />
-              <Section
-                title={t('referralProgramTrackInvites')}
-                titleSize="lg"
-                className="px-global pt-4">
-                <View className="mt-4 overflow-hidden rounded-2xl bg-light-secondary dark:bg-dark-secondary">
-                  {programReferrals.map((ref, i) => (
-                    <React.Fragment key={ref.id}>
-                      {i > 0 && <Divider />}
-                      <View className="flex-row items-center justify-between px-5 py-3.5">
+            <Section
+              title={t('referralProgramTrackInvites')}
+              titleSize="lg"
+              className="mt-6 px-global pt-4">
+              <View className="mt-4 overflow-hidden rounded-2xl bg-light-secondary dark:bg-dark-secondary">
+                {programReferrals.map((ref) => (
+                  <View key={ref.id} className="flex-row items-center justify-between px-5 py-3.5">
                         <View className="min-w-0 flex-1">
                           <ThemedText className="text-sm font-semibold" numberOfLines={1}>
                             {ref.referee?.name ?? ref.referralCode ?? '—'}
@@ -221,10 +207,9 @@ export default function ReferralProgramDetailScreen() {
                           size={16}
                           className="text-light-subtext dark:text-dark-subtext"
                         />
-                      </View>
-                    </React.Fragment>
-                  ))}
-                </View>
+                    </View>
+                ))}
+              </View>
                 <Button
                   title={t('referralProgramTrackInvites')}
                   variant="secondary"
@@ -236,7 +221,6 @@ export default function ReferralProgramDetailScreen() {
                   }
                 />
               </Section>
-            </>
           ) : null}
 
           <View className="h-32" />
@@ -255,7 +239,6 @@ export default function ReferralProgramDetailScreen() {
             className="flex-1 rounded-none rounded-bl-2xl px-0 py-3.5"
             textClassName="text-sm font-semibold text-neutral-800 dark:text-neutral-200"
           />
-          <View className="w-px self-stretch bg-neutral-200 dark:bg-neutral-700" />
           <View className="flex-1">
             <Button
               variant="ghost"

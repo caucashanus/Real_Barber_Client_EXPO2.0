@@ -1,83 +1,127 @@
 import { useLocalSearchParams } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
-import React, { useCallback, useMemo, useRef } from 'react';
+import React, { useCallback, useMemo, useRef, useState } from 'react';
 import {
   View,
-  Animated,
   ScrollView,
   useWindowDimensions,
   type LayoutChangeEvent,
+  type NativeSyntheticEvent,
+  type NativeScrollEvent,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import type { TeamMemberMediaItem } from '@/api/publicTeamMember';
 import { useBarberDetailScreen } from '@/app/hooks/useBarberDetailScreen';
 import { useTranslation } from '@/app/hooks/useTranslation';
-import Favorite from '@/components/Favorite';
 import Header from '@/components/Header';
 import ThemedScroller from '@/components/ThemeScroller';
 import ThemedText from '@/components/ThemedText';
-import BarberAboutSection from '@/components/barber/BarberAboutSection';
 import BarberBookFooter from '@/components/barber/BarberBookFooter';
-import BarberBranchesSection from '@/components/barber/BarberBranchesSection';
-import BarberHeaderInfo from '@/components/barber/BarberHeaderInfo';
-import BarberHeroCarousel from '@/components/barber/BarberHeroCarousel';
+import BarberCombinedProfileCard from '@/components/barber/BarberCombinedProfileCard';
+import BarberIdentitySection from '@/components/barber/BarberIdentitySection';
+import BarberTodaySlotsSection from '@/components/barber/BarberTodaySlotsSection';
 import BarberReviewsSection from '@/components/barber/BarberReviewsSection';
-import BarberServicesSection from '@/components/barber/BarberServicesSection';
-import BarberWorkSamplesSection from '@/components/barber/BarberWorkSamplesSection';
+import BarberShiftBranchesSection from '@/components/barber/BarberShiftBranchesSection';
+import BarberStickyBar, {
+  BARBER_DETAIL_HEADER_HEIGHT,
+} from '@/components/barber/BarberStickyBar';
+import BarberStoriesSection from '@/components/barber/BarberStoriesSection';
 import MediaFullscreenModal from '@/components/detail/MediaFullscreenModal';
-import Divider from '@/components/layout/Divider';
-import {
-  buildBarberReviewParams,
-  employeeTopSlides,
-  getBranchesList,
-  getMediaList,
-  getServicesList,
-  groupServicesByCategory,
-} from '@/utils/barberDetailHelpers';
+
+const AVATAR_XL_HEIGHT = 80;
 
 export default function BarberDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
-  const { t, locale } = useTranslation();
+  const { t } = useTranslation();
   const insets = useSafeAreaInsets();
   const { width: winWidth, height: winHeight } = useWindowDimensions();
+  const isMobileHeader = winWidth < 768;
 
   const {
     employee,
     loading,
     error,
-    description,
+    displayName,
+    bio,
+    todaySlots,
+    loadingSlots,
+    todayShiftStatus,
+    shiftCalendarConfigured,
+    today,
+    shiftBranches,
+    showTodaySlotsSection,
+    showAbout,
+    showSkills,
+    showMedia,
+    showStoriesGallery,
     reviews,
-    loadingReviews,
     hasReviewed,
-    ownReviewIds,
-    expandedCategoryId,
-    setExpandedCategoryId,
-    fullscreenMedia,
-    setFullscreenMedia,
+    reviewParams,
     countByRating,
     average,
     displayTotal,
+    locale,
+    fullscreenMedia,
+    setFullscreenMedia,
   } = useBarberDetailScreen(id ?? '');
 
   const scrollRef = useRef<ScrollView>(null);
-  const heroScrollY = useRef(new Animated.Value(0)).current;
-  const roundedViewYRef = useRef(0);
-  const reviewsSectionYInRoundedRef = useRef(0);
+  const pinSentinelYRef = useRef(0);
+  const reviewsSectionYRef = useRef(0);
+  const profileCardYRef = useRef(0);
+  const availabilityInCardYRef = useRef(0);
+  const [stickyVisible, setStickyVisible] = useState(false);
 
-  const scrollToReviews = useCallback(() => {
-    const y = roundedViewYRef.current + reviewsSectionYInRoundedRef.current;
-    scrollRef.current?.scrollTo({ y: Math.max(0, y - 16), animated: true });
+  const handlePinThresholdLayout = useCallback((event: LayoutChangeEvent) => {
+    const { y } = event.nativeEvent.layout;
+    pinSentinelYRef.current = y + AVATAR_XL_HEIGHT;
   }, []);
 
-  const topSlides = useMemo(() => (employee ? employeeTopSlides(employee) : []), [employee]);
+  const handleScroll = useCallback((event: NativeSyntheticEvent<NativeScrollEvent>) => {
+    const y = event.nativeEvent.contentOffset.y;
+    setStickyVisible(y >= pinSentinelYRef.current);
+  }, []);
+
+  const handleProfileCardLayout = useCallback((event: LayoutChangeEvent) => {
+    profileCardYRef.current = event.nativeEvent.layout.y;
+  }, []);
+
+  const scrollToReviews = useCallback(() => {
+    scrollRef.current?.scrollTo({ y: Math.max(0, reviewsSectionYRef.current - 16), animated: true });
+  }, []);
+
+  const scrollToAvailability = useCallback(() => {
+    scrollRef.current?.scrollTo({
+      y: Math.max(0, profileCardYRef.current + availabilityInCardYRef.current - 16),
+      animated: true,
+    });
+  }, []);
+
+  const handleAvailabilityLayout = useCallback((event: LayoutChangeEvent) => {
+    availabilityInCardYRef.current = event.nativeEvent.layout.y;
+  }, []);
+
+  const mediaItems = useMemo(() => employee?.media ?? [], [employee?.media]);
+  const shiftCalendar = useMemo(() => employee?.shiftCalendar, [employee?.shiftCalendar]);
+  const stories = useMemo(() => employee?.stories ?? [], [employee?.stories]);
+  const branches = useMemo(() => employee?.branches ?? [], [employee?.branches]);
+
+  const fullscreenEmployeeMedia = useMemo(() => {
+    if (!fullscreenMedia) return null;
+    return {
+      url: fullscreenMedia.url,
+      type: (fullscreenMedia.type === 'video' ? 'video' : 'image') as 'image' | 'video',
+    };
+  }, [fullscreenMedia]);
 
   if (!loading && (error || !employee)) {
     return (
       <>
         <Header showBackButton />
         <View className="flex-1 items-center justify-center bg-light-primary p-6 dark:bg-dark-primary">
-          <ThemedText className="text-center text-red-500 dark:text-red-400">
-            {error ?? 'Barber not found'}
+          <ThemedText className="text-center text-amber-700 dark:text-amber-300">
+            {error ?? t('barberNotFound')}
           </ThemedText>
         </View>
       </>
@@ -93,97 +137,104 @@ export default function BarberDetailScreen() {
     );
   }
 
-  const reviewParams = buildBarberReviewParams(employee);
-  const serviceGroups = groupServicesByCategory(getServicesList(employee));
-  const rightComponents = employee.name
-    ? [
-        <Favorite
-          key="fav"
-          productName={employee.name}
-          title={employee.name}
-          entityType="employee"
-          entityId={employee.id}
-          size={25}
-          isWhite
-        />,
-      ]
-    : undefined;
-
   return (
     <>
-      <StatusBar style="light" translucent />
-      <Header variant="transparent" title="" rightComponents={rightComponents} showBackButton />
-      <ThemedScroller
-        ref={scrollRef}
-        className="bg-light-primary px-0 dark:bg-dark-primary"
-        onScroll={Animated.event([{ nativeEvent: { contentOffset: { y: heroScrollY } } }], {
-          useNativeDriver: false,
-        })}
-        scrollEventThrottle={16}>
-        <BarberHeroCarousel topSlides={topSlides} heroScrollY={heroScrollY} />
+      <StatusBar style="dark" />
+      <View className="flex-1 bg-light-primary dark:bg-dark-primary">
+        {!isMobileHeader ? <Header showBackButton title="" /> : null}
+        <BarberStickyBar
+          visible={stickyVisible}
+          displayName={displayName}
+          employeeId={employee.id}
+          shiftStatus={todayShiftStatus}
+          topInset={insets.top}
+          t={t}
+        />
+        <ThemedScroller
+          ref={scrollRef}
+          className="flex-1 bg-light-primary px-0 dark:bg-dark-primary"
+          onScroll={handleScroll}
+          scrollEventThrottle={16}>
+          <View
+            className={isMobileHeader ? 'px-global' : 'p-global pb-8'}
+            style={
+              isMobileHeader
+                ? {
+                    paddingTop: insets.top + BARBER_DETAIL_HEADER_HEIGHT + 24,
+                    paddingBottom: 16,
+                  }
+                : undefined
+            }>
+          <View onLayout={handlePinThresholdLayout}>
+            <BarberIdentitySection
+              employeeId={employee.id}
+              displayName={displayName}
+              avatarUrl={employee.avatarUrl}
+              average={average}
+              languages={employee.languages}
+              shiftStatus={todayShiftStatus}
+              onScrollToReviews={scrollToReviews}
+              t={t}
+            />
+          </View>
 
-        <View
-          style={{ borderTopLeftRadius: 30, borderTopRightRadius: 30 }}
-          className="-mt-[30px] bg-light-primary p-global dark:bg-dark-primary"
-          onLayout={(e: LayoutChangeEvent) => {
-            roundedViewYRef.current = e.nativeEvent.layout.y;
-          }}>
-          <BarberHeaderInfo
-            name={employee.name}
-            average={average}
-            onScrollToReviews={scrollToReviews}
-            t={t}
-          />
+          {showTodaySlotsSection ? (
+            <BarberTodaySlotsSection
+              employeeId={employee.id}
+              employeeName={displayName}
+              branches={branches}
+              locale={locale}
+              todaySlots={todaySlots}
+              loadingSlots={loadingSlots}
+              shiftStatus={todayShiftStatus}
+              t={t}
+            />
+          ) : null}
 
-          <BarberAboutSection
-            avatarUrl={employee.avatarUrl}
-            name={employee.name}
-            description={description}
-            t={t}
-          />
+          <BarberShiftBranchesSection branches={shiftBranches} locale={locale} t={t} />
 
-          <BarberWorkSamplesSection
-            media={getMediaList(employee)}
-            onMediaPress={setFullscreenMedia}
-            t={t}
-          />
+          {showStoriesGallery ? <BarberStoriesSection stories={stories} t={t} /> : null}
 
-          <BarberBranchesSection branches={getBranchesList(employee)} t={t} />
-
-          <BarberServicesSection
-            groups={serviceGroups}
-            expandedCategoryId={expandedCategoryId}
-            onToggleCategory={(categoryId) =>
-              setExpandedCategoryId(expandedCategoryId === categoryId ? null : categoryId)
-            }
+          <BarberCombinedProfileCard
+            employee={employee}
+            employeeId={employee.id}
+            bio={bio}
+            showAbout={showAbout}
+            showSkills={showSkills}
+            showMedia={showMedia}
+            mediaItems={mediaItems}
+            shiftCalendar={shiftCalendar}
+            branches={branches}
+            today={today}
+            locale={locale}
+            calendarConfigured={shiftCalendarConfigured}
+            onMediaPress={(item: TeamMemberMediaItem) => setFullscreenMedia(item)}
+            onLayout={handleProfileCardLayout}
+            onAvailabilityLayout={handleAvailabilityLayout}
+            onCollapseScroll={scrollToAvailability}
             t={t}
           />
 
           <BarberReviewsSection
             reviews={reviews}
-            reviewsTotal={displayTotal}
-            loadingReviews={loadingReviews}
             hasReviewed={hasReviewed}
-            ownReviewIds={ownReviewIds}
             reviewParams={reviewParams}
             countByRating={countByRating}
             average={average}
             displayTotal={displayTotal}
             locale={locale}
-            onLayout={(e) => {
-              reviewsSectionYInRoundedRef.current = e.nativeEvent.layout.y;
+            onLayout={(event: LayoutChangeEvent) => {
+              reviewsSectionYRef.current = event.nativeEvent.layout.y;
             }}
             t={t}
           />
-
-          <Divider className="my-4" />
         </View>
-      </ThemedScroller>
-
-      <BarberBookFooter employeeId={employee.id} bottomInset={insets.bottom} t={t} />
+        </ThemedScroller>
+        <BarberBookFooter employeeId={employee.id} bottomInset={insets.bottom} t={t} />
+      </View>
 
       <MediaFullscreenModal
-        media={fullscreenMedia}
+        media={fullscreenEmployeeMedia}
         winWidth={winWidth}
         winHeight={winHeight}
         topInset={insets.top}

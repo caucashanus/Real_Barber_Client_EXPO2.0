@@ -6,7 +6,6 @@ import { Pressable, View } from 'react-native';
 import type { EmployeeBranch } from '@/api/employees';
 import Icon from '@/components/Icon';
 import ThemedText from '@/components/ThemedText';
-import Divider from '@/components/layout/Divider';
 import Section from '@/components/layout/Section';
 import type { TranslationKey } from '@/locales';
 
@@ -19,9 +18,7 @@ export default function BarberBranchesSection({ branches, t }: BarberBranchesSec
   if (branches.length === 0) return null;
 
   return (
-    <>
-      <Divider className="mb-4 mt-8" />
-      <Section title={t('barberBranches')} titleSize="lg" className="mb-6 mt-2">
+    <Section title={t('barberBranches')} titleSize="lg" className="mb-6 mt-8">
         <View className="mt-3 gap-3">
           {branches.map((branch) => (
             <Pressable
@@ -51,7 +48,6 @@ export default function BarberBranchesSection({ branches, t }: BarberBranchesSec
             </Pressable>
           ))}
         </View>
-      </Section>
-    </>
+    </Section>
   );
 }

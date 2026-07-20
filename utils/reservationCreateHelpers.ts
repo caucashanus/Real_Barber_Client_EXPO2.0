@@ -602,7 +602,7 @@ function groupServicesByCategory(
   }));
 }
 
-export type BarberEntryMode = 'none' | 'single' | 'multi' | 'branch' | 'service';
+export type BarberEntryMode = 'none' | 'single' | 'multi' | 'branch' | 'service' | 'slotHandoff';
 
 export function trimParam(v: string | undefined): string | undefined {
   if (typeof v !== 'string') return undefined;

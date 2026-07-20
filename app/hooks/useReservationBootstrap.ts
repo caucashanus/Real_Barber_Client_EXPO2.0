@@ -14,6 +14,7 @@ import {
   getEmployeeBranchesList,
   trimParam,
 } from '@/utils/reservationCreateHelpers';
+import { readReservationSlotHandoff } from '@/utils/reservationSlotHandoff';
 
 interface UseReservationBootstrapParams extends ReservationFlowDataState, ReservationMonthState {
   apiToken: string | null;
@@ -33,11 +34,15 @@ export function useReservationBootstrap({
     branchId?: string;
     itemId?: string;
     itemName?: string;
+    date?: string;
+    slotStart?: string;
   }>();
   const presetEmployeeId = trimParam(params.employeeId);
   const presetBranchId = trimParam(params.branchId);
   const presetItemId = trimParam(params.itemId);
   const presetItemName = trimParam(params.itemName);
+  const presetDate = trimParam(params.date);
+  const presetSlotStart = trimParam(params.slotStart);
 
   const [barberEntryMode, setBarberEntryMode] = useState<BarberEntryMode>('none');
   const [barberBootstrap, setBarberBootstrap] = useState<'pending' | 'ready' | 'error'>(() =>
@@ -80,60 +85,93 @@ export function useReservationBootstrap({
       setInitialMultiStepIndex(0);
       return;
     }
-    if (!apiToken) {
-      setBarberBootstrap('error');
-      return;
-    }
-    if (loadingBranches) return;
 
-    if (presetEmployeeId && presetBranchId && presetItemId) {
-      const branch = branches.find((b) => b.id === presetBranchId) ?? null;
-      if (!branch) {
+    let cancelled = false;
+    setBarberBootstrap('pending');
+
+    const runBootstrap = async () => {
+      if (
+        presetEmployeeId &&
+        !presetBranchId &&
+        !presetItemId &&
+        !presetDate &&
+        !presetSlotStart
+      ) {
+        const handoff = await readReservationSlotHandoff();
+        if (cancelled) return;
+        if (handoff && handoff.employeeId === presetEmployeeId) {
+          setData((prev) => ({
+            ...prev,
+            branchId: handoff.branchId,
+            employeeId: handoff.employeeId,
+            itemId: '',
+            date: handoff.date,
+            slotStart: handoff.slotStart,
+            slotEnd: handoff.slotEnd ?? '',
+            duration: 0,
+          }));
+          setLastSelectedDateByMonth({});
+          setMonthOffset(0);
+          setBarberEntryMode('slotHandoff');
+          setInitialMultiStepIndex(1);
+          setPresetBranchFilterIds(null);
+          setBarberBootstrap('ready');
+          return;
+        }
+      }
+
+      if (!apiToken) {
+        setBarberBootstrap('error');
+        return;
+      }
+      if (loadingBranches) return;
+
+      if (presetEmployeeId && presetBranchId && presetItemId) {
+        const branch = branches.find((b) => b.id === presetBranchId) ?? null;
+        if (!branch) {
+          setData((prev) => ({
+            ...prev,
+            branchId: '',
+            employeeId: '',
+            itemId: '',
+            date: '',
+            slotStart: '',
+            slotEnd: '',
+            duration: 0,
+          }));
+          setLastSelectedDateByMonth({});
+          setMonthOffset(0);
+          setBarberEntryMode('none');
+          setInitialMultiStepIndex(0);
+          setPresetBranchFilterIds(null);
+          setBarberBootstrap('ready');
+          return;
+        }
+
+        const svc = findServiceOptionOnBranch(branch, presetItemId);
+        const duration = svc?.duration ?? 0;
         setData((prev) => ({
           ...prev,
-          branchId: '',
-          employeeId: '',
-          itemId: '',
-          date: '',
-          slotStart: '',
+          branchId: presetBranchId,
+          employeeId: presetEmployeeId,
+          itemId: presetItemId,
+          date: presetDate ?? '',
+          slotStart: presetSlotStart ?? '',
           slotEnd: '',
-          duration: 0,
+          duration,
         }));
         setLastSelectedDateByMonth({});
         setMonthOffset(0);
-        setBarberEntryMode('none');
-        setInitialMultiStepIndex(0);
+        setBarberEntryMode('single');
+        setInitialMultiStepIndex(3);
         setPresetBranchFilterIds(null);
         setBarberBootstrap('ready');
         return;
       }
 
-      const svc = findServiceOptionOnBranch(branch, presetItemId);
-      const duration = svc?.duration ?? 0;
-      setData((prev) => ({
-        ...prev,
-        branchId: presetBranchId,
-        employeeId: presetEmployeeId,
-        itemId: presetItemId,
-        date: '',
-        slotStart: '',
-        slotEnd: '',
-        duration,
-      }));
-      setLastSelectedDateByMonth({});
-      setMonthOffset(0);
-      setBarberEntryMode('single');
-      setInitialMultiStepIndex(3);
-      setPresetBranchFilterIds(null);
-      setBarberBootstrap('ready');
-      return;
-    }
-
-    if (presetEmployeeId) {
-      let cancelled = false;
-      setBarberBootstrap('pending');
-      getEmployeeById(apiToken, presetEmployeeId)
-        .then((emp) => {
+      if (presetEmployeeId) {
+        try {
+          const emp = await getEmployeeById(apiToken, presetEmployeeId);
           if (cancelled) return;
           const eb = getEmployeeBranchesList(emp);
           const ids = new Set(eb.map((b) => b.id).filter((id) => typeof id === 'string' && id));
@@ -176,24 +214,39 @@ export function useReservationBootstrap({
             setBarberEntryMode('none');
             setBarberBootstrap('error');
           }
-        })
-        .catch(() => {
+        } catch {
           if (!cancelled) {
             setBarberEntryMode('none');
             setBarberBootstrap('error');
           }
-        });
-      return () => {
-        cancelled = true;
-      };
-    }
+        }
+        return;
+      }
 
-    if (presetBranchId) {
-      const exists = branches.some((b) => b.id === presetBranchId);
-      if (!exists) {
+      if (presetBranchId) {
+        const exists = branches.some((b) => b.id === presetBranchId);
+        if (!exists) {
+          setData((prev) => ({
+            ...prev,
+            branchId: '',
+            employeeId: '',
+            itemId: '',
+            date: '',
+            slotStart: '',
+            slotEnd: '',
+            duration: 0,
+          }));
+          setLastSelectedDateByMonth({});
+          setMonthOffset(0);
+          setBarberEntryMode('none');
+          setInitialMultiStepIndex(0);
+          setPresetBranchFilterIds(null);
+          setBarberBootstrap('ready');
+          return;
+        }
         setData((prev) => ({
           ...prev,
-          branchId: '',
+          branchId: presetBranchId,
           employeeId: '',
           itemId: '',
           date: '',
@@ -203,61 +256,57 @@ export function useReservationBootstrap({
         }));
         setLastSelectedDateByMonth({});
         setMonthOffset(0);
-        setBarberEntryMode('none');
-        setInitialMultiStepIndex(0);
+        setBarberEntryMode('branch');
+        setInitialMultiStepIndex(1);
         setPresetBranchFilterIds(null);
         setBarberBootstrap('ready');
         return;
       }
-      setData((prev) => ({
-        ...prev,
-        branchId: presetBranchId,
-        employeeId: '',
-        itemId: '',
-        date: '',
-        slotStart: '',
-        slotEnd: '',
-        duration: 0,
-      }));
-      setLastSelectedDateByMonth({});
-      setMonthOffset(0);
-      setBarberEntryMode('branch');
-      setInitialMultiStepIndex(1);
-      setPresetBranchFilterIds(null);
-      setBarberBootstrap('ready');
-      return;
-    }
 
-    if (presetItemId) {
-      let duration = 0;
-      for (const b of branches) {
-        const svc = findServiceOptionOnBranch(b, presetItemId);
-        if (svc) {
-          duration = svc.duration;
-          break;
+      if (presetItemId) {
+        let duration = 0;
+        for (const b of branches) {
+          const svc = findServiceOptionOnBranch(b, presetItemId);
+          if (svc) {
+            duration = svc.duration;
+            break;
+          }
         }
+        setData((prev) => ({
+          ...prev,
+          branchId: '',
+          employeeId: '',
+          itemId: presetItemId,
+          date: '',
+          slotStart: '',
+          slotEnd: '',
+          duration,
+        }));
+        setLastSelectedDateByMonth({});
+        setMonthOffset(0);
+        setBarberEntryMode('service');
+        setInitialMultiStepIndex(0);
+        setPresetBranchFilterIds(null);
+        setBarberBootstrap('ready');
       }
-      setData((prev) => ({
-        ...prev,
-        branchId: '',
-        employeeId: '',
-        itemId: presetItemId,
-        date: '',
-        slotStart: '',
-        slotEnd: '',
-        duration,
-      }));
-      setLastSelectedDateByMonth({});
-      setMonthOffset(0);
-      setBarberEntryMode('service');
-      setInitialMultiStepIndex(0);
-      setPresetBranchFilterIds(null);
-      setBarberBootstrap('ready');
-    }
+    };
+
+    runBootstrap().catch(() => {
+      if (!cancelled) {
+        setBarberEntryMode('none');
+        setBarberBootstrap('error');
+      }
+    });
+
+    return () => {
+      cancelled = true;
+    };
   }, [
     presetEmployeeId,
     presetBranchId,
     presetItemId,
+    presetDate,
+    presetSlotStart,
     apiToken,
     loadingBranches,
     branches,

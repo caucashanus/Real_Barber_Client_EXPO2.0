@@ -11,6 +11,8 @@ interface ShowRatingProps {
   maxRating?: number;
   size?: 'sm' | 'md' | 'lg';
   displayMode?: 'number' | 'stars';
+  /** When displayMode is number, show average before the star icon. */
+  numberFirst?: boolean;
   className?: string;
   color?: string;
   style?: ViewStyle;
@@ -21,6 +23,7 @@ const ShowRating: React.FC<ShowRatingProps> = ({
   maxRating = 5,
   size = 'md',
   displayMode = 'number',
+  numberFirst = false,
   className = '',
   color,
   style,
@@ -43,14 +46,21 @@ const ShowRating: React.FC<ShowRatingProps> = ({
   };
 
   if (displayMode === 'number') {
+    const { icon, text } = getSize();
+    const ratingLabel = rating.toFixed(1);
+    const ratingText = (
+      <ThemedText
+        className={`font-medium ${text}`}
+        style={color ? { color: starColor } : undefined}>
+        {ratingLabel}
+      </ThemedText>
+    );
+    const starIcon = <Ionicons name="star" size={icon} color={starColor} />;
+
     return (
-      <View className={`flex-row  items-center gap-x-1 ${className}`} style={style}>
-        <Ionicons name="star" size={getSize().icon} color={starColor} />
-        <ThemedText
-          className={`font-medium ${getSize().text}`}
-          style={color ? { color: starColor } : undefined}>
-          {rating.toFixed(1)}
-        </ThemedText>
+      <View className={`flex-row items-center gap-x-1 ${className}`} style={style}>
+        {numberFirst ? ratingText : starIcon}
+        {numberFirst ? starIcon : ratingText}
       </View>
     );
   }

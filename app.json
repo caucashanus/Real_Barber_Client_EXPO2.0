@@ -53,12 +53,15 @@
       "deploymentTarget": "16.2",
       "appleTeamId": "VK8YT9654D",
       "bundleIdentifier": "com.realbarber.client",
-      "buildNumber": "60",
+      "buildNumber": "61",
       "appStoreUrl": "https://apps.apple.com/app/id6760221388",
       "supportsTablet": false,
       "infoPlist": {
         "ITSAppUsesNonExemptEncryption": false,
-        "LSApplicationQueriesSchemes": ["whatsapp", "tg"],
+        "LSApplicationQueriesSchemes": [
+          "whatsapp",
+          "tg"
+        ],
         "NSCalendarsUsageDescription": "Aplikace může přidat termín do vašeho kalendáře.",
         "NSCalendarsFullAccessUsageDescription": "Aplikace může přidat termín do vašeho kalendáře.",
         "NSRemindersUsageDescription": "Aplikace může přidat připomínku k termínu.",
@@ -72,7 +75,7 @@
     },
     "android": {
       "package": "com.realbarber.client",
-      "versionCode": 54,
+      "versionCode": 56,
       "playStoreUrl": "https://play.google.com/store/apps/details?id=com.realbarber.client",
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",

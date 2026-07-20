@@ -21,7 +21,7 @@ export default function BranchAddressRow({ branch, t }: BranchAddressRowProps) {
         const url = getMapsUrl(branch);
         if (url) Linking.openURL(url);
       }}
-      className="mb-2 mt-8 flex-row items-center border-y border-neutral-200 py-global active:opacity-80 dark:border-dark-secondary">
+      className="mb-2 mt-8 flex-row items-center active:opacity-80">
       {BRANCH_MARKER_IMAGES[branch.name] ? (
         <Image
           source={BRANCH_MARKER_IMAGES[branch.name]}

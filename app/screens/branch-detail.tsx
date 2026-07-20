@@ -30,7 +30,6 @@ import BranchLinksSection from '@/components/branch/BranchLinksSection';
 import BranchRatingModal from '@/components/branch/BranchRatingModal';
 import BranchReviewsSection from '@/components/branch/BranchReviewsSection';
 import BranchTeamSection from '@/components/branch/BranchTeamSection';
-import Divider from '@/components/layout/Divider';
 import {
   branchCarouselImages,
   buildBranchReviewParams,
@@ -164,8 +163,6 @@ export default function BranchDetailScreen() {
 
           <BranchTeamSection employees={employeesList} t={t} />
 
-          <Divider className="mb-4 mt-8" />
-
           <BranchReviewsSection
             reviews={reviews}
             loadingReviews={loadingReviews}
@@ -183,17 +180,13 @@ export default function BranchDetailScreen() {
             t={t}
           />
 
-          <Divider className="mb-4 mt-8" />
-
           <BranchLinksSection branchId={branch.id} vrTourUrl={vrTourUrl} webUrl={webUrl} t={t} />
-
-          <Divider className="my-4" />
         </View>
       </ThemedScroller>
 
       <View
         style={{ paddingBottom: insets.bottom }}
-        className="border-t border-neutral-200 bg-light-primary px-global pt-4 dark:border-dark-secondary dark:bg-dark-primary">
+        className="bg-light-primary px-global pt-4 dark:bg-dark-primary">
         <Button
           title={t('branchReserve')}
           variant="primary"

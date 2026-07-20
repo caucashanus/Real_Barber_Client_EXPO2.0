@@ -26,6 +26,7 @@ interface UseReservationSubmitParams {
   selectedService: ServiceOption | null;
   selectedEmployee: SelectedEmployeeSummary | null;
   branchForServiceStep: Branch | null;
+  onBookingSuccess?: () => void | Promise<void>;
 }
 
 export function useReservationSubmit({
@@ -37,6 +38,7 @@ export function useReservationSubmit({
   selectedService,
   selectedEmployee,
   branchForServiceStep,
+  onBookingSuccess,
 }: UseReservationSubmitParams) {
   const [creatingBooking, setCreatingBooking] = useState(false);
   const [createBookingError, setCreateBookingError] = useState<string | null>(null);
@@ -64,6 +66,7 @@ export function useReservationSubmit({
         ...(verifiedCoupon ? { couponCode: trimmedCoupon } : {}),
       };
       const created = await createBooking(apiToken, payload);
+      await onBookingSuccess?.();
       await refreshBookings({ force: true });
       const createdId =
         (typeof created.id === 'string' ? created.id : undefined) ??
@@ -126,6 +129,7 @@ export function useReservationSubmit({
     branchForServiceStep,
     selectedEmployee,
     refreshBookings,
+    onBookingSuccess,
   ]);
 
   return {

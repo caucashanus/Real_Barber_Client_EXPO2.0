@@ -534,7 +534,7 @@ export const en = {
 
   // Barber detail
   barberWorkSamples: 'Work samples',
-  barberBranches: 'Branches where I work',
+  barberBranches: 'Branches',
   barberServices: 'Services',
 
   // Service detail
@@ -922,6 +922,35 @@ export const en = {
   barberMine: 'Mine',
   barberBook: 'Book',
   barberReserveWith: 'Reserve with this barber',
+  barberLanguages: 'I speak',
+  barberTodaySlots: "Today's available slots",
+  barberNearestSlotTitle: 'Nearest slot',
+  barberNearestSlotsTitle: 'Nearest slots',
+  barberUnavailableToday: 'Unavailable today',
+  barberFullyBookedToday: 'Fully booked today',
+  barberTodayShift: 'On shift today',
+  barberStoriesTeaser: 'Check out new stories',
+  barberPhoneCall: 'Call',
+  barberNotFound: 'Barber not found',
+  barberSelect: 'Select',
+  barberLoadMoreShifts: 'Load more shifts',
+  barberLoadAllShifts: 'Load all shifts',
+  barberCollapseShifts: 'Collapse',
+  barberShiftCalendarConfigNeeded: 'Shift calendar needs to be configured.',
+  barberNoShifts: 'No scheduled shifts.',
+  barberAvailabilityInfoHint:
+    'If you do not see a suitable day in the calendar, contact us — we will help you find an appointment.',
+  barberFindMeAtBranch: 'Find me at this branch',
+  barberFindMeAtBranches: 'Find me at these branches',
+  barberSkills: 'Skills',
+  barberMyFavorites: 'My favorites',
+  barberHairstyleSkills: 'Haircuts',
+  barberColoringSkills: 'Coloring',
+  barberFavoriteServices: 'Favorite services',
+  barberStories: 'Stories',
+  barberAvailability: 'Availability',
+  barberNoAvailability: 'Shift calendar is not available yet.',
+  barberNoReviews: 'No reviews yet.',
 
   // Booking detail
   bookingMessageGuest: 'Message guest',
@@ -1125,6 +1154,7 @@ export const en = {
   reservationNoBarbers: 'No barbers are available for this branch.',
   reservationStepServiceTitle: 'Choose a service',
   reservationStepServiceSubtitle: 'Select the service you want to book.',
+  reservationSlotHandoffTitle: 'Choose a service',
   reservationNoServices: 'No services are available for this barber.',
   reservationStepDatetimeTitle: 'Choose date and time',
   reservationStepDatetimeSubtitle: 'Pick a day, then an available time slot.',

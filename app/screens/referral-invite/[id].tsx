@@ -11,7 +11,6 @@ import Icon from '@/components/Icon';
 import ImageCarousel from '@/components/ImageCarousel';
 import ThemedScroller from '@/components/ThemeScroller';
 import ThemedText from '@/components/ThemedText';
-import Divider from '@/components/layout/Divider';
 import Section from '@/components/layout/Section';
 
 function safeText(v: unknown): string {
@@ -225,10 +224,7 @@ export default function ReferralInviteDetailScreen() {
           </View>
         </View>
 
-        <Divider className="h-2 bg-light-secondary dark:bg-dark-darker" />
-
-        {/* Referee section */}
-        <Section title={t('referralChecklistAccepted')} titleSize="lg" className="px-global pt-4">
+        <Section title={t('referralChecklistAccepted')} titleSize="lg" className="mt-6 px-global pt-4">
           <View className="mb-4 mt-4 flex-row items-center gap-3">
             <Avatar src={refereeAvatarUrl} name={refereeName} size="lg" />
             <View className="min-w-0 flex-1">
@@ -242,35 +238,23 @@ export default function ReferralInviteDetailScreen() {
           </View>
         </Section>
 
-        <Divider className="h-2 bg-light-secondary dark:bg-dark-darker" />
-
-        {/* Program info */}
-        <Section title={t('referralAttributionLead')} titleSize="lg" className="px-global pt-4">
-          <View className="mt-4 rounded-2xl bg-light-secondary p-5 dark:bg-dark-secondary">
+        <Section title={t('referralAttributionLead')} titleSize="lg" className="mt-6 px-global pt-4">
+          <View className="mt-4 gap-1 rounded-2xl bg-light-secondary p-5 dark:bg-dark-secondary">
             <InfoRow label={t('referralProgramTitle')} value={programName} />
             {invite.referrerReward != null ? (
-              <>
-                <Divider />
-                <InfoRow label={t('referralRewardAmount')} value={`${invite.referrerReward} RBC`} />
-              </>
+              <InfoRow label={t('referralRewardAmount')} value={`${invite.referrerReward} RBC`} />
             ) : null}
             {invite.rewardedAt ? (
-              <>
-                <Divider />
-                <InfoRow
-                  label={t('referralRewardedAt')}
-                  value={formatDateTime(invite.rewardedAt, locale)}
-                />
-              </>
+              <InfoRow
+                label={t('referralRewardedAt')}
+                value={formatDateTime(invite.rewardedAt, locale)}
+              />
             ) : null}
           </View>
         </Section>
 
-        <Divider className="h-2 bg-light-secondary dark:bg-dark-darker" />
-
-        {/* Progress checklist */}
-        <Section title={t('referralAttributionTimeline')} titleSize="lg" className="px-global pt-4">
-          <View className="mt-4 rounded-2xl bg-light-secondary p-5 dark:bg-dark-secondary">
+        <Section title={t('referralAttributionTimeline')} titleSize="lg" className="mt-6 px-global pt-4">
+          <View className="mt-4 gap-3 rounded-2xl bg-light-secondary p-5 dark:bg-dark-secondary">
             <ChecklistRow
               title={t('referralChecklistAccepted')}
               subtitle={
@@ -278,7 +262,6 @@ export default function ReferralInviteDetailScreen() {
               }
               state={acceptedState}
             />
-            <Divider className="my-1" />
             <ChecklistRow
               title={t('referralChecklistPaired')}
               subtitle={
@@ -286,7 +269,6 @@ export default function ReferralInviteDetailScreen() {
               }
               state={pairedState}
             />
-            <Divider className="my-1" />
             <ChecklistRow
               title={t('referralChecklistPaid')}
               subtitle={

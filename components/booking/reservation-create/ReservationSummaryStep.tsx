@@ -8,7 +8,6 @@ import Avatar from '@/components/Avatar';
 import { Button } from '@/components/Button';
 import Icon from '@/components/Icon';
 import ThemedText from '@/components/ThemedText';
-import Divider from '@/components/layout/Divider';
 import Section from '@/components/layout/Section';
 
 export default function ReservationSummaryStep({ flow }: ReservationCreateStepProps) {
@@ -30,9 +29,7 @@ export default function ReservationSummaryStep({ flow }: ReservationCreateStepPr
         {t('reservationSummarySubtitle')}
       </ThemedText>
 
-      <Divider className="mt-4 h-2 bg-light-secondary dark:bg-dark-darker" />
-
-      <Section title={t('reservationSummaryBranch')} titleSize="lg" className="pb-1 pt-3">
+      <Section title={t('reservationSummaryBranch')} titleSize="lg" className="mt-6 pb-1 pt-3">
         <View className="mt-2 overflow-hidden rounded-2xl bg-light-secondary dark:bg-dark-secondary">
           <Image
             source={
@@ -63,9 +60,7 @@ export default function ReservationSummaryStep({ flow }: ReservationCreateStepPr
         </View>
       </Section>
 
-      <Divider className="mt-4 h-2 bg-light-secondary dark:bg-dark-darker" />
-
-      <Section title={t('reservationSummaryWithSpecialist')} titleSize="lg" className="pb-1 pt-3">
+      <Section title={t('reservationSummaryWithSpecialist')} titleSize="lg" className="mt-6 pb-1 pt-3">
         <View className="mt-2 flex-row items-center">
           {flow.selectedEmployee ? (
             <Avatar
@@ -102,9 +97,7 @@ export default function ReservationSummaryStep({ flow }: ReservationCreateStepPr
         </View>
       </Section>
 
-      <Divider className="mt-4 h-2 bg-light-secondary dark:bg-dark-darker" />
-
-      <Section title={t('reservationSummaryAppointment')} titleSize="lg" className="pb-1 pt-3">
+      <Section title={t('reservationSummaryAppointment')} titleSize="lg" className="mt-6 pb-1 pt-3">
         <ThemedText className="mt-2 text-base font-semibold">{flow.selectedDateLabel}</ThemedText>
         <View className="mt-2 flex-row items-center justify-between rounded-xl bg-light-secondary p-3 dark:bg-dark-secondary">
           <View>
@@ -132,9 +125,7 @@ export default function ReservationSummaryStep({ flow }: ReservationCreateStepPr
         ) : null}
       </Section>
 
-      <Divider className="mt-4 h-2 bg-light-secondary dark:bg-dark-darker" />
-
-      <Section title={t('reservationCouponSectionTitle')} titleSize="lg" className="pb-1 pt-3">
+      <Section title={t('reservationCouponSectionTitle')} titleSize="lg" className="mt-6 pb-1 pt-3">
         <View className="mt-2 flex-row items-stretch gap-2">
           <TextInput
             placeholder={t('reservationCouponPlaceholder')}
@@ -181,7 +172,7 @@ export default function ReservationSummaryStep({ flow }: ReservationCreateStepPr
                 {t('reservationCurrencySuffix')}
               </ThemedText>
             </View>
-            <View className="mt-1 flex-row items-center justify-between border-t border-neutral-400/20 pt-2 dark:border-neutral-500/25">
+            <View className="mt-1 flex-row items-center justify-between pt-2">
               <ThemedText className="text-sm font-semibold">
                 {t('reservationCouponFinalPrice')}
               </ThemedText>

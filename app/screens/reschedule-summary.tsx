@@ -14,7 +14,6 @@ import Header from '@/components/Header';
 import ThemedFooter from '@/components/ThemeFooter';
 import ThemedText from '@/components/ThemedText';
 import CurrentBookingCard from '@/components/booking/CurrentBookingCard';
-import Divider from '@/components/layout/Divider';
 import Section from '@/components/layout/Section';
 
 function formatDateLabel(date: string, locale: string): string {
@@ -147,15 +146,12 @@ export default function RescheduleSummaryScreen() {
               accessibilityIgnoresInvertColors
             />
           </View>
-          <Divider className="mt-2 h-2 bg-light-secondary dark:bg-dark-darker" />
 
-          <Section title={t('rescheduleCurrentTitle')} titleSize="lg" className="pb-1 pt-3">
+          <Section title={t('rescheduleCurrentTitle')} titleSize="lg" className="mt-4 pb-1 pt-3">
             <CurrentBookingCard booking={booking} />
           </Section>
 
-          <Divider className="mt-4 h-2 bg-light-secondary dark:bg-dark-darker" />
-
-          <Section title={t('reschedulePickTitle')} titleSize="lg" className="pb-1 pt-3">
+          <Section title={t('reschedulePickTitle')} titleSize="lg" className="mt-6 pb-1 pt-3">
             <ThemedText className="mt-2 text-base font-semibold">{nextDateLabel}</ThemedText>
             <View className="mt-2 flex-row items-center justify-between rounded-xl bg-light-secondary p-3 dark:bg-dark-secondary">
               <View>

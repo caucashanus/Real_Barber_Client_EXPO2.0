@@ -32,7 +32,6 @@ import ImageCarousel from '@/components/ImageCarousel';
 import ShowRating from '@/components/ShowRating';
 import ThemedScroller from '@/components/ThemeScroller';
 import ThemedText from '@/components/ThemedText';
-import Divider from '@/components/layout/Divider';
 import Section from '@/components/layout/Section';
 import ProductCatalogDetailsSection from '@/components/product/ProductCatalogDetailsSection';
 import ProductDetailBottomBar from '@/components/product/ProductDetailBottomBar';
@@ -374,7 +373,7 @@ const PropertyDetail = () => {
           </View>
 
           {showSellerSection ? (
-            <View className="mb-8 mt-8 flex-row items-center border-y border-neutral-200 py-global dark:border-dark-secondary">
+            <View className="mb-8 mt-8 flex-row items-center">
               <Avatar
                 size="md"
                 src={sellerAvatar ?? undefined}
@@ -399,9 +398,7 @@ const PropertyDetail = () => {
             {description}
           </ThemedText>
 
-          <Divider className="mb-4 mt-8" />
-
-          <Section title={t('productDetails')} titleSize="lg" className="mb-6 mt-2">
+          <Section title={t('productDetails')} titleSize="lg" className="mb-6 mt-8">
             <View className="mt-3">
               {catalog ? (
                 <ProductCatalogDetailsSection
@@ -414,8 +411,6 @@ const PropertyDetail = () => {
               ) : null}
             </View>
           </Section>
-
-          <Divider className="my-4" />
 
           {!hideBuyerReviewsSection ? (
             <ProductDetailReviewsSection

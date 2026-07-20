@@ -4,7 +4,6 @@ import { View } from 'react-native';
 import type { Booking } from '@/api/bookings';
 import ListLink from '@/components/ListLink';
 import ThemedText from '@/components/ThemedText';
-import Divider from '@/components/layout/Divider';
 import Section from '@/components/layout/Section';
 import type { TranslationKey } from '@/locales';
 
@@ -24,48 +23,44 @@ export default function BookingDetailAppointmentSection({
   t,
 }: BookingDetailAppointmentSectionProps) {
   return (
-    <>
-      <Divider className="mt-6 h-2 bg-light-secondary dark:bg-dark-darker" />
-
-      <Section title={t('bookingYourAppointment')} titleSize="lg" className="px-global pt-4">
-        <View className="mt-4 space-y-4">
-          <ThemedText className="text-lg font-semibold">{appointment.dateStr}</ThemedText>
-          <View className="flex-row items-center justify-between rounded-xl bg-light-secondary p-4 dark:bg-dark-secondary">
-            <View>
-              <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext">
-                {t('bookingFrom')}
-              </ThemedText>
-              <ThemedText className="text-lg font-semibold">{appointment.fromTime}</ThemedText>
-            </View>
-            <View className="items-end">
-              <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext">
-                {t('bookingTo')}
-              </ThemedText>
-              <ThemedText className="text-lg font-semibold">{appointment.toTime}</ThemedText>
-            </View>
+    <Section title={t('bookingYourAppointment')} titleSize="lg" className="mt-6 px-global pt-4">
+      <View className="mt-4 space-y-4">
+        <ThemedText className="text-lg font-semibold">{appointment.dateStr}</ThemedText>
+        <View className="flex-row items-center justify-between rounded-xl bg-light-secondary p-4 dark:bg-dark-secondary">
+          <View>
+            <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext">
+              {t('bookingFrom')}
+            </ThemedText>
+            <ThemedText className="text-lg font-semibold">{appointment.fromTime}</ThemedText>
           </View>
-          {canAddToCalendar ? (
-            <ListLink
-              icon="CalendarPlus"
-              title={t('bookingAddToCalendar')}
-              description={t('bookingAddToCalendarDescription')}
-              showChevron
-              className="rounded-xl bg-light-secondary px-4 py-3 dark:bg-dark-secondary"
-              onPress={onAddToCalendar}
-            />
-          ) : null}
-          <View className="flex-row items-center justify-between pt-2">
-            <View>
-              <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext">
-                {t('bookingDuration')}
-              </ThemedText>
-              <ThemedText className="text-lg font-semibold">
-                {booking.duration} {t('bookingMinutesShort')}
-              </ThemedText>
-            </View>
+          <View className="items-end">
+            <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext">
+              {t('bookingTo')}
+            </ThemedText>
+            <ThemedText className="text-lg font-semibold">{appointment.toTime}</ThemedText>
           </View>
         </View>
-      </Section>
-    </>
+        {canAddToCalendar ? (
+          <ListLink
+            icon="CalendarPlus"
+            title={t('bookingAddToCalendar')}
+            description={t('bookingAddToCalendarDescription')}
+            showChevron
+            className="rounded-xl bg-light-secondary px-4 py-3 dark:bg-dark-secondary"
+            onPress={onAddToCalendar}
+          />
+        ) : null}
+        <View className="flex-row items-center justify-between pt-2">
+          <View>
+            <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext">
+              {t('bookingDuration')}
+            </ThemedText>
+            <ThemedText className="text-lg font-semibold">
+              {booking.duration} {t('bookingMinutesShort')}
+            </ThemedText>
+          </View>
+        </View>
+      </View>
+    </Section>
   );
 }

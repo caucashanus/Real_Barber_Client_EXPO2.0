@@ -83,6 +83,10 @@ interface MultiStepProps {
   isNextDisabled?: (currentStep: number) => boolean;
   /** Loading state for the bottom primary button (e.g. async submit on last step). */
   footerLoading?: boolean;
+  /** Override footer CTA label for a step. */
+  getFooterTitle?: (stepIndex: number, isLastStep: boolean) => string | undefined;
+  /** Intercept footer press — call `proceed()` for default next/complete behavior. */
+  onFooterPrimaryPress?: (stepIndex: number, proceed: () => void) => void;
   /** Počáteční krok (např. deep link přeskočí výběr pobočky / holiče). */
   initialStepIndex?: number;
   /** Nelineární „Další“ (např. z kroku 0 rovnou na 2). */
@@ -113,6 +117,8 @@ const MultiStep = forwardRef<MultiStepHandle, MultiStepProps>(function MultiStep
     onStepIndexChange,
     isNextDisabled,
     footerLoading = false,
+    getFooterTitle,
+    onFooterPrimaryPress,
     initialStepIndex = 0,
     getNextStepIndex,
     getPrevStepIndex,
@@ -240,6 +246,10 @@ const MultiStep = forwardRef<MultiStepHandle, MultiStepProps>(function MultiStep
     }
   };
 
+  const proceedFooterPrimary = () => {
+    handleNext().catch(() => {});
+  };
+
   const stepTransitionHaptic = () => {
     triggerImpact(Haptics.ImpactFeedbackStyle.Heavy);
   };
@@ -290,6 +300,10 @@ const MultiStep = forwardRef<MultiStepHandle, MultiStepProps>(function MultiStep
 
   const insets = useSafeAreaInsets();
   const { t } = useTranslation();
+
+  const footerTitle =
+    getFooterTitle?.(safeStepIndex, isLastStep) ??
+    (isLastStep ? t('multiStepComplete') : t('multiStepNext'));
 
   /** Nad klávesnicí nepotřebujeme plný safe-area inset (jinak vzniká zbytečná mezera). */
   const bottomInset = keyboardVisible ? 4 : insets.bottom;
@@ -399,9 +413,13 @@ const MultiStep = forwardRef<MultiStepHandle, MultiStepProps>(function MultiStep
             variant="primary"
             size="large"
             rounded="full"
-            title={isLastStep ? t('multiStepComplete') : t('multiStepNext')}
+            title={footerTitle}
             onPress={() => {
-              handleNext().catch(() => {});
+              if (onFooterPrimaryPress) {
+                onFooterPrimaryPress(safeStepIndex, proceedFooterPrimary);
+                return;
+              }
+              proceedFooterPrimary();
             }}
             impactFeedbackStyle={Haptics.ImpactFeedbackStyle.Heavy}
             className="w-full"

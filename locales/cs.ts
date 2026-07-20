@@ -539,7 +539,7 @@ export const cs: Record<TranslationKey, string> = {
 
   // Barber detail
   barberWorkSamples: 'Ukázky práce',
-  barberBranches: 'Pobočky kde působím',
+  barberBranches: 'Pobočky',
   barberServices: 'Služby',
 
   // Service detail
@@ -926,6 +926,35 @@ export const cs: Record<TranslationKey, string> = {
   barberMine: 'Moje',
   barberBook: 'Rezervovat',
   barberReserveWith: 'Rezervovat u tohoto holiče',
+  barberLanguages: 'Mluvím',
+  barberTodaySlots: 'Dnešní volné termíny',
+  barberNearestSlotTitle: 'Nejbližší termín',
+  barberNearestSlotsTitle: 'Nejbližší termíny',
+  barberUnavailableToday: 'Nedostupný dnes',
+  barberFullyBookedToday: 'Dnes plně obsazeno',
+  barberTodayShift: 'Dnes má směnu',
+  barberStoriesTeaser: 'Podívejte se na nové stories',
+  barberPhoneCall: 'Zavolat',
+  barberNotFound: 'Holič nenalezen',
+  barberSelect: 'Vybrat',
+  barberLoadMoreShifts: 'Načíst další směny',
+  barberLoadAllShifts: 'Načíst všechny směny',
+  barberCollapseShifts: 'Zabalit',
+  barberShiftCalendarConfigNeeded: 'Pro zobrazení dostupnosti je potřeba nastavení kalendáře.',
+  barberNoShifts: 'Žádné naplánované směny.',
+  barberAvailabilityInfoHint:
+    'Pokud v kalendáři nevidíte vhodný den, kontaktujte nás — rádi vám najdeme termín.',
+  barberFindMeAtBranch: 'Najdete mě na pobočce',
+  barberFindMeAtBranches: 'Najdete mě na pobočkách',
+  barberSkills: 'Dovednosti',
+  barberMyFavorites: 'Moje nejoblíbenější',
+  barberHairstyleSkills: 'Střihy',
+  barberColoringSkills: 'Barvení',
+  barberFavoriteServices: 'Oblíbené služby',
+  barberStories: 'Stories',
+  barberAvailability: 'Dostupnost',
+  barberNoAvailability: 'Kalendář směn zatím není k dispozici.',
+  barberNoReviews: 'Zatím žádné recenze.',
 
   // Booking detail
   bookingMessageGuest: 'Napsat hostovi',
@@ -1129,6 +1158,7 @@ export const cs: Record<TranslationKey, string> = {
   reservationNoBarbers: 'Pro pobočku nejsou dostupní žádní barbeři.',
   reservationStepServiceTitle: 'Vyberte službu',
   reservationStepServiceSubtitle: 'Vyberte službu, kterou chcete rezervovat.',
+  reservationSlotHandoffTitle: 'Vyberte službu',
   reservationNoServices: 'Pro vybraného barbera nejsou dostupné žádné služby.',
   reservationStepDatetimeTitle: 'Vyberte datum a čas',
   reservationStepDatetimeSubtitle: 'Vyberte den a následně dostupný termín.',

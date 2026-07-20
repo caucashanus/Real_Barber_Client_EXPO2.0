@@ -13,7 +13,6 @@ import Favorite from '@/components/Favorite';
 import Header from '@/components/Header';
 import ThemedScroller from '@/components/ThemeScroller';
 import ThemedText from '@/components/ThemedText';
-import Divider from '@/components/layout/Divider';
 import Section from '@/components/layout/Section';
 
 function itemImages(item: Item): (string | number)[] {
@@ -140,29 +139,26 @@ export default function ServiceDetailScreen() {
             </View>
           ) : null}
 
-          <Divider className="my-6" />
-
           {item.description ? (
-            <Section title={t('serviceAbout')} titleSize="lg" className="mb-6">
+            <Section title={t('serviceAbout')} titleSize="lg" className="mb-6 mt-6">
               <ThemedText className="mt-2 leading-6 text-light-subtext dark:text-dark-subtext">
                 {item.description}
               </ThemedText>
             </Section>
           ) : (
-            <Section title={t('serviceAbout')} titleSize="lg" className="mb-6">
+            <Section title={t('serviceAbout')} titleSize="lg" className="mb-6 mt-6">
               <ThemedText className="mt-2 italic text-light-subtext dark:text-dark-subtext">
                 No description available.
               </ThemedText>
             </Section>
           )}
 
-          <Divider className="my-4" />
         </View>
       </ThemedScroller>
 
       <View
         style={{ paddingBottom: insets.bottom }}
-        className="flex-row items-center justify-start border-t border-neutral-200 bg-light-primary px-global pt-4 dark:border-dark-secondary dark:bg-dark-primary">
+        className="flex-row items-center justify-start bg-light-primary px-global pt-4 dark:bg-dark-primary">
         <View>
           <ThemedText className="text-xl font-bold">{t('serviceBookThisService')}</ThemedText>
           <ThemedText className="text-xs opacity-60">{t('serviceChooseBranchBarber')}</ThemedText>

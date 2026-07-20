@@ -418,6 +418,175 @@ export async function getBookingAvailability(
   );
 }
 
+export interface BookingSlotServiceNextAvailable {
+  date: string;
+  slotStart: string;
+  slotEnd?: string;
+}
+
+export interface BookingSlotServiceItem {
+  id: string;
+  name: string;
+  imageUrl?: string | null;
+  price?: number;
+  duration?: number;
+  availableInSlot?: boolean;
+  inSlot?: boolean;
+  slotStart?: string;
+  slotEnd?: string;
+  nextAvailable?: BookingSlotServiceNextAvailable | null;
+  category?: { id?: string; name?: string };
+}
+
+export interface GetBookingSlotServicesParams {
+  employeeId: string;
+  branchId: string;
+  date: string;
+  slotStart: string;
+  slotEnd?: string;
+}
+
+function readBool(value: unknown): boolean | undefined {
+  if (typeof value === 'boolean') return value;
+  if (typeof value === 'number') return value !== 0;
+  if (typeof value === 'string') {
+    const s = value.trim().toLowerCase();
+    if (s === 'true' || s === '1' || s === 'yes') return true;
+    if (s === 'false' || s === '0' || s === 'no') return false;
+  }
+  return undefined;
+}
+
+function normalizeSlotServiceNextAvailable(raw: unknown): BookingSlotServiceNextAvailable | null {
+  if (!raw || typeof raw !== 'object') return null;
+  const row = raw as Record<string, unknown>;
+  const date = typeof row.date === 'string' ? row.date.trim() : '';
+  const slotStart =
+    (typeof row.slotStart === 'string' ? row.slotStart : undefined) ??
+    (typeof row.start === 'string' ? row.start : undefined) ??
+    (typeof row.startTime === 'string' ? row.startTime : undefined) ??
+    '';
+  if (!date || !slotStart) return null;
+  const slotEnd =
+    (typeof row.slotEnd === 'string' ? row.slotEnd : undefined) ??
+    (typeof row.end === 'string' ? row.end : undefined) ??
+    (typeof row.endTime === 'string' ? row.endTime : undefined);
+  return { date, slotStart, slotEnd };
+}
+
+function normalizeSlotServiceItem(raw: unknown, index: number): BookingSlotServiceItem | null {
+  if (!raw || typeof raw !== 'object') return null;
+  const row = raw as Record<string, unknown>;
+  const nested =
+    (row.item && typeof row.item === 'object' ? (row.item as Record<string, unknown>) : null) ??
+    (row.service && typeof row.service === 'object' ? (row.service as Record<string, unknown>) : null);
+
+  const id =
+    (typeof row.id === 'string' ? row.id : '') ||
+    (typeof row.itemId === 'string' ? row.itemId : '') ||
+    (nested && typeof nested.id === 'string' ? nested.id : '');
+  const name =
+    (typeof row.name === 'string' ? row.name : '') ||
+    (nested && typeof nested.name === 'string' ? nested.name : '');
+
+  if (!id && !name) return null;
+
+  const availableInSlot =
+    readBool(row.availableInSlot) ??
+    readBool(row.inSlot) ??
+    readBool(row.available) ??
+    readBool(row.isAvailableInSlot);
+
+  const nextAvailable = normalizeSlotServiceNextAvailable(
+    row.nextAvailable ?? row.nextSlot ?? row.nearestSlot
+  );
+
+  const imageUrl =
+    (typeof row.imageUrl === 'string' ? row.imageUrl : null) ??
+    (nested && typeof nested.imageUrl === 'string' ? nested.imageUrl : null);
+
+  const price =
+    typeof row.price === 'number'
+      ? row.price
+      : typeof nested?.price === 'number'
+        ? nested.price
+        : undefined;
+
+  const duration =
+    typeof row.duration === 'number'
+      ? row.duration
+      : typeof nested?.duration === 'number'
+        ? nested.duration
+        : undefined;
+
+  let category: BookingSlotServiceItem['category'];
+  const cat = row.category ?? nested?.category;
+  if (cat && typeof cat === 'object') {
+    const c = cat as Record<string, unknown>;
+    category = {
+      id: typeof c.id === 'string' ? c.id : undefined,
+      name: typeof c.name === 'string' ? c.name : undefined,
+    };
+  }
+
+  return {
+    id: id || `slot-service-${index}`,
+    name: name || id,
+    imageUrl,
+    price,
+    duration,
+    availableInSlot,
+    inSlot: availableInSlot,
+    slotStart:
+      (typeof row.slotStart === 'string' ? row.slotStart : undefined) ??
+      (typeof row.start === 'string' ? row.start : undefined),
+    slotEnd:
+      (typeof row.slotEnd === 'string' ? row.slotEnd : undefined) ??
+      (typeof row.end === 'string' ? row.end : undefined),
+    nextAvailable,
+    category,
+  };
+}
+
+function normalizeSlotServicesResponse(raw: unknown): BookingSlotServiceItem[] {
+  const list = Array.isArray(raw)
+    ? raw
+    : raw && typeof raw === 'object'
+      ? ((raw as Record<string, unknown>).services ??
+        (raw as Record<string, unknown>).items ??
+        [])
+      : [];
+  if (!Array.isArray(list)) return [];
+  return list
+    .map((row, index) => normalizeSlotServiceItem(row, index))
+    .filter((row): row is BookingSlotServiceItem => row != null);
+}
+
+/** GET /api/client/bookings/slot-services — služby dostupné pro konkrétní slot holiče. */
+export async function getBookingSlotServices(
+  apiToken: string,
+  params: GetBookingSlotServicesParams
+): Promise<BookingSlotServiceItem[]> {
+  const q = new URLSearchParams();
+  q.set('employeeId', params.employeeId);
+  q.set('branchId', params.branchId);
+  q.set('date', params.date);
+  q.set('slotStart', params.slotStart);
+  if (params.slotEnd?.trim()) q.set('slotEnd', params.slotEnd.trim());
+
+  if (CLIENT_APP_V1_ENABLED) {
+    const raw = await fetchClientAppV1<unknown>(`/bookings/slot-services?${q.toString()}`, {
+      apiToken,
+    });
+    return normalizeSlotServicesResponse(raw);
+  }
+
+  const raw = await fetchCrm<unknown>(`/api/client/bookings/slot-services?${q.toString()}`, {
+    apiToken,
+  });
+  return normalizeSlotServicesResponse(raw);
+}
+
 /** DELETE /api/client/bookings/[id] – cancel a booking for the authenticated client. */
 export async function cancelBooking(
   apiToken: string,

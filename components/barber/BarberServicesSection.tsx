@@ -4,7 +4,6 @@ import { Pressable, View } from 'react-native';
 
 import Icon from '@/components/Icon';
 import ThemedText from '@/components/ThemedText';
-import Divider from '@/components/layout/Divider';
 import Section from '@/components/layout/Section';
 import type { TranslationKey } from '@/locales';
 import type { CategoryGroup } from '@/utils/barberDetailHelpers';
@@ -25,9 +24,7 @@ export default function BarberServicesSection({
   if (groups.length === 0) return null;
 
   return (
-    <>
-      <Divider className="mb-4 mt-8" />
-      <Section title={t('barberServices')} titleSize="lg" className="mb-6 mt-2">
+    <Section title={t('barberServices')} titleSize="lg" className="mb-6 mt-8">
         <View className="mt-3 gap-2">
           {groups.map((group) => {
             const isExpanded = expandedCategoryId === group.categoryId;
@@ -77,7 +74,6 @@ export default function BarberServicesSection({
             );
           })}
         </View>
-      </Section>
-    </>
+    </Section>
   );
 }
