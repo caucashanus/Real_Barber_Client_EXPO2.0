@@ -200,3 +200,36 @@ export async function getEmployeeTodaySlots(
   );
   return parsePublicJson<EmployeeTodaySlotsResponse>(res);
 }
+
+export interface PublicEntityReviewsResponse {
+  reviews?: TeamMemberPageReview[];
+  pagination?: {
+    total?: number;
+    limit?: number;
+    offset?: number;
+    hasMore?: boolean;
+  };
+}
+
+export interface GetPublicEntityReviewsOptions {
+  limit?: number;
+  offset?: number;
+}
+
+/** GET /api/public/reviews — paginated reviews for public entity pages (e.g. barber detail). */
+export async function getPublicEntityReviews(
+  entityType: 'employee' | 'branch',
+  entityId: string,
+  options: GetPublicEntityReviewsOptions = {}
+): Promise<PublicEntityReviewsResponse> {
+  const params = new URLSearchParams({
+    entityType,
+    entityId,
+    limit: String(options.limit ?? TEAM_MEMBER_PAGE_REVIEWS_LIMIT),
+    offset: String(options.offset ?? 0),
+  });
+  const res = await fetch(`${CRM_BASE}/api/public/reviews?${params}`, {
+    headers: { Accept: 'application/json' },
+  });
+  return parsePublicJson<PublicEntityReviewsResponse>(res);
+}

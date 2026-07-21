@@ -1,13 +1,12 @@
 import React from 'react';
-import { Pressable, Text, View } from 'react-native';
+import { Pressable, View } from 'react-native';
 
-import Favorite from '@/components/Favorite';
 import LiveIndicator from '@/components/LiveIndicator';
 import ShowRating from '@/components/ShowRating';
 import Avatar from '@/components/Avatar';
+import BarberProfileHeaderActions from '@/components/barber/BarberProfileHeaderActions';
 import ThemedText from '@/components/ThemedText';
 import { getShiftLiveIndicatorVariant, type TodayShiftStatus } from '@/utils/teamMemberPageHelpers';
-import { getLanguageFlagEmoji } from '@/utils/phone';
 import type { TranslationKey } from '@/locales';
 
 interface BarberIdentitySectionProps {
@@ -17,6 +16,7 @@ interface BarberIdentitySectionProps {
   average: number;
   languages?: string[];
   shiftStatus: TodayShiftStatus;
+  shareMessage: string;
   onScrollToReviews: () => void;
   t: (key: TranslationKey) => string;
 }
@@ -28,17 +28,15 @@ export default function BarberIdentitySection({
   average,
   languages,
   shiftStatus,
+  shareMessage,
   onScrollToReviews,
   t,
 }: BarberIdentitySectionProps) {
   const languageList = (languages ?? []).filter(Boolean);
-  const languageFlags = languageList
-    .map((language) => ({ language, flag: getLanguageFlagEmoji(language) }))
-    .filter((item): item is { language: string; flag: string } => Boolean(item.flag));
   const liveVariant = getShiftLiveIndicatorVariant(shiftStatus);
 
   return (
-    <View className="mb-6">
+    <View>
       <View className="flex-row items-start gap-3">
         <Avatar size="xl" src={avatarUrl ?? undefined} name={displayName} />
         <View className="min-w-0 flex-1">
@@ -60,29 +58,20 @@ export default function BarberIdentitySection({
                 <ShowRating rating={average} size="md" numberFirst />
               </Pressable>
             </View>
-            <Favorite
-              productName={displayName}
-              title={displayName}
-              entityType="employee"
-              entityId={employeeId}
-              size={22}
+            <BarberProfileHeaderActions
+              employeeId={employeeId}
+              displayName={displayName}
+              shareMessage={shareMessage}
+              onScrollToReviews={onScrollToReviews}
+              t={t}
             />
           </View>
-          {languageFlags.length > 0 ? (
-            <View className="mt-3">
-              <ThemedText className="mb-1 text-xs text-light-subtext dark:text-dark-subtext">
+          {languageList.length > 0 ? (
+            <View className="mt-3 flex-row flex-wrap items-center gap-x-2 gap-y-1">
+              <ThemedText className="text-xs text-light-subtext dark:text-dark-subtext">
                 {t('barberLanguages')}
               </ThemedText>
-              <View className="flex-row flex-wrap items-center gap-2">
-                {languageFlags.map(({ language, flag }) => (
-                  <Text
-                    key={language}
-                    accessibilityLabel={language}
-                    style={{ fontSize: 20, lineHeight: 24 }}>
-                    {flag}
-                  </Text>
-                ))}
-              </View>
+              <ThemedText className="shrink text-sm">{languageList.join(', ')}</ThemedText>
             </View>
           ) : null}
         </View>

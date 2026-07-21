@@ -7,10 +7,13 @@ import {
   type EmployeeTodaySlot,
   type TeamMemberMediaItem,
   type TeamMemberPageEmployee,
+  type TeamMemberPageReview,
 } from '@/api/publicTeamMember';
 import { getEntityReviews } from '@/api/reviews';
+import { useBarberReviewsPagination } from '@/app/hooks/useBarberReviewsPagination';
 import { useAuth } from '@/app/contexts/AuthContext';
 import { useLanguage } from '@/app/contexts/LanguageContext';
+import { buildOwnReviewIds } from '@/utils/barberDetailHelpers';
 import { TEAM_MEMBER_PAGE_CACHE_MS } from '@/constants/teamMemberPage';
 import {
   branchesFromShiftCalendar,
@@ -28,6 +31,7 @@ import {
 } from '@/utils/teamMemberPageHelpers';
 
 const pageCache = new Map<string, { expiresAt: number; employee: TeamMemberPageEmployee | null }>();
+const EMPTY_PAGE_REVIEWS: TeamMemberPageReview[] = [];
 
 function cacheKey(idOrSlug: string, date: string): string {
   return `${idOrSlug}:${date}`;
@@ -44,6 +48,7 @@ export function useBarberDetailScreen(idOrSlug: string) {
   const [todaySlots, setTodaySlots] = useState<EmployeeTodaySlot[]>([]);
   const [loadingSlots, setLoadingSlots] = useState(false);
   const [hasReviewed, setHasReviewed] = useState(false);
+  const [ownReviewIds, setOwnReviewIds] = useState<Set<string>>(() => new Set());
   const [fullscreenMedia, setFullscreenMedia] = useState<TeamMemberMediaItem | null>(null);
   const employeeIdRef = useRef<string | null>(null);
 
@@ -116,15 +121,32 @@ export function useBarberDetailScreen(idOrSlug: string) {
     }, [employee?.id, loadTodaySlots])
   );
 
-  useEffect(() => {
+  const loadOwnReviewState = useCallback(() => {
     if (!apiToken || !employee?.id) {
       setHasReviewed(false);
+      setOwnReviewIds(new Set());
       return;
     }
-    getEntityReviews(apiToken, 'employee', employee.id, { page: 1, limit: 1, includeOwn: true })
-      .then((data) => setHasReviewed(!!data.hasReviewed))
-      .catch(() => setHasReviewed(false));
-  }, [apiToken, employee?.id]);
+    getEntityReviews(apiToken, 'employee', employee.id, { page: 1, limit: 100, includeOwn: true })
+      .then((data) => {
+        setHasReviewed(!!data.hasReviewed);
+        setOwnReviewIds(buildOwnReviewIds(data, client?.id));
+      })
+      .catch(() => {
+        setHasReviewed(false);
+        setOwnReviewIds(new Set());
+      });
+  }, [apiToken, client?.id, employee?.id]);
+
+  useEffect(() => {
+    loadOwnReviewState();
+  }, [loadOwnReviewState]);
+
+  useFocusEffect(
+    useCallback(() => {
+      loadOwnReviewState();
+    }, [loadOwnReviewState])
+  );
 
   const displayName = useMemo(
     () => (employee ? getTeamMemberDisplayName(employee, locale) : ''),
@@ -140,11 +162,20 @@ export function useBarberDetailScreen(idOrSlug: string) {
   );
   const statsAverage = employee?.stats?.averageRating ?? 0;
   const statsTotal = employee?.stats?.totalReviews ?? 0;
-  const pageReviews = employee?.reviews ?? [];
+  const pageReviews = useMemo(
+    () => employee?.reviews ?? EMPTY_PAGE_REVIEWS,
+    [employee?.reviews]
+  );
   const pageReviewStats = useMemo(() => buildReviewStatsFromPage(pageReviews), [pageReviews]);
   const countByRating = pageReviewStats.countByRating;
   const average = statsTotal > 0 ? statsAverage : pageReviewStats.average;
   const displayTotal = statsTotal > 0 ? statsTotal : pageReviewStats.total;
+
+  const reviewsPagination = useBarberReviewsPagination(
+    employee?.id,
+    pageReviews,
+    statsTotal
+  );
   const hasShiftToday = useMemo(
     () => hasShiftOnDate(employee?.shiftCalendar, today),
     [employee?.shiftCalendar, today]
@@ -190,8 +221,10 @@ export function useBarberDetailScreen(idOrSlug: string) {
     showSkills,
     showMedia,
     showStoriesGallery,
-    reviews: pageReviews,
+    reviews: reviewsPagination.visibleReviews,
+    reviewsPagination,
     hasReviewed,
+    ownReviewIds,
     reviewParams,
     countByRating,
     average,

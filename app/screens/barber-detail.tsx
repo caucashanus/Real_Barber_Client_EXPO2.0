@@ -28,6 +28,11 @@ import BarberStickyBar, {
 } from '@/components/barber/BarberStickyBar';
 import BarberStoriesSection from '@/components/barber/BarberStoriesSection';
 import MediaFullscreenModal from '@/components/detail/MediaFullscreenModal';
+import {
+  buildTeamMemberShareMessage,
+  getTeamMemberProfileShareUrl,
+} from '@/utils/teamMemberPageHelpers';
+import { BARBER_DETAIL_SECTION_SPACING } from '@/constants/barberDetailLayout';
 
 const AVATAR_XL_HEIGHT = 80;
 
@@ -56,9 +61,10 @@ export default function BarberDetailScreen() {
     showMedia,
     showStoriesGallery,
     reviews,
+    reviewsPagination,
     hasReviewed,
+    ownReviewIds,
     reviewParams,
-    countByRating,
     average,
     displayTotal,
     locale,
@@ -115,6 +121,16 @@ export default function BarberDetailScreen() {
     };
   }, [fullscreenMedia]);
 
+  const profileShareUrl = useMemo(
+    () => (employee ? getTeamMemberProfileShareUrl(employee, locale) : ''),
+    [employee, locale]
+  );
+
+  const shareMessage = useMemo(
+    () => (employee ? buildTeamMemberShareMessage(displayName, profileShareUrl) : ''),
+    [displayName, employee, profileShareUrl]
+  );
+
   if (!loading && (error || !employee)) {
     return (
       <>
@@ -165,7 +181,7 @@ export default function BarberDetailScreen() {
                   }
                 : undefined
             }>
-          <View onLayout={handlePinThresholdLayout}>
+          <View onLayout={handlePinThresholdLayout} className={BARBER_DETAIL_SECTION_SPACING}>
             <BarberIdentitySection
               employeeId={employee.id}
               displayName={displayName}
@@ -173,6 +189,7 @@ export default function BarberDetailScreen() {
               average={average}
               languages={employee.languages}
               shiftStatus={todayShiftStatus}
+              shareMessage={shareMessage}
               onScrollToReviews={scrollToReviews}
               t={t}
             />
@@ -218,11 +235,17 @@ export default function BarberDetailScreen() {
           <BarberReviewsSection
             reviews={reviews}
             hasReviewed={hasReviewed}
+            ownReviewIds={ownReviewIds}
             reviewParams={reviewParams}
-            countByRating={countByRating}
-            average={average}
             displayTotal={displayTotal}
             locale={locale}
+            showPagination={reviewsPagination.showPagination}
+            reviewsLoading={reviewsPagination.loading}
+            reviewsError={reviewsPagination.error}
+            canGoPrevious={reviewsPagination.canGoPrevious}
+            canGoNext={reviewsPagination.canGoNext}
+            onPrevious={reviewsPagination.goPrevious}
+            onNext={reviewsPagination.goNext}
             onLayout={(event: LayoutChangeEvent) => {
               reviewsSectionYRef.current = event.nativeEvent.layout.y;
             }}

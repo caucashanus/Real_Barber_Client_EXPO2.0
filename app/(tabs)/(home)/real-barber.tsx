@@ -13,7 +13,6 @@ import { useAuth } from '@/app/contexts/AuthContext';
 import { useBookings } from '@/app/contexts/BookingsBadgeContext';
 import { useTranslation } from '@/app/hooks/useTranslation';
 import Avatar from '@/components/Avatar';
-import { ClientCouponValidityPills } from '@/components/ClientCouponValidityPills';
 import { HomeRepeatBookingCard } from '@/components/HomeRepeatBookingCard';
 import { HomeSpotlightCard } from '@/components/HomeSpotlightCard';
 import Icon from '@/components/Icon';
@@ -169,7 +168,10 @@ export default function RealBarberHomeTab() {
 
   const onRefresh = useCallback(async () => {
     setRefreshing(true);
-    await Promise.allSettled([refreshBookings({ force: true }), loadPromoData()]);
+    await Promise.allSettled([
+      refreshBookings({ force: true }),
+      loadPromoData(),
+    ]);
     setRefreshing(false);
   }, [refreshBookings, loadPromoData]);
 

@@ -7,6 +7,7 @@ import VideoPlayer from '@/components/VideoPlayer';
 import ThemedText from '@/components/ThemedText';
 import Section from '@/components/layout/Section';
 import type { TranslationKey } from '@/locales';
+import { BARBER_DETAIL_SECTION_SPACING } from '@/constants/barberDetailLayout';
 
 interface BarberWorkSamplesSectionProps {
   media: TeamMemberMediaItem[];
@@ -56,7 +57,7 @@ export default function BarberWorkSamplesSection({
 
   if (embedded) {
     return (
-      <View className="mb-6">
+      <View className={BARBER_DETAIL_SECTION_SPACING}>
         <ThemedText className="mb-3 text-lg font-semibold">{t('barberWorkSamples')}</ThemedText>
         {gallery}
       </View>

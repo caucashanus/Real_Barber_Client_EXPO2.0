@@ -149,10 +149,83 @@ export function extractCountryFlagEmoji(label: string): string {
   return spaceIndex === -1 ? trimmed : trimmed.slice(0, spaceIndex);
 }
 
-export function getCountryCodeFlagEmoji(countryCode: string): string | null {
-  const option = COUNTRY_CODE_OPTIONS.find((row) => row.value === countryCode);
-  return option ? extractCountryFlagEmoji(option.label) : null;
+const ISO3_TO_ISO2: Record<string, string> = {
+  CZE: 'CZ',
+  SVK: 'SK',
+  POL: 'PL',
+  DEU: 'DE',
+  AUT: 'AT',
+  FRA: 'FR',
+  ITA: 'IT',
+  ESP: 'ES',
+  NLD: 'NL',
+  BEL: 'BE',
+  CHE: 'CH',
+  GBR: 'GB',
+  HUN: 'HU',
+  GRC: 'GR',
+  PRT: 'PT',
+  IRL: 'IE',
+  DNK: 'DK',
+  SWE: 'SE',
+  NOR: 'NO',
+  FIN: 'FI',
+  RUS: 'RU',
+  UKR: 'UA',
+  USA: 'US',
+  MEX: 'MX',
+  BRA: 'BR',
+  ARG: 'AR',
+  CHL: 'CL',
+  COL: 'CO',
+  VEN: 'VE',
+  PER: 'PE',
+  TUR: 'TR',
+  ISR: 'IL',
+  ARE: 'AE',
+  EGY: 'EG',
+  ZAF: 'ZA',
+  IND: 'IN',
+  CHN: 'CN',
+  JPN: 'JP',
+  KOR: 'KR',
+  MYS: 'MY',
+  SGP: 'SG',
+  THA: 'TH',
+  VNM: 'VN',
+  AUS: 'AU',
+  NZL: 'NZ',
+  NGA: 'NG',
+  KEN: 'KE',
+  MAR: 'MA',
+};
+
+export function isoAlpha2ToFlagEmoji(iso2: string): string | null {
+  const code = iso2.trim().toUpperCase();
+  if (!/^[A-Z]{2}$/.test(code)) return null;
+  return String.fromCodePoint(...code.split('').map((char) => 0x1f1e6 + char.charCodeAt(0) - 65));
 }
+
+export function getCountryCodeFlagEmoji(countryCode: string): string | null {
+  const index = COUNTRY_CODE_OPTIONS.findIndex((row) => row.value === countryCode);
+  if (index < 0) return null;
+
+  const iso3 = COUNTRY_OPTIONS[index]?.value;
+  const iso2 = iso3 ? ISO3_TO_ISO2[iso3] : null;
+  if (iso2) {
+    const generated = isoAlpha2ToFlagEmoji(iso2);
+    if (generated) return generated;
+  }
+
+  return extractCountryFlagEmoji(COUNTRY_CODE_OPTIONS[index].label);
+}
+
+/** ISO3 codes aligned with COUNTRY_OPTIONS / COUNTRY_CODE_OPTIONS rows. */
+const ISO3_TO_DIAL_CODE = COUNTRY_OPTIONS.reduce<Record<string, string>>((acc, row, index) => {
+  const dialCode = COUNTRY_CODE_OPTIONS[index]?.value;
+  if (dialCode) acc[row.value.toLowerCase()] = dialCode;
+  return acc;
+}, {});
 
 const LANGUAGE_TO_COUNTRY_CODE: Array<[string, string]> = [
   ['anglictina', '+44'],
@@ -195,8 +268,25 @@ const LANGUAGE_TO_COUNTRY_CODE: Array<[string, string]> = [
 ];
 
 export function getLanguageFlagEmoji(language: string): string | null {
-  const normalized = normalizeLanguageKey(language);
+  const trimmed = language.trim();
+  if (!trimmed) return null;
+
+  if (trimmed.startsWith('+')) {
+    return getCountryCodeFlagEmoji(trimmed);
+  }
+
+  const normalized = normalizeLanguageKey(trimmed);
   if (!normalized) return null;
+
+  if (normalized.length === 3 && ISO3_TO_DIAL_CODE[normalized]) {
+    return getCountryCodeFlagEmoji(ISO3_TO_DIAL_CODE[normalized]);
+  }
+
+  const langTag = normalized.split(/[-_]/)[0];
+  if (langTag && langTag !== normalized) {
+    const fromTag = getLanguageFlagEmoji(langTag);
+    if (fromTag) return fromTag;
+  }
 
   const sorted = [...LANGUAGE_TO_COUNTRY_CODE].sort((a, b) => b[0].length - a[0].length);
 
@@ -207,6 +297,12 @@ export function getLanguageFlagEmoji(language: string): string | null {
   for (const [key, countryCode] of sorted) {
     if (key.length >= 4 && normalized.includes(key)) {
       return getCountryCodeFlagEmoji(countryCode);
+    }
+  }
+
+  for (const option of COUNTRY_CODE_OPTIONS) {
+    if (normalizeLanguageKey(option.label) === normalized) {
+      return extractCountryFlagEmoji(option.label);
     }
   }
 

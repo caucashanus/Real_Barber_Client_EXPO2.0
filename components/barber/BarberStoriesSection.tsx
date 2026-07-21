@@ -6,6 +6,7 @@ import type { TeamMemberStory } from '@/api/publicTeamMember';
 import VideoPlayer from '@/components/VideoPlayer';
 import Section from '@/components/layout/Section';
 import type { TranslationKey } from '@/locales';
+import { BARBER_DETAIL_SECTION_SPACING } from '@/constants/barberDetailLayout';
 
 interface BarberStoriesSectionProps {
   stories: TeamMemberStory[];
@@ -16,7 +17,8 @@ export default function BarberStoriesSection({ stories, t }: BarberStoriesSectio
   if (stories.length === 0) return null;
 
   return (
-    <Section title={t('barberStories')} titleSize="lg" className="mb-6 mt-8">
+    <View className={BARBER_DETAIL_SECTION_SPACING}>
+      <Section title={t('barberStories')} titleSize="lg">
       <ScrollView
         horizontal
         showsHorizontalScrollIndicator={false}
@@ -39,5 +41,6 @@ export default function BarberStoriesSection({ stories, t }: BarberStoriesSectio
         ))}
       </ScrollView>
     </Section>
+    </View>
   );
 }

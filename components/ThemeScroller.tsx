@@ -15,6 +15,8 @@ interface ThemeScrollerProps extends ScrollViewProps {
   contentContainerStyle?: any;
   scrollEventThrottle?: number;
   headerSpace?: boolean;
+  /** Bottom spacer for tab bar clearance (default true). */
+  footerSpacer?: boolean;
 }
 
 // Use basic ScrollView instead of styled for better compatibility with Animated
@@ -28,6 +30,7 @@ const ThemedScroller = React.forwardRef<ScrollView, ThemeScrollerProps>(function
     contentContainerStyle,
     scrollEventThrottle = 16,
     headerSpace = false,
+    footerSpacer = true,
     ...props
   },
   ref
@@ -48,7 +51,7 @@ const ThemedScroller = React.forwardRef<ScrollView, ThemeScrollerProps>(function
       ]}
       {...props}>
       {children}
-      <View className="h-20 w-full" />
+      {footerSpacer ? <View className="h-20 w-full" /> : null}
     </StyledScrollView>
   );
 });

@@ -49,6 +49,12 @@ interface CardProps {
   rounded?: 'none' | 'sm' | 'md' | 'lg' | 'xl' | '2xl' | 'full';
   /** Renders to the right of the title (e.g. live indicator) */
   titleTrailing?: React.ReactNode;
+  /** Optional custom title row (replaces default title text). */
+  titleContent?: React.ReactNode;
+  /** Optional className for the title/description block under the image. */
+  titleSectionClassName?: string;
+  /** When true, only the image area is rendered (no title/description block). */
+  hideDetails?: boolean;
   /** Renders in top-left corner over image (same position as badge "New") */
   topLeftBadge?: React.ReactNode;
   /** Custom content for the pill under title (replaces price/rating/badgeSecondary when set) */
@@ -84,6 +90,9 @@ const Card: React.FC<CardProps> = ({
   rounded = 'lg',
   width = '100%',
   titleTrailing,
+  titleContent,
+  titleSectionClassName,
+  hideDetails = false,
   topLeftBadge,
   pillContent,
   descriptionAvatar,
@@ -223,18 +232,20 @@ const Card: React.FC<CardProps> = ({
           ) : null}
         </View>
 
-        {variant !== 'overlay' && (
-          <View className="w-full flex-1 py-2 ">
+        {variant !== 'overlay' && !hideDetails && (
+          <View className={`w-full flex-1 py-2 ${titleSectionClassName ?? ''}`}>
             <View className="flex-row items-center gap-1">
-              <ThemedText className="min-w-0 flex-1 text-sm font-medium" numberOfLines={1}>
-                {title}
-              </ThemedText>
+              {titleContent ?? (
+                <ThemedText className="min-w-0 flex-1 text-sm font-medium" numberOfLines={1}>
+                  {title}
+                </ThemedText>
+              )}
               {rating ? (
                 <View className="flex-row items-center rounded-full bg-light-secondary px-1.5 py-0.5 dark:bg-dark-secondary">
                   {renderRating()}
                 </View>
               ) : null}
-              {titleTrailing}
+              {!titleContent ? titleTrailing : null}
             </View>
 
             {description ? (

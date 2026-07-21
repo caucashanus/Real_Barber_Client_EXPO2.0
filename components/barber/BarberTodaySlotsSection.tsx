@@ -3,7 +3,7 @@ import { ActivityIndicator, View } from 'react-native';
 
 import type { EmployeeTodaySlot, TeamMemberPageBranch } from '@/api/publicTeamMember';
 import type { Locale } from '@/app/contexts/LanguageContext';
-import { Button } from '@/components/Button';
+import SlotTimePill from '@/components/SlotTimePill';
 import ThemedText from '@/components/ThemedText';
 import {
   getTeamMemberBranchName,
@@ -12,6 +12,7 @@ import {
 } from '@/utils/teamMemberPageHelpers';
 import { startBarberSlotHandoffBooking } from '@/utils/reservationSlotHandoff';
 import type { TranslationKey } from '@/locales';
+import { BARBER_DETAIL_SECTION_SPACING } from '@/constants/barberDetailLayout';
 
 interface BarberTodaySlotsSectionProps {
   employeeId: string;
@@ -50,7 +51,7 @@ export default function BarberTodaySlotsSection({
   const availabilityState = getTodayAvailabilityState(todaySlots, shiftStatus);
 
   return (
-    <View className="mb-6 rounded-2xl bg-light-secondary p-4 dark:bg-dark-secondary">
+    <View className={`${BARBER_DETAIL_SECTION_SPACING} rounded-2xl bg-light-secondary p-4 dark:bg-dark-secondary`}>
       <ThemedText className="mb-3 text-lg font-semibold">
         {todaySlots.length === 1
           ? t('barberNearestSlotTitle')
@@ -64,7 +65,7 @@ export default function BarberTodaySlotsSection({
       ) : null}
 
       {!loadingSlots && availabilityState === 'slots' ? (
-        <View className="flex-row flex-wrap gap-2">
+        <View className="flex-row flex-wrap items-start gap-2 self-start">
           {todaySlots.map((slot) => {
             const { branchName, branchAddress } = resolveBranchForSlot(
               branches,
@@ -72,13 +73,9 @@ export default function BarberTodaySlotsSection({
               locale
             );
             return (
-              <Button
+              <SlotTimePill
                 key={`${slot.date}-${slot.time}-${slot.branchId}`}
-                title={slot.time}
-                variant="outline"
-                size="small"
-                rounded="lg"
-                className="min-w-[72px] px-3"
+                label={slot.time}
                 onPress={() => {
                   startBarberSlotHandoffBooking({
                     employeeId,

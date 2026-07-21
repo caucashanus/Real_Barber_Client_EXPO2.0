@@ -1,37 +1,59 @@
+import { router } from 'expo-router';
 import React from 'react';
-import { View } from 'react-native';
+import { Pressable, View } from 'react-native';
 
 import type { TeamMemberPageReview } from '@/api/publicTeamMember';
 import Avatar from '@/components/Avatar';
 import ShowRating from '@/components/ShowRating';
 import ThemedText from '@/components/ThemedText';
-import { formatReviewDate } from '@/utils/productDetailHelpers';
+import type { TranslationKey } from '@/locales';
+import { formatReviewDate, normalizeReviewDisplayText } from '@/utils/productDetailHelpers';
 
 interface BarberPublicReviewCardProps {
   review: TeamMemberPageReview;
   locale: string;
+  isOwnReview?: boolean;
+  reviewParams?: string;
+  t: (key: TranslationKey) => string;
 }
 
-export default function BarberPublicReviewCard({ review, locale }: BarberPublicReviewCardProps) {
-  const text = review.text?.trim() ?? '';
-  const author = review.authorName?.trim() || '—';
+export default function BarberPublicReviewCard({
+  review,
+  locale,
+  isOwnReview = false,
+  reviewParams = '',
+  t,
+}: BarberPublicReviewCardProps) {
+  const text = normalizeReviewDisplayText(review.text);
+  const author = review.authorName?.trim() || t('productReviewAuthorAnonymous');
 
   return (
     <View className="w-[280px] rounded-lg bg-light-secondary p-4 dark:bg-dark-secondary">
-      <View className="mb-2 flex-row items-center">
-        <Avatar size="sm" src={review.authorAvatarUrl ?? undefined} name={author} className="mr-2" />
-        <View className="min-w-0 flex-1">
-          <ThemedText className="font-medium" numberOfLines={1}>
-            {author}
-          </ThemedText>
-          {review.createdAt ? (
-            <ThemedText className="text-xs text-light-subtext dark:text-dark-subtext">
-              {formatReviewDate(review.createdAt, locale)}
+      <View className="mb-2 flex-row items-center justify-between">
+        <View className="min-w-0 flex-1 flex-row items-center">
+          <Avatar size="sm" src={review.authorAvatarUrl ?? undefined} name={author} className="mr-2" />
+          <View className="min-w-0 flex-1">
+            <ThemedText className="font-medium" numberOfLines={1}>
+              {author}
             </ThemedText>
-          ) : null}
+            {review.createdAt ? (
+              <ThemedText className="text-xs text-light-subtext dark:text-dark-subtext">
+                {formatReviewDate(review.createdAt, locale)}
+              </ThemedText>
+            ) : null}
+          </View>
         </View>
-        <ShowRating rating={review.rating} size="sm" />
+        {isOwnReview && reviewParams ? (
+          <Pressable
+            onPress={() => router.push(`/screens/review?${reviewParams}` as never)}
+            className="ml-2 rounded-md bg-light-primary px-2 py-1 dark:bg-dark-primary">
+            <ThemedText className="text-xs font-medium">{t('barberUpdateReview')}</ThemedText>
+          </Pressable>
+        ) : (
+          <ShowRating rating={review.rating} size="sm" />
+        )}
       </View>
+      {isOwnReview ? <ShowRating rating={review.rating} size="sm" className="mb-2" /> : null}
       {text ? (
         <ThemedText className="text-sm leading-5 text-light-subtext dark:text-dark-subtext">
           {text}

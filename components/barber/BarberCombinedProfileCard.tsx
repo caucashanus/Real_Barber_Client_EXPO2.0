@@ -13,6 +13,7 @@ import BarberAvailabilitySection from '@/components/barber/BarberAvailabilitySec
 import BarberSkillsSection from '@/components/barber/BarberSkillsSection';
 import BarberWorkSamplesSection from '@/components/barber/BarberWorkSamplesSection';
 import type { TranslationKey } from '@/locales';
+import { BARBER_DETAIL_SECTION_SPACING } from '@/constants/barberDetailLayout';
 
 interface BarberCombinedProfileCardProps {
   employee: TeamMemberPageEmployee;
@@ -61,7 +62,7 @@ export default function BarberCombinedProfileCard({
     <View
       onLayout={onLayout}
       nativeID="dostupnost"
-      className="mb-6 mt-8 rounded-2xl bg-light-secondary p-4 dark:bg-dark-secondary">
+      className={`${BARBER_DETAIL_SECTION_SPACING} rounded-2xl bg-light-secondary p-4 dark:bg-dark-secondary`}>
       {showAbout ? <BarberAboutSection description={bio} embedded t={t} /> : null}
 
       {showSkills ? (

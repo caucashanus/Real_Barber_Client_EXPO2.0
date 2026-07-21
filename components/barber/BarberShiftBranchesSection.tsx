@@ -8,7 +8,8 @@ import Icon from '@/components/Icon';
 import ThemedText from '@/components/ThemedText';
 import type { Locale } from '@/app/contexts/LanguageContext';
 import type { TranslationKey } from '@/locales';
-import { getTeamMemberBranchName } from '@/utils/teamMemberPageHelpers';
+import { getTeamMemberBranchName, formatBranchAddressShort } from '@/utils/teamMemberPageHelpers';
+import { BARBER_DETAIL_SECTION_SPACING } from '@/constants/barberDetailLayout';
 
 interface BarberShiftBranchesSectionProps {
   branches: TeamMemberPageBranch[];
@@ -24,16 +25,19 @@ export default function BarberShiftBranchesSection({
   if (branches.length === 0) return null;
 
   return (
-    <View className="mb-6 mt-8 rounded-2xl bg-light-secondary p-4 dark:bg-dark-secondary">
+    <View className={`${BARBER_DETAIL_SECTION_SPACING} rounded-2xl bg-light-secondary p-4 dark:bg-dark-secondary`}>
       <ThemedText className="mb-3 text-lg font-semibold">
         {branches.length === 1 ? t('barberFindMeAtBranch') : t('barberFindMeAtBranches')}
       </ThemedText>
-      <View className="gap-3">
-        {branches.map((branch) => (
+      <View className="gap-4">
+        {branches.map((branch) => {
+          const addressLabel = formatBranchAddressShort(branch.address);
+
+          return (
           <Pressable
             key={branch.id}
             onPress={() => router.push(`/screens/branch-detail?id=${branch.id}`)}
-            className="flex-row items-center rounded-xl bg-light-primary p-3 dark:bg-dark-primary">
+            className="flex-row items-center active:opacity-70">
             {branch.imageUrl ? (
               <Image
                 source={{ uri: branch.imageUrl }}
@@ -41,23 +45,24 @@ export default function BarberShiftBranchesSection({
                 contentFit="cover"
               />
             ) : (
-              <View className="h-12 w-12 rounded-lg bg-light-secondary dark:bg-dark-secondary" />
+              <View className="h-12 w-12 rounded-lg bg-light-primary dark:bg-dark-primary" />
             )}
             <View className="ml-3 flex-1">
               <ThemedText className="font-medium">
                 {getTeamMemberBranchName(branch, locale)}
               </ThemedText>
-              {branch.address ? (
+              {addressLabel ? (
                 <ThemedText
                   className="text-xs text-light-subtext dark:text-dark-subtext"
                   numberOfLines={1}>
-                  {branch.address}
+                  {addressLabel}
                 </ThemedText>
               ) : null}
             </View>
             <Icon name="ChevronRight" size={20} className="opacity-60" />
           </Pressable>
-        ))}
+          );
+        })}
       </View>
     </View>
   );

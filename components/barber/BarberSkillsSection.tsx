@@ -8,6 +8,7 @@ import ThemedText from '@/components/ThemedText';
 import Section from '@/components/layout/Section';
 import type { TranslationKey } from '@/locales';
 import { pickTeamMemberLocalizedField } from '@/utils/teamMemberPageHelpers';
+import { BARBER_DETAIL_SECTION_SPACING } from '@/constants/barberDetailLayout';
 
 interface BarberSkillsSectionProps {
   employee: TeamMemberPageEmployee;
@@ -59,7 +60,7 @@ export default function BarberSkillsSection({
 
   if (embedded) {
     return (
-      <View className="mb-6">
+      <View className={BARBER_DETAIL_SECTION_SPACING}>
         <ThemedText className="mb-3 text-lg font-semibold">{sectionTitle}</ThemedText>
         {content}
       </View>

@@ -19,6 +19,26 @@ export function formatReviewDate(iso: string, locale: string): string {
   }
 }
 
+/** Public review `text` often repeats the same paragraph twice (description + positiveFeedback). */
+export function normalizeReviewDisplayText(raw: string | null | undefined): string {
+  const trimmed = raw?.trim() ?? '';
+  if (!trimmed) return '';
+
+  const blocks = trimmed
+    .split(/\n{2,}/)
+    .map((block) => block.trim())
+    .filter(Boolean);
+
+  if (blocks.length <= 1) return trimmed;
+
+  const uniqueBlocks: string[] = [];
+  for (const block of blocks) {
+    if (!uniqueBlocks.includes(block)) uniqueBlocks.push(block);
+  }
+
+  return uniqueBlocks.join('\n\n');
+}
+
 export function formatPurchaseDate(iso: string, locale: Locale): string {
   try {
     const d = new Date(iso);

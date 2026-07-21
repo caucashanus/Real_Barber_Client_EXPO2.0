@@ -149,13 +149,19 @@ export const Chip = ({
   if (href) {
     return (
       <Link href={href} asChild>
-        <TouchableOpacity activeOpacity={0.7}>{chipWrapper(chipContent)}</TouchableOpacity>
+        <TouchableOpacity activeOpacity={0.7} style={{ alignSelf: 'flex-start' }}>
+          {chipWrapper(chipContent)}
+        </TouchableOpacity>
       </Link>
     );
   }
 
   return (
-    <TouchableOpacity onPress={handlePress} activeOpacity={0.7} disabled={!onPress && !selectable}>
+    <TouchableOpacity
+      onPress={handlePress}
+      activeOpacity={0.7}
+      disabled={!onPress && !selectable}
+      style={{ alignSelf: 'flex-start' }}>
       {chipWrapper(chipContent)}
     </TouchableOpacity>
   );

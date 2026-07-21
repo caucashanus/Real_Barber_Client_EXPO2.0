@@ -236,6 +236,22 @@ export function getTeamMemberBranchName(branch: TeamMemberPageBranch, locale: Lo
   return pickTeamMemberLocalizedField(branch, 'name', locale) ?? branch.name ?? '—';
 }
 
+/** Branch label for barber detail — street + city, without PSČ. */
+export function formatBranchAddressShort(address: string | null | undefined): string | null {
+  const trimmed = address?.trim();
+  if (!trimmed) return null;
+
+  const withoutPostal = trimmed
+    .replace(/\b\d{3}\s?\d{2}\b/g, ' ')
+    .replace(/\s*,\s*,/g, ',')
+    .replace(/,\s*$/g, '')
+    .replace(/^\s*,\s*/g, '')
+    .replace(/\s+/g, ' ')
+    .trim();
+
+  return withoutPostal || trimmed;
+}
+
 export function getPragueTodayDateString(now = new Date()): string {
   const parts = new Intl.DateTimeFormat('en-CA', {
     timeZone: 'Europe/Prague',
@@ -299,6 +315,21 @@ export function buildBarberReviewParamsFromPage(employee: TeamMemberPageEmployee
   const employeeImageUrl = employee.avatarUrl ?? '';
   const name = employee.name ?? '';
   return `entityType=employee&entityId=${encodeURIComponent(employee.id)}&entityName=${encodeURIComponent(name)}${employeeImageUrl ? `&entityImage=${encodeURIComponent(employeeImageUrl)}` : ''}`;
+}
+
+export function getTeamMemberProfileShareUrl(
+  employee: TeamMemberPageEmployee,
+  locale: Locale
+): string {
+  const url = pickTeamMemberLocalizedField(employee, 'webUrl', locale);
+  if (url) {
+    return /^https?:\/\//i.test(url) ? url : `https://${url}`;
+  }
+  return `realbarber://screens/barber-detail?id=${encodeURIComponent(employee.id)}`;
+}
+
+export function buildTeamMemberShareMessage(displayName: string, profileUrl: string): string {
+  return `${displayName} — Real Barber\n${profileUrl}`;
 }
 
 export function hasSkillContent(employee: TeamMemberPageEmployee): boolean {

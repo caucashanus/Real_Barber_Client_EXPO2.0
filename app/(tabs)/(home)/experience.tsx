@@ -1,42 +1,27 @@
-import { useFocusEffect } from '@react-navigation/native';
-import React, { useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
-import { View, Animated, Pressable, ActivityIndicator } from 'react-native';
+import React, { useContext, useEffect, useMemo, useRef, useState } from 'react';
+import { View, Animated, Pressable } from 'react-native';
 import { ActionSheetRef } from 'react-native-actions-sheet';
 
 import { ScrollContext } from './_layout';
 
 import { getEmployees, type Employee } from '@/api/employees';
-import { getFavorites } from '@/api/favorites';
 import { getClientReviewsList, type ClientReviewListItem } from '@/api/reviews';
 import { useAuth } from '@/app/contexts/AuthContext';
-import { useFavoritesSync } from '@/app/contexts/FavoritesSyncContext';
+import { useHomeTodayTeam } from '@/app/hooks/useHomeTodayTeam';
 import { useTranslation } from '@/app/hooks/useTranslation';
 import { CLIENT_APP_V1_ENABLED } from '@/constants/clientAppApi';
 import ActionSheetThemed from '@/components/ActionSheetThemed';
 import AnimatedView from '@/components/AnimatedView';
-import { Button } from '@/components/Button';
 import Card from '@/components/Card';
 import { CardScroller } from '@/components/CardScroller';
+import HomeTodayTeamSection from '@/components/home/HomeTodayTeamSection';
 import Icon from '@/components/Icon';
-import LiveIndicator from '@/components/LiveIndicator';
 import ThemeScroller from '@/components/ThemeScroller';
 import ThemedText from '@/components/ThemedText';
 import Section from '@/components/layout/Section';
 import type { TranslationKey } from '@/locales';
-import { shouldStaleRefresh } from '@/utils/staleRefresh';
 
 const NEW_BARBERS_DAYS = 30;
-
-/** API uses Cyrillic day names: Sun, Mon, Tue, Wed, Thu, Fri, Sat */
-const WEEKDAY_API_KEYS = [
-  'Воскресенье', // 0 Sunday
-  'Понедельник', // 1 Monday
-  'Вторник', // 2 Tuesday
-  'Среда', // 3 Wednesday
-  'Четверг', // 4 Thursday
-  'Пятница', // 5 Friday
-  'Суббота', // 6 Saturday
-];
 
 function isEmployeeNew(emp: Employee): boolean {
   const createdAt = emp.createdAt;
@@ -46,27 +31,6 @@ function isEmployeeNew(emp: Employee): boolean {
   const now = Date.now();
   const limitMs = NEW_BARBERS_DAYS * 24 * 60 * 60 * 1000;
   return now - created <= limitMs;
-}
-
-function hasShiftToday(emp: Employee): boolean {
-  if (typeof emp.hasShiftToday === 'boolean') return emp.hasShiftToday;
-  const ws = emp.workSchedule as
-    | { weeklySchedule?: Record<string, { validFrom?: string; validUntil?: string }[]> }
-    | undefined;
-  const weekly = ws?.weeklySchedule;
-  if (!weekly || typeof weekly !== 'object') return false;
-  const dayIndex = new Date().getDay();
-  const dayKey = WEEKDAY_API_KEYS[dayIndex];
-  const slots = weekly[dayKey];
-  if (!Array.isArray(slots) || slots.length === 0) return false;
-  const today = new Date();
-  const todayStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
-  for (const slot of slots) {
-    const from = slot.validFrom ? slot.validFrom.slice(0, 10) : '';
-    const until = slot.validUntil ? slot.validUntil.slice(0, 10) : '';
-    if (from && until && todayStr >= from && todayStr <= until) return true;
-  }
-  return false;
 }
 
 function shuffleArray<T>(arr: T[]): T[] {
@@ -80,25 +44,24 @@ function shuffleArray<T>(arr: T[]): T[] {
 
 const SECTION_TITLE_KEYS: Record<string, string> = {
   'New barbers': 'experienceNewBarbers',
-  'Popular barbers available today': 'experiencePopularToday',
   'All barbers': 'experienceAllBarbers',
-  'My favorite barbers': 'experienceMyFavorites',
   'Best rated barbers': 'experienceBestRated',
 };
 
 const ExperienceScreen = () => {
   const scrollY = useContext(ScrollContext);
   const { apiToken } = useAuth();
-  const { favoritesVersion } = useFavoritesSync();
-  const { t } = useTranslation();
+  const { t, locale } = useTranslation();
+  const {
+    cards: todayTeamCards,
+    loading: todayTeamLoading,
+    refreshingAvailability: todayTeamRefreshingAvailability,
+    error: todayTeamError,
+  } = useHomeTodayTeam();
   const [employees, setEmployees] = useState<Employee[]>([]);
   const [employeeReviewsList, setEmployeeReviewsList] = useState<ClientReviewListItem[]>([]);
   const [employeesLoading, setEmployeesLoading] = useState(false);
   const [employeesError, setEmployeesError] = useState<string | null>(null);
-  const [favoriteEmployeeIds, setFavoriteEmployeeIds] = useState<string[]>([]);
-  const lastFavoritesFetchRef = useRef(0);
-  const lastFavoritesVersionRef = useRef(favoritesVersion);
-  const favoritesInflightRef = useRef<Promise<void> | null>(null);
 
   useEffect(() => {
     if (!apiToken) return;
@@ -121,55 +84,13 @@ const ExperienceScreen = () => {
       .finally(() => setEmployeesLoading(false));
   }, [apiToken]);
 
-  const loadFavoriteEmployees = useCallback(
-    async (options?: { force?: boolean }) => {
-      if (!apiToken) {
-        setFavoriteEmployeeIds([]);
-        lastFavoritesFetchRef.current = 0;
-        return;
-      }
-
-      const versionChanged = lastFavoritesVersionRef.current !== favoritesVersion;
-      lastFavoritesVersionRef.current = favoritesVersion;
-      const force = options?.force || versionChanged;
-      if (!shouldStaleRefresh(lastFavoritesFetchRef.current, { force })) return;
-      if (favoritesInflightRef.current) return favoritesInflightRef.current;
-
-      favoritesInflightRef.current = getFavorites(apiToken, { entityType: 'employee' })
-        .then((list) => {
-          setFavoriteEmployeeIds(list.map((f) => f.entityId));
-          lastFavoritesFetchRef.current = Date.now();
-        })
-        .catch(() => setFavoriteEmployeeIds([]))
-        .finally(() => {
-          favoritesInflightRef.current = null;
-        });
-
-      return favoritesInflightRef.current;
-    },
-    [apiToken, favoritesVersion]
-  );
-
-  useFocusEffect(
-    useCallback(() => {
-      void loadFavoriteEmployees();
-    }, [loadFavoriteEmployees])
-  );
-
   const newBarbers = employees.filter(isEmployeeNew).sort((a, b) => {
     const ta = a.createdAt ? new Date(a.createdAt as string).getTime() : 0;
     const tb = b.createdAt ? new Date(b.createdAt as string).getTime() : 0;
     return tb - ta;
   });
 
-  const barbersAvailableToday = employees.filter(hasShiftToday);
-
   const allBarbersShuffled = useMemo(() => shuffleArray(employees), [employees]);
-
-  const favoriteBarbers = useMemo(
-    () => employees.filter((emp) => favoriteEmployeeIds.includes(emp.id)),
-    [employees, favoriteEmployeeIds]
-  );
 
   const { bestRatedBarbers, employeeAverageRating } = useMemo(() => {
     if (CLIENT_APP_V1_ENABLED) {
@@ -209,35 +130,6 @@ const ExperienceScreen = () => {
   const newBarbersInfoSheetRef = useRef<ActionSheetRef>(null);
 
   const sections = [
-    {
-      title: 'Popular barbers available today',
-      experiences: [
-        {
-          title: 'Street Art Walking Tour',
-          image: 'https://images.unsplash.com/photo-1503410781609-75b1d892dd28?q=80&w=400',
-          price: '$35',
-          rating: 4.9,
-        },
-        {
-          title: 'Craft Beer Experience',
-          image: 'https://images.unsplash.com/photo-1584225064785-c62a8b43d148?q=80&w=400',
-          price: '$55',
-          rating: 4.7,
-        },
-        {
-          title: 'DUMBO Photo Tour',
-          image: 'https://images.unsplash.com/photo-1520190282873-afe1285c9a2a?q=80&w=400',
-          price: '$40',
-          rating: 4.8,
-        },
-        {
-          title: 'Williamsburg Food Scene',
-          image: 'https://images.unsplash.com/photo-1565958011703-44f9829ba187?q=80&w=400',
-          price: '$70',
-          rating: 4.6,
-        },
-      ],
-    },
     {
       title: 'New barbers',
       experiences: [
@@ -332,48 +224,128 @@ const ExperienceScreen = () => {
         },
       ],
     },
-    {
-      title: 'My favorite barbers',
-      experiences: [
-        {
-          title: 'Sunset Sail Experience',
-          image:
-            'https://images.pexels.com/photos/3346227/pexels-photo-3346227.jpeg?auto=compress&cs=tinysrgb&w=1200',
-          price: '$95',
-          rating: 4.9,
-        },
-        {
-          title: 'Helicopter City Tour',
-          image: 'https://images.unsplash.com/photo-1506966953602-c20cc11f75e3?q=80&w=400',
-          price: '$299',
-          rating: 4.8,
-        },
-        {
-          title: 'Secret Speakeasy Tour',
-          image: 'https://images.unsplash.com/photo-1470337458703-46ad1756a187?q=80&w=400',
-          price: '$85',
-          rating: 4.7,
-        },
-        {
-          title: 'Urban Photography',
-          image: 'https://images.unsplash.com/photo-1485871981521-5b1fd3805eee?q=80&w=400',
-          price: '$65',
-          rating: 4.8,
-        },
-      ],
-    },
   ];
 
-  if (employeesLoading) {
-    return (
-      <View className="flex-1 items-center justify-center bg-light-primary dark:bg-dark-primary">
-        <ActivityIndicator size="large" />
-        <ThemedText className="mt-2 text-light-subtext dark:text-dark-subtext">
-          {t('commonLoading')}
-        </ThemedText>
-      </View>
-    );
-  }
+  const visibleSections = sections.filter((section) => {
+    if (section.title === 'New barbers') return newBarbers.length > 0 || employeesLoading;
+    if (section.title === 'Best rated barbers')
+      return bestRatedBarbers.length > 0 || employeesLoading;
+    return true;
+  });
+  const leadingSections = visibleSections.slice(0, -1);
+  const lastSection = visibleSections.at(-1);
+
+  const renderBarberSectionCards = (section: (typeof sections)[number]) => {
+    if (section.title === 'New barbers') {
+      return (
+        <>
+          {employeesLoading && (
+            <ThemedText className="py-4 text-light-subtext dark:text-dark-subtext">
+              {t('commonLoading')}
+            </ThemedText>
+          )}
+          {employeesError && (
+            <ThemedText className="py-4 text-red-500 dark:text-red-400">{employeesError}</ThemedText>
+          )}
+          {!employeesLoading &&
+            !employeesError &&
+            newBarbers.map((emp) => (
+              <Card
+                key={emp.id}
+                title={emp.name}
+                rounded="2xl"
+                hasFavorite
+                favoriteEntityType="employee"
+                favoriteEntityId={emp.id}
+                href={`/screens/barber-detail?id=${emp.id}`}
+                price=""
+                width={160}
+                imageHeight={160}
+                image={emp.avatarUrl ?? require('@/assets/img/barbers.png')}
+                badge={t('experienceNewBarbersBadge')}
+              />
+            ))}
+        </>
+      );
+    }
+
+    if (section.title === 'All barbers') {
+      return (
+        <>
+          {employeesLoading && (
+            <ThemedText className="py-4 text-light-subtext dark:text-dark-subtext">
+              {t('commonLoading')}
+            </ThemedText>
+          )}
+          {employeesError && (
+            <ThemedText className="py-4 text-red-500 dark:text-red-400">{employeesError}</ThemedText>
+          )}
+          {!employeesLoading &&
+            !employeesError &&
+            allBarbersShuffled.map((emp) => (
+              <Card
+                key={emp.id}
+                title={emp.name}
+                rounded="2xl"
+                hasFavorite
+                favoriteEntityType="employee"
+                favoriteEntityId={emp.id}
+                href={`/screens/barber-detail?id=${emp.id}`}
+                price=""
+                width={160}
+                imageHeight={160}
+                image={emp.avatarUrl ?? require('@/assets/img/barbers.png')}
+              />
+            ))}
+        </>
+      );
+    }
+
+    if (section.title === 'Best rated barbers') {
+      return (
+        <>
+          {employeesLoading && (
+            <ThemedText className="py-4 text-light-subtext dark:text-dark-subtext">
+              {t('commonLoading')}
+            </ThemedText>
+          )}
+          {employeesError && (
+            <ThemedText className="py-4 text-red-500 dark:text-red-400">{employeesError}</ThemedText>
+          )}
+          {!employeesLoading &&
+            !employeesError &&
+            bestRatedBarbers.map((emp) => (
+              <Card
+                key={emp.id}
+                title={emp.name}
+                rounded="2xl"
+                hasFavorite
+                favoriteEntityType="employee"
+                favoriteEntityId={emp.id}
+                href={`/screens/barber-detail?id=${emp.id}`}
+                price=""
+                rating={employeeAverageRating[emp.id]}
+                width={160}
+                imageHeight={160}
+                image={emp.avatarUrl ?? require('@/assets/img/barbers.png')}
+              />
+            ))}
+        </>
+      );
+    }
+
+    return null;
+  };
+
+  const renderBarberSectionTitleTrailing = (sectionTitle: string) =>
+    sectionTitle === 'New barbers' ? (
+      <Pressable
+        onPress={() => newBarbersInfoSheetRef.current?.show()}
+        hitSlop={8}
+        className="p-1">
+        <Icon name="Info" size={18} className="text-light-subtext dark:text-dark-subtext" />
+      </Pressable>
+    ) : undefined;
 
   return (
     <>
@@ -383,240 +355,47 @@ const ExperienceScreen = () => {
         })}
         scrollEventThrottle={16}>
         <AnimatedView animation="scaleIn" className="mt-4 flex-1">
-          {sections
-            .filter((section) => {
-              if (section.title === 'New barbers') return newBarbers.length > 0 || employeesLoading;
-              if (section.title === 'Popular barbers available today')
-                return barbersAvailableToday.length > 0 || employeesLoading;
-              if (section.title === 'My favorite barbers')
-                return favoriteBarbers.length > 0 || employeesLoading;
-              if (section.title === 'Best rated barbers')
-                return bestRatedBarbers.length > 0 || employeesLoading;
-              return true;
-            })
-            .map((section, index) => (
-              <Section
-                key={`barbers-section-${index}`}
-                title={
-                  SECTION_TITLE_KEYS[section.title]
-                    ? t(SECTION_TITLE_KEYS[section.title] as TranslationKey)
-                    : section.title
-                }
-                titleSize="lg"
-                titleTrailing={
-                  section.title === 'New barbers' ? (
-                    <Pressable
-                      onPress={() => newBarbersInfoSheetRef.current?.show()}
-                      hitSlop={8}
-                      className="p-1">
-                      <Icon
-                        name="Info"
-                        size={18}
-                        className="text-light-subtext dark:text-dark-subtext"
-                      />
-                    </Pressable>
-                  ) : section.title === 'Popular barbers available today' ? (
-                    <Button
-                      title={t('experienceSchedule')}
-                      size="small"
-                      variant="outline"
-                      rounded="lg"
-                      className="ml-auto px-3 py-1.5"
-                      textClassName="text-xs"
-                      href="/screens/schedule"
-                    />
-                  ) : undefined
-                }
-                link={
-                  section.title === 'All barbers' ||
-                  section.title === 'New barbers' ||
-                  section.title === 'Popular barbers available today' ||
-                  section.title === 'Best rated barbers'
-                    ? undefined
-                    : '/screens/map'
-                }
-                linkText={
-                  section.title === 'All barbers' ||
-                  section.title === 'New barbers' ||
-                  section.title === 'Popular barbers available today' ||
-                  section.title === 'Best rated barbers'
-                    ? undefined
-                    : t('commonViewAll')
-                }>
-                <CardScroller space={15} className="mt-1.5 pb-4">
-                  {section.title === 'New barbers' ? (
-                    <>
-                      {employeesLoading && (
-                        <ThemedText className="py-4 text-light-subtext dark:text-dark-subtext">
-                          {t('commonLoading')}
-                        </ThemedText>
-                      )}
-                      {employeesError && (
-                        <ThemedText className="py-4 text-red-500 dark:text-red-400">
-                          {employeesError}
-                        </ThemedText>
-                      )}
-                      {!employeesLoading &&
-                        !employeesError &&
-                        newBarbers.map((emp) => (
-                          <Card
-                            key={emp.id}
-                            title={emp.name}
-                            rounded="2xl"
-                            hasFavorite
-                            favoriteEntityType="employee"
-                            favoriteEntityId={emp.id}
-                            href={`/screens/barber-detail?id=${emp.id}`}
-                            price=""
-                            width={160}
-                            imageHeight={160}
-                            image={emp.avatarUrl ?? require('@/assets/img/barbers.png')}
-                            badge={t('experienceNewBarbersBadge')}
-                          />
-                        ))}
-                    </>
-                  ) : section.title === 'Popular barbers available today' ? (
-                    <>
-                      {employeesLoading && (
-                        <ThemedText className="py-4 text-light-subtext dark:text-dark-subtext">
-                          {t('commonLoading')}
-                        </ThemedText>
-                      )}
-                      {employeesError && (
-                        <ThemedText className="py-4 text-red-500 dark:text-red-400">
-                          {employeesError}
-                        </ThemedText>
-                      )}
-                      {!employeesLoading &&
-                        !employeesError &&
-                        barbersAvailableToday.map((emp) => (
-                          <Card
-                            key={emp.id}
-                            title={emp.name}
-                            topLeftBadge={<LiveIndicator />}
-                            rounded="2xl"
-                            hasFavorite
-                            favoriteEntityType="employee"
-                            favoriteEntityId={emp.id}
-                            href={`/screens/barber-detail?id=${emp.id}`}
-                            price=""
-                            width={160}
-                            imageHeight={160}
-                            image={emp.avatarUrl ?? require('@/assets/img/barbers.png')}
-                          />
-                        ))}
-                    </>
-                  ) : section.title === 'All barbers' ? (
-                    <>
-                      {employeesLoading && (
-                        <ThemedText className="py-4 text-light-subtext dark:text-dark-subtext">
-                          {t('commonLoading')}
-                        </ThemedText>
-                      )}
-                      {employeesError && (
-                        <ThemedText className="py-4 text-red-500 dark:text-red-400">
-                          {employeesError}
-                        </ThemedText>
-                      )}
-                      {!employeesLoading &&
-                        !employeesError &&
-                        allBarbersShuffled.map((emp) => (
-                          <Card
-                            key={emp.id}
-                            title={emp.name}
-                            rounded="2xl"
-                            hasFavorite
-                            favoriteEntityType="employee"
-                            favoriteEntityId={emp.id}
-                            href={`/screens/barber-detail?id=${emp.id}`}
-                            price=""
-                            width={160}
-                            imageHeight={160}
-                            image={emp.avatarUrl ?? require('@/assets/img/barbers.png')}
-                          />
-                        ))}
-                    </>
-                  ) : section.title === 'My favorite barbers' ? (
-                    <>
-                      {employeesLoading && (
-                        <ThemedText className="py-4 text-light-subtext dark:text-dark-subtext">
-                          {t('commonLoading')}
-                        </ThemedText>
-                      )}
-                      {employeesError && (
-                        <ThemedText className="py-4 text-red-500 dark:text-red-400">
-                          {employeesError}
-                        </ThemedText>
-                      )}
-                      {!employeesLoading &&
-                        !employeesError &&
-                        favoriteBarbers.map((emp) => (
-                          <Card
-                            key={emp.id}
-                            title={emp.name}
-                            rounded="2xl"
-                            hasFavorite
-                            favoriteEntityType="employee"
-                            favoriteEntityId={emp.id}
-                            href={`/screens/barber-detail?id=${emp.id}`}
-                            price=""
-                            width={160}
-                            imageHeight={160}
-                            image={emp.avatarUrl ?? require('@/assets/img/barbers.png')}
-                          />
-                        ))}
-                    </>
-                  ) : section.title === 'Best rated barbers' ? (
-                    <>
-                      {employeesLoading && (
-                        <ThemedText className="py-4 text-light-subtext dark:text-dark-subtext">
-                          {t('commonLoading')}
-                        </ThemedText>
-                      )}
-                      {employeesError && (
-                        <ThemedText className="py-4 text-red-500 dark:text-red-400">
-                          {employeesError}
-                        </ThemedText>
-                      )}
-                      {!employeesLoading &&
-                        !employeesError &&
-                        bestRatedBarbers.map((emp) => (
-                          <Card
-                            key={emp.id}
-                            title={emp.name}
-                            rounded="2xl"
-                            hasFavorite
-                            favoriteEntityType="employee"
-                            favoriteEntityId={emp.id}
-                            href={`/screens/barber-detail?id=${emp.id}`}
-                            price=""
-                            rating={employeeAverageRating[emp.id]}
-                            width={160}
-                            imageHeight={160}
-                            image={emp.avatarUrl ?? require('@/assets/img/barbers.png')}
-                          />
-                        ))}
-                    </>
-                  ) : (
-                    section.experiences.map((experience, propIndex) => (
-                      <Card
-                        key={`experience-${index}-${propIndex}`}
-                        title={experience.title}
-                        rounded="2xl"
-                        hasFavorite
-                        rating={experience.rating}
-                        href="/screens/experience-detail"
-                        price={experience.price}
-                        width={160}
-                        imageHeight={160}
-                        image={experience.image}
-                        badge={experience.badge}
-                      />
-                    ))
-                  )}
-                </CardScroller>
-              </Section>
-            ))}
+          <HomeTodayTeamSection
+            cards={todayTeamCards}
+            loading={todayTeamLoading}
+            refreshingAvailability={todayTeamRefreshingAvailability}
+            error={todayTeamError}
+            locale={locale}
+            t={t}
+          />
+
+          {leadingSections.map((section) => (
+            <Section
+              key={section.title}
+              className="mt-6"
+              title={
+                SECTION_TITLE_KEYS[section.title]
+                  ? t(SECTION_TITLE_KEYS[section.title] as TranslationKey)
+                  : section.title
+              }
+              titleSize="lg"
+              titleTrailing={renderBarberSectionTitleTrailing(section.title)}>
+              <CardScroller space={15} className="mt-1.5 pb-4">
+                {renderBarberSectionCards(section)}
+              </CardScroller>
+            </Section>
+          ))}
+
+          {lastSection ? (
+            <Section
+              title={
+                SECTION_TITLE_KEYS[lastSection.title]
+                  ? t(SECTION_TITLE_KEYS[lastSection.title] as TranslationKey)
+                  : lastSection.title
+              }
+              titleSize="lg"
+              className="mt-6"
+              titleTrailing={renderBarberSectionTitleTrailing(lastSection.title)}>
+              <CardScroller space={15} className="mt-1.5 pb-4">
+                {renderBarberSectionCards(lastSection)}
+              </CardScroller>
+            </Section>
+          ) : null}
         </AnimatedView>
       </ThemeScroller>
 
