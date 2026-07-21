@@ -25,6 +25,8 @@ interface SectionProps {
   linkClassName?: string;
   /** Renders next to the title on the same row (e.g. info icon). */
   titleTrailing?: React.ReactNode;
+  /** `inline` = hned vedle nadpisu; `end` = stejný řádek, zarovnáno doprava. */
+  titleTrailingAlign?: 'inline' | 'end';
 }
 
 export const Section: React.FC<SectionProps> = ({
@@ -43,6 +45,7 @@ export const Section: React.FC<SectionProps> = ({
   linkText,
   linkClassName = '',
   titleTrailing,
+  titleTrailingAlign = 'inline',
 }) => {
   const getPaddingClass = () => {
     switch (padding) {
@@ -113,12 +116,16 @@ export const Section: React.FC<SectionProps> = ({
                 {title && (
                   <View
                     className={`w-full flex-row items-center ${
-                      titleAlign === 'right' ? 'justify-end' : 'justify-start'
-                    }${titleTrailing ? ' gap-2' : ''}`}>
+                      titleTrailing && titleTrailingAlign === 'end'
+                        ? 'justify-between'
+                        : titleAlign === 'right'
+                          ? 'justify-end'
+                          : 'justify-start'
+                    }${titleTrailing && titleTrailingAlign === 'inline' ? ' gap-2' : ''}`}>
                     <ThemedText
                       className={`${getTitleClass()} font-semibold${
                         titleAlign === 'right' ? ' text-right' : ''
-                      }`}>
+                      }${titleTrailing && titleTrailingAlign === 'end' ? ' shrink' : ''}`}>
                       {title}
                     </ThemedText>
                     {titleTrailing}

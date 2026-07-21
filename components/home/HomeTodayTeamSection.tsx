@@ -3,11 +3,11 @@ import React, { useCallback, useRef, useState } from 'react';
 import { ActivityIndicator, Pressable, View } from 'react-native';
 
 import type { HomeTodayTeamCardModel } from '@/utils/homeTodayTeamHelpers';
+import AppButton from '@/components/AppButton';
 import Card from '@/components/Card';
 import { CardScroller } from '@/components/CardScroller';
 import LiveIndicator from '@/components/LiveIndicator';
 import SlotTimePill from '@/components/SlotTimePill';
-import { Chip } from '@/components/Chip';
 import HomeTodayTeamWaitlistSheet, {
   type HomeTodayTeamWaitlistSheetHandle,
 } from '@/components/home/HomeTodayTeamWaitlistSheet';
@@ -24,7 +24,8 @@ import { startBarberSlotHandoffBooking } from '@/utils/reservationSlotHandoff';
 
 const TODAY_TEAM_CARD_WIDTH = 160;
 const TODAY_TEAM_IMAGE_HEIGHT = 160;
-const CARD_TEXT_ROW_GAP = 2;
+const CARD_TEXT_ROW_GAP_CLASS = 'w-full flex-col gap-0.5';
+const CARD_SLOT_BUTTON_SPACING_CLASS = 'mr-1.5 mb-1';
 
 interface HomeTodayTeamSectionProps {
   cards: HomeTodayTeamCardModel[];
@@ -35,7 +36,55 @@ interface HomeTodayTeamSectionProps {
   t: (key: TranslationKey) => string;
 }
 
-function renderHomeTodayTeamCardFooterRows({
+function renderHomeTodayTeamSlotButtons({
+  card,
+  locale,
+  t,
+}: {
+  card: HomeTodayTeamCardModel;
+  locale: Locale;
+  t: (key: TranslationKey) => string;
+}) {
+  if (card.footer.kind !== 'slots') return null;
+
+  return (
+    <View className="w-full flex-row flex-wrap items-start justify-start">
+      {card.footer.slots.map((slot) => {
+        const { branchName, branchAddress } = resolveHomeTodaySlotBranch(
+          card.branches,
+          slot.branchId,
+          locale
+        );
+        return (
+          <SlotTimePill
+            key={`${slot.date}-${slot.time}-${slot.branchId}`}
+            className={CARD_SLOT_BUTTON_SPACING_CLASS}
+            label={slot.time}
+            onPress={() => {
+              startBarberSlotHandoffBooking({
+                employeeId: card.id,
+                employeeName: card.name,
+                branchId: slot.branchId,
+                branchName,
+                branchAddress,
+                date: slot.date,
+                slotStart: slot.time,
+                slotEnd: slot.endTime,
+              }).catch(() => {});
+            }}
+          />
+        );
+      })}
+      <SlotTimePill
+        className={CARD_SLOT_BUTTON_SPACING_CLASS}
+        label={t('homeTodayTeamMoreSlots')}
+        onPress={() => router.push(`/screens/barber-detail?id=${card.id}`)}
+      />
+    </View>
+  );
+}
+
+function renderHomeTodayTeamCardFooter({
   card,
   locale,
   t,
@@ -47,84 +96,42 @@ function renderHomeTodayTeamCardFooterRows({
   t: (key: TranslationKey) => string;
   isWaitlistJoined: boolean;
   onOpenWaitlist: (card: HomeTodayTeamCardModel) => void;
-}): React.ReactNode[] {
+}): React.ReactNode {
   const { footer } = card;
   const footerTextClassName = 'text-xs leading-4 text-light-subtext dark:text-dark-subtext';
 
-  if (footer.kind === 'hidden') return [];
+  if (footer.kind === 'hidden') return null;
 
   if (footer.kind === 'waitlist') {
-    const rows: React.ReactNode[] = [
-      <ThemedText key="waitlist-hint" className={footerTextClassName}>
-        {isWaitlistJoined
-          ? t('homeTodayTeamWaitlistJoined')
-          : t('homeTodayTeamWaitlistHint')}
-      </ThemedText>,
-    ];
-
-    if (!isWaitlistJoined) {
-      rows.push(
-        <View key="waitlist-action" className="self-start">
-          <Chip
-            label={t('homeTodayTeamWaitlistJoin')}
+    return (
+      <View className={CARD_TEXT_ROW_GAP_CLASS}>
+        <ThemedText className={footerTextClassName}>
+          {isWaitlistJoined
+            ? t('homeTodayTeamWaitlistJoined')
+            : t('homeTodayTeamWaitlistHint')}
+        </ThemedText>
+        {!isWaitlistJoined ? (
+          <AppButton
+            variant="outline"
             size="xs"
-            rounded="lg"
+            title={t('homeTodayTeamWaitlistJoin')}
             onPress={() => onOpenWaitlist(card)}
+            className="self-start"
           />
-        </View>
-      );
-    }
-
-    return rows;
+        ) : null}
+      </View>
+    );
   }
 
   if (footer.kind === 'slots') {
-    return [
-      <ThemedText key="slots-hint" className={footerTextClassName}>
-        {footer.hint}
-      </ThemedText>,
-      <View key="slots-actions" className="flex-row flex-wrap items-start self-start">
-        {footer.slots.map((slot, index) => {
-          const { branchName, branchAddress } = resolveHomeTodaySlotBranch(
-            card.branches,
-            slot.branchId,
-            locale
-          );
-          return (
-            <View key={`${slot.date}-${slot.time}-${slot.branchId}`} className={index > 0 ? 'ml-1' : ''}>
-              <SlotTimePill
-                label={slot.time}
-                onPress={() => {
-                  startBarberSlotHandoffBooking({
-                    employeeId: card.id,
-                    employeeName: card.name,
-                    branchId: slot.branchId,
-                    branchName,
-                    branchAddress,
-                    date: slot.date,
-                    slotStart: slot.time,
-                    slotEnd: slot.endTime,
-                  }).catch(() => {});
-                }}
-              />
-            </View>
-          );
-        })}
-        <View className="ml-1">
-          <SlotTimePill
-            label={t('homeTodayTeamMoreSlots')}
-            onPress={() => router.push(`/screens/barber-detail?id=${card.id}`)}
-          />
-        </View>
-      </View>,
-    ];
+    return null;
   }
 
-  return [
-    <ThemedText key="footer-text" className={footerTextClassName}>
+  return (
+    <ThemedText className={footerTextClassName}>
       {footer.text}
-    </ThemedText>,
-  ];
+    </ThemedText>
+  );
 }
 
 function HomeTodayTeamScrollerCard({
@@ -157,9 +164,9 @@ function HomeTodayTeamScrollerCard({
 
       <Pressable
         onPress={() => router.push(`/screens/barber-detail?id=${card.id}`)}
-        className="pt-2">
-        <View style={{ gap: CARD_TEXT_ROW_GAP }}>
-          <View className="flex-row items-center">
+        className="w-full pt-2">
+        <View className={CARD_TEXT_ROW_GAP_CLASS}>
+          <View className="w-full flex-row items-center">
             <ThemedText className="shrink text-sm font-medium leading-4" numberOfLines={1}>
               {card.name}
             </ThemedText>
@@ -172,19 +179,29 @@ function HomeTodayTeamScrollerCard({
 
           {card.shiftStatusLabel ? (
             <ThemedText
-              className="text-xs leading-4 text-gray-500 dark:text-gray-300"
+              className="w-full text-xs leading-4 text-gray-500 dark:text-gray-300"
               numberOfLines={1}>
               {card.shiftStatusLabel}
             </ThemedText>
           ) : null}
 
-          {renderHomeTodayTeamCardFooterRows({
-            card,
-            locale,
-            t,
-            isWaitlistJoined,
-            onOpenWaitlist,
-          })}
+          {card.footer.kind === 'slots' ? (
+            <ThemedText className="w-full text-xs leading-4 text-light-subtext dark:text-dark-subtext">
+              {card.footer.hint}
+            </ThemedText>
+          ) : null}
+
+          {card.footer.kind === 'slots' ? renderHomeTodayTeamSlotButtons({ card, locale, t }) : null}
+
+          {card.footer.kind !== 'slots'
+            ? renderHomeTodayTeamCardFooter({
+                card,
+                locale,
+                t,
+                isWaitlistJoined,
+                onOpenWaitlist,
+              })
+            : null}
         </View>
       </Pressable>
     </View>
@@ -232,15 +249,14 @@ export default function HomeTodayTeamSection({
       <Section
         title={t('homeTodayTeamTitle')}
         titleSize="lg"
+        titleTrailingAlign="end"
         titleTrailing={
-          <View className="ml-auto">
-            <Chip
-              label={t('experienceSchedule')}
-              size="sm"
-              rounded="lg"
-              href="/screens/schedule"
-            />
-          </View>
+          <AppButton
+            variant="outline"
+            size="sm"
+            title={t('experienceSchedule')}
+            href="/screens/schedule"
+          />
         }
       />
       {loading ? (

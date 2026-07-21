@@ -18,6 +18,16 @@ module.exports = {
       colors: {
         // Light theme colors
         highlight: '#FF2056',
+        brand: {
+          primary: '#767676',
+          'primary-foreground': '#FFFFFF',
+          accent: '#FF4F31',
+          foreground: '#F1F1F1',
+          secondary: '#0F0F0F',
+          'secondary-foreground': '#FFFFFF',
+          destructive: '#DC2626',
+          border: '#404040',
+        },
         light: {
           primary: '#ffffff', // White
           secondary: '#F5F5F5', // Light gray

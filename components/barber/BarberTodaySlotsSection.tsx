@@ -76,6 +76,7 @@ export default function BarberTodaySlotsSection({
               <SlotTimePill
                 key={`${slot.date}-${slot.time}-${slot.branchId}`}
                 label={slot.time}
+                surface="light-card"
                 onPress={() => {
                   startBarberSlotHandoffBooking({
                     employeeId,
