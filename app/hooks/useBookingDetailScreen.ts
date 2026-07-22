@@ -7,6 +7,7 @@ import { getBranches, type Branch } from '@/api/branches';
 import { getClientOverview, type ClientOverviewReservation } from '@/api/reviews';
 import { useAuth } from '@/app/contexts/AuthContext';
 import { useTranslation } from '@/app/hooks/useTranslation';
+import { buildReservationReviewContextQuery } from '@/utils/bookingDetailHelpers';
 import { isBookingCurrent, isBookingMarkedCompleted, isBookingPast } from '@/utils/bookingHelpers';
 import {
   clearFreshBookingSnapshotIfMatches,
@@ -251,7 +252,7 @@ export function useBookingDetailScreen(params: {
     router.replace(
       `/screens/review?entityType=reservation&entityId=${encodeURIComponent(
         booking.id
-      )}&entityName=${entityName}${imageParam}${employeeNameParam}${employeeAvatarParam}`
+      )}&entityName=${entityName}${imageParam}${employeeNameParam}${employeeAvatarParam}${buildReservationReviewContextQuery(booking)}`
     );
   }, [booking, openReview, hasReview]);
 

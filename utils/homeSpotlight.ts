@@ -1,5 +1,6 @@
 import type { Booking } from '@/api/bookings';
 import type { TranslationKey } from '@/locales';
+import { buildReservationReviewContextQuery } from '@/utils/bookingDetailHelpers';
 import {
   getBookingEndDate,
   getBookingClientReviewRating,
@@ -129,13 +130,7 @@ export function getHomeSpotlightReviewQueryString(booking: Booking): string {
   const employeeAvatarParam = booking.employee?.avatarUrl
     ? `&entityEmployeeAvatar=${encodeURIComponent(booking.employee.avatarUrl)}`
     : '';
-  const [, m, d] = (booking.date ?? '').slice(0, 10).split('-');
-  const dateParam = m && d ? `&entityDate=${encodeURIComponent(`${d}.${m}.`)}` : '';
-  const timeParam = booking.slotStart ? `&entityTime=${encodeURIComponent(booking.slotStart)}` : '';
-  const branchParam = booking.branch?.name
-    ? `&entityBranch=${encodeURIComponent(booking.branch.name)}`
-    : '';
-  return `entityType=reservation&entityId=${encodeURIComponent(booking.id)}&entityName=${encodeURIComponent(booking.item?.name ?? 'Booking')}${imageParam}${employeeNameParam}${employeeAvatarParam}${dateParam}${timeParam}${branchParam}`;
+  return `entityType=reservation&entityId=${encodeURIComponent(booking.id)}&entityName=${encodeURIComponent(booking.item?.name ?? 'Booking')}${imageParam}${employeeNameParam}${employeeAvatarParam}${buildReservationReviewContextQuery(booking)}`;
 }
 
 export function getHomeSpotlightReviewPath(booking: Booking, presetRating: number): string {

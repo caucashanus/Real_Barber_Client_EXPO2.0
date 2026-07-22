@@ -26,6 +26,7 @@ import LiveIndicator from '@/components/LiveIndicator';
 import ShowRating from '@/components/ShowRating';
 import ThemeScroller from '@/components/ThemeScroller';
 import ThemedText from '@/components/ThemedText';
+import { buildReservationReviewContextQuery } from '@/utils/bookingDetailHelpers';
 import {
   getBookingEndDate,
   getBookingClientReviewRating,
@@ -405,17 +406,8 @@ const TripsScreen = () => {
                         const employeeAvatarParam = booking.employee?.avatarUrl
                           ? `&entityEmployeeAvatar=${encodeURIComponent(booking.employee.avatarUrl)}`
                           : '';
-                        const [, m, d] = (booking.date ?? '').slice(0, 10).split('-');
-                        const dateParam =
-                          m && d ? `&entityDate=${encodeURIComponent(`${d}.${m}.`)}` : '';
-                        const timeParam = booking.slotStart
-                          ? `&entityTime=${encodeURIComponent(booking.slotStart)}`
-                          : '';
-                        const branchParam = booking.branch?.name
-                          ? `&entityBranch=${encodeURIComponent(booking.branch.name)}`
-                          : '';
                         router.push(
-                          `/screens/review?entityType=reservation&entityId=${encodeURIComponent(booking.id)}&entityName=${encodeURIComponent(booking.item?.name ?? 'Booking')}${imageParam}${employeeNameParam}${employeeAvatarParam}${dateParam}${timeParam}${branchParam}`
+                          `/screens/review?entityType=reservation&entityId=${encodeURIComponent(booking.id)}&entityName=${encodeURIComponent(booking.item?.name ?? 'Booking')}${imageParam}${employeeNameParam}${employeeAvatarParam}${buildReservationReviewContextQuery(booking)}`
                         );
                       }}
                     />
@@ -490,55 +482,57 @@ const BookingCard = (props: {
       style={shadowPresets.card}
       className={`mt-4 w-full overflow-hidden rounded-2xl border border-neutral-200 bg-light-primary dark:border-neutral-700 dark:bg-dark-primary ${cardOpacity}`}>
       <Pressable onPress={goToDetail} className="p-5" android_ripple={null}>
-        <View className="mb-4 flex-row items-center justify-between gap-3">
-          <View className="min-w-0 flex-1 flex-row items-center">
-            <View className={`rounded-full px-2.5 py-1 ${getStatusPillClass()}`}>
-              <ThemedText className={`text-xs font-semibold ${getStatusTextClass()}`}>
-                {statusLabel}
-              </ThemedText>
+        <View className="min-w-0 flex-1">
+          <View className="mb-4 flex-row items-center justify-between gap-3">
+            <View className="flex-row items-center">
+              <View className={`rounded-full px-2.5 py-1 ${getStatusPillClass()}`}>
+                <ThemedText className={`text-xs font-semibold ${getStatusTextClass()}`}>
+                  {statusLabel}
+                </ThemedText>
+              </View>
+              {isCurrent && (
+                <View className="ml-2">
+                  <LiveIndicator />
+                </View>
+              )}
             </View>
-            {isCurrent && (
-              <View className="ml-2">
-                <LiveIndicator />
+            {isUpcoming && (
+              <View className="shrink-0 rounded-full bg-light-secondary px-2.5 py-1 dark:bg-dark-secondary">
+                <CountdownDisplay target={getBookingStartDate(booking)} />
               </View>
             )}
           </View>
-          {isUpcoming && (
-            <View className="rounded-full bg-light-secondary px-2.5 py-1 dark:bg-dark-secondary">
-              <CountdownDisplay target={getBookingStartDate(booking)} />
-            </View>
-          )}
-        </View>
-        <View className="flex-row items-start justify-between gap-3">
-          <View className="min-w-0 flex-1">
-            <ThemedText className="text-lg font-semibold" numberOfLines={2}>
-              {title}
-            </ThemedText>
-            <ThemedText className="mt-0.5 text-sm text-light-subtext dark:text-dark-subtext">
-              {dateText}
-            </ThemedText>
-            {booking.branch?.name ? (
-              <ThemedText
-                className="mt-1 text-xs text-light-subtext dark:text-dark-subtext"
-                numberOfLines={1}>
-                {booking.branch.name}
+          <View className="flex-row items-start gap-3">
+            <View className="min-w-0 flex-1">
+              <ThemedText className="text-lg font-semibold" numberOfLines={2}>
+                {title}
               </ThemedText>
-            ) : null}
-            {couponBagLabel ? (
-              <View className="mt-1.5 max-w-full self-start rounded-full bg-light-secondary px-2.5 py-1 dark:bg-dark-secondary">
+              <ThemedText className="mt-0.5 text-sm text-light-subtext dark:text-dark-subtext">
+                {dateText}
+              </ThemedText>
+              {booking.branch?.name ? (
                 <ThemedText
-                  className="text-xs font-semibold text-light-text dark:text-dark-text"
+                  className="mt-1 text-xs text-light-subtext dark:text-dark-subtext"
                   numberOfLines={1}>
-                  {couponBagLabel}
+                  {booking.branch.name}
                 </ThemedText>
-              </View>
-            ) : null}
+              ) : null}
+              {couponBagLabel ? (
+                <View className="mt-1.5 max-w-full self-start rounded-full bg-light-secondary px-2.5 py-1 dark:bg-dark-secondary">
+                  <ThemedText
+                    className="text-xs font-semibold text-light-text dark:text-dark-text"
+                    numberOfLines={1}>
+                    {couponBagLabel}
+                  </ThemedText>
+                </View>
+              ) : null}
+            </View>
+            <Avatar
+              src={booking.employee?.avatarUrl ?? undefined}
+              name={booking.employee?.name}
+              size="md"
+            />
           </View>
-          <Avatar
-            src={booking.employee?.avatarUrl ?? undefined}
-            name={booking.employee?.name}
-            size="md"
-          />
         </View>
       </Pressable>
       {!isCancelled && (

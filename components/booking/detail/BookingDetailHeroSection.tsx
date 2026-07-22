@@ -48,7 +48,7 @@ export default function BookingDetailHeroSection({
               accessibilityRole="button"
               accessibilityLabel={t('branchNavigateSectionTitle')}
               onPress={onOpenBranchNavigate}
-              className="mt-1 h-7 shrink-0 flex-row items-center justify-center gap-0.5 rounded-full bg-light-secondary px-2.5 active:opacity-80 dark:bg-dark-secondary">
+              className="mt-1 h-7 shrink-0 flex-row items-center justify-center gap-1.5 rounded-full bg-light-secondary px-2.5 active:opacity-80 dark:bg-dark-secondary">
               <Icon name="Navigation" size={12} className="text-light-text dark:text-dark-text" />
               <ThemedText className="text-center text-xs font-semibold">
                 {t('branchNavigateSectionTitle')}

@@ -12,6 +12,7 @@ import LiveIndicator from '@/components/LiveIndicator';
 import ThemedFooter from '@/components/ThemeFooter';
 import ThemedText from '@/components/ThemedText';
 import type { TranslationKey } from '@/locales';
+import { buildReservationReviewContextQuery } from '@/utils/bookingDetailHelpers';
 
 interface BookingDetailFooterActionsProps {
   booking: Booking;
@@ -79,7 +80,7 @@ export default function BookingDetailFooterActions({
                 iconSize={16}
                 className="min-w-0 flex-1 rounded-none px-0 py-3.5"
                 textClassName="text-sm font-semibold text-neutral-800 dark:text-neutral-200"
-                href={`/screens/review?entityType=reservation&entityId=${encodeURIComponent(booking.id)}&entityName=${encodeURIComponent(booking.item?.name ?? booking.branch?.name ?? 'Booking')}${booking.item?.imageUrl ? `&entityImage=${encodeURIComponent(booking.item.imageUrl)}` : ''}${booking.employee?.name ? `&entityEmployeeName=${encodeURIComponent(booking.employee.name)}` : ''}${booking.employee?.avatarUrl ? `&entityEmployeeAvatar=${encodeURIComponent(booking.employee.avatarUrl)}` : ''}`}
+                href={`/screens/review?entityType=reservation&entityId=${encodeURIComponent(booking.id)}&entityName=${encodeURIComponent(booking.item?.name ?? booking.branch?.name ?? 'Booking')}${booking.item?.imageUrl ? `&entityImage=${encodeURIComponent(booking.item.imageUrl)}` : ''}${booking.employee?.name ? `&entityEmployeeName=${encodeURIComponent(booking.employee.name)}` : ''}${booking.employee?.avatarUrl ? `&entityEmployeeAvatar=${encodeURIComponent(booking.employee.avatarUrl)}` : ''}${buildReservationReviewContextQuery(booking)}`}
               />
             </>
           )}

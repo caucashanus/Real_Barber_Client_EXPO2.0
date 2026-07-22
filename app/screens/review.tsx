@@ -17,6 +17,7 @@ import ThemedScroller from '@/components/ThemeScroller';
 import ThemedText from '@/components/ThemedText';
 import Input from '@/components/forms/Input';
 import Switch from '@/components/forms/Switch';
+import { formatReservationReviewSubtitle } from '@/utils/bookingDetailHelpers';
 import { triggerImpact } from '@/utils/appHaptics';
 
 const StarRating = ({
@@ -99,9 +100,7 @@ const ReviewScreen = () => {
   const branchStr = entityBranch ? decodeURIComponent(entityBranch) : '';
   const isReservation = entityType === 'reservation';
   const reservationBadge = isReservation
-    ? [dateStr && timeStr ? `${dateStr} v ${timeStr}` : dateStr || timeStr, branchStr]
-        .filter(Boolean)
-        .join(' · ')
+    ? formatReservationReviewSubtitle(dateStr, timeStr, branchStr)
     : '';
   const canSubmitToApi = Boolean(apiToken && entityType && entityId);
   const isEditMode = existingReviewId != null;
