@@ -193,7 +193,7 @@ export default function BranchDetailScreen() {
           className="w-full"
           size="medium"
           rounded="lg"
-          href={`/screens/reservation-create?branchId=${encodeURIComponent(branch.id)}`}
+          href={`/screens/reservation-create?recipe=branch-first&branchId=${encodeURIComponent(branch.id)}`}
         />
       </View>
 

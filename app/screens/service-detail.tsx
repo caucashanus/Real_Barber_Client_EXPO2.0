@@ -170,7 +170,7 @@ export default function ServiceDetailScreen() {
             className="ml-6 px-6"
             size="medium"
             rounded="lg"
-            href={`/screens/reservation-create?itemId=${encodeURIComponent(item.id)}&itemName=${encodeURIComponent(item.name ?? '')}`}
+            href={`/screens/reservation-create?recipe=service-detail&itemId=${encodeURIComponent(item.id)}&itemName=${encodeURIComponent(item.name ?? '')}`}
           />
         </View>
       </View>

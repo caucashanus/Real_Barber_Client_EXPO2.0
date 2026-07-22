@@ -39,7 +39,7 @@ export default function BookingDetailHeroSection({
       </View>
 
       <View className="px-global pb-4 pt-6">
-        <View className="mb-2 flex-row items-start justify-between gap-2">
+        <View className="mb-2 flex-row items-center justify-between gap-2">
           <ThemedText className="min-w-0 flex-1 shrink pr-1 text-2xl font-bold">
             {booking.branch?.name ?? '—'}
           </ThemedText>
@@ -48,9 +48,9 @@ export default function BookingDetailHeroSection({
               accessibilityRole="button"
               accessibilityLabel={t('branchNavigateSectionTitle')}
               onPress={onOpenBranchNavigate}
-              className="mt-1 h-7 shrink-0 flex-row items-center justify-center gap-1.5 rounded-full bg-light-secondary px-2.5 active:opacity-80 dark:bg-dark-secondary">
+              className="shrink-0 flex-row items-center justify-center gap-1 rounded-full bg-light-secondary px-2.5 py-1.5 active:opacity-80 dark:bg-dark-secondary">
               <Icon name="Navigation" size={12} className="text-light-text dark:text-dark-text" />
-              <ThemedText className="text-center text-xs font-semibold">
+              <ThemedText className="text-xs font-semibold leading-none">
                 {t('branchNavigateSectionTitle')}
               </ThemedText>
             </Pressable>

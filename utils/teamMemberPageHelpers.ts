@@ -6,7 +6,6 @@ import type {
   TeamMemberShiftDay,
 } from '@/api/publicTeamMember';
 import type { Locale } from '@/app/contexts/LanguageContext';
-import { HOME_AVAILABILITY_SERVICE_ID } from '@/constants/teamMemberPage';
 
 type LocalizedEntity = Record<string, unknown>;
 
@@ -174,10 +173,10 @@ export function getUniqueShiftDayCount(rows: ShiftCalendarRow[]): number {
 
 export function buildBarberBookingHref(params: BarberBookingParams): string {
   const q = new URLSearchParams();
+  q.set('recipe', 'employee-profile');
   q.set('employeeId', params.employeeId);
   if (params.branchId) q.set('branchId', params.branchId);
-  const itemId = params.itemId ?? HOME_AVAILABILITY_SERVICE_ID;
-  if (itemId) q.set('itemId', itemId);
+  if (params.itemId) q.set('itemId', params.itemId);
   if (params.date) q.set('date', params.date);
   if (params.slotStart) q.set('slotStart', params.slotStart);
   return `/screens/reservation-create?${q.toString()}`;

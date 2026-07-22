@@ -9,7 +9,6 @@ import React, {
   forwardRef,
   Children,
   isValidElement,
-  useMemo,
 } from 'react';
 import {
   View,
@@ -27,6 +26,7 @@ import { useTranslation } from '@/app/hooks/useTranslation';
 import { Button } from '@/components/Button';
 import Header from '@/components/Header';
 import Icon from '@/components/Icon';
+import StepProgressIndicator from '@/components/StepProgressIndicator';
 import ThemedText from '@/components/ThemedText';
 import { triggerImpact } from '@/utils/appHaptics';
 
@@ -175,7 +175,6 @@ const MultiStep = forwardRef<MultiStepHandle, MultiStepProps>(function MultiStep
   // Animation values
   const fadeAnim = useRef(new Animated.Value(0)).current;
   const slideAnim = useRef(new Animated.Value(50)).current;
-  const progressAnims = useMemo(() => steps.map(() => new Animated.Value(0)), [steps.length]);
 
   useEffect(() => {
     if (currentStepIndex >= steps.length && steps.length > 0) {
@@ -200,18 +199,7 @@ const MultiStep = forwardRef<MultiStepHandle, MultiStepProps>(function MultiStep
         useNativeDriver: true,
       }),
     ]).start();
-
-    // Animate progress indicators
-    steps.forEach((_, index) => {
-      const anim = progressAnims[index];
-      if (!anim) return;
-      Animated.timing(anim, {
-        toValue: index <= safeStepIndex ? 1 : 0,
-        duration: 300,
-        useNativeDriver: false,
-      }).start();
-    });
-  }, [currentStepIndex, safeStepIndex, steps.length, progressAnims]);
+  }, [currentStepIndex, fadeAnim, slideAnim]);
 
   useEffect(() => {
     const showEvent = Platform.OS === 'ios' ? 'keyboardWillShow' : 'keyboardDidShow';
@@ -372,39 +360,11 @@ const MultiStep = forwardRef<MultiStepHandle, MultiStepProps>(function MultiStep
           </ScrollView>
         </Animated.View>
 
-        {/* Step Indicators – počet segmentů = počet kroků; aktivní krok zvýrazněn (viditelné i v dark módu). */}
-        {showStepIndicator && (
-          <View className={`px-4 ${bottomPadClass} flex-row items-center justify-center gap-1.5`}>
-            {steps.map((_, index) => {
-              const isCurrent = index === safeStepIndex;
-              const anim = progressAnims[index];
-              return (
-                <Animated.View
-                  key={index}
-                  className="max-w-[56px] flex-1 overflow-hidden rounded-full"
-                  style={{
-                    height: isCurrent ? 8 : 5,
-                    backgroundColor: colors.secondary,
-                    borderWidth: isCurrent ? 2 : 0,
-                    borderColor: colors.highlight,
-                    opacity: isCurrent ? 1 : 0.55,
-                  }}>
-                  <Animated.View
-                    style={{
-                      height: '100%',
-                      backgroundColor: colors.highlight,
-                      width:
-                        anim?.interpolate({
-                          inputRange: [0, 1],
-                          outputRange: ['0%', '100%'],
-                        }) ?? '0%',
-                    }}
-                  />
-                </Animated.View>
-              );
-            })}
+        {showStepIndicator ? (
+          <View className={`px-4 ${bottomPadClass}`}>
+            <StepProgressIndicator stepCount={steps.length} currentStepIndex={safeStepIndex} />
           </View>
-        )}
+        ) : null}
 
         {/* Bottom Navigation – stejná logika jako tlačítko „Jdeme na to“ (accent pozadí + bílý text) */}
         <View

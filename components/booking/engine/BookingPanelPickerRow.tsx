@@ -1,0 +1,135 @@
+import { Image } from 'expo-image';
+import React, { type ReactNode } from 'react';
+import { Pressable, View, type StyleProp, type ViewStyle } from 'react-native';
+
+import Avatar from '@/components/Avatar';
+import { Button } from '@/components/Button';
+import Icon from '@/components/Icon';
+import ThemedText from '@/components/ThemedText';
+import { shadowPresets } from '@/utils/useShadow';
+
+/** Stejná karta jako `BookingCard` v `bookings.tsx` — shadow + mt-4 na jednom View. */
+export const BOOKING_FLOW_CARD_OUTER_CLASS =
+  'mt-4 w-full overflow-hidden rounded-2xl border border-neutral-200 bg-light-primary dark:border-neutral-700 dark:bg-dark-primary';
+
+/** @deprecated */
+export const BOOKING_FLOW_CARD_WRAPPER_CLASS = 'mt-4 w-full';
+/** @deprecated */
+export const BOOKING_FLOW_CARD_SURFACE_CLASS =
+  'w-full overflow-hidden rounded-2xl border border-neutral-200 bg-light-primary dark:border-neutral-700 dark:bg-dark-primary';
+/** @deprecated */
+export const BOOKING_FLOW_CARD_CLASS = BOOKING_FLOW_CARD_OUTER_CLASS;
+
+interface BookingPanelPickerRowProps {
+  imageUrl?: string | null;
+  imageFit?: 'cover' | 'contain';
+  imageShape?: 'square' | 'round';
+  fallbackName?: string;
+  title: ReactNode;
+  description?: ReactNode;
+  meta?: ReactNode;
+  selected?: boolean;
+  selectLabel: string;
+  onSelect: () => void;
+  actionDisabled?: boolean;
+  selectedRingColor?: string;
+  showInfo?: boolean;
+  onInfo?: () => void;
+}
+
+export default function BookingPanelPickerRow({
+  imageUrl,
+  imageFit = 'cover',
+  imageShape = 'square',
+  fallbackName = '?',
+  title,
+  description,
+  meta,
+  selected = false,
+  selectLabel,
+  onSelect,
+  actionDisabled = false,
+  selectedRingColor,
+  showInfo = false,
+  onInfo,
+}: BookingPanelPickerRowProps) {
+  const ringColor = selectedRingColor;
+  const borderStyle: StyleProp<ViewStyle> =
+    selected && ringColor ? { borderColor: ringColor, borderWidth: 2 } : undefined;
+
+  return (
+    <View
+      style={[shadowPresets.card, borderStyle]}
+      className={`${BOOKING_FLOW_CARD_OUTER_CLASS} ${actionDisabled ? 'opacity-60' : ''} ${
+        selected && !ringColor ? 'border-light-text dark:border-dark-text' : ''
+      }`}>
+      <Pressable
+        onPress={actionDisabled ? undefined : onSelect}
+        disabled={actionDisabled}
+        className="flex-row items-start gap-3 p-4 active:opacity-90">
+        <View className="h-12 w-12 shrink-0 items-center justify-center overflow-hidden">
+          {imageUrl?.trim() ? (
+            <Image
+              source={{ uri: imageUrl.trim() }}
+              className={`h-12 w-12 ${imageShape === 'round' ? 'rounded-full' : 'rounded-xl'}`}
+              contentFit={imageFit}
+            />
+          ) : (
+            <Avatar
+              size="sm"
+              name={fallbackName}
+              className={imageShape === 'round' ? 'rounded-full' : 'rounded-xl'}
+            />
+          )}
+        </View>
+
+        <View className="min-w-0 flex-1 gap-1">
+          {typeof title === 'string' ? (
+            <ThemedText className="text-base font-medium" numberOfLines={2}>
+              {title}
+            </ThemedText>
+          ) : (
+            title
+          )}
+          {description ? (
+            typeof description === 'string' ? (
+              <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext" numberOfLines={2}>
+                {description}
+              </ThemedText>
+            ) : (
+              description
+            )
+          ) : null}
+          {meta ?? null}
+        </View>
+
+        {showInfo ? (
+          <Pressable
+            className="rounded-full p-2 active:opacity-70"
+            onPress={(event) => {
+              event.stopPropagation();
+              onInfo?.();
+            }}
+            hitSlop={8}
+            accessibilityRole="button"
+            accessibilityLabel="Info">
+            <Icon name="Info" size={18} className="text-light-subtext dark:text-dark-subtext" />
+          </Pressable>
+        ) : null}
+      </Pressable>
+
+      <View className="border-t border-neutral-200 bg-light-secondary dark:border-neutral-700 dark:bg-dark-secondary">
+        <Button
+          title={selectLabel}
+          variant="ghost"
+          size="small"
+          rounded="none"
+          className="w-full rounded-none rounded-b-2xl px-4 py-3.5"
+          textClassName="text-sm font-semibold text-neutral-800 dark:text-neutral-200"
+          disabled={actionDisabled}
+          onPress={onSelect}
+        />
+      </View>
+    </View>
+  );
+}
