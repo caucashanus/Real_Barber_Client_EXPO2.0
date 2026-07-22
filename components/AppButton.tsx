@@ -12,6 +12,7 @@ import {
 import { styled } from 'nativewind';
 
 import Icon, { type IconName } from '@/components/Icon';
+import { useAccentColor } from '@/app/contexts/AccentColorContext';
 import useThemeColors from '@/app/contexts/ThemeColors';
 import {
   getAppButtonClasses,
@@ -76,6 +77,7 @@ export default function AppButton({
   disableHaptic = false,
 }: AppButtonProps) {
   const { isDark } = useThemeColors();
+  const { accentColor } = useAccentColor();
   const isDisabled = disabled || loading;
   const { container, text, containerStyle, textStyle } = getAppButtonClasses({
     variant,
@@ -86,6 +88,7 @@ export default function AppButton({
     rounded,
     fullWidth,
     isDark,
+    accentColor,
     className,
     textClassName,
   });
@@ -116,7 +119,11 @@ export default function AppButton({
     ) : (
       <View className={`flex-row items-center ${variant === 'panel' ? 'justify-start gap-3' : variant === 'choice' ? 'justify-start' : 'justify-center'}`}>
         {iconStart ? (
-          <Icon name={iconStart} size={resolvedIconSize} className={`mr-2 ${iconClassName}`} />
+          <Icon
+            name={iconStart}
+            size={resolvedIconSize}
+            className={`${title ? 'mr-2' : ''} ${iconClassName}`.trim()}
+          />
         ) : null}
         {title ? (
           <ButtonText className={text} style={textStyle}>

@@ -1,22 +1,30 @@
 import { useFocusEffect } from '@react-navigation/native';
 import React, { useCallback, useRef, useState } from 'react';
-import { View, Pressable, ActivityIndicator } from 'react-native';
+import { View, ActivityIndicator, useWindowDimensions } from 'react-native';
 
-import { getFavorites, deleteFavorite, type Favorite } from '@/api/favorites';
+import { getFavorites, type Favorite } from '@/api/favorites';
 import { useAuth } from '@/app/contexts/AuthContext';
 import { useFavoritesSync } from '@/app/contexts/FavoritesSyncContext';
 import { useCollapsibleTitle } from '@/app/hooks/useCollapsibleTitle';
 import { useTranslation } from '@/app/hooks/useTranslation';
+import AppButton from '@/components/AppButton';
 import AnimatedView from '@/components/AnimatedView';
-import Card from '@/components/Card';
-import Header, { HeaderIcon } from '@/components/Header';
-import Icon from '@/components/Icon';
+import { CardScroller } from '@/components/CardScroller';
+import FavoriteMediaCard from '@/components/favorites/FavoriteMediaCard';
+import Header from '@/components/Header';
 import { Placeholder } from '@/components/Placeholder';
 import ThemeScroller from '@/components/ThemeScroller';
 import ThemedText from '@/components/ThemedText';
 import Grid from '@/components/layout/Grid';
-import type { TranslationKey } from '@/locales';
+import {
+  countClientFavoritesByFilter,
+  filterClientFavorites,
+  type ClientFavoriteFilter,
+} from '@/utils/clientFavoritesFilter';
 import { shouldStaleRefresh } from '@/utils/staleRefresh';
+
+const DESKTOP_BREAKPOINT = 768;
+const GRID_GAP = 16;
 
 function favoriteHref(fav: Favorite): string {
   switch (fav.entityType) {
@@ -35,29 +43,6 @@ function favoriteHref(fav: Favorite): string {
   }
 }
 
-function favoriteCategoryBadgeText(fav: Favorite, t: (key: TranslationKey) => string): string {
-  const raw = fav.category?.trim();
-  if (raw) return raw;
-
-  switch (fav.entityType) {
-    case 'branch':
-      return t('favoritesBadgeBranch');
-    case 'employee':
-      return t('favoritesBadgeBarber');
-    case 'item':
-    case 'service':
-      return t('favoritesBadgeService');
-    case 'product':
-      return t('favoritesBadgeProduct');
-    case 'promotion':
-      return t('favoritesBadgePromotion');
-    case 'guide':
-      return t('favoritesBadgeGuide');
-    default:
-      return fav.entityType;
-  }
-}
-
 function getFavoriteImageUrl(fav: Favorite): string | undefined {
   const photoUrl = (fav as { photoUrl?: unknown }).photoUrl;
   if (typeof photoUrl === 'string' && photoUrl.length > 0) return photoUrl;
@@ -68,18 +53,37 @@ function getFavoriteImageUrl(fav: Favorite): string | undefined {
   return undefined;
 }
 
+function getFavoriteBranchAddress(fav: Favorite): string | undefined {
+  if ((fav.entityType ?? '').toLowerCase() !== 'branch') return undefined;
+  const record = fav as Record<string, unknown>;
+  for (const key of ['address', 'branchAddress', 'entityAddress', 'subtitle']) {
+    const value = record[key];
+    if (typeof value === 'string' && value.trim() !== '') return value.trim();
+  }
+  return undefined;
+}
+
+function formatFavoriteFilterLabel(label: string, count: number): string {
+  return `${label} ${count}`;
+}
+
 const FavoritesScreen = () => {
   const { t } = useTranslation();
-  const [isEditMode, setIsEditMode] = useState(false);
+  const { width: windowWidth } = useWindowDimensions();
+  const gridColumns = windowWidth >= DESKTOP_BREAKPOINT ? 4 : 2;
   const { scrollY, scrollHandler, scrollEventThrottle } = useCollapsibleTitle();
   const { apiToken } = useAuth();
-  const { favoritesVersion, notifyFavoritesChanged } = useFavoritesSync();
+  const { favoritesVersion } = useFavoritesSync();
   const [favorites, setFavorites] = useState<Favorite[]>([]);
+  const [selectedFilter, setSelectedFilter] = useState<ClientFavoriteFilter>('all');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const lastFetchRef = useRef(0);
   const lastVersionRef = useRef(favoritesVersion);
   const inflightRef = useRef<Promise<void> | null>(null);
+
+  const counts = countClientFavoritesByFilter(favorites);
+  const filteredFavorites = filterClientFavorites(favorites, selectedFilter);
 
   const loadFavorites = useCallback(
     async (options?: { force?: boolean }) => {
@@ -124,30 +128,61 @@ const FavoritesScreen = () => {
     }, [loadFavorites])
   );
 
-  const handleRemove = (favoriteId: string) => {
-    if (!apiToken) return;
-    deleteFavorite(apiToken, favoriteId)
-      .then(() => setFavorites((prev) => prev.filter((f) => f.id !== favoriteId)))
-      .then(() => notifyFavoritesChanged())
-      .catch(() => {});
-  };
+  const handleFavoriteToggle = useCallback((favoriteId: string, isFavorite: boolean) => {
+    if (isFavorite) return;
+    setFavorites((prev) => prev.filter((f) => f.id !== favoriteId));
+  }, []);
+
+  const renderFilters = () => (
+    <CardScroller className="mb-4" space={8}>
+      <AppButton
+        variant="choice"
+        size="sm"
+        rounded="full"
+        selected={selectedFilter === 'all'}
+        title={formatFavoriteFilterLabel(t('favoritesFilterAll'), counts.all)}
+        onPress={() => setSelectedFilter('all')}
+      />
+      <AppButton
+        variant="choice"
+        size="sm"
+        rounded="full"
+        selected={selectedFilter === 'employee'}
+        title={formatFavoriteFilterLabel(t('favoritesFilterBarbers'), counts.employee)}
+        onPress={() => setSelectedFilter('employee')}
+      />
+      <AppButton
+        variant="choice"
+        size="sm"
+        rounded="full"
+        selected={selectedFilter === 'branch'}
+        title={formatFavoriteFilterLabel(t('favoritesFilterBranches'), counts.branch)}
+        onPress={() => setSelectedFilter('branch')}
+      />
+    </CardScroller>
+  );
+
+  const renderGrid = () => (
+    <Grid className="mt-2" columns={gridColumns} spacing={GRID_GAP}>
+      {filteredFavorites.map((fav) => (
+        <FavoriteMediaCard
+          key={fav.id}
+          href={favoriteHref(fav)}
+          title={fav.title ?? '—'}
+          image={getFavoriteImageUrl(fav) ?? require('@/assets/img/barbers.png')}
+          entityType={fav.entityType}
+          entityId={fav.entityId}
+          address={getFavoriteBranchAddress(fav)}
+          onFavoriteToggle={(isFavorite) => handleFavoriteToggle(fav.id, isFavorite)}
+        />
+      ))}
+    </Grid>
+  );
 
   return (
     <View className="flex-1 bg-light-primary dark:bg-dark-primary">
       <AnimatedView animation="scaleIn" className="flex-1">
-        <Header
-          rightComponents={[
-            <HeaderIcon
-              key="edit"
-              icon={isEditMode ? 'Check' : 'Edit2'}
-              onPress={() => setIsEditMode(!isEditMode)}
-              href="0"
-            />,
-          ]}
-          title={t('favoritesTabTitle')}
-          variant="collapsibleTitle"
-          scrollY={scrollY}
-        />
+        <Header title={t('favoritesTabTitle')} variant="collapsibleTitle" scrollY={scrollY} />
         <ThemeScroller
           onScroll={scrollHandler}
           scrollEventThrottle={scrollEventThrottle}
@@ -165,32 +200,22 @@ const FavoritesScreen = () => {
                 {error}
               </ThemedText>
             </View>
-          ) : favorites.length > 0 ? (
-            <Grid className="mt-2" columns={2} spacing={20}>
-              {favorites.map((fav) => (
-                <Card
-                  href={favoriteHref(fav)}
-                  key={fav.id}
-                  title={fav.title ?? '—'}
-                  image={getFavoriteImageUrl(fav) ?? require('@/assets/img/barbers.png')}
-                  badge={favoriteCategoryBadgeText(fav, t)}
-                  imageHeight={180}
-                  rounded="2xl">
-                  {isEditMode && (
-                    <Pressable
-                      className="absolute right-2 top-2 z-10 h-7 w-7 items-center justify-center rounded-full bg-light-primary dark:bg-dark-primary"
-                      onPress={() => handleRemove(fav.id)}>
-                      <Icon name="X" size={18} strokeWidth={2} />
-                    </Pressable>
-                  )}
-                </Card>
-              ))}
-            </Grid>
           ) : (
-            <Placeholder
-              title={t('favoritesNoFavoritesYet')}
-              subtitle={t('favoritesBrowseSubtitle')}
-            />
+            <>
+              {renderFilters()}
+              {counts.all === 0 ? (
+                <Placeholder
+                  title={t('favoritesNoFavoritesYet')}
+                  subtitle={t('favoritesBrowseSubtitle')}
+                />
+              ) : filteredFavorites.length === 0 ? (
+                <ThemedText className="py-8 text-center text-light-subtext dark:text-dark-subtext">
+                  {t('favoritesFilterEmpty')}
+                </ThemedText>
+              ) : (
+                renderGrid()
+              )}
+            </>
           )}
         </ThemeScroller>
       </AnimatedView>

@@ -5,42 +5,18 @@ import { ActivityIndicator, Pressable, ScrollView, View } from 'react-native';
 import type { BookingSlotServiceItem } from '@/api/bookings';
 import type { ReservationCreateStepProps } from './types';
 
-import AppButton from '@/components/AppButton';
+import BookingHandoffServiceTimeButton from '@/components/booking/BookingHandoffServiceTimeButton';
 import { CardScroller } from '@/components/CardScroller';
 import ThemedText from '@/components/ThemedText';
 import Section from '@/components/layout/Section';
-
-function formatSlotServiceTimeLabel(
-  service: BookingSlotServiceItem,
-  handoffDate: string,
-  handoffSlotStart: string,
-  dateLocaleTag: string,
-  isAvailableInSlot: (service: BookingSlotServiceItem) => boolean
-): string {
-  if (isAvailableInSlot(service)) return handoffSlotStart;
-  const next = service.nextAvailable;
-  if (!next) return handoffSlotStart;
-  try {
-    const d = new Date(`${next.date}T12:00:00`);
-    const day = d.toLocaleDateString(dateLocaleTag, {
-      weekday: 'short',
-      day: 'numeric',
-      month: 'short',
-    });
-    return `${day} ${next.slotStart}`;
-  } catch {
-    return `${next.date} ${next.slotStart}`;
-  }
-}
+import { formatBookingSlotHandoffServiceTimeButtonLabel } from '@/utils/reservationCreateHelpers';
 
 export default function ReservationServiceStep({ flow }: ReservationCreateStepProps) {
   const { t } = flow;
 
   if (flow.isSlotHandoffFlow && flow.slotHandoff) {
     const handoff = flow.slotHandoff;
-    const contextLabel =
-      flow.slotHandoffContextLabel ||
-      `${handoff.employeeName} · ${handoff.branchName} · ${handoff.date} ${handoff.slotStart}`;
+    const contextLabel = flow.slotHandoffContextLabel;
 
     return (
       <ScrollView className="px-6 pb-4 pt-2">
@@ -48,8 +24,9 @@ export default function ReservationServiceStep({ flow }: ReservationCreateStepPr
           <ThemedText className="text-2xl font-semibold">
             {t('reservationSlotHandoffTitle')}
           </ThemedText>
-          <ThemedText className="mt-2 text-sm text-light-subtext dark:text-dark-subtext">
-            {contextLabel}
+          <ThemedText className="mt-2 text-sm">{contextLabel}</ThemedText>
+          <ThemedText className="mt-1 text-sm text-light-subtext dark:text-dark-subtext">
+            {t('bookingSlotHandoffSubtitle')}
           </ThemedText>
         </View>
 
@@ -79,13 +56,14 @@ export default function ReservationServiceStep({ flow }: ReservationCreateStepPr
             {flow.slotServices.map((service) => {
               const inSlot = flow.isServiceAvailableInHandoffSlot(service);
               const isSelected = flow.selectedSlotServiceId === service.id;
-              const timeLabel = formatSlotServiceTimeLabel(
-                service,
-                handoff.date,
-                handoff.slotStart,
-                flow.dateLocaleTag,
-                flow.isServiceAvailableInHandoffSlot
-              );
+              const timeButtonLabel = formatBookingSlotHandoffServiceTimeButtonLabel({
+                inSlot,
+                handoffDate: handoff.date,
+                handoffSlotStart: handoff.slotStart,
+                nextAvailable: service.nextAvailable,
+                dateLocaleTag: flow.dateLocaleTag,
+                t,
+              });
 
               return (
                 <Pressable
@@ -97,7 +75,7 @@ export default function ReservationServiceStep({ flow }: ReservationCreateStepPr
                       ? { borderColor: flow.colors.highlight, borderWidth: 2 }
                       : undefined
                   }>
-                  <View className="flex-row items-center gap-3">
+                  <View className="flex-row items-start gap-3">
                     <Image
                       source={
                         service.imageUrl
@@ -106,6 +84,7 @@ export default function ReservationServiceStep({ flow }: ReservationCreateStepPr
                       }
                       className="h-16 w-16 rounded-xl"
                       contentFit="cover"
+                      style={{ opacity: inSlot ? 1 : 0.5 }}
                     />
                     <View className="min-w-0 flex-1">
                       <ThemedText
@@ -113,21 +92,14 @@ export default function ReservationServiceStep({ flow }: ReservationCreateStepPr
                         numberOfLines={2}>
                         {service.name}
                       </ThemedText>
-                      {typeof service.price === 'number' ? (
-                        <ThemedText className="mt-1 text-sm text-light-subtext dark:text-dark-subtext">
-                          {t('reservationPriceFromPrefix')} {service.price}{' '}
-                          {t('reservationCurrencySuffix')}
-                        </ThemedText>
-                      ) : null}
+                      <View className="mt-3 self-start">
+                        <BookingHandoffServiceTimeButton
+                          title={timeButtonLabel}
+                          selected={isSelected}
+                          onPress={() => flow.selectSlotService(service)}
+                        />
+                      </View>
                     </View>
-                    <AppButton
-                      title={timeLabel}
-                      variant={inSlot ? 'default' : 'outline'}
-                      size="sm"
-                      rounded="lg"
-                      className="px-3"
-                      onPress={() => flow.selectSlotService(service)}
-                    />
                   </View>
                 </Pressable>
               );

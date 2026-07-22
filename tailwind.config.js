@@ -17,7 +17,7 @@ module.exports = {
       },
       colors: {
         // Light theme colors
-        highlight: '#FF2056',
+        highlight: '#FF4F31',
         brand: {
           primary: '#767676',
           'primary-foreground': '#FFFFFF',

@@ -2,7 +2,9 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 
 const ACCENT_STORAGE_KEY = '@app_accent_color';
-const DEFAULT_ACCENT = '#FF2056';
+const DEFAULT_ACCENT = '#FF4F31';
+/** Previous app default — migrate stored value to current brand accent. */
+const LEGACY_DEFAULT_ACCENT = '#FF2056';
 
 function parseHex(hex: string): string | null {
   const cleaned = hex.replace(/^#/, '').trim();
@@ -31,7 +33,14 @@ export function AccentColorProvider({ children }: { children: React.ReactNode })
     AsyncStorage.getItem(ACCENT_STORAGE_KEY).then((stored) => {
       if (stored) {
         const parsed = parseHex(stored);
-        if (parsed) setAccentColorState(parsed);
+        if (parsed) {
+          const next =
+            parsed.toUpperCase() === LEGACY_DEFAULT_ACCENT ? DEFAULT_ACCENT : parsed;
+          setAccentColorState(next);
+          if (next !== parsed) {
+            AsyncStorage.setItem(ACCENT_STORAGE_KEY, next).catch(() => {});
+          }
+        }
       }
       setLoaded(true);
     });

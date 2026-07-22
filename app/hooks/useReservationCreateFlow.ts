@@ -67,6 +67,8 @@ export function useReservationCreateFlow() {
     client,
     barberEntryMode: bootstrap.barberEntryMode,
     presetEmployeeId: bootstrap.presetEmployeeId,
+    dateLocaleTag,
+    t,
     ...sharedFlowState,
   });
 

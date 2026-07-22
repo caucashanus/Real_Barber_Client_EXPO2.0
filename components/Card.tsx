@@ -44,6 +44,9 @@ interface CardProps {
   /** When set with hasFavorite, syncs heart with API (branch / employee / item) */
   favoriteEntityType?: string;
   favoriteEntityId?: string;
+  /** Heart starts filled (e.g. favorites list). Default false — state loaded from API. */
+  favoriteInitialState?: boolean;
+  onFavoriteToggle?: (isFavorite: boolean) => void;
   overlayGradient?: readonly [string, string];
   width?: any;
   rounded?: 'none' | 'sm' | 'md' | 'lg' | 'xl' | '2xl' | 'full';
@@ -83,6 +86,8 @@ const Card: React.FC<CardProps> = ({
   hasFavorite = false,
   favoriteEntityType,
   favoriteEntityId,
+  favoriteInitialState = false,
+  onFavoriteToggle,
   badgeColor = '#000000',
   imageHeight = 200,
   showOverlay = true,
@@ -178,13 +183,14 @@ const Card: React.FC<CardProps> = ({
           {hasFavorite && (
             <View className="absolute right-3 top-3 z-50">
               <Favorite
-                initialState={false}
+                initialState={favoriteInitialState}
                 isWhite
                 productName={title}
                 title={title}
                 entityType={favoriteEntityType}
                 entityId={favoriteEntityId}
                 size={24}
+                onToggle={onFavoriteToggle}
               />
             </View>
           )}

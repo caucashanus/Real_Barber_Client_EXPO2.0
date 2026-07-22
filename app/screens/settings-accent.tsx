@@ -17,7 +17,7 @@ const LIGHT = 0.5;
 
 function hexToRgb(hex: string): { r: number; g: number; b: number } {
   const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex.replace(/^#/, ''));
-  if (!result) return { r: 255, g: 32, b: 86 };
+  if (!result) return { r: 255, g: 79, b: 49 };
   return {
     r: parseInt(result[1], 16),
     g: parseInt(result[2], 16),

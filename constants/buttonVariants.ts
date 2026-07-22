@@ -13,6 +13,7 @@
 import type { ViewStyle } from 'react-native';
 
 import { BUTTON_CHOICE, BUTTON_OUTLINE } from '@/constants/buttonTokens';
+import { hexToRgba } from '@/utils/colorHelpers';
 
 export type AppButtonVariant =
   | 'default'
@@ -40,6 +41,8 @@ export interface AppButtonVariantOptions {
   rounded?: AppButtonRounded;
   fullWidth?: boolean;
   isDark?: boolean;
+  /** User accent from AsyncStorage — choice selected border/bg (~70 % / ~15 %). */
+  accentColor?: string;
   className?: string;
   textClassName?: string;
 }
@@ -55,7 +58,7 @@ const SIZE_CONTAINER: Record<AppButtonSize, string> = {
   sm: 'px-3 py-1.5 min-h-8',
   md: 'px-4 py-3',
   lg: 'px-4 py-5',
-  icon: 'h-10 w-10 p-0',
+  icon: 'h-9 w-9 p-0',
   'icon-sm': 'h-8 w-8 p-0',
 };
 
@@ -91,17 +94,36 @@ function getOutlineBorderStyle(
   return { borderColor: getOutlineTheme(surface, isDark).borderColor };
 }
 
-function getChoiceTheme(surface: AppButtonSurface, isDark: boolean, selected: boolean) {
-  const palette = surface === 'light-card' ? BUTTON_CHOICE.lightCard : isDark ? BUTTON_CHOICE.dark : BUTTON_CHOICE.light;
+function getChoiceTheme(
+  surface: AppButtonSurface,
+  isDark: boolean,
+  selected: boolean,
+  accentColor?: string
+) {
+  const palette =
+    surface === 'light-card' ? BUTTON_CHOICE.lightCard : isDark ? BUTTON_CHOICE.dark : BUTTON_CHOICE.light;
+
+  if (selected && accentColor) {
+    const fallback = palette.selected;
+    return {
+      borderColor: hexToRgba(accentColor, 0.7),
+      textColor: fallback.textColor,
+      backgroundColor: hexToRgba(accentColor, 0.15),
+      pressedBackgroundClassName: 'active:opacity-90',
+      fontWeight: fallback.fontWeight,
+    };
+  }
+
   return selected ? palette.selected : palette.default;
 }
 
 function getChoiceContainerStyle(
   surface: AppButtonSurface,
   isDark: boolean,
-  selected: boolean
+  selected: boolean,
+  accentColor?: string
 ): ViewStyle {
-  const theme = getChoiceTheme(surface, isDark, selected);
+  const theme = getChoiceTheme(surface, isDark, selected, accentColor);
   return {
     borderColor: theme.borderColor,
     backgroundColor: theme.backgroundColor,
@@ -110,9 +132,9 @@ function getChoiceContainerStyle(
 
 function getVariantContainerClasses(
   variant: AppButtonVariant,
-  options: Pick<AppButtonVariantOptions, 'selected' | 'surface' | 'isDark'>
+  options: Pick<AppButtonVariantOptions, 'selected' | 'surface' | 'isDark' | 'accentColor'>
 ): string {
-  const { selected = false, surface = 'default', isDark = false } = options;
+  const { selected = false, surface = 'default', isDark = false, accentColor } = options;
   const onLightCard = surface === 'light-card';
 
   switch (variant) {
@@ -126,7 +148,7 @@ function getVariantContainerClasses(
     case 'choice':
       return joinClasses(
         'border bg-transparent',
-        getChoiceTheme(surface, isDark, selected).pressedBackgroundClassName
+        getChoiceTheme(surface, isDark, selected, accentColor).pressedBackgroundClassName
       );
     case 'panel':
       return onLightCard
@@ -149,9 +171,9 @@ function getVariantContainerClasses(
 
 function getVariantTextClasses(
   variant: AppButtonVariant,
-  options: Pick<AppButtonVariantOptions, 'selected' | 'surface' | 'isDark'>
+  options: Pick<AppButtonVariantOptions, 'selected' | 'surface' | 'isDark' | 'accentColor'>
 ): string {
-  const { selected = false, surface = 'default', isDark = false } = options;
+  const { selected = false, surface = 'default', isDark = false, accentColor } = options;
   const onLightCard = surface === 'light-card';
 
   switch (variant) {
@@ -160,7 +182,7 @@ function getVariantTextClasses(
     case 'outline':
       return 'font-medium';
     case 'choice':
-      return getChoiceTheme(surface, isDark, selected).fontWeight === '600'
+      return getChoiceTheme(surface, isDark, selected, accentColor).fontWeight === '600'
         ? 'font-semibold'
         : 'font-medium';
     case 'panel':
@@ -211,6 +233,7 @@ export function getAppButtonClasses(options: AppButtonVariantOptions): {
     rounded,
     fullWidth,
     isDark,
+    accentColor,
     className,
     textClassName,
   } = options;
@@ -219,14 +242,14 @@ export function getAppButtonClasses(options: AppButtonVariantOptions): {
     getLayoutClasses(variant, fullWidth),
     getDefaultRounded(variant, rounded),
     SIZE_CONTAINER[size],
-    getVariantContainerClasses(variant, { selected, surface, isDark }),
+    getVariantContainerClasses(variant, { selected, surface, isDark, accentColor }),
     disabled && 'opacity-50',
     className
   );
 
   const text = joinClasses(
     SIZE_TEXT[size],
-    getVariantTextClasses(variant, { selected, surface, isDark }),
+    getVariantTextClasses(variant, { selected, surface, isDark, accentColor }),
     textClassName
   );
 
@@ -234,7 +257,7 @@ export function getAppButtonClasses(options: AppButtonVariantOptions): {
     variant === 'outline' ? getOutlineTheme(surface ?? 'default', isDark ?? false) : undefined;
   const choiceTheme =
     variant === 'choice'
-      ? getChoiceTheme(surface ?? 'default', isDark ?? false, selected ?? false)
+      ? getChoiceTheme(surface ?? 'default', isDark ?? false, selected ?? false, accentColor)
       : undefined;
 
   return {
@@ -244,7 +267,12 @@ export function getAppButtonClasses(options: AppButtonVariantOptions): {
       variant === 'outline'
         ? getOutlineBorderStyle(surface ?? 'default', isDark ?? false)
         : variant === 'choice'
-          ? getChoiceContainerStyle(surface ?? 'default', isDark ?? false, selected ?? false)
+          ? getChoiceContainerStyle(
+              surface ?? 'default',
+              isDark ?? false,
+              selected ?? false,
+              accentColor
+            )
           : undefined,
     textStyle:
       outlineTheme || choiceTheme

@@ -16,38 +16,33 @@ import { useAuth } from '@/app/contexts/AuthContext';
 import { useBookings } from '@/app/contexts/BookingsBadgeContext';
 import { useCollapsibleTitle } from '@/app/hooks/useCollapsibleTitle';
 import { useTranslation } from '@/app/hooks/useTranslation';
+import AppButton from '@/components/AppButton';
 import AnimatedView from '@/components/AnimatedView';
 import Avatar from '@/components/Avatar';
 import { Button } from '@/components/Button';
 import { CardScroller } from '@/components/CardScroller';
-import { Chip } from '@/components/Chip';
-import Header, { HeaderIcon } from '@/components/Header';
+import Header, { HeaderOutlineIconButton } from '@/components/Header';
 import LiveIndicator from '@/components/LiveIndicator';
 import ShowRating from '@/components/ShowRating';
 import ThemeScroller from '@/components/ThemeScroller';
 import ThemedText from '@/components/ThemedText';
 import { buildReservationReviewContextQuery } from '@/utils/bookingDetailHelpers';
 import {
-  getBookingEndDate,
   getBookingClientReviewRating,
   getBookingStartDate,
   getBookingUiStatusTranslationKey,
   isBookingCurrent,
-  isBookingMarkedCompleted,
   isBookingPast,
   isBookingUpcoming,
 } from '@/utils/bookingHelpers';
+import {
+  countClientBookingsByFilter,
+  filterClientBookings,
+  normalizeClientBookingFilter,
+  type ClientBookingFilter,
+} from '@/utils/clientBookingsFilter';
 import { isReservationIntroCooldownActive } from '@/utils/reservation-intro-cooldown';
 import { shadowPresets } from '@/utils/useShadow';
-
-type BookingFilter =
-  | 'all'
-  | 'current'
-  | 'upcoming'
-  | 'past'
-  | 'cancelled'
-  | 'rated'
-  | 'pending_review';
 
 function formatBookingDate(b: Booking, locale: string = 'en'): string {
   const d = new Date(b.date);
@@ -80,53 +75,6 @@ function groupBookingsByYear(
     byYear[year].push(b);
   }
   return byYear;
-}
-
-function countByFilter(bookings: Booking[]): {
-  current: number;
-  upcoming: number;
-  past: number;
-  cancelled: number;
-  rated: number;
-  pendingReview: number;
-} {
-  const now = Date.now();
-  let current = 0;
-  let upcoming = 0;
-  let past = 0;
-  let cancelled = 0;
-  let rated = 0;
-  let pendingReview = 0;
-  for (const b of bookings) {
-    const status = (b.status ?? '').toLowerCase();
-    const hasReview = getBookingClientReviewRating(b) != null;
-    if (status === 'cancelled' || status === 'canceled') {
-      cancelled += 1;
-    } else if (isBookingMarkedCompleted(b)) {
-      past += 1;
-      if (hasReview) {
-        rated += 1;
-      } else {
-        pendingReview += 1;
-      }
-    } else {
-      const start = getBookingStartDate(b).getTime();
-      const end = getBookingEndDate(b).getTime();
-      if (start <= now && end >= now) {
-        current += 1;
-      } else if (start > now) {
-        upcoming += 1;
-      } else {
-        past += 1;
-        if (hasReview) {
-          rated += 1;
-        } else {
-          pendingReview += 1;
-        }
-      }
-    }
-  }
-  return { current, upcoming, past, cancelled, rated, pendingReview };
 }
 
 type CountdownParts =
@@ -230,32 +178,17 @@ const TripsScreen = () => {
   } = useBookings();
   const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [selectedFilter, setSelectedFilter] = useState<BookingFilter>('all');
-  const counts = countByFilter(bookings);
+  const [selectedFilter, setSelectedFilter] = useState<ClientBookingFilter>('all');
+  const counts = countClientBookingsByFilter(bookings);
+  const activeFilter = normalizeClientBookingFilter(selectedFilter, counts);
 
-  const filteredBookings =
-    selectedFilter === 'all'
-      ? bookings
-      : selectedFilter === 'current'
-        ? bookings.filter((b) => isBookingCurrent(b))
-        : selectedFilter === 'upcoming'
-          ? bookings.filter((b) => isBookingUpcoming(b))
-          : selectedFilter === 'past'
-            ? bookings.filter((b) => isBookingPast(b))
-            : selectedFilter === 'cancelled'
-              ? bookings.filter((b) => {
-                  const status = (b.status ?? '').toLowerCase();
-                  return status === 'cancelled' || status === 'canceled';
-                })
-              : selectedFilter === 'rated'
-                ? bookings.filter(
-                    (b) => isBookingPast(b) && getBookingClientReviewRating(b) != null
-                  )
-                : selectedFilter === 'pending_review'
-                  ? bookings.filter(
-                      (b) => isBookingPast(b) && getBookingClientReviewRating(b) == null
-                    )
-                  : bookings;
+  useEffect(() => {
+    if (activeFilter !== selectedFilter) {
+      setSelectedFilter(activeFilter);
+    }
+  }, [activeFilter, selectedFilter]);
+
+  const filteredBookings = filterClientBookings(bookings, activeFilter);
 
   const onRefresh = useCallback(async () => {
     if (!apiToken) return;
@@ -277,8 +210,13 @@ const TripsScreen = () => {
     }, [apiToken, refreshBookingsIfStale])
   );
 
-  const byYear = groupBookingsByYear(filteredBookings, { upcomingFirst: selectedFilter === 'all' });
+  const byYear = groupBookingsByYear(filteredBookings, { upcomingFirst: activeFilter === 'all' });
   const years = Object.keys(byYear).sort((a, b) => Number(b) - Number(a));
+
+  const handleNewBooking = useCallback(async () => {
+    const skip = await isReservationIntroCooldownActive();
+    router.push(skip ? '/screens/reservation-create' : '/screens/reservation-create-start');
+  }, [router]);
 
   return (
     <View className="flex-1 bg-light-primary dark:bg-dark-primary">
@@ -289,17 +227,11 @@ const TripsScreen = () => {
         collapsibleTitleExpandedFontSize={36}
         collapsibleTitleCollapsedFontSize={20}
         rightComponents={[
-          <HeaderIcon
+          <HeaderOutlineIconButton
             key="add-booking"
-            icon="PlusCircle"
-            href="/screens/reservation-create-start"
-            iconSize={28}
-            onPress={async () => {
-              const skip = await isReservationIntroCooldownActive();
-              router.push(
-                skip ? '/screens/reservation-create' : '/screens/reservation-create-start'
-              );
-            }}
+            icon="Plus"
+            accessibilityLabel={t('commonReserve')}
+            onPress={() => void handleNewBooking()}
           />,
         ]}
       />
@@ -327,58 +259,58 @@ const TripsScreen = () => {
                 tintColor={accentColor}
               />
             }>
-            <CardScroller className="mb-4">
-              {counts.current > 0 && (
-                <Chip
-                  size="lg"
-                  label={`${t('tripsFilterCurrent')} (${counts.current})`}
-                  selectable
-                  isSelected={selectedFilter === 'current'}
+            <CardScroller className="mb-4" space={8}>
+              {counts.current > 0 ? (
+                <AppButton
+                  variant="choice"
+                  size="sm"
+                  selected={activeFilter === 'current'}
+                  title={`${t('tripsFilterCurrent')} (${counts.current})`}
                   onPress={() => setSelectedFilter('current')}
                 />
-              )}
-              <Chip
-                size="lg"
-                label={t('tripsFilterAll')}
-                selectable
-                isSelected={selectedFilter === 'all'}
+              ) : null}
+              <AppButton
+                variant="choice"
+                size="sm"
+                selected={activeFilter === 'all'}
+                title={t('tripsFilterAll')}
                 onPress={() => setSelectedFilter('all')}
               />
-              {counts.upcoming > 0 && (
-                <Chip
-                  size="lg"
-                  label={`${t('tripsFilterUpcoming')} (${counts.upcoming})`}
-                  selectable
-                  isSelected={selectedFilter === 'upcoming'}
+              {counts.upcoming > 0 ? (
+                <AppButton
+                  variant="choice"
+                  size="sm"
+                  selected={activeFilter === 'upcoming'}
+                  title={`${t('tripsFilterUpcoming')} (${counts.upcoming})`}
                   onPress={() => setSelectedFilter('upcoming')}
                 />
-              )}
-              <Chip
-                size="lg"
-                label={t('tripsFilterPast')}
-                selectable
-                isSelected={selectedFilter === 'past'}
+              ) : null}
+              <AppButton
+                variant="choice"
+                size="sm"
+                selected={activeFilter === 'past'}
+                title={t('tripsFilterPast')}
                 onPress={() => setSelectedFilter('past')}
               />
-              <Chip
-                size="lg"
-                label={`${t('tripsFilterCancelled')} (${counts.cancelled})`}
-                selectable
-                isSelected={selectedFilter === 'cancelled'}
+              <AppButton
+                variant="choice"
+                size="sm"
+                selected={activeFilter === 'cancelled'}
+                title={`${t('tripsFilterCancelled')} (${counts.cancelled})`}
                 onPress={() => setSelectedFilter('cancelled')}
               />
-              <Chip
-                size="lg"
-                label={`${t('tripsFilterRated')} (${counts.rated})`}
-                selectable
-                isSelected={selectedFilter === 'rated'}
+              <AppButton
+                variant="choice"
+                size="sm"
+                selected={activeFilter === 'rated'}
+                title={`${t('tripsFilterRated')} (${counts.rated})`}
                 onPress={() => setSelectedFilter('rated')}
               />
-              <Chip
-                size="lg"
-                label={`${t('tripsFilterPendingReview')} (${counts.pendingReview})`}
-                selectable
-                isSelected={selectedFilter === 'pending_review'}
+              <AppButton
+                variant="choice"
+                size="sm"
+                selected={activeFilter === 'pending_review'}
+                title={`${t('tripsFilterPendingReview')} (${counts.pendingReview})`}
                 onPress={() => setSelectedFilter('pending_review')}
               />
             </CardScroller>

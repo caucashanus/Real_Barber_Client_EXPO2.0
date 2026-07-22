@@ -2,6 +2,7 @@ import type { EmployeesNearestNextSlot } from '@/api/availability';
 import type { Branch, BranchEmployee } from '@/api/branches';
 import type { Employee, EmployeeBranch, EmployeeDetail, EmployeeService } from '@/api/employees';
 import type { TranslationKey } from '@/locales';
+import { getPragueTodayDateString } from '@/utils/teamMemberPageHelpers';
 
 export interface ReservationFlowData {
   branchId: string;
@@ -426,6 +427,21 @@ export function findServiceOptionOnBranch(
   return buildBranchServicePickerData(branch).options.find((s) => s.id === itemId) ?? null;
 }
 
+/** Rozdíl kalendářních dnů: slotDate − referenceDate (0 = stejný den). */
+function calendarDayDiffFromReferenceDate(isoDate: string, referenceIsoDate: string): number {
+  const parts = isoDate.split('-').map((x) => parseInt(x, 10));
+  const refParts = referenceIsoDate.split('-').map((x) => parseInt(x, 10));
+  if (parts.length !== 3 || refParts.length !== 3) return Number.NaN;
+  if (parts.some((n) => Number.isNaN(n)) || refParts.some((n) => Number.isNaN(n))) {
+    return Number.NaN;
+  }
+  const [yy, mm, dd] = parts;
+  const [ryy, rmm, rdd] = refParts;
+  const slotDay = new Date(yy, mm - 1, dd);
+  const refDay = new Date(ryy, rmm - 1, rdd);
+  return Math.round((slotDay.getTime() - refDay.getTime()) / 86400000);
+}
+
 /** Rozdíl kalendářních dnů: slotDate − dnes (0 = dnes, 1 = zítra, …). */
 function calendarDayDiffFromToday(isoDate: string): number {
   const parts = isoDate.split('-').map((x) => parseInt(x, 10));
@@ -449,6 +465,137 @@ export function formatNextSlotDisplayTime(slotStart: string): string {
   const nm = total % 60;
   if (nh >= 24) return '23:45';
   return `${String(nh).padStart(2, '0')}:${String(nm).padStart(2, '0')}`;
+}
+
+/** Slot-handoff tlačítko služby — „Dnes v 16:30“ / „Zítra nejdříve v 7:30“. */
+export function formatTimeButtonLabel(params: {
+  isoDate: string;
+  slotStart: string;
+  earliest: boolean;
+  dateLocaleTag: string;
+  t: (key: TranslationKey) => string;
+}): string {
+  const { isoDate, slotStart, earliest, dateLocaleTag, t } = params;
+  const time = formatNextSlotDisplayTime(slotStart);
+  const diff = calendarDayDiffFromReferenceDate(isoDate, getPragueTodayDateString());
+
+  if (diff === 0) {
+    const key = earliest ? 'bookingSlotHandoffTodayEarliest' : 'bookingSlotHandoffTodayAt';
+    return t(key).replace('{time}', time);
+  }
+  if (diff === 1) {
+    const key = earliest ? 'bookingSlotHandoffTomorrowEarliest' : 'bookingSlotHandoffTomorrowAt';
+    return t(key).replace('{time}', time);
+  }
+
+  const date = formatBookingSlotHandoffButtonDateLabel(isoDate, dateLocaleTag);
+  const key = earliest ? 'bookingSlotHandoffDateEarliest' : 'bookingSlotHandoffDateAt';
+  return t(key).replace('{date}', date).replace('{time}', time);
+}
+
+function formatBookingSlotHandoffButtonDateLabel(
+  isoDate: string,
+  dateLocaleTag: string
+): string {
+  const parts = isoDate.split('-').map((x) => parseInt(x, 10));
+  if (parts.length === 3 && !parts.some((n) => Number.isNaN(n))) {
+    const [yy, mm, dd] = parts;
+    if (dateLocaleTag.startsWith('cs')) {
+      return `${dd}. ${mm}.`;
+    }
+    const d = new Date(yy, mm - 1, dd);
+    return d.toLocaleDateString(dateLocaleTag, { day: 'numeric', month: 'short' });
+  }
+  return isoDate;
+}
+
+/** Slot-handoff řádek služby — handoff slot vs. nextAvailable + earliest. */
+export function formatBookingSlotHandoffServiceTimeButtonLabel(params: {
+  inSlot: boolean;
+  handoffDate: string;
+  handoffSlotStart: string;
+  nextAvailable?: { date: string; slotStart: string } | null;
+  dateLocaleTag: string;
+  t: (key: TranslationKey) => string;
+}): string {
+  const { inSlot, handoffDate, handoffSlotStart, nextAvailable, dateLocaleTag, t } = params;
+
+  if (inSlot) {
+    return formatTimeButtonLabel({
+      isoDate: handoffDate,
+      slotStart: handoffSlotStart,
+      earliest: false,
+      dateLocaleTag,
+      t,
+    });
+  }
+
+  if (nextAvailable?.date && nextAvailable.slotStart) {
+    return formatTimeButtonLabel({
+      isoDate: nextAvailable.date,
+      slotStart: nextAvailable.slotStart,
+      earliest: true,
+      dateLocaleTag,
+      t,
+    });
+  }
+
+  return t('bookingServiceSelect');
+}
+
+/** @deprecated Prefer formatTimeButtonLabel */
+export function formatBookingSlotHandoffTodayAtLabel(
+  slotStart: string,
+  t: (key: TranslationKey) => string
+): string {
+  return formatTimeButtonLabel({
+    isoDate: getPragueTodayDateString(),
+    slotStart,
+    earliest: false,
+    dateLocaleTag: 'cs-CZ',
+    t,
+  });
+}
+
+/** Třetí část kontextové řádky — „dnes 16:30“ / „15. 6. 16:30“. */
+export function formatBookingSlotHandoffDayTimeLabel(
+  isoDate: string,
+  slotStart: string,
+  dateLocaleTag: string,
+  t: (key: TranslationKey) => string
+): string {
+  const time = formatNextSlotDisplayTime(slotStart);
+  const diff = calendarDayDiffFromToday(isoDate);
+  if (diff === 0) {
+    return `${t('bookingSlotHandoffDayToday')} ${time}`;
+  }
+  const parts = isoDate.split('-').map((x) => parseInt(x, 10));
+  if (parts.length === 3 && !parts.some((n) => Number.isNaN(n))) {
+    const [yy, mm, dd] = parts;
+    if (dateLocaleTag.startsWith('cs')) {
+      return `${dd}. ${mm}. ${time}`;
+    }
+    const d = new Date(yy, mm - 1, dd);
+    const dateStr = d.toLocaleDateString(dateLocaleTag, { day: 'numeric', month: 'short' });
+    return `${dateStr} ${time}`;
+  }
+  return `${isoDate} ${time}`;
+}
+
+/** Kontext slot-handoff — „Andrea · Modřany · dnes 16:30“. */
+export function formatBookingSlotHandoffContextLine(params: {
+  employeeName?: string | null;
+  branchName?: string | null;
+  branchAddress?: string | null;
+  date: string;
+  slotStart: string;
+  dateLocaleTag: string;
+  t: (key: TranslationKey) => string;
+}): string {
+  const { employeeName, branchName, branchAddress, date, slotStart, dateLocaleTag, t } = params;
+  const branch = (branchName?.trim() || branchAddress?.trim() || '').trim();
+  const dayTime = formatBookingSlotHandoffDayTimeLabel(date, slotStart, dateLocaleTag, t);
+  return [employeeName?.trim(), branch, dayTime].filter(Boolean).join(' · ');
 }
 
 type EmployeesNearestRow = { price: number; nextSlot: EmployeesNearestNextSlot | null };

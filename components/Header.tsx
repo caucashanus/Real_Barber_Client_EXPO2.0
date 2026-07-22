@@ -15,6 +15,7 @@ import {
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import Icon, { IconName } from './Icon';
+import AppButton from '@/components/AppButton';
 
 type HeaderProps = {
   title?: string;
@@ -134,9 +135,11 @@ const Header: React.FC<HeaderProps> = ({
         <View className="flex-row justify-between">
           <View className="flex-row items-center">
             {showBackButton && (
-              <TouchableOpacity onPress={handleBackPress} className="relative z-50 mr-global">
-                <Icon name="ArrowLeft" size={24} color="white" />
-              </TouchableOpacity>
+              <HeaderGhostIconButton
+                onPress={handleBackPress}
+                className="relative z-50 mr-global"
+                iconColor="white"
+              />
             )}
 
             <View className="relative z-50 flex-row items-center">
@@ -176,9 +179,11 @@ const Header: React.FC<HeaderProps> = ({
         <View className="flex-row justify-between">
           <View className="flex-row items-center">
             {showBackButton && (
-              <TouchableOpacity onPress={handleBackPress} className="relative z-50 mr-global">
-                <Icon name="ArrowLeft" size={24} color="white" />
-              </TouchableOpacity>
+              <HeaderGhostIconButton
+                onPress={handleBackPress}
+                className="relative z-50 mr-global"
+                iconColor="white"
+              />
             )}
 
             <View className="relative z-50 flex-row items-center">
@@ -237,15 +242,7 @@ const Header: React.FC<HeaderProps> = ({
             {(showBackButton || leftComponent || title) && (
               <View className="min-w-0 flex-1 flex-row items-center pr-3">
                 {showBackButton && (
-                  <TouchableOpacity
-                    onPress={handleBackPress}
-                    className="relative z-50 mr-global shrink-0 py-4">
-                    <Icon
-                      name="ArrowLeft"
-                      size={24}
-                      color={isTransparent ? 'white' : colors.icon}
-                    />
-                  </TouchableOpacity>
+                  <HeaderGhostIconButton onPress={handleBackPress} className="relative z-50 mr-global shrink-0" />
                 )}
 
                 {(leftComponent || title) && (
@@ -301,11 +298,7 @@ const Header: React.FC<HeaderProps> = ({
       {(showBackButton || leftComponent || title || subtitle) && (
         <View className={`flex-row items-center ${middleComponent ? '' : 'min-w-0 flex-1 pr-2'}`}>
           {showBackButton && (
-            <TouchableOpacity
-              onPress={handleBackPress}
-              className="relative z-50 mr-global shrink-0 py-4">
-              <Icon name="ArrowLeft" size={24} color={isTransparent ? 'white' : colors.icon} />
-            </TouchableOpacity>
+            <HeaderGhostIconButton onPress={handleBackPress} className="relative z-50 mr-global shrink-0" />
           )}
 
           {(leftComponent || title || subtitle) && (
@@ -354,6 +347,61 @@ const Header: React.FC<HeaderProps> = ({
 };
 
 export default Header;
+
+/** Header back — ghost icon (no border), chevron left. */
+export function HeaderGhostIconButton({
+  onPress,
+  className,
+  accessibilityLabel = 'Back',
+  iconColor,
+}: {
+  onPress?: () => void;
+  className?: string;
+  accessibilityLabel?: string;
+  iconColor?: string;
+}) {
+  return (
+    <AppButton
+      variant="ghost"
+      size="icon"
+      rounded="lg"
+      onPress={onPress}
+      accessibilityLabel={accessibilityLabel}
+      className={className}>
+      <Icon name="ChevronLeft" size={20} color={iconColor} />
+    </AppButton>
+  );
+}
+
+/** Header action — outline icon (e.g. + nová rezervace). Web: outline + size icon 36×36. */
+export function HeaderOutlineIconButton({
+  icon,
+  onPress,
+  href,
+  className,
+  accessibilityLabel,
+  iconSize = 20,
+}: {
+  icon: IconName;
+  onPress?: () => void;
+  href?: string;
+  className?: string;
+  accessibilityLabel?: string;
+  iconSize?: number;
+}) {
+  return (
+    <AppButton
+      variant="outline"
+      size="icon"
+      rounded="lg"
+      onPress={onPress}
+      href={href}
+      accessibilityLabel={accessibilityLabel}
+      className={className}>
+      <Icon name={icon} size={iconSize} />
+    </AppButton>
+  );
+}
 
 type HeaderItemProps = {
   href?: string;

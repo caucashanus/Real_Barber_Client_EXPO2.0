@@ -13,12 +13,16 @@ import {
   type ReservationSlotHandoff,
 } from '@/utils/reservationSlotHandoff';
 import type { BarberEntryMode } from '@/utils/reservationCreateHelpers';
+import { formatBookingSlotHandoffContextLine } from '@/utils/reservationCreateHelpers';
+import type { TranslationKey } from '@/locales';
 
 interface UseReservationSlotHandoffParams extends ReservationFlowDataState {
   apiToken: string | null;
   client: CrmClient | null | undefined;
   barberEntryMode: BarberEntryMode;
   presetEmployeeId: string | undefined;
+  dateLocaleTag: string;
+  t: (key: TranslationKey) => string;
 }
 
 function isServiceAvailableInHandoffSlot(service: BookingSlotServiceItem): boolean {
@@ -32,6 +36,8 @@ export function useReservationSlotHandoff({
   client,
   barberEntryMode,
   presetEmployeeId,
+  dateLocaleTag,
+  t,
   data,
   setData,
 }: UseReservationSlotHandoffParams) {
@@ -130,8 +136,16 @@ export function useReservationSlotHandoff({
 
   const slotHandoffContextLabel = useMemo(() => {
     if (!handoff) return '';
-    return `${handoff.employeeName} · ${handoff.branchName} · ${handoff.date} ${handoff.slotStart}`;
-  }, [handoff]);
+    return formatBookingSlotHandoffContextLine({
+      employeeName: handoff.employeeName,
+      branchName: handoff.branchName,
+      branchAddress: handoff.branchAddress,
+      date: handoff.date,
+      slotStart: handoff.slotStart,
+      dateLocaleTag,
+      t,
+    });
+  }, [handoff, dateLocaleTag, t]);
 
   return {
     handoff,

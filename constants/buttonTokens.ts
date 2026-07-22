@@ -16,7 +16,7 @@ export const BUTTON_TOKENS = {
  */
 export const BUTTON_OUTLINE = {
   dark: {
-    borderColor: 'rgba(161, 161, 161, 0.35)',
+    borderColor: 'rgba(255, 255, 255, 0.35)',
     textColor: '#FFFFFF',
     pressedBackgroundClassName: 'active:bg-white/10',
   },
@@ -34,7 +34,9 @@ export const BUTTON_OUTLINE = {
 
 /**
  * Choice variant — slot/day/tier pickers.
- * Unselected: subtle border + muted text. Selected: accent border + tint.
+ * Unselected: subtle border + muted text.
+ * Selected: user accent (@app_accent_color) border ~70 % + bg ~15 % via AppButton.
+ * Static `selected` below is fallback when accentColor is not passed.
  */
 export const BUTTON_CHOICE = {
   dark: {
