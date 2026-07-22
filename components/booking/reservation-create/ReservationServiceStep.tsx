@@ -5,7 +5,7 @@ import { ActivityIndicator, Pressable, ScrollView, View } from 'react-native';
 import type { BookingSlotServiceItem } from '@/api/bookings';
 import type { ReservationCreateStepProps } from './types';
 
-import { Button } from '@/components/Button';
+import AppButton from '@/components/AppButton';
 import { CardScroller } from '@/components/CardScroller';
 import ThemedText from '@/components/ThemedText';
 import Section from '@/components/layout/Section';
@@ -120,10 +120,10 @@ export default function ReservationServiceStep({ flow }: ReservationCreateStepPr
                         </ThemedText>
                       ) : null}
                     </View>
-                    <Button
+                    <AppButton
                       title={timeLabel}
-                      variant={inSlot ? 'primary' : 'outline'}
-                      size="small"
+                      variant={inSlot ? 'default' : 'outline'}
+                      size="sm"
                       rounded="lg"
                       className="px-3"
                       onPress={() => flow.selectSlotService(service)}

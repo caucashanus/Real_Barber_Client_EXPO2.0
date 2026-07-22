@@ -5,7 +5,7 @@ import { View } from 'react-native';
 
 import { useBranchFilter, type BranchFilterState } from '@/app/contexts/BranchFilterContext';
 import { useTranslation } from '@/app/hooks/useTranslation';
-import { Button } from '@/components/Button';
+import AppButton from '@/components/AppButton';
 import { Chip } from '@/components/Chip';
 import Header from '@/components/Header';
 import ThemeFooter from '@/components/ThemeFooter';
@@ -189,11 +189,12 @@ export default function FiltersScreen() {
         </Section>
       </ThemedScroller>
       <ThemeFooter>
-        <Button
+        <AppButton
           title={t('filtersApply')}
           rounded="full"
-          size="large"
-          variant="primary"
+          size="lg"
+          variant="default"
+          fullWidth
           textClassName="text-white"
           onPress={handleApplyFilters}
         />

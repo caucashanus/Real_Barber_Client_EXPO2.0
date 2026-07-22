@@ -9,7 +9,7 @@ import { useBookings } from '@/app/contexts/BookingsBadgeContext';
 import { useLanguage } from '@/app/contexts/LanguageContext';
 import useThemeColors from '@/app/contexts/ThemeColors';
 import { useTranslation } from '@/app/hooks/useTranslation';
-import { Button } from '@/components/Button';
+import AppButton from '@/components/AppButton';
 import Header from '@/components/Header';
 import ThemedFooter from '@/components/ThemeFooter';
 import ThemedText from '@/components/ThemedText';
@@ -187,16 +187,16 @@ export default function RescheduleSummaryScreen() {
 
         <ThemedFooter>
           <View className="flex-row overflow-hidden rounded-2xl bg-light-secondary dark:bg-dark-secondary">
-            <Button
-              variant="primary"
-              size="small"
-              rounded="none"
+            <AppButton
+              variant="default"
+              size="sm"
               title={t('rescheduleConfirm')}
               loading={saving}
               onPress={() => {
                 onConfirm().catch(() => undefined);
               }}
               disabled={saving}
+              fullWidth
               className="w-full min-w-0 flex-1 rounded-none px-0 py-3.5"
               textClassName="text-sm font-semibold text-white"
               style={{ backgroundColor: colors.highlight }}

@@ -25,7 +25,6 @@ import { startBarberSlotHandoffBooking } from '@/utils/reservationSlotHandoff';
 const TODAY_TEAM_CARD_WIDTH = 160;
 const TODAY_TEAM_IMAGE_HEIGHT = 160;
 const CARD_TEXT_ROW_GAP_CLASS = 'w-full flex-col gap-0.5';
-const CARD_SLOT_BUTTON_SPACING_CLASS = 'mr-1.5 mb-1';
 
 interface HomeTodayTeamSectionProps {
   cards: HomeTodayTeamCardModel[];
@@ -48,7 +47,7 @@ function renderHomeTodayTeamSlotButtons({
   if (card.footer.kind !== 'slots') return null;
 
   return (
-    <View className="w-full flex-row flex-wrap items-start justify-start">
+    <View className="w-full flex-row flex-wrap items-start">
       {card.footer.slots.map((slot) => {
         const { branchName, branchAddress } = resolveHomeTodaySlotBranch(
           card.branches,
@@ -58,8 +57,9 @@ function renderHomeTodayTeamSlotButtons({
         return (
           <SlotTimePill
             key={`${slot.date}-${slot.time}-${slot.branchId}`}
-            className={CARD_SLOT_BUTTON_SPACING_CLASS}
-            label={slot.time}
+            compact
+            spaced
+            time={slot.time}
             onPress={() => {
               startBarberSlotHandoffBooking({
                 employeeId: card.id,
@@ -76,8 +76,9 @@ function renderHomeTodayTeamSlotButtons({
         );
       })}
       <SlotTimePill
-        className={CARD_SLOT_BUTTON_SPACING_CLASS}
-        label={t('homeTodayTeamMoreSlots')}
+        compact
+        spaced
+        title={t('homeTodayTeamMoreSlots')}
         onPress={() => router.push(`/screens/barber-detail?id=${card.id}`)}
       />
     </View>

@@ -6,6 +6,7 @@ import { ActionSheetRef } from 'react-native-actions-sheet';
 import useThemeColors from '@/app/contexts/ThemeColors';
 import { useTheme } from '@/app/contexts/ThemeContext';
 import ActionSheetThemed from '@/components/ActionSheetThemed';
+import AppButton from '@/components/AppButton';
 import { Button } from '@/components/Button';
 import { Chip } from '@/components/Chip';
 import ThemedText from '@/components/ThemedText';
@@ -113,9 +114,9 @@ const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
         ) : null}
         <View className="w-full flex-row justify-center">
           <Button title={cancelText} variant="outline" className="flex-1" onPress={handleCancel} />
-          <Button
+          <AppButton
             title={confirmText}
-            variant="primary"
+            variant="default"
             className="ml-3 px-6"
             onPress={handleConfirm}
           />

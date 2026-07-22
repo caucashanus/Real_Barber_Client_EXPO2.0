@@ -10,7 +10,8 @@ import {
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import type { BookingEngineFlow } from '@/app/hooks/useBookingEngineFlow';
-import { Button } from '@/components/Button';
+import AppButton from '@/components/AppButton';
+import ReserveButton from '@/components/ReserveButton';
 import {
   BookingEngineScrollProvider,
   useBookingEngineScroll,
@@ -102,16 +103,30 @@ function BookingEngineFlowShellBody({ flow, children }: BookingEngineFlowShellPr
                 </ThemedText>
               </View>
             ) : null}
-            <Button
-              title={footerAction.title}
-              variant={footerAction.variant}
-              size="large"
-              rounded="full"
-              className="w-full"
-              loading={footerAction.loading}
-              disabled={footerAction.disabled}
-              onPress={footerAction.onPress}
-            />
+            {footerAction.variant === 'default' ? (
+              <ReserveButton
+                title={footerAction.title}
+                size="lg"
+                rounded="full"
+                fullWidth
+                className="w-full"
+                loading={footerAction.loading}
+                disabled={footerAction.disabled}
+                onPress={footerAction.onPress}
+              />
+            ) : (
+              <AppButton
+                title={footerAction.title}
+                variant="outline"
+                size="lg"
+                rounded="full"
+                fullWidth
+                className="w-full"
+                loading={footerAction.loading}
+                disabled={footerAction.disabled}
+                onPress={footerAction.onPress}
+              />
+            )}
           </View>
         ) : null}
       </View>

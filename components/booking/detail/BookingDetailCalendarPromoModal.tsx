@@ -1,6 +1,7 @@
 import React from 'react';
 import { Modal, Pressable } from 'react-native';
 
+import AppButton from '@/components/AppButton';
 import { Button } from '@/components/Button';
 import ThemedText from '@/components/ThemedText';
 import type { TranslationKey } from '@/locales';
@@ -33,10 +34,10 @@ export default function BookingDetailCalendarPromoModal({
           <ThemedText className="text-center text-sm text-light-subtext dark:text-dark-subtext">
             {t('bookingDetailPostBookingCalendarMessage')}
           </ThemedText>
-          <Button
+          <AppButton
             title={t('bookingAddToCalendar')}
             onPress={onAddToCalendar}
-            variant="primary"
+            variant="default"
             iconStart="CalendarPlus"
           />
           <Button

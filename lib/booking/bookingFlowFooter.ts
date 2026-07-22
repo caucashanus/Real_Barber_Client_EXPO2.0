@@ -23,7 +23,7 @@ export function resolveBookingFlowFooterAction(params: {
   onPress: () => void;
   loading: boolean;
   disabled: boolean;
-  variant: 'primary' | 'outline';
+  variant: 'default' | 'outline';
 } | null {
   const {
     isContactStep,
@@ -75,6 +75,6 @@ export function resolveBookingFlowFooterAction(params: {
     onPress: onSubmit,
     loading: submitting,
     disabled: submitting,
-    variant: 'primary',
+    variant: 'default',
   };
 }

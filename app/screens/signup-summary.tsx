@@ -9,7 +9,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useAuth } from '@/app/contexts/AuthContext';
 import useThemeColors from '@/app/contexts/ThemeColors';
 import { useTranslation } from '@/app/hooks/useTranslation';
-import { Button } from '@/components/Button';
+import AppButton from '@/components/AppButton';
 import Icon from '@/components/Icon';
 import ThemedText from '@/components/ThemedText';
 
@@ -90,10 +90,11 @@ export default function SignupSummaryScreen() {
               </ThemedText>
             </View>
 
-            <Button
-              variant="primary"
-              size="large"
+            <AppButton
+              variant="default"
+              size="lg"
               rounded="full"
+              fullWidth
               title={t('signupWelcomeJoinTeam')}
               onPress={() => router.replace('/(tabs)/(home)')}
               className="w-full"

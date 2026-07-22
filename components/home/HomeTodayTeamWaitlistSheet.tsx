@@ -5,6 +5,7 @@ import { ActionSheetRef } from 'react-native-actions-sheet';
 import { joinEmployeeWaitlist } from '@/api/waitlist';
 import { useAuth } from '@/app/contexts/AuthContext';
 import ActionSheetThemed from '@/components/ActionSheetThemed';
+import AppButton from '@/components/AppButton';
 import { Button } from '@/components/Button';
 import ThemedText from '@/components/ThemedText';
 import type { TranslationKey } from '@/locales';
@@ -92,9 +93,9 @@ const HomeTodayTeamWaitlistSheet = forwardRef<
             onPress={handleClose}
             disabled={loading}
           />
-          <Button
+          <AppButton
             title={loading ? t('commonLoading') : t('homeTodayTeamWaitlistJoin')}
-            variant="primary"
+            variant="default"
             className="ml-3 flex-1"
             onPress={() => {
               void handleJoin();

@@ -65,7 +65,7 @@ export default function BarberTodaySlotsSection({
       ) : null}
 
       {!loadingSlots && availabilityState === 'slots' ? (
-        <View className="flex-row flex-wrap items-start gap-2 self-start">
+        <View className="flex-row flex-wrap items-start self-start">
           {todaySlots.map((slot) => {
             const { branchName, branchAddress } = resolveBranchForSlot(
               branches,
@@ -75,8 +75,8 @@ export default function BarberTodaySlotsSection({
             return (
               <SlotTimePill
                 key={`${slot.date}-${slot.time}-${slot.branchId}`}
-                label={slot.time}
-                surface="light-card"
+                spaced
+                time={slot.time}
                 onPress={() => {
                   startBarberSlotHandoffBooking({
                     employeeId,

@@ -6,6 +6,7 @@ import { ActionSheetRef } from 'react-native-actions-sheet';
 import Favorite from '@/components/Favorite';
 import Icon from '@/components/Icon';
 import { Button } from '@/components/Button';
+import ReserveButton from '@/components/ReserveButton';
 import ActionSheetThemed from '@/components/ActionSheetThemed';
 import ThemedText from '@/components/ThemedText';
 import { buildBarberBookingHref } from '@/utils/teamMemberPageHelpers';
@@ -88,9 +89,8 @@ export default function BarberProfileHeaderActions({
             iconStart="Star"
             onPress={handleRate}
           />
-          <Button
+          <ReserveButton
             title={t('barberMenuBook')}
-            variant="primary"
             iconStart="CalendarPlus"
             onPress={handleBook}
           />

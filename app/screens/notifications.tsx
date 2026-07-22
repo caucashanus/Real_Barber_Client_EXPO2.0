@@ -13,6 +13,7 @@ import {
 import { useAuth } from '@/app/contexts/AuthContext';
 import { useTranslation } from '@/app/hooks/useTranslation';
 import ActionSheetThemed from '@/components/ActionSheetThemed';
+import AppButton from '@/components/AppButton';
 import { Button } from '@/components/Button';
 import { CardScroller } from '@/components/CardScroller';
 import { Chip } from '@/components/Chip';
@@ -99,9 +100,10 @@ function NotificationDetailSheet({
       </ThemedText>
 
       {primaryActionLabel ? (
-        <Button
+        <AppButton
           title={primaryActionLabel}
-          variant="primary"
+          variant="default"
+          fullWidth
           className="mt-6 w-full"
           onPress={onPrimaryAction}
         />

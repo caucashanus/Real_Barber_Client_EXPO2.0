@@ -14,7 +14,7 @@ import { useAuth } from '@/app/contexts/AuthContext';
 import { useLanguage } from '@/app/contexts/LanguageContext';
 import useThemeColors from '@/app/contexts/ThemeColors';
 import { useTranslation } from '@/app/hooks/useTranslation';
-import { Button } from '@/components/Button';
+import AppButton from '@/components/AppButton';
 import { Chip } from '@/components/Chip';
 import Header from '@/components/Header';
 import Icon from '@/components/Icon';
@@ -452,14 +452,14 @@ export default function RescheduleScreen() {
 
         <ThemedFooter>
           <View className="flex-row overflow-hidden rounded-2xl bg-light-secondary dark:bg-dark-secondary">
-            <Button
-              variant={canSave ? 'primary' : 'ghost'}
-              size="small"
-              rounded="none"
+            <AppButton
+              variant={canSave ? 'default' : 'ghost'}
+              size="sm"
               title={t('rescheduleContinue')}
               onPress={() => {
                 onContinueToSummary();
               }}
+              fullWidth
               className={`w-full min-w-0 flex-1 rounded-none px-0 py-3.5 ${!canSave ? 'opacity-60' : ''}`}
               textClassName={
                 canSave

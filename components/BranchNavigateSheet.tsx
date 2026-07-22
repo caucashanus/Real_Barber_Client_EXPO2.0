@@ -4,7 +4,7 @@ import { ActionSheetRef } from 'react-native-actions-sheet';
 
 import { useTranslation } from '@/app/hooks/useTranslation';
 import ActionSheetThemed from '@/components/ActionSheetThemed';
-import { Button } from '@/components/Button';
+import AppButton from '@/components/AppButton';
 import Icon from '@/components/Icon';
 import ThemedText from '@/components/ThemedText';
 
@@ -66,17 +66,17 @@ export const BranchNavigateSheet = forwardRef<ActionSheetRef, BranchNavigateShee
               <Icon name="Copy" size={12} className="text-light-subtext dark:text-dark-subtext" />
             </Pressable>
           ) : null}
-          <Button
+          <AppButton
             title={t('kudyOpenGoogleMaps')}
             onPress={() => openMaps('google')}
-            variant="primary"
+            variant="default"
             iconStart="Map"
             style={{ backgroundColor: '#34A853' }}
           />
-          <Button
+          <AppButton
             title={t('kudyOpenWaze')}
             onPress={() => openMaps('waze')}
-            variant="primary"
+            variant="default"
             iconStart="Navigation"
             style={{ backgroundColor: '#33CCFF' }}
           />

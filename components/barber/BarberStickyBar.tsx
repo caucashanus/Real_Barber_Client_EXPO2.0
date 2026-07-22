@@ -2,8 +2,8 @@ import { router } from 'expo-router';
 import React, { useEffect, useRef } from 'react';
 import { Animated, Pressable, View, useWindowDimensions } from 'react-native';
 
-import { Button } from '@/components/Button';
 import Icon from '@/components/Icon';
+import ReserveButton from '@/components/ReserveButton';
 import LiveIndicator from '@/components/LiveIndicator';
 import ThemedText from '@/components/ThemedText';
 import {
@@ -104,10 +104,9 @@ export default function BarberStickyBar({
             <Icon name="Phone" size={14} />
           </Pressable>
 
-          <Button
+          <ReserveButton
             title={t('commonReserve')}
-            variant="primary"
-            size="small"
+            size="sm"
             rounded="lg"
             className="shrink-0 px-3"
             href={reserveHref}

@@ -5,7 +5,7 @@ import { View, Pressable } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { useTranslation } from '@/app/hooks/useTranslation';
-import { Button } from '@/components/Button';
+import AppButton from '@/components/AppButton';
 import ThemedText from '@/components/ThemedText';
 
 const GUIDE_STEP_IMAGES = [
@@ -58,10 +58,10 @@ export default function GuideMyHaircutsScreen() {
         <ThemedText className="mt-1 px-2 text-center text-sm text-white">
           {current.buttonText}
         </ThemedText>
-        <Button
+        <AppButton
           title={isLastStep ? t('guideMyHaircutsGotIt') : t('guideMyHaircutsNext')}
-          variant="primary"
-          size="large"
+          variant="default"
+          size="lg"
           className="mt-4"
           textClassName="text-white"
           rounded="full"

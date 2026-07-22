@@ -16,7 +16,7 @@ import { useLanguage } from '@/app/contexts/LanguageContext';
 import { useBranchDetailScreen } from '@/app/hooks/useBranchDetailScreen';
 import { useTranslation } from '@/app/hooks/useTranslation';
 import { BranchNavigateSheet } from '@/components/BranchNavigateSheet';
-import { Button } from '@/components/Button';
+import ReserveButton from '@/components/ReserveButton';
 import Favorite from '@/components/Favorite';
 import Header from '@/components/Header';
 import ImageCarousel from '@/components/ImageCarousel';
@@ -187,11 +187,10 @@ export default function BranchDetailScreen() {
       <View
         style={{ paddingBottom: insets.bottom }}
         className="bg-light-primary px-global pt-4 dark:bg-dark-primary">
-        <Button
+        <ReserveButton
           title={t('branchReserve')}
-          variant="primary"
           className="w-full"
-          size="medium"
+          size="md"
           rounded="lg"
           href={`/screens/reservation-create?recipe=branch-first&branchId=${encodeURIComponent(branch.id)}`}
         />

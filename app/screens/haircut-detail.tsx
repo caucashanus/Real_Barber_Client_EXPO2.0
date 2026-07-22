@@ -22,6 +22,7 @@ import { useTranslation } from '@/app/hooks/useTranslation';
 import AnimatedView from '@/components/AnimatedView';
 import Avatar from '@/components/Avatar';
 import BarberPicker from '@/components/BarberPicker';
+import AppButton from '@/components/AppButton';
 import { Button } from '@/components/Button';
 import HaircutNoteSections from '@/components/HaircutNoteSections';
 import Header from '@/components/Header';
@@ -548,9 +549,9 @@ export default function HaircutDetailScreen() {
               className="flex-1"
               onPress={cancelEdit}
             />
-            <Button
+            <AppButton
               title={saving ? 'Saving…' : t('commonSave')}
-              variant="primary"
+              variant="default"
               textClassName="text-white"
               className="flex-1"
               onPress={handleSave}
@@ -566,9 +567,9 @@ export default function HaircutDetailScreen() {
               className="flex-1"
               onPress={handleDelete}
             />
-            <Button
+            <AppButton
               title={t('commonEdit')}
-              variant="primary"
+              variant="default"
               iconStart="UserRoundPen"
               className="min-w-0 flex-1"
               onPress={() => {

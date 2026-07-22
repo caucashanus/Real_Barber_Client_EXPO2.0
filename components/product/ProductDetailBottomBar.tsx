@@ -1,7 +1,7 @@
 import React from 'react';
 import { View } from 'react-native';
 
-import { Button } from '@/components/Button';
+import AppButton from '@/components/AppButton';
 import ThemedText from '@/components/ThemedText';
 
 interface ProductDetailBottomBarProps {
@@ -30,12 +30,12 @@ export default function ProductDetailBottomBar({
         </ThemedText>
       </View>
       <View className="ml-auto flex-row items-center">
-        <Button
+        <AppButton
           title={buttonTitle}
-          variant="primary"
+          variant="default"
           className="ml-6 px-6"
           textClassName="text-white"
-          size="medium"
+          size="md"
           href={buttonHref}
           rounded="lg"
         />

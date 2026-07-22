@@ -8,7 +8,7 @@ import { useSetTransferRecipient } from '@/app/contexts/TransferRecipientContext
 import { useTranslation } from '@/app/hooks/useTranslation';
 import ActionSheetThemed from '@/components/ActionSheetThemed';
 import Avatar from '@/components/Avatar';
-import { Button } from '@/components/Button';
+import AppButton from '@/components/AppButton';
 import ThemedText from '@/components/ThemedText';
 import type { TranslationKey } from '@/locales';
 import { isVisitReservationBonusTransaction, getRbCoinsTransactionAvatarSrc } from '@/utils/rbcCoinsHistoryUi';
@@ -183,9 +183,10 @@ function TransactionDetailContent({ transaction, onClose }: TransactionDetailCon
         </View>
 
         {isTransfer ? (
-          <Button
+          <AppButton
             title={t('walletDetailSend')}
-            variant="primary"
+            variant="default"
+            fullWidth
             className="mt-4 w-full"
             onPress={handleSend}
           />

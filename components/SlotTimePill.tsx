@@ -1,40 +1,66 @@
 import React from 'react';
-import type { ViewStyle } from 'react-native';
+import { View } from 'react-native';
 
-import AppButton, { type AppButtonSurface } from '@/components/AppButton';
+import AppButton from '@/components/AppButton';
+import { formatNextSlotDisplayTime } from '@/utils/reservationCreateHelpers';
+
+/** Globální outfit pro nejbližší termíny (profil holiče). */
+export const NEXT_SLOT_BUTTON_CLASS = 'h-8 rounded-lg px-2 py-1';
+export const NEXT_SLOT_BUTTON_TEXT_CLASS = 'text-sm font-semibold tabular-nums';
+
+/** Kompaktní varianta — karty holičů (Dnes k dispozici / Nejbližší termíny). */
+export const NEXT_SLOT_BUTTON_COMPACT_CLASS = 'h-7 rounded-md px-1.5 py-0.5';
+export const NEXT_SLOT_BUTTON_COMPACT_TEXT_CLASS = 'text-xs font-semibold tabular-nums';
+
+const SLOT_PILL_SPACING_STYLE = { marginRight: 6, marginBottom: 6 } as const;
 
 interface SlotTimePillProps {
-  label: string;
+  /** HH:MM — zobrazí se přes formatNextSlotDisplayTime. */
+  time?: string;
+  /** Vlastní text (např. „Další“), když není `time`. */
+  title?: string;
   onPress?: () => void;
-  selected?: boolean;
-  surface?: AppButtonSurface;
   className?: string;
-  style?: ViewStyle;
   disabled?: boolean;
+  /** Menší pill pro úzké karty na stránce holičů. */
+  compact?: boolean;
+  /** Mezera mezi pills ve flex-wrap řádku (RN gap ne vždy funguje). */
+  spaced?: boolean;
 }
 
-/** Compact choice button for bookable slot times (e.g. 14:00). */
+/** Choice tlačítko pro klik na nejbližší termín → booking handoff. */
 export default function SlotTimePill({
-  label,
+  time,
+  title,
   onPress,
-  selected = false,
-  surface = 'default',
   className,
-  style,
   disabled = false,
+  compact = false,
+  spaced = false,
 }: SlotTimePillProps) {
-  return (
+  const displayTitle = time ? formatNextSlotDisplayTime(time) : (title ?? '');
+
+  const button = (
     <AppButton
       variant="choice"
-      size="xs"
-      title={label}
+      size={compact ? 'xs' : 'sm'}
+      title={displayTitle}
       onPress={onPress}
-      selected={selected}
-      surface={surface}
       disabled={disabled}
       disableHaptic
-      className={className ?? ''}
-      style={style}
+      className={[
+        compact ? NEXT_SLOT_BUTTON_COMPACT_CLASS : NEXT_SLOT_BUTTON_CLASS,
+        className,
+      ]
+        .filter(Boolean)
+        .join(' ')}
+      textClassName={
+        compact ? NEXT_SLOT_BUTTON_COMPACT_TEXT_CLASS : NEXT_SLOT_BUTTON_TEXT_CLASS
+      }
     />
   );
+
+  if (!spaced) return button;
+
+  return <View style={SLOT_PILL_SPACING_STYLE}>{button}</View>;
 }

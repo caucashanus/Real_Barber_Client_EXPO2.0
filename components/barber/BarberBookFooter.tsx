@@ -1,7 +1,7 @@
 import React from 'react';
 import { View } from 'react-native';
 
-import { Button } from '@/components/Button';
+import ReserveButton from '@/components/ReserveButton';
 import ThemedText from '@/components/ThemedText';
 import type { TranslationKey } from '@/locales';
 
@@ -21,11 +21,10 @@ export default function BarberBookFooter({ employeeId, bottomInset, t }: BarberB
         <ThemedText className="text-xs opacity-60">{t('barberReserveWith')}</ThemedText>
       </View>
       <View className="ml-auto flex-row items-center">
-        <Button
+        <ReserveButton
           title={t('commonReserve')}
-          variant="primary"
           className="ml-6 px-6"
-          size="medium"
+          size="md"
           rounded="lg"
           href={`/screens/reservation-create?employeeId=${encodeURIComponent(employeeId)}`}
         />

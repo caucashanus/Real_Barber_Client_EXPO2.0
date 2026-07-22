@@ -7,7 +7,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { getItemById, type Item } from '@/api/items';
 import { useAuth } from '@/app/contexts/AuthContext';
 import { useTranslation } from '@/app/hooks/useTranslation';
-import { Button } from '@/components/Button';
+import ReserveButton from '@/components/ReserveButton';
 import { Chip } from '@/components/Chip';
 import Favorite from '@/components/Favorite';
 import Header from '@/components/Header';
@@ -164,11 +164,10 @@ export default function ServiceDetailScreen() {
           <ThemedText className="text-xs opacity-60">{t('serviceChooseBranchBarber')}</ThemedText>
         </View>
         <View className="ml-auto flex-row items-center">
-          <Button
+          <ReserveButton
             title={t('commonReserve')}
-            variant="primary"
             className="ml-6 px-6"
-            size="medium"
+            size="md"
             rounded="lg"
             href={`/screens/reservation-create?recipe=service-detail&itemId=${encodeURIComponent(item.id)}&itemName=${encodeURIComponent(item.name ?? '')}`}
           />

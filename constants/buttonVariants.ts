@@ -2,6 +2,9 @@
  * Global button variant styles (default, outline, choice, panel, secondary, ghost, destructive, link).
  * Use via `AppButton` or `getAppButtonClasses()` — do not hand-roll per screen.
  *
+ * Default (`variant="default"`) — web-aligned name, app-only use:
+ * booking / Rezervovat CTA (header, hero, sticky profil, submit). Prefer `<ReserveButton />`.
+ *
  * Outline (`variant="outline"`):
  * - default surface, dark mode → gray border, white text, white/10 hover
  * - default surface, light mode → black border, black text, black/10 hover
@@ -114,7 +117,7 @@ function getVariantContainerClasses(
 
   switch (variant) {
     case 'default':
-      return 'border-0 bg-brand-primary active:opacity-90';
+      return 'border-0 bg-highlight active:opacity-90';
     case 'outline':
       return joinClasses(
         'border bg-transparent',
@@ -153,7 +156,7 @@ function getVariantTextClasses(
 
   switch (variant) {
     case 'default':
-      return 'font-bold text-brand-primary-foreground';
+      return 'font-medium text-white';
     case 'outline':
       return 'font-medium';
     case 'choice':

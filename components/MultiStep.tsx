@@ -23,6 +23,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import useThemeColors from '@/app/contexts/ThemeColors';
 import { useTranslation } from '@/app/hooks/useTranslation';
+import AppButton from '@/components/AppButton';
 import { Button } from '@/components/Button';
 import Header from '@/components/Header';
 import Icon from '@/components/Icon';
@@ -369,10 +370,11 @@ const MultiStep = forwardRef<MultiStepHandle, MultiStepProps>(function MultiStep
         {/* Bottom Navigation – stejná logika jako tlačítko „Jdeme na to“ (accent pozadí + bílý text) */}
         <View
           className={`px-4 ${bottomPadClass} border-t border-light-secondary dark:border-dark-secondary`}>
-          <Button
-            variant="primary"
-            size="large"
+          <AppButton
+            variant="default"
+            size="lg"
             rounded="full"
+            fullWidth
             title={footerTitle}
             onPress={() => {
               if (onFooterPrimaryPress) {

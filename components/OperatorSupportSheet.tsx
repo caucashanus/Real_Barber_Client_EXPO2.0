@@ -6,7 +6,7 @@ import { ActionSheetRef } from 'react-native-actions-sheet';
 import useThemeColors from '@/app/contexts/ThemeColors';
 import { useTranslation } from '@/app/hooks/useTranslation';
 import ActionSheetThemed from '@/components/ActionSheetThemed';
-import { Button } from '@/components/Button';
+import AppButton from '@/components/AppButton';
 import ThemedText from '@/components/ThemedText';
 import {
   openOperatorPhone,
@@ -63,23 +63,23 @@ export const OperatorSupportSheet = forwardRef<ActionSheetRef>(function Operator
             .
           </ThemedText>
         </View>
-        <Button
+        <AppButton
           title={t('operatorContactPhone')}
           onPress={() => runContactAction(openOperatorPhone)}
-          variant="primary"
+          variant="default"
           iconStart="Phone"
         />
-        <Button
+        <AppButton
           title={t('operatorContactWhatsApp')}
           onPress={() => runContactAction(openOperatorWhatsApp)}
-          variant="primary"
+          variant="default"
           iconStart="MessageCircle"
           style={{ backgroundColor: '#25D366' }}
         />
-        <Button
+        <AppButton
           title={t('operatorContactTelegram')}
           onPress={() => runContactAction(openOperatorTelegram)}
-          variant="primary"
+          variant="default"
           iconStart="Send"
           style={{ backgroundColor: '#229ED9' }}
         />

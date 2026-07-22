@@ -5,7 +5,7 @@ import { View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { useTranslation } from '@/app/hooks/useTranslation';
-import { Button } from '@/components/Button';
+import ReserveButton from '@/components/ReserveButton';
 import Header from '@/components/Header';
 import ThemedText from '@/components/ThemedText';
 import { setReservationIntroCooldown24h } from '@/utils/reservation-intro-cooldown';
@@ -44,11 +44,11 @@ export default function ReservationCreateStartScreen() {
         />
 
         <View className="mt-auto pb-2" style={{ paddingBottom: insets.bottom }}>
-          <Button
-            size="large"
-            variant="primary"
+          <ReserveButton
+            size="lg"
             textClassName="text-white"
             rounded="full"
+            fullWidth
             title={t('reservationStartCta')}
             onPress={async () => {
               await setReservationIntroCooldown24h();

@@ -9,6 +9,7 @@ import { getEmployees, type Employee } from '@/api/employees';
 import { useAuth } from '@/app/contexts/AuthContext';
 import { useTranslation } from '@/app/hooks/useTranslation';
 import ActionSheetThemed from '@/components/ActionSheetThemed';
+import ReserveButton from '@/components/ReserveButton';
 import { Button } from '@/components/Button';
 import { CardScroller } from '@/components/CardScroller';
 import { Chip } from '@/components/Chip';
@@ -302,8 +303,10 @@ export default function ScheduleScreen() {
       <ActionSheetThemed ref={employeeSheetRef} gestureEnabled>
         <View className="p-4 pb-8">
           <View className="gap-3">
-            <Button
+            <ReserveButton
               title={t('scheduleRezervovat')}
+              fullWidth
+              className="w-full"
               onPress={() => {
                 employeeSheetRef.current?.hide();
                 if (selectedEmployee) {
@@ -312,8 +315,6 @@ export default function ScheduleScreen() {
                   );
                 }
               }}
-              variant="primary"
-              className="w-full"
             />
             <Button
               title={t('scheduleProfil')}

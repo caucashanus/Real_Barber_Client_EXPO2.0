@@ -8,7 +8,7 @@ import { getBranches, type Branch } from '@/api/branches';
 import { useAuth } from '@/app/contexts/AuthContext';
 import useThemeColors from '@/app/contexts/ThemeColors';
 import { useTranslation } from '@/app/hooks/useTranslation';
-import { Button } from '@/components/Button';
+import AppButton from '@/components/AppButton';
 import Header from '@/components/Header';
 import Icon from '@/components/Icon';
 import ThemedScroller from '@/components/ThemeScroller';
@@ -169,13 +169,13 @@ const KudyKNamDetail = () => {
         </View>
         {hasVideo && (
           <View className="ml-auto flex-row items-center">
-            <Button
+            <AppButton
               title={t('kudyShowVideo')}
               iconStart="Play"
-              variant="primary"
+              variant="default"
               className="ml-6 px-6"
               textClassName="text-white"
-              size="medium"
+              size="md"
               onPress={handleShowFullscreenVideo}
               rounded="lg"
             />

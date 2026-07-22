@@ -437,8 +437,8 @@ function calendarDayDiffFromToday(isoDate: string): number {
   return Math.round((slotDay.getTime() - todayStart.getTime()) / 86400000);
 }
 
-/** Zarovnání HH:MM nahoru na mřížku 15 min (jen zobrazení badge nejbližšího termínu). Při přetečení dne → 23:45. */
-function roundNearestSlotDisplayTime(slotStart: string): string {
+/** Zarovnání HH:MM nahoru na mřížku 15 min (profil holiče, badge nejbližšího termínu). Při přetečení dne → 23:45. */
+export function formatNextSlotDisplayTime(slotStart: string): string {
   const m = /^(\d{1,2}):(\d{2})$/.exec(slotStart.trim());
   if (!m) return slotStart;
   const h = parseInt(m[1], 10);
@@ -462,7 +462,7 @@ export function employeeNearestSortKey(
   if (loadingNearest && nearestMap === null) return `1|${employeeId}`;
   const row = nearestMap?.get(employeeId);
   if (row?.nextSlot) {
-    const t = roundNearestSlotDisplayTime(row.nextSlot.slotStart);
+    const t = formatNextSlotDisplayTime(row.nextSlot.slotStart);
     return `0|${row.nextSlot.date} ${t}|${employeeId}`;
   }
   return `2|${employeeId}`;
@@ -474,7 +474,7 @@ export function formatEmployeeNearestSlotLabel(
   t: (key: TranslationKey) => string
 ): string {
   const diff = calendarDayDiffFromToday(slot.date);
-  const time = roundNearestSlotDisplayTime(slot.slotStart);
+  const time = formatNextSlotDisplayTime(slot.slotStart);
   if (!Number.isFinite(diff)) {
     const d = new Date(`${slot.date}T12:00:00`);
     const dateStr = d.toLocaleDateString(dateLocaleTag, {

@@ -5,7 +5,7 @@ import { View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { useTranslation } from '@/app/hooks/useTranslation';
-import { Button } from '@/components/Button';
+import AppButton from '@/components/AppButton';
 import Header from '@/components/Header';
 import ThemedText from '@/components/ThemedText';
 import {
@@ -64,11 +64,12 @@ export default function HaircutCreateStartScreen() {
         />
 
         <View className=" mt-auto pb-2" style={{ paddingBottom: insets.bottom }}>
-          <Button
-            size="large"
-            variant="primary"
+          <AppButton
+            size="lg"
+            variant="default"
             textClassName="text-white"
             rounded="full"
+            fullWidth
             title={t('haircutCreateLetsGo')}
             onPress={async () => {
               await setHaircutIntroCooldown24h();
