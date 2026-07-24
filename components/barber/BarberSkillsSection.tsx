@@ -3,7 +3,7 @@ import { View } from 'react-native';
 
 import type { TeamMemberPageEmployee } from '@/api/publicTeamMember';
 import type { Locale } from '@/app/contexts/LanguageContext';
-import { AccentChip } from '@/components/AccentChip';
+import ChoiceChipLabel from '@/components/ChoiceChipLabel';
 import ThemedText from '@/components/ThemedText';
 import Section from '@/components/layout/Section';
 import type { TranslationKey } from '@/locales';
@@ -51,9 +51,11 @@ export default function BarberSkillsSection({
   if (pills.length === 0) return null;
 
   const content = (
-    <View className={`flex-row flex-wrap gap-2 ${embedded ? '' : 'mt-3'}`}>
+    <View className={`flex-row flex-wrap ${embedded ? '' : 'mt-3'}`}>
       {pills.map((pill) => (
-        <AccentChip key={pill.key} label={pill.label} size="md" rounded="full" />
+        <View key={pill.key} className="mb-2 mr-2">
+          <ChoiceChipLabel label={pill.label} />
+        </View>
       ))}
     </View>
   );

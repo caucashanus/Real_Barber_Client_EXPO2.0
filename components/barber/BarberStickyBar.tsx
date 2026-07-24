@@ -91,7 +91,7 @@ export default function BarberStickyBar({
             </ThemedText>
             {liveVariant ? (
               <View className="ml-3 justify-center">
-                <LiveIndicator variant={liveVariant} size="sm" />
+                <LiveIndicator variant={liveVariant} size="default" />
               </View>
             ) : null}
           </View>

@@ -187,6 +187,7 @@ export default function BarberDetailScreen() {
               displayName={displayName}
               avatarUrl={employee.avatarUrl}
               average={average}
+              locale={locale.startsWith('cs') ? 'cs' : 'en'}
               languages={employee.languages}
               shiftStatus={todayShiftStatus}
               shareMessage={shareMessage}

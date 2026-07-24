@@ -9,6 +9,10 @@ import Section from '@/components/layout/Section';
 import type { TranslationKey } from '@/locales';
 import { BARBER_DETAIL_SECTION_SPACING } from '@/constants/barberDetailLayout';
 
+/** Horizontální galerie — portrétní náhledy (3:4), ne čtverec. */
+const WORK_SAMPLE_WIDTH = 140;
+const WORK_SAMPLE_HEIGHT = Math.round((WORK_SAMPLE_WIDTH * 4) / 3);
+
 interface BarberWorkSamplesSectionProps {
   media: TeamMemberMediaItem[];
   onMediaPress: (item: TeamMemberMediaItem) => void;
@@ -37,11 +41,11 @@ export default function BarberWorkSamplesSection({
           key={item.id ?? index}
           onPress={() => onMediaPress(item)}
           className="overflow-hidden rounded-xl"
-          style={{ width: 160, height: 160 }}>
+          style={{ width: WORK_SAMPLE_WIDTH, height: WORK_SAMPLE_HEIGHT }}>
           {item.type === 'video' ? (
             <VideoPlayer
               uri={item.url}
-              style={{ width: 160, height: 160 }}
+              style={{ width: WORK_SAMPLE_WIDTH, height: WORK_SAMPLE_HEIGHT }}
               contentFit="cover"
               shouldPlay
               isMuted
