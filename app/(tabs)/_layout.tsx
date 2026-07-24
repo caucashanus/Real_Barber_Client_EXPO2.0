@@ -63,7 +63,7 @@ function TabsContent() {
     return (
       <NativeTabs tintColor={colors.highlight}>
         <NativeTabs.Trigger name="(home)">
-          <NativeTabs.Trigger.Icon sf="magnifyingglass" />
+          <NativeTabs.Trigger.Icon sf="house" />
           <NativeTabs.Trigger.Label>{t('navHome')}</NativeTabs.Trigger.Label>
         </NativeTabs.Trigger>
         <NativeTabs.Trigger name="favorites">
@@ -94,7 +94,7 @@ function TabsContent() {
           paddingBottom: insets.bottom,
         }}>
         <TabTrigger name="(home)" href="/(tabs)/(home)" asChild>
-          <TabButton labelAnimated={false} icon="Search">
+          <TabButton labelAnimated={false} icon="Home">
             {t('navHome')}
           </TabButton>
         </TabTrigger>

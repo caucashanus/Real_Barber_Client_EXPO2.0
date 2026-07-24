@@ -239,16 +239,3 @@ export async function forgotPassword(identifier: string): Promise<void> {
     throw e;
   }
 }
-
-/** POST /api/client/change-password */
-export async function changePassword(
-  apiToken: string,
-  currentPassword: string,
-  newPassword: string
-): Promise<void> {
-  await fetchCrm<void>('/api/client/change-password', {
-    method: 'POST',
-    apiToken,
-    body: { currentPassword, newPassword },
-  });
-}

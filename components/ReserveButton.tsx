@@ -7,6 +7,7 @@ import type { IconName } from '@/components/Icon';
 /**
  * Web: `variant="default"`.
  * Pouze CTA Rezervovat / booking submit — nepoužívat pro jiné akce.
+ * Barva pozadí = user accent z nastavení.
  */
 interface ReserveButtonProps {
   title: string;

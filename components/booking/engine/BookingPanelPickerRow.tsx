@@ -24,6 +24,8 @@ interface BookingPanelPickerRowProps {
   imageUrl?: string | null;
   imageFit?: 'cover' | 'contain';
   imageShape?: 'square' | 'round';
+  /** `md` = 48px, `xl` = 80px (booking employee step). */
+  avatarSize?: 'md' | 'xl';
   fallbackName?: string;
   title: ReactNode;
   description?: ReactNode;
@@ -41,6 +43,7 @@ export default function BookingPanelPickerRow({
   imageUrl,
   imageFit = 'cover',
   imageShape = 'square',
+  avatarSize = 'md',
   fallbackName = '?',
   title,
   description,
@@ -56,6 +59,8 @@ export default function BookingPanelPickerRow({
   const ringColor = selectedRingColor;
   const borderStyle: StyleProp<ViewStyle> =
     selected && ringColor ? { borderColor: ringColor, borderWidth: 2 } : undefined;
+  const avatarClass = avatarSize === 'xl' ? 'h-20 w-20' : 'h-12 w-12';
+  const avatarRadius = imageShape === 'round' ? 'rounded-full' : 'rounded-xl';
 
   return (
     <View
@@ -63,22 +68,19 @@ export default function BookingPanelPickerRow({
       className={`${BOOKING_FLOW_CARD_OUTER_CLASS} ${actionDisabled ? 'opacity-60' : ''} ${
         selected && !ringColor ? 'border-light-text dark:border-dark-text' : ''
       }`}>
-      <Pressable
-        onPress={actionDisabled ? undefined : onSelect}
-        disabled={actionDisabled}
-        className="flex-row items-start gap-3 p-4 active:opacity-90">
-        <View className="h-12 w-12 shrink-0 items-center justify-center overflow-hidden">
+      <View className="flex-row items-start gap-3 p-4">
+        <View className={`${avatarClass} shrink-0 items-center justify-center overflow-hidden`}>
           {imageUrl?.trim() ? (
             <Image
               source={{ uri: imageUrl.trim() }}
-              className={`h-12 w-12 ${imageShape === 'round' ? 'rounded-full' : 'rounded-xl'}`}
+              className={`${avatarClass} ${avatarRadius}`}
               contentFit={imageFit}
             />
           ) : (
             <Avatar
-              size="sm"
+              size={avatarSize === 'xl' ? 'xl' : 'sm'}
               name={fallbackName}
-              className={imageShape === 'round' ? 'rounded-full' : 'rounded-xl'}
+              className={avatarRadius}
             />
           )}
         </View>
@@ -116,7 +118,7 @@ export default function BookingPanelPickerRow({
             <Icon name="Info" size={18} className="text-light-subtext dark:text-dark-subtext" />
           </Pressable>
         ) : null}
-      </Pressable>
+      </View>
 
       <View className="border-t border-neutral-200 bg-light-secondary dark:border-neutral-700 dark:bg-dark-secondary">
         <Button

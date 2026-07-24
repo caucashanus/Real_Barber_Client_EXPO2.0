@@ -22,32 +22,70 @@ import {
 } from '@/utils/homeTodayTeamWaitlistSession';
 import { startBarberSlotHandoffBooking } from '@/utils/reservationSlotHandoff';
 
-const TODAY_TEAM_CARD_WIDTH = 160;
+const TODAY_TEAM_CARD_WIDTH = 168;
 const TODAY_TEAM_IMAGE_HEIGHT = 160;
 const CARD_TEXT_ROW_GAP_CLASS = 'w-full flex-col gap-0.5';
+const CARD_SHIFT_STATUS_CLASS = 'w-full text-xs leading-4 text-gray-500 dark:text-gray-300';
+const CARD_HINT_CLASS = 'w-full text-xs leading-4 text-light-subtext dark:text-dark-subtext';
+const CARD_ACTION_ROW_CLASS = 'w-full flex-row flex-wrap items-start';
 
-interface HomeTodayTeamSectionProps {
-  cards: HomeTodayTeamCardModel[];
-  loading: boolean;
-  refreshingAvailability: boolean;
-  error: string | null;
-  locale: Locale;
-  t: (key: TranslationKey) => string;
+/** Jednotný řádek 2 — stav směny. */
+function shouldShowHomeTodayTeamShiftStatus(card: HomeTodayTeamCardModel): boolean {
+  return Boolean(card.shiftStatusLabel);
 }
 
-function renderHomeTodayTeamSlotButtons({
+/** Jednotný řádek 3 — hint / status podle footer typu. */
+function getHomeTodayTeamCardHint(
+  card: HomeTodayTeamCardModel,
+  isWaitlistJoined: boolean,
+  t: (key: TranslationKey) => string
+): string | null {
+  switch (card.footer.kind) {
+    case 'slots':
+      return card.footer.hint;
+    case 'waitlist':
+      return isWaitlistJoined
+        ? t('homeTodayTeamWaitlistJoined')
+        : t('homeTodayTeamWaitlistHint');
+    case 'message':
+      return card.footer.text;
+    default:
+      return null;
+  }
+}
+
+/** Jednotný řádek 4 — slot pills nebo waitlist CTA. */
+function renderHomeTodayTeamActionRow({
   card,
   locale,
   t,
+  isWaitlistJoined,
+  onOpenWaitlist,
 }: {
   card: HomeTodayTeamCardModel;
   locale: Locale;
   t: (key: TranslationKey) => string;
-}) {
+  isWaitlistJoined: boolean;
+  onOpenWaitlist: (card: HomeTodayTeamCardModel) => void;
+}): React.ReactNode {
+  if (card.footer.kind === 'waitlist') {
+    if (isWaitlistJoined) return null;
+    return (
+      <View className={CARD_ACTION_ROW_CLASS}>
+        <SlotTimePill
+          compact
+          spaced
+          title={t('homeTodayTeamWaitlistJoin')}
+          onPress={() => onOpenWaitlist(card)}
+        />
+      </View>
+    );
+  }
+
   if (card.footer.kind !== 'slots') return null;
 
   return (
-    <View className="w-full flex-row flex-wrap items-start">
+    <View className={CARD_ACTION_ROW_CLASS}>
       {card.footer.slots.map((slot) => {
         const { branchName, branchAddress } = resolveHomeTodaySlotBranch(
           card.branches,
@@ -85,54 +123,13 @@ function renderHomeTodayTeamSlotButtons({
   );
 }
 
-function renderHomeTodayTeamCardFooter({
-  card,
-  locale,
-  t,
-  isWaitlistJoined,
-  onOpenWaitlist,
-}: {
-  card: HomeTodayTeamCardModel;
+interface HomeTodayTeamSectionProps {
+  cards: HomeTodayTeamCardModel[];
+  loading: boolean;
+  refreshingAvailability: boolean;
+  error: string | null;
   locale: Locale;
   t: (key: TranslationKey) => string;
-  isWaitlistJoined: boolean;
-  onOpenWaitlist: (card: HomeTodayTeamCardModel) => void;
-}): React.ReactNode {
-  const { footer } = card;
-  const footerTextClassName = 'text-xs leading-4 text-light-subtext dark:text-dark-subtext';
-
-  if (footer.kind === 'hidden') return null;
-
-  if (footer.kind === 'waitlist') {
-    return (
-      <View className={CARD_TEXT_ROW_GAP_CLASS}>
-        <ThemedText className={footerTextClassName}>
-          {isWaitlistJoined
-            ? t('homeTodayTeamWaitlistJoined')
-            : t('homeTodayTeamWaitlistHint')}
-        </ThemedText>
-        {!isWaitlistJoined ? (
-          <AppButton
-            variant="outline"
-            size="xs"
-            title={t('homeTodayTeamWaitlistJoin')}
-            onPress={() => onOpenWaitlist(card)}
-            className="self-start"
-          />
-        ) : null}
-      </View>
-    );
-  }
-
-  if (footer.kind === 'slots') {
-    return null;
-  }
-
-  return (
-    <ThemedText className={footerTextClassName}>
-      {footer.text}
-    </ThemedText>
-  );
 }
 
 function HomeTodayTeamScrollerCard({
@@ -148,6 +145,9 @@ function HomeTodayTeamScrollerCard({
   isWaitlistJoined: boolean;
   onOpenWaitlist: (card: HomeTodayTeamCardModel) => void;
 }) {
+  const hint = getHomeTodayTeamCardHint(card, isWaitlistJoined, t);
+  const showShiftStatus = shouldShowHomeTodayTeamShiftStatus(card);
+
   return (
     <View style={{ width: TODAY_TEAM_CARD_WIDTH }}>
       <Card
@@ -178,31 +178,25 @@ function HomeTodayTeamScrollerCard({
             ) : null}
           </View>
 
-          {card.shiftStatusLabel ? (
-            <ThemedText
-              className="w-full text-xs leading-4 text-gray-500 dark:text-gray-300"
-              numberOfLines={1}>
+          {showShiftStatus ? (
+            <ThemedText className={CARD_SHIFT_STATUS_CLASS} numberOfLines={1}>
               {card.shiftStatusLabel}
             </ThemedText>
           ) : null}
 
-          {card.footer.kind === 'slots' ? (
-            <ThemedText className="w-full text-xs leading-4 text-light-subtext dark:text-dark-subtext">
-              {card.footer.hint}
+          {hint ? (
+            <ThemedText className={CARD_HINT_CLASS} numberOfLines={2}>
+              {hint}
             </ThemedText>
           ) : null}
 
-          {card.footer.kind === 'slots' ? renderHomeTodayTeamSlotButtons({ card, locale, t }) : null}
-
-          {card.footer.kind !== 'slots'
-            ? renderHomeTodayTeamCardFooter({
-                card,
-                locale,
-                t,
-                isWaitlistJoined,
-                onOpenWaitlist,
-              })
-            : null}
+          {renderHomeTodayTeamActionRow({
+            card,
+            locale,
+            t,
+            isWaitlistJoined,
+            onOpenWaitlist,
+          })}
         </View>
       </Pressable>
     </View>

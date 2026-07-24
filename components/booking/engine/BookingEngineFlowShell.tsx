@@ -45,7 +45,7 @@ function BookingEngineFlowShellBody({ flow, children }: BookingEngineFlowShellPr
       <View
         className="flex-1 bg-light-primary dark:bg-dark-primary"
         style={{ paddingTop: insets.top, paddingBottom: footerAction ? 0 : insets.bottom }}>
-        <View className="border-b border-light-secondary px-4 pb-4 pt-2 dark:border-dark-secondary">
+        <View className="px-4 pb-4 pt-2">
           <View className="mb-3 flex-row items-center justify-between">
             <View className="flex-row items-center gap-2">
               {flow.stepIndex > 0 ? (

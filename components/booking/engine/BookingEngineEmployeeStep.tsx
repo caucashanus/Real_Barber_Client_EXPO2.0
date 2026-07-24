@@ -1,73 +1,47 @@
-import React from 'react';
+import React, { useRef } from 'react';
 import { Pressable, View } from 'react-native';
 
 import type { BookingEngineFlow } from '@/app/hooks/useBookingEngineFlow';
+import RatingBadge from '@/components/RatingBadge';
 import ThemedText from '@/components/ThemedText';
 import BookingPanelPickerRow from '@/components/booking/engine/BookingPanelPickerRow';
-import { ANY_EMPLOYEE_ID } from '@/lib/booking/constants';
-import { formatNearestTermLabel } from '@/lib/booking/designShared';
+import EmployeeBookingProfileSheet, {
+  type EmployeeBookingProfileSheetHandle,
+} from '@/components/booking/engine/EmployeeBookingProfileSheet';
+import { ANY_EMPLOYEE_ID, type BookingEntity } from '@/lib/booking/constants';
+import { formatBookingEmployeeNearestLine } from '@/lib/booking/designShared';
 
 interface Props {
   flow: BookingEngineFlow;
 }
 
-function EmployeeTitleRow({
+function EmployeeCardContent({
   name,
   rating,
-  aboutLabel,
-  showAbout,
-  onAbout,
+  locale,
+  meta,
+  viewProfileLabel,
+  onViewProfile,
 }: {
   name: string;
   rating?: number;
-  aboutLabel: string;
-  showAbout: boolean;
-  onAbout?: () => void;
+  locale: 'cs' | 'en';
+  meta: React.ReactNode;
+  viewProfileLabel: string;
+  onViewProfile: () => void;
 }) {
   return (
-    <View className="gap-0.5">
-      <View className="flex-row flex-wrap items-center gap-2">
-        <ThemedText className="text-base font-medium" numberOfLines={1}>
+    <View className="w-full gap-1">
+      <View className="flex-row flex-wrap items-center">
+        <ThemedText className="mr-2 text-base font-semibold" numberOfLines={1}>
           {name}
         </ThemedText>
-        {showAbout && onAbout ? (
-          <Pressable
-            onPress={onAbout}
-            className="rounded-full border border-light-border px-2 py-0.5 active:opacity-70 dark:border-dark-border">
-            <ThemedText className="text-xs font-medium">{aboutLabel}</ThemedText>
-          </Pressable>
-        ) : null}
+        {rating != null ? <RatingBadge rating={rating} locale={locale} /> : null}
       </View>
-      {rating != null ? (
-        <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext">★ {rating}</ThemedText>
-      ) : null}
-    </View>
-  );
-}
-
-function NearestMeta({
-  slot,
-  nearestLabel,
-  branchColor,
-  locale,
-}: {
-  slot: { date: string; start: string };
-  nearestLabel: string;
-  branchColor: string;
-  locale: 'cs' | 'en';
-}) {
-  const dateLabel = formatNearestTermLabel(slot.date.slice(0, 10), locale);
-  return (
-    <View className="mt-1 gap-1">
-      <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext">{nearestLabel}</ThemedText>
-      <View className="flex-row flex-wrap gap-1.5">
-        <View className="rounded-lg px-2 py-0.5" style={{ backgroundColor: branchColor }}>
-          <ThemedText className="text-xs font-medium">{dateLabel}</ThemedText>
-        </View>
-        <View className="rounded-lg px-2 py-0.5" style={{ backgroundColor: branchColor }}>
-          <ThemedText className="text-xs font-medium">{slot.start}</ThemedText>
-        </View>
-      </View>
+      {meta}
+      <Pressable onPress={onViewProfile} className="self-start active:opacity-70">
+        <ThemedText className="font-semibold text-black dark:text-white">{viewProfileLabel}</ThemedText>
+      </Pressable>
     </View>
   );
 }
@@ -75,6 +49,14 @@ function NearestMeta({
 export default function BookingEngineEmployeeStep({ flow }: Props) {
   const { t } = flow;
   const locale = flow.dateLocaleTag.startsWith('cs') ? 'cs' : 'en';
+  const profileSheetRef = useRef<EmployeeBookingProfileSheetHandle>(null);
+
+  const openProfile = (employee: BookingEntity) => {
+    profileSheetRef.current?.open({
+      employee,
+      serviceId: flow.selectedService?.id,
+    });
+  };
 
   return (
     <View>
@@ -100,15 +82,17 @@ export default function BookingEngineEmployeeStep({ flow }: Props) {
             {t('reservationEmployeeNearestLoading')}
           </ThemedText>
         ) : nearest ? (
-          <NearestMeta
-            slot={nearest}
-            nearestLabel={t('reservationEmployeeNearestFreeSlotLabel')}
-            branchColor={flow.branchHighlightColor}
-            locale={locale}
-          />
+          <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext">
+            {formatBookingEmployeeNearestLine(
+              nearest.date.slice(0, 10),
+              nearest.start,
+              t('bookingEmployeeNearest'),
+              locale
+            )}
+          </ThemedText>
         ) : (
           <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext">
-            {t('reservationEmployeeNoNearestSlot')}
+            {t('bookingEmployeeNoSlots')}
           </ThemedText>
         );
 
@@ -120,20 +104,25 @@ export default function BookingEngineEmployeeStep({ flow }: Props) {
             key={emp.id}
             imageUrl={isAny ? null : emp.avatarUrl}
             imageShape="round"
+            avatarSize={isAny ? 'md' : 'xl'}
             fallbackName={isAny ? 'K' : name}
             title={
               isAny ? (
-                name
+                <View className="w-full gap-1">
+                  <ThemedText className="text-base font-semibold">{name}</ThemedText>
+                  {meta}
+                </View>
               ) : (
-                <EmployeeTitleRow
+                <EmployeeCardContent
                   name={name}
                   rating={rating}
-                  aboutLabel={t('bookingEmployeeAbout')}
-                  showAbout={false}
+                  locale={locale}
+                  meta={meta}
+                  viewProfileLabel={t('bookingEmployeeViewProfile')}
+                  onViewProfile={() => openProfile(emp)}
                 />
               )
             }
-            meta={meta}
             selected={flow.selectedEmployee?.id === emp.id}
             selectLabel={t('bookingEmployeeSelect')}
             onSelect={() => flow.selectEmployee(emp)}
@@ -142,6 +131,14 @@ export default function BookingEngineEmployeeStep({ flow }: Props) {
           />
         );
       })}
+
+      <EmployeeBookingProfileSheet
+        ref={profileSheetRef}
+        locale={locale}
+        selectLabel={t('bookingEmployeeSelect')}
+        onSelect={flow.selectEmployee}
+        t={t}
+      />
     </View>
   );
 }

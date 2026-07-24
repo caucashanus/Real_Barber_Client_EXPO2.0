@@ -58,6 +58,12 @@ export function getPragueMinutesFromDate(now = new Date()): number {
   return hour * 60 + minute;
 }
 
+function intlLocaleTag(locale: Locale | string): string {
+  if (locale === 'cs' || locale.startsWith('cs')) return 'cs-CZ';
+  if (locale === 'uk' || locale.startsWith('uk')) return 'uk-UA';
+  return 'en-GB';
+}
+
 export function getTodayShiftStatus(
   shiftCalendar: TeamMemberShiftDay[] | undefined,
   today: string,

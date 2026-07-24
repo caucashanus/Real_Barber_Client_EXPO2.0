@@ -4,7 +4,6 @@ import { View, ActivityIndicator, useWindowDimensions } from 'react-native';
 
 import { getFavorites, type Favorite } from '@/api/favorites';
 import { useAuth } from '@/app/contexts/AuthContext';
-import { useFavoritesSync } from '@/app/contexts/FavoritesSyncContext';
 import { useCollapsibleTitle } from '@/app/hooks/useCollapsibleTitle';
 import { useTranslation } from '@/app/hooks/useTranslation';
 import AppButton from '@/components/AppButton';
@@ -73,20 +72,18 @@ const FavoritesScreen = () => {
   const gridColumns = windowWidth >= DESKTOP_BREAKPOINT ? 4 : 2;
   const { scrollY, scrollHandler, scrollEventThrottle } = useCollapsibleTitle();
   const { apiToken } = useAuth();
-  const { favoritesVersion } = useFavoritesSync();
   const [favorites, setFavorites] = useState<Favorite[]>([]);
   const [selectedFilter, setSelectedFilter] = useState<ClientFavoriteFilter>('all');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const lastFetchRef = useRef(0);
-  const lastVersionRef = useRef(favoritesVersion);
   const inflightRef = useRef<Promise<void> | null>(null);
 
   const counts = countClientFavoritesByFilter(favorites);
   const filteredFavorites = filterClientFavorites(favorites, selectedFilter);
 
   const loadFavorites = useCallback(
-    async (options?: { force?: boolean }) => {
+    async (options?: { force?: boolean; silent?: boolean }) => {
       if (!apiToken) {
         setLoading(false);
         setFavorites([]);
@@ -94,14 +91,14 @@ const FavoritesScreen = () => {
         return;
       }
 
-      const versionChanged = lastVersionRef.current !== favoritesVersion;
-      lastVersionRef.current = favoritesVersion;
-      const force = options?.force || versionChanged;
-      if (!shouldStaleRefresh(lastFetchRef.current, { force }) && !versionChanged) return;
+      const force = options?.force ?? false;
+      if (!shouldStaleRefresh(lastFetchRef.current, { force })) return;
       if (inflightRef.current) return inflightRef.current;
 
       const isInitial = lastFetchRef.current === 0;
-      if (isInitial || force) {
+      const silent = options?.silent ?? false;
+
+      if (isInitial || !silent) {
         setLoading(true);
         setError(null);
       }
@@ -119,12 +116,12 @@ const FavoritesScreen = () => {
 
       return inflightRef.current;
     },
-    [apiToken, favoritesVersion]
+    [apiToken]
   );
 
   useFocusEffect(
     useCallback(() => {
-      void loadFavorites();
+      void loadFavorites({ force: true, silent: lastFetchRef.current !== 0 });
     }, [loadFavorites])
   );
 

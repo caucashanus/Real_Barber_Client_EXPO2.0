@@ -42,6 +42,7 @@ export default function FavoriteMediaCard({
           <Favorite
             initialState
             isWhite
+            showToggleSheet={false}
             title={title}
             entityType={entityType}
             entityId={entityId}

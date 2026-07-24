@@ -4,6 +4,7 @@
  *
  * Default (`variant="default"`) — web-aligned name, app-only use:
  * booking / Rezervovat CTA (header, hero, sticky profil, submit). Prefer `<ReserveButton />`.
+ * Background uses user accent (`AccentColorContext`); falls back to brand `#FF4F31`.
  *
  * Outline (`variant="outline"`):
  * - default surface, dark mode → gray border, white text, white/10 hover
@@ -12,7 +13,7 @@
  */
 import type { ViewStyle } from 'react-native';
 
-import { BUTTON_CHOICE, BUTTON_OUTLINE } from '@/constants/buttonTokens';
+import { BUTTON_CHOICE, BUTTON_OUTLINE, BUTTON_TOKENS } from '@/constants/buttonTokens';
 import { hexToRgba } from '@/utils/colorHelpers';
 
 export type AppButtonVariant =
@@ -41,7 +42,7 @@ export interface AppButtonVariantOptions {
   rounded?: AppButtonRounded;
   fullWidth?: boolean;
   isDark?: boolean;
-  /** User accent from AsyncStorage — choice selected border/bg (~70 % / ~15 %). */
+  /** User accent from AsyncStorage — default CTA bg; choice selected border/bg (~70 % / ~15 %). */
   accentColor?: string;
   className?: string;
   textClassName?: string;
@@ -130,6 +131,12 @@ function getChoiceContainerStyle(
   };
 }
 
+function getDefaultContainerStyle(accentColor?: string): ViewStyle {
+  return {
+    backgroundColor: accentColor?.trim() || BUTTON_TOKENS.accent,
+  };
+}
+
 function getVariantContainerClasses(
   variant: AppButtonVariant,
   options: Pick<AppButtonVariantOptions, 'selected' | 'surface' | 'isDark' | 'accentColor'>
@@ -139,7 +146,7 @@ function getVariantContainerClasses(
 
   switch (variant) {
     case 'default':
-      return 'border-0 bg-highlight active:opacity-90';
+      return 'border-0 active:opacity-90';
     case 'outline':
       return joinClasses(
         'border bg-transparent',
@@ -264,16 +271,18 @@ export function getAppButtonClasses(options: AppButtonVariantOptions): {
     container,
     text,
     containerStyle:
-      variant === 'outline'
-        ? getOutlineBorderStyle(surface ?? 'default', isDark ?? false)
-        : variant === 'choice'
-          ? getChoiceContainerStyle(
-              surface ?? 'default',
-              isDark ?? false,
-              selected ?? false,
-              accentColor
-            )
-          : undefined,
+      variant === 'default'
+        ? getDefaultContainerStyle(accentColor)
+        : variant === 'outline'
+          ? getOutlineBorderStyle(surface ?? 'default', isDark ?? false)
+          : variant === 'choice'
+            ? getChoiceContainerStyle(
+                surface ?? 'default',
+                isDark ?? false,
+                selected ?? false,
+                accentColor
+              )
+            : undefined,
     textStyle:
       outlineTheme || choiceTheme
         ? { color: (outlineTheme ?? choiceTheme)?.textColor }

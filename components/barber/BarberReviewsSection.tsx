@@ -26,6 +26,7 @@ interface BarberReviewsSectionProps {
   onPrevious: () => void;
   onNext: () => void;
   onLayout: (e: LayoutChangeEvent) => void;
+  embedded?: boolean;
   t: (key: TranslationKey) => string;
 }
 
@@ -44,6 +45,7 @@ export default function BarberReviewsSection({
   onPrevious,
   onNext,
   onLayout,
+  embedded = false,
   t,
 }: BarberReviewsSectionProps) {
   return (
@@ -81,6 +83,7 @@ export default function BarberReviewsSection({
                   locale={locale}
                   isOwnReview={ownReviewIds.has(review.id)}
                   reviewParams={reviewParams}
+                  embedded={embedded}
                   t={t}
                 />
               ))}

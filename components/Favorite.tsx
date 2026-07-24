@@ -18,6 +18,11 @@ import { useAuth } from '@/app/contexts/AuthContext';
 import { useFavoritesSync } from '@/app/contexts/FavoritesSyncContext';
 import { useThemeColors } from '@/app/contexts/ThemeColors';
 import { useTranslation } from '@/app/hooks/useTranslation';
+import {
+  markFavoriteFeedbackSheetClosed,
+  shouldShowFavoriteFeedbackSheet,
+  type FavoriteFeedbackSheetKind,
+} from '@/utils/favoriteFeedbackSheetCooldown';
 
 interface FavoriteProps {
   initialState?: boolean;
@@ -29,6 +34,8 @@ interface FavoriteProps {
   /** When set, syncs with API: load state from GET favorites, add/remove via POST/DELETE */
   entityType?: FavoriteEntityType;
   entityId?: string;
+  /** When false, skip the add/remove action sheet (e.g. on the favorites list). */
+  showToggleSheet?: boolean;
   title?: string;
 }
 
@@ -42,6 +49,7 @@ const Favorite: React.FC<FavoriteProps> = ({
   entityType,
   entityId,
   title,
+  showToggleSheet = true,
 }) => {
   const { apiToken } = useAuth();
   const { t } = useTranslation();
@@ -50,6 +58,7 @@ const Favorite: React.FC<FavoriteProps> = ({
   const [favoriteId, setFavoriteId] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const actionSheetRef = useRef<ActionSheetRef>(null);
+  const pendingFeedbackSheetKindRef = useRef<FavoriteFeedbackSheetKind | null>(null);
   const colors = useThemeColors();
 
   const displayTitle = title ?? productName;
@@ -73,6 +82,22 @@ const Favorite: React.FC<FavoriteProps> = ({
     };
   }, [useApi, apiToken, entityType, entityId, favoritesVersion]);
 
+  const maybeShowFeedbackSheet = async (added: boolean) => {
+    if (!showToggleSheet) return;
+    const kind: FavoriteFeedbackSheetKind = added ? 'add' : 'remove';
+    const allowed = await shouldShowFavoriteFeedbackSheet(kind);
+    if (!allowed) return;
+    pendingFeedbackSheetKindRef.current = kind;
+    actionSheetRef.current?.show();
+  };
+
+  const handleFeedbackSheetClose = () => {
+    const kind = pendingFeedbackSheetKindRef.current;
+    pendingFeedbackSheetKindRef.current = null;
+    if (!kind) return;
+    void markFavoriteFeedbackSheetClosed(kind);
+  };
+
   const handleToggle = async () => {
     const newState = !isFavorite;
     if (useApi && apiToken) {
@@ -87,7 +112,7 @@ const Favorite: React.FC<FavoriteProps> = ({
           setFavoriteId(created.id);
           setIsFavorite(true);
           notifyFavoritesChanged();
-          actionSheetRef.current?.show();
+          await maybeShowFeedbackSheet(true);
         } else {
           if (favoriteId) {
             await deleteFavorite(apiToken, favoriteId);
@@ -95,7 +120,7 @@ const Favorite: React.FC<FavoriteProps> = ({
           }
           setIsFavorite(false);
           notifyFavoritesChanged();
-          actionSheetRef.current?.show();
+          await maybeShowFeedbackSheet(false);
         }
         onToggle?.(newState);
       } catch {
@@ -105,7 +130,7 @@ const Favorite: React.FC<FavoriteProps> = ({
       }
     } else {
       setIsFavorite(newState);
-      actionSheetRef.current?.show();
+      await maybeShowFeedbackSheet(newState);
       onToggle?.(newState);
     }
   };
@@ -137,7 +162,7 @@ const Favorite: React.FC<FavoriteProps> = ({
         )}
       </Pressable>
 
-      <ActionSheetThemed ref={actionSheetRef} gestureEnabled>
+      <ActionSheetThemed ref={actionSheetRef} gestureEnabled onClose={handleFeedbackSheetClose}>
         <View className="p-4 pb-6">
           <ThemedText className="mb-1 mt-4 text-left text-lg font-bold">
             {isFavorite ? t('favoritesSheetTitleAdded') : t('favoritesSheetTitleRemoved')}

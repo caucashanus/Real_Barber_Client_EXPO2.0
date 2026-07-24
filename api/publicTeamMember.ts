@@ -148,6 +148,7 @@ async function parsePublicJson<T>(res: Response): Promise<T> {
 export interface GetTeamMemberPageOptions {
   date: string;
   serviceId?: string;
+  reviewsLimit?: number;
 }
 
 export async function getTeamMemberPage(
@@ -158,7 +159,7 @@ export async function getTeamMemberPage(
     date: options.date,
     days: String(TEAM_MEMBER_PAGE_DAYS),
     include: TEAM_MEMBER_PAGE_INCLUDE,
-    reviewsLimit: String(TEAM_MEMBER_PAGE_REVIEWS_LIMIT),
+    reviewsLimit: String(options.reviewsLimit ?? TEAM_MEMBER_PAGE_REVIEWS_LIMIT),
     storiesLimit: String(TEAM_MEMBER_PAGE_STORIES_LIMIT),
     mediaLimit: String(TEAM_MEMBER_PAGE_MEDIA_LIMIT),
   });
