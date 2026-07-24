@@ -56,37 +56,34 @@ export default function BarberIdentitySection({
                 ) : null}
               </View>
 
-              {average > 0 || languageList.length > 0 ? (
-                <View className="mt-1 w-full flex-row items-center gap-x-1.5">
-                  {average > 0 ? (
-                    <RatingBadge
-                      rating={average}
-                      locale={locale}
-                      compact={false}
-                      onPress={onScrollToReviews}
-                      className="self-start"
-                    />
-                  ) : null}
-                  {languageList.length > 0 ? (
-                    <View className="shrink flex-row items-center gap-x-1.5">
-                      <ThemedText className="shrink-0 text-xs text-light-subtext dark:text-dark-subtext">
-                        {t('barberLanguages')}
-                      </ThemedText>
-                      <View className="flex-row items-center gap-x-1">
-                        {languageList.map((language, index) => {
-                          const flag = getLanguageFlagEmoji(language);
-                          if (!flag) return null;
-                          return (
-                            <ThemedText
-                              key={`${language}-${index}`}
-                              className="text-base leading-5">
-                              {flag}
-                            </ThemedText>
-                          );
-                        })}
-                      </View>
-                    </View>
-                  ) : null}
+              {average > 0 ? (
+                <View className="mt-1">
+                  <RatingBadge
+                    rating={average}
+                    locale={locale}
+                    compact={false}
+                    onPress={onScrollToReviews}
+                    className="self-start !pl-0"
+                  />
+                </View>
+              ) : null}
+
+              {languageList.length > 0 ? (
+                <View className="mt-1 flex-row items-center gap-x-1.5">
+                  <ThemedText className="shrink-0 text-xs font-normal text-light-subtext dark:text-dark-subtext">
+                    {t('barberLanguages')}
+                  </ThemedText>
+                  <View className="flex-row items-center gap-x-1">
+                    {languageList.map((language, index) => {
+                      const flag = getLanguageFlagEmoji(language);
+                      if (!flag) return null;
+                      return (
+                        <ThemedText key={`${language}-${index}`} className="text-base leading-5">
+                          {flag}
+                        </ThemedText>
+                      );
+                    })}
+                  </View>
                 </View>
               ) : null}
             </View>

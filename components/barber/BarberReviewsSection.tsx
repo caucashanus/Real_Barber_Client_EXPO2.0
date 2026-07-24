@@ -55,13 +55,13 @@ export default function BarberReviewsSection({
           <View>
             <View className="flex-row items-center gap-2">
               <ThemedText className="text-lg font-semibold">{t('profileReviews')}</ThemedText>
-              {!hasReviewed ? (
-                <Pressable
-                  onPress={() => router.push(`/screens/review?${reviewParams}` as never)}
-                  className="shrink-0 rounded-lg bg-light-secondary px-3 py-2 dark:bg-dark-secondary">
-                  <ThemedText className="text-sm font-medium">{t('barberWriteReview')}</ThemedText>
-                </Pressable>
-              ) : null}
+              <Pressable
+                onPress={() => router.push(`/screens/review?${reviewParams}` as never)}
+                className="shrink-0 rounded-lg bg-light-secondary px-3 py-2 dark:bg-dark-secondary">
+                <ThemedText className="text-sm font-medium">
+                  {hasReviewed ? t('barberUpdateReview') : t('barberWriteReview')}
+                </ThemedText>
+              </Pressable>
             </View>
             <ThemedText className="text-light-subtext dark:text-dark-subtext">
               {displayTotal} {t('branchReviews')}

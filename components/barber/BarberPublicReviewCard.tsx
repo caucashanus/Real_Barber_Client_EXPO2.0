@@ -37,7 +37,13 @@ export default function BarberPublicReviewCard({
     <View className={`w-[280px] rounded-lg p-4 ${surfaceClass}`}>
       <View className="mb-2 flex-row items-center justify-between">
         <View className="min-w-0 flex-1 flex-row items-center">
-          <Avatar size="sm" src={review.authorAvatarUrl ?? undefined} name={author} className="mr-2" />
+          <Avatar
+            size="sm"
+            src={review.authorAvatarUrl ?? undefined}
+            name={author}
+            fallbackIcon="CircleUserRound"
+            className="mr-2"
+          />
           <View className="min-w-0 flex-1">
             <ThemedText className="font-medium" numberOfLines={1}>
               {author}

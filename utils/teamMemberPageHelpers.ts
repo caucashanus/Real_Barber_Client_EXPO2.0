@@ -95,6 +95,26 @@ export function getTodayShiftStatus(
   return 'none';
 }
 
+export function getTodayActiveWaitlistBranchId(
+  shiftCalendar: TeamMemberShiftDay[] | undefined,
+  today: string,
+  now = new Date()
+): string | undefined {
+  const day = shiftCalendar?.find((row) => row.date === today);
+  const intervals = day?.workIntervals ?? [];
+  if (intervals.length === 0) return undefined;
+
+  const nowMinutes = getPragueMinutesFromDate(now);
+  for (const interval of intervals) {
+    const start = parseTimeToMinutes(interval.startTime);
+    const end = parseTimeToMinutes(interval.endTime);
+    if (start == null || end == null) continue;
+    if (nowMinutes >= start && nowMinutes < end) return interval.branchId;
+  }
+
+  return intervals[0]?.branchId;
+}
+
 export function getShiftLiveIndicatorVariant(
   status: TodayShiftStatus
 ): 'green' | 'orange' | 'red' | null {

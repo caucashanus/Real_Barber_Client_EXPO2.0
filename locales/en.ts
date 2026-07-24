@@ -957,8 +957,11 @@ export const en = {
   barberTodaySlots: "Today's available slots",
   barberNearestSlotTitle: 'Nearest slot',
   barberNearestSlotsTitle: 'Nearest slots',
-  barberUnavailableToday: 'Unavailable today',
+  barberUnavailableToday: "I'm done for today",
   barberFullyBookedToday: 'Fully booked today',
+  barberWaitlistFullHint:
+    'Fully booked today. Join the waitlist and we will notify you if a slot opens up.',
+  barberScrollToAvailability: 'See when I am available next',
   barberTodayShift: 'On shift today',
   barberStoriesTeaser: 'Check out new stories',
   barberPhoneCall: 'Call',

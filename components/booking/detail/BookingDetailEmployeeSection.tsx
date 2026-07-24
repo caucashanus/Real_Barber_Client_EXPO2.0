@@ -21,35 +21,53 @@ export default function BookingDetailEmployeeSection({
   t,
 }: BookingDetailEmployeeSectionProps) {
   const setTransferRecipient = useSetTransferRecipient();
+  const employeeId = booking.employee?.id;
+
+  const openEmployeeProfile = () => {
+    if (!employeeId) return;
+    router.push(`/screens/barber-detail?id=${encodeURIComponent(employeeId)}` as never);
+  };
+
+  const employeeSummary = (
+    <>
+      <Avatar
+        src={booking.employee?.avatarUrl ?? undefined}
+        name={booking.employee?.name}
+        size="lg"
+      />
+      <View className="ml-3 min-w-0 flex-1">
+        <ThemedText className="text-lg font-semibold">
+          {booking.employee?.name ?? '—'}
+        </ThemedText>
+        {booking.item?.name ? (
+          <ThemedText className="mt-1 text-sm text-light-subtext dark:text-dark-subtext">
+            {booking.item.name}
+          </ThemedText>
+        ) : null}
+      </View>
+    </>
+  );
 
   return (
     <Section title={t('bookingInCareOf')} titleSize="lg" className="px-global pt-4">
       <View className="mb-4 mt-4 flex-row items-center justify-between">
-        <View className="min-w-0 flex-1 flex-row items-center">
-          <Avatar
-            src={booking.employee?.avatarUrl ?? undefined}
-            name={booking.employee?.name}
-            size="lg"
-          />
-          <View className="ml-3 min-w-0 flex-1">
-            <ThemedText className="text-lg font-semibold">
-              {booking.employee?.name ?? '—'}
-            </ThemedText>
-            {booking.item?.name ? (
-              <ThemedText className="mt-1 text-sm text-light-subtext dark:text-dark-subtext">
-                {booking.item.name}
-              </ThemedText>
-            ) : null}
-          </View>
-        </View>
-        {booking.employee?.id ? (
+        {employeeId ? (
+          <Pressable
+            onPress={openEmployeeProfile}
+            accessibilityRole="button"
+            accessibilityLabel={t('bookingOpenEmployeeProfile')}
+            className="min-w-0 flex-1 flex-row items-center active:opacity-70">
+            {employeeSummary}
+          </Pressable>
+        ) : (
+          <View className="min-w-0 flex-1 flex-row items-center">{employeeSummary}</View>
+        )}
+        {employeeId ? (
           <Pressable
             accessibilityRole="button"
             accessibilityLabel={t('bookingOpenEmployeeProfile')}
             hitSlop={12}
-            onPress={() =>
-              router.push(`/screens/barber-detail?id=${encodeURIComponent(booking.employee!.id)}`)
-            }
+            onPress={openEmployeeProfile}
             className="ml-2 shrink-0 rounded-full bg-light-secondary p-2.5 dark:bg-dark-secondary">
             <Icon name="CircleUserRound" size={22} />
           </Pressable>

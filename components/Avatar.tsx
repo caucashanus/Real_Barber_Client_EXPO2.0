@@ -4,11 +4,14 @@ import React from 'react';
 import { Pressable, View, ViewStyle, ImageSourcePropType } from 'react-native';
 
 import ThemedText from './ThemedText';
+import Icon, { type IconName } from './Icon';
 
 type AvatarProps = {
   size?: 'xxs' | 'xs' | 'sm' | 'md' | 'lg' | 'xl' | 'xxl';
   src?: string | ImageSourcePropType; // Can be a URL string or required image
   name?: string; // for displaying initials if no image
+  /** When no `src`, show this Lucide icon instead of initials (e.g. review authors). */
+  fallbackIcon?: IconName;
   border?: boolean;
   bgColor?: string; // Optional background color
   onPress?: () => void; // Optional onPress for Pressable or Link
@@ -21,6 +24,7 @@ const Avatar: React.FC<AvatarProps> = ({
   size = 'md',
   src,
   name,
+  fallbackIcon,
   border = false,
   bgColor = 'bg-light-secondary dark:bg-dark-secondary',
   onPress,
@@ -41,6 +45,19 @@ const Avatar: React.FC<AvatarProps> = ({
 
   // Define border size and color if enabled
   const borderStyle = border ? 'border-2 border-light-secondary dark:border-dark-secondary' : '';
+
+  const iconSizeMap = {
+    xxs: 14,
+    xs: 16,
+    sm: 18,
+    md: 20,
+    lg: 24,
+    xl: 28,
+    xxl: 32,
+  } as const;
+
+  const hasImageSource =
+    typeof src === 'string' ? src.trim().length > 0 : src != null && src !== undefined;
 
   // Component for initials if image is not provided
   const renderInitials = () => {
@@ -70,14 +87,27 @@ const Avatar: React.FC<AvatarProps> = ({
     return src;
   };
 
+  const renderFallback = () => {
+    if (fallbackIcon) {
+      return (
+        <Icon
+          name={fallbackIcon}
+          size={iconSizeMap[size]}
+          className="text-light-subtext dark:text-dark-subtext"
+        />
+      );
+    }
+    return renderInitials();
+  };
+
   const avatarContent = (
     <View
       className={`flex-shrink-0 rounded-full ${bgColor} ${sizeMap[size]} ${borderStyle} items-center justify-center ${className}`}
       style={style}>
-      {src ? (
+      {hasImageSource ? (
         <Image source={getImageSource()} className="h-full w-full rounded-full object-cover" />
       ) : (
-        renderInitials()
+        renderFallback()
       )}
     </View>
   );

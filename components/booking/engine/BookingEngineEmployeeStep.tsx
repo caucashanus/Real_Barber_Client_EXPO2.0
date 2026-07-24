@@ -2,6 +2,7 @@ import React, { useRef } from 'react';
 import { Pressable, View } from 'react-native';
 
 import type { BookingEngineFlow } from '@/app/hooks/useBookingEngineFlow';
+import { useTheme } from '@/app/contexts/ThemeContext';
 import RatingBadge from '@/components/RatingBadge';
 import ThemedText from '@/components/ThemedText';
 import BookingPanelPickerRow from '@/components/booking/engine/BookingPanelPickerRow';
@@ -48,7 +49,11 @@ function EmployeeCardContent({
 
 export default function BookingEngineEmployeeStep({ flow }: Props) {
   const { t } = flow;
+  const { isDark } = useTheme();
   const locale = flow.dateLocaleTag.startsWith('cs') ? 'cs' : 'en';
+  const anyEmployeeLogo = isDark
+    ? require('@/assets/img/wallet/realbarber-dark.png')
+    : require('@/assets/img/wallet/realbarber-light.png');
   const profileSheetRef = useRef<EmployeeBookingProfileSheetHandle>(null);
 
   const openProfile = (employee: BookingEntity) => {
@@ -103,9 +108,11 @@ export default function BookingEngineEmployeeStep({ flow }: Props) {
           <BookingPanelPickerRow
             key={emp.id}
             imageUrl={isAny ? null : emp.avatarUrl}
-            imageShape="round"
+            imageSource={isAny ? anyEmployeeLogo : undefined}
+            imageFit={isAny ? 'contain' : 'cover'}
+            imageShape={isAny ? 'square' : 'round'}
             avatarSize={isAny ? 'md' : 'xl'}
-            fallbackName={isAny ? 'K' : name}
+            fallbackName={name}
             title={
               isAny ? (
                 <View className="w-full gap-1">

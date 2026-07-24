@@ -31,6 +31,7 @@ import MediaFullscreenModal from '@/components/detail/MediaFullscreenModal';
 import {
   buildTeamMemberShareMessage,
   getTeamMemberProfileShareUrl,
+  getTodayActiveWaitlistBranchId,
 } from '@/utils/teamMemberPageHelpers';
 import { BARBER_DETAIL_SECTION_SPACING } from '@/constants/barberDetailLayout';
 
@@ -112,6 +113,10 @@ export default function BarberDetailScreen() {
   const shiftCalendar = useMemo(() => employee?.shiftCalendar, [employee?.shiftCalendar]);
   const stories = useMemo(() => employee?.stories ?? [], [employee?.stories]);
   const branches = useMemo(() => employee?.branches ?? [], [employee?.branches]);
+  const waitlistBranchId = useMemo(
+    () => getTodayActiveWaitlistBranchId(shiftCalendar, today),
+    [shiftCalendar, today]
+  );
 
   const fullscreenEmployeeMedia = useMemo(() => {
     if (!fullscreenMedia) return null;
@@ -205,6 +210,8 @@ export default function BarberDetailScreen() {
               todaySlots={todaySlots}
               loadingSlots={loadingSlots}
               shiftStatus={todayShiftStatus}
+              waitlistBranchId={waitlistBranchId}
+              onScrollToAvailability={scrollToAvailability}
               t={t}
             />
           ) : null}

@@ -961,8 +961,11 @@ export const cs: Record<TranslationKey, string> = {
   barberTodaySlots: 'Dnešní volné termíny',
   barberNearestSlotTitle: 'Nejbližší termín',
   barberNearestSlotsTitle: 'Nejbližší termíny',
-  barberUnavailableToday: 'Nedostupný dnes',
+  barberUnavailableToday: 'Dnes už jsem skončil/a',
   barberFullyBookedToday: 'Dnes plně obsazeno',
+  barberWaitlistFullHint:
+    'Dnes už plně obsazený. Můžete se zapsat, pokud se něco uvolní, ozveme se.',
+  barberScrollToAvailability: 'Podívejte se, kdy jsem příště',
   barberTodayShift: 'Dnes má směnu',
   barberStoriesTeaser: 'Podívejte se na nové stories',
   barberPhoneCall: 'Zavolat',

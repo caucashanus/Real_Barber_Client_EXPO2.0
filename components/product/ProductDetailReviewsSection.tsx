@@ -113,7 +113,12 @@ export default function ProductDetailReviewsSection({
                               className="mr-2 h-10 w-10 rounded-full"
                             />
                           ) : (
-                            <Avatar size="sm" name={review.client?.name ?? '?'} className="mr-2" />
+                            <Avatar
+                              size="sm"
+                              name={review.client?.name ?? '?'}
+                              fallbackIcon="CircleUserRound"
+                              className="mr-2"
+                            />
                           )}
                           <View className="min-w-0">
                             <ThemedText className="font-medium" numberOfLines={1}>
@@ -185,7 +190,12 @@ export default function ProductDetailReviewsSection({
                           className="mr-2 h-10 w-10 rounded-full"
                         />
                       ) : (
-                        <Avatar size="sm" name={authorName} className="mr-2" />
+                        <Avatar
+                          size="sm"
+                          name={authorName}
+                          fallbackIcon="CircleUserRound"
+                          className="mr-2"
+                        />
                       )}
                       <View className="min-w-0 flex-1">
                         <ThemedText className="font-medium" numberOfLines={1}>

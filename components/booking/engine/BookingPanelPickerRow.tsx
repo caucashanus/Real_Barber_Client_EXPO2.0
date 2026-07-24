@@ -1,6 +1,6 @@
 import { Image } from 'expo-image';
 import React, { type ReactNode } from 'react';
-import { Pressable, View } from 'react-native';
+import { Pressable, View, type ImageSourcePropType } from 'react-native';
 
 import Avatar from '@/components/Avatar';
 import { Button } from '@/components/Button';
@@ -22,6 +22,7 @@ export const BOOKING_FLOW_CARD_CLASS = BOOKING_FLOW_CARD_OUTER_CLASS;
 
 interface BookingPanelPickerRowProps {
   imageUrl?: string | null;
+  imageSource?: ImageSourcePropType;
   imageFit?: 'cover' | 'contain';
   imageShape?: 'square' | 'round';
   /** `md` = 48px, `xl` = 80px (booking employee step). */
@@ -40,6 +41,7 @@ interface BookingPanelPickerRowProps {
 
 export default function BookingPanelPickerRow({
   imageUrl,
+  imageSource,
   imageFit = 'cover',
   imageShape = 'square',
   avatarSize = 'md',
@@ -65,7 +67,13 @@ export default function BookingPanelPickerRow({
       }`}>
       <View className="flex-row items-start gap-3 p-4">
         <View className={`${avatarClass} shrink-0 items-center justify-center overflow-hidden`}>
-          {imageUrl?.trim() ? (
+          {imageSource ? (
+            <Image
+              source={imageSource}
+              className={`${avatarClass} ${avatarRadius}`}
+              contentFit={imageFit}
+            />
+          ) : imageUrl?.trim() ? (
             <Image
               source={{ uri: imageUrl.trim() }}
               className={`${avatarClass} ${avatarRadius}`}
