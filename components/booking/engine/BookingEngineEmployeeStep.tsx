@@ -127,7 +127,6 @@ export default function BookingEngineEmployeeStep({ flow }: Props) {
             selectLabel={t('bookingEmployeeSelect')}
             onSelect={() => flow.selectEmployee(emp)}
             actionDisabled={disabled}
-            selectedRingColor={flow.branchHighlightColor}
           />
         );
       })}

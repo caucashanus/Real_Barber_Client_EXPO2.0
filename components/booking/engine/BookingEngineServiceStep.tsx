@@ -24,7 +24,6 @@ interface BookingEngineServiceStepProps {
   currencySuffix: string;
   onSelect: (service: BookingService) => void;
   closeLabel: string;
-  selectedRingColor?: string;
 }
 
 function formatServicePrice(
@@ -56,7 +55,6 @@ export default function BookingEngineServiceStep({
   currencySuffix,
   onSelect,
   closeLabel,
-  selectedRingColor,
 }: BookingEngineServiceStepProps) {
   const detailSheetRef = useRef<ActionSheetRef>(null);
   const [detailService, setDetailService] = useState<BookingService | null>(null);
@@ -78,13 +76,13 @@ export default function BookingEngineServiceStep({
       <BookingPanelPickerRow
         key={service.id}
         imageUrl={serviceImageUrl(service)}
+        avatarSize="xl"
         fallbackName={service.name ?? service.id}
         title={service.name ?? service.id}
         description={formatServicePrice(service, fromPriceLabel, currencySuffix)}
         selectLabel={selectLabel}
         showInfo={showServiceInfo}
         selected={selectedServiceId === service.id}
-        selectedRingColor={selectedRingColor}
         onSelect={() => onSelect(service)}
         onInfo={() => openServiceDetail(service)}
       />

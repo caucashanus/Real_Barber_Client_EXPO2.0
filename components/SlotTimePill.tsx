@@ -17,10 +17,12 @@ const SLOT_PILL_SPACING_STYLE = { marginRight: 6, marginBottom: 6 } as const;
 interface SlotTimePillProps {
   /** HH:MM — zobrazí se přes formatNextSlotDisplayTime. */
   time?: string;
-  /** Vlastní text (např. „Další“), když není `time`. */
+  /** Vlastní text (např. „Další“, den v kalendáři), když není `time`. */
   title?: string;
   onPress?: () => void;
+  selected?: boolean;
   className?: string;
+  textClassName?: string;
   disabled?: boolean;
   /** Menší pill pro úzké karty na stránce holičů. */
   compact?: boolean;
@@ -33,7 +35,9 @@ export default function SlotTimePill({
   time,
   title,
   onPress,
+  selected = false,
   className,
+  textClassName,
   disabled = false,
   compact = false,
   spaced = false,
@@ -45,6 +49,7 @@ export default function SlotTimePill({
       variant="choice"
       size={compact ? 'xs' : 'sm'}
       title={displayTitle}
+      selected={selected}
       onPress={onPress}
       disabled={disabled}
       disableHaptic
@@ -54,9 +59,12 @@ export default function SlotTimePill({
       ]
         .filter(Boolean)
         .join(' ')}
-      textClassName={
-        compact ? NEXT_SLOT_BUTTON_COMPACT_TEXT_CLASS : NEXT_SLOT_BUTTON_TEXT_CLASS
-      }
+      textClassName={[
+        compact ? NEXT_SLOT_BUTTON_COMPACT_TEXT_CLASS : NEXT_SLOT_BUTTON_TEXT_CLASS,
+        textClassName,
+      ]
+        .filter(Boolean)
+        .join(' ')}
     />
   );
 

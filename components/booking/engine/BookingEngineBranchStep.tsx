@@ -4,7 +4,7 @@ import { ActivityIndicator, View } from 'react-native';
 import type { BookingEngineFlow } from '@/app/hooks/useBookingEngineFlow';
 import { Button } from '@/components/Button';
 import BookingPanelPickerRow from '@/components/booking/engine/BookingPanelPickerRow';
-import { getBranchThemeColorCss, branchImageUrl } from '@/lib/booking/designShared';
+import { branchImageUrl } from '@/lib/booking/designShared';
 
 interface Props {
   flow: BookingEngineFlow;
@@ -40,7 +40,6 @@ export default function BookingEngineBranchStep({ flow }: Props) {
             selected={flow.selectedBranch?.id === branch.id}
             selectLabel={t('bookingBranchSelect')}
             onSelect={() => flow.selectBranch(branch)}
-            selectedRingColor={getBranchThemeColorCss(branch)}
           />
         ))
       )}

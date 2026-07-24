@@ -42,7 +42,6 @@ import {
 import type { BookingFlatAvailabilityMap, BookingSlotServiceItem } from '@/lib/booking/booking-api/types';
 import { isAuthContactComplete } from '@/lib/booking/authContact';
 import { resolveBookingFlowFooterAction } from '@/lib/booking/bookingFlowFooter';
-import { getBranchThemeColorCss } from '@/lib/booking/designShared';
 import { ensureBookingSessionId } from '@/lib/booking/booking-api/session';
 import {
   applyBookingBackwardCleanup,
@@ -1025,11 +1024,6 @@ export function useBookingEngineFlow() {
     [activeSteps, stepIndex, goToStepIndex]
   );
 
-  const branchHighlightColor = useMemo(() => {
-    const branch = selectedBranch ?? profileBranches[0] ?? branches[0] ?? null;
-    return getBranchThemeColorCss(branch);
-  }, [selectedBranch, profileBranches, branches]);
-
   const handleBack = useCallback(() => {
     if (stepIndex > 0) {
       goToStepIndex(stepIndex - 1);
@@ -1057,7 +1051,6 @@ export function useBookingEngineFlow() {
     profileBranches,
     multiBranchLegend,
     availabilityByBranch,
-    branchHighlightColor,
     services,
     employeesForPicker,
     employeeNearestSlot,

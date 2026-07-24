@@ -1,6 +1,6 @@
 import { Image } from 'expo-image';
 import React, { type ReactNode } from 'react';
-import { Pressable, View, type StyleProp, type ViewStyle } from 'react-native';
+import { Pressable, View } from 'react-native';
 
 import Avatar from '@/components/Avatar';
 import { Button } from '@/components/Button';
@@ -34,7 +34,6 @@ interface BookingPanelPickerRowProps {
   selectLabel: string;
   onSelect: () => void;
   actionDisabled?: boolean;
-  selectedRingColor?: string;
   showInfo?: boolean;
   onInfo?: () => void;
 }
@@ -52,21 +51,17 @@ export default function BookingPanelPickerRow({
   selectLabel,
   onSelect,
   actionDisabled = false,
-  selectedRingColor,
   showInfo = false,
   onInfo,
 }: BookingPanelPickerRowProps) {
-  const ringColor = selectedRingColor;
-  const borderStyle: StyleProp<ViewStyle> =
-    selected && ringColor ? { borderColor: ringColor, borderWidth: 2 } : undefined;
   const avatarClass = avatarSize === 'xl' ? 'h-20 w-20' : 'h-12 w-12';
   const avatarRadius = imageShape === 'round' ? 'rounded-full' : 'rounded-xl';
 
   return (
     <View
-      style={[shadowPresets.card, borderStyle]}
+      style={shadowPresets.card}
       className={`${BOOKING_FLOW_CARD_OUTER_CLASS} ${actionDisabled ? 'opacity-60' : ''} ${
-        selected && !ringColor ? 'border-light-text dark:border-dark-text' : ''
+        selected ? 'border-2 border-light-text dark:border-dark-text' : ''
       }`}>
       <View className="flex-row items-start gap-3 p-4">
         <View className={`${avatarClass} shrink-0 items-center justify-center overflow-hidden`}>

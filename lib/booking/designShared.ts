@@ -1,46 +1,5 @@
 import type { BookingEntity } from '@/lib/booking/constants';
 
-type BranchLike = { id?: string; name?: string | null; slug?: string | null } | null | undefined;
-
-const BRANCH_THEME_HSL: Record<string, string> = {
-  barrandov: '30 65% 35%',
-  hagibor: '217 70% 35%',
-  kacerov: '45 85% 35%',
-  modrany: '0 70% 35%',
-  modřany: '0 70% 35%',
-};
-
-const DEFAULT_THEME_HSL = '30 65% 35%';
-
-function branchHaystack(branch: BranchLike): string {
-  return [branch?.id, branch?.slug, branch?.name]
-    .filter((v): v is string => typeof v === 'string' && v.trim().length > 0)
-    .join(' ')
-    .toLowerCase();
-}
-
-function resolveBranchKey(branch: BranchLike): string | null {
-  const hay = branchHaystack(branch);
-  if (!hay) return null;
-  for (const key of Object.keys(BRANCH_THEME_HSL)) {
-    if (hay.includes(key)) return key;
-  }
-  if (hay.includes('kačerov')) return 'kacerov';
-  if (hay.includes('modřany')) return 'modrany';
-  return null;
-}
-
-export function getBranchThemeColorHsl(branch: BranchLike): string {
-  const key = resolveBranchKey(branch);
-  if (key && BRANCH_THEME_HSL[key]) return BRANCH_THEME_HSL[key];
-  return DEFAULT_THEME_HSL;
-}
-
-export function getBranchThemeColorCss(branch: BranchLike): string {
-  const hsl = getBranchThemeColorHsl(branch);
-  return `hsl(${hsl.replace(/\s+/g, ', ')})`;
-}
-
 export function resolveBranchName(
   branchId: string | undefined,
   branches: BookingEntity[],

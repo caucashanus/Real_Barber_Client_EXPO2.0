@@ -45,7 +45,6 @@ export default function BookingEngineStepContent({ flow, stepKind }: Props) {
           fromPriceLabel={t('reservationPriceFromPrefix')}
           currencySuffix={t('reservationCurrencySuffix')}
           closeLabel={t('sheetClose')}
-          selectedRingColor={flow.branchHighlightColor}
           onSelect={flow.selectService}
         />
       </View>

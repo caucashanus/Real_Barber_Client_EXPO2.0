@@ -87,12 +87,10 @@ export default function BookingEngineHandoffServiceStep({ flow }: Props) {
             return (
               <View
                 key={service.id}
-                style={
-                  isSelected
-                    ? [shadowPresets.card, { borderColor: flow.branchHighlightColor, borderWidth: 2 }]
-                    : shadowPresets.card
-                }
-                className={`${BOOKING_FLOW_CARD_OUTER_CLASS} p-4`}>
+                style={shadowPresets.card}
+                className={`${BOOKING_FLOW_CARD_OUTER_CLASS} p-4 ${
+                  isSelected ? 'border-2 border-light-text dark:border-dark-text' : ''
+                }`}>
                 <View className="flex-row items-start gap-3">
                   <Image
                     source={
