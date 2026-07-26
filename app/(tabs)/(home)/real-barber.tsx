@@ -1,10 +1,9 @@
 import { useFocusEffect } from '@react-navigation/native';
 import { Image } from 'expo-image';
-import { LinearGradient } from 'expo-linear-gradient';
 import { router } from 'expo-router';
 import * as WebBrowser from 'expo-web-browser';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { ActivityIndicator, Pressable, RefreshControl, ScrollView, View } from 'react-native';
+import { ActivityIndicator, Pressable, RefreshControl, useWindowDimensions, View } from 'react-native';
 
 import { getClientCoupons, type ClientCoupon } from '@/api/client-coupons';
 import { getClientPosters, type ClientPoster } from '@/api/client-posters';
@@ -16,61 +15,40 @@ import Avatar from '@/components/Avatar';
 import { HomeRepeatBookingCard } from '@/components/HomeRepeatBookingCard';
 import { HomeSpotlightCard } from '@/components/HomeSpotlightCard';
 import Icon from '@/components/Icon';
+import ImageCarousel from '@/components/ImageCarousel';
 import NotificationPromptSheet from '@/components/NotificationPromptSheet';
 import ThemeScroller from '@/components/ThemeScroller';
 import ThemedText from '@/components/ThemedText';
 import Section from '@/components/layout/Section';
 import { getBookingEndDate, isBookingPast } from '@/utils/bookingHelpers';
 import { pickRepeatBookingCandidate } from '@/utils/repeatBooking';
-import { getClientCouponValidityA11y } from '@/utils/clientCouponFormat';
 import { buildHomePromoCouponCarouselList, homePromoClientSeed } from '@/utils/homePromoCoupon';
-import { mergePostersAndCouponsRoundRobin, filterHomePosters } from '@/utils/homePromoFeed';
+import {
+  mergePostersAndCouponsRoundRobin,
+  filterHomePosters,
+} from '@/utils/homePromoFeed';
 import { pickHomeSpotlight, formatHomeBookingSlotLabel } from '@/utils/homeSpotlight';
 import { isReservationIntroCooldownActive } from '@/utils/reservation-intro-cooldown';
-import { shadowPresets } from '@/utils/useShadow';
 
-/** Jednotný formát kartičky jako u původních mock promo karet pod sekcí Tipy a nabídky. */
-const HOME_COUPON_CARD_WIDTH = 280;
-const HOME_COUPON_CARD_HEIGHT = 140;
+/** Stejná šířka jako `-mx-global` bloky uvnitř `px-global` (padding 24 px × 2). */
+const HOME_LAYOUT_HORIZONTAL_PADDING = 48;
 
-/**
- * Levý „sloupec“ scrimu přes celou výšku karty — bez krátkého boxu nedělá vodorovnou řeznou
- * hranici uprostřed. Gradient sám řídí, kde je tmavší (nahoře vlevo) a kde zmizí.
- */
-const COUPON_TEXT_SCRIM_BOX = {
-  width: Math.round(HOME_COUPON_CARD_WIDTH * 0.78),
-  height: HOME_COUPON_CARD_HEIGHT,
-  borderBottomRightRadius: 42,
-};
+function getHomePromoCarouselSize(screenWidth: number) {
+  const width = screenWidth - HOME_LAYOUT_HORIZONTAL_PADDING;
+  return {
+    width,
+    height: Math.round(width / 2),
+  };
+}
 
-const COUPON_TEXT_SCRIM_GRADIENT = {
-  colors: [
-    'rgba(0,0,0,0.9)',
-    'rgba(0,0,0,0.74)',
-    'rgba(0,0,0,0.42)',
-    'rgba(0,0,0,0.14)',
-    'rgba(0,0,0,0)',
-  ],
-  locations: [0, 0.12, 0.34, 0.58, 1] as [number, number, number, number, number],
-} as const;
-
-const COUPON_IMAGE_TEXT_SHADOW_STYLE = {
-  textShadowColor: 'rgba(0,0,0,0.5)',
-  textShadowOffset: { width: 0, height: 1 },
-  textShadowRadius: 4,
-} as const;
+interface HomePromoSlide {
+  id: string;
+  imageUrl: string;
+  onPress: () => void;
+}
 
 /** Kupóny skryté v sekci Tipy a nabídky i když je API vrátí (filtrování podle `name`). */
 const HIDDEN_HOME_PROMO_COUPON_NAMES = new Set(['Gorila10', 'TVPRIMA10']);
-
-function posterCardText(poster: ClientPoster): { primary: string; secondary: string | null } {
-  const title = poster.title?.trim() ?? '';
-  const subtitle = poster.subtitle?.trim() ?? '';
-  if (title && subtitle) return { primary: title, secondary: subtitle };
-  if (title) return { primary: title, secondary: null };
-  if (subtitle) return { primary: subtitle, secondary: null };
-  return { primary: '—', secondary: null };
-}
 
 function openPosterTarget(poster: ClientPoster): void {
   const web = poster.websiteUrl?.trim();
@@ -85,6 +63,11 @@ function openPosterTarget(poster: ClientPoster): void {
 }
 
 export default function RealBarberHomeTab() {
+  const { width: screenWidth } = useWindowDimensions();
+  const homePromoCarouselSize = useMemo(
+    () => getHomePromoCarouselSize(screenWidth),
+    [screenWidth]
+  );
   const { apiToken, client } = useAuth();
   const { accentColor } = useAccentColor();
   const { t, locale } = useTranslation();
@@ -230,6 +213,46 @@ export default function RealBarberHomeTab() {
     [posters, homePromoCouponsForMerge]
   );
 
+  const homePromoSlides = useMemo((): HomePromoSlide[] => {
+    const slides: HomePromoSlide[] = [];
+    for (const item of homePromoFeed) {
+      if (item.kind === 'coupon') {
+        const imageUrl = item.coupon.imageUrl?.trim();
+        if (!imageUrl) continue;
+        slides.push({
+          id: `c-${item.coupon.id}`,
+          imageUrl,
+          onPress: () => {
+            router.push(
+              `/screens/client-coupon-detail?id=${encodeURIComponent(item.coupon.id)}` as never
+            );
+          },
+        });
+        continue;
+      }
+      const imageUrl = item.poster.imageUrl?.trim();
+      if (!imageUrl) continue;
+      slides.push({
+        id: `p-${item.poster.id}`,
+        imageUrl,
+        onPress: () => openPosterTarget(item.poster),
+      });
+    }
+    return slides;
+  }, [homePromoFeed]);
+
+  const homePromoImages = useMemo(
+    () => homePromoSlides.map((slide) => slide.imageUrl),
+    [homePromoSlides]
+  );
+
+  const handleHomePromoPress = useCallback(
+    (index: number) => {
+      homePromoSlides[index]?.onPress();
+    },
+    [homePromoSlides]
+  );
+
   return (
     <>
       <ThemeScroller
@@ -238,7 +261,31 @@ export default function RealBarberHomeTab() {
           <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={accentColor} />
         }>
         <NotificationPromptSheet />
-        <View className="mt-4 px-global">
+        <View className="px-global">
+          {apiToken && (recentLoading || homePromoSlides.length > 0) ? (
+            <View className="-mx-global mb-4 mt-4">
+              {recentLoading ? (
+                <View
+                  style={{ height: homePromoCarouselSize.height }}
+                  className="w-full items-center justify-center rounded-2xl bg-light-secondary dark:bg-dark-secondary">
+                  <ActivityIndicator size="small" />
+                  <ThemedText className="mt-2 text-sm text-light-subtext dark:text-dark-subtext">
+                    {t('commonLoading')}
+                  </ThemedText>
+                </View>
+              ) : (
+                <ImageCarousel
+                  width={homePromoCarouselSize.width}
+                  rounded="2xl"
+                  height={homePromoCarouselSize.height}
+                  className="w-full"
+                  images={homePromoImages}
+                  paginationStyle="dots"
+                  onImagePress={handleHomePromoPress}
+                />
+              )}
+            </View>
+          ) : null}
           {!recentLoading && repeatBooking ? (
             <View className="-mx-global mt-4">
               <HomeRepeatBookingCard booking={repeatBooking} t={t} />
@@ -298,273 +345,6 @@ export default function RealBarberHomeTab() {
               </Pressable>
             ))}
           </View>
-
-          {apiToken && (recentLoading || homePromoFeed.length > 0) ? (
-            <View className="mt-6">
-              <Section title={t('homePromoSectionTitle')} titleSize="md" />
-              {recentLoading ? (
-                <View className="mt-2 h-[200px] items-center justify-center rounded-2xl bg-light-secondary py-12 dark:bg-dark-secondary">
-                  <ActivityIndicator size="small" />
-                  <ThemedText className="mt-2 text-sm text-light-subtext dark:text-dark-subtext">
-                    {t('commonLoading')}
-                  </ThemedText>
-                </View>
-              ) : (
-                <ScrollView
-                  horizontal
-                  showsHorizontalScrollIndicator={false}
-                  className="-mx-global mt-2"
-                  contentContainerStyle={{
-                    paddingHorizontal: 16,
-                    paddingRight: 24,
-                    paddingBottom: 4,
-                  }}>
-                  {homePromoFeed.map((item) => {
-                    if (item.kind === 'coupon') {
-                      const coupon = item.coupon;
-                      const validityA11y = getClientCouponValidityA11y(
-                        coupon.validFrom,
-                        coupon.validUntil,
-                        locale,
-                        t
-                      );
-                      const hasValidity = validityA11y != null;
-                      const hasImage = Boolean(coupon.imageUrl?.trim());
-                      const titleCls = hasImage
-                        ? 'text-base font-bold leading-tight text-white'
-                        : 'text-base font-bold leading-tight text-light-text dark:text-dark-text';
-
-                      return (
-                        <Pressable
-                          key={`c-${coupon.id}`}
-                          onPress={() =>
-                            router.push(
-                              `/screens/client-coupon-detail?id=${encodeURIComponent(coupon.id)}` as any
-                            )
-                          }
-                          accessibilityRole="button"
-                          accessibilityLabel={[
-                            t('homePromoBadgeCoupon'),
-                            coupon.name,
-                            coupon.benefitLabel,
-                            validityA11y,
-                          ]
-                            .filter(Boolean)
-                            .join('. ')}
-                          style={[
-                            shadowPresets.large,
-                            {
-                              width: HOME_COUPON_CARD_WIDTH,
-                              height: HOME_COUPON_CARD_HEIGHT,
-                              marginRight: 15,
-                            },
-                          ]}
-                          className="relative flex-shrink-0 overflow-hidden rounded-2xl bg-light-secondary active:opacity-90 dark:bg-dark-secondary">
-                          <View
-                            className={
-                              hasImage
-                                ? 'bg-black/55 absolute left-2 top-2 z-30 rounded-full border border-white/40 px-2 py-0.5'
-                                : 'absolute left-2 top-2 z-30 rounded-full border border-neutral-200 bg-light-primary/95 px-2 py-0.5 dark:border-dark-secondary dark:bg-dark-secondary/95'
-                            }
-                            pointerEvents="none">
-                            <ThemedText
-                              className={
-                                hasImage
-                                  ? 'text-[10px] font-semibold uppercase tracking-wide text-white'
-                                  : 'text-[10px] font-semibold uppercase tracking-wide text-light-subtext dark:text-dark-subtext'
-                              }>
-                              {t('homePromoBadgeCoupon')}
-                            </ThemedText>
-                          </View>
-                          {hasImage ? (
-                            <>
-                              <Image
-                                source={{ uri: coupon.imageUrl! }}
-                                style={{
-                                  position: 'absolute',
-                                  top: 0,
-                                  left: 0,
-                                  right: 0,
-                                  bottom: 0,
-                                }}
-                                contentFit="cover"
-                              />
-                              <LinearGradient
-                                pointerEvents="none"
-                                colors={[...COUPON_TEXT_SCRIM_GRADIENT.colors]}
-                                locations={[...COUPON_TEXT_SCRIM_GRADIENT.locations]}
-                                start={{ x: 0, y: 0 }}
-                                end={{ x: 1, y: 1 }}
-                                style={{
-                                  position: 'absolute',
-                                  left: 0,
-                                  top: 0,
-                                  width: COUPON_TEXT_SCRIM_BOX.width,
-                                  height: COUPON_TEXT_SCRIM_BOX.height,
-                                  borderBottomRightRadius:
-                                    COUPON_TEXT_SCRIM_BOX.borderBottomRightRadius,
-                                }}
-                              />
-                            </>
-                          ) : (
-                            <View
-                              pointerEvents="none"
-                              className="absolute inset-0 bg-light-secondary dark:bg-dark-secondary"
-                            />
-                          )}
-                          {hasValidity ? (
-                            <View className="absolute bottom-2 right-2 z-20 max-w-[72%]">
-                              <ClientCouponValidityPills
-                                validFrom={coupon.validFrom}
-                                validUntil={coupon.validUntil}
-                                locale={locale}
-                                t={t}
-                                variant={hasImage ? 'cardImage' : 'cardSolid'}
-                                align="end"
-                              />
-                            </View>
-                          ) : null}
-                          <View className="relative z-10 h-full justify-start px-4 pb-3 pt-8">
-                            <View className="min-w-0 flex-1 justify-start">
-                              <ThemedText
-                                className={titleCls}
-                                style={hasImage ? COUPON_IMAGE_TEXT_SHADOW_STYLE : undefined}
-                                numberOfLines={2}>
-                                {coupon.name}
-                              </ThemedText>
-                              <View
-                                className={
-                                  hasImage
-                                    ? 'mt-1.5 max-w-full self-start rounded-full border border-white/25 bg-black/50 px-2 py-0.5'
-                                    : 'mt-1.5 max-w-full self-start rounded-full border border-neutral-200 bg-light-primary px-2 py-0.5 dark:border-dark-secondary dark:bg-dark-secondary'
-                                }
-                                pointerEvents="none">
-                                <ThemedText
-                                  className={
-                                    hasImage
-                                      ? 'text-[10px] font-semibold leading-tight text-emerald-300'
-                                      : 'text-[10px] font-semibold leading-tight text-emerald-600 dark:text-emerald-400'
-                                  }
-                                  numberOfLines={1}>
-                                  {coupon.benefitLabel}
-                                </ThemedText>
-                              </View>
-                            </View>
-                          </View>
-                        </Pressable>
-                      );
-                    }
-
-                    const poster = item.poster;
-                    const { primary, secondary } = posterCardText(poster);
-                    const hasImage = Boolean(poster.imageUrl?.trim());
-                    const hasVideoOnly = !hasImage && Boolean(poster.videoUrl?.trim());
-                    const hasMediaHero = hasImage || hasVideoOnly;
-                    const titleCls = hasMediaHero
-                      ? 'text-base font-bold leading-tight text-white'
-                      : 'text-base font-bold leading-tight text-light-text dark:text-dark-text';
-
-                    return (
-                      <Pressable
-                        key={`p-${poster.id}`}
-                        onPress={() => openPosterTarget(poster)}
-                        accessibilityRole="button"
-                        accessibilityLabel={[primary, secondary].filter(Boolean).join('. ')}
-                        style={[
-                          shadowPresets.large,
-                          {
-                            width: HOME_COUPON_CARD_WIDTH,
-                            height: HOME_COUPON_CARD_HEIGHT,
-                            marginRight: 15,
-                          },
-                        ]}
-                        className="relative flex-shrink-0 overflow-hidden rounded-2xl bg-light-secondary active:opacity-90 dark:bg-dark-secondary">
-                        {hasImage ? (
-                          <>
-                            <Image
-                              source={{ uri: poster.imageUrl!.trim() }}
-                              style={{
-                                position: 'absolute',
-                                top: 0,
-                                left: 0,
-                                right: 0,
-                                bottom: 0,
-                              }}
-                              contentFit="cover"
-                            />
-                            <LinearGradient
-                              pointerEvents="none"
-                              colors={[...COUPON_TEXT_SCRIM_GRADIENT.colors]}
-                              locations={[...COUPON_TEXT_SCRIM_GRADIENT.locations]}
-                              start={{ x: 0, y: 0 }}
-                              end={{ x: 1, y: 1 }}
-                              style={{
-                                position: 'absolute',
-                                left: 0,
-                                top: 0,
-                                width: COUPON_TEXT_SCRIM_BOX.width,
-                                height: COUPON_TEXT_SCRIM_BOX.height,
-                                borderBottomRightRadius:
-                                  COUPON_TEXT_SCRIM_BOX.borderBottomRightRadius,
-                              }}
-                            />
-                          </>
-                        ) : hasVideoOnly ? (
-                          <View
-                            pointerEvents="none"
-                            className="absolute inset-0 items-center justify-center bg-neutral-900">
-                            <LinearGradient
-                              pointerEvents="none"
-                              colors={['rgba(0,0,0,0.5)', 'rgba(0,0,0,0.75)']}
-                              start={{ x: 0, y: 0 }}
-                              end={{ x: 1, y: 1 }}
-                              style={{
-                                position: 'absolute',
-                                left: 0,
-                                top: 0,
-                                right: 0,
-                                bottom: 0,
-                              }}
-                            />
-                            <View className="bg-white/15 rounded-full p-2">
-                              <Icon name="Play" size={28} className="text-white" />
-                            </View>
-                          </View>
-                        ) : (
-                          <View
-                            pointerEvents="none"
-                            className="absolute inset-0 bg-light-secondary dark:bg-dark-secondary"
-                          />
-                        )}
-                        <View className="relative z-10 h-full justify-start px-4 pb-3 pt-3">
-                          <View className="min-w-0 flex-1 justify-start">
-                            <ThemedText
-                              className={titleCls}
-                              style={hasMediaHero ? COUPON_IMAGE_TEXT_SHADOW_STYLE : undefined}
-                              numberOfLines={2}>
-                              {primary}
-                            </ThemedText>
-                            {secondary ? (
-                              <ThemedText
-                                className={
-                                  hasMediaHero
-                                    ? 'mt-1 text-sm font-semibold leading-tight text-white'
-                                    : 'mt-1 text-sm font-semibold leading-tight text-light-text dark:text-dark-text'
-                                }
-                                style={hasMediaHero ? COUPON_IMAGE_TEXT_SHADOW_STYLE : undefined}
-                                numberOfLines={2}>
-                                {secondary}
-                              </ThemedText>
-                            ) : null}
-                          </View>
-                        </View>
-                      </Pressable>
-                    );
-                  })}
-                </ScrollView>
-              )}
-            </View>
-          ) : null}
 
           <Section title={t('homeRecentTitle')} titleSize="md" className="mt-6" />
           {recentLoading ? (

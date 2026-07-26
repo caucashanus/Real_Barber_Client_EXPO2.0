@@ -7,7 +7,9 @@ import {
   StyleSheet,
   LayoutChangeEvent,
   Animated,
+  Pressable,
   ImageSourcePropType,
+  Platform,
 } from 'react-native';
 
 import ThemedText from '@/components/ThemedText';
@@ -51,6 +53,12 @@ const ImageCarousel: React.FC<ImageCarouselProps> = ({
   const activeIndexRef = React.useRef(0);
 
   useEffect(() => {
+    if (propWidth != null) {
+      setContainerWidth(propWidth);
+    }
+  }, [propWidth]);
+
+  useEffect(() => {
     activeIndexRef.current = activeIndex;
   }, [activeIndex]);
 
@@ -69,8 +77,9 @@ const ImageCarousel: React.FC<ImageCarouselProps> = ({
   }, [autoPlay, autoPlayInterval, images.length, containerWidth]);
 
   const handleLayout = (event: LayoutChangeEvent) => {
+    if (propWidth != null) return;
     const { width } = event.nativeEvent.layout;
-    setContainerWidth(width);
+    if (width > 0) setContainerWidth(width);
   };
 
   const getRoundedClass = () => {
@@ -124,8 +133,8 @@ const ImageCarousel: React.FC<ImageCarouselProps> = ({
     );
   };
 
-  const renderItem = ({ item, index }: { item: string | ImageSourcePropType; index: number }) => (
-    <View style={{ width: containerWidth, height }}>
+  const renderItem = ({ item, index }: { item: string | ImageSourcePropType; index: number }) => {
+    const image = (
       <Image
         source={typeof item === 'string' ? { uri: item } : item}
         style={[
@@ -137,8 +146,21 @@ const ImageCarousel: React.FC<ImageCarouselProps> = ({
         ]}
         contentFit="cover"
       />
-    </View>
-  );
+    );
+
+    if (onImagePress) {
+      return (
+        <Pressable
+          style={{ width: containerWidth, height }}
+          onPress={() => onImagePress(index)}
+          accessibilityRole="button">
+          {image}
+        </Pressable>
+      );
+    }
+
+    return <View style={{ width: containerWidth, height }}>{image}</View>;
+  };
 
   const heroAnimatedStyle =
     stretchOnPullDown && scrollY
@@ -169,6 +191,7 @@ const ImageCarousel: React.FC<ImageCarouselProps> = ({
         styles.container,
         {
           height,
+          width: propWidth,
           overflow: 'hidden',
         },
       ]}
@@ -178,15 +201,32 @@ const ImageCarousel: React.FC<ImageCarouselProps> = ({
           ref={flatListRef}
           data={images}
           horizontal
-          pagingEnabled
+          {...(Platform.OS === 'ios'
+            ? { pagingEnabled: true }
+            : {
+                pagingEnabled: false,
+                snapToInterval: containerWidth,
+                snapToAlignment: 'start' as const,
+                decelerationRate: 'fast' as const,
+                disableIntervalMomentum: true,
+              })}
           showsHorizontalScrollIndicator={false}
           keyExtractor={(_, index) => index.toString()}
           renderItem={renderItem}
+          getItemLayout={(_, index) => ({
+            length: containerWidth,
+            offset: containerWidth * index,
+            index,
+          })}
           onMomentumScrollEnd={(e) => {
             const contentOffsetX = e.nativeEvent.contentOffset.x;
             handleImageChange(contentOffsetX);
           }}
-          style={{ height }}
+          onScrollEndDrag={(e) => {
+            const contentOffsetX = e.nativeEvent.contentOffset.x;
+            handleImageChange(contentOffsetX);
+          }}
+          style={{ height, width: containerWidth }}
           contentContainerStyle={{ width: containerWidth * images.length }}
         />
       </Animated.View>
