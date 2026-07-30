@@ -1,21 +1,23 @@
 import { useFocusEffect } from '@react-navigation/native';
 import { Image } from 'expo-image';
 import { router } from 'expo-router';
-import * as WebBrowser from 'expo-web-browser';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { ActivityIndicator, Pressable, RefreshControl, useWindowDimensions, View } from 'react-native';
+import { Pressable, RefreshControl, useWindowDimensions, View } from 'react-native';
 
-import { getClientCoupons, type ClientCoupon } from '@/api/client-coupons';
-import { getClientPosters, type ClientPoster } from '@/api/client-posters';
+import type { ClientCoupon } from '@/api/client-coupons';
+import type { ClientPoster } from '@/api/client-posters';
+import { getOffersCoupons, getOffersPosters } from '@/api/offers';
 import { useAccentColor } from '@/app/contexts/AccentColorContext';
 import { useAuth } from '@/app/contexts/AuthContext';
 import { useBookings } from '@/app/contexts/BookingsBadgeContext';
+import { useHomeTodayTeam } from '@/app/hooks/useHomeTodayTeam';
 import { useTranslation } from '@/app/hooks/useTranslation';
 import Avatar from '@/components/Avatar';
+import { HomePromoCarousel } from '@/components/HomePromoCarousel';
 import { HomeRepeatBookingCard } from '@/components/HomeRepeatBookingCard';
 import { HomeSpotlightCard } from '@/components/HomeSpotlightCard';
+import HomeTodayTeamSection from '@/components/home/HomeTodayTeamSection';
 import Icon from '@/components/Icon';
-import ImageCarousel from '@/components/ImageCarousel';
 import NotificationPromptSheet from '@/components/NotificationPromptSheet';
 import ThemeScroller from '@/components/ThemeScroller';
 import ThemedText from '@/components/ThemedText';
@@ -30,37 +32,28 @@ import {
 import { pickHomeSpotlight, formatHomeBookingSlotLabel } from '@/utils/homeSpotlight';
 import { isReservationIntroCooldownActive } from '@/utils/reservation-intro-cooldown';
 
-/** Stejná šířka jako `-mx-global` bloky uvnitř `px-global` (padding 24 px × 2). */
+/** Šířka obsahu v ThemeScroller — `px-global` (24 px × 2). */
 const HOME_LAYOUT_HORIZONTAL_PADDING = 48;
 
 function getHomePromoCarouselSize(screenWidth: number) {
   const width = screenWidth - HOME_LAYOUT_HORIZONTAL_PADDING;
   return {
     width,
-    height: Math.round(width / 2),
+    /** 3:2 aspect — web parity (height = width × 2/3). */
+    height: Math.round(width * (2 / 3)),
   };
-}
-
-interface HomePromoSlide {
-  id: string;
-  imageUrl: string;
-  onPress: () => void;
 }
 
 /** Kupóny skryté v sekci Tipy a nabídky i když je API vrátí (filtrování podle `name`). */
 const HIDDEN_HOME_PROMO_COUPON_NAMES = new Set(['Gorila10', 'TVPRIMA10']);
 
-function openPosterTarget(poster: ClientPoster): void {
-  const web = poster.websiteUrl?.trim();
-  const vid = poster.videoUrl?.trim();
-  if (web) {
-    WebBrowser.openBrowserAsync(web).catch(() => {});
-    return;
-  }
-  if (vid) {
-    WebBrowser.openBrowserAsync(vid).catch(() => {});
-  }
-}
+/** Ikony dlaždic rychlých akcí na home. */
+const HOME_ACTION_IMAGES = {
+  create: require('@/assets/img/plus-ikon.png'),
+  branches: require('@/assets/img/search-modal-branches.png'),
+  barbers: require('@/assets/img/barbers.png'),
+  bookings: require('@/assets/img/search-modal-bookings.png'),
+} as const;
 
 export default function RealBarberHomeTab() {
   const { width: screenWidth } = useWindowDimensions();
@@ -74,10 +67,8 @@ export default function RealBarberHomeTab() {
   const actions = useMemo(
     () => [
       {
-        id: 'create',
+        id: 'create' as const,
         title: t('homeCreateBooking'),
-        subtitle: t('homeCreateBookingSubtitle'),
-        icon: 'Scissors',
         onPress: async () => {
           const suppressed = await isReservationIntroCooldownActive();
           router.push(
@@ -86,24 +77,18 @@ export default function RealBarberHomeTab() {
         },
       },
       {
-        id: 'branches',
+        id: 'branches' as const,
         title: t('homeBranches'),
-        subtitle: t('homeBranchesSubtitle'),
-        icon: 'MapPin',
         onPress: () => router.push('/branches' as any),
       },
       {
-        id: 'barbers',
+        id: 'barbers' as const,
         title: t('homeBarbers'),
-        subtitle: t('homeBarbersSubtitle'),
-        icon: 'Users',
         onPress: () => router.push('/experience' as any),
       },
       {
-        id: 'bookings',
+        id: 'bookings' as const,
         title: t('homeBookings'),
-        subtitle: t('homeBookingsSubtitle'),
-        icon: 'Calendar',
         onPress: () => router.push('/bookings' as any),
       },
     ],
@@ -116,6 +101,13 @@ export default function RealBarberHomeTab() {
     refresh: refreshBookings,
     refreshIfStale: refreshBookingsIfStale,
   } = useBookings();
+  const {
+    cards: todayTeamCards,
+    loading: todayTeamLoading,
+    refreshingAvailability: todayTeamRefreshingAvailability,
+    error: todayTeamError,
+    refresh: refreshTodayTeam,
+  } = useHomeTodayTeam();
   const [promoLoading, setPromoLoading] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const [coupons, setCoupons] = useState<ClientCoupon[]>([]);
@@ -139,10 +131,10 @@ export default function RealBarberHomeTab() {
       return;
     }
     await Promise.allSettled([
-      getClientCoupons(apiToken)
+      getOffersCoupons(apiToken)
         .then((list) => setCoupons(list))
         .catch(() => setCoupons([])),
-      getClientPosters(apiToken)
+      getOffersPosters(apiToken)
         .then((list) => setPosters(list))
         .catch(() => setPosters([])),
     ]);
@@ -154,9 +146,10 @@ export default function RealBarberHomeTab() {
     await Promise.allSettled([
       refreshBookings({ force: true }),
       loadPromoData(),
+      refreshTodayTeam(),
     ]);
     setRefreshing(false);
-  }, [refreshBookings, loadPromoData]);
+  }, [refreshBookings, loadPromoData, refreshTodayTeam]);
 
   useEffect(() => {
     setPromoLoading(true);
@@ -213,46 +206,6 @@ export default function RealBarberHomeTab() {
     [posters, homePromoCouponsForMerge]
   );
 
-  const homePromoSlides = useMemo((): HomePromoSlide[] => {
-    const slides: HomePromoSlide[] = [];
-    for (const item of homePromoFeed) {
-      if (item.kind === 'coupon') {
-        const imageUrl = item.coupon.imageUrl?.trim();
-        if (!imageUrl) continue;
-        slides.push({
-          id: `c-${item.coupon.id}`,
-          imageUrl,
-          onPress: () => {
-            router.push(
-              `/screens/client-coupon-detail?id=${encodeURIComponent(item.coupon.id)}` as never
-            );
-          },
-        });
-        continue;
-      }
-      const imageUrl = item.poster.imageUrl?.trim();
-      if (!imageUrl) continue;
-      slides.push({
-        id: `p-${item.poster.id}`,
-        imageUrl,
-        onPress: () => openPosterTarget(item.poster),
-      });
-    }
-    return slides;
-  }, [homePromoFeed]);
-
-  const homePromoImages = useMemo(
-    () => homePromoSlides.map((slide) => slide.imageUrl),
-    [homePromoSlides]
-  );
-
-  const handleHomePromoPress = useCallback(
-    (index: number) => {
-      homePromoSlides[index]?.onPress();
-    },
-    [homePromoSlides]
-  );
-
   return (
     <>
       <ThemeScroller
@@ -261,107 +214,55 @@ export default function RealBarberHomeTab() {
           <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={accentColor} />
         }>
         <NotificationPromptSheet />
-        <View className="px-global">
-          {apiToken && (recentLoading || homePromoSlides.length > 0) ? (
-            <View className="-mx-global mb-4 mt-4">
-              {recentLoading ? (
-                <View
-                  style={{ height: homePromoCarouselSize.height }}
-                  className="w-full items-center justify-center rounded-2xl bg-light-secondary dark:bg-dark-secondary">
-                  <ActivityIndicator size="small" />
-                  <ThemedText className="mt-2 text-sm text-light-subtext dark:text-dark-subtext">
-                    {t('commonLoading')}
-                  </ThemedText>
-                </View>
-              ) : (
-                <ImageCarousel
-                  width={homePromoCarouselSize.width}
-                  rounded="2xl"
-                  height={homePromoCarouselSize.height}
-                  className="w-full"
-                  images={homePromoImages}
-                  paginationStyle="dots"
-                  onImagePress={handleHomePromoPress}
-                />
-              )}
-            </View>
-          ) : null}
-          {!recentLoading && repeatBooking ? (
-            <View className="-mx-global mt-4">
-              <HomeRepeatBookingCard booking={repeatBooking} t={t} />
-            </View>
-          ) : null}
-
-          {!recentLoading && spotlight ? (
-            <View className="-mx-global mt-4">
-              <HomeSpotlightCard spotlight={spotlight} t={t} locale={locale} />
-            </View>
-          ) : null}
-
-          <View className="-mx-global mt-6 flex-row flex-wrap justify-between px-0">
-            {actions.map((a) => (
-              <Pressable
-                key={a.id}
-                onPress={a.onPress}
-                className="mb-2 w-[48.7%] rounded-2xl bg-light-secondary dark:bg-dark-secondary">
-                <View className="items-center p-4">
-                  {a.id === 'create' && (
-                    <Image
-                      source={require('@/assets/img/plus-ikon.png')}
-                      style={{ width: 32, height: 32 }}
-                      contentFit="contain"
-                      className="mb-2"
-                    />
-                  )}
-                  {a.id === 'branches' && (
-                    <Image
-                      source={require('@/assets/img/search-modal-branches.png')}
-                      style={{ width: 32, height: 32 }}
-                      contentFit="contain"
-                      className="mb-2"
-                    />
-                  )}
-                  {a.id === 'barbers' && (
-                    <Image
-                      source={require('@/assets/img/barbers.png')}
-                      style={{ width: 32, height: 32 }}
-                      contentFit="contain"
-                      className="mb-2"
-                    />
-                  )}
-                  {a.id === 'bookings' && (
-                    <Image
-                      source={require('@/assets/img/search-modal-bookings.png')}
-                      style={{ width: 32, height: 32 }}
-                      contentFit="contain"
-                      className="mb-2"
-                    />
-                  )}
-                  <ThemedText className="text-base font-semibold">{a.title}</ThemedText>
-                  <ThemedText className="mt-0.5 text-xs text-light-subtext dark:text-dark-subtext">
-                    {a.subtitle}
-                  </ThemedText>
-                </View>
-              </Pressable>
-            ))}
+        {apiToken ? (
+          <View className="mt-4">
+            <HomePromoCarousel
+              feed={homePromoFeed}
+              width={homePromoCarouselSize.width}
+              height={homePromoCarouselSize.height}
+              loading={recentLoading}
+              locale={locale}
+              t={t}
+            />
           </View>
+        ) : null}
+        {!recentLoading && repeatBooking ? (
+          <View className={apiToken ? 'mt-0' : 'mt-4'}>
+            <HomeRepeatBookingCard booking={repeatBooking} t={t} />
+          </View>
+        ) : null}
 
-          <Section title={t('homeRecentTitle')} titleSize="md" className="mt-6" />
-          {recentLoading ? (
-            <View className="mt-2 items-center py-6">
-              <ActivityIndicator size="small" />
-              <ThemedText className="mt-2 text-sm text-light-subtext dark:text-dark-subtext">
-                {t('homeRecentLoading')}
-              </ThemedText>
-            </View>
-          ) : recentBookings.length === 0 ? (
-            <View className="mt-2 py-4">
-              <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext">
-                {t('homeRecentEmpty')}
-              </ThemedText>
-            </View>
-          ) : (
-            <View className="-mx-global mt-2 overflow-hidden rounded-2xl bg-light-secondary dark:bg-dark-secondary">
+        {!recentLoading && spotlight ? (
+          <View className="mt-4">
+            <HomeSpotlightCard spotlight={spotlight} t={t} locale={locale} />
+          </View>
+        ) : null}
+
+        <View className="mt-6 flex-row flex-wrap justify-between">
+          {actions.map((a) => (
+            <Pressable
+              key={a.id}
+              onPress={a.onPress}
+              className="mb-2 w-[48.7%] rounded-2xl bg-light-secondary dark:bg-dark-secondary active:opacity-70">
+              <View className="flex-row items-center gap-3 p-3.5">
+                <Image
+                  source={HOME_ACTION_IMAGES[a.id]}
+                  style={{ width: 28, height: 28 }}
+                  contentFit="contain"
+                />
+                <ThemedText
+                  className="min-w-0 flex-1 text-sm font-semibold leading-tight"
+                  numberOfLines={2}>
+                  {a.title}
+                </ThemedText>
+              </View>
+            </Pressable>
+          ))}
+        </View>
+
+        {!recentLoading && recentBookings.length > 0 ? (
+          <Section title={t('homeRecentTitle')} titleSize="lg" className="mt-6">
+            <View className="mt-2">
               {recentBookings.map((b, i) => (
                 <Pressable
                   key={b.id}
@@ -369,8 +270,8 @@ export default function RealBarberHomeTab() {
                     router.push(`/screens/booking-detail?id=${encodeURIComponent(b.id)}` as any)
                   }
                   className="active:opacity-70">
-                  {i > 0 && <View className="mx-4 h-px bg-neutral-200 dark:bg-neutral-700" />}
-                  <View className="flex-row items-center gap-3 px-4 py-3">
+                  {i > 0 && <View className="h-px bg-neutral-200 dark:bg-neutral-700" />}
+                  <View className="flex-row items-center gap-3 py-3">
                     <Avatar
                       size="md"
                       src={b.employee?.avatarUrl ?? undefined}
@@ -405,8 +306,19 @@ export default function RealBarberHomeTab() {
                 </Pressable>
               ))}
             </View>
-          )}
-        </View>
+          </Section>
+        ) : null}
+
+        <HomeTodayTeamSection
+          cards={todayTeamCards}
+          loading={todayTeamLoading}
+          refreshingAvailability={todayTeamRefreshingAvailability}
+          error={todayTeamError}
+          locale={locale}
+          t={t}
+          className="mt-6"
+          titleAction={{ titleKey: 'homeTodayTeamOpenFullTeam', href: '/experience' }}
+        />
       </ThemeScroller>
     </>
   );

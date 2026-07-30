@@ -82,7 +82,7 @@ const ServicesScreen = () => {
           </View>
         ) : null}
         <Section title={t('servicesHaircuts')} titleSize="lg">
-          <CardScroller space={15} className="mt-1.5 pb-4">
+          <CardScroller space={15} className="mt-1.5">
             {haircuts.length === 0 ? (
               <ThemedText className="py-4 text-light-subtext dark:text-dark-subtext">
                 {t('servicesNoItems')}
@@ -111,7 +111,7 @@ const ServicesScreen = () => {
           titleSize="lg"
           link="/screens/map"
           linkText={t('commonViewAll')}>
-          <CardScroller space={15} className="mt-1.5 pb-4">
+          <CardScroller space={15} className="mt-1.5">
             {basicOrdered.length === 0 ? (
               <ThemedText className="py-4 text-light-subtext dark:text-dark-subtext">
                 {t('servicesNoItems')}
@@ -140,7 +140,7 @@ const ServicesScreen = () => {
           titleSize="lg"
           link="/screens/map"
           linkText={t('commonViewAll')}>
-          <CardScroller space={15} className="mt-1.5 pb-4">
+          <CardScroller space={15} className="mt-1.5">
             {packages.length === 0 ? (
               <ThemedText className="py-4 text-light-subtext dark:text-dark-subtext">
                 {t('servicesNoItems')}
@@ -169,7 +169,7 @@ const ServicesScreen = () => {
           titleSize="lg"
           link="/screens/map"
           linkText={t('commonViewAll')}>
-          <CardScroller space={15} className="mt-1.5 pb-4">
+          <CardScroller space={15} className="mt-1.5">
             {coloring.length === 0 ? (
               <ThemedText className="py-4 text-light-subtext dark:text-dark-subtext">
                 {t('servicesNoItems')}
@@ -198,7 +198,7 @@ const ServicesScreen = () => {
           titleSize="lg"
           link="/screens/map"
           linkText={t('commonViewAll')}>
-          <CardScroller space={15} className="mt-1.5 pb-4">
+          <CardScroller space={15} className="mt-1.5">
             {homeServices.length === 0 ? (
               <ThemedText className="py-4 text-light-subtext dark:text-dark-subtext">
                 {t('servicesNoItems')}

@@ -274,7 +274,7 @@ const ProductsScreen = () => {
             titleSize="lg"
             link="/screens/map"
             linkText={t('commonViewAll')}>
-            <CardScroller space={15} className="mt-1.5 pb-4">
+            <CardScroller space={15} className="mt-1.5">
               {renderFlagCatalogCards(catalogProducts, 'productsCatalogEmpty')}
             </CardScroller>
           </Section>
@@ -284,7 +284,7 @@ const ProductsScreen = () => {
             titleSize="lg"
             link="/screens/map"
             linkText={t('commonViewAll')}>
-            <CardScroller space={15} className="mt-1.5 pb-4">
+            <CardScroller space={15} className="mt-1.5">
               {renderFlagCatalogCards(giftProducts, 'productsGiftsEmpty')}
             </CardScroller>
           </Section>

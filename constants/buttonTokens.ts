@@ -32,9 +32,15 @@ export const BUTTON_OUTLINE = {
   },
 } as const;
 
+/** App screen background — choice chip default fill (web parity). */
+export const SCREEN_BACKGROUND = {
+  dark: '#0F0F0F',
+  light: '#ffffff',
+} as const;
+
 /**
  * Choice variant — slot/day/tier pickers.
- * Unselected: subtle border + muted text.
+ * Unselected: theme background fill + subtle border + muted text.
  * Selected: user accent (@app_accent_color) border ~70 % + bg ~15 % via AppButton.
  * Static `selected` below is fallback when accentColor is not passed.
  */
@@ -43,7 +49,7 @@ export const BUTTON_CHOICE = {
     default: {
       borderColor: 'rgba(255, 255, 255, 0.20)',
       textColor: 'rgba(241, 241, 241, 0.9)',
-      backgroundColor: 'transparent',
+      backgroundColor: SCREEN_BACKGROUND.dark,
       pressedBackgroundClassName: 'active:bg-white/10',
       fontWeight: '500' as const,
     },
@@ -59,7 +65,7 @@ export const BUTTON_CHOICE = {
     default: {
       borderColor: 'rgba(0, 0, 0, 0.20)',
       textColor: 'rgba(0, 0, 0, 0.9)',
-      backgroundColor: 'transparent',
+      backgroundColor: SCREEN_BACKGROUND.light,
       pressedBackgroundClassName: 'active:bg-black/10',
       fontWeight: '500' as const,
     },
@@ -75,7 +81,7 @@ export const BUTTON_CHOICE = {
     default: {
       borderColor: 'rgba(0, 0, 0, 0.20)',
       textColor: 'rgba(0, 0, 0, 0.9)',
-      backgroundColor: 'transparent',
+      backgroundColor: SCREEN_BACKGROUND.light,
       pressedBackgroundClassName: 'active:bg-black/5',
       fontWeight: '500' as const,
     },

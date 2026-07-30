@@ -375,7 +375,7 @@ const ExperienceScreen = () => {
               }
               titleSize="lg"
               titleTrailing={renderBarberSectionTitleTrailing(section.title)}>
-              <CardScroller space={15} className="mt-1.5 pb-4">
+              <CardScroller space={15} className="mt-1.5">
                 {renderBarberSectionCards(section)}
               </CardScroller>
             </Section>
@@ -391,7 +391,7 @@ const ExperienceScreen = () => {
               titleSize="lg"
               className="mt-6"
               titleTrailing={renderBarberSectionTitleTrailing(lastSection.title)}>
-              <CardScroller space={15} className="mt-1.5 pb-4">
+              <CardScroller space={15} className="mt-1.5">
                 {renderBarberSectionCards(lastSection)}
               </CardScroller>
             </Section>

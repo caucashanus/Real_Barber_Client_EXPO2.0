@@ -146,7 +146,7 @@ export const en = {
   tabGuides: 'Guides',
 
   // Real Barber home screen
-  homeCreateBooking: 'Create booking',
+  homeCreateBooking: 'Book now',
   homeCreateBookingSubtitle: 'Choose a service and time',
   homeRepeatBookingTitle: 'Repeat last booking',
   homeBranches: 'Branches',
@@ -180,6 +180,7 @@ export const en = {
   homeTodayTeamWaitlistError: 'Could not join the waitlist. Please try again.',
   homeTodayTeamNearestSlotsOnDate: 'Next slots {date}',
   homeTodayTeamMoreSlots: 'More',
+  homeTodayTeamOpenFullTeam: 'Open full team',
   homeSpotlightCurrent: 'In progress',
   homeSpotlightSoon: 'Upcoming booking',
   homeSpotlightToday: 'You have a booking today',

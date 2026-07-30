@@ -154,7 +154,7 @@ function getVariantContainerClasses(
       );
     case 'choice':
       return joinClasses(
-        'border bg-transparent',
+        'border',
         getChoiceTheme(surface, isDark, selected, accentColor).pressedBackgroundClassName
       );
     case 'panel':

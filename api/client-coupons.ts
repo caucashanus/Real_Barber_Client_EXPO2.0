@@ -6,6 +6,8 @@ export interface ClientCoupon {
   name: string;
   description: string | null;
   imageUrl: string | null;
+  /** CTA label z CRM (GET /api/offers/coupons); legacy /api/client/coupons ho nevrací. */
+  buttonText?: string | null;
   discountType: string;
   discountValue: number;
   maxDiscountAmount: number | null;

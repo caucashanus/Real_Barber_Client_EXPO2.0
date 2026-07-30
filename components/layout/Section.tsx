@@ -152,8 +152,8 @@ export const Section: React.FC<SectionProps> = ({
         </View>
       )}
 
-      {/* Content */}
-      <View>{children}</View>
+      {/* Content — pb-4 = standardní mezera před další sekcí (mt-6 na Section). */}
+      {children ? <View className="pb-4">{children}</View> : null}
 
       {/* Footer Section */}
       {footer && <View className="mt-4">{footer}</View>}

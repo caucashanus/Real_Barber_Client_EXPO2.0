@@ -200,7 +200,7 @@ const MyHaircutsScreen = () => {
         </View>
 
         <Section title={t('myHaircutsYours')} titleSize="lg" className="mb-6">
-          <CardScroller space={15} className="mt-1.5 pb-4">
+          <CardScroller space={15} className="mt-1.5">
             {!apiToken ? (
               <ThemedText className="py-2 pr-4 text-light-subtext dark:text-dark-subtext">
                 {t('myHaircutsLoginToSee')}

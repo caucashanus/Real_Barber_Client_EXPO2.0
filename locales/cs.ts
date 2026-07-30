@@ -150,7 +150,7 @@ export const cs: Record<TranslationKey, string> = {
   tabGuides: 'Návody',
 
   // Real Barber home screen
-  homeCreateBooking: 'Vytvořit rezervaci',
+  homeCreateBooking: 'Objednat se',
   homeCreateBookingSubtitle: 'Vyber službu a čas',
   homeRepeatBookingTitle: 'Zopakovat minulou rezervaci',
   homeBranches: 'Pobočky',
@@ -184,6 +184,7 @@ export const cs: Record<TranslationKey, string> = {
   homeTodayTeamWaitlistError: 'Nepodařilo se zapsat na čekací listinu. Zkuste to znovu.',
   homeTodayTeamNearestSlotsOnDate: 'Nejbližší termíny {date}',
   homeTodayTeamMoreSlots: 'Další',
+  homeTodayTeamOpenFullTeam: 'Otevřít celý tým',
   homeSpotlightCurrent: 'Právě probíhá',
   homeSpotlightSoon: 'Brzy začíná rezervace',
   homeSpotlightToday: 'Dnes máte rezervaci',

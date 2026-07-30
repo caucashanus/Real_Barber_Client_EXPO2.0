@@ -170,6 +170,8 @@ const FavoritesScreen = () => {
           entityType={fav.entityType}
           entityId={fav.entityId}
           address={getFavoriteBranchAddress(fav)}
+          favoriteInitialState
+          showFavoriteToggleSheet={false}
           onFavoriteToggle={(isFavorite) => handleFavoriteToggle(fav.id, isFavorite)}
         />
       ))}

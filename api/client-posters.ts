@@ -8,6 +8,8 @@ export interface ClientPoster {
   imageUrl: string | null;
   videoUrl: string | null;
   websiteUrl: string | null;
+  /** CTA label z CRM (GET /api/offers/posters); legacy /api/client/posters ho nevrací. */
+  buttonText?: string | null;
   sortOrder: number;
 }
 

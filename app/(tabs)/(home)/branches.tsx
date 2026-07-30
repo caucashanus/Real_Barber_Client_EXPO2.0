@@ -120,7 +120,7 @@ export default function BranchesScreen() {
           titleSize="lg"
           link="/screens/map"
           linkText={t('commonViewAll')}>
-          <CardScroller space={15} className="mt-1.5 pb-4">
+          <CardScroller space={15} className="mt-1.5">
             {branchesLoading && (
               <ThemedText className="py-4 text-light-subtext dark:text-dark-subtext">
                 {t('commonLoading')}
@@ -167,7 +167,7 @@ export default function BranchesScreen() {
         </Pressable>
 
         <Section title={t('branchesGallery')} titleSize="lg" className="mt-6">
-          <CardScroller space={15} className="mt-1.5 pb-4">
+          <CardScroller space={15} className="mt-1.5">
             {BRANCHES_GALLERY_ITEMS.map((item) => (
               <View
                 key={item.id}

@@ -20,7 +20,12 @@ interface ImageCarouselProps {
   height?: number;
   showPagination?: boolean;
   paginationStyle?: 'dots' | 'numbers';
+  /** Dots over image (default) or in a row below the carousel. */
+  paginationPlacement?: 'overlay' | 'below';
+  paginationBelowClassName?: string;
   onImagePress?: (index: number) => void;
+  renderOverlay?: (index: number) => React.ReactNode;
+  getAccessibilityLabel?: (index: number) => string | undefined;
   autoPlay?: boolean;
   autoPlayInterval?: number;
   loop?: boolean;
@@ -38,7 +43,11 @@ const ImageCarousel: React.FC<ImageCarouselProps> = ({
   height = 200,
   showPagination = true,
   paginationStyle = 'dots',
+  paginationPlacement = 'overlay',
+  paginationBelowClassName = 'mt-2',
   onImagePress,
+  renderOverlay,
+  getAccessibilityLabel,
   autoPlay = false,
   autoPlayInterval = 3000,
   loop = true,
@@ -108,30 +117,56 @@ const ImageCarousel: React.FC<ImageCarouselProps> = ({
     setActiveIndex(index);
   };
 
-  const renderPagination = () => {
+  const renderPaginationContent = () => {
     if (!showPagination || images.length <= 1) return null;
 
+    const isBelow = paginationPlacement === 'below';
+    const activeDotClass = isBelow
+      ? 'bg-light-text dark:bg-dark-text'
+      : 'bg-white';
+    const inactiveDotClass = isBelow
+      ? 'bg-light-subtext/40 dark:bg-dark-subtext/40'
+      : 'bg-white/40';
+
+    if (paginationStyle === 'dots') {
+      return images.map((_, index) => (
+        <View
+          key={index}
+          className={`mx-1 h-2 w-2 rounded-full ${
+            index === activeIndex ? activeDotClass : inactiveDotClass
+          }`}
+        />
+      ));
+    }
+
     return (
-      <View className="absolute bottom-4 w-full flex-row justify-center">
-        {paginationStyle === 'dots' ? (
-          images.map((_, index) => (
-            <View
-              key={index}
-              className={`mx-1 h-2 w-2 rounded-full ${
-                index === activeIndex ? 'bg-white' : 'bg-white/40'
-              }`}
-            />
-          ))
-        ) : (
-          <View className="rounded-full bg-black/50 px-3 py-1">
-            <ThemedText className="text-white">
-              {activeIndex + 1} / {images.length}
-            </ThemedText>
-          </View>
-        )}
+      <View className={`rounded-full px-3 py-1 ${isBelow ? 'bg-light-secondary dark:bg-dark-secondary' : 'bg-black/50'}`}>
+        <ThemedText className={isBelow ? 'text-light-text dark:text-dark-text' : 'text-white'}>
+          {activeIndex + 1} / {images.length}
+        </ThemedText>
       </View>
     );
   };
+
+  const renderPagination = () => {
+    const content = renderPaginationContent();
+    if (paginationPlacement === 'below') {
+      return (
+        <View
+          className={`${paginationBelowClassName} w-full flex-row items-center justify-center`}>
+          {content}
+        </View>
+      );
+    }
+
+    if (!content) return null;
+
+    return (
+      <View className="absolute bottom-4 w-full flex-row justify-center">{content}</View>
+    );
+  };
+
+  const slideStyle = { width: containerWidth, height, position: 'relative' as const };
 
   const renderItem = ({ item, index }: { item: string | ImageSourcePropType; index: number }) => {
     const image = (
@@ -140,6 +175,9 @@ const ImageCarousel: React.FC<ImageCarouselProps> = ({
         style={[
           styles.image,
           {
+            position: 'absolute',
+            top: 0,
+            left: 0,
             width: containerWidth,
             height,
           },
@@ -151,15 +189,22 @@ const ImageCarousel: React.FC<ImageCarouselProps> = ({
     if (onImagePress) {
       return (
         <Pressable
-          style={{ width: containerWidth, height }}
+          style={slideStyle}
           onPress={() => onImagePress(index)}
-          accessibilityRole="button">
+          accessibilityRole="button"
+          accessibilityLabel={getAccessibilityLabel?.(index)}>
           {image}
+          {renderOverlay?.(index)}
         </Pressable>
       );
     }
 
-    return <View style={{ width: containerWidth, height }}>{image}</View>;
+    return (
+      <View style={slideStyle}>
+        {image}
+        {renderOverlay?.(index)}
+      </View>
+    );
   };
 
   const heroAnimatedStyle =
@@ -184,6 +229,63 @@ const ImageCarousel: React.FC<ImageCarouselProps> = ({
         }
       : undefined;
 
+  const carouselBody = (
+    <Animated.View style={[styles.animatedContainer, heroAnimatedStyle]}>
+      <FlatList
+        ref={flatListRef}
+        data={images}
+        horizontal
+        {...(Platform.OS === 'ios'
+          ? { pagingEnabled: true }
+          : {
+              pagingEnabled: false,
+              snapToInterval: containerWidth,
+              snapToAlignment: 'start' as const,
+              decelerationRate: 'fast' as const,
+              disableIntervalMomentum: true,
+            })}
+        showsHorizontalScrollIndicator={false}
+        keyExtractor={(_, index) => index.toString()}
+        renderItem={renderItem}
+        getItemLayout={(_, index) => ({
+          length: containerWidth,
+          offset: containerWidth * index,
+          index,
+        })}
+        onMomentumScrollEnd={(e) => {
+          const contentOffsetX = e.nativeEvent.contentOffset.x;
+          handleImageChange(contentOffsetX);
+        }}
+        onScrollEndDrag={(e) => {
+          const contentOffsetX = e.nativeEvent.contentOffset.x;
+          handleImageChange(contentOffsetX);
+        }}
+        style={{ height, width: containerWidth }}
+        contentContainerStyle={{ width: containerWidth * images.length }}
+      />
+    </Animated.View>
+  );
+
+  if (paginationPlacement === 'below') {
+    return (
+      <View className={className} style={{ width: propWidth }} onLayout={handleLayout}>
+        <View
+          className={getRoundedClass()}
+          style={[
+            styles.container,
+            {
+              height,
+              width: propWidth,
+              overflow: 'hidden',
+            },
+          ]}>
+          {carouselBody}
+        </View>
+        {renderPagination()}
+      </View>
+    );
+  }
+
   return (
     <View
       className={`${getRoundedClass()} ${className}`}
@@ -196,40 +298,7 @@ const ImageCarousel: React.FC<ImageCarouselProps> = ({
         },
       ]}
       onLayout={handleLayout}>
-      <Animated.View style={[styles.animatedContainer, heroAnimatedStyle]}>
-        <FlatList
-          ref={flatListRef}
-          data={images}
-          horizontal
-          {...(Platform.OS === 'ios'
-            ? { pagingEnabled: true }
-            : {
-                pagingEnabled: false,
-                snapToInterval: containerWidth,
-                snapToAlignment: 'start' as const,
-                decelerationRate: 'fast' as const,
-                disableIntervalMomentum: true,
-              })}
-          showsHorizontalScrollIndicator={false}
-          keyExtractor={(_, index) => index.toString()}
-          renderItem={renderItem}
-          getItemLayout={(_, index) => ({
-            length: containerWidth,
-            offset: containerWidth * index,
-            index,
-          })}
-          onMomentumScrollEnd={(e) => {
-            const contentOffsetX = e.nativeEvent.contentOffset.x;
-            handleImageChange(contentOffsetX);
-          }}
-          onScrollEndDrag={(e) => {
-            const contentOffsetX = e.nativeEvent.contentOffset.x;
-            handleImageChange(contentOffsetX);
-          }}
-          style={{ height, width: containerWidth }}
-          contentContainerStyle={{ width: containerWidth * images.length }}
-        />
-      </Animated.View>
+      {carouselBody}
       {renderPagination()}
     </View>
   );

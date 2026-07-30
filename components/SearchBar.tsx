@@ -51,15 +51,15 @@ const SearchBar = () => {
             sharedTransitionTag="searchBar"
             style={{
               elevation: 10,
-              height: 50,
+              height: 36,
               shadowColor: '#000',
               shadowOpacity: 0.3,
               shadowRadius: 8.84,
               shadowOffset: { width: 0, height: 0 },
             }}
-            className="relative z-50 mb-4 mt-3 flex-row justify-center rounded-full bg-light-primary px-10  py-4 dark:bg-white/20">
-            <Icon name="Search" size={16} strokeWidth={3} />
-            <ThemedText className="ml-2 mr-4 font-medium text-black dark:text-white">
+            className="relative z-50 mb-2 mt-2 flex-row items-center justify-center rounded-full bg-light-primary px-10 dark:bg-white/20">
+            <Icon name="Search" size={14} strokeWidth={3} />
+            <ThemedText className="ml-2 mr-4 text-sm font-medium text-black dark:text-white">
               {t('searchPlaceholder')}
             </ThemedText>
           </Animated.View>
