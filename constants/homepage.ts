@@ -1,2 +1,1 @@
-export const HOMEPAGE_SHELL_CACHE_MS = 5 * 60 * 1000;
 export const HOMEPAGE_TODAY_TEAM_MAX_SLOTS = 2;

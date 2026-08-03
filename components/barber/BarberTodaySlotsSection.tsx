@@ -10,6 +10,7 @@ import HomeTodayTeamWaitlistSheet, {
 import SlotTimePill from '@/components/SlotTimePill';
 import ThemedText from '@/components/ThemedText';
 import {
+  getPragueTodayDateString,
   getTeamMemberBranchName,
   getTodayAvailabilityState,
   type TodayShiftStatus,
@@ -76,16 +77,17 @@ export default function BarberTodaySlotsSection({
   onScrollToAvailability,
   t,
 }: BarberTodaySlotsSectionProps) {
+  const todayIso = getPragueTodayDateString();
   const waitlistSheetRef = useRef<HomeTodayTeamWaitlistSheetHandle>(null);
   const [waitlistJoinedLocal, setWaitlistJoinedLocal] = useState(() =>
-    isHomeTodayWaitlistJoined(employeeId)
+    isHomeTodayWaitlistJoined(employeeId, todayIso)
   );
 
   const availabilityState = getTodayAvailabilityState(todaySlots, shiftStatus);
   const showWaitlist =
     !loadingSlots && shiftStatus === 'active' && todaySlots.length === 0;
   const waitlistJoined =
-    waitlistJoinedLocal || isHomeTodayWaitlistJoined(employeeId);
+    waitlistJoinedLocal || isHomeTodayWaitlistJoined(employeeId, todayIso);
   const showScrollLink = Boolean(onScrollToAvailability) && availabilityState !== 'slots';
 
   const sectionTitle =
@@ -96,13 +98,18 @@ export default function BarberTodaySlotsSection({
       employeeId,
       employeeName,
       branchId: waitlistBranchId,
+      dayIso: todayIso,
+      requireActiveNow: true,
     });
-  }, [employeeId, employeeName, waitlistBranchId]);
+  }, [employeeId, employeeName, todayIso, waitlistBranchId]);
 
-  const handleWaitlistJoined = useCallback((joinedEmployeeId: string) => {
-    markHomeTodayWaitlistJoined(joinedEmployeeId);
-    setWaitlistJoinedLocal(true);
-  }, []);
+  const handleWaitlistJoined = useCallback(
+    (joinedEmployeeId: string, dayIso?: string) => {
+      markHomeTodayWaitlistJoined(joinedEmployeeId, dayIso);
+      setWaitlistJoinedLocal(true);
+    },
+    []
+  );
 
   return (
     <>

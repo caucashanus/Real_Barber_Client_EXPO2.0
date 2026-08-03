@@ -15,6 +15,8 @@ export interface HomeTodayTeamWaitlistTarget {
   employeeId: string;
   employeeName: string;
   branchId?: string;
+  dayIso?: string;
+  requireActiveNow?: boolean;
 }
 
 export type HomeTodayTeamWaitlistSheetHandle = {
@@ -22,7 +24,7 @@ export type HomeTodayTeamWaitlistSheetHandle = {
 };
 
 interface HomeTodayTeamWaitlistSheetProps {
-  onJoined: (employeeId: string) => void;
+  onJoined: (employeeId: string, dayIso?: string) => void;
   t: (key: TranslationKey) => string;
 }
 
@@ -61,10 +63,10 @@ const HomeTodayTeamWaitlistSheet = forwardRef<
       await joinEmployeeWaitlist(apiToken, {
         employeeId: target.employeeId,
         branchId: target.branchId,
-        date: getPragueTodayDateString(),
+        date: target.dayIso ?? getPragueTodayDateString(),
       });
       sheetRef.current?.hide();
-      onJoined(target.employeeId);
+      onJoined(target.employeeId, target.dayIso);
     } catch {
       setError(t('homeTodayTeamWaitlistError'));
     } finally {
@@ -77,7 +79,9 @@ const HomeTodayTeamWaitlistSheet = forwardRef<
       <View className="p-4 pb-6">
         <ThemedText className="text-lg font-bold">{t('homeTodayTeamWaitlistSheetTitle')}</ThemedText>
         <ThemedText className="mt-2 text-sm text-light-subtext dark:text-dark-subtext">
-          {t('homeTodayTeamWaitlistSheetMessage')}
+          {target?.requireActiveNow !== false
+            ? t('homeTodayTeamWaitlistSheetMessage')
+            : t('homeTodayTeamWaitlistSheetMessageThatDay')}
         </ThemedText>
         {target ? (
           <ThemedText className="mt-3 text-base font-semibold">{target.employeeName}</ThemedText>

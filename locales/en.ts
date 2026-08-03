@@ -163,6 +163,12 @@ export const en = {
   homeTodayTeamLoading: 'Loading…',
   homeTodayTeamEmpty: 'No barbers on shift today.',
   homeTodayTeamLoadError: 'Could not load availability.',
+  teamPageTitle: 'Team',
+  teamPageLoading: 'Loading…',
+  teamPageEmpty: 'No barbers yet.',
+  teamPageLoadError: 'Could not load team.',
+  teamPageIntro:
+    'Choose a barber by style, shift, or nearest appointment. Tap a card to open their profile: a short bio, work samples, when and at which branch they are on shift, and ratings from real customers. Then just pick a time and book.',
   homeTodayTeamShiftStartsAt: 'Starts at {time} - {branch}',
   homeTodayTeamShiftStartsSoon: 'Starting soon - {branch}',
   homeTodayTeamShiftWorking: 'Working now - {branch}',
@@ -176,6 +182,10 @@ export const en = {
   homeTodayTeamWaitlistJoined: "We'll contact you if a spot opens",
   homeTodayTeamWaitlistSheetTitle: 'Waitlist',
   homeTodayTeamWaitlistSheetMessage: 'We will contact you when a slot becomes available today.',
+  homeTodayTeamWaitlistSheetMessageThatDay:
+    'Fully booked this day. Join the waitlist. We will contact you if something opens up.',
+  homeTodayTeamWaitlistHintThatDay:
+    'Fully booked this day. You can join the waitlist, we will reach out if a spot opens.',
   homeTodayTeamWaitlistNeedLogin: 'Sign in to join the waitlist.',
   homeTodayTeamWaitlistError: 'Could not join the waitlist. Please try again.',
   homeTodayTeamNearestSlotsOnDate: 'Next slots {date}',
@@ -960,6 +970,7 @@ export const en = {
   barberNearestSlotsTitle: 'Nearest slots',
   barberUnavailableToday: "I'm done for today",
   barberFullyBookedToday: 'Fully booked today',
+  barberFullyBookedThatDay: 'Fully booked this day',
   barberWaitlistFullHint:
     'Fully booked today. Join the waitlist and we will notify you if a slot opens up.',
   barberScrollToAvailability: 'See when I am available next',

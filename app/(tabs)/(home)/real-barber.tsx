@@ -1,16 +1,11 @@
-import { useFocusEffect } from '@react-navigation/native';
 import { Image } from 'expo-image';
 import { router } from 'expo-router';
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { Pressable, RefreshControl, useWindowDimensions, View } from 'react-native';
 
-import type { ClientCoupon } from '@/api/client-coupons';
-import type { ClientPoster } from '@/api/client-posters';
-import { getOffersCoupons, getOffersPosters } from '@/api/offers';
 import { useAccentColor } from '@/app/contexts/AccentColorContext';
 import { useAuth } from '@/app/contexts/AuthContext';
-import { useBookings } from '@/app/contexts/BookingsBadgeContext';
-import { useHomeTodayTeam } from '@/app/hooks/useHomeTodayTeam';
+import { useHomePage } from '@/app/hooks/useHomePage';
 import { useTranslation } from '@/app/hooks/useTranslation';
 import Avatar from '@/components/Avatar';
 import { HomePromoCarousel } from '@/components/HomePromoCarousel';
@@ -96,26 +91,17 @@ export default function RealBarberHomeTab() {
   );
 
   const {
-    bookings: allBookings,
-    loading: bookingsLoading,
-    refresh: refreshBookings,
-    refreshIfStale: refreshBookingsIfStale,
-  } = useBookings();
-  const {
     cards: todayTeamCards,
-    loading: todayTeamLoading,
-    refreshingAvailability: todayTeamRefreshingAvailability,
+    bookings: homeBookings,
+    coupons,
+    posters,
+    loading,
+    refreshing,
     error: todayTeamError,
-    refresh: refreshTodayTeam,
-  } = useHomeTodayTeam();
-  const [promoLoading, setPromoLoading] = useState(false);
-  const [refreshing, setRefreshing] = useState(false);
-  const [coupons, setCoupons] = useState<ClientCoupon[]>([]);
-  const [posters, setPosters] = useState<ClientPoster[]>([]);
+    refresh,
+  } = useHomePage();
   const [now, setNow] = useState(() => Date.now());
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
-  const lastPromoFetchRef = useRef(0);
-  const recentLoading = promoLoading || bookingsLoading;
 
   useEffect(() => {
     intervalRef.current = setInterval(() => setNow(Date.now()), 15000);
@@ -124,62 +110,20 @@ export default function RealBarberHomeTab() {
     };
   }, []);
 
-  const loadPromoData = useCallback(async () => {
-    if (!apiToken) {
-      setCoupons([]);
-      setPosters([]);
-      return;
-    }
-    await Promise.allSettled([
-      getOffersCoupons(apiToken)
-        .then((list) => setCoupons(list))
-        .catch(() => setCoupons([])),
-      getOffersPosters(apiToken)
-        .then((list) => setPosters(list))
-        .catch(() => setPosters([])),
-    ]);
-    lastPromoFetchRef.current = Date.now();
-  }, [apiToken]);
-
-  const onRefresh = useCallback(async () => {
-    setRefreshing(true);
-    await Promise.allSettled([
-      refreshBookings({ force: true }),
-      loadPromoData(),
-      refreshTodayTeam(),
-    ]);
-    setRefreshing(false);
-  }, [refreshBookings, loadPromoData, refreshTodayTeam]);
-
-  useEffect(() => {
-    setPromoLoading(true);
-    loadPromoData().finally(() => setPromoLoading(false));
-  }, [loadPromoData]);
-
-  useFocusEffect(
-    useCallback(() => {
-      if (!apiToken) return;
-      refreshBookingsIfStale();
-      if (Date.now() - lastPromoFetchRef.current >= 60_000) {
-        loadPromoData().catch(() => {});
-      }
-    }, [apiToken, refreshBookingsIfStale, loadPromoData])
-  );
-
-  const spotlight = useMemo(() => pickHomeSpotlight(allBookings, now), [allBookings, now]);
+  const spotlight = useMemo(() => pickHomeSpotlight(homeBookings, now), [homeBookings, now]);
 
   const repeatBooking = useMemo(
-    () => pickRepeatBookingCandidate(allBookings, now),
-    [allBookings, now]
+    () => pickRepeatBookingCandidate(homeBookings, now),
+    [homeBookings, now]
   );
 
   const recentBookings = useMemo(
     () =>
-      allBookings
+      homeBookings
         .filter(isBookingPast)
         .sort((a, b) => getBookingEndDate(b).getTime() - getBookingEndDate(a).getTime())
         .slice(0, 3),
-    [allBookings]
+    [homeBookings]
   );
 
   const homePromoCoupons = useMemo(
@@ -206,33 +150,35 @@ export default function RealBarberHomeTab() {
     [posters, homePromoCouponsForMerge]
   );
 
+  const showPromoCarousel = loading || homePromoFeed.length > 0;
+
   return (
     <>
       <ThemeScroller
         className="flex-1"
         refreshControl={
-          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={accentColor} />
+          <RefreshControl refreshing={refreshing} onRefresh={refresh} tintColor={accentColor} />
         }>
         <NotificationPromptSheet />
-        {apiToken ? (
+        {showPromoCarousel ? (
           <View className="mt-4">
             <HomePromoCarousel
               feed={homePromoFeed}
               width={homePromoCarouselSize.width}
               height={homePromoCarouselSize.height}
-              loading={recentLoading}
+              loading={loading}
               locale={locale}
               t={t}
             />
           </View>
         ) : null}
-        {!recentLoading && repeatBooking ? (
-          <View className={apiToken ? 'mt-0' : 'mt-4'}>
+        {!loading && repeatBooking ? (
+          <View className={showPromoCarousel ? 'mt-0' : 'mt-4'}>
             <HomeRepeatBookingCard booking={repeatBooking} t={t} />
           </View>
         ) : null}
 
-        {!recentLoading && spotlight ? (
+        {!loading && spotlight ? (
           <View className="mt-4">
             <HomeSpotlightCard spotlight={spotlight} t={t} locale={locale} />
           </View>
@@ -260,7 +206,7 @@ export default function RealBarberHomeTab() {
           ))}
         </View>
 
-        {!recentLoading && recentBookings.length > 0 ? (
+        {!loading && recentBookings.length > 0 ? (
           <Section title={t('homeRecentTitle')} titleSize="lg" className="mt-6">
             <View className="mt-2">
               {recentBookings.map((b, i) => (
@@ -311,8 +257,8 @@ export default function RealBarberHomeTab() {
 
         <HomeTodayTeamSection
           cards={todayTeamCards}
-          loading={todayTeamLoading}
-          refreshingAvailability={todayTeamRefreshingAvailability}
+          loading={loading}
+          refreshingAvailability={refreshing}
           error={todayTeamError}
           locale={locale}
           t={t}

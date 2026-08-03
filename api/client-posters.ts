@@ -1,6 +1,4 @@
-import { fetchCrm } from './http';
-
-/** Záznam marketingového plakátu z GET /api/client/posters (bez interních CRM polí). */
+/** Marketingový plakát z GET /api/home (posters). */
 export interface ClientPoster {
   id: string;
   title: string | null;
@@ -8,14 +6,6 @@ export interface ClientPoster {
   imageUrl: string | null;
   videoUrl: string | null;
   websiteUrl: string | null;
-  /** CTA label z CRM (GET /api/offers/posters); legacy /api/client/posters ho nevrací. */
   buttonText?: string | null;
   sortOrder: number;
-}
-
-/** GET /api/client/posters — aktivní plakáty, server řadí sortOrder vzestupně. */
-export async function getClientPosters(apiToken: string): Promise<ClientPoster[]> {
-  const data = await fetchCrm<unknown>('/api/client/posters', { apiToken });
-  if (!Array.isArray(data)) return [];
-  return data as ClientPoster[];
 }

@@ -3,7 +3,7 @@ import type {
   HomepageTodayTeamBranch,
   HomepageTodayTeamMember,
   HomepageWorkInterval,
-} from '@/api/publicHomepage';
+} from '@/api/homeTeamTypes';
 import type { Locale } from '@/app/contexts/LanguageContext';
 import type { TranslationKey } from '@/locales';
 import { HOMEPAGE_TODAY_TEAM_MAX_SLOTS } from '@/constants/homepage';
@@ -12,6 +12,7 @@ import {
   getPragueTodayDateString,
   pickTeamMemberLocalizedField,
 } from '@/utils/teamMemberPageHelpers';
+import { shouldShowTeamMemberWaitlistCta } from '@/utils/teamMemberWaitlist';
 
 export type HomeTodayShiftPhase = 'upcoming' | 'active' | 'ended' | 'none';
 export type HomeTodayLiveDotVariant = 'green' | 'orange' | 'red';
@@ -37,6 +38,8 @@ export interface HomeTodayTeamCardModel {
   todaySlots: HomepageNextSlot[];
   sortSlotKey: number | null;
   waitlistBranchId?: string;
+  waitlistDayIso: string;
+  waitlistRequireActiveNow: boolean;
   footer: HomeTodayTeamCardFooter;
 }
 
@@ -228,24 +231,41 @@ function buildShiftStatusLabel(params: {
   return pickMidShiftLabel(interval, t);
 }
 
+/** Tečka jen u holičů s dnešní směnou — barvy podle pražského času. */
+export function buildLiveDotVariantFromShiftPhase(
+  phase: HomeTodayShiftPhase
+): HomeTodayLiveDotVariant | null {
+  if (phase === 'active') return 'green';
+  if (phase === 'upcoming') return 'orange';
+  if (phase === 'ended') return 'red';
+  return null;
+}
+
 function buildCardFooter(params: {
   phase: HomeTodayShiftPhase;
-  liveDotVariant: HomeTodayLiveDotVariant | null;
   shiftStatusLabel: string | null;
   allSlots: HomepageNextSlot[];
+  workIntervals: HomepageWorkInterval[] | undefined;
   today: string;
   locale: Locale;
   waitlistBranchId?: string;
   t: (key: TranslationKey) => string;
 }): HomeTodayTeamCardFooter {
-  const { phase, liveDotVariant, shiftStatusLabel, allSlots, today, locale, waitlistBranchId, t } =
+  const { phase, shiftStatusLabel, allSlots, workIntervals, today, locale, waitlistBranchId, t } =
     params;
   const fullyBookedLabel = t('barberFullyBookedToday');
   const allValidSlots = filterValidSlots(allSlots);
   const todaySlots = filterTodaySlots(allValidSlots, today);
   const hasTodaySlots = todaySlots.length > 0;
 
-  if (phase === 'active' && liveDotVariant === 'green' && !hasTodaySlots) {
+  if (
+    shouldShowTeamMemberWaitlistCta({
+      workIntervals,
+      nextSlots: allValidSlots,
+      dayIso: today,
+      requireActiveNow: true,
+    })
+  ) {
     return { kind: 'waitlist', branchId: waitlistBranchId };
   }
 
@@ -317,10 +337,7 @@ export function buildHomeTodayTeamCards(params: {
     const hasTodaySlots = allTodaySlots.length > 0;
     const waitlistBranchId = interval?.branchId;
 
-    let liveDotVariant: HomeTodayLiveDotVariant | null = null;
-    if (phase === 'active') liveDotVariant = 'green';
-    else if (phase === 'upcoming') liveDotVariant = 'orange';
-    else if (phase === 'ended') liveDotVariant = 'red';
+    let liveDotVariant = buildLiveDotVariantFromShiftPhase(phase);
 
     const shiftStatusLabel = buildShiftStatusLabel({
       phase,
@@ -332,9 +349,9 @@ export function buildHomeTodayTeamCards(params: {
 
     const footer = buildCardFooter({
       phase,
-      liveDotVariant,
       shiftStatusLabel,
       allSlots: member.nextSlots,
+      workIntervals: member.workIntervals,
       today,
       locale: params.locale,
       waitlistBranchId,
@@ -356,6 +373,8 @@ export function buildHomeTodayTeamCards(params: {
       todaySlots: displaySlots,
       sortSlotKey,
       waitlistBranchId,
+      waitlistDayIso: today,
+      waitlistRequireActiveNow: true,
       footer,
     };
   });

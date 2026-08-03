@@ -167,6 +167,12 @@ export const cs: Record<TranslationKey, string> = {
   homeTodayTeamLoading: 'Načítám…',
   homeTodayTeamEmpty: 'Dnes nemá nikdo směnu.',
   homeTodayTeamLoadError: 'Nepodařilo se načíst dostupnost.',
+  teamPageTitle: 'Tým',
+  teamPageLoading: 'Načítám…',
+  teamPageEmpty: 'Zatím nemáme žádné holiče.',
+  teamPageLoadError: 'Nepodařilo se načíst tým.',
+  teamPageIntro:
+    'Vyberte si holiče podle stylu, směny nebo nejbližšího termínu. Po kliknutí na kartu se otevře jeho profil: krátký popis, ukázky práce, kdy a na které pobočce je ve směně a hodnocení od reálných zákazníků. Pak už jen stačí vybrat termín a rezervovat.',
   homeTodayTeamShiftStartsAt: 'Začíná ve {time} - {branch}',
   homeTodayTeamShiftStartsSoon: 'Začíná za chvíli - {branch}',
   homeTodayTeamShiftWorking: 'Právě pracuje - {branch}',
@@ -180,6 +186,10 @@ export const cs: Record<TranslationKey, string> = {
   homeTodayTeamWaitlistJoined: 'Jste na čekací listině',
   homeTodayTeamWaitlistSheetTitle: 'Čekací listina',
   homeTodayTeamWaitlistSheetMessage: 'Ozveme se vám, jakmile se uvolní termín na dnešek.',
+  homeTodayTeamWaitlistSheetMessageThatDay:
+    'Tento den je plně obsazeno. Přidejte se na čekací listinu. Ozveme se, pokud se něco uvolní.',
+  homeTodayTeamWaitlistHintThatDay:
+    'Tento den plně obsazený. Můžete se zapsat, pokud se něco uvolní, ozveme se.',
   homeTodayTeamWaitlistNeedLogin: 'Pro zápis se přihlaste.',
   homeTodayTeamWaitlistError: 'Nepodařilo se zapsat na čekací listinu. Zkuste to znovu.',
   homeTodayTeamNearestSlotsOnDate: 'Nejbližší termíny {date}',
@@ -964,6 +974,7 @@ export const cs: Record<TranslationKey, string> = {
   barberNearestSlotsTitle: 'Nejbližší termíny',
   barberUnavailableToday: 'Dnes už jsem skončil/a',
   barberFullyBookedToday: 'Dnes plně obsazeno',
+  barberFullyBookedThatDay: 'Tento den plně obsazeno',
   barberWaitlistFullHint:
     'Dnes už plně obsazený. Můžete se zapsat, pokud se něco uvolní, ozveme se.',
   barberScrollToAvailability: 'Podívejte se, kdy jsem příště',

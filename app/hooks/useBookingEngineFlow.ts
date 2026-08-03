@@ -65,6 +65,16 @@ import {
   usesMultiBranchDatetimeLegend,
 } from '@/lib/booking/engine/resolveActiveSteps';
 import type { BookingStepKind } from '@/lib/booking/engine/types';
+import { bookingMonitorFieldsFromSelections } from '@/lib/booking/monitor/buildFields';
+import {
+  endBookingMonitorVisitQuietly,
+  ensureBookingMonitorSession,
+  promoteBookingMonitorEntryNearestSlot,
+  setBookingMonitorIdentity,
+  trackBookingMonitor,
+  trackBookingMonitorLeftPage,
+  trackBookingMonitorSessionStarted,
+} from '@/lib/booking/monitor/client';
 import { setFreshBookingSnapshot } from '@/utils/freshBookingSnapshot';
 import { buildOptimisticBooking } from '@/utils/optimisticBooking';
 import { setPendingCalendarPromo } from '@/utils/pendingCalendarPromo';
@@ -110,6 +120,7 @@ export function useBookingEngineFlow() {
   const routeBranchSlug = trimSearchParam(params.branchSlug);
   const routeEmployeeSlug = trimSearchParam(params.employeeSlug);
   const routeServiceSlug = trimSearchParam(params.serviceSlug);
+  const routeMonitorFrom = trimSearchParam(params.from);
 
   const { recipeId, preset } = useMemo(
     () =>
@@ -201,6 +212,102 @@ export function useBookingEngineFlow() {
 
   const multiBranchLegend = usesMultiBranchDatetimeLegend(preset, flowBootstrap);
   const contact = useBookingEngineContact(client, apiToken);
+
+  const monitorFields = useCallback(
+    (stepKind: BookingStepKind) =>
+      bookingMonitorFieldsFromSelections({
+        recipeId,
+        step: stepKind,
+        locale,
+        selectedBranch,
+        selectedService,
+        selectedEmployee,
+        profileEmployee,
+        selectedDate,
+        selectedSlot,
+      }),
+    [
+      recipeId,
+      locale,
+      selectedBranch,
+      selectedService,
+      selectedEmployee,
+      profileEmployee,
+      selectedDate,
+      selectedSlot,
+    ]
+  );
+
+  const monitorSessionInitRef = useRef(false);
+
+  useEffect(() => {
+    setBookingMonitorIdentity({
+      client,
+      phone: contact.contactContext.phone,
+      clientName: contact.contactContext.firstName
+        ? `${contact.contactContext.firstName} ${contact.contactContext.lastName}`.trim()
+        : null,
+    });
+  }, [client, contact.contactContext]);
+
+  useEffect(() => {
+    if (monitorSessionInitRef.current) return;
+    monitorSessionInitRef.current = true;
+    ensureBookingMonitorSession({
+      recipeId,
+      nearestSlotHandoff: fromSlotHandoff,
+      from: routeMonitorFrom,
+      branchId: preset.branchId,
+      employeeId: preset.employeeId,
+      serviceId: preset.serviceId,
+    });
+  }, [
+    recipeId,
+    fromSlotHandoff,
+    routeMonitorFrom,
+    preset.branchId,
+    preset.employeeId,
+    preset.serviceId,
+  ]);
+
+  useEffect(() => {
+    if (fromSlotHandoff) promoteBookingMonitorEntryNearestSlot();
+  }, [fromSlotHandoff]);
+
+  useEffect(() => {
+    if (recipeId === 'employee-profile' && profileLoading && !profileEmployee) return;
+    trackBookingMonitorSessionStarted(monitorFields(step));
+  }, [
+    recipeId,
+    profileLoading,
+    profileEmployee,
+    step,
+    monitorFields,
+  ]);
+
+  const contactEnteredRef = useRef(false);
+  useEffect(() => {
+    if (step !== 'contact') {
+      contactEnteredRef.current = false;
+      return;
+    }
+    if (contactEnteredRef.current) return;
+    contactEnteredRef.current = true;
+    trackBookingMonitor('entered_contact', monitorFields('contact'));
+  }, [step, monitorFields]);
+
+  const leaveMonitorRef = useRef({ submitSuccess: false, fields: monitorFields(step) });
+  leaveMonitorRef.current = {
+    submitSuccess: contact.submitSuccess,
+    fields: monitorFields(step),
+  };
+
+  useEffect(() => {
+    return () => {
+      if (leaveMonitorRef.current.submitSuccess) return;
+      trackBookingMonitorLeftPage(leaveMonitorRef.current.fields);
+    };
+  }, []);
 
   useEffect(() => {
     void ensureBookingSessionId();
@@ -638,9 +745,13 @@ export function useBookingEngineFlow() {
       setSelectedEmployee(null);
       setSelectedDate(null);
       setSelectedSlot(null);
+      trackBookingMonitor('selected_branch', {
+        ...monitorFields('branch'),
+        branchName: branch.name ?? branch.displayName ?? null,
+      });
       advanceAfterSelect('branch');
     },
-    [advanceAfterSelect]
+    [advanceAfterSelect, monitorFields]
   );
 
   const selectSlotHandoffService = useCallback(
@@ -663,6 +774,23 @@ export function useBookingEngineFlow() {
       setSelectedEmployee(employee as BookingEntity);
       setSelectedDate(handoff.date);
       setSelectedSlot(handoff.slot);
+      promoteBookingMonitorEntryNearestSlot();
+      const handoffFields = bookingMonitorFieldsFromSelections({
+        recipeId,
+        step: 'service',
+        locale,
+        selectedBranch: branch,
+        selectedService: service,
+        selectedEmployee: employee as BookingEntity,
+        profileEmployee,
+        selectedDate: handoff.date,
+        selectedSlot: handoff.slot,
+      });
+      trackBookingMonitor('selected_service', handoffFields);
+      trackBookingMonitor('selected_slot', {
+        ...handoffFields,
+        step: 'datetime',
+      });
       void saveBookingSlotContext({
         branchId: branch.id,
         serviceId: service.id,
@@ -690,6 +818,8 @@ export function useBookingEngineFlow() {
       skipContact,
       activeSteps,
       goToStepIndex,
+      recipeId,
+      locale,
     ]
   );
 
@@ -706,9 +836,13 @@ export function useBookingEngineFlow() {
       void clearBookingSlotHandoff();
       setSlotHandoff(null);
       setFromSlotHandoff(false);
+      trackBookingMonitor('selected_service', {
+        ...monitorFields('service'),
+        serviceName: service.name ?? null,
+      });
       advanceAfterSelect('service');
     },
-    [recipeId, slotHandoff, selectSlotHandoffService, advanceAfterSelect]
+    [recipeId, slotHandoff, selectSlotHandoffService, advanceAfterSelect, monitorFields]
   );
 
   const selectEmployee = useCallback(
@@ -716,15 +850,26 @@ export function useBookingEngineFlow() {
       setSelectedEmployee(employee);
       setSelectedDate(null);
       setSelectedSlot(null);
+      trackBookingMonitor('selected_employee', {
+        ...monitorFields('employee'),
+        employeeName: employee.name ?? employee.displayName ?? null,
+      });
       advanceAfterSelect('employee');
     },
-    [advanceAfterSelect]
+    [advanceAfterSelect, monitorFields]
   );
 
-  const selectDate = useCallback((date: string) => {
-    setSelectedDate(date);
-    setSelectedSlot(null);
-  }, []);
+  const selectDate = useCallback(
+    (date: string) => {
+      setSelectedDate(date);
+      setSelectedSlot(null);
+      trackBookingMonitor('selected_date', {
+        ...monitorFields('datetime'),
+        date,
+      });
+    },
+    [monitorFields]
+  );
 
   const selectSlot = useCallback(
     (slot: BookingSlot) => {
@@ -740,6 +885,14 @@ export function useBookingEngineFlow() {
       }
       setSelectedSlot(slot);
       const employee = profileEmployee ?? selectedEmployee;
+      trackBookingMonitor('selected_slot', {
+        ...monitorFields('datetime'),
+        branchName: branch?.name ?? branch?.displayName ?? null,
+        date: selectedDate ?? undefined,
+        slotStart: slot.start,
+        slotEnd: slot.end,
+        employeeName: employee?.name ?? employee?.displayName ?? null,
+      });
       if (branch && selectedService && employee && selectedDate) {
         void saveBookingSlotContext({
           branchId: branch.id,
@@ -760,6 +913,7 @@ export function useBookingEngineFlow() {
       branches,
       profileBranches,
       advanceAfterSelect,
+      monitorFields,
     ]
   );
 
@@ -820,6 +974,19 @@ export function useBookingEngineFlow() {
 
   const handleSubmitSuccess = useCallback(
     async (data: unknown) => {
+      const successFields = monitorFields('contact');
+      if (apiToken) {
+        trackBookingMonitor('reservation_no_otp', {
+          ...successFields,
+          isNewClient: false,
+        });
+      }
+      trackBookingMonitor('reservation_success', {
+        ...successFields,
+        isNewClient: false,
+      });
+      endBookingMonitorVisitQuietly();
+
       await clearBookingSlotContext();
       await clearBookingSlotHandoff();
       await refreshBookings({ force: true });
@@ -869,6 +1036,8 @@ export function useBookingEngineFlow() {
       }
     },
     [
+      monitorFields,
+      apiToken,
       refreshBookings,
       client,
       selectedEmployee,

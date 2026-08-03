@@ -25,8 +25,8 @@ interface FavoriteMediaCardProps {
   footer?: React.ReactNode;
 }
 
-/** Mezera fotka → jméno (oblíbené: mt-1.5 přímo na titulku). */
-const MEDIA_CARD_TITLE_MARGIN_CLASS = 'mt-1.5';
+/** Mezera fotka → jméno — padding na bloku (margin ve flex-row neodsune řádek od fotky). */
+const MEDIA_CARD_IMAGE_TITLE_GAP_CLASS = 'pt-1.5';
 
 /** Portrait media karta — aspect 2/3, jméno pod fotkou (web MediaCard). */
 export default function FavoriteMediaCard({
@@ -68,18 +68,16 @@ export default function FavoriteMediaCard({
             />
           </View>
         </View>
-        {titleTrailing ? (
-          <View className="w-full flex-row items-start gap-1.5">
-            <MediaCardTitle className={`min-w-0 flex-1 shrink ${MEDIA_CARD_TITLE_MARGIN_CLASS}`}>
-              {title}
-            </MediaCardTitle>
-            <View className={`shrink-0 pt-0.5 ${MEDIA_CARD_TITLE_MARGIN_CLASS}`}>
-              {titleTrailing}
+        <View className={`w-full ${MEDIA_CARD_IMAGE_TITLE_GAP_CLASS}`}>
+          {titleTrailing ? (
+            <View className="flex-row flex-wrap items-center gap-1.5">
+              <MediaCardTitle className="shrink">{title}</MediaCardTitle>
+              <View className="shrink-0">{titleTrailing}</View>
             </View>
-          </View>
-        ) : (
-          <MediaCardTitle className={MEDIA_CARD_TITLE_MARGIN_CLASS}>{title}</MediaCardTitle>
-        )}
+          ) : (
+            <MediaCardTitle>{title}</MediaCardTitle>
+          )}
+        </View>
         {belowTitle ? <View className="mt-0.5 w-full">{belowTitle}</View> : null}
         {address ? (
           <ThemedText
