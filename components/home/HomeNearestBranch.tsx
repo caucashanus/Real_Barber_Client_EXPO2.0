@@ -1,8 +1,9 @@
 import { Image } from 'expo-image';
 import { router } from 'expo-router';
-import React, { useCallback, useMemo, useRef } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef } from 'react';
 import {
   Clipboard,
+  Linking,
   Pressable,
   ScrollView,
   useWindowDimensions,
@@ -22,6 +23,7 @@ import Icon from '@/components/Icon';
 import ImageCarousel from '@/components/ImageCarousel';
 import { OperatorSupportSheet } from '@/components/OperatorSupportSheet';
 import ProfileActionsMenu from '@/components/profile/ProfileActionsMenu';
+import { ProfileActionsSheet } from '@/components/profile/ProfileActionsSheet';
 import { ProfileShareSheet } from '@/components/profile/ProfileShareSheet';
 import SlotTimePill from '@/components/SlotTimePill';
 import ThemedText from '@/components/ThemedText';
@@ -32,6 +34,7 @@ import {
   type BranchInteriorCarouselImage,
 } from '@/constants/branchInteriorGallery';
 import { resolveCrmBranchId } from '@/constants/crmBranchIds';
+import type { NearestApiBranch } from '@/lib/branches/postNearestBranches';
 import type { TranslationKey } from '@/locales';
 import {
   buildNearestBranchSlotsByInternalId,
@@ -47,7 +50,7 @@ import { formatTravelDurationMinutes } from '@/utils/formatTravelDurationSeconds
 import { formatRelativeDayLabel } from '@/utils/formatRelativeDayLabel';
 import { openBranchMapsApp } from '@/utils/branchDetailHelpers';
 import type { HomeTodayTeamCardModel } from '@/utils/homeTodayTeamHelpers';
-import { interpolateTemplate } from '@/utils/profileShareLinks';
+import { interpolateTemplate, MENU_SHARE_OPEN_DELAY_MS } from '@/utils/profileShareLinks';
 import { formatNextSlotDisplayTime } from '@/utils/reservationCreateHelpers';
 import { startBarberSlotHandoffBooking } from '@/utils/reservationSlotHandoff';
 import { getPragueTodayDateString } from '@/utils/teamMemberPageHelpers';
@@ -60,6 +63,36 @@ interface HomeNearestBranchProps {
   teamCards: HomeTodayTeamCardModel[];
   locale: Locale;
   t: (key: TranslationKey) => string;
+  homeRefreshing?: boolean;
+}
+
+function buildNearestHomeDetails(
+  nearest: NearestApiBranch,
+  branchLabel: string,
+  locale: Locale,
+  t: (key: TranslationKey) => string
+): string {
+  const parts: string[] = [branchLabel];
+
+  const distanceMeters =
+    nearest.drive?.distanceMeters ??
+    nearest.bicycle?.distanceMeters ??
+    nearest.walk?.distanceMeters ??
+    null;
+
+  if (distanceMeters != null) {
+    parts.push(formatTravelDistanceMeters(distanceMeters, locale));
+  }
+
+  if (nearest.drive) {
+    parts.push(
+      interpolateTemplate(t('nearestBranchTravelDrive'), {
+        minutes: String(formatTravelDurationMinutes(nearest.drive.durationSeconds)),
+      })
+    );
+  }
+
+  return parts.join(' · ');
 }
 
 function groupNearestSlots(
@@ -185,6 +218,7 @@ function NearestBranchSheetContent({
   onOpenNavigate,
   onOpenCallUs,
   onLeaveNearestFlow,
+  actionsSheetRef,
   shareSheetRef,
 }: {
   nearest: NonNullable<ReturnType<typeof useNearestBranch>['nearest']>;
@@ -202,6 +236,7 @@ function NearestBranchSheetContent({
   onOpenNavigate: () => void;
   onOpenCallUs: () => void;
   onLeaveNearestFlow: () => void;
+  actionsSheetRef: React.RefObject<ActionSheetRef | null>;
   shareSheetRef: React.RefObject<ActionSheetRef | null>;
 }) {
   return (
@@ -251,6 +286,7 @@ function NearestBranchSheetContent({
               shareEmailBody={shareCopy.emailBody}
               rateUrl={getBranchGoogleReviewUrlForCrmId(crmBranchId)}
               bookingHref={buildBranchBookingHref(crmBranchId)}
+              actionsSheetRef={actionsSheetRef}
               shareSheetRef={shareSheetRef}
               onLeaveFlow={onLeaveNearestFlow}
               t={t}
@@ -410,13 +446,42 @@ function NearestBranchSheetContent({
   );
 }
 
-export default function HomeNearestBranch({ teamCards, locale, t }: HomeNearestBranchProps) {
+export default function HomeNearestBranch({
+  teamCards,
+  locale,
+  t,
+  homeRefreshing = false,
+}: HomeNearestBranchProps) {
   const { width: screenWidth } = useWindowDimensions();
   const sheetRef = useRef<ActionSheetRef>(null);
   const navigateRef = useRef<ActionSheetRef>(null);
   const callUsRef = useRef<ActionSheetRef>(null);
+  const actionsRef = useRef<ActionSheetRef>(null);
   const shareRef = useRef<ActionSheetRef>(null);
-  const { nearest, error, resolveNearest } = useNearestBranch();
+  const wasRefreshingRef = useRef(false);
+  const {
+    nearest,
+    error,
+    loading,
+    userLocationLabel,
+    prefetchNearest,
+    resolveNearest,
+  } = useNearestBranch();
+
+  useEffect(() => {
+    void prefetchNearest();
+  }, [prefetchNearest]);
+
+  useEffect(() => {
+    if (homeRefreshing) {
+      wasRefreshingRef.current = true;
+      return;
+    }
+    if (wasRefreshingRef.current) {
+      wasRefreshingRef.current = false;
+      void prefetchNearest({ force: true });
+    }
+  }, [homeRefreshing, prefetchNearest]);
 
   const slotsByBranch = useMemo(
     () => buildNearestBranchSlotsByInternalId(teamCards, locale),
@@ -426,11 +491,22 @@ export default function HomeNearestBranch({ teamCards, locale, t }: HomeNearestB
   const todayIso = useMemo(() => getPragueTodayDateString(), []);
 
   const openSheet = useCallback(() => {
-    void resolveNearest();
     sheetRef.current?.show();
+    void resolveNearest();
   }, [resolveNearest]);
 
   const branchMeta = nearest ? getBranchContactMeta(nearest.id) : null;
+  const showLiveTile = Boolean(nearest && !error);
+  const showLoadingTile = loading && !nearest;
+  const youLine = userLocationLabel
+    ? interpolateTemplate(t('nearestBranchHomeYou'), { location: userLocationLabel })
+    : t('nearestBranchHomeYouFallback');
+  const nearestLine =
+    nearest && branchMeta
+      ? interpolateTemplate(t('nearestBranchHomeNearestLine'), {
+          details: buildNearestHomeDetails(nearest, branchMeta.shortLabel, locale, t),
+        })
+      : '';
   const crmBranchId = nearest ? resolveCrmBranchId(nearest.id) : '';
   const branchSlots = nearest ? slotsByBranch[nearest.id] : [];
   const slotGroups = useMemo(
@@ -472,6 +548,31 @@ export default function HomeNearestBranch({ teamCards, locale, t }: HomeNearestB
     sheetRef.current?.hide();
   }, []);
 
+  const branchBookingHref = crmBranchId ? buildBranchBookingHref(crmBranchId) : '';
+  const branchRateUrl = crmBranchId ? getBranchGoogleReviewUrlForCrmId(crmBranchId) : null;
+
+  const openActionsShare = useCallback(() => {
+    actionsRef.current?.hide();
+    setTimeout(() => {
+      shareRef.current?.show();
+    }, MENU_SHARE_OPEN_DELAY_MS);
+  }, []);
+
+  const handleActionsRate = useCallback(() => {
+    actionsRef.current?.hide();
+    if (!branchRateUrl) return;
+    setTimeout(() => {
+      void Linking.openURL(branchRateUrl).catch(() => {});
+    }, MENU_SHARE_OPEN_DELAY_MS);
+  }, [branchRateUrl]);
+
+  const handleActionsBook = useCallback(() => {
+    actionsRef.current?.hide();
+    leaveNearestFlow();
+    if (!branchBookingHref) return;
+    router.push(branchBookingHref as never);
+  }, [branchBookingHref, leaveNearestFlow]);
+
   const openNavigate = () => navigateRef.current?.show();
   const openCallUs = () => callUsRef.current?.show();
 
@@ -491,25 +592,45 @@ export default function HomeNearestBranch({ teamCards, locale, t }: HomeNearestB
           : null;
 
   return (
-    <View>
+    <>
       <Pressable
         onPress={openSheet}
-        className="mb-2 w-[48.7%] rounded-2xl bg-light-secondary dark:bg-dark-secondary active:opacity-70">
-        <View className="flex-row items-center gap-3 p-3.5">
-          <Image source={TILE_IMAGE} style={{ width: 28, height: 28 }} contentFit="contain" />
-          <ThemedText
-            className="min-w-0 flex-1 text-sm font-semibold leading-tight"
-            numberOfLines={2}>
-            {t('nearestBranchCta')}
-          </ThemedText>
-        </View>
+        className="mb-2 w-full rounded-2xl bg-light-secondary dark:bg-dark-secondary active:opacity-70">
+        {showLoadingTile ? (
+          <View className="gap-2 p-3.5">
+            <View className="h-3 w-24 rounded-md bg-light-subtext/15 dark:bg-dark-subtext/15" />
+            <View className="h-4 w-56 max-w-full rounded-md bg-light-subtext/15 dark:bg-dark-subtext/15" />
+            <ThemedText className="text-xs text-light-subtext dark:text-dark-subtext">
+              {t('nearestBranchLoading')}
+            </ThemedText>
+          </View>
+        ) : showLiveTile ? (
+          <View className="gap-1 p-3.5">
+            <ThemedText
+              className="text-xs leading-4 text-light-subtext dark:text-dark-subtext"
+              numberOfLines={1}>
+              {youLine}
+            </ThemedText>
+            <ThemedText className="text-sm font-semibold leading-5" numberOfLines={2}>
+              {nearestLine}
+            </ThemedText>
+          </View>
+        ) : (
+          <View className="flex-row items-center gap-3 p-3.5">
+            <Image source={TILE_IMAGE} style={{ width: 28, height: 28 }} contentFit="contain" />
+            <ThemedText
+              className="min-w-0 flex-1 text-sm font-semibold leading-tight"
+              numberOfLines={2}>
+              {t('nearestBranchFindCta')}
+            </ThemedText>
+          </View>
+        )}
       </Pressable>
 
       <ActionSheetThemed
         ref={sheetRef}
         gestureEnabled
-        snapPoints={[88, 100]}
-        initialSnapIndex={1}
+        snapPoints={[100]}
         withNestedSheetProvider={
           <>
             <BranchNavigateSheet
@@ -521,6 +642,15 @@ export default function HomeNearestBranch({ teamCards, locale, t }: HomeNearestB
               longitude={branchMeta?.longitude}
             />
             <OperatorSupportSheet nested ref={callUsRef} variant="callUs" />
+            <ProfileActionsSheet
+              nested
+              ref={actionsRef}
+              title={t('branchMenuOpen')}
+              bookLabel={t('branchMenuBook')}
+              onShare={openActionsShare}
+              onRate={handleActionsRate}
+              onBook={handleActionsBook}
+            />
             <ProfileShareSheet
               nested
               ref={shareRef}
@@ -536,6 +666,14 @@ export default function HomeNearestBranch({ teamCards, locale, t }: HomeNearestB
           <View className="px-4 pb-8 pt-2">
             <ThemedText className="py-6 text-left text-sm text-light-subtext dark:text-dark-subtext">
               {errorMessage}
+            </ThemedText>
+          </View>
+        ) : null}
+
+        {!errorMessage && loading && !nearest ? (
+          <View className="px-4 pb-8 pt-2">
+            <ThemedText className="py-6 text-left text-sm text-light-subtext dark:text-dark-subtext">
+              {t('nearestBranchLoading')}
             </ThemedText>
           </View>
         ) : null}
@@ -557,10 +695,11 @@ export default function HomeNearestBranch({ teamCards, locale, t }: HomeNearestB
             onOpenNavigate={openNavigate}
             onOpenCallUs={openCallUs}
             onLeaveNearestFlow={leaveNearestFlow}
+            actionsSheetRef={actionsRef}
             shareSheetRef={shareRef}
           />
         ) : null}
       </ActionSheetThemed>
-    </View>
+    </>
   );
 }

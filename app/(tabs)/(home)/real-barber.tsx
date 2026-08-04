@@ -205,7 +205,12 @@ export default function RealBarberHomeTab() {
               </View>
             </Pressable>
           ))}
-          <HomeNearestBranch teamCards={todayTeamCards} locale={locale} t={t} />
+          <HomeNearestBranch
+            teamCards={todayTeamCards}
+            locale={locale}
+            t={t}
+            homeRefreshing={refreshing}
+          />
         </View>
 
         {!loading && recentBookings.length > 0 ? (

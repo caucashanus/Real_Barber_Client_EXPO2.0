@@ -1,25 +1,14 @@
 import { router } from 'expo-router';
-import React, { useRef, useState } from 'react';
-import {
-  Linking,
-  Modal,
-  Pressable,
-  View,
-  useWindowDimensions,
-  type LayoutRectangle,
-} from 'react-native';
+import React, { useRef } from 'react';
+import { Linking, Pressable, View } from 'react-native';
 import { ActionSheetRef } from 'react-native-actions-sheet';
 
 import Icon from '@/components/Icon';
+import { ProfileActionsSheet } from '@/components/profile/ProfileActionsSheet';
 import { ProfileShareSheet } from '@/components/profile/ProfileShareSheet';
-import SheetNavRow from '@/components/shared/SheetNavRow';
-import ThemedText from '@/components/ThemedText';
 import type { TranslationKey } from '@/locales';
 import { MENU_SHARE_OPEN_DELAY_MS } from '@/utils/profileShareLinks';
 import { buildBarberBookingHref } from '@/utils/teamMemberPageHelpers';
-
-const MENU_WIDTH = 256;
-const MENU_SIDE_OFFSET = 6;
 
 type ProfileActionsMenuBaseProps = {
   displayName: string;
@@ -30,8 +19,12 @@ type ProfileActionsMenuBaseProps = {
   t: (key: TranslationKey) => string;
   /** Hero header nad fotkou (pobočka) — bílá ikona. */
   onDarkBackground?: boolean;
+  /** Externí nested actions sheet (nearest drawer) — ne-mountovat vlastní. */
+  actionsSheetRef?: React.RefObject<ActionSheetRef | null>;
   /** Externí nested share sheet (nearest drawer) — ne-mountovat vlastní. */
   shareSheetRef?: React.RefObject<ActionSheetRef | null>;
+  /** Nested bottom sheet nad parent drawerem (nearest pobočka). */
+  nestedSheets?: boolean;
   /** Před odchodem z flow (booking) — zavře parent nearest sheet. */
   onLeaveFlow?: () => void;
 };
@@ -62,39 +55,38 @@ export default function ProfileActionsMenu(props: ProfileActionsMenuProps) {
     shareEmailBody,
     t,
     onDarkBackground,
+    actionsSheetRef: externalActionsSheetRef,
     shareSheetRef: externalShareSheetRef,
+    nestedSheets = false,
     onLeaveFlow,
   } = props;
-  const { width: windowWidth } = useWindowDimensions();
-  const [menuVisible, setMenuVisible] = useState(false);
-  const [anchor, setAnchor] = useState<LayoutRectangle | null>(null);
-  const triggerRef = useRef<View>(null);
+  const internalActionsSheetRef = useRef<ActionSheetRef>(null);
   const internalShareSheetRef = useRef<ActionSheetRef>(null);
+  const actionsSheetRef = externalActionsSheetRef ?? internalActionsSheetRef;
   const shareSheetRef = externalShareSheetRef ?? internalShareSheetRef;
 
   const bookLabel =
     props.mode === 'branch' ? t('branchMenuBook') : t('barberMenuBook');
+  const sheetTitle =
+    props.mode === 'branch' ? t('branchMenuOpen') : t('barberMenuOpen');
 
-  const openMenu = () => {
-    triggerRef.current?.measureInWindow((x, y, width, height) => {
-      setAnchor({ x, y, width, height });
-      setMenuVisible(true);
-    });
+  const hideActionsSheet = () => {
+    actionsSheetRef.current?.hide();
   };
 
-  const closeMenu = () => {
-    setMenuVisible(false);
+  const openMenu = () => {
+    actionsSheetRef.current?.show();
   };
 
   const openShare = () => {
-    closeMenu();
+    hideActionsSheet();
     setTimeout(() => {
       shareSheetRef.current?.show();
     }, MENU_SHARE_OPEN_DELAY_MS);
   };
 
   const handleRate = () => {
-    closeMenu();
+    hideActionsSheet();
     if (props.mode === 'branch') {
       if (!props.rateUrl) return;
       setTimeout(() => {
@@ -108,7 +100,7 @@ export default function ProfileActionsMenu(props: ProfileActionsMenuProps) {
   };
 
   const handleBook = () => {
-    closeMenu();
+    hideActionsSheet();
     const href =
       props.mode === 'branch'
         ? props.bookingHref
@@ -123,60 +115,38 @@ export default function ProfileActionsMenu(props: ProfileActionsMenuProps) {
     }, MENU_SHARE_OPEN_DELAY_MS);
   };
 
-  const menuLeft =
-    anchor != null
-      ? Math.max(8, Math.min(anchor.x + anchor.width - MENU_WIDTH, windowWidth - MENU_WIDTH - 8))
-      : 0;
-  const menuTop = anchor != null ? anchor.y + anchor.height + MENU_SIDE_OFFSET : 0;
-
   return (
     <>
-      <View ref={triggerRef} collapsable={false}>
-        <Pressable
-          onPress={openMenu}
-          accessibilityRole="button"
-          accessibilityLabel={t('profileMenuAria')}
-          className={`h-8 w-8 items-center justify-center rounded-full active:bg-light-secondary/80 dark:active:bg-dark-secondary/80 ${
-            onDarkBackground ? 'active:bg-white/10' : ''
-          }`}>
-          <Icon
-            name="EllipsisVertical"
-            size={20}
-            className={onDarkBackground ? 'text-white opacity-70' : 'opacity-70'}
-          />
-        </Pressable>
-      </View>
+      <Pressable
+        onPress={openMenu}
+        accessibilityRole="button"
+        accessibilityLabel={t('profileMenuAria')}
+        className={`h-8 w-8 items-center justify-center rounded-full active:bg-light-secondary/80 dark:active:bg-dark-secondary/80 ${
+          onDarkBackground ? 'active:bg-white/10' : ''
+        }`}>
+        <Icon
+          name="EllipsisVertical"
+          size={20}
+          className={onDarkBackground ? 'text-white opacity-70' : 'opacity-70'}
+        />
+      </Pressable>
 
-      <Modal visible={menuVisible} transparent animationType="fade" onRequestClose={closeMenu}>
-        <View className="flex-1">
-          <Pressable className="absolute inset-0" onPress={closeMenu} accessibilityRole="button" />
-          <View
-            style={{ position: 'absolute', top: menuTop, left: menuLeft, width: MENU_WIDTH }}
-            className="rounded-lg bg-light-primary p-1.5 shadow-lg dark:bg-dark-primary">
-            <SheetNavRow
-              label={t('barberMenuShare')}
-              icon={<Icon name="Share2" size={16} strokeWidth={1.5} className="opacity-80" />}
-              onPress={openShare}
-            />
-            <SheetNavRow
-              label={t('barberMenuRate')}
-              icon={
-                <ThemedText className="w-4 text-center text-base text-amber-300/90">★</ThemedText>
-              }
-              onPress={handleRate}
-            />
-            <SheetNavRow
-              label={bookLabel}
-              icon={<Icon name="Calendar" size={16} strokeWidth={1.5} className="opacity-80" />}
-              onPress={handleBook}
-            />
-          </View>
-        </View>
-      </Modal>
+      {!externalActionsSheetRef ? (
+        <ProfileActionsSheet
+          ref={internalActionsSheetRef}
+          nested={nestedSheets}
+          title={sheetTitle}
+          bookLabel={bookLabel}
+          onShare={openShare}
+          onRate={handleRate}
+          onBook={handleBook}
+        />
+      ) : null}
 
       {!externalShareSheetRef ? (
         <ProfileShareSheet
           ref={internalShareSheetRef}
+          nested={nestedSheets}
           displayName={displayName}
           shareUrl={shareUrl}
           title={shareTitle}
