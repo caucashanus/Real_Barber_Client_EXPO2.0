@@ -1,4 +1,4 @@
-import React, { useCallback, useRef, useState } from 'react';
+import React, { useCallback, useRef } from 'react';
 import { ActivityIndicator, Pressable, View } from 'react-native';
 
 import type { EmployeeTodaySlot, TeamMemberPageBranch } from '@/api/publicTeamMember';
@@ -16,9 +16,10 @@ import {
   type TodayShiftStatus,
 } from '@/utils/teamMemberPageHelpers';
 import {
-  isHomeTodayWaitlistJoined,
-  markHomeTodayWaitlistJoined,
-} from '@/utils/homeTodayTeamWaitlistSession';
+  isTeamMemberWaitlistJoined,
+  markTeamMemberWaitlistJoined,
+  useTeamMemberWaitlistJoined,
+} from '@/utils/teamMemberWaitlistSession';
 import { startBarberSlotHandoffBooking } from '@/utils/reservationSlotHandoff';
 import type { TranslationKey } from '@/locales';
 import { BARBER_DETAIL_SECTION_SPACING } from '@/constants/barberDetailLayout';
@@ -79,34 +80,35 @@ export default function BarberTodaySlotsSection({
 }: BarberTodaySlotsSectionProps) {
   const todayIso = getPragueTodayDateString();
   const waitlistSheetRef = useRef<HomeTodayTeamWaitlistSheetHandle>(null);
-  const [waitlistJoinedLocal, setWaitlistJoinedLocal] = useState(() =>
-    isHomeTodayWaitlistJoined(employeeId, todayIso)
-  );
+  const alreadyOnWaitlist = useTeamMemberWaitlistJoined(employeeId, todayIso);
 
   const availabilityState = getTodayAvailabilityState(todaySlots, shiftStatus);
   const showWaitlist =
     !loadingSlots && shiftStatus === 'active' && todaySlots.length === 0;
-  const waitlistJoined =
-    waitlistJoinedLocal || isHomeTodayWaitlistJoined(employeeId, todayIso);
   const showScrollLink = Boolean(onScrollToAvailability) && availabilityState !== 'slots';
 
   const sectionTitle =
     todaySlots.length === 1 ? t('barberNearestSlotTitle') : t('barberNearestSlotsTitle');
 
   const handleOpenWaitlist = useCallback(() => {
+    if (isTeamMemberWaitlistJoined(employeeId, todayIso)) return;
+
+    const branchLabel = waitlistBranchId
+      ? resolveBranchForSlot(branches, waitlistBranchId, locale).branchName
+      : undefined;
+
     waitlistSheetRef.current?.open({
       employeeId,
       employeeName,
-      branchId: waitlistBranchId,
+      branchLabel: branchLabel && branchLabel !== '—' ? branchLabel : undefined,
       dayIso: todayIso,
       requireActiveNow: true,
     });
-  }, [employeeId, employeeName, todayIso, waitlistBranchId]);
+  }, [employeeId, employeeName, todayIso, waitlistBranchId, branches, locale]);
 
   const handleWaitlistJoined = useCallback(
     (joinedEmployeeId: string, dayIso?: string) => {
-      markHomeTodayWaitlistJoined(joinedEmployeeId, dayIso);
-      setWaitlistJoinedLocal(true);
+      void markTeamMemberWaitlistJoined(joinedEmployeeId, dayIso);
     },
     []
   );
@@ -117,7 +119,7 @@ export default function BarberTodaySlotsSection({
         className={`${BARBER_DETAIL_SECTION_SPACING} rounded-2xl bg-light-secondary p-4 dark:bg-dark-secondary`}>
         <View className="mb-3 flex-row items-start justify-between gap-3">
           <ThemedText className="shrink text-lg font-semibold">{sectionTitle}</ThemedText>
-          {showWaitlist && !waitlistJoined ? (
+          {showWaitlist && !alreadyOnWaitlist ? (
             <AppButton
               size="sm"
               title={t('homeTodayTeamWaitlistJoin')}
@@ -166,9 +168,9 @@ export default function BarberTodaySlotsSection({
         {!loadingSlots && showWaitlist ? (
           <View>
             <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext">
-              {waitlistJoined
+              {alreadyOnWaitlist
                 ? t('homeTodayTeamWaitlistJoined')
-                : t('barberWaitlistFullHint')}
+                : t('homeTodayTeamWaitlistHint')}
             </ThemedText>
             {showScrollLink && onScrollToAvailability ? (
               <AvailabilityScrollLink onPress={onScrollToAvailability} t={t} />

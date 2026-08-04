@@ -12,6 +12,7 @@ import {
   getPragueTodayDateString,
   pickTeamMemberLocalizedField,
 } from '@/utils/teamMemberPageHelpers';
+import { formatRelativeDayLabel, formatWaitlistDayWhen } from '@/utils/formatRelativeDayLabel';
 import { shouldShowTeamMemberWaitlistCta } from '@/utils/teamMemberWaitlist';
 
 export type HomeTodayShiftPhase = 'upcoming' | 'active' | 'ended' | 'none';
@@ -25,7 +26,8 @@ export type HomeTodayTeamCardFooter =
       slots: HomepageNextSlot[];
     }
   | { kind: 'message'; text: string }
-  | { kind: 'waitlist'; branchId?: string };
+  | { kind: 'waitlist'; branchId?: string }
+  | { kind: 'noShift' };
 
 export interface HomeTodayTeamCardModel {
   id: string;
@@ -168,14 +170,6 @@ export function filterValidSlots(slots: HomepageNextSlot[] | undefined): Homepag
     .sort((a, b) => slotSortKey(a) - slotSortKey(b));
 }
 
-function formatSlotDateShort(date: string, locale: Locale): string {
-  const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(date);
-  if (!match) return date;
-  const day = Number(match[3]);
-  const month = Number(match[2]);
-  return locale === 'cs' ? `${day}.${month}.` : `${day}/${month}`;
-}
-
 function buildSlotsHint(
   slots: HomepageNextSlot[],
   today: string,
@@ -189,9 +183,8 @@ function buildSlotsHint(
       ? t('barberNearestSlotTitle')
       : t('barberNearestSlotsTitle');
   }
-  return interpolate(t('homeTodayTeamNearestSlotsOnDate'), {
-    date: formatSlotDateShort(firstDate, locale),
-  });
+  const when = formatWaitlistDayWhen(firstDate, today, locale);
+  return interpolate(t('homeTodayTeamNearestSlotsOnDate'), { when });
 }
 
 function buildShiftStatusLabel(params: {
@@ -267,6 +260,11 @@ function buildCardFooter(params: {
     })
   ) {
     return { kind: 'waitlist', branchId: waitlistBranchId };
+  }
+
+  const hasShift = (workIntervals?.length ?? 0) > 0;
+  if (!hasShift && allValidSlots.length === 0) {
+    return { kind: 'noShift' };
   }
 
   let displaySlots: HomepageNextSlot[] = [];

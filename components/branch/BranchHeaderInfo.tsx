@@ -16,6 +16,7 @@ interface BranchHeaderInfoProps {
   reviewParams: string;
   onScrollToReviews: () => void;
   onNavigatePress: () => void;
+  onCallPress: () => void;
   t: (key: TranslationKey) => string;
 }
 
@@ -27,6 +28,7 @@ export default function BranchHeaderInfo({
   reviewParams,
   onScrollToReviews,
   onNavigatePress,
+  onCallPress,
   t,
 }: BranchHeaderInfoProps) {
   const canOpenBranchNavigate = getBranchNavigateMapsQuery(name, address) !== '';
@@ -37,18 +39,30 @@ export default function BranchHeaderInfo({
         <ThemedText className="min-w-0 flex-1 shrink pr-1 text-3xl font-semibold">
           {name}
         </ThemedText>
-        {canOpenBranchNavigate ? (
+        <View className="mt-1 shrink-0 flex-row items-center gap-1.5">
           <Pressable
             accessibilityRole="button"
-            accessibilityLabel={t('branchNavigateSectionTitle')}
-            onPress={onNavigatePress}
-            className="mt-1 h-7 shrink-0 flex-row items-center justify-center gap-0.5 rounded-full bg-light-secondary px-2.5 active:opacity-80 dark:bg-dark-secondary">
-            <Icon name="Navigation" size={12} className="text-light-text dark:text-dark-text" />
+            accessibilityLabel={t('barberPhoneCall')}
+            onPress={onCallPress}
+            className="h-7 flex-row items-center justify-center gap-0.5 rounded-full bg-light-secondary px-2.5 active:opacity-80 dark:bg-dark-secondary">
+            <Icon name="Phone" size={12} className="text-light-text dark:text-dark-text" />
             <ThemedText className="text-center text-xs font-semibold">
-              {t('branchNavigateSectionTitle')}
+              {t('barberPhoneCall')}
             </ThemedText>
           </Pressable>
-        ) : null}
+          {canOpenBranchNavigate ? (
+            <Pressable
+              accessibilityRole="button"
+              accessibilityLabel={t('branchNavigateSectionTitle')}
+              onPress={onNavigatePress}
+              className="h-7 flex-row items-center justify-center gap-0.5 rounded-full bg-light-secondary px-2.5 active:opacity-80 dark:bg-dark-secondary">
+              <Icon name="Navigation" size={12} className="text-light-text dark:text-dark-text" />
+              <ThemedText className="text-center text-xs font-semibold">
+                {t('branchNavigateSectionTitle')}
+              </ThemedText>
+            </Pressable>
+          ) : null}
+        </View>
       </View>
       <View className="mt-4 flex-row items-center justify-center gap-4">
         <Pressable

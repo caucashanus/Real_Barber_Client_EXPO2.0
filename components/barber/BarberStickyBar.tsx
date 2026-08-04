@@ -11,7 +11,6 @@ import {
   getShiftLiveIndicatorVariant,
   type TodayShiftStatus,
 } from '@/utils/teamMemberPageHelpers';
-import { openOperatorPhone } from '@/utils/operatorContact';
 import type { TranslationKey } from '@/locales';
 
 export const BARBER_DETAIL_HEADER_HEIGHT = 64;
@@ -23,6 +22,7 @@ interface BarberStickyBarProps {
   shiftStatus: TodayShiftStatus;
   topInset: number;
   t: (key: TranslationKey) => string;
+  onPhonePress: () => void;
 }
 
 export default function BarberStickyBar({
@@ -32,6 +32,7 @@ export default function BarberStickyBar({
   shiftStatus,
   topInset,
   t,
+  onPhonePress,
 }: BarberStickyBarProps) {
   const { width } = useWindowDimensions();
   const isMobile = width < 768;
@@ -58,7 +59,7 @@ export default function BarberStickyBar({
   };
 
   const handlePhone = () => {
-    openOperatorPhone().catch(() => {});
+    onPhonePress();
   };
 
   return (

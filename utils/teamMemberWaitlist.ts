@@ -2,6 +2,8 @@ import type { BarberRosterWorkInterval } from '@/api/barbersRoster';
 import type { HomepageNextSlot } from '@/api/homeTeamTypes';
 import { getPragueMinutesFromDate } from '@/utils/teamMemberPageHelpers';
 
+export { formatWaitlistDayWhen } from '@/utils/formatRelativeDayLabel';
+
 type WaitlistWorkInterval = Pick<BarberRosterWorkInterval, 'startTime' | 'endTime'>;
 type WaitlistSlot = Pick<HomepageNextSlot, 'date'>;
 

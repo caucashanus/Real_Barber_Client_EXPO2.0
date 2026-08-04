@@ -19,7 +19,7 @@ export default function BookingEngineContactStep({ flow }: Props) {
         <BookingContactSummaryPanel flow={flow} />
         <ThemedText className="text-base font-semibold">{t('bookingOtpTitle')}</ThemedText>
         <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext">
-          {t('bookingOtpHint')} {contact.fields.phoneNationalDigits}
+          {t('bookingOtpHint')} {contact.contactContext.phone}
         </ThemedText>
         <LabeledInput
           label={t('reservationContactOtpLabel')}
@@ -60,8 +60,8 @@ export default function BookingEngineContactStep({ flow }: Props) {
                 {t('reservationContactPhone')}
               </ThemedText>
               <PhoneInput
-                countryCode={contact.fields.phoneCountryIso === 'CZ' ? '+420' : '+420'}
-                onCountryCodeChange={() => {}}
+                countryCode={contact.fields.phoneCountryCode}
+                onCountryCodeChange={(v) => contact.setField('phoneCountryCode', v)}
                 phone={contact.fields.phoneNationalDigits}
                 onPhoneChange={(v) => contact.setField('phoneNationalDigits', v)}
               />

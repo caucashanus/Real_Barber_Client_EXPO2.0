@@ -1,27 +1,27 @@
-import { fetchCrm } from './http';
-
-import { HOME_AVAILABILITY_SERVICE_ID } from '@/constants/teamMemberPage';
+import { postTeamMemberWaitlist } from '@/lib/waitlist/postTeamMemberWaitlist';
+import type { PostTeamMemberWaitlistResult } from '@/lib/waitlist/types';
 
 export interface JoinEmployeeWaitlistParams {
+  phone: string;
   employeeId: string;
-  branchId?: string;
-  serviceId?: string;
-  date?: string;
+  employeeName: string;
+  branchLabel?: string | null;
+  dayIso?: string;
+  clientName?: string | null;
+  clientEmail?: string | null;
 }
 
-/** POST /api/client/waitlist — join waitlist for an employee when today is fully booked. */
+/** POST {WEB_ORIGIN}/api/team-member-waitlist — Telegram formátuje web. */
 export async function joinEmployeeWaitlist(
-  apiToken: string,
   params: JoinEmployeeWaitlistParams
-): Promise<void> {
-  await fetchCrm('/api/client/waitlist', {
-    method: 'POST',
-    apiToken,
-    body: {
-      employeeId: params.employeeId,
-      branchId: params.branchId,
-      serviceId: params.serviceId ?? HOME_AVAILABILITY_SERVICE_ID,
-      date: params.date,
-    },
+): Promise<PostTeamMemberWaitlistResult> {
+  return postTeamMemberWaitlist({
+    phone: params.phone,
+    employeeId: params.employeeId,
+    employeeName: params.employeeName,
+    branchLabel: params.branchLabel,
+    dayIso: params.dayIso,
+    clientName: params.clientName,
+    clientEmail: params.clientEmail,
   });
 }

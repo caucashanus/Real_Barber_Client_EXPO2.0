@@ -9,6 +9,10 @@ import type { CrmClient } from '@/api/auth';
 import type { TranslationKey } from '@/locales';
 import { BookingApiError, isBookingRateLimited, isBookingSlotConflict } from '@/lib/booking/booking-api/errors';
 import { isAuthContactComplete, mapAuthClientToBookingContact } from '@/lib/booking/authContact';
+import {
+  buildFullPhone,
+  phoneCountrySelectValueFromIso2,
+} from '@/utils/phone';
 
 const CONTACT_STORAGE_KEY = '@rezervace-contact';
 
@@ -17,7 +21,8 @@ export type BookingContactFields = {
   lastName: string;
   email: string;
   phoneNationalDigits: string;
-  phoneCountryIso: string;
+  /** Hodnota selectu předvolby (`+420`, `+1-US`, …). */
+  phoneCountryCode: string;
   notes: string;
   marketingConsent: boolean;
 };
@@ -34,15 +39,23 @@ const EMPTY_CONTACT: BookingContactFields = {
   lastName: '',
   email: '',
   phoneNationalDigits: '',
-  phoneCountryIso: 'CZ',
+  phoneCountryCode: '+420',
   notes: '',
   marketingConsent: false,
 };
 
-function buildPhone(countryIso: string, nationalDigits: string): string {
-  const digits = nationalDigits.replace(/\D/g, '');
-  if (countryIso === 'CZ') return `+420${digits}`;
-  return `+${digits}`;
+function normalizeStoredContactFields(
+  parsed: Partial<BookingContactFields> & { phoneCountryIso?: string }
+): Partial<BookingContactFields> {
+  const { phoneCountryIso, ...rest } = parsed;
+  if (rest.phoneCountryCode) return rest;
+  if (phoneCountryIso) {
+    return {
+      ...rest,
+      phoneCountryCode: phoneCountrySelectValueFromIso2(phoneCountryIso),
+    };
+  }
+  return rest;
 }
 
 export function useBookingEngineContact(client: CrmClient | null | undefined, apiToken: string | null) {
@@ -66,7 +79,7 @@ export function useBookingEngineContact(client: CrmClient | null | undefined, ap
             firstName: mapped.firstName,
             lastName: mapped.lastName,
             email: mapped.email,
-            phoneCountryIso: mapped.countryIso,
+            phoneCountryCode: phoneCountrySelectValueFromIso2(mapped.countryIso),
             phoneNationalDigits: mapped.nationalDigits,
           }));
           setAuthPrefillReady(true);
@@ -78,8 +91,10 @@ export function useBookingEngineContact(client: CrmClient | null | undefined, ap
       if (cancelled) return;
       if (raw) {
         try {
-          const parsed = JSON.parse(raw) as Partial<BookingContactFields>;
-          setFields((prev) => ({ ...prev, ...parsed }));
+          const parsed = JSON.parse(raw) as Partial<BookingContactFields> & {
+            phoneCountryIso?: string;
+          };
+          setFields((prev) => ({ ...prev, ...normalizeStoredContactFields(parsed) }));
         } catch {
           // ignore
         }
@@ -96,7 +111,7 @@ export function useBookingEngineContact(client: CrmClient | null | undefined, ap
       firstName: fields.firstName.trim(),
       lastName: fields.lastName.trim(),
       email: fields.email.trim(),
-      phone: buildPhone(fields.phoneCountryIso, fields.phoneNationalDigits),
+      phone: buildFullPhone(fields.phoneCountryCode, fields.phoneNationalDigits),
     }),
     [fields]
   );

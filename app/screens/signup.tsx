@@ -4,11 +4,12 @@ import { View } from 'react-native';
 
 import { useSignupFlow } from '@/app/hooks/useSignupFlow';
 import MultiStep, { Step } from '@/components/MultiStep';
+import ThemedText from '@/components/ThemedText';
+import PhoneInput from '@/components/forms/PhoneInput';
 import SignupAvatarStep from '@/components/signup/SignupAvatarStep';
 import SignupBirthdayStep from '@/components/signup/SignupBirthdayStep';
 import SignupEmailStep from '@/components/signup/SignupEmailStep';
 import SignupNameStep from '@/components/signup/SignupNameStep';
-import SignupPhoneStep from '@/components/signup/SignupPhoneStep';
 
 export default function SignupScreen() {
   const flow = useSignupFlow();
@@ -38,14 +39,26 @@ export default function SignupScreen() {
 
         {!flow.phoneLockedFromLogin ? (
           <Step title={flow.t('signupStepPhoneTitle')}>
-            <SignupPhoneStep
-              countryCode={flow.countryCode}
-              phone={flow.phone}
-              phoneError={flow.phoneError}
-              onCountryCodeChange={flow.setCountryCode}
-              onPhoneChange={flow.setPhone}
-              onPhoneValidate={flow.validatePhone}
-            />
+            <View className="px-6 pb-8 pt-4">
+              <ThemedText className="text-2xl font-semibold text-light-text dark:text-dark-text">
+                {flow.t('signupStepPhoneTitle')}
+              </ThemedText>
+              <ThemedText className="mb-6 mt-1 text-base text-light-subtext dark:text-dark-subtext">
+                {flow.t('signupStepPhoneSubtitle')}
+              </ThemedText>
+              <PhoneInput
+                label={flow.t('signupPhoneLabel')}
+                countryCode={flow.countryCode}
+                onCountryCodeChange={flow.setCountryCode}
+                phone={flow.phone}
+                onPhoneChange={flow.setPhone}
+                error={flow.phoneError}
+                onValidate={(result) => {
+                  if (result.valid) flow.setPhoneError('');
+                  else if (result.errorKey) flow.setPhoneError(flow.t(result.errorKey));
+                }}
+              />
+            </View>
           </Step>
         ) : null}
 

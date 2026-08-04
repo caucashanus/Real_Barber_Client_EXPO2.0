@@ -6,6 +6,7 @@ import type {
   TeamMemberShiftDay,
 } from '@/api/publicTeamMember';
 import type { Locale } from '@/app/contexts/LanguageContext';
+import { formatRelativeDayLabel } from '@/utils/formatRelativeDayLabel';
 
 type LocalizedEntity = Record<string, unknown>;
 
@@ -135,24 +136,12 @@ export function getTodayAvailabilityState(
 }
 
 export function getShiftDayTitle(date: string, today: string, locale: Locale): string {
-  if (date === today) return locale === 'cs' ? 'Dnes' : 'Today';
-
-  const todayDate = new Date(`${today}T12:00:00`);
-  const tomorrow = new Date(todayDate);
-  tomorrow.setDate(tomorrow.getDate() + 1);
-  const tomorrowIso = `${tomorrow.getFullYear()}-${String(tomorrow.getMonth() + 1).padStart(2, '0')}-${String(tomorrow.getDate()).padStart(2, '0')}`;
-  if (date === tomorrowIso) return locale === 'cs' ? 'Zítra' : 'Tomorrow';
-
-  try {
-    const d = new Date(`${date}T12:00:00`);
-    return d.toLocaleDateString(locale === 'cs' ? 'cs-CZ' : 'en-GB', {
-      weekday: 'short',
-      day: 'numeric',
-      month: 'short',
-    });
-  } catch {
-    return date;
-  }
+  return formatRelativeDayLabel({
+    dayIso: date,
+    todayIso: today,
+    locale,
+    variant: 'title',
+  });
 }
 
 export function flattenShiftCalendarRows(

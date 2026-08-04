@@ -16,6 +16,7 @@ import { useLanguage } from '@/app/contexts/LanguageContext';
 import { useBranchDetailScreen } from '@/app/hooks/useBranchDetailScreen';
 import { useTranslation } from '@/app/hooks/useTranslation';
 import { BranchNavigateSheet } from '@/components/BranchNavigateSheet';
+import { OperatorCallUsSheet } from '@/components/OperatorSupportSheet';
 import ReserveButton from '@/components/ReserveButton';
 import Favorite from '@/components/Favorite';
 import Header from '@/components/Header';
@@ -62,6 +63,7 @@ export default function BranchDetailScreen() {
 
   const scrollRef = useRef<ScrollView>(null);
   const branchNavigateRef = useRef<ActionSheetRef>(null);
+  const callUsSheetRef = useRef<ActionSheetRef>(null);
   const heroScrollY = useRef(new Animated.Value(0)).current;
   const roundedViewYRef = useRef(0);
   const reviewsSectionYInRoundedRef = useRef(0);
@@ -148,6 +150,7 @@ export default function BranchDetailScreen() {
             reviewParams={reviewParams}
             onScrollToReviews={scrollToReviews}
             onNavigatePress={() => branchNavigateRef.current?.show()}
+            onCallPress={() => callUsSheetRef.current?.show()}
             t={t}
           />
 
@@ -201,6 +204,8 @@ export default function BranchDetailScreen() {
         branchName={branch.name}
         address={branch.address}
       />
+
+      <OperatorCallUsSheet ref={callUsSheetRef} />
 
       <BranchDescriptionModal
         visible={descriptionModalVisible}

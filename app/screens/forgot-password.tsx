@@ -10,8 +10,8 @@ import Header from '@/components/Header';
 import Icon from '@/components/Icon';
 import ThemedText from '@/components/ThemedText';
 import Input from '@/components/forms/Input';
-import Select from '@/components/forms/Select';
-import { COUNTRY_CODE_OPTIONS, formatPhoneDisplay } from '@/utils/phone';
+import PhoneInput from '@/components/forms/PhoneInput';
+import { buildFullPhone, validatePhoneDigits } from '@/utils/phone';
 
 type ResetMode = 'email' | 'phone';
 
@@ -48,13 +48,13 @@ export default function ForgotPasswordScreen() {
   };
 
   const validatePhone = (value: string) => {
-    const digits = value.replace(/\D/g, '');
-    if (digits.length === 0) {
-      setPhoneError('Telefon je povinný');
-      return false;
-    }
-    if (digits.length < 9) {
-      setPhoneError('Zadejte platné telefonní číslo');
+    const validation = validatePhoneDigits(value);
+    if (!validation.valid) {
+      setPhoneError(
+        validation.errorKey === 'signupPhoneRequired'
+          ? 'Telefon je povinný'
+          : 'Zadejte platné telefonní číslo'
+      );
       return false;
     }
     setPhoneError('');
@@ -69,7 +69,7 @@ export default function ForgotPasswordScreen() {
       identifier = email.trim();
     } else {
       if (!validatePhone(phone)) return;
-      identifier = `${countryCode}${phone.replace(/\D/g, '')}`;
+      identifier = buildFullPhone(countryCode, phone);
     }
     setIsLoading(true);
     try {
@@ -162,37 +162,24 @@ export default function ForgotPasswordScreen() {
               containerClassName="mb-4"
             />
           ) : (
-            <View className="mb-4">
-              <ThemedText className="mb-1 font-medium text-light-text dark:text-dark-text">
-                Telefonní číslo
-              </ThemedText>
-              <View className="flex-row items-stretch gap-2">
-                <View style={{ width: 100 }}>
-                  <Select
-                    options={COUNTRY_CODE_OPTIONS}
-                    value={countryCode}
-                    onChange={(v) => setCountryCode(String(v))}
-                    placeholder="+420"
-                    variant="classic"
-                    className="mb-0"
-                  />
-                </View>
-                <View className="flex-1">
-                  <Input
-                    value={phone}
-                    onChangeText={(text) => {
-                      setPhone(formatPhoneDisplay(text));
-                      if (phoneError) validatePhone(text);
-                    }}
-                    error={phoneError}
-                    keyboardType="phone-pad"
-                    placeholder="123 456 789"
-                    autoComplete="tel"
-                    containerClassName="mb-0"
-                  />
-                </View>
-              </View>
-            </View>
+            <PhoneInput
+              label="Telefonní číslo"
+              countryCode={countryCode}
+              onCountryCodeChange={setCountryCode}
+              phone={phone}
+              onPhoneChange={setPhone}
+              error={phoneError}
+              onValidate={(result) => {
+                if (result.valid) setPhoneError('');
+                else if (result.errorKey) {
+                  setPhoneError(
+                    result.errorKey === 'signupPhoneRequired'
+                      ? 'Telefon je povinný'
+                      : 'Zadejte platné telefonní číslo'
+                  );
+                }
+              }}
+            />
           )}
 
           {apiError ? (

@@ -1,4 +1,4 @@
-import { BOOKING_MONITOR_WEB_ORIGIN } from '@/constants/bookingMonitor';
+import { WEB_BFF_ORIGIN } from '@/constants/bookingMonitor';
 
 import type {
   BookingMonitorEvent,
@@ -26,7 +26,7 @@ export async function postBookingMonitorPayload(
   _options?: { background?: boolean }
 ): Promise<void> {
   // Trailing slash — Next web má trailingSlash: true; bez něj Vercel vrátí 308 a RN fetch POST neprojde.
-  const url = `${BOOKING_MONITOR_WEB_ORIGIN}/api/booking-monitor/`;
+  const url = `${WEB_BFF_ORIGIN}/api/booking-monitor/`;
   const json = JSON.stringify(omitNullish(payload as unknown as Record<string, unknown>));
 
   try {

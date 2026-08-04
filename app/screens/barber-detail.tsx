@@ -9,12 +9,14 @@ import {
   type NativeSyntheticEvent,
   type NativeScrollEvent,
 } from 'react-native';
+import { ActionSheetRef } from 'react-native-actions-sheet';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import type { TeamMemberMediaItem } from '@/api/publicTeamMember';
 import { useBarberDetailScreen } from '@/app/hooks/useBarberDetailScreen';
 import { useTranslation } from '@/app/hooks/useTranslation';
 import Header from '@/components/Header';
+import { OperatorCallUsSheet } from '@/components/OperatorSupportSheet';
 import ThemedScroller from '@/components/ThemeScroller';
 import ThemedText from '@/components/ThemedText';
 import BarberBookFooter from '@/components/barber/BarberBookFooter';
@@ -74,6 +76,7 @@ export default function BarberDetailScreen() {
   } = useBarberDetailScreen(id ?? '');
 
   const scrollRef = useRef<ScrollView>(null);
+  const callUsSheetRef = useRef<ActionSheetRef>(null);
   const pinSentinelYRef = useRef(0);
   const reviewsSectionYRef = useRef(0);
   const profileCardYRef = useRef(0);
@@ -170,6 +173,7 @@ export default function BarberDetailScreen() {
           shiftStatus={todayShiftStatus}
           topInset={insets.top}
           t={t}
+          onPhonePress={() => callUsSheetRef.current?.show()}
         />
         <ThemedScroller
           ref={scrollRef}
@@ -271,6 +275,8 @@ export default function BarberDetailScreen() {
         topInset={insets.top}
         onClose={() => setFullscreenMedia(null)}
       />
+
+      <OperatorCallUsSheet ref={callUsSheetRef} />
     </>
   );
 }

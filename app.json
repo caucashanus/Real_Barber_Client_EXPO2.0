@@ -56,6 +56,9 @@
       "buildNumber": "61",
       "appStoreUrl": "https://apps.apple.com/app/id6760221388",
       "supportsTablet": false,
+      "associatedDomains": [
+        "applinks:realbarber.cz"
+      ],
       "infoPlist": {
         "ITSAppUsesNonExemptEncryption": false,
         "LSApplicationQueriesSchemes": [
@@ -82,11 +85,28 @@
         "backgroundColor": "#ffffff"
       },
       "softwareKeyboardLayoutMode": "pan",
-      "predictiveBackGestureEnabled": false
+      "predictiveBackGestureEnabled": false,
+      "intentFilters": [
+        {
+          "action": "VIEW",
+          "autoVerify": true,
+          "data": [
+            {
+              "scheme": "https",
+              "host": "realbarber.cz",
+              "pathPrefix": "/aplikace"
+            }
+          ],
+          "category": [
+            "BROWSABLE",
+            "DEFAULT"
+          ]
+        }
+      ]
     },
     "extra": {
       "router": {
-        "origin": false
+        "origin": "https://realbarber.cz"
       },
       "eas": {
         "projectId": "344f73c8-de32-4770-8c07-62154df9af0c"

@@ -6,84 +6,79 @@ import { ActionSheetRef } from 'react-native-actions-sheet';
 import useThemeColors from '@/app/contexts/ThemeColors';
 import { useTranslation } from '@/app/hooks/useTranslation';
 import ActionSheetThemed from '@/components/ActionSheetThemed';
-import AppButton from '@/components/AppButton';
+import OperatorContactChannels from '@/components/OperatorContactChannels';
 import ThemedText from '@/components/ThemedText';
-import {
-  openOperatorPhone,
-  openOperatorTelegram,
-  openOperatorWhatsApp,
-} from '@/utils/operatorContact';
 
-export const OperatorSupportSheet = forwardRef<ActionSheetRef>(function OperatorSupportSheet(_, ref) {
-  const { t } = useTranslation();
-  const colors = useThemeColors();
-  const innerRef = useRef<ActionSheetRef | null>(null);
+export type OperatorSupportSheetVariant = 'support' | 'callUs';
 
-  const setRef = useCallback(
-    (node: ActionSheetRef | null) => {
-      innerRef.current = node;
-      if (typeof ref === 'function') ref(node);
-      else if (ref != null) (ref as React.MutableRefObject<ActionSheetRef | null>).current = node;
-    },
-    [ref]
-  );
+export interface OperatorSupportSheetProps {
+  /**
+   * `support` — FAB / Nápověda (intro + vypnutí v nastavení).
+   * `callUs` — „Zavolejte nám“ (detail holiče / pobočky / nearest).
+   */
+  variant?: OperatorSupportSheetVariant;
+}
 
-  const runContactAction = (action: () => Promise<void>) => {
-    innerRef.current?.hide();
-    setTimeout(() => {
-      void action().catch(() => {});
-    }, 300);
-  };
+export const OperatorSupportSheet = forwardRef<ActionSheetRef, OperatorSupportSheetProps>(
+  function OperatorSupportSheet({ variant = 'support' }, ref) {
+    const { t } = useTranslation();
+    const colors = useThemeColors();
+    const innerRef = useRef<ActionSheetRef | null>(null);
 
-  const openFeatureSettings = () => {
-    innerRef.current?.hide();
-    setTimeout(() => {
-      router.push('/screens/feature-settings');
-    }, 300);
-  };
+    const setRef = useCallback(
+      (node: ActionSheetRef | null) => {
+        innerRef.current = node;
+        if (typeof ref === 'function') ref(node);
+        else if (ref != null) (ref as React.MutableRefObject<ActionSheetRef | null>).current = node;
+      },
+      [ref]
+    );
 
-  return (
-    <ActionSheetThemed ref={setRef} gestureEnabled>
-      <View className="gap-3 px-4 pb-8 pt-2">
-        <ThemedText className="mb-1 text-center text-base font-semibold">
-          {t('operatorSheetTitle')}
-        </ThemedText>
-        <View className="mb-1 gap-1">
-          <ThemedText className="text-center text-sm leading-5 text-light-subtext dark:text-dark-subtext">
-            {t('operatorSheetIntro')}
-          </ThemedText>
-          <ThemedText className="text-center text-sm leading-5 text-light-subtext dark:text-dark-subtext">
-            {t('operatorSheetDisableBefore')}
-            <ThemedText
-              className="text-sm font-medium underline"
-              style={{ color: colors.highlight }}
-              onPress={openFeatureSettings}>
-              {t('operatorSheetDisableLink')}
-            </ThemedText>
-            .
-          </ThemedText>
+    const hideSheet = () => {
+      innerRef.current?.hide();
+    };
+
+    const openFeatureSettings = () => {
+      hideSheet();
+      setTimeout(() => {
+        router.push('/screens/feature-settings');
+      }, 300);
+    };
+
+    const title =
+      variant === 'callUs' ? t('operatorCallUsTitle') : t('operatorSheetTitle');
+
+    return (
+      <ActionSheetThemed ref={setRef} gestureEnabled>
+        <View className="gap-3 px-4 pb-8 pt-2">
+          <ThemedText className="mb-1 text-center text-base font-semibold">{title}</ThemedText>
+
+          {variant === 'support' ? (
+            <View className="mb-1 gap-1">
+              <ThemedText className="text-center text-sm leading-5 text-light-subtext dark:text-dark-subtext">
+                {t('operatorSheetIntro')}
+              </ThemedText>
+              <ThemedText className="text-center text-sm leading-5 text-light-subtext dark:text-dark-subtext">
+                {t('operatorSheetDisableBefore')}
+                <ThemedText
+                  className="text-sm font-medium underline"
+                  style={{ color: colors.highlight }}
+                  onPress={openFeatureSettings}>
+                  {t('operatorSheetDisableLink')}
+                </ThemedText>
+                .
+              </ThemedText>
+            </View>
+          ) : null}
+
+          <OperatorContactChannels onBeforeOpen={hideSheet} />
         </View>
-        <AppButton
-          title={t('operatorContactPhone')}
-          onPress={() => runContactAction(openOperatorPhone)}
-          variant="default"
-          iconStart="Phone"
-        />
-        <AppButton
-          title={t('operatorContactWhatsApp')}
-          onPress={() => runContactAction(openOperatorWhatsApp)}
-          variant="default"
-          iconStart="MessageCircle"
-          style={{ backgroundColor: '#25D366' }}
-        />
-        <AppButton
-          title={t('operatorContactTelegram')}
-          onPress={() => runContactAction(openOperatorTelegram)}
-          variant="default"
-          iconStart="Send"
-          style={{ backgroundColor: '#229ED9' }}
-        />
-      </View>
-    </ActionSheetThemed>
-  );
+      </ActionSheetThemed>
+    );
+  }
+);
+
+/** Alias pro nested „Zavolejte nám“ sheet (detail holiče / pobočky / nearest). */
+export const OperatorCallUsSheet = forwardRef<ActionSheetRef>(function OperatorCallUsSheet(_, ref) {
+  return <OperatorSupportSheet ref={ref} variant="callUs" />;
 });

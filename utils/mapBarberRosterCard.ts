@@ -8,6 +8,7 @@ import type { HomepageNextSlot, HomepageTodayTeamBranch } from '@/api/homeTeamTy
 import type { Locale } from '@/app/contexts/LanguageContext';
 import { HOMEPAGE_TODAY_TEAM_MAX_SLOTS } from '@/constants/homepage';
 import type { TranslationKey } from '@/locales';
+import { formatRelativeDayLabel, formatWaitlistDayWhen } from '@/utils/formatRelativeDayLabel';
 import {
   buildLiveDotVariantFromShiftPhase,
   filterTodaySlots,
@@ -119,30 +120,28 @@ function pickRelevantInterval(
   return { phase: 'ended', interval: intervals[intervals.length - 1] ?? null };
 }
 
-function formatSlotDateShort(date: string, locale: Locale): string {
-  const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(date);
-  if (!match) return date;
-  const day = Number(match[3]);
-  const month = Number(match[2]);
-  return locale === 'cs' ? `${day}.${month}.` : `${day}/${month}`;
-}
-
 function buildSlotsHint(
   slots: HomepageNextSlot[],
   dayIso: string,
+  todayIso: string,
+  isLiveDay: boolean,
   locale: Locale,
   t: (key: TranslationKey) => string
 ): string {
   if (slots.length === 0) return '';
   const firstDate = slots[0]!.date;
+  const whenFor = (iso: string) => formatWaitlistDayWhen(iso, todayIso, locale);
+
   if (firstDate === dayIso) {
-    return slots.length === 1
-      ? t('barberNearestSlotTitle')
-      : t('barberNearestSlotsTitle');
+    if (isLiveDay && dayIso === todayIso) {
+      return slots.length === 1
+        ? t('barberNearestSlotTitle')
+        : t('barberNearestSlotsTitle');
+    }
+    return interpolate(t('scheduleTermsWhen'), { when: whenFor(dayIso) });
   }
-  return interpolate(t('homeTodayTeamNearestSlotsOnDate'), {
-    date: formatSlotDateShort(firstDate, locale),
-  });
+
+  return interpolate(t('homeTodayTeamNearestSlotsOnDate'), { when: whenFor(firstDate) });
 }
 
 function buildShiftStatusLabel(params: {
@@ -194,6 +193,7 @@ function buildCardFooter(params: {
   slotsOnDay: HomepageNextSlot[];
   workIntervals: BarberRosterWorkInterval[];
   dayIso: string;
+  todayIso: string;
   isLiveDay: boolean;
   locale: Locale;
   waitlistBranchId?: string;
@@ -206,6 +206,7 @@ function buildCardFooter(params: {
     slotsOnDay,
     workIntervals,
     dayIso,
+    todayIso,
     isLiveDay,
     locale,
     waitlistBranchId,
@@ -226,6 +227,11 @@ function buildCardFooter(params: {
     return { kind: 'waitlist', branchId: waitlistBranchId };
   }
 
+  const hasShift = (workIntervals?.length ?? 0) > 0;
+  if (!hasShift && allSlots.length === 0) {
+    return { kind: 'noShift' };
+  }
+
   let displaySlots: HomepageNextSlot[] = [];
 
   if (isLiveDay && phase === 'ended') {
@@ -239,7 +245,7 @@ function buildCardFooter(params: {
   if (displaySlots.length > 0) {
     return {
       kind: 'slots',
-      hint: buildSlotsHint(displaySlots, dayIso, locale, t),
+      hint: buildSlotsHint(displaySlots, dayIso, todayIso, isLiveDay, locale, t),
       slots: displaySlots,
     };
   }
@@ -263,7 +269,7 @@ function buildCardFooter(params: {
     const fallback = allSlots.slice(0, HOMEPAGE_TODAY_TEAM_MAX_SLOTS);
     return {
       kind: 'slots',
-      hint: buildSlotsHint(fallback, dayIso, locale, t),
+      hint: buildSlotsHint(fallback, dayIso, todayIso, isLiveDay, locale, t),
       slots: fallback,
     };
   }
@@ -315,6 +321,7 @@ export function mapBarberRosterCard(params: {
     slotsOnDay,
     workIntervals: params.workIntervals,
     dayIso: params.dayIso,
+    todayIso: params.todayIso,
     isLiveDay,
     locale: params.locale,
     waitlistBranchId,
@@ -458,48 +465,17 @@ export function mapRosterToScheduleCardsByDate(
   return byDate;
 }
 
-function addCalendarDaysIso(iso: string, deltaDays: number): string {
-  const [y, m, d] = iso.split('-').map(Number);
-  const dt = new Date(y, m - 1, d);
-  dt.setDate(dt.getDate() + deltaDays);
-  return `${dt.getFullYear()}-${String(dt.getMonth() + 1).padStart(2, '0')}-${String(dt.getDate()).padStart(2, '0')}`;
-}
-
-const SCHEDULE_TAB_RELATIVE: Record<Locale, { today: string; tomorrow: string }> = {
-  cs: { today: 'Dnes', tomorrow: 'Zítra' },
-  en: { today: 'Today', tomorrow: 'Tomorrow' },
-};
-
 export function formatScheduleDayTabLabel(
   isoDate: string,
   todayIso: string,
   locale: Locale
 ): string {
-  let short = isoDate;
-  try {
-    const [y, m, d] = isoDate.split('-').map(Number);
-    short = new Date(y, m - 1, d).toLocaleDateString(locale === 'cs' ? 'cs-CZ' : 'en-GB', {
-      day: 'numeric',
-      month: 'numeric',
-    });
-  } catch {
-    // keep iso
-  }
-
-  const rel = SCHEDULE_TAB_RELATIVE[locale] ?? SCHEDULE_TAB_RELATIVE.cs;
-  if (isoDate === todayIso) return `${rel.today} ${short}`;
-  if (isoDate === addCalendarDaysIso(todayIso, 1)) return `${rel.tomorrow} ${short}`;
-
-  try {
-    const [y, m, d] = isoDate.split('-').map(Number);
-    const wd = new Date(y, m - 1, d).toLocaleDateString(locale === 'cs' ? 'cs-CZ' : 'en-GB', {
-      weekday: 'short',
-    });
-    const abbr = wd.charAt(0).toUpperCase() + wd.slice(1).replace(/\./g, '');
-    return `${abbr} ${short}`;
-  } catch {
-    return isoDate;
-  }
+  return formatRelativeDayLabel({
+    dayIso: isoDate,
+    todayIso,
+    locale,
+    variant: 'titleTab',
+  });
 }
 
 export function buildScheduleDayTabs(

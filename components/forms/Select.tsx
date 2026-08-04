@@ -1,5 +1,5 @@
 import * as NavigationBar from 'expo-navigation-bar';
-import React, { useRef, useState } from 'react';
+import React, { useMemo, useRef, useState } from 'react';
 import {
   View,
   Text,
@@ -10,6 +10,7 @@ import {
   ViewStyle,
   ScrollView,
   Dimensions,
+  TextInput,
 } from 'react-native';
 import ActionSheet, { ActionSheetRef } from 'react-native-actions-sheet';
 
@@ -23,6 +24,10 @@ import ThemedText from '@/components/ThemedText';
 interface SelectOption {
   label: string;
   value: string | number;
+  shortLabel?: string;
+  sheetFlag?: string;
+  sheetName?: string;
+  sheetDial?: string;
 }
 
 interface SelectProps {
@@ -35,6 +40,11 @@ interface SelectProps {
   className?: string;
   style?: ViewStyle;
   variant?: InputVariant;
+  searchable?: boolean;
+  searchPlaceholder?: string;
+  sheetTitle?: string;
+  searchEmptyLabel?: string;
+  filterOptions?: (query: string, options: SelectOption[]) => SelectOption[];
 }
 
 const Select: React.FC<SelectProps> = ({
@@ -47,14 +57,27 @@ const Select: React.FC<SelectProps> = ({
   className,
   style,
   variant = 'animated',
+  searchable = false,
+  searchPlaceholder = '',
+  sheetTitle,
+  searchEmptyLabel,
+  filterOptions,
 }) => {
   const { isDark } = useTheme();
   const colors = useThemeColors();
   const actionSheetRef = useRef<ActionSheetRef>(null);
   const [isFocused, setIsFocused] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
   const [selectedOption, setSelectedOption] = useState<SelectOption | undefined>(
     options.find((option) => option.value === value)
   );
+
+  const filteredOptions = useMemo(() => {
+    if (!searchable) return options;
+    if (filterOptions) return filterOptions(searchQuery, options);
+    if (!searchQuery.trim()) return options;
+    return options;
+  }, [options, searchable, searchQuery, filterOptions]);
 
   React.useEffect(() => {
     if (Platform.OS === 'android') {
@@ -123,11 +146,32 @@ const Select: React.FC<SelectProps> = ({
 
   const handlePress = () => {
     setIsFocused(true);
+    setSearchQuery('');
     actionSheetRef.current?.show();
   };
 
   const handleClose = () => {
     setIsFocused(false);
+    setSearchQuery('');
+  };
+
+  const renderSheetOptionLabel = (option: SelectOption) => {
+    if (option.sheetFlag != null || option.sheetName != null || option.sheetDial != null) {
+      return (
+        <View className="flex-row items-center">
+          <View className="min-w-0 flex-1 flex-row items-center gap-3">
+            <ThemedText className="w-8 text-left text-xl leading-6">{option.sheetFlag ?? ''}</ThemedText>
+            <ThemedText className="min-w-0 flex-1 text-left text-base" numberOfLines={1}>
+              {option.sheetName ?? ''}
+            </ThemedText>
+          </View>
+          <ThemedText className="ml-3 text-right text-base text-light-subtext dark:text-dark-subtext">
+            {option.sheetDial ?? ''}
+          </ThemedText>
+        </View>
+      );
+    }
+    return <ThemedText>{option.label}</ThemedText>;
   };
 
   // Render the action sheet
@@ -161,19 +205,44 @@ const Select: React.FC<SelectProps> = ({
         restDisplacementThreshold: 0.01,
         restSpeedThreshold: 0.01,
       }}>
+      <View className="px-4 pt-4">
+        {searchable && sheetTitle ? (
+          <ThemedText className="mb-3 text-lg font-semibold text-light-text dark:text-dark-text">
+            {sheetTitle}
+          </ThemedText>
+        ) : null}
+        {searchable ? (
+          <TextInput
+            value={searchQuery}
+            onChangeText={setSearchQuery}
+            placeholder={searchPlaceholder}
+            placeholderTextColor={colors.placeholder}
+            autoCapitalize="none"
+            autoCorrect={false}
+            clearButtonMode="while-editing"
+            className="mb-3 h-12 rounded-xl border border-neutral-200 bg-light-primary px-4 text-base text-light-text dark:border-neutral-700 dark:bg-dark-primary dark:text-dark-text"
+          />
+        ) : null}
+      </View>
       <ScrollView
         style={{ maxHeight: Dimensions.get('window').height * 0.6 }}
-        contentContainerStyle={{ padding: 16, paddingBottom: 24 }}
+        contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 24 }}
         showsVerticalScrollIndicator
         keyboardShouldPersistTaps="handled">
-        {options.map((option) => (
-          <Pressable
-            key={option.value}
-            onPress={() => handleSelect(option)}
-            className={`mb-2 rounded-lg px-4 py-3 ${selectedOption?.value === option.value ? 'bg-light-secondary dark:bg-dark-secondary' : ''}`}>
-            <ThemedText>{option.label}</ThemedText>
-          </Pressable>
-        ))}
+        {filteredOptions.length === 0 ? (
+          <ThemedText className="px-4 py-3 text-light-subtext dark:text-dark-subtext">
+            {searchEmptyLabel ?? '—'}
+          </ThemedText>
+        ) : (
+          filteredOptions.map((option) => (
+            <Pressable
+              key={String(option.value)}
+              onPress={() => handleSelect(option)}
+              className={`mb-2 rounded-lg px-4 py-3 ${selectedOption?.value === option.value ? 'bg-light-secondary dark:bg-dark-secondary' : ''}`}>
+              {renderSheetOptionLabel(option)}
+            </Pressable>
+          ))
+        )}
       </ScrollView>
     </ActionSheet>
   );
@@ -191,7 +260,7 @@ const Select: React.FC<SelectProps> = ({
                             ${error ? 'border-red-500 dark:border-red-400' : ''}`}>
             <ThemedText
               className={selectedOption ? '' : 'text-light-subtext dark:text-dark-subtext'}>
-              {selectedOption ? selectedOption.label : placeholder}
+              {selectedOption ? (selectedOption.shortLabel ?? selectedOption.label) : placeholder}
             </ThemedText>
             <Icon name="ChevronDown" size={20} />
           </TouchableOpacity>
