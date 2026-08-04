@@ -6,10 +6,14 @@ import { ActionSheetRef } from 'react-native-actions-sheet';
 import useThemeColors from '@/app/contexts/ThemeColors';
 import { useTranslation } from '@/app/hooks/useTranslation';
 import ActionSheetThemed from '@/components/ActionSheetThemed';
+import BranchOpenStatusRow from '@/components/branch/BranchOpenStatusRow';
 import OperatorContactChannels from '@/components/OperatorContactChannels';
 import ThemedText from '@/components/ThemedText';
 
 export type OperatorSupportSheetVariant = 'support' | 'callUs';
+
+const NESTED_SHEET_Z_INDEX = 10000;
+const CALL_US_SHEET_ELEVATION = 24;
 
 export interface OperatorSupportSheetProps {
   /**
@@ -17,10 +21,17 @@ export interface OperatorSupportSheetProps {
    * `callUs` — „Zavolejte nám“ (detail holiče / pobočky / nearest).
    */
   variant?: OperatorSupportSheetVariant;
+  /** Render inside another action sheet (non-modal overlay above parent). */
+  nested?: boolean;
+  /** Status badge nad kontakty (standalone); v nearest draweru vypnuto. */
+  showBranchOpenStatus?: boolean;
 }
 
 export const OperatorSupportSheet = forwardRef<ActionSheetRef, OperatorSupportSheetProps>(
-  function OperatorSupportSheet({ variant = 'support' }, ref) {
+  function OperatorSupportSheet(
+    { variant = 'support', nested = false, showBranchOpenStatus = false },
+    ref
+  ) {
     const { t } = useTranslation();
     const colors = useThemeColors();
     const innerRef = useRef<ActionSheetRef | null>(null);
@@ -48,10 +59,23 @@ export const OperatorSupportSheet = forwardRef<ActionSheetRef, OperatorSupportSh
     const title =
       variant === 'callUs' ? t('operatorCallUsTitle') : t('operatorSheetTitle');
 
+    const isCallUs = variant === 'callUs';
+
     return (
-      <ActionSheetThemed ref={setRef} gestureEnabled>
-        <View className="gap-3 px-4 pb-8 pt-2">
-          <ThemedText className="mb-1 text-center text-base font-semibold">{title}</ThemedText>
+      <ActionSheetThemed
+        ref={setRef}
+        gestureEnabled
+        isModal={!nested}
+        zIndex={nested ? NESTED_SHEET_Z_INDEX : undefined}
+        elevation={isCallUs && nested ? CALL_US_SHEET_ELEVATION : undefined}
+        defaultOverlayOpacity={isCallUs && nested ? 0.45 : undefined}>
+        <View className={isCallUs ? 'gap-1 px-4 pb-8 pt-2' : 'gap-3 px-4 pb-8 pt-2'}>
+          <ThemedText
+            className={
+              isCallUs ? 'mb-2 text-base font-semibold leading-6' : 'mb-1 text-base font-semibold'
+            }>
+            {title}
+          </ThemedText>
 
           {variant === 'support' ? (
             <View className="mb-1 gap-1">
@@ -71,6 +95,12 @@ export const OperatorSupportSheet = forwardRef<ActionSheetRef, OperatorSupportSh
             </View>
           ) : null}
 
+          {isCallUs && showBranchOpenStatus ? (
+            <View className="mb-1">
+              <BranchOpenStatusRow t={t} />
+            </View>
+          ) : null}
+
           <OperatorContactChannels onBeforeOpen={hideSheet} />
         </View>
       </ActionSheetThemed>
@@ -79,6 +109,16 @@ export const OperatorSupportSheet = forwardRef<ActionSheetRef, OperatorSupportSh
 );
 
 /** Alias pro nested „Zavolejte nám“ sheet (detail holiče / pobočky / nearest). */
-export const OperatorCallUsSheet = forwardRef<ActionSheetRef>(function OperatorCallUsSheet(_, ref) {
-  return <OperatorSupportSheet ref={ref} variant="callUs" />;
+export const OperatorCallUsSheet = forwardRef<
+  ActionSheetRef,
+  { nested?: boolean; showBranchOpenStatus?: boolean }
+>(function OperatorCallUsSheet({ nested, showBranchOpenStatus }, ref) {
+  return (
+    <OperatorSupportSheet
+      ref={ref}
+      variant="callUs"
+      nested={nested}
+      showBranchOpenStatus={showBranchOpenStatus}
+    />
+  );
 });

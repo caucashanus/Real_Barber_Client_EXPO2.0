@@ -1,9 +1,10 @@
 import React from 'react';
 import { View } from 'react-native';
 
+import useThemeColors from '@/app/contexts/ThemeColors';
+import { useTranslation } from '@/app/hooks/useTranslation';
 import Icon from '@/components/Icon';
 import SheetNavRow from '@/components/shared/SheetNavRow';
-import { useTranslation } from '@/app/hooks/useTranslation';
 import {
   openOperatorPhone,
   openOperatorTelegram,
@@ -30,12 +31,13 @@ function runChannelAction(onBeforeOpen: (() => void) | undefined, action: () => 
 /** Tel / WhatsApp / Telegram — řádky jako u sdílení (ne velké barevné CTA). */
 export default function OperatorContactChannels({ onBeforeOpen }: OperatorContactChannelsProps) {
   const { t } = useTranslation();
+  const colors = useThemeColors();
 
   return (
     <View className="gap-1">
       <SheetNavRow
         label={t('operatorContactPhone')}
-        icon={<Icon name="Phone" size={20} strokeWidth={2} />}
+        icon={<Icon name="Phone" size={20} strokeWidth={2} color={colors.text} />}
         onPress={() => runChannelAction(onBeforeOpen, openOperatorPhone)}
       />
       <SheetNavRow

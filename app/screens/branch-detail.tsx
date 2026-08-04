@@ -1,6 +1,6 @@
 import { useLocalSearchParams } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
-import React, { useCallback, useRef } from 'react';
+import React, { useCallback, useMemo, useRef } from 'react';
 import {
   View,
   Animated,
@@ -20,6 +20,7 @@ import { OperatorCallUsSheet } from '@/components/OperatorSupportSheet';
 import ReserveButton from '@/components/ReserveButton';
 import Favorite from '@/components/Favorite';
 import Header from '@/components/Header';
+import ProfileActionsMenu from '@/components/profile/ProfileActionsMenu';
 import ImageCarousel from '@/components/ImageCarousel';
 import ThemedScroller from '@/components/ThemeScroller';
 import ThemedText from '@/components/ThemedText';
@@ -37,6 +38,12 @@ import {
   getEmployeesList,
   getVrTourUrl,
 } from '@/utils/branchDetailHelpers';
+import {
+  buildBranchBookingHref,
+  buildBranchShareCopy,
+  getBranchGoogleReviewUrlForCrmId,
+  getBranchProfileShareUrl,
+} from '@/utils/branchShareHelpers';
 
 export default function BranchDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -72,6 +79,26 @@ export default function BranchDetailScreen() {
     const y = roundedViewYRef.current + reviewsSectionYInRoundedRef.current;
     scrollRef.current?.scrollTo({ y: Math.max(0, y - 16), animated: true });
   }, []);
+
+  const branchShareUrl = useMemo(
+    () => (branch ? getBranchProfileShareUrl(branch, locale) : ''),
+    [branch, locale]
+  );
+  const branchShareCopy = useMemo(
+    () =>
+      branch
+        ? buildBranchShareCopy(branch.name, branchShareUrl, locale)
+        : { title: '', emailSubject: '', emailBody: '' },
+    [branch, branchShareUrl, locale]
+  );
+  const branchRateUrl = useMemo(
+    () => (branch ? getBranchGoogleReviewUrlForCrmId(branch.id) : null),
+    [branch]
+  );
+  const branchBookingHref = useMemo(
+    () => (branch ? buildBranchBookingHref(branch.id) : ''),
+    [branch]
+  );
 
   if (!loading && (error || !branch)) {
     return (
@@ -111,6 +138,20 @@ export default function BranchDetailScreen() {
           size={25}
           isWhite
         />,
+        <View key="menu" className="ml-1">
+          <ProfileActionsMenu
+            mode="branch"
+            displayName={branch.name}
+            shareUrl={branchShareUrl}
+            shareTitle={branchShareCopy.title}
+            shareEmailSubject={branchShareCopy.emailSubject}
+            shareEmailBody={branchShareCopy.emailBody}
+            rateUrl={branchRateUrl}
+            bookingHref={branchBookingHref}
+            onDarkBackground
+            t={t}
+          />
+        </View>,
       ]
     : undefined;
 

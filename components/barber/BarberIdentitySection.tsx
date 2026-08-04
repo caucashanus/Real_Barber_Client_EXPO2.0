@@ -18,7 +18,10 @@ interface BarberIdentitySectionProps {
   locale?: 'cs' | 'en';
   languages?: string[];
   shiftStatus: TodayShiftStatus;
-  shareMessage: string;
+  shareUrl: string;
+  shareTitle: string;
+  shareEmailSubject: string;
+  shareEmailBody: string;
   onScrollToReviews: () => void;
   t: (key: TranslationKey) => string;
 }
@@ -31,7 +34,10 @@ export default function BarberIdentitySection({
   locale = 'cs',
   languages,
   shiftStatus,
-  shareMessage,
+  shareUrl,
+  shareTitle,
+  shareEmailSubject,
+  shareEmailBody,
   onScrollToReviews,
   t,
 }: BarberIdentitySectionProps) {
@@ -91,7 +97,10 @@ export default function BarberIdentitySection({
             <BarberProfileHeaderActions
               employeeId={employeeId}
               displayName={displayName}
-              shareMessage={shareMessage}
+              shareUrl={shareUrl}
+              shareTitle={shareTitle}
+              shareEmailSubject={shareEmailSubject}
+              shareEmailBody={shareEmailBody}
               onScrollToReviews={onScrollToReviews}
               t={t}
             />

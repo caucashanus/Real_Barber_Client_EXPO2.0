@@ -1,4 +1,5 @@
 import type { ImageSourcePropType } from 'react-native';
+import { Linking, Platform } from 'react-native';
 
 import type { Branch, BranchEmployee } from '@/api/branches';
 import {
@@ -48,12 +49,37 @@ export function getVrTourUrl(branchName: string): string | null {
   return VR_TOUR_URL_BY_BRANCH_NAME[branchName] ?? null;
 }
 
-export function getMapsUrl(branch: Branch): string | null {
-  const fixed = MAPS_URL_BY_BRANCH_NAME[branch.name];
+export function getBranchMapsUrlByDisplayName(
+  displayName: string,
+  fallback?: { address?: string; latitude?: number; longitude?: number }
+): string {
+  const fixed = MAPS_URL_BY_BRANCH_NAME[displayName];
   if (fixed) return fixed;
-  const query = branch.address || branch.name;
-  if (!query) return null;
-  return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(query)}`;
+
+  const { address, latitude, longitude } = fallback ?? {};
+  if (latitude != null && longitude != null) {
+    const label = encodeURIComponent(displayName);
+    if (Platform.OS === 'ios') {
+      return `http://maps.apple.com/?ll=${latitude},${longitude}&q=${label}`;
+    }
+    return `https://www.google.com/maps/search/?api=1&query=${latitude},${longitude}`;
+  }
+
+  const query = encodeURIComponent(address?.trim() || displayName);
+  return `https://www.google.com/maps/search/?api=1&query=${query}`;
+}
+
+export function openBranchMapsApp(
+  displayName: string,
+  fallback?: { address?: string; latitude?: number; longitude?: number }
+): void {
+  const url = getBranchMapsUrlByDisplayName(displayName, fallback);
+  void Linking.openURL(url).catch(() => {});
+}
+
+export function getMapsUrl(branch: Branch): string | null {
+  if (!branch.name && !branch.address) return null;
+  return getBranchMapsUrlByDisplayName(branch.name, { address: branch.address ?? undefined });
 }
 
 /** Remove leading "O pobočce" / "O poboččce" from branch description. */

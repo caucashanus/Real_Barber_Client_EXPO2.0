@@ -29,6 +29,8 @@ interface ImageCarouselProps {
   autoPlay?: boolean;
   autoPlayInterval?: number;
   loop?: boolean;
+  /** Placeholder behind remote images while loading (e.g. `#000` for interior tiles). */
+  imageBackgroundColor?: string;
   className?: string;
   rounded?: 'none' | 'sm' | 'md' | 'lg' | 'xl' | '2xl' | 'full';
   /** Parent scroll value for stretchy hero pull-down effect. */
@@ -51,6 +53,7 @@ const ImageCarousel: React.FC<ImageCarouselProps> = ({
   autoPlay = false,
   autoPlayInterval = 3000,
   loop = true,
+  imageBackgroundColor = '#f0f0f0',
   className = '',
   rounded = 'none',
   scrollY,
@@ -70,6 +73,21 @@ const ImageCarousel: React.FC<ImageCarouselProps> = ({
   useEffect(() => {
     activeIndexRef.current = activeIndex;
   }, [activeIndex]);
+
+  useEffect(() => {
+    setActiveIndex(0);
+    activeIndexRef.current = 0;
+    flatListRef.current?.scrollToOffset({ offset: 0, animated: false });
+  }, [images]);
+
+  const scrollToIndex = (index: number, animated = true) => {
+    flatListRef.current?.scrollToOffset({
+      offset: index * containerWidth,
+      animated,
+    });
+    setActiveIndex(index);
+    activeIndexRef.current = index;
+  };
 
   useEffect(() => {
     if (!autoPlay || images.length <= 1) return;
@@ -130,8 +148,12 @@ const ImageCarousel: React.FC<ImageCarouselProps> = ({
 
     if (paginationStyle === 'dots') {
       return images.map((_, index) => (
-        <View
+        <Pressable
           key={index}
+          accessibilityRole="button"
+          accessibilityLabel={`Slide ${index + 1}`}
+          hitSlop={6}
+          onPress={() => scrollToIndex(index)}
           className={`mx-1 h-2 w-2 rounded-full ${
             index === activeIndex ? activeDotClass : inactiveDotClass
           }`}
@@ -180,6 +202,7 @@ const ImageCarousel: React.FC<ImageCarouselProps> = ({
             left: 0,
             width: containerWidth,
             height,
+            backgroundColor: imageBackgroundColor,
           },
         ]}
         contentFit="cover"

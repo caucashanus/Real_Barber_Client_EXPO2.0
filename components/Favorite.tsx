@@ -37,6 +37,8 @@ interface FavoriteProps {
   /** When false, skip the add/remove action sheet (e.g. on the favorites list). */
   showToggleSheet?: boolean;
   title?: string;
+  /** Nested feedback sheet above parent action sheet (nearest drawer). */
+  nestedSheets?: boolean;
 }
 
 const Favorite: React.FC<FavoriteProps> = ({
@@ -50,6 +52,7 @@ const Favorite: React.FC<FavoriteProps> = ({
   entityId,
   title,
   showToggleSheet = true,
+  nestedSheets = false,
 }) => {
   const { apiToken } = useAuth();
   const { t } = useTranslation();
@@ -162,7 +165,12 @@ const Favorite: React.FC<FavoriteProps> = ({
         )}
       </Pressable>
 
-      <ActionSheetThemed ref={actionSheetRef} gestureEnabled onClose={handleFeedbackSheetClose}>
+      <ActionSheetThemed
+        ref={actionSheetRef}
+        gestureEnabled
+        onClose={handleFeedbackSheetClose}
+        isModal={!nestedSheets}
+        zIndex={nestedSheets ? 10000 : undefined}>
         <View className="p-4 pb-6">
           <ThemedText className="mb-1 mt-4 text-left text-lg font-bold">
             {isFavorite ? t('favoritesSheetTitleAdded') : t('favoritesSheetTitleRemoved')}

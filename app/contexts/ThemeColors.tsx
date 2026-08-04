@@ -4,14 +4,16 @@ import { useTheme } from './ThemeContext';
 export const useThemeColors = () => {
   const { isDark } = useTheme();
   const { accentColor } = useAccentColor();
+  const bg = isDark ? '#0F0F0F' : '#ffffff';
 
   return {
     icon: isDark ? 'white' : 'black',
-    bg: isDark ? '#0F0F0F' : '#ffffff',
+    bg,
     invert: isDark ? '#000000' : '#ffffff',
     secondary: isDark ? '#262626' : '#F5F5F5',
     state: isDark ? 'rgba(255, 255, 255, 0.3)' : 'rgba(0, 0, 0, 0.3)',
-    sheet: isDark ? '#262626' : '#ffffff',
+    /** Bottom sheets / drawers — stejné jako globální pozadí obrazovky. */
+    sheet: bg,
     highlight: accentColor,
     lightDark: isDark ? '#262626' : 'white',
     border: isDark ? '#404040' : '#E2E8F0',

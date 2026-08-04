@@ -1,21 +1,17 @@
-import { router } from 'expo-router';
-import React, { useRef } from 'react';
-import { Pressable, Share, View } from 'react-native';
-import { ActionSheetRef } from 'react-native-actions-sheet';
+import React from 'react';
+import { View } from 'react-native';
 
 import Favorite from '@/components/Favorite';
-import Icon from '@/components/Icon';
-import { Button } from '@/components/Button';
-import ReserveButton from '@/components/ReserveButton';
-import ActionSheetThemed from '@/components/ActionSheetThemed';
-import ThemedText from '@/components/ThemedText';
-import { buildBarberBookingHref } from '@/utils/teamMemberPageHelpers';
+import ProfileActionsMenu from '@/components/profile/ProfileActionsMenu';
 import type { TranslationKey } from '@/locales';
 
 interface BarberProfileHeaderActionsProps {
   employeeId: string;
   displayName: string;
-  shareMessage: string;
+  shareUrl: string;
+  shareTitle: string;
+  shareEmailSubject: string;
+  shareEmailBody: string;
   onScrollToReviews: () => void;
   t: (key: TranslationKey) => string;
 }
@@ -23,79 +19,33 @@ interface BarberProfileHeaderActionsProps {
 export default function BarberProfileHeaderActions({
   employeeId,
   displayName,
-  shareMessage,
+  shareUrl,
+  shareTitle,
+  shareEmailSubject,
+  shareEmailBody,
   onScrollToReviews,
   t,
 }: BarberProfileHeaderActionsProps) {
-  const menuSheetRef = useRef<ActionSheetRef>(null);
-
-  const handleShare = () => {
-    menuSheetRef.current?.hide();
-    setTimeout(() => {
-      void Share.share({
-        message: shareMessage,
-        title: displayName,
-      }).catch(() => {});
-    }, 300);
-  };
-
-  const handleRate = () => {
-    menuSheetRef.current?.hide();
-    setTimeout(() => {
-      onScrollToReviews();
-    }, 200);
-  };
-
-  const handleBook = () => {
-    menuSheetRef.current?.hide();
-    setTimeout(() => {
-      router.push(buildBarberBookingHref({ employeeId }) as never);
-    }, 200);
-  };
-
   return (
-    <>
-      <View className="shrink-0 flex-row items-center gap-1">
-        <Favorite
-          productName={displayName}
-          title={displayName}
-          entityType="employee"
-          entityId={employeeId}
-          size={22}
-        />
-        <Pressable
-          onPress={() => menuSheetRef.current?.show()}
-          accessibilityRole="button"
-          accessibilityLabel={t('barberMenuOpen')}
-          className="h-10 w-10 items-center justify-center active:opacity-70">
-          <Icon name="EllipsisVertical" size={22} />
-        </Pressable>
-      </View>
-
-      <ActionSheetThemed ref={menuSheetRef} gestureEnabled>
-        <View className="gap-3 px-4 pb-8 pt-2">
-          <ThemedText className="mb-1 text-center text-base font-semibold">
-            {displayName}
-          </ThemedText>
-          <Button
-            title={t('barberMenuShare')}
-            variant="outline"
-            iconStart="Share2"
-            onPress={handleShare}
-          />
-          <Button
-            title={t('barberMenuRate')}
-            variant="outline"
-            iconStart="Star"
-            onPress={handleRate}
-          />
-          <ReserveButton
-            title={t('barberMenuBook')}
-            iconStart="CalendarPlus"
-            onPress={handleBook}
-          />
-        </View>
-      </ActionSheetThemed>
-    </>
+    <View className="shrink-0 flex-row items-center gap-1">
+      <Favorite
+        productName={displayName}
+        title={displayName}
+        entityType="employee"
+        entityId={employeeId}
+        size={22}
+      />
+      <ProfileActionsMenu
+        mode="employee"
+        displayName={displayName}
+        employeeId={employeeId}
+        shareUrl={shareUrl}
+        shareTitle={shareTitle}
+        shareEmailSubject={shareEmailSubject}
+        shareEmailBody={shareEmailBody}
+        onScrollToReviews={onScrollToReviews}
+        t={t}
+      />
+    </View>
   );
 }

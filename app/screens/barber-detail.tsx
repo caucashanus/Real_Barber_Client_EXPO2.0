@@ -30,8 +30,8 @@ import BarberStickyBar, {
 } from '@/components/barber/BarberStickyBar';
 import BarberStoriesSection from '@/components/barber/BarberStoriesSection';
 import MediaFullscreenModal from '@/components/detail/MediaFullscreenModal';
+import { buildEmployeeShareCopy } from '@/utils/branchShareHelpers';
 import {
-  buildTeamMemberShareMessage,
   getTeamMemberProfileShareUrl,
   getTodayActiveWaitlistBranchId,
 } from '@/utils/teamMemberPageHelpers';
@@ -134,9 +134,12 @@ export default function BarberDetailScreen() {
     [employee, locale]
   );
 
-  const shareMessage = useMemo(
-    () => (employee ? buildTeamMemberShareMessage(displayName, profileShareUrl) : ''),
-    [displayName, employee, profileShareUrl]
+  const employeeShareCopy = useMemo(
+    () =>
+      employee
+        ? buildEmployeeShareCopy(displayName, profileShareUrl, locale)
+        : { title: '', emailSubject: '', emailBody: '' },
+    [displayName, employee, locale, profileShareUrl]
   );
 
   if (!loading && (error || !employee)) {
@@ -199,7 +202,10 @@ export default function BarberDetailScreen() {
               locale={locale.startsWith('cs') ? 'cs' : 'en'}
               languages={employee.languages}
               shiftStatus={todayShiftStatus}
-              shareMessage={shareMessage}
+              shareUrl={profileShareUrl}
+              shareTitle={employeeShareCopy.title}
+              shareEmailSubject={employeeShareCopy.emailSubject}
+              shareEmailBody={employeeShareCopy.emailBody}
               onScrollToReviews={scrollToReviews}
               t={t}
             />

@@ -11,6 +11,7 @@ import Avatar from '@/components/Avatar';
 import { HomePromoCarousel } from '@/components/HomePromoCarousel';
 import { HomeRepeatBookingCard } from '@/components/HomeRepeatBookingCard';
 import { HomeSpotlightCard } from '@/components/HomeSpotlightCard';
+import HomeNearestBranch from '@/components/home/HomeNearestBranch';
 import HomeTodayTeamSection from '@/components/home/HomeTodayTeamSection';
 import Icon from '@/components/Icon';
 import NotificationPromptSheet from '@/components/NotificationPromptSheet';
@@ -204,6 +205,7 @@ export default function RealBarberHomeTab() {
               </View>
             </Pressable>
           ))}
+          <HomeNearestBranch teamCards={todayTeamCards} locale={locale} t={t} />
         </View>
 
         {!loading && recentBookings.length > 0 ? (
