@@ -5,14 +5,36 @@ import AppButton from '@/components/AppButton';
 import ThemedText from '@/components/ThemedText';
 import type { TranslationKey } from '@/locales';
 import { getBranchOpenStatus, type BranchOpenStatusKind } from '@/utils/branchOpenStatus';
+import { getOperatorOpenStatus, type OperatorOpenStatusKind } from '@/utils/operatorOpenStatus';
+
+type OpenStatusKind = BranchOpenStatusKind | OperatorOpenStatusKind;
 
 interface BranchOpenStatusRowProps {
   t: (key: TranslationKey) => string;
+  /** `branch` — otevírací doba pobočky; `operatorSupport` — zákaznická podpora. */
+  variant?: 'branch' | 'operatorSupport';
 }
 
 const STATUS_CHIP_CLASS = 'h-7 rounded-md px-2 py-0.5';
 
-function statusLabel(kind: BranchOpenStatusKind, t: (key: TranslationKey) => string): string {
+function statusLabel(
+  kind: OpenStatusKind,
+  t: (key: TranslationKey) => string,
+  variant: 'branch' | 'operatorSupport'
+): string {
+  if (variant === 'operatorSupport') {
+    switch (kind) {
+      case 'open':
+        return t('contactsOperatorStatusOpen');
+      case 'closed':
+        return t('contactsOperatorStatusClosed');
+      case 'openingSoon':
+        return t('contactsOperatorStatusOpeningSoon');
+      case 'closingSoon':
+        return t('contactsOperatorStatusClosingSoon');
+    }
+  }
+
   switch (kind) {
     case 'open':
       return t('nearestBranchStatusOpen');
@@ -25,7 +47,7 @@ function statusLabel(kind: BranchOpenStatusKind, t: (key: TranslationKey) => str
   }
 }
 
-function statusChipStyle(kind: BranchOpenStatusKind): {
+function statusChipStyle(kind: OpenStatusKind): {
   containerStyle: ViewStyle;
   textColor: string;
   dotColor: string;
@@ -60,11 +82,17 @@ function statusChipStyle(kind: BranchOpenStatusKind): {
   };
 }
 
-export default function BranchOpenStatusRow({ t }: BranchOpenStatusRowProps) {
-  const [kind, setKind] = useState<BranchOpenStatusKind>(() => getBranchOpenStatus());
+export default function BranchOpenStatusRow({
+  t,
+  variant = 'branch',
+}: BranchOpenStatusRowProps) {
+  const [kind, setKind] = useState<OpenStatusKind>(() =>
+    variant === 'operatorSupport' ? getOperatorOpenStatus() : getBranchOpenStatus()
+  );
 
   useEffect(() => {
-    const tick = () => setKind(getBranchOpenStatus());
+    const tick = () =>
+      setKind(variant === 'operatorSupport' ? getOperatorOpenStatus() : getBranchOpenStatus());
     tick();
     const intervalId = setInterval(tick, 60_000);
     const appStateSub = AppState.addEventListener('change', (state) => {
@@ -74,16 +102,24 @@ export default function BranchOpenStatusRow({ t }: BranchOpenStatusRowProps) {
       clearInterval(intervalId);
       appStateSub.remove();
     };
-  }, []);
+  }, [variant]);
 
   const showHours = () => {
+    if (variant === 'operatorSupport') {
+      Alert.alert(
+        t('contactsOperatorHoursAlertTitle'),
+        `${t('contactsOperatorHoursWeekdays')}\n${t('contactsOperatorHoursWeekend')}`
+      );
+      return;
+    }
+
     Alert.alert(
       t('nearestBranchHoursTooltipTitle'),
       `${t('nearestBranchHoursWeekdays')}\n${t('nearestBranchHoursWeekend')}`
     );
   };
 
-  const label = statusLabel(kind, t);
+  const label = statusLabel(kind, t, variant);
   const chip = statusChipStyle(kind);
 
   return (

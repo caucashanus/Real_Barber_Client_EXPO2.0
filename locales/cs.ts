@@ -185,6 +185,39 @@ export const cs: Record<TranslationKey, string> = {
   nearestBranchHoursTooltipTitle: 'Otevírací doba:',
   nearestBranchHoursWeekdays: 'Po–Pá: 09:00–21:00',
   nearestBranchHoursWeekend: 'So–Ne: 10:00–18:00',
+  contactsTitle: 'Kontakty',
+  contactsIntro:
+    'Máte-li jakékoliv dotazy, připomínky či zájem o rezervaci termínu, neváhejte nás kontaktovat.',
+  contactsBranchHoursIntro: 'Všechny naše pobočky mají stejnou otevírací dobu:',
+  contactsOperatorStatusOpen: 'Zákaznická podpora je online',
+  contactsOperatorStatusClosed: 'Zákaznická podpora je offline',
+  contactsOperatorStatusOpeningSoon: 'Zákaznická podpora brzy otevírá',
+  contactsOperatorStatusClosingSoon: 'Zákaznická podpora brzy zavírá',
+  contactsOperatorHoursAlertTitle: 'Hodiny zákaznické podpory:',
+  contactsOperatorHoursWeekdays: 'Po–Pá: 08:30–21:30',
+  contactsOperatorHoursWeekend: 'So–Ne: 09:30–18:30',
+  contactsJumpNavLabel: 'Přejít na pobočku',
+  contactsOpenInMaps: 'Otevřít v Mapách',
+  contactsTravelUber: 'Jeďte s Uber',
+  contactsTravelWaze: 'Jeďte bezpečně s Waze',
+  contactsTravelGoogleMaps: 'Jeďte pohodlně s Google Maps',
+  contactsAccessible: 'Bezbariérový přístup',
+  contactsNoteLabel: 'Poznámka:',
+  contactsBranchNoteBarrandov:
+    'Pobočka na náměstí O. Scheinpflugové je snadno dostupná MHD i autem; v okolí jsou možnosti parkování.',
+  contactsBranchNoteHagibor:
+    'Pobočka v rezidenčním komplexu Hagibor; u salónu je bílá zóna pro pohodlné parkování.',
+  contactsBranchNoteKacerov:
+    'Vstup ve druhém patře nad pizzerií s vlastním vchodem; parkování před salónem jen do 18:00 na dobu návštěvy.',
+  contactsBranchNoteModrany:
+    'Blízko zastávky Poliklinika Modřany; hodinové parkování zdama na protější straně ulice s parkovacím diskem.',
+  contactsHowToGetTitle: 'Jak se k nám dostanete?',
+  contactsHowToGetIntro:
+    'Každá pobočka má vlastní dopravní popis a mapové odkazy. Podrobnosti najdete u konkrétní provozovny výše nebo v detailu pobočky.',
+  contactsFirstVisitCta: 'Doporučení k první návštěvě v barbershopu',
+  contactsVisitRulesTitle: 'Pravidla návštěv',
+  contactsVisitRulesBody:
+    'Rezervaci můžete zrušit nebo přesunout nejpozději 1 hodinu před termínem. Pokud nejste spokojeni se službou, neplatíte — dejte nám vědět hned na místě. Při opakovaném no-show (více než 2× bez omluvy) můžeme z bezpečnostních důvodů odebrat uloženou platební kartu z profilu.',
   homeRecentTitle: 'Nedávné',
   homeRecentLoading: 'Načítám…',
   homeRecentEmpty: 'Zatím nemáte žádné rezervace.',
@@ -997,6 +1030,8 @@ export const cs: Record<TranslationKey, string> = {
   barberMenuOpen: 'Další akce',
   branchMenuOpen: 'Menu pobočky',
   profileMenuAria: 'Další akce',
+  clipboardCopied: 'Zkopírováno!',
+  clipboardCopyAria: 'Kopírovat',
   barberMenuShare: 'Sdílet',
   barberMenuRate: 'Ohodnotit',
   barberMenuBook: 'Rezervuj se ke mě',

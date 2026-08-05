@@ -181,6 +181,39 @@ export const en = {
   nearestBranchHoursTooltipTitle: 'Opening hours:',
   nearestBranchHoursWeekdays: 'Mon–Fri: 09:00–21:00',
   nearestBranchHoursWeekend: 'Sat–Sun: 10:00–18:00',
+  contactsTitle: 'Contacts',
+  contactsIntro:
+    'If you have any questions, feedback, or want to book an appointment, feel free to contact us.',
+  contactsBranchHoursIntro: 'All our branches share the same opening hours:',
+  contactsOperatorStatusOpen: 'Customer support is online',
+  contactsOperatorStatusClosed: 'Customer support is offline',
+  contactsOperatorStatusOpeningSoon: 'Customer support opening soon',
+  contactsOperatorStatusClosingSoon: 'Customer support closing soon',
+  contactsOperatorHoursAlertTitle: 'Customer support hours:',
+  contactsOperatorHoursWeekdays: 'Mon–Fri: 08:30–21:30',
+  contactsOperatorHoursWeekend: 'Sat–Sun: 09:30–18:30',
+  contactsJumpNavLabel: 'Jump to branch',
+  contactsOpenInMaps: 'Open in Maps',
+  contactsTravelUber: 'Ride with Uber',
+  contactsTravelWaze: 'Drive safely with Waze',
+  contactsTravelGoogleMaps: 'Go comfortably with Google Maps',
+  contactsAccessible: 'Step-free access',
+  contactsNoteLabel: 'Note:',
+  contactsBranchNoteBarrandov:
+    'Located at náměstí O. Scheinpflugové with good public transport and parking options nearby.',
+  contactsBranchNoteHagibor:
+    'Located in the Hagibor residence complex; convenient white-zone parking in front of the salon.',
+  contactsBranchNoteKacerov:
+    'Entrance on the second floor above the pizzeria; parking in front until 18:00 for the duration of your visit only.',
+  contactsBranchNoteModrany:
+    'Near Poliklinika Modřany stop; one hour of free parking on the opposite side of the street with a parking disc.',
+  contactsHowToGetTitle: 'How to get to us',
+  contactsHowToGetIntro:
+    'Each branch has its own transport description and map links. See the branch cards above or open a branch detail for more.',
+  contactsFirstVisitCta: 'Tips for your first barbershop visit',
+  contactsVisitRulesTitle: 'Visit rules',
+  contactsVisitRulesBody:
+    'You can cancel or reschedule at least 1 hour before your appointment. If you are not satisfied with the service, you do not pay — let us know on the spot. After repeated no-shows (more than 2 without notice) we may remove your saved card from your profile for security reasons.',
   homeRecentTitle: 'Recent',
   homeRecentLoading: 'Loading…',
   homeRecentEmpty: 'No bookings yet.',
@@ -993,6 +1026,8 @@ export const en = {
   barberMenuOpen: 'More actions',
   branchMenuOpen: 'Branch menu',
   profileMenuAria: 'More actions',
+  clipboardCopied: 'Copied!',
+  clipboardCopyAria: 'Copy',
   barberMenuShare: 'Share',
   barberMenuRate: 'Rate',
   barberMenuBook: 'Book with me',

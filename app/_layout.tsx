@@ -15,6 +15,7 @@ import { LanguageProvider } from './contexts/LanguageContext';
 import PushNotificationsProvider from './contexts/PushNotificationsProvider';
 import { SelectedPurchaseProvider } from './contexts/SelectedPurchaseContext';
 import { ThemeProvider } from './contexts/ThemeContext';
+import { CopyFeedbackProvider } from './contexts/CopyFeedbackContext';
 import { TransferRecipientProvider } from './contexts/TransferRecipientContext';
 import useThemedNavigation from './hooks/useThemedNavigation';
 
@@ -55,6 +56,7 @@ export default function RootLayout() {
       <LanguageProvider>
         <ThemeProvider>
           <AccentColorProvider>
+            <CopyFeedbackProvider>
             <AuthProvider>
               <BookingsBadgeProvider>
               <TransferRecipientProvider>
@@ -72,6 +74,7 @@ export default function RootLayout() {
               </TransferRecipientProvider>
               </BookingsBadgeProvider>
             </AuthProvider>
+            </CopyFeedbackProvider>
           </AccentColorProvider>
         </ThemeProvider>
       </LanguageProvider>

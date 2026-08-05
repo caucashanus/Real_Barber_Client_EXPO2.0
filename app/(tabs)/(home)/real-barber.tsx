@@ -26,19 +26,8 @@ import {
   filterHomePosters,
 } from '@/utils/homePromoFeed';
 import { pickHomeSpotlight, formatHomeBookingSlotLabel } from '@/utils/homeSpotlight';
+import { getContentCarouselSize } from '@/utils/contentCarouselLayout';
 import { isReservationIntroCooldownActive } from '@/utils/reservation-intro-cooldown';
-
-/** Šířka obsahu v ThemeScroller — `px-global` (24 px × 2). */
-const HOME_LAYOUT_HORIZONTAL_PADDING = 48;
-
-function getHomePromoCarouselSize(screenWidth: number) {
-  const width = screenWidth - HOME_LAYOUT_HORIZONTAL_PADDING;
-  return {
-    width,
-    /** 3:2 aspect — web parity (height = width × 2/3). */
-    height: Math.round(width * (2 / 3)),
-  };
-}
 
 /** Kupóny skryté v sekci Tipy a nabídky i když je API vrátí (filtrování podle `name`). */
 const HIDDEN_HOME_PROMO_COUPON_NAMES = new Set(['Gorila10', 'TVPRIMA10']);
@@ -54,7 +43,7 @@ const HOME_ACTION_IMAGES = {
 export default function RealBarberHomeTab() {
   const { width: screenWidth } = useWindowDimensions();
   const homePromoCarouselSize = useMemo(
-    () => getHomePromoCarouselSize(screenWidth),
+    () => getContentCarouselSize(screenWidth),
     [screenWidth]
   );
   const { apiToken, client } = useAuth();

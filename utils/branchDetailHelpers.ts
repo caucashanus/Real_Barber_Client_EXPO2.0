@@ -49,21 +49,29 @@ export function getVrTourUrl(branchName: string): string | null {
   return VR_TOUR_URL_BY_BRANCH_NAME[branchName] ?? null;
 }
 
+export function buildNativeBranchMapsUrl(
+  displayName: string,
+  latitude: number,
+  longitude: number
+): string {
+  const label = encodeURIComponent(displayName);
+  if (Platform.OS === 'ios') {
+    return `http://maps.apple.com/?ll=${latitude},${longitude}&q=${label}`;
+  }
+  return `geo:0,0?q=${latitude},${longitude}(${label})`;
+}
+
 export function getBranchMapsUrlByDisplayName(
   displayName: string,
   fallback?: { address?: string; latitude?: number; longitude?: number }
 ): string {
-  const fixed = MAPS_URL_BY_BRANCH_NAME[displayName];
-  if (fixed) return fixed;
-
   const { address, latitude, longitude } = fallback ?? {};
   if (latitude != null && longitude != null) {
-    const label = encodeURIComponent(displayName);
-    if (Platform.OS === 'ios') {
-      return `http://maps.apple.com/?ll=${latitude},${longitude}&q=${label}`;
-    }
-    return `https://www.google.com/maps/search/?api=1&query=${latitude},${longitude}`;
+    return buildNativeBranchMapsUrl(displayName, latitude, longitude);
   }
+
+  const fixed = MAPS_URL_BY_BRANCH_NAME[displayName];
+  if (fixed) return fixed;
 
   const query = encodeURIComponent(address?.trim() || displayName);
   return `https://www.google.com/maps/search/?api=1&query=${query}`;

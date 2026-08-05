@@ -1,10 +1,11 @@
 import { Image } from 'expo-image';
 import { useLocalSearchParams } from 'expo-router';
 import React, { useEffect, useMemo, useState } from 'react';
-import { ActivityIndicator, Clipboard, Pressable, View } from 'react-native';
+import { ActivityIndicator, Pressable, View } from 'react-native';
 
 import { getClientCoupons, type ClientCoupon } from '@/api/client-coupons';
 import { useAuth } from '@/app/contexts/AuthContext';
+import { useCopyFeedback } from '@/app/contexts/CopyFeedbackContext';
 import { useTranslation } from '@/app/hooks/useTranslation';
 import { ClientCouponValidityPills } from '@/components/ClientCouponValidityPills';
 import Header from '@/components/Header';
@@ -22,6 +23,7 @@ function useCouponIdParam(): string | undefined {
 export default function ClientCouponDetailScreen() {
   const { apiToken } = useAuth();
   const { t, locale } = useTranslation();
+  const { copyToClipboard } = useCopyFeedback();
   const couponId = useCouponIdParam();
 
   const [loading, setLoading] = useState(true);
@@ -184,7 +186,7 @@ export default function ClientCouponDetailScreen() {
               <Pressable
                 accessibilityRole="button"
                 accessibilityLabel={`${coupon.code}. ${t('homeCouponCopyCode')}`}
-                onPress={() => Clipboard.setString(coupon.code)}
+                onPress={() => copyToClipboard(coupon.code)}
                 className="flex-row items-center justify-center gap-1.5 rounded-full border border-neutral-200 bg-light-secondary px-3 py-1.5 active:opacity-80 dark:border-dark-secondary dark:bg-dark-secondary">
                 <ThemedText
                   className="text-center font-mono text-sm font-semibold text-light-text dark:text-dark-text"

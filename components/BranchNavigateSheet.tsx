@@ -1,12 +1,13 @@
 import { Image } from 'expo-image';
-import React, { forwardRef, useCallback, useRef, useState } from 'react';
-import { Clipboard, Linking, Pressable, View } from 'react-native';
+import React, { forwardRef, useCallback, useRef } from 'react';
+import { Linking, View } from 'react-native';
 import { ActionSheetRef } from 'react-native-actions-sheet';
 
 import { useTheme } from '@/app/contexts/ThemeContext';
 import { useTranslation } from '@/app/hooks/useTranslation';
 import ActionSheetThemed from '@/components/ActionSheetThemed';
 import Icon from '@/components/Icon';
+import CopyIconButton from '@/components/shared/CopyIconButton';
 import SheetNavRow from '@/components/shared/SheetNavRow';
 import ThemedText from '@/components/ThemedText';
 
@@ -64,7 +65,6 @@ export const BranchNavigateSheet = forwardRef<ActionSheetRef, BranchNavigateShee
     const { t } = useTranslation();
     const { isDark } = useTheme();
     const innerRef = useRef<ActionSheetRef | null>(null);
-    const [copied, setCopied] = useState(false);
 
     const setRef = useCallback(
       (node: ActionSheetRef | null) => {
@@ -88,14 +88,6 @@ export const BranchNavigateSheet = forwardRef<ActionSheetRef, BranchNavigateShee
       setTimeout(() => {
         void Linking.openURL(url).catch(() => {});
       }, NAVIGATE_OPEN_DELAY_MS);
-    };
-
-    const handleCopyAddress = () => {
-      const displayAddress = address?.trim() || '';
-      if (!displayAddress) return;
-      Clipboard.setString(displayAddress);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
     };
 
     const displayAddress = address?.trim() || '';
@@ -160,14 +152,10 @@ export const BranchNavigateSheet = forwardRef<ActionSheetRef, BranchNavigateShee
                 numberOfLines={2}>
                 {displayAddress}
               </ThemedText>
-              <Pressable
-                accessibilityRole="button"
-                accessibilityLabel={copied ? t('barberShareCopied') : t('barberShareCopyLink')}
-                onPress={handleCopyAddress}
-                hitSlop={8}
-                className="shrink-0 active:opacity-60">
-                <Icon name={copied ? 'Check' : 'Copy'} size={16} className="opacity-80" />
-              </Pressable>
+              <CopyIconButton
+                value={displayAddress}
+                accessibilityLabel={t('clipboardCopyAria')}
+              />
             </View>
           ) : null}
         </View>

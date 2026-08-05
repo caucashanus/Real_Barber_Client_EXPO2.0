@@ -2,7 +2,6 @@ import { Image } from 'expo-image';
 import { router } from 'expo-router';
 import React, { useCallback, useEffect, useMemo, useRef } from 'react';
 import {
-  Clipboard,
   Linking,
   Pressable,
   ScrollView,
@@ -13,6 +12,7 @@ import { ActionSheetRef } from 'react-native-actions-sheet';
 import MapView, { Marker } from 'react-native-maps';
 
 import type { Locale } from '@/app/contexts/LanguageContext';
+import { useCopyFeedback } from '@/app/contexts/CopyFeedbackContext';
 import { useNearestBranch } from '@/app/hooks/useNearestBranch';
 import ActionSheetThemed from '@/components/ActionSheetThemed';
 import AppButton from '@/components/AppButton';
@@ -239,6 +239,8 @@ function NearestBranchSheetContent({
   actionsSheetRef: React.RefObject<ActionSheetRef | null>;
   shareSheetRef: React.RefObject<ActionSheetRef | null>;
 }) {
+  const { copyToClipboard } = useCopyFeedback();
+
   return (
     <ScrollView showsVerticalScrollIndicator={false} bounces={false}>
       <View className="px-4 pb-8 pt-2">
@@ -251,7 +253,7 @@ function NearestBranchSheetContent({
             </Pressable>
 
             <Pressable
-              onPress={() => Clipboard.setString(branchMeta.address)}
+              onPress={() => copyToClipboard(branchMeta.address)}
               className="mt-2 flex-row items-center gap-1.5 self-start active:opacity-70">
               <ThemedText className="text-sm leading-5 text-light-subtext dark:text-dark-subtext">
                 {branchMeta.address}

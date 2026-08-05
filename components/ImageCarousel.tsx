@@ -3,7 +3,6 @@ import React, { useState, useEffect } from 'react';
 import {
   View,
   FlatList,
-  Dimensions,
   StyleSheet,
   LayoutChangeEvent,
   Animated,
@@ -42,7 +41,7 @@ interface ImageCarouselProps {
 const ImageCarousel: React.FC<ImageCarouselProps> = ({
   images,
   width: propWidth,
-  height = 200,
+  height,
   showPagination = true,
   paginationStyle = 'dots',
   paginationPlacement = 'overlay',
@@ -59,8 +58,12 @@ const ImageCarousel: React.FC<ImageCarouselProps> = ({
   scrollY,
   stretchOnPullDown = false,
 }) => {
-  const [containerWidth, setContainerWidth] = useState(propWidth || Dimensions.get('window').width);
+  const [containerWidth, setContainerWidth] = useState(propWidth ?? 0);
+  const [measuredHeight, setMeasuredHeight] = useState(0);
   const [activeIndex, setActiveIndex] = useState(0);
+  const resolvedHeight = height ?? (measuredHeight > 0 ? measuredHeight : 200);
+  const slideWidth = propWidth ?? containerWidth;
+  const canRenderCarousel = slideWidth > 0;
   const flatListRef = React.useRef<FlatList>(null);
   const activeIndexRef = React.useRef(0);
 
@@ -82,7 +85,7 @@ const ImageCarousel: React.FC<ImageCarouselProps> = ({
 
   const scrollToIndex = (index: number, animated = true) => {
     flatListRef.current?.scrollToOffset({
-      offset: index * containerWidth,
+      offset: index * slideWidth,
       animated,
     });
     setActiveIndex(index);
@@ -90,23 +93,27 @@ const ImageCarousel: React.FC<ImageCarouselProps> = ({
   };
 
   useEffect(() => {
-    if (!autoPlay || images.length <= 1) return;
+    if (!autoPlay || images.length <= 1 || slideWidth <= 0) return;
     const id = setInterval(() => {
       const next = (activeIndexRef.current + 1) % images.length;
       flatListRef.current?.scrollToOffset({
-        offset: next * containerWidth,
+        offset: next * slideWidth,
         animated: true,
       });
       setActiveIndex(next);
       activeIndexRef.current = next;
     }, autoPlayInterval);
     return () => clearInterval(id);
-  }, [autoPlay, autoPlayInterval, images.length, containerWidth]);
+  }, [autoPlay, autoPlayInterval, images.length, slideWidth]);
 
   const handleLayout = (event: LayoutChangeEvent) => {
-    if (propWidth != null) return;
-    const { width } = event.nativeEvent.layout;
-    if (width > 0) setContainerWidth(width);
+    const { width, height: layoutHeight } = event.nativeEvent.layout;
+    if (propWidth == null && width > 0) {
+      setContainerWidth(width);
+    }
+    if (height == null && layoutHeight > 0) {
+      setMeasuredHeight(layoutHeight);
+    }
   };
 
   const getRoundedClass = () => {
@@ -131,7 +138,8 @@ const ImageCarousel: React.FC<ImageCarouselProps> = ({
   };
 
   const handleImageChange = (contentOffsetX: number) => {
-    const index = Math.round(contentOffsetX / containerWidth);
+    if (slideWidth <= 0) return;
+    const index = Math.round(contentOffsetX / slideWidth);
     setActiveIndex(index);
   };
 
@@ -188,7 +196,7 @@ const ImageCarousel: React.FC<ImageCarouselProps> = ({
     );
   };
 
-  const slideStyle = { width: containerWidth, height, position: 'relative' as const };
+  const slideStyle = { width: slideWidth, height: resolvedHeight, position: 'relative' as const };
 
   const renderItem = ({ item, index }: { item: string | ImageSourcePropType; index: number }) => {
     const image = (
@@ -200,8 +208,8 @@ const ImageCarousel: React.FC<ImageCarouselProps> = ({
             position: 'absolute',
             top: 0,
             left: 0,
-            width: containerWidth,
-            height,
+            width: slideWidth,
+            height: resolvedHeight,
             backgroundColor: imageBackgroundColor,
           },
         ]}
@@ -262,7 +270,7 @@ const ImageCarousel: React.FC<ImageCarouselProps> = ({
           ? { pagingEnabled: true }
           : {
               pagingEnabled: false,
-              snapToInterval: containerWidth,
+              snapToInterval: slideWidth,
               snapToAlignment: 'start' as const,
               decelerationRate: 'fast' as const,
               disableIntervalMomentum: true,
@@ -271,8 +279,8 @@ const ImageCarousel: React.FC<ImageCarouselProps> = ({
         keyExtractor={(_, index) => index.toString()}
         renderItem={renderItem}
         getItemLayout={(_, index) => ({
-          length: containerWidth,
-          offset: containerWidth * index,
+          length: slideWidth,
+          offset: slideWidth * index,
           index,
         })}
         onMomentumScrollEnd={(e) => {
@@ -283,46 +291,39 @@ const ImageCarousel: React.FC<ImageCarouselProps> = ({
           const contentOffsetX = e.nativeEvent.contentOffset.x;
           handleImageChange(contentOffsetX);
         }}
-        style={{ height, width: containerWidth }}
-        contentContainerStyle={{ width: containerWidth * images.length }}
+        style={{ height: resolvedHeight, width: slideWidth }}
+        contentContainerStyle={{ width: slideWidth * images.length }}
       />
     </Animated.View>
   );
 
+  const carouselFrameStyle = {
+    ...(height != null || measuredHeight > 0 ? { height: resolvedHeight } : {}),
+    width: propWidth,
+    overflow: 'hidden' as const,
+  };
+
   if (paginationPlacement === 'below') {
     return (
-      <View className={className} style={{ width: propWidth }} onLayout={handleLayout}>
+      <View className={`w-full ${className}`} style={{ width: propWidth }}>
         <View
           className={getRoundedClass()}
-          style={[
-            styles.container,
-            {
-              height,
-              width: propWidth,
-              overflow: 'hidden',
-            },
-          ]}>
-          {carouselBody}
+          style={[styles.container, carouselFrameStyle]}
+          onLayout={handleLayout}>
+          {canRenderCarousel ? carouselBody : null}
         </View>
-        {renderPagination()}
+        {canRenderCarousel ? renderPagination() : null}
       </View>
     );
   }
 
   return (
     <View
-      className={`${getRoundedClass()} ${className}`}
-      style={[
-        styles.container,
-        {
-          height,
-          width: propWidth,
-          overflow: 'hidden',
-        },
-      ]}
+      className={`w-full ${getRoundedClass()} ${className}`}
+      style={[styles.container, carouselFrameStyle]}
       onLayout={handleLayout}>
-      {carouselBody}
-      {renderPagination()}
+      {canRenderCarousel ? carouselBody : null}
+      {canRenderCarousel ? renderPagination() : null}
     </View>
   );
 };

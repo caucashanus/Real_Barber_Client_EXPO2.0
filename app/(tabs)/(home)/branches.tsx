@@ -1,195 +1,308 @@
 import { Image } from 'expo-image';
 import { router } from 'expo-router';
-import React, { useContext, useEffect, useMemo, useState } from 'react';
-import { Animated, Pressable, View, ActivityIndicator } from 'react-native';
+import React, { useContext, useMemo, useRef } from 'react';
+import { Animated, Linking, Pressable, useWindowDimensions, View } from 'react-native';
+import { ActionSheetRef } from 'react-native-actions-sheet';
 
 import { ScrollContext } from './_layout';
 
-import { getBranches, type Branch, type BranchService } from '@/api/branches';
-import { getClientReviewsList, type ClientReviewListItem } from '@/api/reviews';
-import { useAuth } from '@/app/contexts/AuthContext';
+import { useCopyFeedback } from '@/app/contexts/CopyFeedbackContext';
+import { useThemeColors } from '@/app/contexts/ThemeColors';
 import { useTranslation } from '@/app/hooks/useTranslation';
-import { CLIENT_APP_V1_ENABLED } from '@/constants/clientAppApi';
 import AnimatedView from '@/components/AnimatedView';
-import Card from '@/components/Card';
-import { CardScroller } from '@/components/CardScroller';
+import AppButton from '@/components/AppButton';
+import { BranchNavigateSheet } from '@/components/BranchNavigateSheet';
+import CustomCard from '@/components/CustomCard';
+import BranchOpenStatusRow from '@/components/branch/BranchOpenStatusRow';
+import Icon from '@/components/Icon';
+import ImageCarousel from '@/components/ImageCarousel';
+import { OperatorSupportSheet } from '@/components/OperatorSupportSheet';
 import ThemeScroller from '@/components/ThemeScroller';
 import ThemedText from '@/components/ThemedText';
-import Section from '@/components/layout/Section';
-import { BRANCHES_GALLERY_CARD, BRANCHES_GALLERY_ITEMS } from '@/constants/branchesGallery';
-import { getBranchServicesList, getMediaUrlsSorted } from '@/utils/branchMediaHelpers';
-import { shadowPresets } from '@/utils/useShadow';
+import { getBranchContactMeta } from '@/constants/branchContacts';
+import { getBranchInteriorCarouselImages } from '@/constants/branchInteriorGallery';
+import { resolveCrmBranchId, type BranchInternalId } from '@/constants/crmBranchIds';
+import { KUDY_K_NAM_VIDEOS } from '@/constants/kudy-k-nam-videos';
+import type { TranslationKey } from '@/locales';
+import {
+  OPERATOR_SUPPORT_DISPLAY,
+  buildOperatorPhoneUrl,
+} from '@/utils/operatorContact';
+import { getContentCarouselSize } from '@/utils/contentCarouselLayout';
 
-function branchCardImage(branch: Branch): string | number {
-  const mediaUrls = getMediaUrlsSorted(branch.media);
-  if (mediaUrls.length > 0) return mediaUrls[0];
-  if (branch.imageUrl) return branch.imageUrl;
-  const servicesList = getBranchServicesList(branch);
-  const firstService = servicesList[0];
-  if (firstService?.imageUrl) return firstService.imageUrl;
-  return require('@/assets/img/barbers.png');
-}
+const HELP_EMAIL = 'info@realbarber.cz';
+const BRANCH_ORDER: BranchInternalId[] = ['barrandov', 'hagibor', 'kacerov', 'modrany'];
 
-function branchPrice(branch: Branch): string {
-  const servicesList = getBranchServicesList(branch);
-  const prices = servicesList.map((s) => s.price).filter((p) => p != null);
-  if (prices.length === 0) return '';
-  const min = Math.min(...prices);
-  return `from ${min} Kč`;
-}
+const BRANCH_NOTE_KEYS: Record<BranchInternalId, TranslationKey> = {
+  barrandov: 'contactsBranchNoteBarrandov',
+  hagibor: 'contactsBranchNoteHagibor',
+  kacerov: 'contactsBranchNoteKacerov',
+  modrany: 'contactsBranchNoteModrany',
+};
 
-function computeBranchRatingsMap(reviews: ClientReviewListItem[]): Map<string, number> {
-  const byBranch = new Map<string, number[]>();
-  for (const r of reviews) {
-    if (r.entityType !== 'branch' || !r.entityId) continue;
-    const id = r.entityId;
-    if (!byBranch.has(id)) byBranch.set(id, []);
-    byBranch.get(id)!.push(Number(r.rating) || 0);
-  }
-  const out = new Map<string, number>();
-  byBranch.forEach((ratings, branchId) => {
-    if (ratings.length === 0) return;
-    const avg = ratings.reduce((a, b) => a + b, 0) / ratings.length;
-    out.set(branchId, Math.round(avg * 10) / 10);
-  });
-  return out;
+const BRAND_WAZE = '#33CCFF';
+const BRAND_GOOGLE_MAPS = '#34A853';
+
+function openUrl(url: string) {
+  void Linking.openURL(url).catch(() => {});
 }
 
 export default function BranchesScreen() {
   const scrollY = useContext(ScrollContext);
-  const { apiToken } = useAuth();
+  const { width: screenWidth } = useWindowDimensions();
+  const branchCarouselSize = useMemo(
+    () => getContentCarouselSize(screenWidth),
+    [screenWidth]
+  );
+  const callUsRef = useRef<ActionSheetRef>(null);
+  const navigateRefs = useRef<Partial<Record<BranchInternalId, ActionSheetRef | null>>>({});
   const { t } = useTranslation();
-  const [branches, setBranches] = useState<Branch[]>([]);
-  const [branchReviewsList, setBranchReviewsList] = useState<ClientReviewListItem[]>([]);
-  const [branchesLoading, setBranchesLoading] = useState(false);
-  const [branchesError, setBranchesError] = useState<string | null>(null);
-
-  useEffect(() => {
-    if (!apiToken) return;
-    setBranchesLoading(true);
-    setBranchesError(null);
-    Promise.all([
-      getBranches(apiToken),
-      CLIENT_APP_V1_ENABLED
-        ? Promise.resolve({ reviews: [] as ClientReviewListItem[] })
-        : getClientReviewsList(apiToken, { entityType: 'branch', limit: 500 }),
-    ])
-      .then(([branchList, reviewsData]) => {
-        setBranches(Array.isArray(branchList) ? branchList : []);
-        setBranchReviewsList(reviewsData.reviews || []);
-      })
-      .catch((e) => {
-        setBranchesError(e instanceof Error ? e.message : 'Failed to load');
-        setBranchReviewsList([]);
-      })
-      .finally(() => setBranchesLoading(false));
-  }, [apiToken]);
-
-  const branchRatingsMap = useMemo(() => {
-    if (CLIENT_APP_V1_ENABLED) {
-      const out = new Map<string, number>();
-      for (const b of branches) {
-        if (typeof b.averageRating === 'number') out.set(b.id, b.averageRating);
-      }
-      return out;
-    }
-    return computeBranchRatingsMap(branchReviewsList);
-  }, [branches, branchReviewsList]);
-  const popularBranches = branches.length > 0 ? branches : null;
-
-  if (branchesLoading) {
-    return (
-      <View className="flex-1 items-center justify-center bg-light-primary dark:bg-dark-primary">
-        <ActivityIndicator size="large" />
-        <ThemedText className="mt-2 text-light-subtext dark:text-dark-subtext">
-          {t('commonLoading')}
-        </ThemedText>
-      </View>
-    );
-  }
+  const { copyToClipboard } = useCopyFeedback();
+  const colors = useThemeColors();
 
   return (
-    <ThemeScroller
-      onScroll={Animated.event([{ nativeEvent: { contentOffset: { y: scrollY } } }], {
-        useNativeDriver: false,
-      })}
-      scrollEventThrottle={16}>
-      <AnimatedView animation="scaleIn" className="mt-4 flex-1">
-        <Section
-          title={t('popularBarbershops')}
-          titleSize="lg"
-          link="/screens/map"
-          linkText={t('commonViewAll')}>
-          <CardScroller space={15} className="mt-1.5">
-            {branchesLoading && (
-              <ThemedText className="py-4 text-light-subtext dark:text-dark-subtext">
-                {t('commonLoading')}
+    <>
+      <ThemeScroller
+        onScroll={Animated.event([{ nativeEvent: { contentOffset: { y: scrollY } } }], {
+          useNativeDriver: false,
+        })}
+        scrollEventThrottle={16}>
+        <AnimatedView animation="scaleIn" className="mt-4 flex-1">
+          <View className="w-full pb-4">
+            <CustomCard
+              rounded="2xl"
+              padding="md"
+              border
+              background={false}
+              className="bg-light-secondary dark:bg-dark-secondary">
+              <ThemedText className="text-lg font-semibold">{t('contactsTitle')}</ThemedText>
+              <ThemedText className="mt-3 text-sm leading-6 text-light-subtext dark:text-dark-subtext">
+                {t('contactsIntro')}
               </ThemedText>
-            )}
-            {branchesError && (
-              <ThemedText className="py-4 text-red-500 dark:text-red-400">
-                {branchesError}
-              </ThemedText>
-            )}
-            {popularBranches?.map((branch) => (
-              <Card
-                key={branch.id}
-                title={branch.name}
-                rounded="2xl"
-                hasFavorite
-                favoriteEntityType="branch"
-                favoriteEntityId={branch.id}
-                rating={branchRatingsMap.get(branch.id)}
-                href={`/screens/branch-detail?id=${branch.id}`}
-                price={branchPrice(branch)}
-                width={160}
-                imageHeight={160}
-                image={branchCardImage(branch)}
-              />
-            ))}
-          </CardScroller>
-        </Section>
 
-        <Pressable
-          onPress={() => router.push('/screens/map')}
-          style={{ ...shadowPresets.large }}
-          className="mt-6 flex flex-row items-center rounded-2xl bg-light-primary p-5 dark:bg-dark-secondary">
-          <ThemedText className="flex-1 pr-2 text-base font-medium">
-            {t('homeContinueSearchBarbershops')}
-          </ThemedText>
-          <View className="h-20 w-20 items-center justify-center">
-            <Image
-              className="h-full w-full"
-              source={require('@/assets/img/branches.png')}
-              contentFit="contain"
-            />
-          </View>
-        </Pressable>
-
-        <Section title={t('branchesGallery')} titleSize="lg" className="mt-6">
-          <CardScroller space={15} className="mt-1.5">
-            {BRANCHES_GALLERY_ITEMS.map((item) => (
-              <View
-                key={item.id}
-                className="overflow-hidden rounded-2xl bg-light-secondary dark:bg-dark-secondary"
-                style={{
-                  width: BRANCHES_GALLERY_CARD.width,
-                  height: BRANCHES_GALLERY_CARD.height,
-                }}>
-                <Image
-                  source={item.source}
-                  style={{
-                    width: BRANCHES_GALLERY_CARD.width,
-                    height: BRANCHES_GALLERY_CARD.height,
-                  }}
-                  contentFit="cover"
-                  accessibilityIgnoresInvertColors
-                />
+              <View className="mt-5 gap-2">
+                <Pressable onPress={() => openUrl(buildOperatorPhoneUrl())}>
+                  <ThemedText className="text-sm font-medium">{OPERATOR_SUPPORT_DISPLAY}</ThemedText>
+                </Pressable>
+                <Pressable onPress={() => openUrl(`mailto:${HELP_EMAIL}`)}>
+                  <ThemedText className="text-sm font-medium">{HELP_EMAIL}</ThemedText>
+                </Pressable>
               </View>
-            ))}
-          </CardScroller>
-        </Section>
-      </AnimatedView>
-    </ThemeScroller>
+
+              <View className="mt-5 gap-1">
+                <ThemedText className="text-sm leading-6 text-light-subtext dark:text-dark-subtext">
+                  {t('contactsBranchHoursIntro')}
+                </ThemedText>
+                <ThemedText className="text-sm leading-6">{t('nearestBranchHoursWeekdays')}</ThemedText>
+                <ThemedText className="text-sm leading-6">{t('nearestBranchHoursWeekend')}</ThemedText>
+              </View>
+
+              <View className="mt-5">
+                <BranchOpenStatusRow t={t} variant="operatorSupport" />
+              </View>
+
+              <View className="mt-5 flex-row gap-1.5">
+                {BRANCH_ORDER.map((branchId) => {
+                  const meta = getBranchContactMeta(branchId);
+                  return (
+                    <Image
+                      key={branchId}
+                      source={meta.carouselImage}
+                      className="h-8 w-8 rounded-sm"
+                      contentFit="cover"
+                      accessibilityLabel={meta.shortLabel}
+                    />
+                  );
+                })}
+              </View>
+            </CustomCard>
+          </View>
+
+          {BRANCH_ORDER.map((branchId) => {
+            const meta = getBranchContactMeta(branchId);
+            const branchImages = getBranchInteriorCarouselImages(branchId);
+            const kudy = KUDY_K_NAM_VIDEOS.find((item) => item.id === branchId);
+            const crmBranchId = resolveCrmBranchId(branchId);
+            const openBranchDetail = () => {
+              if (!crmBranchId) return;
+              router.push(`/screens/branch-detail?id=${encodeURIComponent(crmBranchId)}` as never);
+            };
+            const openNavigate = () => navigateRefs.current[branchId]?.show();
+            const openCallUs = () => callUsRef.current?.show();
+
+            return (
+              <View key={branchId} className="mt-6 w-full pb-4">
+                {branchImages.length > 0 ? (
+                  <View className="mb-4">
+                    <ImageCarousel
+                      width={branchCarouselSize.width}
+                      height={branchCarouselSize.height}
+                      rounded="xl"
+                      className="w-full"
+                      images={branchImages}
+                      paginationStyle="dots"
+                      paginationPlacement="overlay"
+                      getAccessibilityLabel={(index) =>
+                        `${meta.shortLabel} ${index + 1}/${branchImages.length}`
+                      }
+                    />
+                  </View>
+                ) : null}
+
+                <View className="w-full">
+                  <ThemedText className="text-lg font-semibold">
+                    Real Barber {meta.shortLabel}
+                  </ThemedText>
+
+                  <View className="mt-2 gap-3">
+                    <Pressable
+                      onPress={() => copyToClipboard(meta.address)}
+                      className="flex-row items-center gap-1.5 active:opacity-70">
+                      <ThemedText className="text-sm leading-6 text-light-subtext dark:text-dark-subtext">
+                        {meta.address}
+                      </ThemedText>
+                      <Icon
+                        name="Copy"
+                        size={12}
+                        className="shrink-0 text-light-subtext dark:text-dark-subtext"
+                      />
+                    </Pressable>
+
+                    <View>
+                      {kudy?.uberUrl ? (
+                        <Pressable
+                          onPress={() => openUrl(kudy.uberUrl!)}
+                          className="flex-row items-center gap-1.5 active:opacity-70">
+                          <Icon
+                            name="Car"
+                            size={20}
+                            strokeWidth={1.5}
+                            color={colors.text}
+                            className="shrink-0 opacity-90"
+                          />
+                          <ThemedText className="text-sm font-medium leading-6">
+                            {t('contactsTravelUber')}
+                          </ThemedText>
+                        </Pressable>
+                      ) : null}
+                      <Pressable
+                        onPress={() =>
+                          openUrl(
+                            kudy?.wazeUrl ??
+                              `https://waze.com/ul?ll=${meta.latitude},${meta.longitude}&navigate=yes`
+                          )
+                        }
+                        className="flex-row items-center gap-1.5 active:opacity-70">
+                        <Icon
+                          name="Navigation"
+                          size={20}
+                          strokeWidth={1.5}
+                          color={BRAND_WAZE}
+                          fill={BRAND_WAZE}
+                          className="shrink-0"
+                        />
+                        <ThemedText className="text-sm font-medium leading-6">
+                          {t('contactsTravelWaze')}
+                        </ThemedText>
+                      </Pressable>
+                      <Pressable
+                        onPress={() =>
+                          openUrl(
+                            `https://www.google.com/maps/dir/?api=1&destination=${meta.latitude},${meta.longitude}`
+                          )
+                        }
+                        className="flex-row items-center gap-1.5 active:opacity-70">
+                        <Icon
+                          name="MapPin"
+                          size={20}
+                          strokeWidth={1.5}
+                          color={BRAND_GOOGLE_MAPS}
+                          fill={BRAND_GOOGLE_MAPS}
+                          className="shrink-0"
+                        />
+                        <ThemedText className="text-sm font-medium leading-6">
+                          {t('contactsTravelGoogleMaps')}
+                        </ThemedText>
+                      </Pressable>
+                      <View className="flex-row items-center gap-1.5">
+                        <Icon
+                          name="Accessibility"
+                          size={20}
+                          strokeWidth={1.5}
+                          className="shrink-0 opacity-80"
+                        />
+                        <ThemedText className="text-sm font-medium leading-6">
+                          {t('contactsAccessible')}
+                        </ThemedText>
+                      </View>
+                    </View>
+                  </View>
+
+                  <View className="mt-3 gap-3">
+                    <ThemedText className="text-sm leading-6 text-light-subtext dark:text-dark-subtext">
+                      {t(BRANCH_NOTE_KEYS[branchId])}
+                    </ThemedText>
+
+                    <View className="flex-row flex-wrap gap-2">
+                      <AppButton
+                        title={t('nearestBranchOpen')}
+                        variant="outline"
+                        size="sm"
+                        rounded="full"
+                        className="px-3 py-2"
+                        iconStart="ExternalLink"
+                        iconSize={14}
+                        textClassName="text-xs font-semibold"
+                        onPress={openBranchDetail}
+                        disabled={!crmBranchId}
+                      />
+                      <AppButton
+                        title={t('branchNavigateSectionTitle')}
+                        variant="outline"
+                        size="sm"
+                        rounded="full"
+                        className="px-3 py-2"
+                        iconStart="Navigation"
+                        iconSize={14}
+                        textClassName="text-xs font-semibold"
+                        onPress={openNavigate}
+                      />
+                      <AppButton
+                        title={t('barberPhoneCall')}
+                        variant="outline"
+                        size="sm"
+                        rounded="full"
+                        className="px-3 py-2"
+                        iconStart="Phone"
+                        iconSize={14}
+                        textClassName="text-xs font-semibold"
+                        onPress={openCallUs}
+                      />
+                    </View>
+                  </View>
+                </View>
+              </View>
+            );
+          })}
+        </AnimatedView>
+      </ThemeScroller>
+
+      <OperatorSupportSheet ref={callUsRef} variant="callUs" />
+      {BRANCH_ORDER.map((branchId) => {
+        const meta = getBranchContactMeta(branchId);
+        return (
+          <BranchNavigateSheet
+            key={`navigate-${branchId}`}
+            ref={(node) => {
+              navigateRefs.current[branchId] = node;
+            }}
+            branchName={meta.shortLabel}
+            address={meta.address}
+            latitude={meta.latitude}
+            longitude={meta.longitude}
+          />
+        );
+      })}
+    </>
   );
 }

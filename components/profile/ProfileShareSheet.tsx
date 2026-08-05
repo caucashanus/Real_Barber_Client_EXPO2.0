@@ -1,10 +1,11 @@
-import React, { forwardRef, useCallback, useMemo, useRef, useState } from 'react';
-import { Clipboard, Linking, Pressable, View } from 'react-native';
+import React, { forwardRef, useCallback, useMemo, useRef } from 'react';
+import { Linking, View } from 'react-native';
 import { ActionSheetRef } from 'react-native-actions-sheet';
 
 import { useTranslation } from '@/app/hooks/useTranslation';
 import ActionSheetThemed from '@/components/ActionSheetThemed';
 import Icon from '@/components/Icon';
+import CopyIconButton from '@/components/shared/CopyIconButton';
 import SheetNavRow from '@/components/shared/SheetNavRow';
 import { FacebookShareIcon } from '@/components/shared/ShareChannelIcons';
 import ThemedText from '@/components/ThemedText';
@@ -32,7 +33,6 @@ export const ProfileShareSheet = forwardRef<ActionSheetRef, ProfileShareSheetPro
   ) {
     const { t } = useTranslation();
     const innerRef = useRef<ActionSheetRef | null>(null);
-    const [copied, setCopied] = useState(false);
 
     const setRef = useCallback(
       (node: ActionSheetRef | null) => {
@@ -57,12 +57,6 @@ export const ProfileShareSheet = forwardRef<ActionSheetRef, ProfileShareSheetPro
       setTimeout(() => {
         void Linking.openURL(url).catch(() => {});
       }, SHARE_OPEN_DELAY_MS);
-    };
-
-    const handleCopy = () => {
-      Clipboard.setString(shareUrl);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
     };
 
     return (
@@ -111,16 +105,10 @@ export const ProfileShareSheet = forwardRef<ActionSheetRef, ProfileShareSheetPro
               numberOfLines={1}>
               {shareUrl}
             </ThemedText>
-            <Pressable
-              accessibilityRole="button"
-              accessibilityLabel={
-                copied ? t('barberShareCopied') : t('barberShareCopyLink')
-              }
-              onPress={handleCopy}
-              hitSlop={8}
-              className="shrink-0 active:opacity-60">
-              <Icon name={copied ? 'Check' : 'Copy'} size={16} className="opacity-80" />
-            </Pressable>
+            <CopyIconButton
+              value={shareUrl}
+              accessibilityLabel={t('barberShareCopyLink')}
+            />
           </View>
         </View>
       </ActionSheetThemed>
