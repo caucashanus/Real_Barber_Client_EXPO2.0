@@ -150,9 +150,17 @@ export default function BranchesScreen() {
                 ) : null}
 
                 <View className="w-full">
-                  <ThemedText className="text-lg font-semibold">
-                    Real Barber {meta.shortLabel}
-                  </ThemedText>
+                  <View className="flex-row items-center gap-2">
+                    <Image
+                      source={meta.carouselImage}
+                      className="h-7 w-7 rounded-sm"
+                      contentFit="cover"
+                      accessibilityLabel={meta.shortLabel}
+                    />
+                    <ThemedText className="text-lg font-semibold">
+                      Real Barber {meta.shortLabel}
+                    </ThemedText>
+                  </View>
 
                   <View className="mt-2 gap-3">
                     <Pressable
