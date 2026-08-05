@@ -32,6 +32,10 @@ interface BarberAvailabilitySectionProps {
   t: (key: TranslationKey) => string;
 }
 
+const EMBEDDED_SHIFT_CARD_CLASS = 'bg-light-primary dark:bg-[#1C1C1C]';
+const STANDALONE_SHIFT_CARD_CLASS = 'bg-light-secondary dark:bg-dark-secondary';
+const AVAILABILITY_INFO_HINT_BORDER_CLASS = 'border border-[#632F26]';
+
 function ShiftRow({
   row,
   employeeId,
@@ -46,7 +50,7 @@ function ShiftRow({
   return (
     <View
       className={`mb-3 rounded-xl p-3 ${
-        embedded ? 'bg-light-primary dark:bg-dark-primary' : 'bg-light-secondary dark:bg-dark-secondary'
+        embedded ? EMBEDDED_SHIFT_CARD_CLASS : STANDALONE_SHIFT_CARD_CLASS
       }`}>
       <View className="flex-row items-start justify-between gap-3">
         <View className="min-w-0 flex-1">
@@ -164,7 +168,7 @@ export default function BarberAvailabilitySection({
           ))}
 
           {showLoadMore || showCollapse ? (
-            <View className="mt-2 items-center">
+            <View className="mt-2 w-full">
               {showLoadMore ? (
                 <>
                   <Button
@@ -173,7 +177,7 @@ export default function BarberAvailabilitySection({
                     size="small"
                     rounded="lg"
                     onPress={handleLoadMore}
-                    className="mb-3"
+                    className="mb-3 w-full"
                   />
                   <Button
                     title={t('barberLoadAllShifts')}
@@ -181,7 +185,7 @@ export default function BarberAvailabilitySection({
                     size="small"
                     rounded="lg"
                     onPress={handleLoadAll}
-                    className={showCollapse ? 'mb-3' : undefined}
+                    className={`w-full${showCollapse ? ' mb-3' : ''}`}
                   />
                 </>
               ) : null}
@@ -192,6 +196,7 @@ export default function BarberAvailabilitySection({
                   size="small"
                   rounded="lg"
                   onPress={handleCollapse}
+                  className="w-full"
                 />
               ) : null}
             </View>
@@ -200,7 +205,11 @@ export default function BarberAvailabilitySection({
       )}
 
       <View
-        className={`rounded-xl p-3 ${embedded ? 'mt-4 bg-light-primary dark:bg-dark-primary' : 'mt-4 bg-light-secondary dark:bg-dark-secondary'}`}>
+        className={`rounded-xl p-3 ${AVAILABILITY_INFO_HINT_BORDER_CLASS} ${
+          embedded
+            ? `mt-4 ${EMBEDDED_SHIFT_CARD_CLASS}`
+            : 'mt-4 bg-light-secondary dark:bg-dark-secondary'
+        }`}>
         <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext">
           {t('barberAvailabilityInfoHint')}
         </ThemedText>

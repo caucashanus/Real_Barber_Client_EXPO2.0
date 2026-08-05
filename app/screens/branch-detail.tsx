@@ -313,7 +313,7 @@ export default function BranchDetailScreen() {
             </View>
 
             <BranchContactActions
-              branchName={branchBrandTitle}
+              contactName={branchBrandTitle}
               bookingHref={branchBookingHref}
               t={t}
             />

@@ -3,9 +3,12 @@ import React, { useEffect, useRef } from 'react';
 import { Animated, Pressable, View, useWindowDimensions } from 'react-native';
 
 import Icon from '@/components/Icon';
+import LiveIndicator from '@/components/LiveIndicator';
 import ReserveButton from '@/components/ReserveButton';
 import ThemedText from '@/components/ThemedText';
 import type { TranslationKey } from '@/locales';
+import { getBranchOpenLiveVariant } from '@/utils/branchOpenStatusLive';
+import { getBranchOpenStatus } from '@/utils/branchOpenStatus';
 
 export const BRANCH_DETAIL_HEADER_HEIGHT = 64;
 
@@ -29,6 +32,7 @@ export default function BranchStickyBar({
   const { width } = useWindowDimensions();
   const isMobile = width < 768;
   const contentOpacity = useRef(new Animated.Value(visible ? 1 : 0)).current;
+  const openVariant = getBranchOpenLiveVariant(getBranchOpenStatus());
 
   useEffect(() => {
     Animated.timing(contentOpacity, {
@@ -72,9 +76,14 @@ export default function BranchStickyBar({
           importantForAccessibility={visible ? 'auto' : 'no-hide-descendants'}
           style={{ opacity: contentOpacity }}
           className="min-w-0 flex-1 flex-row items-center gap-2">
-          <ThemedText className="min-w-0 flex-1 shrink text-base font-semibold" numberOfLines={1}>
-            {branchName}
-          </ThemedText>
+          <View className="min-w-0 flex-1 flex-row items-center">
+            <ThemedText className="shrink text-base font-semibold" numberOfLines={1}>
+              {branchName}
+            </ThemedText>
+            <View className="ml-3 justify-center">
+              <LiveIndicator variant={openVariant} size="default" />
+            </View>
+          </View>
 
           <Pressable
             onPress={onPhonePress}

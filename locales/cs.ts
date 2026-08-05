@@ -649,6 +649,8 @@ export const cs: Record<TranslationKey, string> = {
   branchContactTelegramAria: 'Napsat Telegram',
 
   // Barber detail
+  barberAvailabilityMessage:
+    'Dobrý den, chtěl(a) bych se zeptat na termín u {name}. Děkuji.',
   barberWorkSamples: 'Ukázky práce',
   barberBranches: 'Pobočky',
   barberServices: 'Služby',

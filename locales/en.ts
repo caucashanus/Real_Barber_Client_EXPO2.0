@@ -644,6 +644,8 @@ export const en = {
   branchContactTelegramAria: 'Send Telegram',
 
   // Barber detail
+  barberAvailabilityMessage:
+    'Hello, I would like to ask about an appointment with {name}. Thank you.',
   barberWorkSamples: 'Work samples',
   barberBranches: 'Branches',
   barberServices: 'Services',

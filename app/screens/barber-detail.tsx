@@ -19,7 +19,7 @@ import Header from '@/components/Header';
 import { OperatorCallUsSheet } from '@/components/OperatorSupportSheet';
 import ThemedScroller from '@/components/ThemeScroller';
 import ThemedText from '@/components/ThemedText';
-import BarberBookFooter from '@/components/barber/BarberBookFooter';
+import BranchContactActions from '@/components/branch/BranchContactActions';
 import BarberCombinedProfileCard from '@/components/barber/BarberCombinedProfileCard';
 import BarberIdentitySection from '@/components/barber/BarberIdentitySection';
 import BarberTodaySlotsSection from '@/components/barber/BarberTodaySlotsSection';
@@ -236,6 +236,13 @@ export default function BarberDetailScreen() {
             />
           ) : null}
 
+          <BranchContactActions
+            contactName={displayName}
+            bookingHref={`/screens/reservation-create?employeeId=${encodeURIComponent(employee.id)}`}
+            availabilityMessageKey="barberAvailabilityMessage"
+            t={t}
+          />
+
           <BarberShiftBranchesSection branches={shiftBranches} locale={locale} t={t} />
 
           {showStoriesGallery ? <BarberStoriesSection stories={stories} t={t} /> : null}
@@ -281,7 +288,6 @@ export default function BarberDetailScreen() {
           />
         </View>
         </ThemedScroller>
-        <BarberBookFooter employeeId={employee.id} bottomInset={insets.bottom} t={t} />
       </View>
 
       <MediaFullscreenModal

@@ -5,22 +5,24 @@ import ReserveButton from '@/components/ReserveButton';
 import BranchChannelIconButton from '@/components/branch/BranchChannelIconButton';
 import Icon from '@/components/Icon';
 import type { TranslationKey } from '@/locales';
-import { buildBranchContactMessageLinks } from '@/utils/branchContactMessageLinks';
+import { buildProfileContactMessageLinks } from '@/utils/branchContactMessageLinks';
 
 interface BranchContactActionsProps {
-  branchName: string;
+  contactName: string;
   bookingHref: string;
+  availabilityMessageKey?: TranslationKey;
   t: (key: TranslationKey) => string;
 }
 
 export default function BranchContactActions({
-  branchName,
+  contactName,
   bookingHref,
+  availabilityMessageKey = 'branchAvailabilityMessage',
   t,
 }: BranchContactActionsProps) {
   const links = useMemo(
-    () => buildBranchContactMessageLinks(branchName, t),
-    [branchName, t]
+    () => buildProfileContactMessageLinks(contactName, t, availabilityMessageKey),
+    [availabilityMessageKey, contactName, t]
   );
 
   const openLink = (url: string) => {
