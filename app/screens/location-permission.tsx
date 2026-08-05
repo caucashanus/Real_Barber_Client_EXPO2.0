@@ -3,7 +3,7 @@ import { router } from 'expo-router';
 import React from 'react';
 import { View } from 'react-native';
 
-import { useTranslation } from '@/app/hooks/useTranslation';
+import { useTranslation } from '@/hooks/useTranslation';
 import { Button } from '@/components/Button';
 import Icon from '@/components/Icon';
 import ThemedText from '@/components/ThemedText';

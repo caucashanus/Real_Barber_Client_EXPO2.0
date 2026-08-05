@@ -13,7 +13,7 @@ import {
 
 import Icon, { IconName } from './Icon';
 
-import useThemeColors from '@/app/contexts/ThemeColors';
+import useThemeColors from '@/contexts/ThemeColors';
 import { triggerImpact } from '@/utils/appHaptics';
 
 type RoundedOption = 'none' | 'xs' | 'sm' | 'md' | 'lg' | 'xl' | 'full';

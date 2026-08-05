@@ -3,8 +3,8 @@ import React, { useRef } from 'react';
 import { Dimensions, Pressable, View } from 'react-native';
 import { ActionSheetRef } from 'react-native-actions-sheet';
 
-import { useTranslation } from '@/app/hooks/useTranslation';
-import { useOperatorSupportAvailable } from '@/app/hooks/useOperatorSupportAvailable';
+import { useTranslation } from '@/hooks/useTranslation';
+import { useOperatorSupportAvailable } from '@/hooks/useOperatorSupportAvailable';
 import LiveIndicator from '@/components/LiveIndicator';
 import { OperatorSupportSheet } from '@/components/OperatorSupportSheet';
 import { useOperatorButtonEnabled } from '@/utils/operatorButtonPreference';

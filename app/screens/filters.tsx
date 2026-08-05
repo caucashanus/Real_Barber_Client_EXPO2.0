@@ -3,8 +3,8 @@ import { useRouter } from 'expo-router';
 import React, { useState, useEffect } from 'react';
 import { View } from 'react-native';
 
-import { useBranchFilter, type BranchFilterState } from '@/app/contexts/BranchFilterContext';
-import { useTranslation } from '@/app/hooks/useTranslation';
+import { useBranchFilter, type BranchFilterState } from '@/contexts/BranchFilterContext';
+import { useTranslation } from '@/hooks/useTranslation';
 import AppButton from '@/components/AppButton';
 import { Chip } from '@/components/Chip';
 import Header from '@/components/Header';

@@ -8,8 +8,8 @@ import {
   type ClientReferralItem,
   type ReferralActiveProgram,
 } from '@/api/referrals';
-import { useAuth } from '@/app/contexts/AuthContext';
-import { useTranslation } from '@/app/hooks/useTranslation';
+import { useAuth } from '@/contexts/AuthContext';
+import { useTranslation } from '@/hooks/useTranslation';
 import AnimatedView from '@/components/AnimatedView';
 import { Button } from '@/components/Button';
 import Header from '@/components/Header';

@@ -3,7 +3,7 @@ import * as ImagePicker from 'expo-image-picker';
 import React from 'react';
 import { ScrollView, TouchableOpacity, View } from 'react-native';
 
-import { useTranslation } from '@/app/hooks/useTranslation';
+import { useTranslation } from '@/hooks/useTranslation';
 import Icon from '@/components/Icon';
 import ThemedText from '@/components/ThemedText';
 import { MAX_CUT_PHOTOS } from '@/components/haircut-create/constants';

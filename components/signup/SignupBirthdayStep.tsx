@@ -1,7 +1,7 @@
 import React from 'react';
 import { View } from 'react-native';
 
-import { useTranslation } from '@/app/hooks/useTranslation';
+import { useTranslation } from '@/hooks/useTranslation';
 import { Chip } from '@/components/Chip';
 import ThemedText from '@/components/ThemedText';
 import { DatePicker } from '@/components/forms/DatePicker';

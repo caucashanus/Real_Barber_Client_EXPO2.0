@@ -1,6 +1,6 @@
 import { Stack } from 'expo-router';
 
-import { useTranslation } from '@/app/hooks/useTranslation';
+import { useTranslation } from '@/hooks/useTranslation';
 
 export default function RBCLayout() {
   const { t } = useTranslation();

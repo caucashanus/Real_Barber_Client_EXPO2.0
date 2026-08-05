@@ -4,9 +4,9 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { ActivityIndicator, Pressable, View } from 'react-native';
 
 import { getClientCoupons, type ClientCoupon } from '@/api/client-coupons';
-import { useAuth } from '@/app/contexts/AuthContext';
-import { useCopyFeedback } from '@/app/contexts/CopyFeedbackContext';
-import { useTranslation } from '@/app/hooks/useTranslation';
+import { useAuth } from '@/contexts/AuthContext';
+import { useCopyFeedback } from '@/contexts/CopyFeedbackContext';
+import { useTranslation } from '@/hooks/useTranslation';
 import { ClientCouponValidityPills } from '@/components/ClientCouponValidityPills';
 import Header from '@/components/Header';
 import Icon from '@/components/Icon';

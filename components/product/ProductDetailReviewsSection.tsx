@@ -5,7 +5,7 @@ import { ActivityIndicator, Pressable, View, type LayoutChangeEvent } from 'reac
 
 import type { ClientCatalogProductReview, ClientProductPurchase } from '@/api/products';
 import type { EntityReviewItem } from '@/api/reviews';
-import useThemeColors from '@/app/contexts/ThemeColors';
+import useThemeColors from '@/contexts/ThemeColors';
 import Avatar from '@/components/Avatar';
 import { CardScroller } from '@/components/CardScroller';
 import ShowRating from '@/components/ShowRating';

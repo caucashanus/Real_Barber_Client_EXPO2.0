@@ -4,7 +4,7 @@ import React from 'react';
 import { View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { useTranslation } from '@/app/hooks/useTranslation';
+import { useTranslation } from '@/hooks/useTranslation';
 import ReserveButton from '@/components/ReserveButton';
 import Header from '@/components/Header';
 import ThemedText from '@/components/ThemedText';

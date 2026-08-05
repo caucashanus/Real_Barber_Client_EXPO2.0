@@ -1,12 +1,12 @@
 import { Image } from 'expo-image';
 import { useLocalSearchParams } from 'expo-router';
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useMemo, useState, useRef } from 'react';
 import { View, ActivityIndicator, Animated } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { getItemById, type Item } from '@/api/items';
-import { useAuth } from '@/app/contexts/AuthContext';
-import { useTranslation } from '@/app/hooks/useTranslation';
+import { useAuth } from '@/contexts/AuthContext';
+import { useTranslation } from '@/hooks/useTranslation';
 import ReserveButton from '@/components/ReserveButton';
 import { Chip } from '@/components/Chip';
 import Favorite from '@/components/Favorite';
@@ -14,6 +14,8 @@ import Header from '@/components/Header';
 import ThemedScroller from '@/components/ThemeScroller';
 import ThemedText from '@/components/ThemedText';
 import Section from '@/components/layout/Section';
+import SiteBreadcrumbs from '@/components/shared/SiteBreadcrumbs';
+import { serviceBreadcrumbItems } from '@/utils/breadcrumbs';
 
 function itemImages(item: Item): (string | number)[] {
   const out: (string | number)[] = [];
@@ -80,6 +82,10 @@ export default function ServiceDetailScreen() {
   }
 
   const images = itemImages(item);
+  const breadcrumbItems = useMemo(
+    () => serviceBreadcrumbItems(item.name, t),
+    [item.name, t]
+  );
   const rightComponents = item.name
     ? [
         <Favorite
@@ -131,6 +137,10 @@ export default function ServiceDetailScreen() {
         </Animated.View>
 
         <View className="p-global">
+          <SiteBreadcrumbs
+            items={breadcrumbItems}
+            accessibilityLabel={t('breadcrumbNavLabel')}
+          />
           <ThemedText className="text-2xl font-bold">{item.name}</ThemedText>
 
           {item.category ? (

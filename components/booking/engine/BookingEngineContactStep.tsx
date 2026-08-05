@@ -1,7 +1,7 @@
 import React from 'react';
 import { Switch, TextInput, View } from 'react-native';
 
-import type { BookingEngineFlow } from '@/app/hooks/useBookingEngineFlow';
+import type { BookingEngineFlow } from '@/hooks/useBookingEngineFlow';
 import ThemedText from '@/components/ThemedText';
 import BookingContactSummaryPanel from '@/components/booking/engine/BookingContactSummaryPanel';
 import PhoneInput from '@/components/forms/PhoneInput';

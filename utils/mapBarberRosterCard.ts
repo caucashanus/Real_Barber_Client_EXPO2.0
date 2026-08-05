@@ -5,7 +5,7 @@ import type {
   BarberRosterWorkInterval,
 } from '@/api/barbersRoster';
 import type { HomepageNextSlot, HomepageTodayTeamBranch } from '@/api/homeTeamTypes';
-import type { Locale } from '@/app/contexts/LanguageContext';
+import type { Locale } from '@/contexts/LanguageContext';
 import { HOMEPAGE_TODAY_TEAM_MAX_SLOTS } from '@/constants/homepage';
 import type { TranslationKey } from '@/locales';
 import { formatRelativeDayLabel, formatWaitlistDayWhen } from '@/utils/formatRelativeDayLabel';

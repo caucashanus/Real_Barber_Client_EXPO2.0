@@ -6,9 +6,9 @@ import { View, TouchableOpacity, ActivityIndicator, Pressable, Linking } from 'r
 import { ActionSheetRef } from 'react-native-actions-sheet';
 
 import { getClientMe, patchClientMe, uploadClientMedia, type ClientMe } from '@/api/client';
-import { useAuth } from '@/app/contexts/AuthContext';
-import useThemeColors from '@/app/contexts/ThemeColors';
-import { useTranslation } from '@/app/hooks/useTranslation';
+import { useAuth } from '@/contexts/AuthContext';
+import useThemeColors from '@/contexts/ThemeColors';
+import { useTranslation } from '@/hooks/useTranslation';
 import ActionSheetThemed from '@/components/ActionSheetThemed';
 import { Button } from '@/components/Button';
 import Header from '@/components/Header';

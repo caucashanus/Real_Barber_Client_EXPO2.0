@@ -11,9 +11,9 @@ import {
 import { ActionSheetRef } from 'react-native-actions-sheet';
 import MapView, { Marker } from 'react-native-maps';
 
-import type { Locale } from '@/app/contexts/LanguageContext';
-import { useCopyFeedback } from '@/app/contexts/CopyFeedbackContext';
-import { useNearestBranch } from '@/app/hooks/useNearestBranch';
+import type { Locale } from '@/contexts/LanguageContext';
+import { useCopyFeedback } from '@/contexts/CopyFeedbackContext';
+import { useNearestBranch } from '@/hooks/useNearestBranch';
 import ActionSheetThemed from '@/components/ActionSheetThemed';
 import AppButton from '@/components/AppButton';
 import { BranchNavigateSheet } from '@/components/BranchNavigateSheet';
@@ -265,7 +265,7 @@ function NearestBranchSheetContent({
               />
             </Pressable>
 
-            <View className="mt-2.5">
+            <View className="mt-4">
               <BranchOpenStatusRow t={t} />
             </View>
           </View>

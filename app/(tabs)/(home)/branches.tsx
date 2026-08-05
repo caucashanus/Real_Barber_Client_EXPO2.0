@@ -1,14 +1,14 @@
 import { Image } from 'expo-image';
 import { router } from 'expo-router';
-import React, { useContext, useMemo, useRef } from 'react';
-import { Animated, Linking, Pressable, useWindowDimensions, View } from 'react-native';
+import React, { useCallback, useContext, useMemo, useRef } from 'react';
+import { Animated, Linking, Pressable, ScrollView, useWindowDimensions, View } from 'react-native';
 import { ActionSheetRef } from 'react-native-actions-sheet';
 
 import { ScrollContext } from './_layout';
 
-import { useCopyFeedback } from '@/app/contexts/CopyFeedbackContext';
-import { useThemeColors } from '@/app/contexts/ThemeColors';
-import { useTranslation } from '@/app/hooks/useTranslation';
+import { useCopyFeedback } from '@/contexts/CopyFeedbackContext';
+import { useThemeColors } from '@/contexts/ThemeColors';
+import { useTranslation } from '@/hooks/useTranslation';
 import AnimatedView from '@/components/AnimatedView';
 import AppButton from '@/components/AppButton';
 import { BranchNavigateSheet } from '@/components/BranchNavigateSheet';
@@ -56,19 +56,26 @@ export default function BranchesScreen() {
   );
   const callUsRef = useRef<ActionSheetRef>(null);
   const navigateRefs = useRef<Partial<Record<BranchInternalId, ActionSheetRef | null>>>({});
+  const scrollRef = useRef<ScrollView>(null);
   const { t } = useTranslation();
   const { copyToClipboard } = useCopyFeedback();
   const colors = useThemeColors();
 
+  const openBranchDetail = useCallback((branchId: BranchInternalId) => {
+    const crmBranchId = resolveCrmBranchId(branchId);
+    router.push(`/screens/branch-detail?id=${encodeURIComponent(crmBranchId)}` as never);
+  }, []);
+
   return (
     <>
       <ThemeScroller
+        ref={scrollRef}
         onScroll={Animated.event([{ nativeEvent: { contentOffset: { y: scrollY } } }], {
           useNativeDriver: false,
         })}
         scrollEventThrottle={16}>
-        <AnimatedView animation="scaleIn" className="mt-4 flex-1">
-          <View className="w-full pb-4">
+        <View className="mt-4 w-full flex-1">
+          <AnimatedView animation="scaleIn" className="flex-1">
             <CustomCard
               rounded="2xl"
               padding="md"
@@ -105,28 +112,27 @@ export default function BranchesScreen() {
                 {BRANCH_ORDER.map((branchId) => {
                   const meta = getBranchContactMeta(branchId);
                   return (
-                    <Image
+                    <Pressable
                       key={branchId}
-                      source={meta.carouselImage}
-                      className="h-8 w-8 rounded-sm"
-                      contentFit="cover"
+                      onPress={() => openBranchDetail(branchId)}
+                      accessibilityRole="button"
                       accessibilityLabel={meta.shortLabel}
-                    />
+                      className="active:opacity-70">
+                      <Image
+                        source={meta.carouselImage}
+                        className="h-8 w-8 rounded-sm"
+                        contentFit="cover"
+                      />
+                    </Pressable>
                   );
                 })}
               </View>
             </CustomCard>
-          </View>
 
           {BRANCH_ORDER.map((branchId) => {
             const meta = getBranchContactMeta(branchId);
             const branchImages = getBranchInteriorCarouselImages(branchId);
             const kudy = KUDY_K_NAM_VIDEOS.find((item) => item.id === branchId);
-            const crmBranchId = resolveCrmBranchId(branchId);
-            const openBranchDetail = () => {
-              if (!crmBranchId) return;
-              router.push(`/screens/branch-detail?id=${encodeURIComponent(crmBranchId)}` as never);
-            };
             const openNavigate = () => navigateRefs.current[branchId]?.show();
             const openCallUs = () => callUsRef.current?.show();
 
@@ -142,6 +148,8 @@ export default function BranchesScreen() {
                       images={branchImages}
                       paginationStyle="dots"
                       paginationPlacement="overlay"
+                      showPagination={branchImages.length > 1}
+                      onImagePress={() => openBranchDetail(branchId)}
                       getAccessibilityLabel={(index) =>
                         `${meta.shortLabel} ${index + 1}/${branchImages.length}`
                       }
@@ -150,17 +158,21 @@ export default function BranchesScreen() {
                 ) : null}
 
                 <View className="w-full">
-                  <View className="flex-row items-center gap-2">
-                    <Image
-                      source={meta.carouselImage}
-                      className="h-7 w-7 rounded-sm"
-                      contentFit="cover"
-                      accessibilityLabel={meta.shortLabel}
-                    />
-                    <ThemedText className="text-lg font-semibold">
-                      Real Barber {meta.shortLabel}
-                    </ThemedText>
-                  </View>
+                  <Pressable
+                    onPress={() => openBranchDetail(branchId)}
+                    className="self-start active:opacity-70">
+                    <View className="flex-row items-center gap-2">
+                      <Image
+                        source={meta.carouselImage}
+                        className="h-7 w-7 rounded-sm"
+                        contentFit="cover"
+                        accessibilityLabel={meta.shortLabel}
+                      />
+                      <ThemedText className="text-lg font-semibold">
+                        Real Barber {meta.shortLabel}
+                      </ThemedText>
+                    </View>
+                  </Pressable>
 
                   <View className="mt-2 gap-3">
                     <Pressable
@@ -261,8 +273,7 @@ export default function BranchesScreen() {
                         iconStart="ExternalLink"
                         iconSize={14}
                         textClassName="text-xs font-semibold"
-                        onPress={openBranchDetail}
-                        disabled={!crmBranchId}
+                        onPress={() => openBranchDetail(branchId)}
                       />
                       <AppButton
                         title={t('branchNavigateSectionTitle')}
@@ -292,7 +303,8 @@ export default function BranchesScreen() {
               </View>
             );
           })}
-        </AnimatedView>
+          </AnimatedView>
+        </View>
       </ThemeScroller>
 
       <OperatorSupportSheet ref={callUsRef} variant="callUs" />

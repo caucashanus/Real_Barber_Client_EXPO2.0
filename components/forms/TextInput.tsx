@@ -5,7 +5,7 @@ import { View, TextInput as RNTextInput, Animated, Pressable, TextInputProps } f
 import Icon, { type IconName } from '../Icon';
 import ThemedText from '../ThemedText';
 
-import useThemeColors from '@/app/contexts/ThemeColors';
+import useThemeColors from '@/contexts/ThemeColors';
 
 interface CustomTextInputProps extends TextInputProps {
   label: string;

@@ -1,6 +1,6 @@
 import { useCallback } from 'react';
 
-import { useLanguage } from '@/app/contexts/LanguageContext';
+import { useLanguage } from '@/contexts/LanguageContext';
 import { getTranslation } from '@/locales';
 import type { TranslationKey } from '@/locales';
 

@@ -1,7 +1,7 @@
 import React from 'react';
 import { View } from 'react-native';
 
-import type { BookingEngineFlow } from '@/app/hooks/useBookingEngineFlow';
+import type { BookingEngineFlow } from '@/hooks/useBookingEngineFlow';
 import Icon from '@/components/Icon';
 import ThemedText from '@/components/ThemedText';
 

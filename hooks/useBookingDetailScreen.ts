@@ -5,8 +5,8 @@ import { Platform } from 'react-native';
 import { getBookingById, normalizeBookingCouponUsages, type Booking } from '@/api/bookings';
 import { getBranches, type Branch } from '@/api/branches';
 import { getClientOverview, type ClientOverviewReservation } from '@/api/reviews';
-import { useAuth } from '@/app/contexts/AuthContext';
-import { useTranslation } from '@/app/hooks/useTranslation';
+import { useAuth } from '@/contexts/AuthContext';
+import { useTranslation } from '@/hooks/useTranslation';
 import { buildReservationReviewContextQuery } from '@/utils/bookingDetailHelpers';
 import { isBookingCurrent, isBookingMarkedCompleted, isBookingPast } from '@/utils/bookingHelpers';
 import {

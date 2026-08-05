@@ -16,10 +16,10 @@ import { ScrollContext } from './_layout';
 
 import { getRbCoinsBalance, getRbCoinsHistory, type RbCoinsHistoryItem } from '@/api/rb-coins';
 import { getReferrals, type ReferralActiveProgram } from '@/api/referrals';
-import { useAccentColor } from '@/app/contexts/AccentColorContext';
-import { useAuth } from '@/app/contexts/AuthContext';
-import useThemeColors from '@/app/contexts/ThemeColors';
-import { useTranslation } from '@/app/hooks/useTranslation';
+import { useAccentColor } from '@/contexts/AccentColorContext';
+import { useAuth } from '@/contexts/AuthContext';
+import useThemeColors from '@/contexts/ThemeColors';
+import { useTranslation } from '@/hooks/useTranslation';
 import AnimatedView from '@/components/AnimatedView';
 import Avatar from '@/components/Avatar';
 import Icon from '@/components/Icon';

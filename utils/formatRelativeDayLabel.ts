@@ -1,4 +1,4 @@
-import type { Locale } from '@/app/contexts/LanguageContext';
+import type { Locale } from '@/contexts/LanguageContext';
 
 /** cs | en (+ uk pro sdílenou logiku s webem). */
 export type RelativeDayLocale = Locale | 'uk';

@@ -4,8 +4,8 @@ import React from 'react';
 import { View, Text, Pressable } from 'react-native';
 import { useSafeAreaInsets, SafeAreaView } from 'react-native-safe-area-context';
 
-import { useLanguage } from '@/app/contexts/LanguageContext';
-import { useTranslation } from '@/app/hooks/useTranslation';
+import { useLanguage } from '@/contexts/LanguageContext';
+import { useTranslation } from '@/hooks/useTranslation';
 import ThemeToggle from '@/components/ThemeToggle';
 import ThemedText from '@/components/ThemedText';
 

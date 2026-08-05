@@ -3,9 +3,9 @@ import { Link } from 'expo-router';
 import React, { useState } from 'react';
 import { View, FlatList, TouchableOpacity } from 'react-native';
 
-import useThemeColors from '@/app/contexts/ThemeColors';
-import { useCollapsibleTitle } from '@/app/hooks/useCollapsibleTitle';
-import { useTranslation } from '@/app/hooks/useTranslation';
+import useThemeColors from '@/contexts/ThemeColors';
+import { useCollapsibleTitle } from '@/hooks/useCollapsibleTitle';
+import { useTranslation } from '@/hooks/useTranslation';
 import AnimatedView from '@/components/AnimatedView';
 import Avatar from '@/components/Avatar';
 import { CardScroller } from '@/components/CardScroller';

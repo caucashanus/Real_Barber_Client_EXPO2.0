@@ -3,8 +3,8 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { View, ActivityIndicator, Animated } from 'react-native';
 
 import { getReferrals, type ClientReferralItem } from '@/api/referrals';
-import { useAuth } from '@/app/contexts/AuthContext';
-import { useTranslation } from '@/app/hooks/useTranslation';
+import { useAuth } from '@/contexts/AuthContext';
+import { useTranslation } from '@/hooks/useTranslation';
 import Avatar from '@/components/Avatar';
 import Header from '@/components/Header';
 import Icon from '@/components/Icon';

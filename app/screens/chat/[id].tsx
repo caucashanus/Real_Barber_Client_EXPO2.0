@@ -11,7 +11,7 @@ import {
 import { ActionSheetRef } from 'react-native-actions-sheet';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { useThemeColors } from '@/app/contexts/ThemeColors';
+import { useThemeColors } from '@/contexts/ThemeColors';
 import ActionSheetThemed from '@/components/ActionSheetThemed';
 import Avatar from '@/components/Avatar';
 import Header, { HeaderIcon } from '@/components/Header';

@@ -72,3 +72,16 @@ export const ALL_BRANCH_INTERNAL_IDS: BranchInternalId[] = [
   'hagibor',
   'barrandov',
 ];
+
+/** Plný název jako na Kontaktech — „Real Barber Hagibor“. */
+export function getBranchBrandTitle(shortLabel: string): string {
+  const label = shortLabel.trim();
+  if (/^real barber\b/i.test(label)) return label;
+  return `Real Barber ${label}`;
+}
+
+/** Krátký název pro sticky header — „Hagibor“, „Barrandov“, … */
+export function getBranchStickyTitle(shortLabel: string): string {
+  const label = shortLabel.trim();
+  return label.replace(/^Real Barber\s+/i, '').trim() || label;
+}

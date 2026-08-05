@@ -13,8 +13,8 @@ import { ActionSheetRef } from 'react-native-actions-sheet';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import type { TeamMemberMediaItem } from '@/api/publicTeamMember';
-import { useBarberDetailScreen } from '@/app/hooks/useBarberDetailScreen';
-import { useTranslation } from '@/app/hooks/useTranslation';
+import { useBarberDetailScreen } from '@/hooks/useBarberDetailScreen';
+import { useTranslation } from '@/hooks/useTranslation';
 import Header from '@/components/Header';
 import { OperatorCallUsSheet } from '@/components/OperatorSupportSheet';
 import ThemedScroller from '@/components/ThemeScroller';
@@ -28,6 +28,7 @@ import BarberShiftBranchesSection from '@/components/barber/BarberShiftBranchesS
 import BarberStickyBar, {
   BARBER_DETAIL_HEADER_HEIGHT,
 } from '@/components/barber/BarberStickyBar';
+import SiteBreadcrumbs from '@/components/shared/SiteBreadcrumbs';
 import BarberStoriesSection from '@/components/barber/BarberStoriesSection';
 import MediaFullscreenModal from '@/components/detail/MediaFullscreenModal';
 import { buildEmployeeShareCopy } from '@/utils/branchShareHelpers';
@@ -36,6 +37,7 @@ import {
   getTodayActiveWaitlistBranchId,
 } from '@/utils/teamMemberPageHelpers';
 import { BARBER_DETAIL_SECTION_SPACING } from '@/constants/barberDetailLayout';
+import { teamMemberBreadcrumbItems } from '@/utils/breadcrumbs';
 
 const AVATAR_XL_HEIGHT = 80;
 
@@ -141,6 +143,10 @@ export default function BarberDetailScreen() {
         : { title: '', emailSubject: '', emailBody: '' },
     [displayName, employee, locale, profileShareUrl]
   );
+  const breadcrumbItems = useMemo(
+    () => teamMemberBreadcrumbItems(displayName, t),
+    [displayName, t]
+  );
 
   if (!loading && (error || !employee)) {
     return (
@@ -193,6 +199,10 @@ export default function BarberDetailScreen() {
                   }
                 : undefined
             }>
+          <SiteBreadcrumbs
+            items={breadcrumbItems}
+            accessibilityLabel={t('breadcrumbNavLabel')}
+          />
           <View onLayout={handlePinThresholdLayout} className={BARBER_DETAIL_SECTION_SPACING}>
             <BarberIdentitySection
               employeeId={employee.id}

@@ -16,9 +16,9 @@ import {
 import { deleteClientMedia, uploadClientMedia } from '@/api/client';
 import { getClientCut, patchClientCut, deleteClientCut, type ClientCut } from '@/api/cuts';
 import { getEmployees, type Employee } from '@/api/employees';
-import { useAuth } from '@/app/contexts/AuthContext';
-import { useSetTransferRecipient } from '@/app/contexts/TransferRecipientContext';
-import { useTranslation } from '@/app/hooks/useTranslation';
+import { useAuth } from '@/contexts/AuthContext';
+import { useSetTransferRecipient } from '@/contexts/TransferRecipientContext';
+import { useTranslation } from '@/hooks/useTranslation';
 import AnimatedView from '@/components/AnimatedView';
 import Avatar from '@/components/Avatar';
 import BarberPicker from '@/components/BarberPicker';

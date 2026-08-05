@@ -10,8 +10,8 @@ import {
   type ClientNotificationItem,
   type NotificationHistoryItem,
 } from '@/api/notifications';
-import { useAuth } from '@/app/contexts/AuthContext';
-import { useTranslation } from '@/app/hooks/useTranslation';
+import { useAuth } from '@/contexts/AuthContext';
+import { useTranslation } from '@/hooks/useTranslation';
 import ActionSheetThemed from '@/components/ActionSheetThemed';
 import AppButton from '@/components/AppButton';
 import { Button } from '@/components/Button';

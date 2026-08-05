@@ -14,10 +14,10 @@ import {
   deleteFavorite,
   type FavoriteEntityType,
 } from '@/api/favorites';
-import { useAuth } from '@/app/contexts/AuthContext';
-import { useFavoritesSync } from '@/app/contexts/FavoritesSyncContext';
-import { useThemeColors } from '@/app/contexts/ThemeColors';
-import { useTranslation } from '@/app/hooks/useTranslation';
+import { useAuth } from '@/contexts/AuthContext';
+import { useFavoritesSync } from '@/contexts/FavoritesSyncContext';
+import { useThemeColors } from '@/contexts/ThemeColors';
+import { useTranslation } from '@/hooks/useTranslation';
 import {
   markFavoriteFeedbackSheetClosed,
   shouldShowFavoriteFeedbackSheet,

@@ -1,7 +1,7 @@
 import React from 'react';
 import { Pressable } from 'react-native';
 
-import { useCopyFeedback } from '@/app/contexts/CopyFeedbackContext';
+import { useCopyFeedback } from '@/contexts/CopyFeedbackContext';
 import Icon from '@/components/Icon';
 
 interface CopyIconButtonProps {

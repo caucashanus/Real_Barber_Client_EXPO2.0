@@ -1,8 +1,8 @@
 import React, { useRef } from 'react';
 import { Pressable, View } from 'react-native';
 
-import type { BookingEngineFlow } from '@/app/hooks/useBookingEngineFlow';
-import { useTheme } from '@/app/contexts/ThemeContext';
+import type { BookingEngineFlow } from '@/hooks/useBookingEngineFlow';
+import { useTheme } from '@/contexts/ThemeContext';
 import RatingBadge from '@/components/RatingBadge';
 import ThemedText from '@/components/ThemedText';
 import BookingPanelPickerRow from '@/components/booking/engine/BookingPanelPickerRow';

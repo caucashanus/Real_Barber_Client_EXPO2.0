@@ -7,9 +7,9 @@ import { View, Animated, Pressable, ActivityIndicator } from 'react-native';
 import { ScrollContext } from './_layout';
 
 import { getClientCuts, type ClientCut } from '@/api/cuts';
-import { useAuth } from '@/app/contexts/AuthContext';
-import useThemeColors from '@/app/contexts/ThemeColors';
-import { useTranslation } from '@/app/hooks/useTranslation';
+import { useAuth } from '@/contexts/AuthContext';
+import useThemeColors from '@/contexts/ThemeColors';
+import { useTranslation } from '@/hooks/useTranslation';
 import AnimatedView from '@/components/AnimatedView';
 import { Button } from '@/components/Button';
 import Card from '@/components/Card';

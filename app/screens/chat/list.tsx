@@ -2,8 +2,8 @@ import { Link } from 'expo-router';
 import React from 'react';
 import { View, FlatList, TouchableOpacity } from 'react-native';
 
-import useThemeColors from '@/app/contexts/ThemeColors';
-import { useTranslation } from '@/app/hooks/useTranslation';
+import useThemeColors from '@/contexts/ThemeColors';
+import { useTranslation } from '@/hooks/useTranslation';
 import Avatar from '@/components/Avatar';
 import Header from '@/components/Header';
 import ThemedText from '@/components/ThemedText';

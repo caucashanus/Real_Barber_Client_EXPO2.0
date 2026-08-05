@@ -10,10 +10,10 @@ import {
   type Booking,
   type BookingAvailabilityResponse,
 } from '@/api/bookings';
-import { useAuth } from '@/app/contexts/AuthContext';
-import { useLanguage } from '@/app/contexts/LanguageContext';
-import useThemeColors from '@/app/contexts/ThemeColors';
-import { useTranslation } from '@/app/hooks/useTranslation';
+import { useAuth } from '@/contexts/AuthContext';
+import { useLanguage } from '@/contexts/LanguageContext';
+import useThemeColors from '@/contexts/ThemeColors';
+import { useTranslation } from '@/hooks/useTranslation';
 import AppButton from '@/components/AppButton';
 import { Chip } from '@/components/Chip';
 import Header from '@/components/Header';

@@ -4,8 +4,8 @@ import { Alert, View } from 'react-native';
 import { ActionSheetRef } from 'react-native-actions-sheet';
 
 import { cancelBooking, type Booking } from '@/api/bookings';
-import { useAuth } from '@/app/contexts/AuthContext';
-import { useBookings } from '@/app/contexts/BookingsBadgeContext';
+import { useAuth } from '@/contexts/AuthContext';
+import { useBookings } from '@/contexts/BookingsBadgeContext';
 import { Button } from '@/components/Button';
 import ConfirmationModal from '@/components/ConfirmationModal';
 import LiveIndicator from '@/components/LiveIndicator';

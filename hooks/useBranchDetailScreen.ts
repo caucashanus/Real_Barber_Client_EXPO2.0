@@ -2,13 +2,30 @@ import { useFocusEffect } from '@react-navigation/native';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 
 import { getBranchById, type Branch } from '@/api/branches';
+import { getHome } from '@/api/home';
 import { getEntityReviews, type EntityReviewItem } from '@/api/reviews';
-import { useAuth } from '@/app/contexts/AuthContext';
+import type { Locale } from '@/contexts/LanguageContext';
+import { useAuth } from '@/contexts/AuthContext';
+import { useLanguage } from '@/contexts/LanguageContext';
+import { useTranslation } from '@/hooks/useTranslation';
+import { resolveInternalBranchIdFromCrmUuid } from '@/constants/crmBranchIds';
 import { computeReviewStats } from '@/utils/barberDetailHelpers';
+import {
+  buildHomeTodayTeamCards,
+  mergeTodayTeamWithAvailability,
+} from '@/utils/homeTodayTeamHelpers';
 import { getMockReviews } from '@/utils/mockReviews';
+import {
+  buildNearestBranchSlotsByInternalId,
+  groupNearestBranchSlots,
+  type NearestBranchHomeSlot,
+} from '@/utils/nearestBranchHomeSlots';
+import { getPragueTodayDateString } from '@/utils/teamMemberPageHelpers';
 
 export function useBranchDetailScreen(id: string) {
   const { apiToken } = useAuth();
+  const { locale } = useLanguage();
+  const { t } = useTranslation();
 
   const [branch, setBranch] = useState<Branch | null>(null);
   const [loading, setLoading] = useState(true);
@@ -17,8 +34,11 @@ export function useBranchDetailScreen(id: string) {
   const [reviewsTotal, setReviewsTotal] = useState<number | null>(null);
   const [loadingReviews, setLoadingReviews] = useState(false);
   const [hasReviewed, setHasReviewed] = useState(false);
-  const [descriptionModalVisible, setDescriptionModalVisible] = useState(false);
   const [ratingModalVisible, setRatingModalVisible] = useState(false);
+  const [branchSlots, setBranchSlots] = useState<NearestBranchHomeSlot[]>([]);
+  const [loadingSlots, setLoadingSlots] = useState(false);
+
+  const todayIso = useMemo(() => getPragueTodayDateString(), []);
 
   useEffect(() => {
     if (!apiToken || !id) {
@@ -57,6 +77,24 @@ export function useBranchDetailScreen(id: string) {
       .finally(() => setLoadingReviews(false));
   }, [apiToken, branch?.id]);
 
+  useEffect(() => {
+    if (!apiToken) return;
+    setLoadingSlots(true);
+    getHome({ date: todayIso, locale, apiToken })
+      .then((data) => {
+        const members = mergeTodayTeamWithAvailability(
+          data.todayTeam ?? [],
+          data.availability
+        );
+        const cards = buildHomeTodayTeamCards({ members, locale, t });
+        const byBranch = buildNearestBranchSlotsByInternalId(cards, locale);
+        const internalId = resolveInternalBranchIdFromCrmUuid(id);
+        setBranchSlots(internalId ? byBranch[internalId] ?? [] : []);
+      })
+      .catch(() => setBranchSlots([]))
+      .finally(() => setLoadingSlots(false));
+  }, [apiToken, id, locale, t, todayIso]);
+
   useFocusEffect(
     useCallback(() => {
       if (!apiToken || !branch?.id) return;
@@ -69,6 +107,16 @@ export function useBranchDetailScreen(id: string) {
         })
         .catch(() => {});
     }, [apiToken, branch?.id])
+  );
+
+  const internalBranchId = useMemo(
+    () => resolveInternalBranchIdFromCrmUuid(branch?.id ?? id),
+    [branch?.id, id]
+  );
+
+  const slotGroups = useMemo(
+    () => groupNearestBranchSlots(branchSlots, locale as Locale, todayIso),
+    [branchSlots, locale, todayIso]
   );
 
   const {
@@ -85,12 +133,14 @@ export function useBranchDetailScreen(id: string) {
     reviews,
     loadingReviews,
     hasReviewed,
-    descriptionModalVisible,
-    setDescriptionModalVisible,
     ratingModalVisible,
     setRatingModalVisible,
     countByRating,
     average,
     displayTotal,
+    internalBranchId,
+    slotGroups,
+    loadingSlots,
+    locale,
   };
 }

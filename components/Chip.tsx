@@ -5,7 +5,7 @@ import { Text, View, TouchableOpacity, ViewStyle, ImageSourcePropType } from 're
 
 import Icon, { IconName } from './Icon';
 
-import useThemeColors from '@/app/contexts/ThemeColors';
+import useThemeColors from '@/contexts/ThemeColors';
 type ChipSize = 'xs' | 'sm' | 'md' | 'lg' | 'xl' | 'xxl';
 type ChipRounded = 'full' | 'xl' | 'lg' | 'md';
 

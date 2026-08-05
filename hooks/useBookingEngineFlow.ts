@@ -11,16 +11,16 @@ import {
   getBookingSlotServices,
   loadBookingEmployeesWithNearestSlots,
 } from '@/api/bookingEngine';
-import { useAuth } from '@/app/contexts/AuthContext';
-import { useLanguage } from '@/app/contexts/LanguageContext';
-import useThemeColors from '@/app/contexts/ThemeColors';
+import { useAuth } from '@/contexts/AuthContext';
+import { useLanguage } from '@/contexts/LanguageContext';
+import useThemeColors from '@/contexts/ThemeColors';
 import {
   formatBookingSubmitError,
   useBookingEngineContact,
-} from '@/app/hooks/useBookingEngineContact';
-import { useTranslation } from '@/app/hooks/useTranslation';
+} from '@/hooks/useBookingEngineContact';
+import { useTranslation } from '@/hooks/useTranslation';
 import type { TranslationKey } from '@/locales';
-import { useBookings } from '@/app/contexts/BookingsBadgeContext';
+import { useBookings } from '@/contexts/BookingsBadgeContext';
 import {
   ANY_EMPLOYEE_ID,
   type BookingEntity,

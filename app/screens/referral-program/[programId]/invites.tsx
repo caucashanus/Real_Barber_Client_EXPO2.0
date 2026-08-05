@@ -7,8 +7,8 @@ import {
   type ClientReferralItem,
   type PendingAttributionItem,
 } from '@/api/referrals';
-import { useAuth } from '@/app/contexts/AuthContext';
-import { useTranslation } from '@/app/hooks/useTranslation';
+import { useAuth } from '@/contexts/AuthContext';
+import { useTranslation } from '@/hooks/useTranslation';
 import Avatar from '@/components/Avatar';
 import Header from '@/components/Header';
 import ThemedScroller from '@/components/ThemeScroller';

@@ -12,12 +12,12 @@ import {
   type ClientCatalogProduct,
   type ClientProductPurchase,
 } from '@/api/products';
-import { useAuth } from '@/app/contexts/AuthContext';
+import { useAuth } from '@/contexts/AuthContext';
 import {
   useSetSelectedCatalogProduct,
   useSetSelectedPurchase,
-} from '@/app/contexts/SelectedPurchaseContext';
-import { useTranslation } from '@/app/hooks/useTranslation';
+} from '@/contexts/SelectedPurchaseContext';
+import { useTranslation } from '@/hooks/useTranslation';
 import AnimatedView from '@/components/AnimatedView';
 import Card from '@/components/Card';
 import { CardScroller } from '@/components/CardScroller';

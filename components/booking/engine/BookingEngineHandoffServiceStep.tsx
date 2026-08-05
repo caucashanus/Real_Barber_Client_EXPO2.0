@@ -2,7 +2,7 @@ import { Image } from 'expo-image';
 import React from 'react';
 import { ActivityIndicator, View } from 'react-native';
 
-import type { BookingEngineFlow } from '@/app/hooks/useBookingEngineFlow';
+import type { BookingEngineFlow } from '@/hooks/useBookingEngineFlow';
 import BookingHandoffServiceTimeButton from '@/components/booking/BookingHandoffServiceTimeButton';
 import ThemedText from '@/components/ThemedText';
 import { BOOKING_FLOW_CARD_OUTER_CLASS } from '@/components/booking/engine/BookingPanelPickerRow';

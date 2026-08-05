@@ -4,7 +4,7 @@ import React from 'react';
 import { View, Pressable } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { useTranslation } from '@/app/hooks/useTranslation';
+import { useTranslation } from '@/hooks/useTranslation';
 import AppButton from '@/components/AppButton';
 import ThemedText from '@/components/ThemedText';
 

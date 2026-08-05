@@ -20,7 +20,7 @@ import {
   getTeamMemberPage,
   type TeamMemberPageEmployee,
 } from '@/api/publicTeamMember';
-import type { Locale } from '@/app/contexts/LanguageContext';
+import type { Locale } from '@/contexts/LanguageContext';
 import ActionSheetThemed from '@/components/ActionSheetThemed';
 import AppButton from '@/components/AppButton';
 import Avatar from '@/components/Avatar';

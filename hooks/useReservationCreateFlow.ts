@@ -1,18 +1,18 @@
 import { useCallback, useMemo, useState } from 'react';
 
-import { useAuth } from '@/app/contexts/AuthContext';
-import { useLanguage } from '@/app/contexts/LanguageContext';
-import useThemeColors from '@/app/contexts/ThemeColors';
-import { useReservationAvailability } from '@/app/hooks/useReservationAvailability';
-import { useReservationBootstrap } from '@/app/hooks/useReservationBootstrap';
-import { useReservationCatalog } from '@/app/hooks/useReservationCatalog';
-import { useReservationCoupon } from '@/app/hooks/useReservationCoupon';
-import { useReservationDetailSheets } from '@/app/hooks/useReservationDetailSheets';
-import { useReservationFlowNavigation } from '@/app/hooks/useReservationFlowNavigation';
-import { useReservationSlotHandoff } from '@/app/hooks/useReservationSlotHandoff';
-import { useReservationSubmit } from '@/app/hooks/useReservationSubmit';
-import { useReservationSummaryLabels } from '@/app/hooks/useReservationSummaryLabels';
-import { useTranslation } from '@/app/hooks/useTranslation';
+import { useAuth } from '@/contexts/AuthContext';
+import { useLanguage } from '@/contexts/LanguageContext';
+import useThemeColors from '@/contexts/ThemeColors';
+import { useReservationAvailability } from '@/hooks/useReservationAvailability';
+import { useReservationBootstrap } from '@/hooks/useReservationBootstrap';
+import { useReservationCatalog } from '@/hooks/useReservationCatalog';
+import { useReservationCoupon } from '@/hooks/useReservationCoupon';
+import { useReservationDetailSheets } from '@/hooks/useReservationDetailSheets';
+import { useReservationFlowNavigation } from '@/hooks/useReservationFlowNavigation';
+import { useReservationSlotHandoff } from '@/hooks/useReservationSlotHandoff';
+import { useReservationSubmit } from '@/hooks/useReservationSubmit';
+import { useReservationSummaryLabels } from '@/hooks/useReservationSummaryLabels';
+import { useTranslation } from '@/hooks/useTranslation';
 import {
   isReservationStepValid,
   type ReservationFlowData,

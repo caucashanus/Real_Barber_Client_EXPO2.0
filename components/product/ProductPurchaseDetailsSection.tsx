@@ -1,7 +1,7 @@
 import React from 'react';
 
 import type { ClientProductPurchase } from '@/api/products';
-import type { Locale } from '@/app/contexts/LanguageContext';
+import type { Locale } from '@/contexts/LanguageContext';
 import { ProductFeatureItem } from '@/components/product/ProductFeatureItem';
 import type { TranslationKey } from '@/locales';
 import {

@@ -5,9 +5,9 @@ import Modal from 'react-native-modal';
 
 import { InputVariant } from './Input';
 
-import { useLanguage } from '@/app/contexts/LanguageContext';
-import { useThemeColors } from '@/app/contexts/ThemeColors';
-import { useTranslation } from '@/app/hooks/useTranslation';
+import { useLanguage } from '@/contexts/LanguageContext';
+import { useThemeColors } from '@/contexts/ThemeColors';
+import { useTranslation } from '@/hooks/useTranslation';
 import { Button } from '@/components/Button';
 import Icon from '@/components/Icon';
 import ThemedText from '@/components/ThemedText';

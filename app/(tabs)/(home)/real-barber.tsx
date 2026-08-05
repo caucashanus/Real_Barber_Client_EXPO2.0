@@ -3,10 +3,10 @@ import { router } from 'expo-router';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { Pressable, RefreshControl, useWindowDimensions, View } from 'react-native';
 
-import { useAccentColor } from '@/app/contexts/AccentColorContext';
-import { useAuth } from '@/app/contexts/AuthContext';
-import { useHomePage } from '@/app/hooks/useHomePage';
-import { useTranslation } from '@/app/hooks/useTranslation';
+import { useAccentColor } from '@/contexts/AccentColorContext';
+import { useAuth } from '@/contexts/AuthContext';
+import { useHomePage } from '@/hooks/useHomePage';
+import { useTranslation } from '@/hooks/useTranslation';
 import Avatar from '@/components/Avatar';
 import { HomePromoCarousel } from '@/components/HomePromoCarousel';
 import { HomeRepeatBookingCard } from '@/components/HomeRepeatBookingCard';

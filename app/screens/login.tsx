@@ -4,7 +4,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { View, Animated, StyleSheet } from 'react-native';
 
 import { requestClientOtp } from '@/api/auth';
-import { useTranslation } from '@/app/hooks/useTranslation';
+import { useTranslation } from '@/hooks/useTranslation';
 import { Button } from '@/components/Button';
 import Header from '@/components/Header';
 import ThemedText from '@/components/ThemedText';

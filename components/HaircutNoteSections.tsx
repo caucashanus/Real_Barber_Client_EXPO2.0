@@ -2,7 +2,7 @@ import { Image } from 'expo-image';
 import React, { useMemo, useState } from 'react';
 import { View, Pressable } from 'react-native';
 
-import { useTranslation } from '@/app/hooks/useTranslation';
+import { useTranslation } from '@/hooks/useTranslation';
 import HaircutNoteEditModals, {
   type HaircutNotePickerKind,
 } from '@/components/HaircutNoteEditModals';

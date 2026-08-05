@@ -123,7 +123,7 @@ export default function BranchOpenStatusRow({
   const chip = statusChipStyle(kind);
 
   return (
-    <View className="w-full flex-row flex-wrap items-center gap-3">
+    <View className="flex-row flex-wrap items-center gap-3">
       <AppButton
         variant="choice"
         size="xs"
@@ -152,11 +152,13 @@ export default function BranchOpenStatusRow({
           </Text>
         </View>
       </AppButton>
-      <Pressable onPress={showHours} hitSlop={8} className="active:opacity-75">
-        <ThemedText className="text-sm leading-5 text-light-subtext underline dark:text-dark-subtext">
-          {t('nearestBranchHoursHint')}
-        </ThemedText>
-      </Pressable>
+      <View className="h-7 justify-center">
+        <Pressable onPress={showHours} hitSlop={8} className="active:opacity-75">
+          <ThemedText className="text-sm leading-5 text-light-subtext underline dark:text-dark-subtext">
+            {t('nearestBranchHoursHint')}
+          </ThemedText>
+        </Pressable>
+      </View>
     </View>
   );
 }

@@ -6,11 +6,11 @@ import ActionSheet, { ActionSheetRef, FlatList } from 'react-native-actions-shee
 import MapView, { Callout, Marker } from 'react-native-maps';
 
 import { getBranches, type Branch, type BranchService } from '@/api/branches';
-import { useAuth } from '@/app/contexts/AuthContext';
-import { useBranchFilter } from '@/app/contexts/BranchFilterContext';
-import type { BranchFilterState } from '@/app/contexts/BranchFilterContext';
-import useThemeColors from '@/app/contexts/ThemeColors';
-import { useTranslation } from '@/app/hooks/useTranslation';
+import { useAuth } from '@/contexts/AuthContext';
+import { useBranchFilter } from '@/contexts/BranchFilterContext';
+import type { BranchFilterState } from '@/contexts/BranchFilterContext';
+import useThemeColors from '@/contexts/ThemeColors';
+import { useTranslation } from '@/hooks/useTranslation';
 import CustomCard from '@/components/CustomCard';
 import Header, { HeaderIcon } from '@/components/Header';
 import ImageCarousel from '@/components/ImageCarousel';

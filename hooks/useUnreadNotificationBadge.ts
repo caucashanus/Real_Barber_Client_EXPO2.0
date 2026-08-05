@@ -1,7 +1,7 @@
 import { useFocusEffect } from '@react-navigation/native';
 import { useCallback, useState } from 'react';
 
-import { useAuth } from '@/app/contexts/AuthContext';
+import { useAuth } from '@/contexts/AuthContext';
 import { hasUnreadNotifications } from '@/utils/hasUnreadNotifications';
 
 export function useUnreadNotificationBadge(): boolean {

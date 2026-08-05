@@ -66,6 +66,7 @@ const ImageCarousel: React.FC<ImageCarouselProps> = ({
   const canRenderCarousel = slideWidth > 0;
   const flatListRef = React.useRef<FlatList>(null);
   const activeIndexRef = React.useRef(0);
+  const isDraggingRef = React.useRef(false);
 
   useEffect(() => {
     if (propWidth != null) {
@@ -221,7 +222,10 @@ const ImageCarousel: React.FC<ImageCarouselProps> = ({
       return (
         <Pressable
           style={slideStyle}
-          onPress={() => onImagePress(index)}
+          onPress={() => {
+            if (isDraggingRef.current) return;
+            onImagePress(index);
+          }}
           accessibilityRole="button"
           accessibilityLabel={getAccessibilityLabel?.(index)}>
           {image}
@@ -276,6 +280,10 @@ const ImageCarousel: React.FC<ImageCarouselProps> = ({
               disableIntervalMomentum: true,
             })}
         showsHorizontalScrollIndicator={false}
+        nestedScrollEnabled
+        onScrollBeginDrag={() => {
+          isDraggingRef.current = true;
+        }}
         keyExtractor={(_, index) => index.toString()}
         renderItem={renderItem}
         getItemLayout={(_, index) => ({
@@ -286,10 +294,14 @@ const ImageCarousel: React.FC<ImageCarouselProps> = ({
         onMomentumScrollEnd={(e) => {
           const contentOffsetX = e.nativeEvent.contentOffset.x;
           handleImageChange(contentOffsetX);
+          isDraggingRef.current = false;
         }}
         onScrollEndDrag={(e) => {
           const contentOffsetX = e.nativeEvent.contentOffset.x;
           handleImageChange(contentOffsetX);
+          if (Platform.OS === 'android') {
+            isDraggingRef.current = false;
+          }
         }}
         style={{ height: resolvedHeight, width: slideWidth }}
         contentContainerStyle={{ width: slideWidth * images.length }}

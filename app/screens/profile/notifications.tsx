@@ -3,8 +3,8 @@ import * as Notifications from 'expo-notifications';
 import React, { useState } from 'react';
 import { View, Alert, Platform } from 'react-native';
 
-import { useAuth } from '@/app/contexts/AuthContext';
-import { useTranslation } from '@/app/hooks/useTranslation';
+import { useAuth } from '@/contexts/AuthContext';
+import { useTranslation } from '@/hooks/useTranslation';
 import { Button } from '@/components/Button';
 import Header from '@/components/Header';
 import ThemedScroller from '@/components/ThemeScroller';

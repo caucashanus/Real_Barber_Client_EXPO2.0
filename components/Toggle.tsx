@@ -1,7 +1,7 @@
 import React, { useState, useRef } from 'react';
 import { View, Pressable, Animated } from 'react-native';
 
-import useThemeColors from '@/app/contexts/ThemeColors';
+import useThemeColors from '@/contexts/ThemeColors';
 
 interface ToggleProps {
   value?: boolean;

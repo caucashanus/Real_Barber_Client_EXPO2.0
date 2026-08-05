@@ -4,7 +4,7 @@ import { View, Animated, TouchableOpacity, StyleProp, ViewStyle } from 'react-na
 import Icon, { IconName } from '../Icon';
 import ThemedText from '../ThemedText';
 
-import useThemeColors from '@/app/contexts/ThemeColors';
+import useThemeColors from '@/contexts/ThemeColors';
 import { triggerImpact } from '@/utils/appHaptics';
 import * as Haptics from 'expo-haptics';
 

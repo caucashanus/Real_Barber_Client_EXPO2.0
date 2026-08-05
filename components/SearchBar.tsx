@@ -11,7 +11,7 @@ import Icon from './Icon';
 import ThemedScroller from './ThemeScroller';
 import ThemedText from './ThemedText';
 
-import { useTranslation } from '@/app/hooks/useTranslation';
+import { useTranslation } from '@/hooks/useTranslation';
 import { shadowPresets } from '@/utils/useShadow';
 
 const NAV_ITEM_IDS = [

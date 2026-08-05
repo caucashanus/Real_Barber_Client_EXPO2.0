@@ -5,11 +5,11 @@ import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { View, RefreshControl, Text, ActivityIndicator, Share, Linking } from 'react-native';
 
 import { getClientMe, type ClientMe } from '@/api/client';
-import { useAccentColor } from '@/app/contexts/AccentColorContext';
-import { useAuth } from '@/app/contexts/AuthContext';
-import { useBookings } from '@/app/contexts/BookingsBadgeContext';
-import { useTranslation } from '@/app/hooks/useTranslation';
-import { useUnreadNotificationBadge } from '@/app/hooks/useUnreadNotificationBadge';
+import { useAccentColor } from '@/contexts/AccentColorContext';
+import { useAuth } from '@/contexts/AuthContext';
+import { useBookings } from '@/contexts/BookingsBadgeContext';
+import { useTranslation } from '@/hooks/useTranslation';
+import { useUnreadNotificationBadge } from '@/hooks/useUnreadNotificationBadge';
 import AnimatedView from '@/components/AnimatedView';
 import Avatar from '@/components/Avatar';
 import Header, { HeaderIcon } from '@/components/Header';

@@ -6,9 +6,9 @@ import React, { useState, useEffect } from 'react';
 import { View, TouchableOpacity, Alert, ActivityIndicator } from 'react-native';
 
 import { createReview, getEntityReviews, updateReview, deleteReview } from '@/api/reviews';
-import { useAuth } from '@/app/contexts/AuthContext';
-import useThemeColors from '@/app/contexts/ThemeColors';
-import { useTranslation } from '@/app/hooks/useTranslation';
+import { useAuth } from '@/contexts/AuthContext';
+import useThemeColors from '@/contexts/ThemeColors';
+import { useTranslation } from '@/hooks/useTranslation';
 import Avatar from '@/components/Avatar';
 import { Button } from '@/components/Button';
 import Header from '@/components/Header';

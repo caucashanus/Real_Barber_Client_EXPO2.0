@@ -2,8 +2,8 @@ import React, { useEffect, useState } from 'react';
 import { View, ActivityIndicator } from 'react-native';
 
 import { getRbCoinsHistory, type RbCoinsHistoryItem } from '@/api/rb-coins';
-import { useAuth } from '@/app/contexts/AuthContext';
-import { useTranslation } from '@/app/hooks/useTranslation';
+import { useAuth } from '@/contexts/AuthContext';
+import { useTranslation } from '@/hooks/useTranslation';
 import Avatar from '@/components/Avatar';
 import Header from '@/components/Header';
 import ThemedScroller from '@/components/ThemeScroller';

@@ -5,8 +5,8 @@ import React, { useEffect, useRef } from 'react';
 import { AppState, Platform } from 'react-native';
 
 import { unregisterPushToken, registerPushToken } from '@/api/push';
-import { useAuth } from '@/app/contexts/AuthContext';
-import { useLanguage } from '@/app/contexts/LanguageContext';
+import { useAuth } from '@/contexts/AuthContext';
+import { useLanguage } from '@/contexts/LanguageContext';
 import { openFromPushNotificationData } from '@/utils/pushNavigation';
 
 const PUSH_TOKEN_KEY = '@expo_push_token';

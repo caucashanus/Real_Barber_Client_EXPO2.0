@@ -3,7 +3,8 @@ import type { BranchInternalId } from '@/constants/crmBranchIds';
 import { resolveInternalBranchIdFromCrmUuid } from '@/constants/crmBranchIds';
 import type { HomeTodayTeamCardModel } from '@/utils/homeTodayTeamHelpers';
 import { resolveHomeTodaySlotBranch } from '@/utils/homeTodayTeamHelpers';
-import type { Locale } from '@/app/contexts/LanguageContext';
+import type { Locale } from '@/contexts/LanguageContext';
+import { formatRelativeDayLabel } from '@/utils/formatRelativeDayLabel';
 
 export type NearestBranchHomeSlot = {
   employeeId: string;
@@ -78,4 +79,34 @@ export function buildNearestBranchSlotsByInternalId(
 
 export function emptyNearestBranchSlots(): Record<BranchInternalId, NearestBranchHomeSlot[]> {
   return { ...EMPTY };
+}
+
+const MAX_NEAREST_SLOTS = 16;
+
+export function groupNearestBranchSlots(
+  slots: NearestBranchHomeSlot[],
+  locale: Locale,
+  todayIso: string
+): { dayLabel: string; slots: NearestBranchHomeSlot[] }[] {
+  const limited = slots.slice(0, MAX_NEAREST_SLOTS);
+  const order: string[] = [];
+  const byDate = new Map<string, NearestBranchHomeSlot[]>();
+
+  for (const slot of limited) {
+    if (!byDate.has(slot.date)) {
+      byDate.set(slot.date, []);
+      order.push(slot.date);
+    }
+    byDate.get(slot.date)!.push(slot);
+  }
+
+  return order.map((date) => ({
+    dayLabel: formatRelativeDayLabel({
+      dayIso: date,
+      todayIso,
+      locale,
+      variant: 'title',
+    }),
+    slots: byDate.get(date) ?? [],
+  }));
 }

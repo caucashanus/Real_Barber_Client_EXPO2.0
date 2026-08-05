@@ -4,8 +4,8 @@ import { Alert, View } from 'react-native';
 import { ActionSheetRef } from 'react-native-actions-sheet';
 
 import { deleteClientAccount } from '@/api/client';
-import { useAuth } from '@/app/contexts/AuthContext';
-import { useTranslation } from '@/app/hooks/useTranslation';
+import { useAuth } from '@/contexts/AuthContext';
+import { useTranslation } from '@/hooks/useTranslation';
 import { Button } from '@/components/Button';
 import ConfirmationModal from '@/components/ConfirmationModal';
 import Header from '@/components/Header';

@@ -6,7 +6,7 @@ import AnimatedView from '../AnimatedView';
 import Icon, { IconName } from '../Icon';
 import ThemedText from '../ThemedText';
 
-import useThemeColors from '@/app/contexts/ThemeColors';
+import useThemeColors from '@/contexts/ThemeColors';
 import { triggerImpact } from '@/utils/appHaptics';
 
 interface SelectableProps {

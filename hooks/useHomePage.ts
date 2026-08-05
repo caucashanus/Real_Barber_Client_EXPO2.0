@@ -6,9 +6,9 @@ import type { Booking } from '@/api/bookings';
 import type { ClientCoupon } from '@/api/client-coupons';
 import type { ClientPoster } from '@/api/client-posters';
 import type { HomepageNextSlot, HomepageTodayTeamMember } from '@/api/homeTeamTypes';
-import { useAuth } from '@/app/contexts/AuthContext';
-import { useLanguage } from '@/app/contexts/LanguageContext';
-import { useTranslation } from '@/app/hooks/useTranslation';
+import { useAuth } from '@/contexts/AuthContext';
+import { useLanguage } from '@/contexts/LanguageContext';
+import { useTranslation } from '@/hooks/useTranslation';
 import {
   buildHomeTodayTeamCards,
   mergeTodayTeamWithAvailability,

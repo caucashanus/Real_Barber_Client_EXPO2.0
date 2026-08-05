@@ -4,7 +4,7 @@ import React, { useCallback, useEffect, useState } from 'react';
 import { View, Pressable, ScrollView, useWindowDimensions, ActivityIndicator } from 'react-native';
 
 import { getAllPublicMediaByFlag, type MediaFile } from '@/api/media';
-import { useTranslation } from '@/app/hooks/useTranslation';
+import { useTranslation } from '@/hooks/useTranslation';
 import Icon from '@/components/Icon';
 import ThemedText from '@/components/ThemedText';
 

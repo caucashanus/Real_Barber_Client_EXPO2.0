@@ -5,9 +5,9 @@ import { ActionSheetRef } from 'react-native-actions-sheet';
 import { ScrollContext } from './_layout';
 
 import { getEmployees, type Employee } from '@/api/employees';
-import { useAuth } from '@/app/contexts/AuthContext';
-import { useBarbersRoster } from '@/app/hooks/useBarbersRoster';
-import { useTranslation } from '@/app/hooks/useTranslation';
+import { useAuth } from '@/contexts/AuthContext';
+import { useBarbersRoster } from '@/hooks/useBarbersRoster';
+import { useTranslation } from '@/hooks/useTranslation';
 import { CLIENT_APP_V1_ENABLED } from '@/constants/clientAppApi';
 import ActionSheetThemed from '@/components/ActionSheetThemed';
 import AnimatedView from '@/components/AnimatedView';

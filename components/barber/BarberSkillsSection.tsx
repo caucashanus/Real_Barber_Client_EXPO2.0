@@ -2,7 +2,7 @@ import React, { useMemo } from 'react';
 import { View } from 'react-native';
 
 import type { TeamMemberPageEmployee } from '@/api/publicTeamMember';
-import type { Locale } from '@/app/contexts/LanguageContext';
+import type { Locale } from '@/contexts/LanguageContext';
 import ChoiceChipLabel from '@/components/ChoiceChipLabel';
 import ThemedText from '@/components/ThemedText';
 import Section from '@/components/layout/Section';

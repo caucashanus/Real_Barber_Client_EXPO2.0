@@ -6,7 +6,7 @@ import { Pressable, View } from 'react-native';
 import type { TeamMemberPageBranch } from '@/api/publicTeamMember';
 import Icon from '@/components/Icon';
 import ThemedText from '@/components/ThemedText';
-import type { Locale } from '@/app/contexts/LanguageContext';
+import type { Locale } from '@/contexts/LanguageContext';
 import type { TranslationKey } from '@/locales';
 import { getTeamMemberBranchName, formatBranchAddressShort } from '@/utils/teamMemberPageHelpers';
 import { BARBER_DETAIL_SECTION_SPACING } from '@/constants/barberDetailLayout';

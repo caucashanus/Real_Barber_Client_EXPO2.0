@@ -4,8 +4,8 @@ import { ScrollView, View } from 'react-native';
 import { ActionSheetRef } from 'react-native-actions-sheet';
 
 import type { RbCoinsHistoryItem } from '@/api/rb-coins';
-import { useSetTransferRecipient } from '@/app/contexts/TransferRecipientContext';
-import { useTranslation } from '@/app/hooks/useTranslation';
+import { useSetTransferRecipient } from '@/contexts/TransferRecipientContext';
+import { useTranslation } from '@/hooks/useTranslation';
 import ActionSheetThemed from '@/components/ActionSheetThemed';
 import Avatar from '@/components/Avatar';
 import AppButton from '@/components/AppButton';

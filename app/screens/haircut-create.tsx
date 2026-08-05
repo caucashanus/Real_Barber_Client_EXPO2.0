@@ -4,8 +4,8 @@ import { Alert } from 'react-native';
 
 import { uploadClientMedia } from '@/api/client';
 import { createClientCut } from '@/api/cuts';
-import { useAuth } from '@/app/contexts/AuthContext';
-import { useTranslation } from '@/app/hooks/useTranslation';
+import { useAuth } from '@/contexts/AuthContext';
+import { useTranslation } from '@/hooks/useTranslation';
 import MultiStep, { Step } from '@/components/MultiStep';
 import AmenitiesStep from '@/components/haircut-create/AmenitiesStep';
 import CharacteristicsStep from '@/components/haircut-create/CharacteristicsStep';

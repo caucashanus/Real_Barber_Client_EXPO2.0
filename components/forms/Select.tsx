@@ -16,8 +16,8 @@ import ActionSheet, { ActionSheetRef } from 'react-native-actions-sheet';
 
 import { InputVariant } from './Input';
 
-import useThemeColors from '@/app/contexts/ThemeColors';
-import { useTheme } from '@/app/contexts/ThemeContext';
+import useThemeColors from '@/contexts/ThemeColors';
+import { useTheme } from '@/contexts/ThemeContext';
 import Icon from '@/components/Icon';
 import ThemedText from '@/components/ThemedText';
 

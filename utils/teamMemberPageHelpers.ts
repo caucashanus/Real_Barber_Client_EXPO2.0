@@ -5,7 +5,7 @@ import type {
   TeamMemberPageReview,
   TeamMemberShiftDay,
 } from '@/api/publicTeamMember';
-import type { Locale } from '@/app/contexts/LanguageContext';
+import type { Locale } from '@/contexts/LanguageContext';
 import { formatRelativeDayLabel } from '@/utils/formatRelativeDayLabel';
 
 type LocalizedEntity = Record<string, unknown>;

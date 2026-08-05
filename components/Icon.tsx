@@ -4,7 +4,7 @@ import { LucideProps } from 'lucide-react-native';
 import React from 'react';
 import { Pressable, View, ViewStyle } from 'react-native';
 
-import { useThemeColors } from '@/app/contexts/ThemeColors';
+import { useThemeColors } from '@/contexts/ThemeColors';
 
 type IconVariant = 'plain' | 'bordered' | 'contained';
 type IconSize = 'xs' | 's' | 'm' | 'l' | 'xl' | 'xxl';

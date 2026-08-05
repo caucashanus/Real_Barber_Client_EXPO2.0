@@ -5,10 +5,10 @@ import { ActionSheetRef } from 'react-native-actions-sheet';
 
 import type { Booking } from '@/api/bookings';
 import type { Branch } from '@/api/branches';
-import { useLanguage } from '@/app/contexts/LanguageContext';
-import useThemeColors from '@/app/contexts/ThemeColors';
-import { useBookingDetailScreen } from '@/app/hooks/useBookingDetailScreen';
-import { useTranslation } from '@/app/hooks/useTranslation';
+import { useLanguage } from '@/contexts/LanguageContext';
+import useThemeColors from '@/contexts/ThemeColors';
+import { useBookingDetailScreen } from '@/hooks/useBookingDetailScreen';
+import { useTranslation } from '@/hooks/useTranslation';
 import AnimatedView from '@/components/AnimatedView';
 import { BranchNavigateSheet, getBranchNavigateMapsQuery } from '@/components/BranchNavigateSheet';
 import Header from '@/components/Header';

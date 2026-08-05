@@ -1,7 +1,7 @@
 import React from 'react';
 import { ScrollView, View } from 'react-native';
 
-import { useTranslation } from '@/app/hooks/useTranslation';
+import { useTranslation } from '@/hooks/useTranslation';
 import { Chip } from '@/components/Chip';
 import ThemedText from '@/components/ThemedText';
 import type { HaircutStepProps } from '@/components/haircut-create/types';

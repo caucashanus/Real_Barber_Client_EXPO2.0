@@ -1,5 +1,5 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useThemeColors } from 'app/contexts/ThemeColors';
+import { useThemeColors } from '@/contexts/ThemeColors';
 import { TabButton } from 'components/TabButton';
 import { router, usePathname } from 'expo-router';
 import { Tabs, TabList, TabSlot, TabTrigger } from 'expo-router/ui';
@@ -8,9 +8,9 @@ import React, { useEffect, useRef } from 'react';
 import { AppState, Platform } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { useAuth } from '@/app/contexts/AuthContext';
-import { useBookingsBadge } from '@/app/contexts/BookingsBadgeContext';
-import { useTranslation } from '@/app/hooks/useTranslation';
+import { useAuth } from '@/contexts/AuthContext';
+import { useBookingsBadge } from '@/contexts/BookingsBadgeContext';
+import { useTranslation } from '@/hooks/useTranslation';
 
 function TabsContent() {
   const colors = useThemeColors();

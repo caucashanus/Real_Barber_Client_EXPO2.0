@@ -9,7 +9,7 @@ import {
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import type { BookingEngineFlow } from '@/app/hooks/useBookingEngineFlow';
+import type { BookingEngineFlow } from '@/hooks/useBookingEngineFlow';
 import AppButton from '@/components/AppButton';
 import ReserveButton from '@/components/ReserveButton';
 import {

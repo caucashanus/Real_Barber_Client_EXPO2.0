@@ -3,8 +3,8 @@ import React, { forwardRef, useCallback, useRef } from 'react';
 import { View } from 'react-native';
 import { ActionSheetRef } from 'react-native-actions-sheet';
 
-import useThemeColors from '@/app/contexts/ThemeColors';
-import { useTranslation } from '@/app/hooks/useTranslation';
+import useThemeColors from '@/contexts/ThemeColors';
+import { useTranslation } from '@/hooks/useTranslation';
 import ActionSheetThemed from '@/components/ActionSheetThemed';
 import BranchOpenStatusRow from '@/components/branch/BranchOpenStatusRow';
 import OperatorContactChannels from '@/components/OperatorContactChannels';

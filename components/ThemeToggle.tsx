@@ -1,10 +1,10 @@
-import { useTheme } from 'app/contexts/ThemeContext';
+import { useTheme } from '@/contexts/ThemeContext';
 import React, { useRef, useEffect } from 'react';
 import { View, Animated, TouchableOpacity } from 'react-native';
 
 import Icon from './Icon';
 
-import useThemeColors from '@/app/contexts/ThemeColors';
+import useThemeColors from '@/contexts/ThemeColors';
 
 interface ThemeToggleProps {
   value?: boolean;

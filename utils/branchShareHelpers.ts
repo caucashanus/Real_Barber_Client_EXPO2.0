@@ -1,5 +1,5 @@
 import type { Branch } from '@/api/branches';
-import type { Locale } from '@/app/contexts/LanguageContext';
+import type { Locale } from '@/contexts/LanguageContext';
 import { getBranchGoogleReviewUrl } from '@/constants/branchGoogleReviews';
 import { resolveInternalBranchIdFromCrmUuid } from '@/constants/crmBranchIds';
 import { getTranslation } from '@/locales';

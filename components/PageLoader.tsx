@@ -3,7 +3,7 @@ import { View, ActivityIndicator } from 'react-native';
 
 import ThemedText from './ThemedText';
 
-import useThemeColors from '@/app/contexts/ThemeColors';
+import useThemeColors from '@/contexts/ThemeColors';
 
 interface PageLoaderProps {
   text?: string;

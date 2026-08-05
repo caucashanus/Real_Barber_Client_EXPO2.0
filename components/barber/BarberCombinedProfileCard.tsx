@@ -7,7 +7,7 @@ import type {
   TeamMemberPageEmployee,
   TeamMemberShiftDay,
 } from '@/api/publicTeamMember';
-import type { Locale } from '@/app/contexts/LanguageContext';
+import type { Locale } from '@/contexts/LanguageContext';
 import BarberAboutSection from '@/components/barber/BarberAboutSection';
 import BarberAvailabilitySection from '@/components/barber/BarberAvailabilitySection';
 import BarberSkillsSection from '@/components/barber/BarberSkillsSection';

@@ -11,8 +11,8 @@ import {
   Pressable,
 } from 'react-native';
 
-import useThemeColors from '@/app/contexts/ThemeColors';
-import { useTranslation } from '@/app/hooks/useTranslation';
+import useThemeColors from '@/contexts/ThemeColors';
+import { useTranslation } from '@/hooks/useTranslation';
 import { Button } from '@/components/Button';
 import { CardScroller } from '@/components/CardScroller';
 import Header from '@/components/Header';

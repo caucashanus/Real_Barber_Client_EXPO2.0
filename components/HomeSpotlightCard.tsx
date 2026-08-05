@@ -3,7 +3,7 @@ import React, { useRef } from 'react';
 import { Platform, Pressable, View } from 'react-native';
 import { type ActionSheetRef } from 'react-native-actions-sheet';
 
-import { useTheme } from '@/app/contexts/ThemeContext';
+import { useTheme } from '@/contexts/ThemeContext';
 import Avatar from '@/components/Avatar';
 import { BranchNavigateSheet } from '@/components/BranchNavigateSheet';
 import Icon from '@/components/Icon';

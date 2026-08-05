@@ -5,7 +5,7 @@ import Avatar from './Avatar';
 import ThemedText from './ThemedText';
 
 import type { Employee } from '@/api/employees';
-import useThemeColors from '@/app/contexts/ThemeColors';
+import useThemeColors from '@/contexts/ThemeColors';
 
 interface BarberPickerProps {
   employees: Employee[];

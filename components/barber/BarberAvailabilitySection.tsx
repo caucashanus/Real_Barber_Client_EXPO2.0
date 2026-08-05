@@ -5,7 +5,7 @@ import type { TeamMemberPageBranch, TeamMemberShiftDay } from '@/api/publicTeamM
 import { Button } from '@/components/Button';
 import ThemedText from '@/components/ThemedText';
 import Section from '@/components/layout/Section';
-import type { Locale } from '@/app/contexts/LanguageContext';
+import type { Locale } from '@/contexts/LanguageContext';
 import {
   buildBarberBookingHref,
   flattenShiftCalendarRows,

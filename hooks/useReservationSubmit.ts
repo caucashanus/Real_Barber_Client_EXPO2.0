@@ -4,7 +4,7 @@ import { useCallback, useState } from 'react';
 import { createBooking, type Booking } from '@/api/bookings';
 import type { Branch } from '@/api/branches';
 import type { CouponPreviewSuccess } from '@/api/coupons';
-import { useBookings } from '@/app/contexts/BookingsBadgeContext';
+import { useBookings } from '@/contexts/BookingsBadgeContext';
 import { setFreshBookingSnapshot } from '@/utils/freshBookingSnapshot';
 import { buildOptimisticBooking, mergeApiBookingWithOptimistic } from '@/utils/optimisticBooking';
 import { setPendingCalendarPromo } from '@/utils/pendingCalendarPromo';

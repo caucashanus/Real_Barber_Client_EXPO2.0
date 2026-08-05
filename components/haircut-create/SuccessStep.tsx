@@ -3,7 +3,7 @@ import { Image } from 'expo-image';
 import React, { useEffect } from 'react';
 import { View } from 'react-native';
 
-import { useTranslation } from '@/app/hooks/useTranslation';
+import { useTranslation } from '@/hooks/useTranslation';
 import ThemedText from '@/components/ThemedText';
 import type { HaircutStepProps } from '@/components/haircut-create/types';
 import { triggerNotification } from '@/utils/appHaptics';

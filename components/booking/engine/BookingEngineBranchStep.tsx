@@ -1,7 +1,7 @@
 import React from 'react';
 import { ActivityIndicator, View } from 'react-native';
 
-import type { BookingEngineFlow } from '@/app/hooks/useBookingEngineFlow';
+import type { BookingEngineFlow } from '@/hooks/useBookingEngineFlow';
 import { Button } from '@/components/Button';
 import BookingPanelPickerRow from '@/components/booking/engine/BookingPanelPickerRow';
 import { branchImageUrl } from '@/lib/booking/designShared';

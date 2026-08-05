@@ -4,11 +4,11 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { View, ScrollView, ActivityIndicator } from 'react-native';
 
 import { getBookingById, updateBooking, type Booking } from '@/api/bookings';
-import { useAuth } from '@/app/contexts/AuthContext';
-import { useBookings } from '@/app/contexts/BookingsBadgeContext';
-import { useLanguage } from '@/app/contexts/LanguageContext';
-import useThemeColors from '@/app/contexts/ThemeColors';
-import { useTranslation } from '@/app/hooks/useTranslation';
+import { useAuth } from '@/contexts/AuthContext';
+import { useBookings } from '@/contexts/BookingsBadgeContext';
+import { useLanguage } from '@/contexts/LanguageContext';
+import useThemeColors from '@/contexts/ThemeColors';
+import { useTranslation } from '@/hooks/useTranslation';
 import AppButton from '@/components/AppButton';
 import Header from '@/components/Header';
 import ThemedFooter from '@/components/ThemeFooter';

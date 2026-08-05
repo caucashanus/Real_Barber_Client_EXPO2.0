@@ -1,7 +1,7 @@
 import React from 'react';
 import { ActivityIndicator, View } from 'react-native';
 
-import type { Locale } from '@/app/contexts/LanguageContext';
+import type { Locale } from '@/contexts/LanguageContext';
 import AppButton from '@/components/AppButton';
 import BarberAvailabilityGrid from '@/components/home/BarberAvailabilityGrid';
 import CustomCard from '@/components/CustomCard';

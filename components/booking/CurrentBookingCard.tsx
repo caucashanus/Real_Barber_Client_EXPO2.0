@@ -3,8 +3,8 @@ import React, { useMemo } from 'react';
 import { View } from 'react-native';
 
 import type { Booking } from '@/api/bookings';
-import { useLanguage } from '@/app/contexts/LanguageContext';
-import { useTranslation } from '@/app/hooks/useTranslation';
+import { useLanguage } from '@/contexts/LanguageContext';
+import { useTranslation } from '@/hooks/useTranslation';
 import Avatar from '@/components/Avatar';
 import Icon from '@/components/Icon';
 import ThemedText from '@/components/ThemedText';

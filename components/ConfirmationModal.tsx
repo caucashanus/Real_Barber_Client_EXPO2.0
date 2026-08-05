@@ -3,8 +3,8 @@ import React, { useState } from 'react';
 import { View, Platform, TextInput } from 'react-native';
 import { ActionSheetRef } from 'react-native-actions-sheet';
 
-import useThemeColors from '@/app/contexts/ThemeColors';
-import { useTheme } from '@/app/contexts/ThemeContext';
+import useThemeColors from '@/contexts/ThemeColors';
+import { useTheme } from '@/contexts/ThemeContext';
 import ActionSheetThemed from '@/components/ActionSheetThemed';
 import AppButton from '@/components/AppButton';
 import { Button } from '@/components/Button';

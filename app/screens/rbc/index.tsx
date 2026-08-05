@@ -6,8 +6,8 @@ import React, { useCallback, useRef, useState } from 'react';
 import { View, Pressable, Animated, Dimensions, StyleSheet, ActivityIndicator } from 'react-native';
 
 import { getRbCoinsBalance, getRbCoinsHistory } from '@/api/rb-coins';
-import { useAuth } from '@/app/contexts/AuthContext';
-import { useTranslation } from '@/app/hooks/useTranslation';
+import { useAuth } from '@/contexts/AuthContext';
+import { useTranslation } from '@/hooks/useTranslation';
 import Header from '@/components/Header';
 import Icon from '@/components/Icon';
 import RBLogo from '@/components/RBLogo';

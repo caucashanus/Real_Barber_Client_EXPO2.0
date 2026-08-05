@@ -2,7 +2,7 @@ import { router } from 'expo-router';
 import React from 'react';
 import { View } from 'react-native';
 
-import { useSignupFlow } from '@/app/hooks/useSignupFlow';
+import { useSignupFlow } from '@/hooks/useSignupFlow';
 import MultiStep, { Step } from '@/components/MultiStep';
 import ThemedText from '@/components/ThemedText';
 import PhoneInput from '@/components/forms/PhoneInput';

@@ -4,8 +4,8 @@ import { View, Animated } from 'react-native';
 import { ScrollContext } from './_layout';
 
 import { getItemsAll, itemListImageUrl, type Item } from '@/api/items';
-import { useAuth } from '@/app/contexts/AuthContext';
-import { useTranslation } from '@/app/hooks/useTranslation';
+import { useAuth } from '@/contexts/AuthContext';
+import { useTranslation } from '@/hooks/useTranslation';
 import Card from '@/components/Card';
 import { CardScroller } from '@/components/CardScroller';
 import ThemeScroller from '@/components/ThemeScroller';

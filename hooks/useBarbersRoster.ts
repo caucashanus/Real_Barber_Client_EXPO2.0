@@ -2,9 +2,9 @@ import { useFocusEffect } from '@react-navigation/native';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import { getBarbersRoster, type BarberRosterResponse } from '@/api/barbersRoster';
-import { useAuth } from '@/app/contexts/AuthContext';
-import { useLanguage } from '@/app/contexts/LanguageContext';
-import { useTranslation } from '@/app/hooks/useTranslation';
+import { useAuth } from '@/contexts/AuthContext';
+import { useLanguage } from '@/contexts/LanguageContext';
+import { useTranslation } from '@/hooks/useTranslation';
 import { TEAM_MEMBER_PAGE_CACHE_MS } from '@/constants/teamMemberPage';
 import type { HomeTodayTeamCardModel } from '@/utils/homeTodayTeamHelpers';
 import {

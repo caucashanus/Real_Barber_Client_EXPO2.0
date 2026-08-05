@@ -1,8 +1,8 @@
 import React from 'react';
 import { View } from 'react-native';
 
-import useThemeColors from '@/app/contexts/ThemeColors';
-import { useTranslation } from '@/app/hooks/useTranslation';
+import useThemeColors from '@/contexts/ThemeColors';
+import { useTranslation } from '@/hooks/useTranslation';
 import Icon from '@/components/Icon';
 import SheetNavRow from '@/components/shared/SheetNavRow';
 import {

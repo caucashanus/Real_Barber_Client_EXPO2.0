@@ -6,9 +6,9 @@ import React, { useEffect } from 'react';
 import { View, ActivityIndicator, useWindowDimensions } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import { useAuth } from '@/app/contexts/AuthContext';
-import useThemeColors from '@/app/contexts/ThemeColors';
-import { useTranslation } from '@/app/hooks/useTranslation';
+import { useAuth } from '@/contexts/AuthContext';
+import useThemeColors from '@/contexts/ThemeColors';
+import { useTranslation } from '@/hooks/useTranslation';
 import AppButton from '@/components/AppButton';
 import Icon from '@/components/Icon';
 import ThemedText from '@/components/ThemedText';

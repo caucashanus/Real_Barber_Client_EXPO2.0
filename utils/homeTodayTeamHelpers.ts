@@ -4,7 +4,7 @@ import type {
   HomepageTodayTeamMember,
   HomepageWorkInterval,
 } from '@/api/homeTeamTypes';
-import type { Locale } from '@/app/contexts/LanguageContext';
+import type { Locale } from '@/contexts/LanguageContext';
 import type { TranslationKey } from '@/locales';
 import { HOMEPAGE_TODAY_TEAM_MAX_SLOTS } from '@/constants/homepage';
 import {

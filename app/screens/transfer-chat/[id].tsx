@@ -20,13 +20,13 @@ import {
   rbCoinsTransfer,
   type RbCoinsHistoryItem,
 } from '@/api/rb-coins';
-import { useAuth } from '@/app/contexts/AuthContext';
-import useThemeColors from '@/app/contexts/ThemeColors';
+import { useAuth } from '@/contexts/AuthContext';
+import useThemeColors from '@/contexts/ThemeColors';
 import {
   useTransferRecipient,
   useSetTransferRecipient,
-} from '@/app/contexts/TransferRecipientContext';
-import { useTranslation } from '@/app/hooks/useTranslation';
+} from '@/contexts/TransferRecipientContext';
+import { useTranslation } from '@/hooks/useTranslation';
 import ActionSheetThemed from '@/components/ActionSheetThemed';
 import Avatar from '@/components/Avatar';
 import { Button } from '@/components/Button';

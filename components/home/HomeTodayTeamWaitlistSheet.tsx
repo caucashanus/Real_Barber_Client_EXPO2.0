@@ -3,8 +3,8 @@ import { ActivityIndicator, View } from 'react-native';
 import { ActionSheetRef } from 'react-native-actions-sheet';
 
 import { joinEmployeeWaitlist } from '@/api/waitlist';
-import { useAuth } from '@/app/contexts/AuthContext';
-import { useLanguage } from '@/app/contexts/LanguageContext';
+import { useAuth } from '@/contexts/AuthContext';
+import { useLanguage } from '@/contexts/LanguageContext';
 import ActionSheetThemed from '@/components/ActionSheetThemed';
 import AppButton from '@/components/AppButton';
 import { Button } from '@/components/Button';

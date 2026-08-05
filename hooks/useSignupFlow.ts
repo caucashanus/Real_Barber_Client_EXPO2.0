@@ -8,8 +8,8 @@ import {
   uploadClientAvatar,
   type UpdateClientMeBody,
 } from '@/api/client';
-import { useAuth } from '@/app/contexts/AuthContext';
-import { useTranslation } from '@/app/hooks/useTranslation';
+import { useAuth } from '@/contexts/AuthContext';
+import { useTranslation } from '@/hooks/useTranslation';
 import type { MultiStepHandle, StepNavigationReason } from '@/components/MultiStep';
 import type { AvatarChoice } from '@/components/signup/SignupAvatarPicker';
 import { CLIENT_APP_V1_ENABLED } from '@/constants/clientAppApi';

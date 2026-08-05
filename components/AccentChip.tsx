@@ -2,7 +2,7 @@ import { Link } from 'expo-router';
 import React, { ReactNode } from 'react';
 import { Text, TouchableOpacity, View, type ViewStyle } from 'react-native';
 
-import useThemeColors from '@/app/contexts/ThemeColors';
+import useThemeColors from '@/contexts/ThemeColors';
 
 type AccentChipSize = 'xs' | 'sm' | 'md' | 'lg' | 'xl';
 type AccentChipRounded = 'full' | 'xl' | 'lg' | 'md';

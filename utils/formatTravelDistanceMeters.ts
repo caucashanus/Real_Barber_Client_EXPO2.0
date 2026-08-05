@@ -1,4 +1,4 @@
-import type { Locale } from '@/app/contexts/LanguageContext';
+import type { Locale } from '@/contexts/LanguageContext';
 
 export function formatTravelDistanceMeters(meters: number, locale: Locale): string {
   const m = Math.max(0, Math.round(meters));

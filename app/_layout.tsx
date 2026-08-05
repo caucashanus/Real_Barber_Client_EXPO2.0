@@ -6,18 +6,18 @@ import React, { useEffect } from 'react';
 import { Platform } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
-import { AccentColorProvider } from './contexts/AccentColorContext';
-import { AuthProvider } from './contexts/AuthContext';
-import { BookingsBadgeProvider } from './contexts/BookingsBadgeContext';
-import { BranchFilterProvider } from './contexts/BranchFilterContext';
-import { FavoritesSyncProvider } from './contexts/FavoritesSyncContext';
-import { LanguageProvider } from './contexts/LanguageContext';
-import PushNotificationsProvider from './contexts/PushNotificationsProvider';
-import { SelectedPurchaseProvider } from './contexts/SelectedPurchaseContext';
-import { ThemeProvider } from './contexts/ThemeContext';
-import { CopyFeedbackProvider } from './contexts/CopyFeedbackContext';
-import { TransferRecipientProvider } from './contexts/TransferRecipientContext';
-import useThemedNavigation from './hooks/useThemedNavigation';
+import { AccentColorProvider } from '@/contexts/AccentColorContext';
+import { AuthProvider } from '@/contexts/AuthContext';
+import { BookingsBadgeProvider } from '@/contexts/BookingsBadgeContext';
+import { BranchFilterProvider } from '@/contexts/BranchFilterContext';
+import { FavoritesSyncProvider } from '@/contexts/FavoritesSyncContext';
+import { LanguageProvider } from '@/contexts/LanguageContext';
+import PushNotificationsProvider from '@/contexts/PushNotificationsProvider';
+import { SelectedPurchaseProvider } from '@/contexts/SelectedPurchaseContext';
+import { ThemeProvider } from '@/contexts/ThemeContext';
+import { CopyFeedbackProvider } from '@/contexts/CopyFeedbackContext';
+import { TransferRecipientProvider } from '@/contexts/TransferRecipientContext';
+import useThemedNavigation from '@/hooks/useThemedNavigation';
 
 import AuthGuard from '@/components/AuthGuard';
 

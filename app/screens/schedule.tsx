@@ -1,7 +1,7 @@
 import React, { useMemo, useState } from 'react';
 
-import { useBarbersRoster } from '@/app/hooks/useBarbersRoster';
-import { useTranslation } from '@/app/hooks/useTranslation';
+import { useBarbersRoster } from '@/hooks/useBarbersRoster';
+import { useTranslation } from '@/hooks/useTranslation';
 import { CardScroller } from '@/components/CardScroller';
 import HomeTodayTeamSection from '@/components/home/HomeTodayTeamSection';
 import Header from '@/components/Header';

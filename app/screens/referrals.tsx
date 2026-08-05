@@ -2,9 +2,9 @@ import React, { useEffect, useState } from 'react';
 import { View, Pressable, Share } from 'react-native';
 
 import { getReferrals, type ClientReferralsResponse } from '@/api/referrals';
-import { useAuth } from '@/app/contexts/AuthContext';
-import useThemeColors from '@/app/contexts/ThemeColors';
-import { useTranslation } from '@/app/hooks/useTranslation';
+import { useAuth } from '@/contexts/AuthContext';
+import useThemeColors from '@/contexts/ThemeColors';
+import { useTranslation } from '@/hooks/useTranslation';
 import Header from '@/components/Header';
 import Icon from '@/components/Icon';
 import ThemedScroller from '@/components/ThemeScroller';

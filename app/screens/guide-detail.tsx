@@ -1,6 +1,6 @@
 import { Image } from 'expo-image';
 import { useLocalSearchParams, router } from 'expo-router';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { View, ScrollView, ActivityIndicator, Dimensions, Pressable } from 'react-native';
 
 import {
@@ -10,12 +10,15 @@ import {
   type ClientGuide,
   type GuideMedia,
 } from '@/api/guides';
+import { useTranslation } from '@/hooks/useTranslation';
 import Favorite from '@/components/Favorite';
 import Header from '@/components/Header';
 import Icon from '@/components/Icon';
 import ThemedScroller from '@/components/ThemeScroller';
 import ThemedText from '@/components/ThemedText';
+import SiteBreadcrumbs from '@/components/shared/SiteBreadcrumbs';
 import VideoPlayer from '@/components/VideoPlayer';
+import { blogBreadcrumbItems } from '@/utils/breadcrumbs';
 
 const screenWidth = Dimensions.get('window').width;
 
@@ -88,6 +91,7 @@ function MediaItem({ item }: { item: GuideMedia }) {
 
 export default function GuideDetailScreen() {
   const { id } = useLocalSearchParams<{ id?: string }>();
+  const { t } = useTranslation();
   const [guide, setGuide] = useState<ClientGuide | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -178,6 +182,11 @@ export default function GuideDetailScreen() {
     nextGuide &&
     router.replace({ pathname: '/screens/guide-detail', params: { id: nextGuide.id } });
 
+  const breadcrumbItems = useMemo(
+    () => blogBreadcrumbItems(guide.title, t),
+    [guide.title, t]
+  );
+
   return (
     <>
       <Header
@@ -195,6 +204,10 @@ export default function GuideDetailScreen() {
       />
       <ThemedScroller className="flex-1 px-0" keyboardShouldPersistTaps="handled">
         <View className="mb-6 mt-0 px-global">
+          <SiteBreadcrumbs
+            items={breadcrumbItems}
+            accessibilityLabel={t('breadcrumbNavLabel')}
+          />
           <View className="mb-4 flex-row justify-end">
             <Pressable
               onPress={goToPrev}

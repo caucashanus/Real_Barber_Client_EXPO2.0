@@ -2,7 +2,7 @@ import React, { useCallback, useRef } from 'react';
 import { ActivityIndicator, Pressable, View } from 'react-native';
 
 import type { EmployeeTodaySlot, TeamMemberPageBranch } from '@/api/publicTeamMember';
-import type { Locale } from '@/app/contexts/LanguageContext';
+import type { Locale } from '@/contexts/LanguageContext';
 import AppButton from '@/components/AppButton';
 import HomeTodayTeamWaitlistSheet, {
   type HomeTodayTeamWaitlistSheetHandle,

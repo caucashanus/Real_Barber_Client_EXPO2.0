@@ -1,7 +1,7 @@
 import { Redirect } from 'expo-router';
 import React from 'react';
 
-import { useAuth } from '@/app/contexts/AuthContext';
+import { useAuth } from '@/contexts/AuthContext';
 import { LOGIN_PATH } from '@/constants/authRoutes';
 
 export default function Index() {

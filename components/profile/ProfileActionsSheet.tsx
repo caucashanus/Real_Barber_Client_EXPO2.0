@@ -2,7 +2,7 @@ import React, { forwardRef, useCallback, useRef } from 'react';
 import { View } from 'react-native';
 import { ActionSheetRef } from 'react-native-actions-sheet';
 
-import { useTranslation } from '@/app/hooks/useTranslation';
+import { useTranslation } from '@/hooks/useTranslation';
 import ActionSheetThemed from '@/components/ActionSheetThemed';
 import Icon from '@/components/Icon';
 import SheetNavRow from '@/components/shared/SheetNavRow';

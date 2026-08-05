@@ -1,7 +1,7 @@
 import { cs } from './cs';
 import { en } from './en';
 
-import type { Locale } from '@/app/contexts/LanguageContext';
+import type { Locale } from '@/contexts/LanguageContext';
 
 export type { TranslationKey } from './en';
 export type TranslateFn = (key: import('./en').TranslationKey) => string;

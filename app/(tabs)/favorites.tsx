@@ -3,9 +3,9 @@ import React, { useCallback, useRef, useState } from 'react';
 import { View, ActivityIndicator, useWindowDimensions } from 'react-native';
 
 import { getFavorites, type Favorite } from '@/api/favorites';
-import { useAuth } from '@/app/contexts/AuthContext';
-import { useCollapsibleTitle } from '@/app/hooks/useCollapsibleTitle';
-import { useTranslation } from '@/app/hooks/useTranslation';
+import { useAuth } from '@/contexts/AuthContext';
+import { useCollapsibleTitle } from '@/hooks/useCollapsibleTitle';
+import { useTranslation } from '@/hooks/useTranslation';
 import AppButton from '@/components/AppButton';
 import AnimatedView from '@/components/AnimatedView';
 import { CardScroller } from '@/components/CardScroller';

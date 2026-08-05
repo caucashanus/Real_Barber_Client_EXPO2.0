@@ -4,7 +4,7 @@ import React from 'react';
 import { Pressable, View } from 'react-native';
 
 import type { EntityReviewItem } from '@/api/reviews';
-import useThemeColors from '@/app/contexts/ThemeColors';
+import useThemeColors from '@/contexts/ThemeColors';
 import Avatar from '@/components/Avatar';
 import ShowRating from '@/components/ShowRating';
 import ThemedText from '@/components/ThemedText';

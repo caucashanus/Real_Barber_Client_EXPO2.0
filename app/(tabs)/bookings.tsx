@@ -11,11 +11,11 @@ import {
 } from 'react-native';
 
 import type { Booking } from '@/api/bookings';
-import { useAccentColor } from '@/app/contexts/AccentColorContext';
-import { useAuth } from '@/app/contexts/AuthContext';
-import { useBookings } from '@/app/contexts/BookingsBadgeContext';
-import { useCollapsibleTitle } from '@/app/hooks/useCollapsibleTitle';
-import { useTranslation } from '@/app/hooks/useTranslation';
+import { useAccentColor } from '@/contexts/AccentColorContext';
+import { useAuth } from '@/contexts/AuthContext';
+import { useBookings } from '@/contexts/BookingsBadgeContext';
+import { useCollapsibleTitle } from '@/hooks/useCollapsibleTitle';
+import { useTranslation } from '@/hooks/useTranslation';
 import AppButton from '@/components/AppButton';
 import AnimatedView from '@/components/AnimatedView';
 import Avatar from '@/components/Avatar';

@@ -9,7 +9,7 @@ import React, {
 } from 'react';
 
 import { getBookings, type Booking } from '@/api/bookings';
-import { useAuth } from '@/app/contexts/AuthContext';
+import { useAuth } from '@/contexts/AuthContext';
 import { isBookingUpcoming } from '@/utils/bookingHelpers';
 import { shouldStaleRefresh } from '@/utils/staleRefresh';
 

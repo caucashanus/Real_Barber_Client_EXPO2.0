@@ -3,9 +3,9 @@ import React, { useEffect, useState } from 'react';
 import { ScrollView, View } from 'react-native';
 
 import { getEmployees, type Employee } from '@/api/employees';
-import { useAccentColor } from '@/app/contexts/AccentColorContext';
-import { useAuth } from '@/app/contexts/AuthContext';
-import { useTranslation } from '@/app/hooks/useTranslation';
+import { useAccentColor } from '@/contexts/AccentColorContext';
+import { useAuth } from '@/contexts/AuthContext';
+import { useTranslation } from '@/hooks/useTranslation';
 import BarberPicker from '@/components/BarberPicker';
 import ThemedText from '@/components/ThemedText';
 import type { HaircutStepProps } from '@/components/haircut-create/types';

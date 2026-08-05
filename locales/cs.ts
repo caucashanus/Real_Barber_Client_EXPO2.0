@@ -148,6 +148,8 @@ export const cs: Record<TranslationKey, string> = {
   tabServices: 'Služby',
   tabProducts: 'Produkty',
   tabGuides: 'Návody',
+  breadcrumbNavLabel: 'Drobečková navigace',
+  breadcrumbBlog: 'Blog',
 
   // Real Barber home screen
   homeCreateBooking: 'Objednat se',
@@ -634,6 +636,17 @@ export const cs: Record<TranslationKey, string> = {
   branchServices: 'Služby',
   branchReserve: 'Rezervovat',
   branchFullRating: 'Celý průměr',
+  branchAboutSalon: 'O salonu',
+  branchDirectionsVideoTitle: 'Jak se k nám dostanete?',
+  branchInteriorTitle: 'Interiér',
+  branchVirtualTourTitle: 'Virtuální prohlídka',
+  branchParkingMapTitle: 'Parkovací mapa',
+  branchOtherBranchesTitle: 'Další pobočky',
+  branchAvailabilityMessage:
+    'Dobrý den, chtěl(a) bych se zeptat na termín na pobočce {name}. Děkuji.',
+  branchContactSmsAria: 'Napsat SMS',
+  branchContactWhatsAppAria: 'Napsat WhatsApp',
+  branchContactTelegramAria: 'Napsat Telegram',
 
   // Barber detail
   barberWorkSamples: 'Ukázky práce',

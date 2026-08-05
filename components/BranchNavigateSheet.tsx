@@ -3,8 +3,8 @@ import React, { forwardRef, useCallback, useRef } from 'react';
 import { Linking, View } from 'react-native';
 import { ActionSheetRef } from 'react-native-actions-sheet';
 
-import { useTheme } from '@/app/contexts/ThemeContext';
-import { useTranslation } from '@/app/hooks/useTranslation';
+import { useTheme } from '@/contexts/ThemeContext';
+import { useTranslation } from '@/hooks/useTranslation';
 import ActionSheetThemed from '@/components/ActionSheetThemed';
 import Icon from '@/components/Icon';
 import CopyIconButton from '@/components/shared/CopyIconButton';

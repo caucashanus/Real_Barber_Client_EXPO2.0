@@ -5,8 +5,8 @@ import { useRouter, useLocalSearchParams } from 'expo-router';
 import React, { useEffect, useRef } from 'react';
 import { View, StyleSheet, Dimensions, Alert, Animated } from 'react-native';
 
-import { useAuth } from '@/app/contexts/AuthContext';
-import { useTranslation } from '@/app/hooks/useTranslation';
+import { useAuth } from '@/contexts/AuthContext';
+import { useTranslation } from '@/hooks/useTranslation';
 import { Button } from '@/components/Button';
 import Header from '@/components/Header';
 import RBLogo from '@/components/RBLogo';

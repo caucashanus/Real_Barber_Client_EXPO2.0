@@ -2,7 +2,7 @@ import { router } from 'expo-router';
 import React, { useCallback, useRef } from 'react';
 import { ActivityIndicator, useWindowDimensions, View } from 'react-native';
 
-import type { Locale } from '@/app/contexts/LanguageContext';
+import type { Locale } from '@/contexts/LanguageContext';
 import FavoriteMediaCard from '@/components/favorites/FavoriteMediaCard';
 import HomeTodayTeamWaitlistSheet, {
   type HomeTodayTeamWaitlistSheetHandle,

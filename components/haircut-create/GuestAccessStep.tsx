@@ -2,7 +2,7 @@ import { Image } from 'expo-image';
 import React from 'react';
 import { ScrollView, View } from 'react-native';
 
-import { useTranslation } from '@/app/hooks/useTranslation';
+import { useTranslation } from '@/hooks/useTranslation';
 import ThemedText from '@/components/ThemedText';
 import Selectable from '@/components/forms/Selectable';
 import type { HaircutStepProps } from '@/components/haircut-create/types';

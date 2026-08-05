@@ -2,9 +2,9 @@ import Slider from '@react-native-community/slider';
 import React, { useRef, useState, useEffect } from 'react';
 import { View } from 'react-native';
 
-import { useAccentColor } from '@/app/contexts/AccentColorContext';
-import useThemeColors from '@/app/contexts/ThemeColors';
-import { useTranslation } from '@/app/hooks/useTranslation';
+import { useAccentColor } from '@/contexts/AccentColorContext';
+import useThemeColors from '@/contexts/ThemeColors';
+import { useTranslation } from '@/hooks/useTranslation';
 import Header from '@/components/Header';
 import Icon from '@/components/Icon';
 import ThemedScroller from '@/components/ThemeScroller';

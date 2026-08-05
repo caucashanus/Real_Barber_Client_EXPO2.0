@@ -2,7 +2,7 @@ import React, { useRef } from 'react';
 import { View, ScrollView, TouchableOpacity, Linking } from 'react-native';
 import { ActionSheetRef } from 'react-native-actions-sheet';
 
-import { useTranslation } from '@/app/hooks/useTranslation';
+import { useTranslation } from '@/hooks/useTranslation';
 import AnimatedView from '@/components/AnimatedView';
 import { Button } from '@/components/Button';
 import Expandable from '@/components/Expandable';

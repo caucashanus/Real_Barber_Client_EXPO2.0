@@ -3,7 +3,7 @@ import React from 'react';
 import { ActivityIndicator, Pressable, View, type LayoutChangeEvent } from 'react-native';
 
 import type { EntityReviewItem } from '@/api/reviews';
-import useThemeColors from '@/app/contexts/ThemeColors';
+import useThemeColors from '@/contexts/ThemeColors';
 import { CardScroller } from '@/components/CardScroller';
 import ShowRating from '@/components/ShowRating';
 import ThemedText from '@/components/ThemedText';

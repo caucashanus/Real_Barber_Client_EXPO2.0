@@ -5,7 +5,7 @@ import Modal from 'react-native-modal';
 
 import { InputVariant } from './Input';
 
-import { useThemeColors } from '@/app/contexts/ThemeColors';
+import { useThemeColors } from '@/contexts/ThemeColors';
 import { Button } from '@/components/Button';
 import Icon from '@/components/Icon';
 import ThemedText from '@/components/ThemedText';

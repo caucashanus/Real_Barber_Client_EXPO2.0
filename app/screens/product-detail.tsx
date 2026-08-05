@@ -15,14 +15,14 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { resolveClientProductForDetail } from '@/api/products';
 import { getEntityReviews, type EntityReviewItem } from '@/api/reviews';
-import { useAuth } from '@/app/contexts/AuthContext';
+import { useAuth } from '@/contexts/AuthContext';
 import {
   useSelectedCatalogProduct,
   useSelectedPurchase,
   useSetSelectedCatalogProduct,
   useSetSelectedPurchase,
-} from '@/app/contexts/SelectedPurchaseContext';
-import { useTranslation } from '@/app/hooks/useTranslation';
+} from '@/contexts/SelectedPurchaseContext';
+import { useTranslation } from '@/hooks/useTranslation';
 import Avatar from '@/components/Avatar';
 import { Button } from '@/components/Button';
 import Favorite from '@/components/Favorite';

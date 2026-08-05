@@ -3,7 +3,7 @@ import type {
   ClientCatalogProductReview,
   ClientProductPurchase,
 } from '@/api/products';
-import type { Locale } from '@/app/contexts/LanguageContext';
+import type { Locale } from '@/contexts/LanguageContext';
 import type { TranslationKey } from '@/locales';
 import { compareCatalogStockWarehouseRows, warehouseUiName } from '@/utils/catalogWarehouse';
 

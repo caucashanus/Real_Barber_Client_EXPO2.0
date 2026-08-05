@@ -3,7 +3,7 @@ import React from 'react';
 import { Pressable, View } from 'react-native';
 
 import type { Booking } from '@/api/bookings';
-import { useSetTransferRecipient } from '@/app/contexts/TransferRecipientContext';
+import { useSetTransferRecipient } from '@/contexts/TransferRecipientContext';
 import Avatar from '@/components/Avatar';
 import Icon from '@/components/Icon';
 import ListLink from '@/components/ListLink';

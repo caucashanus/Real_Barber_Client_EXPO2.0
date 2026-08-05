@@ -16,7 +16,7 @@ import { Button } from './Button';
 import Favorite from './Favorite';
 import ThemedText from './ThemedText';
 
-import useThemeColors from '@/app/contexts/ThemeColors';
+import useThemeColors from '@/contexts/ThemeColors';
 import { shadowPresets } from '@/utils/useShadow';
 
 interface CardProps {

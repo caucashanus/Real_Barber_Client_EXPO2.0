@@ -4,7 +4,7 @@ import { View, ViewStyle } from 'react-native';
 
 import ThemedText from './ThemedText';
 
-import { useThemeColors } from '@/app/contexts/ThemeColors';
+import { useThemeColors } from '@/contexts/ThemeColors';
 
 interface ShowRatingProps {
   rating: number;

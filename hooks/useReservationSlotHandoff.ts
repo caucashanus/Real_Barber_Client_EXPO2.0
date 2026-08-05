@@ -5,7 +5,7 @@ import {
   type BookingSlotServiceItem,
 } from '@/api/bookings';
 import type { CrmClient } from '@/api/auth';
-import type { ReservationFlowDataState } from '@/app/hooks/reservationCreateFlowShared';
+import type { ReservationFlowDataState } from '@/hooks/reservationCreateFlowShared';
 import { isClientContactComplete } from '@/utils/clientContactHelpers';
 import {
   clearReservationSlotHandoff,

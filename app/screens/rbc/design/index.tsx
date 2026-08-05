@@ -5,7 +5,7 @@ import { useRouter } from 'expo-router';
 import React, { useEffect, useState } from 'react';
 import { View, Pressable, StyleSheet, ScrollView } from 'react-native';
 
-import { useAuth } from '@/app/contexts/AuthContext';
+import { useAuth } from '@/contexts/AuthContext';
 import Header from '@/components/Header';
 import RBLogo from '@/components/RBLogo';
 import ThemedScroller from '@/components/ThemeScroller';

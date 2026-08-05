@@ -144,6 +144,8 @@ export const en = {
   tabServices: 'Services',
   tabProducts: 'Products',
   tabGuides: 'Guides',
+  breadcrumbNavLabel: 'Breadcrumb navigation',
+  breadcrumbBlog: 'Blog',
 
   // Real Barber home screen
   homeCreateBooking: 'Book now',
@@ -629,6 +631,17 @@ export const en = {
   branchServices: 'Services',
   branchReserve: 'Reserve',
   branchFullRating: 'Full rating',
+  branchAboutSalon: 'About the salon',
+  branchDirectionsVideoTitle: 'How to get to us',
+  branchInteriorTitle: 'Interior',
+  branchVirtualTourTitle: 'Virtual tour',
+  branchParkingMapTitle: 'Parking map',
+  branchOtherBranchesTitle: 'Other branches',
+  branchAvailabilityMessage:
+    'Hello, I would like to ask about an appointment at the {name} branch. Thank you.',
+  branchContactSmsAria: 'Send SMS',
+  branchContactWhatsAppAria: 'Send WhatsApp',
+  branchContactTelegramAria: 'Send Telegram',
 
   // Barber detail
   barberWorkSamples: 'Work samples',

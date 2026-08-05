@@ -10,9 +10,9 @@ import {
   type TeamMemberPageReview,
 } from '@/api/publicTeamMember';
 import { getEntityReviews } from '@/api/reviews';
-import { useBarberReviewsPagination } from '@/app/hooks/useBarberReviewsPagination';
-import { useAuth } from '@/app/contexts/AuthContext';
-import { useLanguage } from '@/app/contexts/LanguageContext';
+import { useBarberReviewsPagination } from '@/hooks/useBarberReviewsPagination';
+import { useAuth } from '@/contexts/AuthContext';
+import { useLanguage } from '@/contexts/LanguageContext';
 import { buildOwnReviewIds } from '@/utils/barberDetailHelpers';
 import { TEAM_MEMBER_PAGE_CACHE_MS } from '@/constants/teamMemberPage';
 import {

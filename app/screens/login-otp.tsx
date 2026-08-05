@@ -3,9 +3,9 @@ import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { View, Pressable, TextInput, StyleSheet } from 'react-native';
 
 import { requestClientOtp, verifyClientOtp } from '@/api/auth';
-import { useAuth } from '@/app/contexts/AuthContext';
-import { useTheme } from '@/app/contexts/ThemeContext';
-import { useTranslation } from '@/app/hooks/useTranslation';
+import { useAuth } from '@/contexts/AuthContext';
+import { useTheme } from '@/contexts/ThemeContext';
+import { useTranslation } from '@/hooks/useTranslation';
 import { Button } from '@/components/Button';
 import Header from '@/components/Header';
 import ThemedText from '@/components/ThemedText';

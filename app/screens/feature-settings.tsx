@@ -2,8 +2,8 @@ import { Image } from 'expo-image';
 import React from 'react';
 import { View } from 'react-native';
 
-import useThemeColors from '@/app/contexts/ThemeColors';
-import { useTranslation } from '@/app/hooks/useTranslation';
+import useThemeColors from '@/contexts/ThemeColors';
+import { useTranslation } from '@/hooks/useTranslation';
 import AnimatedView from '@/components/AnimatedView';
 import Header from '@/components/Header';
 import Icon from '@/components/Icon';

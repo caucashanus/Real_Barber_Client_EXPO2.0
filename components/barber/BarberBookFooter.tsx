@@ -23,9 +23,10 @@ export default function BarberBookFooter({ employeeId, bottomInset, t }: BarberB
       <View className="ml-auto flex-row items-center">
         <ReserveButton
           title={t('commonReserve')}
-          className="ml-6 px-6"
-          size="md"
+          className="px-4"
+          size="sm"
           rounded="lg"
+          textClassName="text-sm font-semibold"
           href={`/screens/reservation-create?employeeId=${encodeURIComponent(employeeId)}`}
         />
       </View>

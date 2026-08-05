@@ -5,8 +5,8 @@ import { Animated, ScrollView, TouchableOpacity, View } from 'react-native';
 
 import ThemedText from './ThemedText';
 
-import { useTheme } from '@/app/contexts/ThemeContext';
-import { useTranslation } from '@/app/hooks/useTranslation';
+import { useTheme } from '@/contexts/ThemeContext';
+import { useTranslation } from '@/hooks/useTranslation';
 import { triggerImpact } from '@/utils/appHaptics';
 import * as Haptics from 'expo-haptics';
 

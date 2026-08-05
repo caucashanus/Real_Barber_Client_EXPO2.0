@@ -12,8 +12,8 @@ import {
 import { styled } from 'nativewind';
 
 import Icon, { type IconName } from '@/components/Icon';
-import { useAccentColor } from '@/app/contexts/AccentColorContext';
-import useThemeColors from '@/app/contexts/ThemeColors';
+import { useAccentColor } from '@/contexts/AccentColorContext';
+import useThemeColors from '@/contexts/ThemeColors';
 import {
   getAppButtonClasses,
   type AppButtonRounded,

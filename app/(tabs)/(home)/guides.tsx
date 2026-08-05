@@ -7,7 +7,7 @@ import { View, Pressable, Animated, ActivityIndicator } from 'react-native';
 import { ScrollContext } from './_layout';
 
 import { getClientGuides, type ClientGuide } from '@/api/guides';
-import { useTranslation } from '@/app/hooks/useTranslation';
+import { useTranslation } from '@/hooks/useTranslation';
 import AnimatedView from '@/components/AnimatedView';
 import Favorite from '@/components/Favorite';
 import ThemeScroller from '@/components/ThemeScroller';

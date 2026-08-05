@@ -1,7 +1,7 @@
 import React from 'react';
 import { View } from 'react-native';
 
-import { useBookingEngineFlow } from '@/app/hooks/useBookingEngineFlow';
+import { useBookingEngineFlow } from '@/hooks/useBookingEngineFlow';
 import BookingEngineFlowShell from '@/components/booking/engine/BookingEngineFlowShell';
 import BookingEngineStepContent from '@/components/booking/engine/BookingEngineStepContent';
 import Header from '@/components/Header';

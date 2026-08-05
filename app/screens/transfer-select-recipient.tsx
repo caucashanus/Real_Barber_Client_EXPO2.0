@@ -11,9 +11,9 @@ import {
   type RbCoinsHistoryItem,
   type RbCoinsHistoryItemOtherParty,
 } from '@/api/rb-coins';
-import { useAuth } from '@/app/contexts/AuthContext';
-import { useSetTransferRecipient } from '@/app/contexts/TransferRecipientContext';
-import { useTranslation } from '@/app/hooks/useTranslation';
+import { useAuth } from '@/contexts/AuthContext';
+import { useSetTransferRecipient } from '@/contexts/TransferRecipientContext';
+import { useTranslation } from '@/hooks/useTranslation';
 import ActionSheetThemed from '@/components/ActionSheetThemed';
 import Avatar from '@/components/Avatar';
 import { Button } from '@/components/Button';
