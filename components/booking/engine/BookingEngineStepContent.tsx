@@ -9,6 +9,7 @@ import BookingEngineDatetimeStep from '@/components/booking/engine/BookingEngine
 import BookingEngineEmployeeStep from '@/components/booking/engine/BookingEngineEmployeeStep';
 import BookingEngineHandoffServiceStep from '@/components/booking/engine/BookingEngineHandoffServiceStep';
 import BookingEngineServiceStep from '@/components/booking/engine/BookingEngineServiceStep';
+import BookingEngineSummaryStep from '@/components/booking/engine/BookingEngineSummaryStep';
 
 interface Props {
   flow: BookingEngineFlow;
@@ -57,6 +58,10 @@ export default function BookingEngineStepContent({ flow, stepKind }: Props) {
 
   if (stepKind === 'datetime') {
     return <BookingEngineDatetimeStep flow={flow} />;
+  }
+
+  if (stepKind === 'summary') {
+    return <BookingEngineSummaryStep flow={flow} />;
   }
 
   return <BookingEngineContactStep flow={flow} />;

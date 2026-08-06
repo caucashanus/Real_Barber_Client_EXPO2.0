@@ -7,6 +7,7 @@ import ThemedText from '@/components/ThemedText';
 import Section from '@/components/layout/Section';
 import { BARBER_DETAIL_SECTION_SPACING } from '@/constants/barberDetailLayout';
 import { getBranchContactMeta } from '@/constants/branchContacts';
+import { branchDetailHref } from '@/constants/profileDetailRoutes';
 import {
   resolveCrmBranchId,
   type BranchInternalId,
@@ -39,9 +40,7 @@ export default function BranchOtherBranches({
           return (
             <Pressable
               key={branchId}
-              onPress={() =>
-                router.push(`/screens/branch-detail?id=${encodeURIComponent(crmId)}` as never)
-              }
+              onPress={() => router.push(branchDetailHref(crmId) as never)}
               className="flex-row items-center gap-3 active:opacity-70">
               <Image
                 source={meta.carouselImage}

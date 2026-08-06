@@ -5,15 +5,23 @@ export interface CouponPreviewBody {
   employeeId: string;
   branchId: string;
   itemId: string;
+  phone?: string;
+  email?: string;
 }
 
 export interface CouponPreviewSuccess {
   success: boolean;
+  kind?: 'coupon' | 'voucher';
   originalPrice: number;
   discountAmount: number;
   finalPrice: number;
   couponCode: string;
   couponName?: string;
+  matchedClient?: boolean;
+}
+
+export function normalizeCouponCode(raw: string): string {
+  return raw.trim().toUpperCase().slice(0, 64);
 }
 
 function parseNumber(v: unknown): number | undefined {
@@ -42,7 +50,10 @@ export async function previewCoupon(
   const raw = await fetchCrm<unknown>('/api/client/coupons/preview', {
     method: 'POST',
     apiToken,
-    body,
+    body: {
+      ...body,
+      couponCode: normalizeCouponCode(body.couponCode),
+    },
   });
 
   const obj = unwrapRecord(raw);
@@ -60,13 +71,17 @@ export async function previewCoupon(
       : body.couponCode;
   const couponName = typeof obj.couponName === 'string' ? obj.couponName : undefined;
   const success = obj.success !== false;
+  const kind = obj.kind === 'coupon' || obj.kind === 'voucher' ? obj.kind : undefined;
+  const matchedClient = typeof obj.matchedClient === 'boolean' ? obj.matchedClient : undefined;
 
   return {
     success,
+    kind,
     originalPrice,
     discountAmount,
     finalPrice,
     couponCode,
     couponName,
+    matchedClient,
   };
 }

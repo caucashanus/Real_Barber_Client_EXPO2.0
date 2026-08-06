@@ -12,6 +12,7 @@ import Grid from '@/components/layout/Grid';
 import SlotTimePill from '@/components/SlotTimePill';
 import ThemedText from '@/components/ThemedText';
 import type { TranslationKey } from '@/locales';
+import { barberDetailHref } from '@/constants/profileDetailRoutes';
 import type { HomeTodayTeamCardModel } from '@/utils/homeTodayTeamHelpers';
 import { resolveHomeTodaySlotBranch } from '@/utils/homeTodayTeamHelpers';
 import { startBarberSlotHandoffBooking } from '@/utils/reservationSlotHandoff';
@@ -93,7 +94,7 @@ function renderActionRow({
           compact
           spaced
           title={t('teamMemberCardViewProfile')}
-          onPress={() => router.push(`/screens/barber-detail?id=${card.id}`)}
+          onPress={() => router.push(barberDetailHref(card.id) as never)}
         />
       </View>
     );
@@ -134,7 +135,7 @@ function renderActionRow({
         compact
         spaced
         title={t('homeTodayTeamMoreSlots')}
-        onPress={() => router.push(`/screens/barber-detail?id=${card.id}`)}
+        onPress={() => router.push(barberDetailHref(card.id) as never)}
       />
     </View>
   );
@@ -179,7 +180,7 @@ function BarberAvailabilityGridCard({
 
   return (
     <FavoriteMediaCard
-      href={`/screens/barber-detail?id=${card.id}`}
+      href={barberDetailHref(card.id)}
       title={card.name}
       image={card.avatarUrl ?? require('@/assets/img/barbers.png')}
       entityType="employee"

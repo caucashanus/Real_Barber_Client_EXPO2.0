@@ -210,15 +210,15 @@ export function applyBookingBackwardCleanup(
     return idx !== -1 && fromIdx >= idx && toIdx < idx;
   };
 
-  if (options?.awaitingOtp && (shouldClear('contact') || shouldClear('datetime'))) {
+  if (options?.awaitingOtp && (shouldClear('contact') || shouldClear('summary') || shouldClear('datetime'))) {
     options.clearContactOtp?.();
   }
 
-  if (shouldClear('contact') || shouldClear('datetime')) {
+  if (shouldClear('contact') || shouldClear('summary') || shouldClear('datetime')) {
     setters.setSlot(null);
   }
 
-  if (shouldClear('datetime') || (fromStep === 'contact' && toStep === 'datetime')) {
+  if (shouldClear('datetime') || (fromStep === 'contact' && toStep === 'datetime') || (fromStep === 'summary' && toStep === 'datetime')) {
     setters.setDate(null);
   }
 
@@ -246,6 +246,7 @@ function isStepSatisfied(kind: BookingStepKind, selections: BookingSelections): 
   if (kind === 'employee') return !!selections.employee;
   if (kind === 'datetime') return !!selections.slot;
   if (kind === 'contact') return true;
+  if (kind === 'summary') return !!selections.slot;
   return true;
 }
 

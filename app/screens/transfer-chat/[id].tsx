@@ -33,6 +33,7 @@ import { Button } from '@/components/Button';
 import Header, { HeaderIcon } from '@/components/Header';
 import Icon from '@/components/Icon';
 import ThemedText from '@/components/ThemedText';
+import { barberDetailHref } from '@/constants/profileDetailRoutes';
 import type { TranslationKey } from '@/locales';
 
 function formatBalance(value: number): string {
@@ -306,7 +307,7 @@ export default function TransferChatScreen() {
                 className="flex-row items-center py-4"
                 onPress={() => {
                   actionSheetRef.current?.hide();
-                  router.push(`/screens/barber-detail?id=${encodeURIComponent(id)}`);
+                  router.push(barberDetailHref(id) as never);
                 }}>
                 <Icon name="User" size={20} className="mr-3" />
                 <ThemedText>{t('transferChatMenuViewProfile')}</ThemedText>

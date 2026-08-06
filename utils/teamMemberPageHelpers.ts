@@ -6,6 +6,7 @@ import type {
   TeamMemberShiftDay,
 } from '@/api/publicTeamMember';
 import type { Locale } from '@/contexts/LanguageContext';
+import { BARBER_DETAIL_ROUTE } from '@/constants/profileDetailRoutes';
 import { formatRelativeDayLabel } from '@/utils/formatRelativeDayLabel';
 
 type LocalizedEntity = Record<string, unknown>;
@@ -339,7 +340,7 @@ export function getTeamMemberProfileShareUrl(
   if (url) {
     return /^https?:\/\//i.test(url) ? url : `https://${url}`;
   }
-  return `realbarber://screens/barber-detail?id=${encodeURIComponent(employee.id)}`;
+  return `realbarber://${BARBER_DETAIL_ROUTE.slice(1)}?id=${encodeURIComponent(employee.id)}`;
 }
 
 export function buildTeamMemberShareMessage(displayName: string, profileUrl: string): string {

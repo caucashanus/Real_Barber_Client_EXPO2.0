@@ -18,6 +18,7 @@ import {
   formatBookingSubmitError,
   useBookingEngineContact,
 } from '@/hooks/useBookingEngineContact';
+import { useBookingEngineCoupon } from '@/hooks/useBookingEngineCoupon';
 import { useTranslation } from '@/hooks/useTranslation';
 import type { TranslationKey } from '@/locales';
 import { useBookings } from '@/contexts/BookingsBadgeContext';
@@ -45,6 +46,7 @@ import { resolveBookingFlowFooterAction } from '@/lib/booking/bookingFlowFooter'
 import { ensureBookingSessionId } from '@/lib/booking/booking-api/session';
 import {
   applyBookingBackwardCleanup,
+  bookingServiceFromStoredSlotContext,
   clearBookingSlotContext,
   computeMaxAllowedStep,
   isStepSatisfiedForKind,
@@ -92,6 +94,8 @@ function stepTitleKey(kind: BookingStepKind): TranslationKey {
     case 'datetime':
       return 'reservationStepDatetimeTitle';
     case 'contact':
+      return 'reservationSummaryTitle';
+    case 'summary':
       return 'reservationSummaryTitle';
     default:
       return 'reservationStepBranchTitle';
@@ -294,6 +298,17 @@ export function useBookingEngineFlow() {
     if (contactEnteredRef.current) return;
     contactEnteredRef.current = true;
     trackBookingMonitor('entered_contact', monitorFields('contact'));
+  }, [step, monitorFields]);
+
+  const summaryEnteredRef = useRef(false);
+  useEffect(() => {
+    if (step !== 'summary') {
+      summaryEnteredRef.current = false;
+      return;
+    }
+    if (summaryEnteredRef.current) return;
+    summaryEnteredRef.current = true;
+    trackBookingMonitor('entered_summary', monitorFields('summary'));
   }, [step, monitorFields]);
 
   const leaveMonitorRef = useRef({ submitSuccess: false, fields: monitorFields(step) });
@@ -699,6 +714,100 @@ export function useBookingEngineFlow() {
     [selectedBranch, selectedService, selectedEmployee, selectedDate, selectedSlot]
   );
 
+  const couponEmployeeId = useMemo(() => {
+    const employee = profileEmployee ?? selectedEmployee;
+    if (!employee?.id || employee.id === ANY_EMPLOYEE_ID) return null;
+    return employee.id;
+  }, [profileEmployee, selectedEmployee]);
+
+  const couponContext = useMemo(
+    () => ({
+      employeeId: couponEmployeeId,
+      branchId: selectedBranch?.id ?? null,
+      itemId: selectedService?.id ?? null,
+      phone: contact.contactContext.phone || null,
+      email: contact.contactContext.email || null,
+      slotStart: selectedSlot?.start ?? null,
+      date: selectedDate,
+    }),
+    [
+      couponEmployeeId,
+      selectedBranch?.id,
+      selectedService?.id,
+      contact.contactContext.phone,
+      contact.contactContext.email,
+      selectedSlot?.start,
+      selectedDate,
+    ]
+  );
+
+  const coupon = useBookingEngineCoupon({
+    apiToken,
+    context: couponContext,
+    t,
+    onVerified: (preview) => {
+      trackBookingMonitor('coupon_verified', {
+        ...monitorFields(step),
+        serviceName: preview.couponName ?? null,
+      });
+    },
+    onInvalid: (message) => {
+      trackBookingMonitor('coupon_invalid', {
+        ...monitorFields(step),
+        serviceName: message,
+      });
+    },
+  });
+
+  const trackOpenDiscountCode = useCallback(() => {
+    trackBookingMonitor('opened_discount_code', monitorFields(step));
+  }, [monitorFields, step]);
+
+  const trackOpenGiftVoucher = useCallback(() => {
+    trackBookingMonitor('opened_gift_voucher', monitorFields(step));
+  }, [monitorFields, step]);
+
+  useEffect(() => {
+    if (step !== 'summary' && step !== 'contact') return;
+    if (selectedSlot?.start && selectedDate) return;
+    let cancelled = false;
+    void readBookingSlotContext().then((stored) => {
+      if (cancelled || !stored) return;
+      if (preset.branchId && stored.branchId !== preset.branchId) return;
+      if (preset.serviceId && stored.serviceId !== preset.serviceId) return;
+      if (preset.employeeId && stored.employeeId !== preset.employeeId) return;
+
+      setSelectedBranch((current) =>
+        current?.id === stored.branchId
+          ? current
+          : resolveBranchEntityForSlotRestore(stored.branchId, current, {
+              branches,
+              profileBranches,
+            })
+      );
+      setSelectedService((current) =>
+        current?.id === stored.serviceId ? current : bookingServiceFromStoredSlotContext(stored)
+      );
+      setSelectedEmployee((current) =>
+        current?.id === stored.employeeId ? current : { id: stored.employeeId }
+      );
+      setSelectedDate(stored.date);
+      setSelectedSlot(stored.slot);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [
+    step,
+    selectedSlot?.start,
+    selectedDate,
+    preset.branchId,
+    preset.serviceId,
+    preset.employeeId,
+    branches,
+    profileBranches,
+  ]);
+
   const goToStepIndex = useCallback(
     (nextIndex: number) => {
       const clamped = Math.max(0, Math.min(nextIndex, activeSteps.length - 1));
@@ -806,7 +915,11 @@ export function useBookingEngineFlow() {
         setSlotHandoff(null);
         const contactIdx = activeSteps.indexOf('contact');
         if (contactIdx >= 0) goToStepIndex(contactIdx);
+        return;
       }
+      void clearBookingSlotHandoff();
+      setSlotHandoff(null);
+      advanceAfterSelect('service');
     },
     [
       slotHandoff,
@@ -818,6 +931,7 @@ export function useBookingEngineFlow() {
       skipContact,
       activeSteps,
       goToStepIndex,
+      advanceAfterSelect,
       recipeId,
       locale,
     ]
@@ -973,13 +1087,16 @@ export function useBookingEngineFlow() {
   }, [employees, recipeId, t]);
 
   const handleSubmitSuccess = useCallback(
-    async (data: unknown) => {
-      const successFields = monitorFields('contact');
+    async (data: unknown, hadCoupon: boolean) => {
+      const successFields = monitorFields(skipContact ? 'summary' : 'contact');
       if (apiToken) {
         trackBookingMonitor('reservation_no_otp', {
           ...successFields,
           isNewClient: false,
         });
+      }
+      if (hadCoupon) {
+        trackBookingMonitor('coupon_applied', successFields);
       }
       trackBookingMonitor('reservation_success', {
         ...successFields,
@@ -1069,6 +1186,7 @@ export function useBookingEngineFlow() {
         ...(selectedSlot.end ? { slotEnd: selectedSlot.end } : {}),
         ...(contact.fields.notes.trim() ? { notes: contact.fields.notes.trim() } : {}),
         marketingConsent: contact.fields.marketingConsent,
+        ...(coupon.couponCodeForSubmit ? { couponCode: coupon.couponCodeForSubmit } : {}),
       };
     },
     [
@@ -1080,29 +1198,28 @@ export function useBookingEngineFlow() {
       selectedSlot,
       contact.fields.notes,
       contact.fields.marketingConsent,
+      coupon.couponCodeForSubmit,
     ]
   );
 
   const handleSubmit = useCallback(() => {
+    const hadCoupon = Boolean(coupon.couponCodeForSubmit);
     void contact.submitReservation({
       buildPayload: buildSubmitPayload,
-      onSuccess: (data) => void handleSubmitSuccess(data),
+      onSuccess: (data) => void handleSubmitSuccess(data, hadCoupon),
       onSlotConflict: () => {
         setSelectedSlot(null);
         void clearBookingSlotContext();
       },
       formatError: (err) => formatBookingSubmitError(err, t),
     });
-  }, [contact, buildSubmitPayload, handleSubmitSuccess, t]);
+  }, [contact, buildSubmitPayload, handleSubmitSuccess, coupon.couponCodeForSubmit, t]);
 
   const footerAction = useMemo(
     () =>
       resolveBookingFlowFooterAction({
         isContactStep: step === 'contact',
-        isDatetimeStep: step === 'datetime',
-        isServiceStep: step === 'service',
-        skipContact,
-        skipDatetime,
+        isSummaryStep: step === 'summary',
         authPrefillReady: contact.authPrefillReady,
         submitSuccess: contact.submitSuccess,
         selectedSlot,
@@ -1112,7 +1229,10 @@ export function useBookingEngineFlow() {
         submitting: contact.submitting,
         onSubmit: handleSubmit,
         labels: {
-          submit: step === 'contact' ? t('bookingReserveTerm') : t('commonReserve'),
+          submit:
+            step === 'contact' || step === 'summary'
+              ? t('bookingReserveTerm')
+              : t('commonReserve'),
           submitting: t('reservationCreating'),
           otpConfirm: t('bookingOtpConfirm'),
           otpVerifying: t('reservationCreating'),
@@ -1121,7 +1241,6 @@ export function useBookingEngineFlow() {
     [
       step,
       skipContact,
-      skipDatetime,
       contact,
       selectedSlot,
       selectedService,
@@ -1159,7 +1278,7 @@ export function useBookingEngineFlow() {
   useEffect(() => {
     const prev = prevStepRef.current;
     if (step !== prev) {
-      if (prev === 'contact' && step !== 'contact') {
+      if ((prev === 'contact' || prev === 'summary') && step !== 'contact' && step !== 'summary') {
         void clearBookingSlotContext();
       }
       prevStepRef.current = step;
@@ -1180,6 +1299,7 @@ export function useBookingEngineFlow() {
       employee: t('bookingProgressEmployee'),
       datetime: t('bookingProgressDatetime'),
       contact: t('bookingProgressContact'),
+      summary: t('bookingProgressSummary'),
     }),
     [t]
   );
@@ -1253,6 +1373,9 @@ export function useBookingEngineFlow() {
     showTodayChip: datesWithSlots.includes(todayIso),
     showTomorrowChip: datesWithSlots.includes(tomorrowIso),
     contact,
+    coupon,
+    trackOpenDiscountCode,
+    trackOpenGiftVoucher,
     footerAction,
     handleSubmit,
     isNextDisabled,

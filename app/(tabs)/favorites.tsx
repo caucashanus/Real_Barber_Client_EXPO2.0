@@ -20,6 +20,7 @@ import {
   filterClientFavorites,
   type ClientFavoriteFilter,
 } from '@/utils/clientFavoritesFilter';
+import { barberDetailHref, branchDetailHref } from '@/constants/profileDetailRoutes';
 import { shouldStaleRefresh } from '@/utils/staleRefresh';
 
 const DESKTOP_BREAKPOINT = 768;
@@ -28,9 +29,9 @@ const GRID_GAP = 16;
 function favoriteHref(fav: Favorite): string {
   switch (fav.entityType) {
     case 'branch':
-      return `/screens/branch-detail?id=${fav.entityId}`;
+      return branchDetailHref(fav.entityId);
     case 'employee':
-      return `/screens/barber-detail?id=${fav.entityId}`;
+      return barberDetailHref(fav.entityId);
     case 'item':
       return `/screens/service-detail?id=${fav.entityId}`;
     case 'product':

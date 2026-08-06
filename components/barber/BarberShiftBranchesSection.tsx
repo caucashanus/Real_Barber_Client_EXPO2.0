@@ -10,6 +10,7 @@ import type { Locale } from '@/contexts/LanguageContext';
 import type { TranslationKey } from '@/locales';
 import { getTeamMemberBranchName, formatBranchAddressShort } from '@/utils/teamMemberPageHelpers';
 import { BARBER_DETAIL_SECTION_SPACING } from '@/constants/barberDetailLayout';
+import { branchDetailHref } from '@/constants/profileDetailRoutes';
 
 interface BarberShiftBranchesSectionProps {
   branches: TeamMemberPageBranch[];
@@ -36,7 +37,7 @@ export default function BarberShiftBranchesSection({
           return (
           <Pressable
             key={branch.id}
-            onPress={() => router.push(`/screens/branch-detail?id=${branch.id}`)}
+            onPress={() => router.push(branchDetailHref(branch.id) as never)}
             className="flex-row items-center active:opacity-70">
             {branch.imageUrl ? (
               <Image

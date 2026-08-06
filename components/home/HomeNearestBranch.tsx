@@ -29,6 +29,7 @@ import SlotTimePill from '@/components/SlotTimePill';
 import ThemedText from '@/components/ThemedText';
 import { SEO_STARTER_WEB_ORIGIN } from '@/constants/bookingMonitor';
 import { getBranchContactMeta } from '@/constants/branchContacts';
+import { branchDetailHref } from '@/constants/profileDetailRoutes';
 import {
   getBranchInteriorCarouselImages,
   type BranchInteriorCarouselImage,
@@ -581,7 +582,7 @@ export default function HomeNearestBranch({
   const openBranchDetail = () => {
     if (!crmBranchId) return;
     leaveNearestFlow();
-    router.push(`/screens/branch-detail?id=${encodeURIComponent(crmBranchId)}` as never);
+    router.push(branchDetailHref(crmBranchId) as never);
   };
 
   const errorMessage =

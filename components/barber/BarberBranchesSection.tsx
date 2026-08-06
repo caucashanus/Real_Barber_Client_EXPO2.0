@@ -7,6 +7,7 @@ import type { EmployeeBranch } from '@/api/employees';
 import Icon from '@/components/Icon';
 import ThemedText from '@/components/ThemedText';
 import Section from '@/components/layout/Section';
+import { branchDetailHref } from '@/constants/profileDetailRoutes';
 import type { TranslationKey } from '@/locales';
 
 interface BarberBranchesSectionProps {
@@ -23,7 +24,7 @@ export default function BarberBranchesSection({ branches, t }: BarberBranchesSec
           {branches.map((branch) => (
             <Pressable
               key={branch.id}
-              onPress={() => router.push(`/screens/branch-detail?id=${branch.id}`)}
+              onPress={() => router.push(branchDetailHref(branch.id) as never)}
               className="flex-row items-center rounded-xl bg-light-secondary p-3 dark:bg-dark-secondary">
               {branch.imageUrl ? (
                 <Image

@@ -18,6 +18,7 @@ import Icon from '@/components/Icon';
 import ThemeScroller from '@/components/ThemeScroller';
 import ThemedText from '@/components/ThemedText';
 import Section from '@/components/layout/Section';
+import { barberDetailHref } from '@/constants/profileDetailRoutes';
 
 const NEW_BARBERS_DAYS = 30;
 
@@ -125,7 +126,7 @@ const ExperienceScreen = () => {
                       hasFavorite
                       favoriteEntityType="employee"
                       favoriteEntityId={emp.id}
-                      href={`/screens/barber-detail?id=${emp.id}`}
+                      href={barberDetailHref(emp.id)}
                       price=""
                       width={160}
                       imageHeight={160}

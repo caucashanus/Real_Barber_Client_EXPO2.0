@@ -10,6 +10,10 @@ export function shouldSkipStep(
     return bootstrap.skipContact === true;
   }
 
+  if (step === 'summary') {
+    return bootstrap.skipContact !== true;
+  }
+
   if (step === 'branch') {
     if (preset.branchSlug || preset.branchId) return true;
     if (preset.recipeId === 'employee-profile') return true;

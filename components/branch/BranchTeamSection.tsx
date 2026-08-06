@@ -6,6 +6,7 @@ import type { BranchEmployee } from '@/api/branches';
 import Avatar from '@/components/Avatar';
 import BranchContentCardSection from '@/components/branch/BranchContentCardSection';
 import ThemedText from '@/components/ThemedText';
+import { barberDetailHref } from '@/constants/profileDetailRoutes';
 import type { TranslationKey } from '@/locales';
 
 interface BranchTeamSectionProps {
@@ -27,7 +28,7 @@ export default function BranchTeamSection({
         {employees.map((emp) => (
           <Pressable
             key={emp.id}
-            onPress={() => router.push(`/screens/barber-detail?id=${emp.id}`)}
+            onPress={() => router.push(barberDetailHref(emp.id) as never)}
             className="items-center active:opacity-70">
             <Avatar size="lg" src={emp.avatarUrl ?? undefined} name={emp.name} />
             <ThemedText className="mt-2 text-sm font-medium" numberOfLines={1}>

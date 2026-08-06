@@ -41,13 +41,15 @@ function SlotGroup({
         {title}
       </ThemedText>
       <View className="flex-row flex-wrap items-start self-start">
-        {slots.map((slot) => {
+        {slots.map((slot, index) => {
           const branchName = slot.branchId
             ? resolveBranchName(slot.branchId, flow.branches, flow.profileBranches)
             : undefined;
           const isSelected =
             flow.selectedSlot?.start === slot.start &&
-            (flow.selectedSlot?.branchId ?? '') === (slot.branchId ?? '');
+            (flow.selectedSlot?.end ?? '') === (slot.end ?? '') &&
+            (flow.selectedSlot?.branchId ?? '') === (slot.branchId ?? '') &&
+            (flow.selectedSlot?.employeeId ?? '') === (slot.employeeId ?? '');
           const multiBranchLabel =
             flow.multiBranchLegend && branchName
               ? `${formatNextSlotDisplayTime(slot.start)} · ${branchName}`
@@ -55,7 +57,7 @@ function SlotGroup({
 
           return (
             <SlotTimePill
-              key={`${slot.start}-${slot.end}-${slot.branchId ?? ''}`}
+              key={`${slot.start}-${slot.end}-${slot.branchId ?? 'any'}-${slot.employeeId ?? 'any'}-${index}`}
               time={multiBranchLabel ? undefined : slot.start}
               title={multiBranchLabel}
               selected={isSelected}
@@ -66,6 +68,7 @@ function SlotGroup({
                   end: slot.end,
                   branchId: slot.branchId,
                   branchName,
+                  employeeId: slot.employeeId,
                 })
               }
             />

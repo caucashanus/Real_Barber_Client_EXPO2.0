@@ -1,6 +1,7 @@
 import type { Branch } from '@/api/branches';
 import type { Locale } from '@/contexts/LanguageContext';
 import { getBranchGoogleReviewUrl } from '@/constants/branchGoogleReviews';
+import { BRANCH_DETAIL_ROUTE } from '@/constants/profileDetailRoutes';
 import { resolveInternalBranchIdFromCrmUuid } from '@/constants/crmBranchIds';
 import { getTranslation } from '@/locales';
 import type { TranslationKey } from '@/locales';
@@ -18,7 +19,7 @@ export function getBranchProfileShareUrl(branch: Branch, locale: Locale): string
     const prefix = locale === 'cs' ? '' : `/${locale}`;
     return `https://realbarber.cz${prefix}/pobocky/${slug}`;
   }
-  return `realbarber://screens/branch-detail?id=${encodeURIComponent(branch.id)}`;
+  return `realbarber://${BRANCH_DETAIL_ROUTE.slice(1)}?id=${encodeURIComponent(branch.id)}`;
 }
 
 export function getBranchGoogleReviewUrlForCrmId(crmBranchId: string): string | null {

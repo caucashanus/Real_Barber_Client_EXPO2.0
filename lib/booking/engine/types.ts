@@ -1,6 +1,16 @@
-export type BookingStepKind = 'branch' | 'service' | 'employee' | 'datetime' | 'contact';
+export type BookingStepKind =
+  | 'branch'
+  | 'service'
+  | 'employee'
+  | 'datetime'
+  | 'contact'
+  | 'summary';
 
-export const BOOKING_TERMINAL_STEPS = ['datetime', 'contact'] as const satisfies readonly BookingStepKind[];
+export const BOOKING_TERMINAL_STEPS = [
+  'datetime',
+  'contact',
+  'summary',
+] as const satisfies readonly BookingStepKind[];
 
 export type BookingRecipeId =
   | 'branch-first'

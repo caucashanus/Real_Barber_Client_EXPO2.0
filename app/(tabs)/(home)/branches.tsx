@@ -22,6 +22,7 @@ import ThemedText from '@/components/ThemedText';
 import { getBranchContactMeta } from '@/constants/branchContacts';
 import { getBranchInteriorCarouselImages } from '@/constants/branchInteriorGallery';
 import { resolveCrmBranchId, type BranchInternalId } from '@/constants/crmBranchIds';
+import { branchDetailHref } from '@/constants/profileDetailRoutes';
 import { KUDY_K_NAM_VIDEOS } from '@/constants/kudy-k-nam-videos';
 import type { TranslationKey } from '@/locales';
 import {
@@ -63,7 +64,7 @@ export default function BranchesScreen() {
 
   const openBranchDetail = useCallback((branchId: BranchInternalId) => {
     const crmBranchId = resolveCrmBranchId(branchId);
-    router.push(`/screens/branch-detail?id=${encodeURIComponent(crmBranchId)}` as never);
+    router.push(branchDetailHref(crmBranchId) as never);
   }, []);
 
   return (

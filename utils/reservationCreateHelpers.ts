@@ -446,6 +446,31 @@ export function formatNextSlotDisplayTime(slotStart: string): string {
   return `${String(nh).padStart(2, '0')}:${String(nm).padStart(2, '0')}`;
 }
 
+/** Souhrn rezervace — „Dnes 6.8 19:30-20:00“ (bez roku). */
+export function formatBookingSummaryDatetimeLabel(params: {
+  dateIso?: string | null;
+  slotStart?: string | null;
+  slotEnd?: string | null;
+  todayIso: string;
+  dateLocaleTag: string;
+}): string {
+  const { dateIso, slotStart, slotEnd, todayIso, dateLocaleTag } = params;
+  if (!dateIso?.trim() || !slotStart?.trim()) return '—';
+
+  const locale = localeFromDateLocaleTag(dateLocaleTag);
+  const dayLabel = formatRelativeDayLabel({
+    dayIso: dateIso,
+    todayIso,
+    locale,
+    variant: 'title',
+  }).replace(/\.$/, '');
+
+  const start = formatNextSlotDisplayTime(slotStart);
+  const end = slotEnd?.trim() ? formatNextSlotDisplayTime(slotEnd) : null;
+
+  return end ? `${dayLabel} ${start}-${end}` : `${dayLabel} ${start}`;
+}
+
 /** Slot-handoff tlačítko služby — „Dnes v 16:30“ / „Zítra nejdříve v 7:30“. */
 export function formatTimeButtonLabel(params: {
   isoDate: string;

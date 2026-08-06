@@ -10,6 +10,7 @@ import ListLink from '@/components/ListLink';
 import ThemedText from '@/components/ThemedText';
 import Section from '@/components/layout/Section';
 import type { TranslationKey } from '@/locales';
+import { barberDetailHref } from '@/constants/profileDetailRoutes';
 
 interface BookingDetailEmployeeSectionProps {
   booking: Booking;
@@ -25,7 +26,7 @@ export default function BookingDetailEmployeeSection({
 
   const openEmployeeProfile = () => {
     if (!employeeId) return;
-    router.push(`/screens/barber-detail?id=${encodeURIComponent(employeeId)}` as never);
+    router.push(barberDetailHref(employeeId) as never);
   };
 
   const employeeSummary = (

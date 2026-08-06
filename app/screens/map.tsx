@@ -21,6 +21,7 @@ import ThemedText from '@/components/ThemedText';
 import { BRANCH_FILTER_DATA } from '@/constants/branch-filter-data';
 import { BRANCH_MARKER_IMAGES } from '@/constants/branch-marker-images';
 import { getBranchServicesList, getMediaUrlsSorted } from '@/utils/branchMediaHelpers';
+import { branchDetailHref } from '@/constants/profileDetailRoutes';
 
 const CENTRAL_WAREHOUSE_TEL = '+420774522114';
 
@@ -240,7 +241,7 @@ const MapScreen = () => {
               isSelected={selectedMarkerId === branch.id}
               onPress={() => {
                 setSelectedMarkerId(branch.id);
-                router.push(`/screens/branch-detail?id=${branch.id}`);
+                router.push(branchDetailHref(branch.id) as never);
               }}
             />
           ))}
@@ -324,7 +325,7 @@ const MapScreen = () => {
               <CustomCard
                 padding="md"
                 className="my-0 w-full overflow-hidden"
-                href={`/screens/branch-detail?id=${item.id}`}>
+                href={branchDetailHref(item.id)}>
                 <ImageCarousel rounded="xl" height={300} className="w-full" images={item.image} />
                 <View className="pb-global pt-2">
                   <View className="flex-row items-center justify-between">

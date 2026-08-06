@@ -1,9 +1,6 @@
 export function resolveBookingFlowFooterAction(params: {
   isContactStep: boolean;
-  isDatetimeStep?: boolean;
-  isServiceStep?: boolean;
-  skipContact?: boolean;
-  skipDatetime?: boolean;
+  isSummaryStep?: boolean;
   authPrefillReady?: boolean;
   submitSuccess: boolean;
   selectedSlot: unknown | null;
@@ -27,10 +24,7 @@ export function resolveBookingFlowFooterAction(params: {
 } | null {
   const {
     isContactStep,
-    isDatetimeStep = false,
-    isServiceStep = false,
-    skipContact = false,
-    skipDatetime = false,
+    isSummaryStep = false,
     authPrefillReady = true,
     submitSuccess,
     selectedSlot,
@@ -44,16 +38,9 @@ export function resolveBookingFlowFooterAction(params: {
 
   if (submitSuccess) return null;
 
-  const canDirectSubmit = skipContact && authPrefillReady;
-  const canSubmitOnDatetime = canDirectSubmit && isDatetimeStep && Boolean(selectedSlot);
-  const canSubmitOnHandoffService =
-    canDirectSubmit &&
-    skipDatetime &&
-    isServiceStep &&
-    Boolean(selectedSlot) &&
-    Boolean(selectedService);
+  const canSubmit = (isContactStep || isSummaryStep) && authPrefillReady;
 
-  if (!isContactStep && !canSubmitOnDatetime && !canSubmitOnHandoffService) {
+  if (!canSubmit) {
     return null;
   }
 

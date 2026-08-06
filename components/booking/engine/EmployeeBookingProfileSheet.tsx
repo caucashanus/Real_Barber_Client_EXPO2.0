@@ -32,6 +32,7 @@ import RatingBadge from '@/components/RatingBadge';
 import ThemedText from '@/components/ThemedText';
 import type { BookingEntity } from '@/lib/booking/constants';
 import type { TranslationKey } from '@/locales';
+import { barberDetailHref } from '@/constants/profileDetailRoutes';
 import {
   getPragueTodayDateString,
   getTeamMemberBio,
@@ -138,7 +139,7 @@ const EmployeeBookingProfileSheet = forwardRef<
       target?.employee.slug ?? employee?.id ?? target?.employee.id;
     if (!idOrSlug) return;
     sheetRef.current?.hide();
-    router.push(`/screens/barber-detail?id=${encodeURIComponent(String(idOrSlug))}` as never);
+    router.push(barberDetailHref(String(idOrSlug)) as never);
   };
 
   const scrollToReviews = () => {
