@@ -9,6 +9,7 @@ interface CopyIconButtonProps {
   size?: number;
   accessibilityLabel: string;
   className?: string;
+  iconClassName?: string;
   hitSlop?: number;
 }
 
@@ -17,6 +18,7 @@ export default function CopyIconButton({
   size = 16,
   accessibilityLabel,
   className = 'shrink-0 active:opacity-60',
+  iconClassName = 'opacity-80',
   hitSlop = 8,
 }: CopyIconButtonProps) {
   const { copyToClipboard } = useCopyFeedback();
@@ -28,7 +30,7 @@ export default function CopyIconButton({
       hitSlop={hitSlop}
       className={className}
       onPress={() => copyToClipboard(value)}>
-      <Icon name="Copy" size={size} className="opacity-80" />
+      <Icon name="Copy" size={size} className={iconClassName} />
     </Pressable>
   );
 }

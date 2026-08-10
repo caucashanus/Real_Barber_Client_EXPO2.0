@@ -1,11 +1,8 @@
-import {
-  normalizeIncomingDeepLinkPath,
-  resolveSmartDownloadRoute,
-} from '@/constants/deepLinkConfig';
+import { resolveIncomingDeepLinkRoute } from '@/constants/deepLinkConfig';
 
 /**
  * Maps incoming Universal / App Link paths to Expo Router routes.
- * MVP: https://realbarber.cz/aplikace/stahnout → home (via `/`).
+ * Known app paths pass through; web-only paths fall back to `/` (auth → home or login).
  */
 export function redirectSystemPath({
   path,
@@ -14,10 +11,7 @@ export function redirectSystemPath({
   initial: boolean;
 }): string {
   try {
-    const normalized = normalizeIncomingDeepLinkPath(path);
-    const homeRoute = resolveSmartDownloadRoute(normalized);
-    if (homeRoute) return homeRoute;
-    return normalized;
+    return resolveIncomingDeepLinkRoute(path);
   } catch {
     return '/';
   }

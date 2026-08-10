@@ -1,8 +1,9 @@
 import React from 'react';
-import { Animated, ImageSourcePropType, Pressable, View } from 'react-native';
+import { Animated, ImageSourcePropType, View } from 'react-native';
 
 import type { Booking } from '@/api/bookings';
-import Icon from '@/components/Icon';
+import AppButton from '@/components/AppButton';
+import BranchAddress from '@/components/shared/BranchAddress';
 import ImageCarousel from '@/components/ImageCarousel';
 import ThemedText from '@/components/ThemedText';
 import type { TranslationKey } from '@/locales';
@@ -13,7 +14,9 @@ interface BookingDetailHeroSectionProps {
   booking: Booking;
   location: string;
   canOpenBranchNavigate: boolean;
+  canShare: boolean;
   onOpenBranchNavigate: () => void;
+  onShare: () => void;
   t: (key: TranslationKey) => string;
 }
 
@@ -23,7 +26,9 @@ export default function BookingDetailHeroSection({
   booking,
   location,
   canOpenBranchNavigate,
+  canShare,
   onOpenBranchNavigate,
+  onShare,
   t,
 }: BookingDetailHeroSectionProps) {
   return (
@@ -40,32 +45,42 @@ export default function BookingDetailHeroSection({
 
       <View className="px-global pb-4 pt-6">
         <View className="mb-2 flex-row items-center justify-between gap-2">
-          <ThemedText className="min-w-0 flex-1 shrink pr-1 text-2xl font-bold">
+          <ThemedText
+            className="min-w-0 flex-1 shrink pr-1 text-xl font-bold leading-tight"
+            numberOfLines={2}>
             {booking.branch?.name ?? '—'}
           </ThemedText>
-          {canOpenBranchNavigate ? (
-            <Pressable
-              accessibilityRole="button"
-              accessibilityLabel={t('branchNavigateSectionTitle')}
-              onPress={onOpenBranchNavigate}
-              className="shrink-0 flex-row items-center justify-center gap-1 rounded-full bg-light-secondary px-2.5 py-1.5 active:opacity-80 dark:bg-dark-secondary">
-              <Icon name="Navigation" size={12} className="text-light-text dark:text-dark-text" />
-              <ThemedText className="text-xs font-semibold leading-none">
-                {t('branchNavigateSectionTitle')}
-              </ThemedText>
-            </Pressable>
-          ) : null}
+          <View className="shrink-0 flex-row items-center gap-1.5">
+            {canShare ? (
+              <AppButton
+                title={t('bookingShareButton')}
+                variant="outline"
+                size="sm"
+                rounded="full"
+                className="px-2.5 py-1"
+                iconStart="Share2"
+                iconSize={13}
+                textClassName="text-xs font-semibold leading-tight"
+                onPress={onShare}
+              />
+            ) : null}
+            {canOpenBranchNavigate ? (
+              <AppButton
+                title={t('branchNavigateSectionTitle')}
+                variant="outline"
+                size="sm"
+                rounded="full"
+                className="px-2.5 py-1"
+                iconStart="Navigation"
+                iconSize={13}
+                textClassName="text-xs font-semibold leading-tight"
+                onPress={onOpenBranchNavigate}
+              />
+            ) : null}
+          </View>
         </View>
-        <View className="mb-2 flex-row items-start gap-2">
-          <Icon
-            name="MapPin"
-            size={16}
-            className="mt-0.5 shrink-0 text-light-subtext dark:text-dark-subtext"
-          />
-          <ThemedText className="min-w-0 flex-1 leading-snug text-light-subtext dark:text-dark-subtext">
-            {location}
-          </ThemedText>
-        </View>
+
+        <BranchAddress address={location === '—' ? null : location} className="mb-2" />
       </View>
     </>
   );

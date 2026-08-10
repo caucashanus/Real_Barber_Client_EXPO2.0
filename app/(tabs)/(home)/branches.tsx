@@ -177,6 +177,8 @@ export default function BranchesScreen() {
 
                   <View className="mt-2 gap-3">
                     <Pressable
+                      accessibilityRole="button"
+                      accessibilityLabel={t('branchCopyAddress')}
                       onPress={() => copyToClipboard(meta.address)}
                       className="flex-row items-center gap-1.5 active:opacity-70">
                       <ThemedText className="text-sm leading-6 text-light-subtext dark:text-dark-subtext">

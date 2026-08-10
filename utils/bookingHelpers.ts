@@ -140,6 +140,11 @@ export function isBookingPast(booking: Booking): boolean {
   return getBookingEndDate(booking).getTime() < Date.now();
 }
 
+/** Public share odkaz — jen budoucí nebo právě probíhající (parity s web canShareClientBooking). */
+export function canShareClientBooking(booking: Booking, atMs: number = Date.now()): boolean {
+  return isBookingFutureStartAt(booking, atMs) || isBookingDuringSlotAt(booking, atMs);
+}
+
 export type BookingUiStatusTranslationKey =
   | 'bookingStatusCancelled'
   | 'bookingStatusInProgress'

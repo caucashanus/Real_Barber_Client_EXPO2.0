@@ -4,6 +4,7 @@ import React from 'react';
 import { Pressable, View } from 'react-native';
 
 import ThemedText from '@/components/ThemedText';
+import BranchAddress from '@/components/shared/BranchAddress';
 import Section from '@/components/layout/Section';
 import { BARBER_DETAIL_SECTION_SPACING } from '@/constants/barberDetailLayout';
 import { getBranchContactMeta } from '@/constants/branchContacts';
@@ -38,24 +39,32 @@ export default function BranchOtherBranches({
           const meta = getBranchContactMeta(branchId);
           const crmId = resolveCrmBranchId(branchId);
           return (
-            <Pressable
-              key={branchId}
-              onPress={() => router.push(branchDetailHref(crmId) as never)}
-              className="flex-row items-center gap-3 active:opacity-70">
-              <Image
-                source={meta.carouselImage}
-                className="h-10 w-10 rounded-md"
-                contentFit="cover"
-              />
+            <View key={branchId} className="flex-row items-start gap-3">
+              <Pressable
+                onPress={() => router.push(branchDetailHref(crmId) as never)}
+                className="shrink-0 active:opacity-70">
+                <Image
+                  source={meta.carouselImage}
+                  className="h-10 w-10 rounded-md"
+                  contentFit="cover"
+                />
+              </Pressable>
               <View className="min-w-0 flex-1">
-                <ThemedText className="text-sm font-semibold">Real Barber {meta.shortLabel}</ThemedText>
-                <ThemedText
-                  className="text-xs text-light-subtext dark:text-dark-subtext"
-                  numberOfLines={2}>
-                  {meta.address}
-                </ThemedText>
+                <Pressable
+                  onPress={() => router.push(branchDetailHref(crmId) as never)}
+                  className="self-start active:opacity-70">
+                  <ThemedText className="text-sm font-semibold">
+                    Real Barber {meta.shortLabel}
+                  </ThemedText>
+                </Pressable>
+                <BranchAddress
+                  address={meta.address}
+                  className="mt-0.5"
+                  textClassName="text-xs leading-5 text-light-subtext dark:text-dark-subtext"
+                  numberOfLines={2}
+                />
               </View>
-            </Pressable>
+            </View>
           );
         })}
       </View>

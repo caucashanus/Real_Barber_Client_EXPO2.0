@@ -56,25 +56,25 @@ export default function RootLayout() {
       <LanguageProvider>
         <ThemeProvider>
           <AccentColorProvider>
-            <CopyFeedbackProvider>
             <AuthProvider>
               <BookingsBadgeProvider>
-              <TransferRecipientProvider>
-                <SelectedPurchaseProvider>
-                  <BranchFilterProvider>
-                    <FavoritesSyncProvider>
-                      <PushNotificationsProvider>
-                        <AuthGuard>
-                          <ThemedLayout />
-                        </AuthGuard>
-                      </PushNotificationsProvider>
-                    </FavoritesSyncProvider>
-                  </BranchFilterProvider>
-                </SelectedPurchaseProvider>
-              </TransferRecipientProvider>
+                <TransferRecipientProvider>
+                  <SelectedPurchaseProvider>
+                    <BranchFilterProvider>
+                      <FavoritesSyncProvider>
+                        <PushNotificationsProvider>
+                          <AuthGuard>
+                            <CopyFeedbackProvider>
+                              <ThemedLayout />
+                            </CopyFeedbackProvider>
+                          </AuthGuard>
+                        </PushNotificationsProvider>
+                      </FavoritesSyncProvider>
+                    </BranchFilterProvider>
+                  </SelectedPurchaseProvider>
+                </TransferRecipientProvider>
               </BookingsBadgeProvider>
             </AuthProvider>
-            </CopyFeedbackProvider>
           </AccentColorProvider>
         </ThemeProvider>
       </LanguageProvider>

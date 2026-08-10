@@ -3,6 +3,7 @@ import { View } from 'react-native';
 
 import type { BookingEngineFlow } from '@/hooks/useBookingEngineFlow';
 import Icon from '@/components/Icon';
+import BranchAddress from '@/components/shared/BranchAddress';
 import ThemedText from '@/components/ThemedText';
 import { formatBookingSummaryDatetimeLabel } from '@/utils/reservationCreateHelpers';
 
@@ -11,6 +12,16 @@ interface Props {
   hideCatalogPrice?: boolean;
   plain?: boolean;
 }
+
+type SummaryRow = {
+  icon: React.ComponentProps<typeof Icon>['name'];
+  titleKey:
+    | 'bookingProgressDatetime'
+    | 'bookingProgressService'
+    | 'haircutBarber'
+    | 'bookingSummaryPrice';
+  label: string;
+};
 
 export default function BookingContactSummaryPanel({
   flow,
@@ -32,25 +43,23 @@ export default function BookingContactSummaryPanel({
     flow.profileEmployee?.name ??
     '—';
 
-  const rows = [
+  const branchName = flow.selectedBranch?.name ?? '—';
+  const branchAddress = flow.selectedBranch?.address;
+
+  const rows: SummaryRow[] = [
     {
-      icon: 'Calendar' as const,
-      titleKey: 'bookingProgressDatetime' as const,
+      icon: 'Calendar',
+      titleKey: 'bookingProgressDatetime',
       label: datetimeLabel,
     },
     {
-      icon: 'MapPin' as const,
-      titleKey: 'bookingProgressBranch' as const,
-      label: [flow.selectedBranch?.name, flow.selectedBranch?.address].filter(Boolean).join(' · ') || '—',
-    },
-    {
-      icon: 'Scissors' as const,
-      titleKey: 'bookingProgressService' as const,
+      icon: 'Scissors',
+      titleKey: 'bookingProgressService',
       label: flow.selectedService?.name ?? '—',
     },
     {
-      icon: 'User' as const,
-      titleKey: 'haircutBarber' as const,
+      icon: 'User',
+      titleKey: 'haircutBarber',
       label: employeeName,
     },
     ...(flow.selectedService?.pricing?.minPrice && !hideCatalogPrice
@@ -64,25 +73,44 @@ export default function BookingContactSummaryPanel({
       : []),
   ];
 
+  const branchBlock = plain ? (
+    <View>
+      <ThemedText className="text-sm font-semibold">{t('bookingProgressBranch')}</ThemedText>
+      <ThemedText className="mt-1 text-sm">{branchName}</ThemedText>
+      <BranchAddress address={branchAddress} className="mt-1" />
+    </View>
+  ) : (
+    <View className="flex-row items-start gap-3">
+      <Icon name="MapPin" size={16} className="mt-0.5 text-light-subtext dark:text-dark-subtext" />
+      <View className="min-w-0 flex-1">
+        <ThemedText className="text-sm">{branchName}</ThemedText>
+        <BranchAddress address={branchAddress} className="mt-1" />
+      </View>
+    </View>
+  );
+
+  const renderRow = (row: SummaryRow, index: number) =>
+    plain ? (
+      <View key={row.titleKey} className={index > 0 ? 'mt-4' : undefined}>
+        <ThemedText className="text-sm font-semibold">{t(row.titleKey)}</ThemedText>
+        <ThemedText className="mt-1 text-sm text-light-subtext dark:text-dark-subtext">
+          {row.label}
+        </ThemedText>
+      </View>
+    ) : (
+      <View
+        key={row.titleKey}
+        className={`flex-row items-start gap-3 ${index > 0 ? 'mt-3' : ''}`}>
+        <Icon name={row.icon} size={16} className="mt-0.5 text-light-subtext dark:text-dark-subtext" />
+        <ThemedText className="flex-1 text-sm">{row.label}</ThemedText>
+      </View>
+    );
+
   return (
     <View className={plain ? undefined : 'rounded-2xl border border-light-secondary bg-light-secondary p-4 dark:border-dark-secondary dark:bg-dark-secondary'}>
-      {rows.map((row, index) =>
-        plain ? (
-          <View key={row.titleKey} className={index > 0 ? 'mt-4' : undefined}>
-            <ThemedText className="text-sm font-semibold">{t(row.titleKey)}</ThemedText>
-            <ThemedText className="mt-1 text-sm text-light-subtext dark:text-dark-subtext">
-              {row.label}
-            </ThemedText>
-          </View>
-        ) : (
-          <View
-            key={row.titleKey}
-            className={`flex-row items-start gap-3 ${index > 0 ? 'mt-3' : ''}`}>
-            <Icon name={row.icon} size={16} className="mt-0.5 text-light-subtext dark:text-dark-subtext" />
-            <ThemedText className="flex-1 text-sm">{row.label}</ThemedText>
-          </View>
-        )
-      )}
+      {renderRow(rows[0], 0)}
+      <View className={plain ? 'mt-4' : 'mt-3'}>{branchBlock}</View>
+      {rows.slice(1).map((row, index) => renderRow(row, index + 1))}
     </View>
   );
 }

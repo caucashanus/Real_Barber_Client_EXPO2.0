@@ -2,7 +2,6 @@ import { useFocusEffect } from '@react-navigation/native';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 
 import { getBranchById, type Branch } from '@/api/branches';
-import { getHome } from '@/api/home';
 import { getEntityReviews, type EntityReviewItem } from '@/api/reviews';
 import type { Locale } from '@/contexts/LanguageContext';
 import { useAuth } from '@/contexts/AuthContext';
@@ -10,13 +9,9 @@ import { useLanguage } from '@/contexts/LanguageContext';
 import { useTranslation } from '@/hooks/useTranslation';
 import { resolveInternalBranchIdFromCrmUuid } from '@/constants/crmBranchIds';
 import { computeReviewStats } from '@/utils/barberDetailHelpers';
-import {
-  buildHomeTodayTeamCards,
-  mergeTodayTeamWithAvailability,
-} from '@/utils/homeTodayTeamHelpers';
+import { fetchBranchHomeSlotsCatalog, getBranchHomeSlotsFromCatalog } from '@/utils/fetchBranchHomeSlotsCatalog';
 import { getMockReviews } from '@/utils/mockReviews';
 import {
-  buildNearestBranchSlotsByInternalId,
   groupNearestBranchSlots,
   type NearestBranchHomeSlot,
 } from '@/utils/nearestBranchHomeSlots';
@@ -80,16 +75,10 @@ export function useBranchDetailScreen(id: string) {
   useEffect(() => {
     if (!apiToken) return;
     setLoadingSlots(true);
-    getHome({ date: todayIso, locale, apiToken })
-      .then((data) => {
-        const members = mergeTodayTeamWithAvailability(
-          data.todayTeam ?? [],
-          data.availability
-        );
-        const cards = buildHomeTodayTeamCards({ members, locale, t });
-        const byBranch = buildNearestBranchSlotsByInternalId(cards, locale);
+    fetchBranchHomeSlotsCatalog({ apiToken, locale: locale as Locale, t, todayIso })
+      .then((catalog) => {
         const internalId = resolveInternalBranchIdFromCrmUuid(id);
-        setBranchSlots(internalId ? byBranch[internalId] ?? [] : []);
+        setBranchSlots(internalId ? getBranchHomeSlotsFromCatalog(catalog, internalId) : []);
       })
       .catch(() => setBranchSlots([]))
       .finally(() => setLoadingSlots(false));

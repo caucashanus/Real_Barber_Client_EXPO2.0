@@ -1,6 +1,6 @@
 import * as Location from 'expo-location';
 import { router, useLocalSearchParams } from 'expo-router';
-import React, { useRef, useEffect, useState, useMemo } from 'react';
+import React, { useRef, useEffect, useState, useMemo, useCallback } from 'react';
 import { View, Text, Pressable, ActivityIndicator, Platform, Linking } from 'react-native';
 import ActionSheet, { ActionSheetRef, FlatList } from 'react-native-actions-sheet';
 import MapView, { Callout, Marker } from 'react-native-maps';
@@ -11,6 +11,8 @@ import { useBranchFilter } from '@/contexts/BranchFilterContext';
 import type { BranchFilterState } from '@/contexts/BranchFilterContext';
 import useThemeColors from '@/contexts/ThemeColors';
 import { useTranslation } from '@/hooks/useTranslation';
+import { useBranchHomeSlotsCatalog } from '@/hooks/useBranchHomeSlotsCatalog';
+import { BranchQuickSheet } from '@/components/branch/BranchQuickSheet';
 import CustomCard from '@/components/CustomCard';
 import Header, { HeaderIcon } from '@/components/Header';
 import ImageCarousel from '@/components/ImageCarousel';
@@ -20,8 +22,12 @@ import ShowRating from '@/components/ShowRating';
 import ThemedText from '@/components/ThemedText';
 import { BRANCH_FILTER_DATA } from '@/constants/branch-filter-data';
 import { BRANCH_MARKER_IMAGES } from '@/constants/branch-marker-images';
-import { getBranchServicesList, getMediaUrlsSorted } from '@/utils/branchMediaHelpers';
+import type { BranchInternalId } from '@/constants/crmBranchIds';
+import { resolveInternalBranchIdFromCrmUuid } from '@/constants/crmBranchIds';
 import { branchDetailHref } from '@/constants/profileDetailRoutes';
+import { getBranchServicesList, getMediaUrlsSorted } from '@/utils/branchMediaHelpers';
+import { buildMinimalBranchTravel, fetchBranchTravelInfo } from '@/utils/branchTravelHelpers';
+import type { NearestApiBranch } from '@/lib/branches/postNearestBranches';
 
 const CENTRAL_WAREHOUSE_TEL = '+420774522114';
 
@@ -120,7 +126,8 @@ function stringSearchParam(v: string | string[] | undefined): string | undefined
 const MapScreen = () => {
   const colors = useThemeColors();
   const { apiToken } = useAuth();
-  const { t } = useTranslation();
+  const { t, locale } = useTranslation();
+  const { slotsForBranch, loading: branchSlotsLoading } = useBranchHomeSlotsCatalog();
   const params = useLocalSearchParams<{
     mapQuery?: string;
     mapLabel?: string;
@@ -142,10 +149,14 @@ const MapScreen = () => {
     };
   }, [resetFilter]);
   const actionSheetRef = useRef<ActionSheetRef>(null);
+  const branchQuickSheetRef = useRef<ActionSheetRef>(null);
   const mapRef = useRef<MapView>(null);
   const [allBranches, setAllBranches] = useState<MapBranchItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedMarkerId, setSelectedMarkerId] = useState<string | null>(null);
+  const [selectedBranchInternalId, setSelectedBranchInternalId] =
+    useState<BranchInternalId | null>(null);
+  const [selectedBranchTravel, setSelectedBranchTravel] = useState<NearestApiBranch | null>(null);
 
   const branches = useMemo(() => applyBranchFilter(allBranches, filter), [allBranches, filter]);
 
@@ -204,6 +215,27 @@ const MapScreen = () => {
     actionSheetRef.current?.show();
   }, []);
 
+  const openBranchQuickSheet = useCallback((crmBranchId: string) => {
+    const internalId = resolveInternalBranchIdFromCrmUuid(crmBranchId);
+    if (!internalId) return false;
+
+    setSelectedMarkerId(crmBranchId);
+    setSelectedBranchInternalId(internalId);
+    setSelectedBranchTravel(buildMinimalBranchTravel(internalId));
+    branchQuickSheetRef.current?.show();
+
+    void fetchBranchTravelInfo(internalId)
+      .then(setSelectedBranchTravel)
+      .catch(() => {});
+
+    return true;
+  }, []);
+
+  const selectedBranchSlots = useMemo(
+    () => slotsForBranch(selectedBranchInternalId),
+    [slotsForBranch, selectedBranchInternalId]
+  );
+
   const rightComponents = [
     <>
       {/*<HeaderIcon
@@ -240,8 +272,10 @@ const MapScreen = () => {
               imageSource={BRANCH_MARKER_IMAGES[branch.title] ?? null}
               isSelected={selectedMarkerId === branch.id}
               onPress={() => {
-                setSelectedMarkerId(branch.id);
-                router.push(branchDetailHref(branch.id) as never);
+                if (!openBranchQuickSheet(branch.id)) {
+                  setSelectedMarkerId(branch.id);
+                  router.push(branchDetailHref(branch.id) as never);
+                }
               }}
             />
           ))}
@@ -340,6 +374,16 @@ const MapScreen = () => {
             )}
           />
         </ActionSheet>
+
+        <BranchQuickSheet
+          ref={branchQuickSheetRef}
+          branchInternalId={selectedBranchInternalId}
+          branchTravel={selectedBranchTravel}
+          slots={selectedBranchSlots}
+          slotsLoading={branchSlotsLoading}
+          locale={locale}
+          t={t}
+        />
       </View>
     </>
   );

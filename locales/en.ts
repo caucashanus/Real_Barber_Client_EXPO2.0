@@ -1020,6 +1020,17 @@ export const en = {
   bookingDetailCancelYes: 'Cancel booking',
   bookingDetailCancelSuccess: 'Booking cancelled',
   bookingDetailCancelError: 'Failed to cancel booking',
+  bookingShareTitle: 'Check out my booking | Real Barber',
+  bookingShareMessage:
+    'I shared my Real Barber booking with you. Check the details: {url}',
+  bookingShareButton: 'Share',
+  bookingShareMyBookingButton: 'Share booking',
+  bookingShareSheetTitle: 'Share booking',
+  bookingSharePreviewChip: "What they'll see",
+  bookingShareHowItWorksP1:
+    'By sending the link, you can share your booking date, start and end time, and the salon location with anyone.',
+  bookingShareHowItWorksP2:
+    'The shared link does not include your name, the booking price, or your contact details.',
   cancelReasonOtherTerm: 'I have a different time',
   cancelReasonNoTime: "I won't make it :(",
   cancelReasonChangeOfPlans: 'Change of plans',
@@ -1042,6 +1053,7 @@ export const en = {
   branchMenuOpen: 'Branch menu',
   profileMenuAria: 'More actions',
   clipboardCopied: 'Copied!',
+  branchCopyAddress: 'Copy address',
   clipboardCopyAria: 'Copy',
   barberMenuShare: 'Share',
   barberMenuRate: 'Rate',

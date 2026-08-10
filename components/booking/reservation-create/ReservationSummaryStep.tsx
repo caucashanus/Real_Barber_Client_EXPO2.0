@@ -6,7 +6,7 @@ import type { ReservationCreateStepProps } from './types';
 
 import Avatar from '@/components/Avatar';
 import { Button } from '@/components/Button';
-import Icon from '@/components/Icon';
+import BranchAddress from '@/components/shared/BranchAddress';
 import ThemedText from '@/components/ThemedText';
 import Section from '@/components/layout/Section';
 
@@ -44,18 +44,7 @@ export default function ReservationSummaryStep({ flow }: ReservationCreateStepPr
             <ThemedText className="text-base font-semibold">
               {flow.branchForServiceStep?.name ?? '—'}
             </ThemedText>
-            {flow.branchForServiceStep?.address ? (
-              <View className="mt-1.5 flex-row items-start">
-                <Icon
-                  name="MapPin"
-                  size={14}
-                  className="mr-1.5 mt-0.5 text-light-subtext dark:text-dark-subtext"
-                />
-                <ThemedText className="flex-1 text-sm text-light-subtext dark:text-dark-subtext">
-                  {flow.branchForServiceStep.address}
-                </ThemedText>
-              </View>
-            ) : null}
+            <BranchAddress address={flow.branchForServiceStep?.address} className="mt-1.5" />
           </View>
         </View>
       </Section>

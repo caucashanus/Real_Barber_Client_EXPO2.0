@@ -2,9 +2,9 @@ import React from 'react';
 import { Pressable, View } from 'react-native';
 import MapView, { Marker } from 'react-native-maps';
 
-import { useCopyFeedback } from '@/contexts/CopyFeedbackContext';
 import AppButton from '@/components/AppButton';
 import BranchOpenStatusRow from '@/components/branch/BranchOpenStatusRow';
+import BranchAddress from '@/components/shared/BranchAddress';
 import Icon from '@/components/Icon';
 import ThemedText from '@/components/ThemedText';
 import { BARBER_DETAIL_SECTION_SPACING } from '@/constants/barberDetailLayout';
@@ -31,8 +31,6 @@ export default function BranchContactSection({
   onOpenCallUs,
   t,
 }: BranchContactSectionProps) {
-  const { copyToClipboard } = useCopyFeedback();
-
   const openMaps = () => {
     openBranchMapsApp(branchMeta.shortLabel, {
       address: branchMeta.address,
@@ -44,18 +42,7 @@ export default function BranchContactSection({
   return (
     <>
       <View className="mb-4">
-        <Pressable
-          onPress={() => copyToClipboard(branchMeta.address)}
-          className="flex-row items-center gap-1.5 self-start active:opacity-70">
-          <ThemedText className="text-sm leading-5 text-light-subtext dark:text-dark-subtext">
-            {branchMeta.address}
-          </ThemedText>
-          <Icon
-            name="Copy"
-            size={12}
-            className="shrink-0 text-light-subtext dark:text-dark-subtext"
-          />
-        </Pressable>
+        <BranchAddress address={branchMeta.address} />
 
         <View className="mt-4">
           <BranchOpenStatusRow t={t} variant="branch" />

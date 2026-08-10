@@ -7,7 +7,7 @@ import { useTheme } from '@/contexts/ThemeContext';
 import { useTranslation } from '@/hooks/useTranslation';
 import ActionSheetThemed from '@/components/ActionSheetThemed';
 import Icon from '@/components/Icon';
-import CopyIconButton from '@/components/shared/CopyIconButton';
+import BranchAddress from '@/components/shared/BranchAddress';
 import SheetNavRow from '@/components/shared/SheetNavRow';
 import ThemedText from '@/components/ThemedText';
 
@@ -90,7 +90,6 @@ export const BranchNavigateSheet = forwardRef<ActionSheetRef, BranchNavigateShee
       }, NAVIGATE_OPEN_DELAY_MS);
     };
 
-    const displayAddress = address?.trim() || '';
     const trimmedBranchName = branchName?.trim() ?? '';
     const logoSource = isDark
       ? require('@/assets/img/wallet/realbarber-dark.png')
@@ -145,19 +144,7 @@ export const BranchNavigateSheet = forwardRef<ActionSheetRef, BranchNavigateShee
             onPress={() => openMaps('waze')}
           />
 
-          {displayAddress ? (
-            <View className="mt-3 flex-row items-center gap-2 rounded-lg bg-light-secondary px-3 py-2.5 dark:bg-dark-secondary">
-              <ThemedText
-                className="min-w-0 flex-1 text-xs text-light-subtext dark:text-dark-subtext"
-                numberOfLines={2}>
-                {displayAddress}
-              </ThemedText>
-              <CopyIconButton
-                value={displayAddress}
-                accessibilityLabel={t('clipboardCopyAria')}
-              />
-            </View>
-          ) : null}
+          <BranchAddress address={address} className="mt-3" numberOfLines={2} />
         </View>
       </ActionSheetThemed>
     );

@@ -6,7 +6,7 @@ import type { Booking } from '@/api/bookings';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useTranslation } from '@/hooks/useTranslation';
 import Avatar from '@/components/Avatar';
-import Icon from '@/components/Icon';
+import BranchAddress from '@/components/shared/BranchAddress';
 import ThemedText from '@/components/ThemedText';
 
 interface CurrentBookingCardProps {
@@ -39,18 +39,7 @@ export default function CurrentBookingCard({ booking }: CurrentBookingCardProps)
           <ThemedText className="text-lg font-bold text-light-text dark:text-dark-text">
             {booking.branch?.name ?? '—'}
           </ThemedText>
-          {booking.branch?.address ? (
-            <View className="mt-2 flex-row items-start">
-              <Icon
-                name="MapPin"
-                size={16}
-                className="mr-2 mt-0.5 shrink-0 text-light-subtext dark:text-dark-subtext"
-              />
-              <ThemedText className="flex-1 text-sm leading-5 text-light-subtext dark:text-dark-subtext">
-                {booking.branch.address}
-              </ThemedText>
-            </View>
-          ) : null}
+          <BranchAddress address={booking.branch?.address} className="mt-2" />
         </View>
 
         <View className="h-px bg-neutral-200 dark:bg-neutral-700" />

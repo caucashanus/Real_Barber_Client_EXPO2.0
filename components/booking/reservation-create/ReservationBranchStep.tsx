@@ -5,7 +5,7 @@ import { ActivityIndicator, Pressable, ScrollView, View } from 'react-native';
 import type { ReservationCreateStepProps } from './types';
 
 import Avatar from '@/components/Avatar';
-import { Button } from '@/components/Button';
+import AppButton from '@/components/AppButton';
 import ThemedText from '@/components/ThemedText';
 import Selectable from '@/components/forms/Selectable';
 import { getBranchImageUrl } from '@/utils/reservationCreateHelpers';
@@ -31,12 +31,15 @@ export default function ReservationBranchStep({ flow }: ReservationCreateStepPro
         <ThemedText className="text-base text-light-subtext dark:text-dark-subtext">
           {t('reservationStepBranchSubtitle')}
         </ThemedText>
-        <Button
+        <AppButton
           title={t('reservationShowMap')}
           variant="outline"
-          size="small"
+          size="sm"
           rounded="full"
-          className="mt-2 self-center px-4"
+          className="mt-2 self-center px-2.5 py-1"
+          iconStart="Map"
+          iconSize={13}
+          textClassName="text-xs font-semibold leading-tight"
           href="/screens/map"
         />
       </View>

@@ -1024,6 +1024,17 @@ export const cs: Record<TranslationKey, string> = {
   bookingDetailCancelYes: 'Zrušit rezervaci',
   bookingDetailCancelSuccess: 'Rezervace byla zrušena',
   bookingDetailCancelError: 'Rezervaci se nepodařilo zrušit',
+  bookingShareTitle: 'Podívej se na mou rezervaci | Real Barber',
+  bookingShareMessage:
+    'Sdílel jsem s tebou svou rezervaci u Real Barber. Podívej se na detaily: {url}',
+  bookingShareButton: 'Sdílet',
+  bookingShareMyBookingButton: 'Sdílet rezervaci',
+  bookingShareSheetTitle: 'Sdílet rezervaci',
+  bookingSharePreviewChip: 'Co uvidí příjemce',
+  bookingShareHowItWorksP1:
+    'Odesláním odkazu můžete komukoliv sdílet termín vaší rezervace, čas začátku a konce a polohu provozovny.',
+  bookingShareHowItWorksP2:
+    'Ve sdíleném odkazu nejsou uvedeny vaše jméno, cena rezervace ani vaše kontaktní údaje.',
   cancelReasonOtherTerm: 'Mám jiný termín',
   cancelReasonNoTime: 'Nestíhám :(',
   cancelReasonChangeOfPlans: 'Změna plánů',
@@ -1046,6 +1057,7 @@ export const cs: Record<TranslationKey, string> = {
   branchMenuOpen: 'Menu pobočky',
   profileMenuAria: 'Další akce',
   clipboardCopied: 'Zkopírováno!',
+  branchCopyAddress: 'Zkopírovat adresu',
   clipboardCopyAria: 'Kopírovat',
   barberMenuShare: 'Sdílet',
   barberMenuRate: 'Ohodnotit',

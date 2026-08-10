@@ -53,10 +53,12 @@ export default function BookingDetailFooterActions({
           )}
           {isCurrent && (
             <View className="flex-1 flex-row items-center justify-center gap-2 py-3.5">
-              <LiveIndicator variant="green" size="default" />
               <ThemedText className="text-sm font-semibold">
                 {t('bookingStatusInProgress')}
               </ThemedText>
+              <View className="shrink-0 justify-center">
+                <LiveIndicator variant="green" size="sm" />
+              </View>
             </View>
           )}
           {isPast && (

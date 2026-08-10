@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 
 import type { Booking } from '@/api/bookings';
 import {
+  canShareClientBooking,
   isBookingMarkedCompleted,
   isBookingNotCancelled,
   isBookingUpcoming,
@@ -38,5 +39,32 @@ describe('bookingHelpers', () => {
       status: 'confirmed',
     });
     expect(isBookingUpcoming(future)).toBe(true);
+  });
+
+  it('allows share only for upcoming or current slots', () => {
+    const at = new Date('2026-08-10T16:15:00').getTime();
+    const upcoming = booking({
+      id: 'up',
+      date: '2026-08-10',
+      slotStart: '18:00',
+      slotEnd: '18:30',
+    });
+    const current = booking({
+      id: 'cur',
+      date: '2026-08-10',
+      slotStart: '16:00',
+      slotEnd: '17:00',
+    });
+    const past = booking({
+      id: 'past',
+      date: '2026-08-10',
+      slotStart: '10:00',
+      slotEnd: '11:00',
+    });
+    expect(canShareClientBooking(upcoming, at)).toBe(true);
+    expect(canShareClientBooking(current, at)).toBe(true);
+    expect(canShareClientBooking(past, at)).toBe(false);
+    expect(canShareClientBooking(booking({ id: 'c', status: 'cancelled' }), at)).toBe(false);
+    expect(canShareClientBooking(booking({ id: 'd', status: 'completed' }), at)).toBe(false);
   });
 });

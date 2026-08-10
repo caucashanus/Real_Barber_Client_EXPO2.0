@@ -3,6 +3,7 @@ import { View, type LayoutChangeEvent } from 'react-native';
 
 import type { TeamMemberPageBranch, TeamMemberShiftDay } from '@/api/publicTeamMember';
 import { Button } from '@/components/Button';
+import BranchAddress from '@/components/shared/BranchAddress';
 import ThemedText from '@/components/ThemedText';
 import Section from '@/components/layout/Section';
 import type { Locale } from '@/contexts/LanguageContext';
@@ -74,13 +75,12 @@ function ShiftRow({
       </View>
       <View className="mt-2 min-w-0">
         <ThemedText className="text-sm font-medium">{row.branchName}</ThemedText>
-        {row.branchAddress ? (
-          <ThemedText
-            className="mt-0.5 text-xs text-light-subtext dark:text-dark-subtext"
-            numberOfLines={2}>
-            {row.branchAddress}
-          </ThemedText>
-        ) : null}
+        <BranchAddress
+          address={row.branchAddress}
+          className="mt-0.5"
+          textClassName="text-xs leading-5 text-light-subtext dark:text-dark-subtext"
+          numberOfLines={2}
+        />
       </View>
     </View>
   );

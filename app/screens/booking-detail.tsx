@@ -22,6 +22,7 @@ import BookingDetailHeroSection from '@/components/booking/detail/BookingDetailH
 import BookingDetailLocationSection from '@/components/booking/detail/BookingDetailLocationSection';
 import BookingDetailPriceSection from '@/components/booking/detail/BookingDetailPriceSection';
 import BookingDetailReservationInfoSection from '@/components/booking/detail/BookingDetailReservationInfoSection';
+import { ReservationShareSheet } from '@/components/booking/ReservationShareSheet';
 import { addBookingToCalendar } from '@/utils/bookingCalendar';
 import {
   BRANCH_IMAGES,
@@ -29,7 +30,7 @@ import {
   formatAppointment,
   formatCancelSheetWhen,
 } from '@/utils/bookingDetailHelpers';
-import { isBookingCurrent, isBookingMarkedCompleted, isBookingPast } from '@/utils/bookingHelpers';
+import { isBookingCurrent, isBookingMarkedCompleted, isBookingPast, canShareClientBooking } from '@/utils/bookingHelpers';
 
 const BookingDetailScreen = () => {
   const local = useLocalSearchParams<{
@@ -59,6 +60,7 @@ const BookingDetailScreen = () => {
 
   const cancelSheetRef = useRef<ActionSheetRef>(null);
   const branchNavigateRef = useRef<ActionSheetRef>(null);
+  const shareSheetRef = useRef<ActionSheetRef>(null);
   const heroScrollY = useRef(new Animated.Value(0)).current;
 
   const formatDetailMoney = useCallback(
@@ -105,6 +107,11 @@ const BookingDetailScreen = () => {
     }, 320);
   }, [booking, setCalendarPromoVisible, t]);
 
+  const handleShare = useCallback(() => {
+    if (!booking?.id) return;
+    shareSheetRef.current?.show();
+  }, [booking?.id]);
+
   if (!loading && (error || !booking)) {
     return (
       <>
@@ -143,6 +150,7 @@ const BookingDetailScreen = () => {
     ) !== '';
   const canAddToCalendar =
     (Platform.OS === 'ios' || Platform.OS === 'android') && !isCancelled && !isPast;
+  const canShare = canShareClientBooking(booking);
   const cancelWhen = formatCancelSheetWhen(booking, locale);
   const cancelMessage = `${t('bookingDetailCancelConfirmIntro')} ${cancelWhen} ${t('bookingDetailCancelConfirmAtBranch')} ${booking.branch?.name ?? '—'}. ${t('bookingDetailCancelConfirmNote')}`;
   const carouselImages = resolveCarouselImages(branch, booking);
@@ -164,7 +172,9 @@ const BookingDetailScreen = () => {
             booking={booking}
             location={location}
             canOpenBranchNavigate={canOpenBranchNavigate}
+            canShare={canShare}
             onOpenBranchNavigate={() => branchNavigateRef.current?.show()}
+            onShare={handleShare}
             t={t}
           />
           <BookingDetailEmployeeSection booking={booking} t={t} />
@@ -191,6 +201,8 @@ const BookingDetailScreen = () => {
         branchName={booking.branch?.name ?? branch?.name}
         address={booking.branch?.address ?? branch?.address}
       />
+
+      {canShare ? <ReservationShareSheet ref={shareSheetRef} bookingId={booking.id} /> : null}
 
       <BookingDetailFooterActions
         booking={booking}

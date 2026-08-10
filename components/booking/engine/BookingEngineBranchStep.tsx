@@ -2,7 +2,7 @@ import React from 'react';
 import { ActivityIndicator, View } from 'react-native';
 
 import type { BookingEngineFlow } from '@/hooks/useBookingEngineFlow';
-import { Button } from '@/components/Button';
+import AppButton from '@/components/AppButton';
 import BookingPanelPickerRow from '@/components/booking/engine/BookingPanelPickerRow';
 import { branchImageUrl } from '@/lib/booking/designShared';
 
@@ -15,12 +15,15 @@ export default function BookingEngineBranchStep({ flow }: Props) {
 
   return (
     <View>
-      <Button
+      <AppButton
         title={t('reservationShowMap')}
         variant="outline"
-        size="small"
+        size="sm"
         rounded="full"
-        className="self-start px-4"
+        className="self-start px-2.5 py-1"
+        iconStart="Map"
+        iconSize={13}
+        textClassName="text-xs font-semibold leading-tight"
         href="/screens/map"
       />
 

@@ -11,6 +11,7 @@ import { useTranslation } from '@/hooks/useTranslation';
 import AppButton from '@/components/AppButton';
 import Header from '@/components/Header';
 import Icon from '@/components/Icon';
+import BranchAddress from '@/components/shared/BranchAddress';
 import ThemedScroller from '@/components/ThemeScroller';
 import ThemedText from '@/components/ThemedText';
 import VideoPlayer from '@/components/VideoPlayer';
@@ -156,6 +157,7 @@ const KudyKNamDetail = () => {
                 <ThemedText className="text-base font-medium">{t('kudyRideUber')}</ThemedText>
               </Pressable>
             ) : null}
+            <BranchAddress address={branch?.address} className="mt-4" />
           </Section>
         </View>
       </ThemedScroller>

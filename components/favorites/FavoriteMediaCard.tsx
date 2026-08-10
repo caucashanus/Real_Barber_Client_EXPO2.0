@@ -5,7 +5,7 @@ import { Pressable, View, type ImageSourcePropType } from 'react-native';
 
 import Favorite from '@/components/Favorite';
 import MediaCardTitle from '@/components/MediaCardTitle';
-import ThemedText from '@/components/ThemedText';
+import BranchAddress from '@/components/shared/BranchAddress';
 
 interface FavoriteMediaCardProps {
   href: string;
@@ -79,14 +79,10 @@ export default function FavoriteMediaCard({
           )}
         </View>
         {belowTitle ? <View className="mt-0.5 w-full">{belowTitle}</View> : null}
-        {address ? (
-          <ThemedText
-            className="mt-0.5 text-sm text-light-subtext dark:text-dark-subtext"
-            numberOfLines={2}>
-            {address}
-          </ThemedText>
-        ) : null}
       </Pressable>
+      {address ? (
+        <BranchAddress address={address} className="mt-0.5" numberOfLines={2} />
+      ) : null}
       {footer}
     </View>
   );

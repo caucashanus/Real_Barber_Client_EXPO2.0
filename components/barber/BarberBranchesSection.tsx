@@ -5,6 +5,7 @@ import { Pressable, View } from 'react-native';
 
 import type { EmployeeBranch } from '@/api/employees';
 import Icon from '@/components/Icon';
+import BranchAddress from '@/components/shared/BranchAddress';
 import ThemedText from '@/components/ThemedText';
 import Section from '@/components/layout/Section';
 import { branchDetailHref } from '@/constants/profileDetailRoutes';
@@ -20,12 +21,14 @@ export default function BarberBranchesSection({ branches, t }: BarberBranchesSec
 
   return (
     <Section title={t('barberBranches')} titleSize="lg" className="mb-6 mt-8">
-        <View className="mt-3 gap-3">
-          {branches.map((branch) => (
+      <View className="mt-3 gap-3">
+        {branches.map((branch) => (
+          <View
+            key={branch.id}
+            className="flex-row items-start rounded-xl bg-light-secondary p-3 dark:bg-dark-secondary">
             <Pressable
-              key={branch.id}
               onPress={() => router.push(branchDetailHref(branch.id) as never)}
-              className="flex-row items-center rounded-xl bg-light-secondary p-3 dark:bg-dark-secondary">
+              className="shrink-0 active:opacity-70">
               {branch.imageUrl ? (
                 <Image
                   source={{ uri: branch.imageUrl }}
@@ -35,20 +38,23 @@ export default function BarberBranchesSection({ branches, t }: BarberBranchesSec
               ) : (
                 <View className="h-12 w-12 rounded-lg bg-light-primary dark:bg-dark-primary" />
               )}
-              <View className="ml-3 flex-1">
+            </Pressable>
+            <View className="ml-3 min-w-0 flex-1">
+              <Pressable
+                onPress={() => router.push(branchDetailHref(branch.id) as never)}
+                className="self-start active:opacity-70">
                 <ThemedText className="font-medium">{branch.name}</ThemedText>
-                {branch.address ? (
-                  <ThemedText
-                    className="text-xs text-light-subtext dark:text-dark-subtext"
-                    numberOfLines={1}>
-                    {branch.address}
-                  </ThemedText>
-                ) : null}
-              </View>
+              </Pressable>
+              <BranchAddress address={branch.address} className="mt-1" numberOfLines={1} />
+            </View>
+            <Pressable
+              onPress={() => router.push(branchDetailHref(branch.id) as never)}
+              className="shrink-0 self-center active:opacity-70">
               <Icon name="ChevronRight" size={20} className="opacity-60" />
             </Pressable>
-          ))}
-        </View>
+          </View>
+        ))}
+      </View>
     </Section>
   );
 }

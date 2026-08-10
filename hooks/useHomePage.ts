@@ -15,6 +15,7 @@ import {
   type HomeTodayTeamCardModel,
 } from '@/utils/homeTodayTeamHelpers';
 import { shouldStaleRefresh } from '@/utils/staleRefresh';
+import { warmBranchHomeSlotsCatalogFromHomeResponse } from '@/utils/fetchBranchHomeSlotsCatalog';
 import { getPragueTodayDateString } from '@/utils/teamMemberPageHelpers';
 
 const HOME_STALE_MS = 60_000;
@@ -45,8 +46,11 @@ export function useHomePage() {
       setCoupons(data.coupons ?? []);
       setPosters(data.posters ?? []);
       lastFetchedAtRef.current = Date.now();
+      if (apiToken) {
+        warmBranchHomeSlotsCatalogFromHomeResponse(data, locale, t, apiToken, today);
+      }
     },
-    []
+    [apiToken, locale, t, today]
   );
 
   const loadHome = useCallback(
