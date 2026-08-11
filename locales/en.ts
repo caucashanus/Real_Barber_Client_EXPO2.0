@@ -143,7 +143,6 @@ export const en = {
   tabBarbers: 'Team',
   tabServices: 'Services',
   tabInspirace: 'Inspiration',
-  tabProducts: 'Products',
   tabGuides: 'Guides',
   breadcrumbNavLabel: 'Breadcrumb navigation',
   breadcrumbBlog: 'Blog',

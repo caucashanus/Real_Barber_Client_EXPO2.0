@@ -147,7 +147,6 @@ export const cs: Record<TranslationKey, string> = {
   tabBarbers: 'Tým',
   tabServices: 'Služby',
   tabInspirace: 'Inspirace',
-  tabProducts: 'Produkty',
   tabGuides: 'Návody',
   breadcrumbNavLabel: 'Drobečková navigace',
   breadcrumbBlog: 'Blog',

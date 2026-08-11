@@ -1,19 +1,19 @@
 import React, { useCallback, useRef } from 'react';
-import { ActivityIndicator, Pressable, View } from 'react-native';
+import { View } from 'react-native';
 
-import type { EmployeeTodaySlot, TeamMemberPageBranch } from '@/api/publicTeamMember';
+import type { TeamMemberPageBranch } from '@/api/publicTeamMember';
 import type { Locale } from '@/contexts/LanguageContext';
 import AppButton from '@/components/AppButton';
+import CustomCard from '@/components/CustomCard';
 import HomeTodayTeamWaitlistSheet, {
   type HomeTodayTeamWaitlistSheetHandle,
 } from '@/components/home/HomeTodayTeamWaitlistSheet';
 import SlotTimePill from '@/components/SlotTimePill';
 import ThemedText from '@/components/ThemedText';
+import type { BarberNearestSlotDayGroup } from '@/utils/teamMemberPageHelpers';
 import {
   getPragueTodayDateString,
   getTeamMemberBranchName,
-  getTodayAvailabilityState,
-  type TodayShiftStatus,
 } from '@/utils/teamMemberPageHelpers';
 import {
   isTeamMemberWaitlistJoined,
@@ -24,16 +24,15 @@ import { startBarberSlotHandoffBooking } from '@/utils/reservationSlotHandoff';
 import type { TranslationKey } from '@/locales';
 import { BARBER_DETAIL_SECTION_SPACING } from '@/constants/barberDetailLayout';
 
+const DAY_ROW_SPACING_STYLE = { marginBottom: 16 } as const;
+
 interface BarberTodaySlotsSectionProps {
   employeeId: string;
   employeeName: string;
   branches?: TeamMemberPageBranch[];
   locale: Locale;
-  todaySlots: EmployeeTodaySlot[];
-  loadingSlots: boolean;
-  shiftStatus: TodayShiftStatus;
-  waitlistBranchId?: string;
-  onScrollToAvailability?: () => void;
+  dayGroups: BarberNearestSlotDayGroup[];
+  today: string;
   t: (key: TranslationKey) => string;
 }
 
@@ -50,19 +49,95 @@ function resolveBranchForSlot(
   };
 }
 
-function AvailabilityScrollLink({
-  onPress,
+function BarberNearestSlotDayRow({
+  dayGroup,
+  employeeId,
+  employeeName,
+  branches,
+  locale,
+  today,
   t,
+  onOpenWaitlist,
+  isLast,
 }: {
-  onPress: () => void;
+  dayGroup: BarberNearestSlotDayGroup;
+  employeeId: string;
+  employeeName: string;
+  branches?: TeamMemberPageBranch[];
+  locale: Locale;
+  today: string;
   t: (key: TranslationKey) => string;
+  onOpenWaitlist: (dayGroup: BarberNearestSlotDayGroup) => void;
+  isLast: boolean;
 }) {
+  const alreadyOnWaitlist = useTeamMemberWaitlistJoined(employeeId, dayGroup.date);
+  const fullyBookedLabel =
+    dayGroup.date === today ? t('barberFullyBookedToday') : t('barberFullyBookedThatDay');
+
   return (
-    <Pressable onPress={onPress} className="mt-2 self-start">
-      <ThemedText className="text-sm font-medium text-light-text dark:text-dark-text">
-        {t('barberScrollToAvailability')}
+    <View className="w-full" style={isLast ? undefined : DAY_ROW_SPACING_STYLE}>
+      <ThemedText className="mb-2 text-sm font-medium text-light-subtext dark:text-dark-subtext">
+        {dayGroup.dayLabel}
       </ThemedText>
-    </Pressable>
+
+      {dayGroup.kind === 'slots' ? (
+        <View className="w-full flex-row flex-wrap items-start">
+          {dayGroup.slots.map((slot) => {
+            const { branchName, branchAddress } = resolveBranchForSlot(
+              branches,
+              slot.branchId,
+              locale
+            );
+            return (
+              <SlotTimePill
+                key={`${slot.date}-${slot.time}-${slot.branchId}`}
+                spaced
+                time={slot.time}
+                onPress={() => {
+                  startBarberSlotHandoffBooking({
+                    employeeId,
+                    employeeName,
+                    branchId: slot.branchId,
+                    branchName,
+                    branchAddress,
+                    date: slot.date,
+                    slotStart: slot.time,
+                    slotEnd: slot.endTime,
+                  }).catch(() => {});
+                }}
+              />
+            );
+          })}
+        </View>
+      ) : null}
+
+      {dayGroup.kind === 'full' ? (
+        <ThemedText className="text-sm font-medium text-light-text dark:text-dark-text">
+          {fullyBookedLabel}
+        </ThemedText>
+      ) : null}
+
+      {dayGroup.kind === 'waitlist' ? (
+        <View className="w-full">
+          <ThemedText className="text-sm font-medium text-light-text dark:text-dark-text">
+            {fullyBookedLabel}
+          </ThemedText>
+          <ThemedText className="mt-2 text-sm text-light-subtext dark:text-dark-subtext">
+            {alreadyOnWaitlist
+              ? t('homeTodayTeamWaitlistJoined')
+              : t('homeTodayTeamWaitlistHint')}
+          </ThemedText>
+          {!alreadyOnWaitlist ? (
+            <AppButton
+              size="sm"
+              title={t('homeTodayTeamWaitlistJoin')}
+              onPress={() => onOpenWaitlist(dayGroup)}
+              className="mt-2 self-start"
+            />
+          ) : null}
+        </View>
+      ) : null}
+    </View>
   );
 }
 
@@ -71,40 +146,31 @@ export default function BarberTodaySlotsSection({
   employeeName,
   branches,
   locale,
-  todaySlots,
-  loadingSlots,
-  shiftStatus,
-  waitlistBranchId,
-  onScrollToAvailability,
+  dayGroups,
+  today,
   t,
 }: BarberTodaySlotsSectionProps) {
-  const todayIso = getPragueTodayDateString();
   const waitlistSheetRef = useRef<HomeTodayTeamWaitlistSheetHandle>(null);
-  const alreadyOnWaitlist = useTeamMemberWaitlistJoined(employeeId, todayIso);
+  const todayIso = today || getPragueTodayDateString();
 
-  const availabilityState = getTodayAvailabilityState(todaySlots, shiftStatus);
-  const showWaitlist =
-    !loadingSlots && shiftStatus === 'active' && todaySlots.length === 0;
-  const showScrollLink = Boolean(onScrollToAvailability) && availabilityState !== 'slots';
+  const handleOpenWaitlist = useCallback(
+    (dayGroup: BarberNearestSlotDayGroup) => {
+      if (isTeamMemberWaitlistJoined(employeeId, dayGroup.date)) return;
 
-  const sectionTitle =
-    todaySlots.length === 1 ? t('barberNearestSlotTitle') : t('barberNearestSlotsTitle');
+      const branchLabel = dayGroup.waitlistBranchId
+        ? resolveBranchForSlot(branches, dayGroup.waitlistBranchId, locale).branchName
+        : undefined;
 
-  const handleOpenWaitlist = useCallback(() => {
-    if (isTeamMemberWaitlistJoined(employeeId, todayIso)) return;
-
-    const branchLabel = waitlistBranchId
-      ? resolveBranchForSlot(branches, waitlistBranchId, locale).branchName
-      : undefined;
-
-    waitlistSheetRef.current?.open({
-      employeeId,
-      employeeName,
-      branchLabel: branchLabel && branchLabel !== '—' ? branchLabel : undefined,
-      dayIso: todayIso,
-      requireActiveNow: true,
-    });
-  }, [employeeId, employeeName, todayIso, waitlistBranchId, branches, locale]);
+      waitlistSheetRef.current?.open({
+        employeeId,
+        employeeName,
+        branchLabel: branchLabel && branchLabel !== '—' ? branchLabel : undefined,
+        dayIso: dayGroup.date,
+        requireActiveNow: dayGroup.requireActiveNow,
+      });
+    },
+    [employeeId, employeeName, branches, locale]
+  );
 
   const handleWaitlistJoined = useCallback(
     (joinedEmployeeId: string, dayIso?: string) => {
@@ -113,93 +179,33 @@ export default function BarberTodaySlotsSection({
     []
   );
 
+  if (dayGroups.length === 0) return null;
+
   return (
     <>
-      <View
-        className={`${BARBER_DETAIL_SECTION_SPACING} rounded-2xl bg-light-secondary p-4 dark:bg-dark-secondary`}>
-        <View className="mb-3 flex-row items-start justify-between gap-3">
-          <ThemedText className="shrink text-lg font-semibold">{sectionTitle}</ThemedText>
-          {showWaitlist && !alreadyOnWaitlist ? (
-            <AppButton
-              size="sm"
-              title={t('homeTodayTeamWaitlistJoin')}
-              onPress={handleOpenWaitlist}
-            />
-          ) : null}
-        </View>
+      <CustomCard
+        rounded="2xl"
+        padding="md"
+        border
+        background={false}
+        className={`${BARBER_DETAIL_SECTION_SPACING} bg-light-secondary dark:bg-dark-secondary`}>
+        <ThemedText className="mb-3 text-lg font-semibold">{t('barberNearestSlotsTitle')}</ThemedText>
 
-        {loadingSlots ? (
-          <View className="items-center py-2">
-            <ActivityIndicator size="small" />
-          </View>
-        ) : null}
-
-        {!loadingSlots && availabilityState === 'slots' ? (
-          <View className="flex-row flex-wrap items-start self-start">
-            {todaySlots.map((slot) => {
-              const { branchName, branchAddress } = resolveBranchForSlot(
-                branches,
-                slot.branchId,
-                locale
-              );
-              return (
-                <SlotTimePill
-                  key={`${slot.date}-${slot.time}-${slot.branchId}`}
-                  spaced
-                  time={slot.time}
-                  onPress={() => {
-                    startBarberSlotHandoffBooking({
-                      employeeId,
-                      employeeName,
-                      branchId: slot.branchId,
-                      branchName,
-                      branchAddress,
-                      date: slot.date,
-                      slotStart: slot.time,
-                      slotEnd: slot.endTime,
-                    }).catch(() => {});
-                  }}
-                />
-              );
-            })}
-          </View>
-        ) : null}
-
-        {!loadingSlots && showWaitlist ? (
-          <View>
-            <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext">
-              {alreadyOnWaitlist
-                ? t('homeTodayTeamWaitlistJoined')
-                : t('homeTodayTeamWaitlistHint')}
-            </ThemedText>
-            {showScrollLink && onScrollToAvailability ? (
-              <AvailabilityScrollLink onPress={onScrollToAvailability} t={t} />
-            ) : null}
-          </View>
-        ) : null}
-
-        {!loadingSlots && availabilityState === 'unavailable' ? (
-          <View>
-            <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext">
-              {t('barberUnavailableToday')}
-            </ThemedText>
-            {showScrollLink && onScrollToAvailability ? (
-              <AvailabilityScrollLink onPress={onScrollToAvailability} t={t} />
-            ) : null}
-          </View>
-        ) : null}
-
-        {!loadingSlots && availabilityState === 'full' && !showWaitlist ? (
-          <View>
-            <ThemedText className="text-sm font-medium text-light-text dark:text-dark-text">
-              {t('barberFullyBookedToday')}
-            </ThemedText>
-            {showScrollLink && onScrollToAvailability ? (
-              <AvailabilityScrollLink onPress={onScrollToAvailability} t={t} />
-            ) : null}
-          </View>
-        ) : null}
-      </View>
+        {dayGroups.map((dayGroup, index) => (
+          <BarberNearestSlotDayRow
+            key={dayGroup.date}
+            dayGroup={dayGroup}
+            employeeId={employeeId}
+            employeeName={employeeName}
+            branches={branches}
+            locale={locale}
+            today={todayIso}
+            t={t}
+            onOpenWaitlist={handleOpenWaitlist}
+            isLast={index === dayGroups.length - 1}
+          />
+        ))}
+      </CustomCard>
 
       <HomeTodayTeamWaitlistSheet
         ref={waitlistSheetRef}

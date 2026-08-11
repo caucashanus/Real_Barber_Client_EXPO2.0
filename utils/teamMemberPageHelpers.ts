@@ -4,16 +4,29 @@ import type {
   TeamMemberPageEmployee,
   TeamMemberPageReview,
   TeamMemberShiftDay,
+  TeamMemberShiftInterval,
 } from '@/api/publicTeamMember';
 import type { Locale } from '@/contexts/LanguageContext';
 import { BARBER_DETAIL_ROUTE } from '@/constants/profileDetailRoutes';
 import { formatRelativeDayLabel } from '@/utils/formatRelativeDayLabel';
+import { shouldShowTeamMemberWaitlistCta } from '@/utils/teamMemberWaitlist';
 
 type LocalizedEntity = Record<string, unknown>;
 
 export type TodayShiftStatus = 'active' | 'upcoming' | 'ended' | 'none';
 
 export type TodayAvailabilityState = 'slots' | 'unavailable' | 'full';
+
+export type BarberNearestSlotDayKind = 'slots' | 'full' | 'waitlist';
+
+export interface BarberNearestSlotDayGroup {
+  date: string;
+  dayLabel: string;
+  kind: BarberNearestSlotDayKind;
+  slots: EmployeeTodaySlot[];
+  waitlistBranchId?: string;
+  requireActiveNow: boolean;
+}
 
 export interface ShiftCalendarRow {
   date: string;
@@ -283,6 +296,139 @@ export function getPragueTodayDateString(now = new Date()): string {
 export function filterValidTodaySlots(slots: EmployeeTodaySlot[] | undefined): EmployeeTodaySlot[] {
   if (!Array.isArray(slots)) return [];
   return slots.filter((slot) => Boolean(slot.date && slot.time && slot.branchId));
+}
+
+function sortNearestSlots(slots: EmployeeTodaySlot[]): EmployeeTodaySlot[] {
+  return [...slots].sort((a, b) => {
+    const dateCmp = a.date.localeCompare(b.date);
+    if (dateCmp !== 0) return dateCmp;
+    return a.time.localeCompare(b.time);
+  });
+}
+
+function addIsoDays(isoDate: string, days: number): string {
+  const [year, month, day] = isoDate.split('-').map(Number);
+  const next = new Date(Date.UTC(year, month - 1, day + days));
+  return next.toISOString().slice(0, 10);
+}
+
+function enumerateIsoDatesInclusive(start: string, end: string): string[] {
+  if (end < start) return [start];
+  const dates: string[] = [];
+  let current = start;
+  while (current <= end) {
+    dates.push(current);
+    current = addIsoDays(current, 1);
+  }
+  return dates;
+}
+
+export function getNearestSlotsHorizonDate(
+  nearestSlots: EmployeeTodaySlot[] | undefined,
+  today: string
+): string {
+  const sorted = sortNearestSlots(filterValidTodaySlots(nearestSlots));
+  if (sorted.length === 0) return today;
+  return sorted[sorted.length - 1]!.date;
+}
+
+export function getShiftWorkIntervalsForDate(
+  shiftCalendar: TeamMemberShiftDay[] | undefined,
+  date: string
+): TeamMemberShiftInterval[] {
+  if (!Array.isArray(shiftCalendar)) return [];
+  return shiftCalendar.find((row) => row.date === date)?.workIntervals ?? [];
+}
+
+export function getWaitlistBranchIdForDate(
+  shiftCalendar: TeamMemberShiftDay[] | undefined,
+  date: string,
+  today: string,
+  now = new Date()
+): string | undefined {
+  const intervals = getShiftWorkIntervalsForDate(shiftCalendar, date);
+  if (intervals.length === 0) return undefined;
+
+  if (date !== today) {
+    return intervals[0]?.branchId;
+  }
+
+  const nowMinutes = getPragueMinutesFromDate(now);
+  for (const interval of intervals) {
+    const start = parseTimeToMinutes(interval.startTime);
+    const end = parseTimeToMinutes(interval.endTime);
+    if (start == null || end == null) continue;
+    if (nowMinutes >= start && nowMinutes < end) return interval.branchId;
+  }
+
+  return intervals[0]?.branchId;
+}
+
+/** Sestaví denní řádky „Nejbližší termíny“ až po horizont posledního slotu z CRM. */
+export function buildBarberNearestSlotDayGroups(params: {
+  nearestSlots: EmployeeTodaySlot[] | undefined;
+  shiftCalendar: TeamMemberShiftDay[] | undefined;
+  today: string;
+  locale: Locale;
+  now?: Date;
+}): BarberNearestSlotDayGroup[] {
+  const { nearestSlots, shiftCalendar, today, locale, now = new Date() } = params;
+  const validSlots = sortNearestSlots(filterValidTodaySlots(nearestSlots));
+  const horizon = getNearestSlotsHorizonDate(validSlots, today);
+  const slotsByDate = new Map<string, EmployeeTodaySlot[]>();
+
+  for (const slot of validSlots) {
+    const bucket = slotsByDate.get(slot.date) ?? [];
+    bucket.push(slot);
+    slotsByDate.set(slot.date, bucket);
+  }
+
+  const groups: BarberNearestSlotDayGroup[] = [];
+
+  for (const date of enumerateIsoDatesInclusive(today, horizon)) {
+    const daySlots = slotsByDate.get(date) ?? [];
+    const workIntervals = getShiftWorkIntervalsForDate(shiftCalendar, date);
+    const hasShift = workIntervals.length > 0;
+    const dayLabel = getShiftDayTitle(date, today, locale);
+    const waitlistBranchId = getWaitlistBranchIdForDate(shiftCalendar, date, today, now);
+    const requireActiveNow = date === today;
+
+    if (daySlots.length > 0) {
+      groups.push({
+        date,
+        dayLabel,
+        kind: 'slots',
+        slots: daySlots,
+        waitlistBranchId,
+        requireActiveNow,
+      });
+      continue;
+    }
+
+    if (!hasShift) continue;
+
+    if (date === today && getTodayShiftStatus(shiftCalendar, today, now) === 'ended') {
+      continue;
+    }
+
+    const showWaitlist = shouldShowTeamMemberWaitlistCta({
+      workIntervals,
+      nextSlots: validSlots,
+      dayIso: date,
+      requireActiveNow,
+    });
+
+    groups.push({
+      date,
+      dayLabel,
+      kind: showWaitlist ? 'waitlist' : 'full',
+      slots: [],
+      waitlistBranchId,
+      requireActiveNow,
+    });
+  }
+
+  return groups;
 }
 
 export function hasShiftOnDate(

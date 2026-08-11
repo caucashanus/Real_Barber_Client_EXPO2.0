@@ -31,7 +31,6 @@ import MediaFullscreenModal from '@/components/detail/MediaFullscreenModal';
 import { buildEmployeeShareCopy } from '@/utils/branchShareHelpers';
 import {
   getTeamMemberProfileShareUrl,
-  getTodayActiveWaitlistBranchId,
 } from '@/utils/teamMemberPageHelpers';
 import { BARBER_DETAIL_SECTION_SPACING } from '@/constants/barberDetailLayout';
 import { teamMemberBreadcrumbItems } from '@/utils/breadcrumbs';
@@ -50,13 +49,12 @@ export default function BarberDetailScreen() {
     error,
     displayName,
     bio,
-    todaySlots,
-    loadingSlots,
+    nearestSlotDayGroups,
     todayShiftStatus,
     shiftCalendarConfigured,
     today,
     shiftBranches,
-    showTodaySlotsSection,
+    showNearestSlotsSection,
     showAbout,
     showSkills,
     showMedia,
@@ -109,10 +107,6 @@ export default function BarberDetailScreen() {
   const shiftCalendar = useMemo(() => employee?.shiftCalendar, [employee?.shiftCalendar]);
   const stories = useMemo(() => employee?.stories ?? [], [employee?.stories]);
   const branches = useMemo(() => employee?.branches ?? [], [employee?.branches]);
-  const waitlistBranchId = useMemo(
-    () => getTodayActiveWaitlistBranchId(shiftCalendar, today),
-    [shiftCalendar, today]
-  );
 
   const fullscreenEmployeeMedia = useMemo(() => {
     if (!fullscreenMedia) return null;
@@ -194,17 +188,14 @@ export default function BarberDetailScreen() {
             />
           </View>
 
-          {showTodaySlotsSection ? (
+          {showNearestSlotsSection ? (
             <BarberTodaySlotsSection
               employeeId={employee.id}
               employeeName={displayName}
               branches={branches}
               locale={locale}
-              todaySlots={todaySlots}
-              loadingSlots={loadingSlots}
-              shiftStatus={todayShiftStatus}
-              waitlistBranchId={waitlistBranchId}
-              onScrollToAvailability={scrollToAvailability}
+              dayGroups={nearestSlotDayGroups}
+              today={today}
               t={t}
             />
           ) : null}

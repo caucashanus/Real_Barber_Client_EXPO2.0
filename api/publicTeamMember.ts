@@ -98,6 +98,7 @@ export interface TeamMemberPageEmployee {
   stories?: TeamMemberStory[];
   media?: TeamMemberMediaItem[];
   shiftCalendar?: TeamMemberShiftDay[];
+  nearestSlots?: EmployeeTodaySlot[];
 }
 
 export interface TeamMemberPageResponse {
@@ -116,17 +117,6 @@ export interface EmployeeTodaySlot {
   endTime?: string;
   duration?: number;
   branchId: string;
-}
-
-export interface EmployeeTodaySlotsResponse {
-  slots?: EmployeeTodaySlot[];
-  meta?: {
-    generatedAt?: string;
-    date?: string;
-    serviceId?: string;
-    timezone?: string;
-    employeeId?: string;
-  };
 }
 
 async function parsePublicJson<T>(res: Response): Promise<T> {
@@ -171,35 +161,6 @@ export async function getTeamMemberPage(
     { headers: { Accept: 'application/json' } }
   );
   return parsePublicJson<TeamMemberPageResponse>(res);
-}
-
-export interface GetEmployeeTodaySlotsOptions {
-  date: string;
-  serviceId?: string;
-}
-
-export async function getEmployeeTodaySlots(
-  employeeId: string,
-  options: GetEmployeeTodaySlotsOptions
-): Promise<EmployeeTodaySlotsResponse> {
-  const serviceId = options.serviceId ?? HOME_AVAILABILITY_SERVICE_ID;
-  if (!serviceId) {
-    throw new Error('Missing serviceId');
-  }
-  const params = new URLSearchParams({
-    date: options.date,
-    serviceId,
-  });
-  const res = await fetch(
-    `${CRM_BASE}/api/public/employees/${encodeURIComponent(employeeId)}/today-slots?${params}`,
-    {
-      headers: {
-        Accept: 'application/json',
-        'Cache-Control': 'no-store',
-      },
-    }
-  );
-  return parsePublicJson<EmployeeTodaySlotsResponse>(res);
 }
 
 export interface PublicEntityReviewsResponse {

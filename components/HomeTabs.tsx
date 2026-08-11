@@ -81,13 +81,6 @@ const HomeTabs = (props: any) => {
           scrollY={props.scrollY}
         />
         <TabItem
-          href="/products"
-          active={currentPath === '/products'}
-          label={t('tabProducts')}
-          icon={require('@/assets/img/products.png')}
-          scrollY={props.scrollY}
-        />
-        <TabItem
           href="/guides"
           active={currentPath === '/guides'}
           label={t('tabGuides')}

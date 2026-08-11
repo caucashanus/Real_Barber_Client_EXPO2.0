@@ -1,10 +1,8 @@
 import { useFocusEffect } from '@react-navigation/native';
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 
 import {
-  getEmployeeTodaySlots,
   getTeamMemberPage,
-  type EmployeeTodaySlot,
   type TeamMemberMediaItem,
   type TeamMemberPageEmployee,
   type TeamMemberPageReview,
@@ -17,21 +15,19 @@ import { buildOwnReviewIds } from '@/utils/barberDetailHelpers';
 import { TEAM_MEMBER_PAGE_CACHE_MS } from '@/constants/teamMemberPage';
 import {
   branchesFromShiftCalendar,
+  buildBarberNearestSlotDayGroups,
   buildBarberReviewParamsFromPage,
   buildReviewStatsFromPage,
-  filterValidTodaySlots,
   getPragueTodayDateString,
   getTeamMemberBio,
   getTeamMemberDisplayName,
   getTeamMemberPhone,
   getTodayShiftStatus,
-  hasShiftOnDate,
   hasSkillContent,
   isShiftCalendarConfigured,
 } from '@/utils/teamMemberPageHelpers';
 
 const pageCache = new Map<string, { expiresAt: number; employee: TeamMemberPageEmployee | null }>();
-const EMPTY_PAGE_REVIEWS: TeamMemberPageReview[] = [];
 
 function cacheKey(idOrSlug: string, date: string): string {
   return `${idOrSlug}:${date}`;
@@ -45,12 +41,9 @@ export function useBarberDetailScreen(idOrSlug: string) {
   const [employee, setEmployee] = useState<TeamMemberPageEmployee | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [todaySlots, setTodaySlots] = useState<EmployeeTodaySlot[]>([]);
-  const [loadingSlots, setLoadingSlots] = useState(false);
   const [hasReviewed, setHasReviewed] = useState(false);
   const [ownReviewIds, setOwnReviewIds] = useState<Set<string>>(() => new Set());
   const [fullscreenMedia, setFullscreenMedia] = useState<TeamMemberMediaItem | null>(null);
-  const employeeIdRef = useRef<string | null>(null);
 
   const loadPage = useCallback(async () => {
     if (!idOrSlug) {
@@ -87,38 +80,14 @@ export function useBarberDetailScreen(idOrSlug: string) {
     }
   }, [idOrSlug, today]);
 
-  const loadTodaySlots = useCallback(async (employeeId: string) => {
-    setLoadingSlots(true);
-    try {
-      const data = await getEmployeeTodaySlots(employeeId, { date: today });
-      setTodaySlots(filterValidTodaySlots(data.slots));
-    } catch {
-      setTodaySlots([]);
-    } finally {
-      setLoadingSlots(false);
-    }
-  }, [today]);
-
   useEffect(() => {
     loadPage().catch(() => {});
   }, [loadPage]);
 
-  useEffect(() => {
-    if (!employee?.id) {
-      employeeIdRef.current = null;
-      setTodaySlots([]);
-      return;
-    }
-    if (employeeIdRef.current === employee.id) return;
-    employeeIdRef.current = employee.id;
-    loadTodaySlots(employee.id).catch(() => {});
-  }, [employee?.id, loadTodaySlots]);
-
   useFocusEffect(
     useCallback(() => {
-      if (!employee?.id) return;
-      loadTodaySlots(employee.id).catch(() => {});
-    }, [employee?.id, loadTodaySlots])
+      loadPage().catch(() => {});
+    }, [loadPage])
   );
 
   const loadOwnReviewState = useCallback(() => {
@@ -163,7 +132,7 @@ export function useBarberDetailScreen(idOrSlug: string) {
   const statsAverage = employee?.stats?.averageRating ?? 0;
   const statsTotal = employee?.stats?.totalReviews ?? 0;
   const pageReviews = useMemo(
-    () => employee?.reviews ?? EMPTY_PAGE_REVIEWS,
+    () => employee?.reviews ?? ([] as TeamMemberPageReview[]),
     [employee?.reviews]
   );
   const pageReviewStats = useMemo(() => buildReviewStatsFromPage(pageReviews), [pageReviews]);
@@ -175,10 +144,6 @@ export function useBarberDetailScreen(idOrSlug: string) {
     employee?.id,
     pageReviews,
     statsTotal
-  );
-  const hasShiftToday = useMemo(
-    () => hasShiftOnDate(employee?.shiftCalendar, today),
-    [employee?.shiftCalendar, today]
   );
   const todayShiftStatus = useMemo(
     () => getTodayShiftStatus(employee?.shiftCalendar, today),
@@ -192,10 +157,17 @@ export function useBarberDetailScreen(idOrSlug: string) {
     () => isShiftCalendarConfigured(employee?.shiftCalendar),
     [employee?.shiftCalendar]
   );
-  const showTodaySlotsSection = useMemo(
-    () => todaySlots.length > 0 || hasShiftToday,
-    [todaySlots.length, hasShiftToday]
+  const nearestSlotDayGroups = useMemo(
+    () =>
+      buildBarberNearestSlotDayGroups({
+        nearestSlots: employee?.nearestSlots,
+        shiftCalendar: employee?.shiftCalendar,
+        today,
+        locale,
+      }),
+    [employee?.nearestSlots, employee?.shiftCalendar, today, locale]
   );
+  const showNearestSlotsSection = nearestSlotDayGroups.length > 0;
   const reviewParams = employee ? buildBarberReviewParamsFromPage(employee) : '';
   const showSkills = employee ? hasSkillContent(employee) : false;
   const showAbout = Boolean(bio?.trim());
@@ -208,15 +180,13 @@ export function useBarberDetailScreen(idOrSlug: string) {
     error,
     displayName,
     bio,
-    todaySlots,
-    loadingSlots,
-    hasShiftToday,
+    nearestSlotDayGroups,
     todayShiftStatus,
     employeePhone,
     shiftCalendarConfigured,
     today,
     shiftBranches,
-    showTodaySlotsSection,
+    showNearestSlotsSection,
     showAbout,
     showSkills,
     showMedia,

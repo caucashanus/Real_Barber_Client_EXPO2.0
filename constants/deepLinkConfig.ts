@@ -30,7 +30,6 @@ export const APP_KNOWN_ROUTE_PATHS = [
   '/branches',
   '/experience',
   '/services',
-  '/products',
   '/guides',
   '/barber-detail',
   '/branch-detail',
