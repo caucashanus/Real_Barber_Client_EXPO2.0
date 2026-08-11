@@ -162,7 +162,9 @@ function getVariantContainerClasses(
         ? 'h-auto gap-3 border border-black/15 bg-black/5 px-3 py-3 active:bg-black/5'
         : 'h-auto gap-3 border border-black/15 bg-black/5 px-3 py-3 active:bg-black/5 dark:border-white/15 dark:bg-black/25 dark:active:bg-white/5';
     case 'secondary':
-      return 'border border-brand-border bg-brand-secondary active:opacity-90';
+      return isDark
+        ? 'border border-white/35 bg-dark-secondary active:bg-white/10'
+        : 'border border-brand-border bg-brand-secondary active:opacity-90';
     case 'ghost':
       return onLightCard
         ? 'border-0 bg-transparent active:bg-black/5'
@@ -197,7 +199,9 @@ function getVariantTextClasses(
         ? 'font-medium text-light-text'
         : 'font-medium text-light-text dark:text-brand-foreground';
     case 'secondary':
-      return 'font-medium text-brand-secondary-foreground';
+      return isDark
+        ? 'font-medium text-white'
+        : 'font-medium text-brand-secondary-foreground';
     case 'ghost':
       return onLightCard
         ? 'font-medium text-light-text/80 active:text-light-text'

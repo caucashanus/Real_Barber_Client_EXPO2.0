@@ -212,7 +212,7 @@ export function HomeSpotlightCard({
             <AppButton
               {...SPOTLIGHT_OUTLINE_BUTTON}
               title={t('bookingShareMyBookingButton')}
-              iconStart="Share2"
+              iconStart="Share"
               onPress={() => shareSheetRef.current?.show()}
             />
           </View>

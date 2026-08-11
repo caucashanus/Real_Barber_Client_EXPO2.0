@@ -2,6 +2,7 @@ import React from 'react';
 import { View } from 'react-native';
 
 import type { Booking } from '@/api/bookings';
+import AppButton from '@/components/AppButton';
 import ListLink from '@/components/ListLink';
 import ThemedText from '@/components/ThemedText';
 import Section from '@/components/layout/Section';
@@ -11,7 +12,9 @@ interface BookingDetailAppointmentSectionProps {
   appointment: { dateStr: string; fromTime: string; toTime: string };
   booking: Booking;
   canAddToCalendar: boolean;
+  canShare: boolean;
   onAddToCalendar: () => void;
+  onShare: () => void;
   t: (key: TranslationKey) => string;
 }
 
@@ -19,11 +22,32 @@ export default function BookingDetailAppointmentSection({
   appointment,
   booking,
   canAddToCalendar,
+  canShare,
   onAddToCalendar,
+  onShare,
   t,
 }: BookingDetailAppointmentSectionProps) {
   return (
-    <Section title={t('bookingYourAppointment')} titleSize="lg" className="mt-6 px-global pt-4">
+    <Section
+      title={t('bookingYourAppointment')}
+      titleSize="lg"
+      titleTrailingAlign="end"
+      titleTrailing={
+        canShare ? (
+          <AppButton
+            title={t('bookingShareDetailButton')}
+            variant="outline"
+            size="sm"
+            rounded="full"
+            className="px-2.5 py-1"
+            iconStart="Share"
+            iconSize={13}
+            textClassName="text-xs font-semibold leading-tight"
+            onPress={onShare}
+          />
+        ) : null
+      }
+      className="mt-6 px-global pt-4">
       <View className="mt-4 space-y-4">
         <ThemedText className="text-lg font-semibold">{appointment.dateStr}</ThemedText>
         <View className="flex-row items-center justify-between rounded-xl bg-light-secondary p-4 dark:bg-dark-secondary">

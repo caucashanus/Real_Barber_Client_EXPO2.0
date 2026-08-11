@@ -13,17 +13,19 @@ interface BranchTeamSectionProps {
   employees: BranchEmployee[];
   t: (key: TranslationKey) => string;
   isFirst?: boolean;
+  titleKey?: TranslationKey;
 }
 
 export default function BranchTeamSection({
   employees,
   t,
   isFirst,
+  titleKey = 'branchTeam',
 }: BranchTeamSectionProps) {
   if (employees.length === 0) return null;
 
   return (
-    <BranchContentCardSection title={t('branchTeam')} isFirst={isFirst}>
+    <BranchContentCardSection title={t(titleKey)} isFirst={isFirst}>
       <View className="flex-row flex-wrap gap-6">
         {employees.map((emp) => (
           <Pressable

@@ -146,6 +146,7 @@ export const cs: Record<TranslationKey, string> = {
   tabBranches: 'Pobočky',
   tabBarbers: 'Tým',
   tabServices: 'Služby',
+  tabInspirace: 'Inspirace',
   tabProducts: 'Produkty',
   tabGuides: 'Návody',
   breadcrumbNavLabel: 'Drobečková navigace',
@@ -417,6 +418,50 @@ export const cs: Record<TranslationKey, string> = {
   servicesColoring: 'Barvení',
   servicesHomeServices: 'Služby u vás',
   servicesNoItems: 'Žádné položky',
+  servicesPageTitle: 'Služby',
+  servicesPageSubtitle: 'Úpravy vlasů a vousů',
+  servicesPageIntro:
+    'Vydejte se s námi do světa moderního stylu a pánské elegance pro nejmladší i nejstarší gentlemany. Navštivte jedny z nejlépe hodnocených salonů v Čechách. Doufáme, že si odnesete nejen skvělý sestřih, ale také příjemný zážitek.',
+  servicesPageRBarberNote:
+    'Popisy služeb, jejich průběhy a ukázky výsledných prací z sekce #RBarber – úpravy vlasů a vousů pro všechny.',
+  servicesPageHaircutBook: 'Kniha účesů',
+  servicesPageHairAndBeard: 'Vlasy a vousy',
+  servicesPagePackagesIntro:
+    'Výhodné kombinace služeb pro vás, pro dva nebo pro celou rodinu. Vyberte si balíček, který vám sedí, a rezervujte ho online stejně jednoduše jako běžné stříhání vlasů nebo úpravu vousů.',
+  servicesPageSupplementary: 'Doplňkové služby',
+  servicesPageSupplementaryIntro:
+    'Rádi Vám poskytneme další služby, jako jsou například barvení vlasů, melíry, epilace horkým voskem, barvení vousů nebo pro Vás natočíme stylové video.',
+  servicesPageHaircutInspiration: 'Inspirace účesů',
+  inspiracePageTitle: 'Inspirace pro výběr pánského účesu',
+  inspiracePageIntroBeforeStylist:
+    'Stránka slouží pouze jako inspirační, je možné že Vám holič vybraný typ účesu nedoporučí na základě tvaru Vašeho obličeje a hlavy, nebo kvality, zdravý a délky vlasů. Dále obsahuje pouze zlomek všech námi poskytovaných typů účesů, které postupně doplňujeme. Na Vaše přání si troufáme na jakkoli náročné účesy, pro nejednoduší domluvu se ',
+  inspiracePageIntroStylistLink: 'stylistou',
+  inspiracePageIntroAfterStylist:
+    ', doporučujeme si před Vaší návštěvou připravit fotografii s účesem, nejpodobnějším Vaší ideální představě.',
+  inspiraceExpandMore: 'Zobrazit více',
+  inspiraceLoadError: 'Inspirace se nepodařilo načíst.',
+  inspiraceNoItems: 'Žádné účesy k zobrazení.',
+  inspiraceDetailNotFound: 'Účes nebyl nalezen.',
+  inspiraceDetailPopularityIndex: 'Index popularity',
+  inspiraceDetailAbout: 'O účesu',
+  inspiraceDetailForWho: 'Pro koho',
+  inspiraceDetailDifficulty: 'Obtížnost stylingů',
+  inspiraceDetailFaceShapes: 'Tvar obličeje',
+  inspiraceDetailHairTypes: 'Typ vlasů',
+  inspiraceDetailHairProperties: 'Vlastnosti vlasů',
+  inspiraceDetailHairLengths: 'Délka vlasů',
+  inspiraceDetailPreferredBarbers: 'Kdo rád stříhá tento účes?',
+  inspiraceDetailSimilar: 'Podobné účesy',
+  inspiraceDetailBackToInspirace: 'Zpět na inspiraci',
+  inspiraceDetailGallery: 'Galerie',
+  inspiraceDetailMenuOpen: 'Možnosti účesu',
+  inspiraceDetailAvailabilityMessage: 'Dobrý den, chtěl/a bych si rezervovat tento účes',
+  servicesExtraEpilaceBadge: 'OSVOBUZUJÍCÍ',
+  servicesExtraEpilaceTitle: 'Epilace horkým voskem',
+  servicesExtraVideoBadge: 'NA PAMÁTKU',
+  servicesExtraVideoTitle: 'Video na míru',
+  servicesExtraHomeBadge: 'NEJPOHODLNĚJŠÍ',
+  servicesExtraHomeTitle: 'Služby domů',
 
   // Experience
   experienceNewBarbers: 'Noví barbeři',
@@ -1028,9 +1073,10 @@ export const cs: Record<TranslationKey, string> = {
   bookingShareMessage:
     'Sdílel jsem s tebou svou rezervaci u Real Barber. Podívej se na detaily: {url}',
   bookingShareButton: 'Sdílet',
+  bookingShareDetailButton: 'Sdílet detail rezervace',
   bookingShareMyBookingButton: 'Sdílet rezervaci',
   bookingShareSheetTitle: 'Sdílet rezervaci',
-  bookingSharePreviewChip: 'Co uvidí příjemce',
+  bookingSharePreviewChip: 'Co uvidí příjemce?',
   bookingShareHowItWorksP1:
     'Odesláním odkazu můžete komukoliv sdílet termín vaší rezervace, čas začátku a konce a polohu provozovny.',
   bookingShareHowItWorksP2:

@@ -14,9 +14,7 @@ interface BookingDetailHeroSectionProps {
   booking: Booking;
   location: string;
   canOpenBranchNavigate: boolean;
-  canShare: boolean;
   onOpenBranchNavigate: () => void;
-  onShare: () => void;
   t: (key: TranslationKey) => string;
 }
 
@@ -26,9 +24,7 @@ export default function BookingDetailHeroSection({
   booking,
   location,
   canOpenBranchNavigate,
-  canShare,
   onOpenBranchNavigate,
-  onShare,
   t,
 }: BookingDetailHeroSectionProps) {
   return (
@@ -51,19 +47,6 @@ export default function BookingDetailHeroSection({
             {booking.branch?.name ?? '—'}
           </ThemedText>
           <View className="shrink-0 flex-row items-center gap-1.5">
-            {canShare ? (
-              <AppButton
-                title={t('bookingShareButton')}
-                variant="outline"
-                size="sm"
-                rounded="full"
-                className="px-2.5 py-1"
-                iconStart="Share2"
-                iconSize={13}
-                textClassName="text-xs font-semibold leading-tight"
-                onPress={onShare}
-              />
-            ) : null}
             {canOpenBranchNavigate ? (
               <AppButton
                 title={t('branchNavigateSectionTitle')}

@@ -142,6 +142,7 @@ export const en = {
   tabBranches: 'Branches',
   tabBarbers: 'Team',
   tabServices: 'Services',
+  tabInspirace: 'Inspiration',
   tabProducts: 'Products',
   tabGuides: 'Guides',
   breadcrumbNavLabel: 'Breadcrumb navigation',
@@ -413,6 +414,50 @@ export const en = {
   servicesColoring: 'Coloring',
   servicesHomeServices: 'Home services',
   servicesNoItems: 'No items',
+  servicesPageTitle: 'Services',
+  servicesPageSubtitle: 'Hair and beard grooming',
+  servicesPageIntro:
+    'Step into the world of modern style and masculine elegance for gentlemen young and old. Visit some of the highest-rated salons in the Czech Republic. We hope you leave with not only a great cut, but a pleasant experience too.',
+  servicesPageRBarberNote:
+    'Service descriptions, step-by-step guides, and examples of finished work from the #RBarber section — hair and beard grooming for everyone.',
+  servicesPageHaircutBook: 'Haircut book',
+  servicesPageHairAndBeard: 'Hair and beard',
+  servicesPagePackagesIntro:
+    'Great combinations of services for you, for two, or for the whole family. Pick a package that fits and book it online just as easily as a regular haircut or beard trim.',
+  servicesPageSupplementary: 'Additional services',
+  servicesPageSupplementaryIntro:
+    'We are happy to offer additional services such as hair coloring, highlights, hot wax epilation, beard coloring, or we can film a stylish video for you.',
+  servicesPageHaircutInspiration: 'Haircut inspiration',
+  inspiracePageTitle: 'Inspiration for choosing a men’s haircut',
+  inspiracePageIntroBeforeStylist:
+    'This page is for inspiration only. Your barber may not recommend the hairstyle you choose based on your face and head shape, or the quality, health, and length of your hair. It also contains only a fraction of all the haircut types we offer, which we are gradually adding to. We can take on any challenging haircut on request; for the easiest coordination with a ',
+  inspiracePageIntroStylistLink: 'stylist',
+  inspiracePageIntroAfterStylist:
+    ', we recommend preparing a photo of a haircut closest to your ideal look before your visit.',
+  inspiraceExpandMore: 'Show more',
+  inspiraceLoadError: 'Failed to load inspiration.',
+  inspiraceNoItems: 'No hairstyles to show.',
+  inspiraceDetailNotFound: 'Hairstyle not found.',
+  inspiraceDetailPopularityIndex: 'Popularity index',
+  inspiraceDetailAbout: 'About the haircut',
+  inspiraceDetailForWho: 'For whom',
+  inspiraceDetailDifficulty: 'Styling difficulty',
+  inspiraceDetailFaceShapes: 'Face shape',
+  inspiraceDetailHairTypes: 'Hair type',
+  inspiraceDetailHairProperties: 'Hair properties',
+  inspiraceDetailHairLengths: 'Hair length',
+  inspiraceDetailPreferredBarbers: 'Who enjoys cutting this hairstyle?',
+  inspiraceDetailSimilar: 'Similar hairstyles',
+  inspiraceDetailBackToInspirace: 'Back to inspiration',
+  inspiraceDetailGallery: 'Gallery',
+  inspiraceDetailMenuOpen: 'Hairstyle options',
+  inspiraceDetailAvailabilityMessage: 'Hello, I would like to book this haircut',
+  servicesExtraEpilaceBadge: 'LIBERATING',
+  servicesExtraEpilaceTitle: 'Hot wax epilation',
+  servicesExtraVideoBadge: 'FOR POSTERITY',
+  servicesExtraVideoTitle: 'Custom video',
+  servicesExtraHomeBadge: 'MOST COMFORTABLE',
+  servicesExtraHomeTitle: 'Home services',
 
   // Experience
   experienceNewBarbers: 'New barbers',
@@ -1024,9 +1069,10 @@ export const en = {
   bookingShareMessage:
     'I shared my Real Barber booking with you. Check the details: {url}',
   bookingShareButton: 'Share',
+  bookingShareDetailButton: 'Share booking detail',
   bookingShareMyBookingButton: 'Share booking',
   bookingShareSheetTitle: 'Share booking',
-  bookingSharePreviewChip: "What they'll see",
+  bookingSharePreviewChip: 'What will they see?',
   bookingShareHowItWorksP1:
     'By sending the link, you can share your booking date, start and end time, and the salon location with anyone.',
   bookingShareHowItWorksP2:

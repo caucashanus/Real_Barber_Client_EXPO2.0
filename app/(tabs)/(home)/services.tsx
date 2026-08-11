@@ -1,73 +1,117 @@
-import React, { useContext, useEffect, useState, useMemo } from 'react';
-import { View, Animated } from 'react-native';
+import React, { useContext, useEffect, useMemo, useState } from 'react';
+import { ActivityIndicator, Animated, View } from 'react-native';
+import { router } from 'expo-router';
 
 import { ScrollContext } from './_layout';
 
-import { getItemsAll, itemListImageUrl, type Item } from '@/api/items';
-import { useAuth } from '@/contexts/AuthContext';
+import { fetchPublicServicesPage, type PublicServicesPageResponse } from '@/api/publicServicesPage';
 import { useTranslation } from '@/hooks/useTranslation';
-import Card from '@/components/Card';
-import { CardScroller } from '@/components/CardScroller';
+import AnimatedView from '@/components/AnimatedView';
+import CustomCard from '@/components/CustomCard';
+import HaircutInspirationCarousel from '@/components/services/HaircutInspirationCarousel';
+import ServiceItemGrid from '@/components/services/ServiceItemGrid';
+import SlotTimePill from '@/components/SlotTimePill';
 import ThemeScroller from '@/components/ThemeScroller';
 import ThemedText from '@/components/ThemedText';
 import Section from '@/components/layout/Section';
+import type { TranslationKey } from '@/locales';
+import {
+  getHaircutCarouselItems,
+  getSupplementaryServiceGridItems,
+  mapPublicServiceToGridItem,
+  sortMainServices,
+} from '@/utils/publicServicesPageHelpers';
 
-const CATEGORY_HAIRCUTS = 'Účesy';
-const CATEGORY_BASIC = 'Základní';
-const CATEGORY_SLUZBY = 'Služby';
-const CATEGORY_PACKAGES = 'Balíčky';
-const CATEGORY_BARVENI = 'Barvení';
-const CATEGORY_SLUZBY_DOMU = 'Služby domů';
+const EMPTY_PAGE: PublicServicesPageResponse = {
+  mainServices: [],
+  barveniServices: [],
+  balickyServices: [],
+};
 
-/** Pořadí karet v sekci Základní / Služby (názvy musí přesně odpovídat CRM). */
-const BASIC_SECTION_ITEM_ORDER = [
-  'Vlasy a Vousy',
-  'Vlasy',
-  'Vousy',
-  'Rychlé stříhání',
-  'Vlasy do 12 let',
-] as const;
-
-function sortItemsByNameOrder(items: Item[], orderedNames: readonly string[]): Item[] {
-  const rank = new Map(orderedNames.map((name, i) => [name, i]));
-  const tail = orderedNames.length;
-  return [...items].sort((a, b) => {
-    const ra = rank.has(a.name) ? rank.get(a.name)! : tail;
-    const rb = rank.has(b.name) ? rank.get(b.name)! : tail;
-    if (ra !== rb) return ra - rb;
-    return a.name.localeCompare(b.name, 'cs');
-  });
-}
-
-function serviceCardImage(item: Item): string | number {
-  return itemListImageUrl(item) || require('@/assets/img/barbers.png');
+function ServicesSectionIntroCard({
+  t,
+  titleKey,
+  bodyKey,
+  actionTitleKey,
+  actionHref,
+}: {
+  t: ReturnType<typeof useTranslation>['t'];
+  titleKey: TranslationKey;
+  bodyKey: TranslationKey;
+  actionTitleKey?: TranslationKey;
+  actionHref?: string;
+}) {
+  return (
+    <View className="mb-6">
+      <CustomCard
+        rounded="2xl"
+        padding="md"
+        border
+        background={false}
+        className="bg-light-secondary dark:bg-dark-secondary">
+        <ThemedText className="text-lg font-semibold">{t(titleKey)}</ThemedText>
+        <ThemedText className="mt-3 text-sm leading-6 text-light-subtext dark:text-dark-subtext">
+          {t(bodyKey)}
+        </ThemedText>
+        {actionTitleKey && actionHref ? (
+          <View className="mt-4 flex-row justify-end">
+            <SlotTimePill
+              title={t(actionTitleKey)}
+              onPress={() => router.push(actionHref)}
+            />
+          </View>
+        ) : null}
+      </CustomCard>
+    </View>
+  );
 }
 
 const ServicesScreen = () => {
   const scrollY = useContext(ScrollContext);
-  const { apiToken } = useAuth();
-  const { t } = useTranslation();
-  const [items, setItems] = useState<Item[]>([]);
+  const { t, locale } = useTranslation();
+  const [pageData, setPageData] = useState<PublicServicesPageResponse>(EMPTY_PAGE);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!apiToken) return;
+    setLoading(true);
     setError(null);
-    getItemsAll(apiToken)
-      .then(setItems)
-      .catch((e) => setError(e instanceof Error ? e.message : 'Failed to load'));
-  }, [apiToken]);
+    fetchPublicServicesPage()
+      .then(setPageData)
+      .catch((e) => setError(e instanceof Error ? e.message : 'Failed to load'))
+      .finally(() => setLoading(false));
+  }, []);
 
-  const haircuts = items.filter((i) => i.category === CATEGORY_HAIRCUTS);
-  const basicOrdered = useMemo(() => {
-    const filtered = items.filter(
-      (i) => i.category === CATEGORY_BASIC || i.category === CATEGORY_SLUZBY
+  const mainGridItems = useMemo(
+    () =>
+      sortMainServices(pageData.mainServices).map((service) =>
+        mapPublicServiceToGridItem(service, locale)
+      ),
+    [pageData.mainServices, locale]
+  );
+
+  const packageGridItems = useMemo(
+    () => pageData.balickyServices.map((service) => mapPublicServiceToGridItem(service, locale)),
+    [pageData.balickyServices, locale]
+  );
+
+  const supplementaryGridItems = useMemo(
+    () => getSupplementaryServiceGridItems(pageData.barveniServices, t, locale),
+    [pageData.barveniServices, t, locale]
+  );
+
+  const haircutCarouselItems = useMemo(() => getHaircutCarouselItems(locale), [locale]);
+
+  if (loading) {
+    return (
+      <View className="mt-4 flex-1 items-center justify-center py-16">
+        <ActivityIndicator size="large" />
+        <ThemedText className="mt-4 text-light-subtext dark:text-dark-subtext">
+          {t('commonLoading')}
+        </ThemedText>
+      </View>
     );
-    return sortItemsByNameOrder(filtered, BASIC_SECTION_ITEM_ORDER);
-  }, [items]);
-  const packages = items.filter((i) => i.category === CATEGORY_PACKAGES);
-  const coloring = items.filter((i) => i.category === CATEGORY_BARVENI);
-  const homeServices = items.filter((i) => i.category === CATEGORY_SLUZBY_DOMU);
+  }
 
   return (
     <ThemeScroller
@@ -75,153 +119,61 @@ const ServicesScreen = () => {
         useNativeDriver: false,
       })}
       scrollEventThrottle={16}>
-      <View className="mt-4 flex-1">
+      <AnimatedView animation="scaleIn" className="mt-4 flex-1">
         {error ? (
-          <View className="items-center px-6 py-4">
+          <View className="mb-4 items-center px-6">
             <ThemedText className="text-center text-red-500 dark:text-red-400">{error}</ThemedText>
           </View>
         ) : null}
-        <Section title={t('servicesHaircuts')} titleSize="lg">
-          <CardScroller space={15} className="mt-1.5">
-            {haircuts.length === 0 ? (
-              <ThemedText className="py-4 text-light-subtext dark:text-dark-subtext">
-                {t('servicesNoItems')}
-              </ThemedText>
-            ) : (
-              haircuts.map((item) => (
-                <Card
-                  key={item.id}
-                  title={item.name}
-                  rounded="2xl"
-                  hasFavorite
-                  favoriteEntityType="item"
-                  favoriteEntityId={item.id}
-                  width={100}
-                  imageHeight={100}
-                  image={serviceCardImage(item)}
-                  href={`/screens/service-detail?id=${item.id}`}
-                />
-              ))
-            )}
-          </CardScroller>
+
+        <ServicesSectionIntroCard
+          t={t}
+          titleKey="servicesPageTitle"
+          bodyKey="servicesPageRBarberNote"
+          actionTitleKey="servicesPageHaircutBook"
+          actionHref="/inspirace"
+        />
+
+        <Section title={t('servicesPageHairAndBeard')} titleSize="lg">
+          {mainGridItems.length === 0 ? (
+            <ThemedText className="py-4 text-light-subtext dark:text-dark-subtext">
+              {t('servicesNoItems')}
+            </ThemedText>
+          ) : (
+            <ServiceItemGrid items={mainGridItems} />
+          )}
         </Section>
 
-        <Section
-          title={t('servicesBasic')}
-          titleSize="lg"
-          link="/screens/map"
-          linkText={t('commonViewAll')}>
-          <CardScroller space={15} className="mt-1.5">
-            {basicOrdered.length === 0 ? (
-              <ThemedText className="py-4 text-light-subtext dark:text-dark-subtext">
-                {t('servicesNoItems')}
-              </ThemedText>
-            ) : (
-              basicOrdered.map((item) => (
-                <Card
-                  key={item.id}
-                  title={item.name}
-                  rounded="2xl"
-                  hasFavorite
-                  favoriteEntityType="item"
-                  favoriteEntityId={item.id}
-                  width={160}
-                  imageHeight={160}
-                  image={serviceCardImage(item)}
-                  href={`/screens/service-detail?id=${item.id}`}
-                />
-              ))
-            )}
-          </CardScroller>
-        </Section>
+        {packageGridItems.length > 0 ? (
+          <View className="mt-6">
+            <ServicesSectionIntroCard
+              t={t}
+              titleKey="servicesPackages"
+              bodyKey="servicesPagePackagesIntro"
+            />
+            <ServiceItemGrid items={packageGridItems} />
+          </View>
+        ) : null}
 
-        <Section
-          title={t('servicesPackages')}
-          titleSize="lg"
-          link="/screens/map"
-          linkText={t('commonViewAll')}>
-          <CardScroller space={15} className="mt-1.5">
-            {packages.length === 0 ? (
-              <ThemedText className="py-4 text-light-subtext dark:text-dark-subtext">
-                {t('servicesNoItems')}
-              </ThemedText>
-            ) : (
-              packages.map((item) => (
-                <Card
-                  key={item.id}
-                  title={item.name}
-                  rounded="2xl"
-                  hasFavorite
-                  favoriteEntityType="item"
-                  favoriteEntityId={item.id}
-                  width={160}
-                  imageHeight={160}
-                  image={serviceCardImage(item)}
-                  href={`/screens/service-detail?id=${item.id}`}
-                />
-              ))
-            )}
-          </CardScroller>
-        </Section>
+        <View className="mt-6">
+          <ServicesSectionIntroCard
+            t={t}
+            titleKey="servicesPageSupplementary"
+            bodyKey="servicesPageSupplementaryIntro"
+          />
+          {supplementaryGridItems.length === 0 ? (
+            <ThemedText className="py-4 text-light-subtext dark:text-dark-subtext">
+              {t('servicesNoItems')}
+            </ThemedText>
+          ) : (
+            <ServiceItemGrid items={supplementaryGridItems} />
+          )}
+        </View>
 
-        <Section
-          title={t('servicesColoring')}
-          titleSize="lg"
-          link="/screens/map"
-          linkText={t('commonViewAll')}>
-          <CardScroller space={15} className="mt-1.5">
-            {coloring.length === 0 ? (
-              <ThemedText className="py-4 text-light-subtext dark:text-dark-subtext">
-                {t('servicesNoItems')}
-              </ThemedText>
-            ) : (
-              coloring.map((item) => (
-                <Card
-                  key={item.id}
-                  title={item.name}
-                  rounded="2xl"
-                  hasFavorite
-                  favoriteEntityType="item"
-                  favoriteEntityId={item.id}
-                  width={160}
-                  imageHeight={160}
-                  image={serviceCardImage(item)}
-                  href={`/screens/service-detail?id=${item.id}`}
-                />
-              ))
-            )}
-          </CardScroller>
+        <Section title={t('servicesPageHaircutInspiration')} titleSize="lg" className="mt-6">
+          <HaircutInspirationCarousel items={haircutCarouselItems} />
         </Section>
-
-        <Section
-          title={t('servicesHomeServices')}
-          titleSize="lg"
-          link="/screens/map"
-          linkText={t('commonViewAll')}>
-          <CardScroller space={15} className="mt-1.5">
-            {homeServices.length === 0 ? (
-              <ThemedText className="py-4 text-light-subtext dark:text-dark-subtext">
-                {t('servicesNoItems')}
-              </ThemedText>
-            ) : (
-              homeServices.map((item) => (
-                <Card
-                  key={item.id}
-                  title={item.name}
-                  rounded="2xl"
-                  hasFavorite
-                  favoriteEntityType="item"
-                  favoriteEntityId={item.id}
-                  width={160}
-                  imageHeight={160}
-                  image={serviceCardImage(item)}
-                  href={`/screens/service-detail?id=${item.id}`}
-                />
-              ))
-            )}
-          </CardScroller>
-        </Section>
-      </View>
+      </AnimatedView>
     </ThemeScroller>
   );
 };

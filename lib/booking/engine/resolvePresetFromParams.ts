@@ -48,6 +48,9 @@ export function resolvePresetFromRouteParams(
         recipeId: 'service-detail',
         serviceId,
         serviceSlug,
+        branchId,
+        employeeId,
+        employeeSlug,
       },
     };
   }

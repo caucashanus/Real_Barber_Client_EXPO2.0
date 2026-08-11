@@ -1,0 +1,3 @@
+export const INSPIRACE_GRID_INITIAL = 16;
+export const INSPIRACE_GRID_STEP = 16;
+export const INSPIRACE_GRID_MAX_LIMIT = 50;

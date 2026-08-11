@@ -9,6 +9,9 @@ const HANDOFF_TTL_MS = 2 * 60 * 60 * 1000;
 export type StoredBookingSlotHandoff = {
   version?: number;
   createdAt?: number;
+  serviceId?: string;
+  serviceDurationMinutes?: number;
+  employeeSlug?: string;
   employeeId: string;
   employeeName?: string;
   branchId: string;

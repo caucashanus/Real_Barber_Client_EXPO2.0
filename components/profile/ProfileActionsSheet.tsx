@@ -48,7 +48,7 @@ export const ProfileActionsSheet = forwardRef<ActionSheetRef, ProfileActionsShee
 
           <SheetNavRow
             label={t('barberMenuShare')}
-            icon={<Icon name="Share2" size={16} strokeWidth={1.5} className="opacity-80" />}
+            icon={<Icon name="Share" size={16} strokeWidth={1.5} className="opacity-80" />}
             onPress={onShare}
           />
           <SheetNavRow

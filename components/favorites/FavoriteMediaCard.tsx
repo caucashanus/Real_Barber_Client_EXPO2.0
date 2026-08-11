@@ -8,11 +8,12 @@ import MediaCardTitle from '@/components/MediaCardTitle';
 import BranchAddress from '@/components/shared/BranchAddress';
 
 interface FavoriteMediaCardProps {
-  href: string;
+  href?: string;
   title: string;
   image: string | ImageSourcePropType;
-  entityType: string;
-  entityId: string;
+  entityType?: string;
+  entityId?: string;
+  showFavorite?: boolean;
   address?: string;
   onFavoriteToggle?: (isFavorite: boolean) => void;
   /** Seznam oblíbených — srdce hned vyplněné. Jinak stav z API. */
@@ -35,6 +36,7 @@ export default function FavoriteMediaCard({
   image,
   entityType,
   entityId,
+  showFavorite,
   address,
   onFavoriteToggle,
   favoriteInitialState = false,
@@ -44,42 +46,56 @@ export default function FavoriteMediaCard({
   footer,
 }: FavoriteMediaCardProps) {
   const imageSource = typeof image === 'string' ? { uri: image } : image;
+  const showFavoriteHeart =
+    showFavorite !== false && Boolean(entityType && entityId);
 
-  return (
-    <View className="w-full">
-      <Pressable className="w-full" onPress={() => router.push(href)}>
-        <View className="relative w-full overflow-hidden rounded-2xl bg-black">
-          <Image
-            source={imageSource}
-            className="w-full"
-            style={{ aspectRatio: 2 / 3 }}
-            contentFit="cover"
-          />
+  const cardBody = (
+    <>
+      <View className="relative w-full overflow-hidden rounded-2xl bg-black">
+        <Image
+          source={imageSource}
+          className="w-full"
+          style={{ aspectRatio: 2 / 3 }}
+          contentFit="cover"
+        />
+        {showFavoriteHeart ? (
           <View className="absolute right-3 top-3 z-10">
             <Favorite
               initialState={favoriteInitialState}
               isWhite
               showToggleSheet={showFavoriteToggleSheet}
               title={title}
-              entityType={entityType}
-              entityId={entityId}
+              entityType={entityType!}
+              entityId={entityId!}
               size={24}
               onToggle={onFavoriteToggle}
             />
           </View>
-        </View>
-        <View className={`w-full ${MEDIA_CARD_IMAGE_TITLE_GAP_CLASS}`}>
-          {titleTrailing ? (
-            <View className="flex-row flex-wrap items-center gap-1.5">
-              <MediaCardTitle className="shrink">{title}</MediaCardTitle>
-              <View className="shrink-0">{titleTrailing}</View>
-            </View>
-          ) : (
+        ) : null}
+      </View>
+      <View className={`w-full ${MEDIA_CARD_IMAGE_TITLE_GAP_CLASS}`}>
+        {titleTrailing ? (
+          <View className="flex-row flex-wrap items-center gap-1.5">
             <MediaCardTitle>{title}</MediaCardTitle>
-          )}
-        </View>
-        {belowTitle ? <View className="mt-0.5 w-full">{belowTitle}</View> : null}
-      </Pressable>
+            <View className="shrink-0">{titleTrailing}</View>
+          </View>
+        ) : (
+          <MediaCardTitle>{title}</MediaCardTitle>
+        )}
+      </View>
+      {belowTitle ? <View className="mt-0.5 w-full">{belowTitle}</View> : null}
+    </>
+  );
+
+  return (
+    <View className="w-full">
+      {href ? (
+        <Pressable className="w-full" onPress={() => router.push(href as never)}>
+          {cardBody}
+        </Pressable>
+      ) : (
+        <View className="w-full">{cardBody}</View>
+      )}
       {address ? (
         <BranchAddress address={address} className="mt-0.5" numberOfLines={2} />
       ) : null}

@@ -583,6 +583,39 @@ export function useBookingEngineFlow() {
     };
   }, [recipeId, preset.employeeId, branches, profileBranches]);
 
+  // Slot handoff read (service-detail — hairstyle nearest slot)
+  useEffect(() => {
+    if (recipeId !== 'service-detail' || !preset.serviceId) return;
+
+    let cancelled = false;
+    void readBookingSlotHandoff().then((handoff) => {
+      if (cancelled || !handoff?.serviceId || handoff.serviceId !== preset.serviceId) return;
+
+      setSlotHandoff(handoff);
+      setFromSlotHandoff(true);
+      setSelectedBranch((current) =>
+        resolveBranchEntityForSlotRestore(
+          handoff.branchId,
+          current,
+          { branches, profileBranches },
+          handoff.slot.branchName ?? handoff.branchName,
+          handoff.branchAddress
+        )
+      );
+      setSelectedEmployee((current) =>
+        current?.id === handoff.employeeId
+          ? current
+          : { id: handoff.employeeId, name: handoff.employeeName }
+      );
+      setSelectedDate(handoff.date);
+      setSelectedSlot(handoff.slot);
+    });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [recipeId, preset.serviceId, branches, profileBranches]);
+
   // Slot services for handoff service step
   useEffect(() => {
     if (recipeId !== 'employee-profile' || step !== 'service' || !slotHandoff) {
@@ -829,6 +862,42 @@ export function useBookingEngineFlow() {
     },
     [activeSteps, stepIndex, step, contact.awaitingPhoneOtp, contact.cancelPhoneOtp]
   );
+
+  useEffect(() => {
+    if (recipeId !== 'service-detail' || !slotHandoff || !selectedService?.id) return;
+    if (slotHandoff.serviceId !== selectedService.id) return;
+    if (!selectedBranch?.id || !selectedEmployee?.id || !selectedDate || !selectedSlot?.start) return;
+
+    void saveBookingSlotContext({
+      branchId: selectedBranch.id,
+      serviceId: selectedService.id,
+      employeeId: selectedEmployee.id,
+      date: selectedDate,
+      serviceName: selectedService.name,
+      servicePrice: selectedService.pricing?.minPrice,
+      serviceDurationMinutes:
+        slotHandoff.serviceDurationMinutes ?? selectedService.duration ?? undefined,
+      slot: selectedSlot,
+    });
+
+    if (!skipContact) return;
+    const contactIdx = activeSteps.indexOf('contact');
+    if (contactIdx >= 0 && stepIndex !== contactIdx) {
+      goToStepIndex(contactIdx);
+    }
+  }, [
+    recipeId,
+    slotHandoff,
+    selectedService,
+    selectedBranch?.id,
+    selectedEmployee?.id,
+    selectedDate,
+    selectedSlot,
+    skipContact,
+    activeSteps,
+    stepIndex,
+    goToStepIndex,
+  ]);
 
   const nextStepAfter = useCallback(
     (kind: BookingStepKind) => {

@@ -172,9 +172,7 @@ const BookingDetailScreen = () => {
             booking={booking}
             location={location}
             canOpenBranchNavigate={canOpenBranchNavigate}
-            canShare={canShare}
             onOpenBranchNavigate={() => branchNavigateRef.current?.show()}
-            onShare={handleShare}
             t={t}
           />
           <BookingDetailEmployeeSection booking={booking} t={t} />
@@ -182,7 +180,9 @@ const BookingDetailScreen = () => {
             appointment={appointment}
             booking={booking}
             canAddToCalendar={canAddToCalendar}
+            canShare={canShare}
             onAddToCalendar={handleAddToCalendar}
+            onShare={handleShare}
             t={t}
           />
           <BookingDetailReservationInfoSection booking={booking} t={t} />

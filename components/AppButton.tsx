@@ -96,6 +96,9 @@ export default function AppButton({
   const resolvedIconSize =
     iconSize ?? (size === 'xs' || size === 'icon-sm' ? 14 : size === 'sm' ? 16 : 18);
 
+  const iconColor =
+    typeof textStyle?.color === 'string' ? textStyle.color : undefined;
+
   const triggerHaptic = () => {
     if (disableHaptic || isDisabled) return;
     triggerImpact(impactFeedbackStyle);
@@ -122,6 +125,7 @@ export default function AppButton({
           <Icon
             name={iconStart}
             size={resolvedIconSize}
+            color={iconColor}
             className={`${title ? 'mr-2' : ''} ${iconClassName}`.trim()}
           />
         ) : null}
@@ -131,7 +135,12 @@ export default function AppButton({
           </ButtonText>
         ) : null}
         {iconEnd ? (
-          <Icon name={iconEnd} size={resolvedIconSize} className={`ml-2 ${iconClassName}`} />
+          <Icon
+            name={iconEnd}
+            size={resolvedIconSize}
+            color={iconColor}
+            className={`ml-2 ${iconClassName}`}
+          />
         ) : null}
       </View>
     ));

@@ -87,7 +87,7 @@ export const ReservationShareSheet = forwardRef<ActionSheetRef, ReservationShare
             title={t('bookingShareButton')}
             variant="outline"
             fullWidth
-            iconStart="Share2"
+            iconStart="Share"
             onPress={handleShare}
           />
         </View>

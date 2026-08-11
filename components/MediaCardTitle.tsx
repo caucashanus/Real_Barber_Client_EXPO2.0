@@ -8,7 +8,7 @@ interface MediaCardTitleProps extends TextProps {
   className?: string;
 }
 
-/** Globální H2 pod media kartou (20 px, max 2 řádky). */
+/** Globální titulek pod media kartou — stejná velikost jako jméno holiče na webu (16 px). */
 export default function MediaCardTitle({
   children,
   className = '',
@@ -18,7 +18,7 @@ export default function MediaCardTitle({
     <ThemedText
       accessibilityRole="header"
       numberOfLines={2}
-      className={`text-xl font-semibold leading-snug text-light-text dark:text-dark-text ${className}`.trim()}
+      className={`min-w-0 shrink text-base font-semibold leading-5 text-light-text dark:text-dark-text ${className}`.trim()}
       {...props}>
       {children}
     </ThemedText>

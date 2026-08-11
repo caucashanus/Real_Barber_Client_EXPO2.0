@@ -15,6 +15,7 @@ export const BREADCRUMB_APP_ROUTES = {
   branches: '/branches' as Href,
   services: '/services' as Href,
   team: '/experience' as Href,
+  inspirace: '/inspirace' as Href,
   guides: '/guides' as Href,
 } as const;
 
@@ -41,6 +42,14 @@ export function teamMemberBreadcrumbItems(memberName: string, t: Translate): Bre
     { name: BREADCRUMB_BRAND, href: BREADCRUMB_APP_ROUTES.home },
     { name: t('tabBarbers'), href: BREADCRUMB_APP_ROUTES.team },
     { name: memberName },
+  ];
+}
+
+export function hairstyleBreadcrumbItems(hairstyleName: string, t: Translate): BreadcrumbItem[] {
+  return [
+    { name: BREADCRUMB_BRAND, href: BREADCRUMB_APP_ROUTES.home },
+    { name: t('tabInspirace'), href: BREADCRUMB_APP_ROUTES.inspirace },
+    { name: hairstyleName },
   ];
 }
 

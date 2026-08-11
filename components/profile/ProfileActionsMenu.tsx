@@ -41,9 +41,16 @@ type ProfileActionsMenuBranchProps = ProfileActionsMenuBaseProps & {
   bookingHref: string;
 };
 
+type ProfileActionsMenuServiceProps = ProfileActionsMenuBaseProps & {
+  mode: 'service';
+  bookingHref: string;
+  onScrollToReviews: () => void;
+};
+
 export type ProfileActionsMenuProps =
   | ProfileActionsMenuEmployeeProps
-  | ProfileActionsMenuBranchProps;
+  | ProfileActionsMenuBranchProps
+  | ProfileActionsMenuServiceProps;
 
 /** ⋮ menu — Sdílet / Ohodnotit / rezervace (web TeamProfileActionsMenu). */
 export default function ProfileActionsMenu(props: ProfileActionsMenuProps) {
@@ -66,9 +73,17 @@ export default function ProfileActionsMenu(props: ProfileActionsMenuProps) {
   const shareSheetRef = externalShareSheetRef ?? internalShareSheetRef;
 
   const bookLabel =
-    props.mode === 'branch' ? t('branchMenuBook') : t('barberMenuBook');
+    props.mode === 'branch'
+      ? t('branchMenuBook')
+      : props.mode === 'service'
+        ? t('commonReserve')
+        : t('barberMenuBook');
   const sheetTitle =
-    props.mode === 'branch' ? t('branchMenuOpen') : t('barberMenuOpen');
+    props.mode === 'branch'
+      ? t('branchMenuOpen')
+      : props.mode === 'service'
+        ? t('inspiraceDetailMenuOpen')
+        : t('barberMenuOpen');
 
   const hideActionsSheet = () => {
     actionsSheetRef.current?.hide();
@@ -94,15 +109,17 @@ export default function ProfileActionsMenu(props: ProfileActionsMenuProps) {
       }, MENU_SHARE_OPEN_DELAY_MS);
       return;
     }
-    setTimeout(() => {
-      props.onScrollToReviews();
-    }, MENU_SHARE_OPEN_DELAY_MS);
+    if (props.mode === 'service' || props.mode === 'employee') {
+      setTimeout(() => {
+        props.onScrollToReviews();
+      }, MENU_SHARE_OPEN_DELAY_MS);
+    }
   };
 
   const handleBook = () => {
     hideActionsSheet();
     const href =
-      props.mode === 'branch'
+      props.mode === 'branch' || props.mode === 'service'
         ? props.bookingHref
         : buildBarberBookingHref({ employeeId: props.employeeId });
     if (onLeaveFlow) {

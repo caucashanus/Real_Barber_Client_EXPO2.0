@@ -219,7 +219,7 @@ export interface GetPublicEntityReviewsOptions {
 
 /** GET /api/public/reviews — paginated reviews for public entity pages (e.g. barber detail). */
 export async function getPublicEntityReviews(
-  entityType: 'employee' | 'branch',
+  entityType: 'employee' | 'branch' | 'service',
   entityId: string,
   options: GetPublicEntityReviewsOptions = {}
 ): Promise<PublicEntityReviewsResponse> {

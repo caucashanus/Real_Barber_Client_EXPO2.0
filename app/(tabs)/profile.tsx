@@ -257,7 +257,7 @@ const PersonalProfile = ({
         <ListLink
           showChevron
           title="Poslat apku kamarádovi"
-          icon="Share2"
+          icon="Share"
           onPress={() =>
             Share.share({
               message: 'https://apps.apple.com/ca/app/rb/id6760221388',
