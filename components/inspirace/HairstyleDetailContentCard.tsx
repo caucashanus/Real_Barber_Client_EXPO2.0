@@ -2,6 +2,7 @@ import React, { useMemo } from 'react';
 import { View } from 'react-native';
 
 import BranchContentCardSection from '@/components/branch/BranchContentCardSection';
+import BranchTeamSection from '@/components/branch/BranchTeamSection';
 import CustomCard from '@/components/CustomCard';
 import InspiraceDetailScoreMeter from '@/components/inspirace/InspiraceDetailScoreMeter';
 import InspiraceMetadataSection from '@/components/inspirace/InspiraceMetadataSection';
@@ -17,7 +18,8 @@ interface HairstyleDetailContentCardProps {
 
 type ContentBlock =
   | { key: 'about' | 'forWho' | 'difficulty'; kind: 'titled'; title: string }
-  | { key: 'metadata'; kind: 'metadata' };
+  | { key: 'metadata'; kind: 'metadata' }
+  | { key: 'preferredBarbers'; kind: 'team' };
 
 export default function HairstyleDetailContentCard({ detail, t }: HairstyleDetailContentCardProps) {
   const blocks = useMemo(() => {
@@ -47,6 +49,10 @@ export default function HairstyleDetailContentCard({ detail, t }: HairstyleDetai
 
     if (hasMetadata) {
       items.push({ key: 'metadata', kind: 'metadata' });
+    }
+
+    if (detail.preferredEmployees.length > 0) {
+      items.push({ key: 'preferredBarbers', kind: 'team' });
     }
 
     return items;
@@ -118,6 +124,18 @@ export default function HairstyleDetailContentCard({ detail, t }: HairstyleDetai
             <BranchContentCardSection key={block.key} title={block.title} isFirst={isFirst}>
               {content}
             </BranchContentCardSection>
+          );
+        }
+
+        if (block.kind === 'team') {
+          return (
+            <BranchTeamSection
+              key={block.key}
+              employees={detail.preferredEmployees}
+              titleKey="inspiraceDetailPreferredBarbers"
+              t={t}
+              isFirst={isFirst}
+            />
           );
         }
 

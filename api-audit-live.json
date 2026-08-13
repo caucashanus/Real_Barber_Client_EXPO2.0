@@ -1,0 +1,184 @@
+[
+  {
+    "endpoint": "GET /api/client/me",
+    "kb": 0.53515625,
+    "ms": 242.84437496680766,
+    "status": 200,
+    "shape": "keys:id,name,firstName,lastName,email,phone,avatarUrl,bio"
+  },
+  {
+    "endpoint": "GET /api/client/reservations (all)",
+    "kb": 58.4736328125,
+    "ms": 227.99279098398983,
+    "status": 200,
+    "shape": "reservations[50]"
+  },
+  {
+    "endpoint": "GET /api/client/reservations?limit=50",
+    "kb": 58.4736328125,
+    "ms": 266.18737500393763,
+    "status": 200,
+    "shape": "reservations[50]"
+  },
+  {
+    "endpoint": "GET /api/client/coupons",
+    "kb": 4.1083984375,
+    "ms": 118.84341604309157,
+    "status": 200,
+    "shape": "list[6]"
+  },
+  {
+    "endpoint": "GET /api/client/posters",
+    "kb": 0.001953125,
+    "ms": 106.24679102329537,
+    "status": 200,
+    "shape": "list[0]"
+  },
+  {
+    "endpoint": "GET /api/client/branches",
+    "kb": 1638.111328125,
+    "ms": 796.7844170052558,
+    "status": 200,
+    "shape": "list[4]"
+  },
+  {
+    "endpoint": "GET /api/client/branches?includeReviews&limit=1",
+    "kb": 1638.111328125,
+    "ms": 603.0348330386914,
+    "status": 200,
+    "shape": "list[4]"
+  },
+  {
+    "endpoint": "GET /api/client/employees",
+    "kb": 816.6396484375,
+    "ms": 519.0872079692781,
+    "status": 200,
+    "shape": "list[18]"
+  },
+  {
+    "endpoint": "GET /api/client/employees?reviewsLimit=1",
+    "kb": 816.6396484375,
+    "ms": 533.2364580244757,
+    "status": 200,
+    "shape": "list[18]"
+  },
+  {
+    "endpoint": "GET /api/client/employees?reviewsLimit=99 (boot)",
+    "kb": 816.6396484375,
+    "ms": 468.12266600318253,
+    "status": 200,
+    "shape": "list[18]"
+  },
+  {
+    "endpoint": "GET /api/client/reviews employee limit=500",
+    "kb": 14.2734375,
+    "ms": 147.23595895338804,
+    "status": 200,
+    "shape": "reviews[28]"
+  },
+  {
+    "endpoint": "GET /api/client/reviews branch limit=500",
+    "kb": 4.833984375,
+    "ms": 194.57441696431488,
+    "status": 200,
+    "shape": "reviews[10]"
+  },
+  {
+    "endpoint": "GET /api/client/items page1 includeMedia",
+    "kb": 0.0341796875,
+    "ms": 127.54625000525266,
+    "status": 500,
+    "shape": "keys:message"
+  },
+  {
+    "endpoint": "GET /api/client/cuts",
+    "kb": 7.494140625,
+    "ms": 121.78416602546349,
+    "status": 200,
+    "shape": "cuts[6]"
+  },
+  {
+    "endpoint": "GET /api/client/favorites",
+    "kb": 2.6767578125,
+    "ms": 133.62358300946653,
+    "status": 200,
+    "shape": "list[7]"
+  },
+  {
+    "endpoint": "GET /api/client/guides",
+    "kb": 31.5791015625,
+    "ms": 219.67512503033504,
+    "status": 200,
+    "shape": "list[14]"
+  },
+  {
+    "endpoint": "GET /api/client/products (owned)",
+    "kb": 1.291015625,
+    "ms": 144.29262501653284,
+    "status": 200,
+    "shape": "keys:products,pagination,sorting"
+  },
+  {
+    "endpoint": "GET /api/client/products/by-flag limit=500",
+    "kb": 21.6767578125,
+    "ms": 169.96412497246638,
+    "status": 200,
+    "shape": "keys:products,pagination,flag"
+  },
+  {
+    "endpoint": "GET /api/rb-coins/balance",
+    "kb": 0.12890625,
+    "ms": 176.7265409580432,
+    "status": 200,
+    "shape": "keys:balance,entity"
+  },
+  {
+    "endpoint": "GET /api/rb-coins/history (all)",
+    "kb": 7.95703125,
+    "ms": 144.13854200392962,
+    "status": 200,
+    "shape": "data[20]"
+  },
+  {
+    "endpoint": "GET /api/rb-coins/history?limit=200",
+    "kb": 40.9013671875,
+    "ms": 189.12300001829863,
+    "status": 200,
+    "shape": "data[101]"
+  },
+  {
+    "endpoint": "GET /api/client/referrals",
+    "kb": 2.9541015625,
+    "ms": 234.9647919763811,
+    "status": 200,
+    "shape": "activePrograms[0]"
+  },
+  {
+    "endpoint": "GET /api/client/referrals?includeProgress",
+    "kb": 2.9541015625,
+    "ms": 166.6412499616854,
+    "status": 200,
+    "shape": "activePrograms[0]"
+  },
+  {
+    "endpoint": "GET /api/client/overview",
+    "kb": 81.189453125,
+    "ms": 384.3173339846544,
+    "status": 200,
+    "shape": "keys:client,data,pagination"
+  },
+  {
+    "endpoint": "GET /api/client/communication-settings",
+    "kb": 0.34765625,
+    "ms": 116.15133297163993,
+    "status": 200,
+    "shape": "keys:clientId,clientFirstName,channels,contentTypes,updatedAt"
+  },
+  {
+    "endpoint": "GET /api/internal/notifications/history limit=50",
+    "kb": 7.4140625,
+    "ms": 120.66245800815523,
+    "status": 404,
+    "shape": "non-json"
+  }
+]

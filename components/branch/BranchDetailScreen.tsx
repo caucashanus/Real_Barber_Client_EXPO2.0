@@ -28,7 +28,6 @@ import BranchInteriorSection from '@/components/branch/BranchInteriorSection';
 import BranchManagerSection from '@/components/branch/BranchManagerSection';
 import BranchOtherBranches from '@/components/branch/BranchOtherBranches';
 import BranchParkingSection from '@/components/branch/BranchParkingSection';
-import BranchRatingModal from '@/components/branch/BranchRatingModal';
 import BranchReviewsSection from '@/components/branch/BranchReviewsSection';
 import BranchTeamSection from '@/components/branch/BranchTeamSection';
 import BranchVirtualTourSection from '@/components/branch/BranchVirtualTourSection';
@@ -69,11 +68,9 @@ export default function BranchDetailScreen() {
     loading,
     error,
     reviews,
-    loadingReviews,
+    reviewsPagination,
     hasReviewed,
-    ratingModalVisible,
-    setRatingModalVisible,
-    countByRating,
+    ownReviewIds,
     average,
     displayTotal,
     internalBranchId,
@@ -338,18 +335,22 @@ export default function BranchDetailScreen() {
 
             <BranchReviewsSection
               reviews={reviews}
-              loadingReviews={loadingReviews}
               hasReviewed={hasReviewed}
               reviewParams={reviewParams}
-              countByRating={countByRating}
-              average={average}
               displayTotal={displayTotal}
               clientId={client?.id}
+              ownReviewIds={ownReviewIds}
               locale={locale}
+              showPagination={reviewsPagination.showPagination}
+              reviewsLoading={reviewsPagination.loading}
+              reviewsError={reviewsPagination.error}
+              canGoPrevious={reviewsPagination.canGoPrevious}
+              canGoNext={reviewsPagination.canGoNext}
+              onPrevious={reviewsPagination.goPrevious}
+              onNext={reviewsPagination.goNext}
               onLayout={(event) => {
                 reviewsSectionYRef.current = event.nativeEvent.layout.y;
               }}
-              onOpenRatingModal={() => setRatingModalVisible(true)}
               t={t}
             />
           </View>
@@ -365,15 +366,6 @@ export default function BranchDetailScreen() {
       />
 
       <OperatorCallUsSheet ref={callUsSheetRef} />
-
-      <BranchRatingModal
-        visible={ratingModalVisible}
-        countByRating={countByRating}
-        average={average}
-        displayTotal={displayTotal}
-        onClose={() => setRatingModalVisible(false)}
-        t={t}
-      />
     </>
   );
 }

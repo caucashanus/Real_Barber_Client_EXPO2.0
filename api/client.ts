@@ -33,8 +33,8 @@ export async function getClientMe(apiToken: string): Promise<ClientMe> {
 }
 
 export interface UpdateClientMeBody {
-  avatar?: string;
-  avatarUrl?: string;
+  avatar?: string | null;
+  avatarUrl?: string | null;
   firstName?: string;
   lastName?: string;
   phone?: string;

@@ -1,6 +1,5 @@
-import { View, Pressable, Text } from 'react-native';
+import { View } from 'react-native';
 
-import { useLanguage } from '@/contexts/LanguageContext';
 import { useTranslation } from '@/hooks/useTranslation';
 import AnimatedView from '@/components/AnimatedView';
 import Header from '@/components/Header';
@@ -8,18 +7,8 @@ import ListLink from '@/components/ListLink';
 import ThemedScroller from '@/components/ThemeScroller';
 import Section from '@/components/layout/Section';
 
-const SWITCH_LABEL_CZ = 'Přepnout do češtiny';
-const SWITCH_LABEL_EN = 'Switch to English';
-const FLAG_CZ = '🇨🇿';
-const FLAG_EN = '🇬🇧';
-
 export default function SettingsScreen() {
-  const { locale, toggleLocale } = useLanguage();
   const { t } = useTranslation();
-
-  const isEnglish = locale === 'en';
-  const switchLabel = isEnglish ? SWITCH_LABEL_CZ : SWITCH_LABEL_EN;
-  const switchFlag = isEnglish ? FLAG_CZ : FLAG_EN;
 
   return (
     <AnimatedView
@@ -61,27 +50,6 @@ export default function SettingsScreen() {
             icon="HelpCircle"
             href="/screens/help"
           />
-        </View>
-
-        <View className="items-center justify-center pb-8 pt-6">
-          <Pressable
-            onPress={toggleLocale}
-            style={{
-              shadowColor: '#000',
-              shadowOffset: { width: 0, height: 2 },
-              shadowOpacity: 0.5,
-              shadowRadius: 3.84,
-              elevation: 8,
-              flexDirection: 'row',
-              alignItems: 'center',
-              justifyContent: 'center',
-            }}
-            className="min-w-[220px] rounded-full bg-neutral-900 px-6 py-3 dark:bg-neutral-100">
-            <Text style={{ fontSize: 16 }}>{switchFlag}</Text>
-            <Text className="ml-2 text-base font-medium text-white dark:text-neutral-900">
-              {switchLabel}
-            </Text>
-          </Pressable>
         </View>
       </ThemedScroller>
     </AnimatedView>

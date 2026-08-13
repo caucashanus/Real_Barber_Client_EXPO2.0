@@ -1,5 +1,4 @@
 import { router } from 'expo-router';
-import * as WebBrowser from 'expo-web-browser';
 import React, { useCallback, useMemo } from 'react';
 import { ActivityIndicator, View } from 'react-native';
 
@@ -11,6 +10,7 @@ import {
 } from '@/components/HomePromoCarouselOverlay';
 import ImageCarousel from '@/components/ImageCarousel';
 import ThemedText from '@/components/ThemedText';
+import { promoKuponHref, promoPosterHref } from '@/constants/promoDetailRoutes';
 import type { TranslationKey } from '@/locales';
 import type { HomePromoFeedItem } from '@/utils/homePromoFeed';
 
@@ -40,18 +40,6 @@ function posterAccessibilityFallback(poster: ClientPoster): string {
   return title || subtitle;
 }
 
-function openPosterTarget(poster: ClientPoster): void {
-  const web = poster.websiteUrl?.trim();
-  const vid = poster.videoUrl?.trim();
-  if (web) {
-    WebBrowser.openBrowserAsync(web).catch(() => {});
-    return;
-  }
-  if (vid) {
-    WebBrowser.openBrowserAsync(vid).catch(() => {});
-  }
-}
-
 function buildHomePromoSlides(feed: HomePromoFeedItem[]): HomePromoSlide[] {
   const slides: HomePromoSlide[] = [];
   for (const item of feed) {
@@ -65,9 +53,7 @@ function buildHomePromoSlides(feed: HomePromoFeedItem[]): HomePromoSlide[] {
           accessibilityFallback: item.coupon.name,
         },
         onPress: () => {
-          router.push(
-            `/screens/client-coupon-detail?id=${encodeURIComponent(item.coupon.id)}` as never
-          );
+          router.push(promoKuponHref(item.coupon.id) as never);
         },
       });
       continue;
@@ -80,7 +66,9 @@ function buildHomePromoSlides(feed: HomePromoFeedItem[]): HomePromoSlide[] {
         buttonText: resolveButtonText(item.poster.buttonText),
         accessibilityFallback: posterAccessibilityFallback(item.poster),
       },
-      onPress: () => openPosterTarget(item.poster),
+      onPress: () => {
+        router.push(promoPosterHref(item.poster.id) as never);
+      },
     });
   }
   return slides;

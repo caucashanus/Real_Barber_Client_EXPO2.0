@@ -1,8 +1,8 @@
 import { Image } from 'expo-image';
 import type { ImagePickerAsset } from 'expo-image-picker';
-import { router } from 'expo-router';
-import React, { useState, useEffect, useRef, useMemo } from 'react';
-import { View, TouchableOpacity, ActivityIndicator, Pressable, Linking } from 'react-native';
+import { router, useLocalSearchParams } from 'expo-router';
+import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react';
+import { View, TouchableOpacity, ActivityIndicator, Pressable, Linking, ScrollView } from 'react-native';
 import { ActionSheetRef } from 'react-native-actions-sheet';
 
 import { getClientMe, patchClientMe, uploadClientMedia, type ClientMe } from '@/api/client';
@@ -21,12 +21,21 @@ import Select from '@/components/forms/Select';
 import Section from '@/components/layout/Section';
 import { pickSquareAvatarFromLibrary, takeSquareAvatarPhoto } from '@/utils/avatar-picker';
 import { formatBirthdayToIsoUtcMidnight, formatToYYYYMMDD } from '@/utils/date';
+import {
+  buildEditProfileAvatarPatch,
+  hasServerProfileAvatar,
+} from '@/utils/editProfileAvatar';
 import { COUNTRY_OPTIONS } from '@/utils/phone';
 
+type EditProfileFocus = 'email' | 'birthday' | 'avatar' | 'address';
+
 export default function EditProfileScreen() {
-  const { apiToken } = useAuth();
+  const { focus } = useLocalSearchParams<{ focus?: string }>();
+  const { apiToken, token, client: authClient, setAuth } = useAuth();
   const { t } = useTranslation();
   const colors = useThemeColors();
+  const scrollRef = useRef<ScrollView>(null);
+  const sectionOffsetsRef = useRef<Partial<Record<EditProfileFocus, number>>>({});
   const [client, setClient] = useState<ClientMe | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -39,6 +48,7 @@ export default function EditProfileScreen() {
   const [birthday, setBirthday] = useState('');
   const [avatarLocalUri, setAvatarLocalUri] = useState<string | null>(null);
   const [avatarAsset, setAvatarAsset] = useState<ImagePickerAsset | null>(null);
+  const [avatarRemoved, setAvatarRemoved] = useState(false);
 
   const [street, setStreet] = useState('');
   const [city, setCity] = useState('');
@@ -46,6 +56,25 @@ export default function EditProfileScreen() {
   const [country, setCountry] = useState('');
   const phoneInfoSheetRef = useRef<ActionSheetRef>(null);
   const photoSourceSheetRef = useRef<ActionSheetRef>(null);
+
+  const registerSectionOffset = useCallback((key: EditProfileFocus, y: number) => {
+    sectionOffsetsRef.current[key] = y;
+  }, []);
+
+  useEffect(() => {
+    if (loading) return;
+    const focusKey = focus as EditProfileFocus | undefined;
+    if (!focusKey || !sectionOffsetsRef.current[focusKey]) return;
+
+    const timer = setTimeout(() => {
+      scrollRef.current?.scrollTo({
+        y: Math.max(0, (sectionOffsetsRef.current[focusKey] ?? 0) - 16),
+        animated: true,
+      });
+    }, 250);
+
+    return () => clearTimeout(timer);
+  }, [focus, loading]);
 
   const phoneChangeRequestMessage = useMemo(() => {
     const name = `${firstName.trim()} ${lastName.trim()}`.trim() || '—';
@@ -72,6 +101,9 @@ export default function EditProfileScreen() {
     getClientMe(apiToken)
       .then((data) => {
         setClient(data);
+        setAvatarLocalUri(null);
+        setAvatarAsset(null);
+        setAvatarRemoved(false);
         setFirstName(data.firstName ?? '');
         setLastName(data.lastName ?? '');
         setEmail(data.email ?? '');
@@ -89,6 +121,7 @@ export default function EditProfileScreen() {
   const setPickedAvatar = (asset: ImagePickerAsset) => {
     setAvatarLocalUri(asset.uri);
     setAvatarAsset(asset);
+    setAvatarRemoved(false);
   };
 
   const pickFromLibrary = async () => {
@@ -134,8 +167,11 @@ export default function EditProfileScreen() {
         uploadedAvatarUrl = uploaded.url;
       }
 
-      await patchClientMe(apiToken, {
-        avatar: uploadedAvatarUrl,
+      const updated = await patchClientMe(apiToken, {
+        ...buildEditProfileAvatarPatch({
+          uploadedAvatarUrl,
+          avatarRemoved,
+        }),
         firstName: firstName.trim() || undefined,
         lastName: lastName.trim() || undefined,
         email: email.trim() || undefined,
@@ -147,23 +183,27 @@ export default function EditProfileScreen() {
         zip: zip.trim() || undefined,
         country: country.trim() || undefined,
       });
-      setClient((prev) =>
-        prev
-          ? {
-              ...prev,
-              avatarUrl: uploadedAvatarUrl ?? prev.avatarUrl,
-              firstName: firstName.trim(),
-              lastName: lastName.trim(),
-              email: email.trim(),
-              birthday: birthday.trim() || null,
-              address: street.trim() || null,
-              city: city.trim() || null,
-              zip: zip.trim() || null,
-              country: country.trim() || null,
-            }
-          : null
-      );
+
+      if (token && authClient) {
+        const displayName =
+          [updated.firstName, updated.lastName].filter(Boolean).join(' ').trim() ||
+          updated.name ||
+          authClient.name;
+        await setAuth(token, apiToken, {
+          ...authClient,
+          name: displayName,
+          email: updated.email ?? authClient.email,
+          phone: updated.phone ?? authClient.phone,
+          avatarUrl: updated.avatarUrl,
+          address: updated.address ?? authClient.address,
+          birthday: updated.birthday ?? authClient.birthday,
+        });
+      }
+
+      setClient(updated);
+      setAvatarLocalUri(null);
       setAvatarAsset(null);
+      setAvatarRemoved(false);
       router.back();
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Failed to save');
@@ -174,9 +214,15 @@ export default function EditProfileScreen() {
 
   const avatarSrc = avatarLocalUri
     ? { uri: avatarLocalUri }
-    : client?.avatarUrl
-      ? { uri: client.avatarUrl }
-      : null;
+    : avatarRemoved
+      ? null
+      : client?.avatarUrl
+        ? { uri: client.avatarUrl }
+        : null;
+
+  const canRemoveAvatar = Boolean(
+    avatarLocalUri || (hasServerProfileAvatar(client?.avatarUrl) && !avatarRemoved)
+  );
 
   return (
     <>
@@ -191,7 +237,7 @@ export default function EditProfileScreen() {
           />,
         ]}
       />
-      <ThemedScroller>
+      <ThemedScroller ref={scrollRef}>
         <Section
           titleSize="3xl"
           className="pb-10 pt-4"
@@ -214,7 +260,9 @@ export default function EditProfileScreen() {
               </View>
             )}
 
-            <View className="mb-8">
+            <View
+              className="mb-8"
+              onLayout={(event) => registerSectionOffset('avatar', event.nativeEvent.layout.y)}>
               <ThemedText className="mb-4 text-lg font-bold text-light-primary dark:text-dark-primary">
                 {t('editProfilePhoto')}
               </ThemedText>
@@ -244,7 +292,7 @@ export default function EditProfileScreen() {
                     variant="outline"
                     onPress={openPhotoSourceSheet}
                   />
-                  {avatarSrc && (
+                  {canRemoveAvatar && (
                     <Button
                       className="mt-2"
                       title={t('editProfileRemovePhoto')}
@@ -252,6 +300,7 @@ export default function EditProfileScreen() {
                       onPress={() => {
                         setAvatarLocalUri(null);
                         setAvatarAsset(null);
+                        setAvatarRemoved(true);
                       }}
                     />
                   )}
@@ -272,7 +321,9 @@ export default function EditProfileScreen() {
               </View>
             </ActionSheetThemed>
 
-            <View className="mb-8">
+            <View
+              className="mb-8"
+              onLayout={(event) => registerSectionOffset('birthday', event.nativeEvent.layout.y)}>
               <ThemedText className="mb-4 text-lg font-bold text-light-primary dark:text-dark-primary">
                 {t('editProfilePersonalInfo')}
               </ThemedText>
@@ -295,7 +346,6 @@ export default function EditProfileScreen() {
                   label={t('editProfileBirthday')}
                   value={birthday ? new Date(birthday + 'T12:00:00') : undefined}
                   onChange={(date) => setBirthday(formatToYYYYMMDD(date))}
-                  placeholder="Select date"
                   variant="classic"
                   minDate={(() => {
                     const d = new Date();
@@ -311,7 +361,9 @@ export default function EditProfileScreen() {
               </View>
             </View>
 
-            <View className="mb-8">
+            <View
+              className="mb-8"
+              onLayout={(event) => registerSectionOffset('email', event.nativeEvent.layout.y)}>
               <ThemedText className="mb-4 text-lg font-bold text-light-primary dark:text-dark-primary">
                 {t('editProfileContact')}
               </ThemedText>
@@ -351,7 +403,9 @@ export default function EditProfileScreen() {
               </View>
             </View>
 
-            <View className="mb-8">
+            <View
+              className="mb-8"
+              onLayout={(event) => registerSectionOffset('address', event.nativeEvent.layout.y)}>
               <ThemedText className="mb-4 text-lg font-bold text-light-primary dark:text-dark-primary">
                 {t('editProfileAddress')}
               </ThemedText>

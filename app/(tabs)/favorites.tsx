@@ -20,7 +20,7 @@ import {
   filterClientFavorites,
   type ClientFavoriteFilter,
 } from '@/utils/clientFavoritesFilter';
-import { barberDetailHref, branchDetailHref } from '@/constants/profileDetailRoutes';
+import { barberDetailHref, branchDetailHref, serviceDetailHref } from '@/constants/profileDetailRoutes';
 import { shouldStaleRefresh } from '@/utils/staleRefresh';
 
 const DESKTOP_BREAKPOINT = 768;
@@ -32,8 +32,9 @@ function favoriteHref(fav: Favorite): string {
       return branchDetailHref(fav.entityId);
     case 'employee':
       return barberDetailHref(fav.entityId);
+    case 'service':
     case 'item':
-      return `/screens/service-detail?id=${fav.entityId}`;
+      return serviceDetailHref(fav.entityId);
     case 'product':
       return `/screens/product-detail?id=${encodeURIComponent(fav.entityId)}`;
     case 'guide':
@@ -146,7 +147,7 @@ const FavoritesScreen = () => {
         size="sm"
         rounded="full"
         selected={selectedFilter === 'employee'}
-        title={formatFavoriteFilterLabel(t('favoritesFilterBarbers'), counts.employee)}
+        title={formatFavoriteFilterLabel(t('favoritesEmployees'), counts.employee)}
         onPress={() => setSelectedFilter('employee')}
       />
       <AppButton
@@ -154,8 +155,16 @@ const FavoritesScreen = () => {
         size="sm"
         rounded="full"
         selected={selectedFilter === 'branch'}
-        title={formatFavoriteFilterLabel(t('favoritesFilterBranches'), counts.branch)}
+        title={formatFavoriteFilterLabel(t('favoritesBranches'), counts.branch)}
         onPress={() => setSelectedFilter('branch')}
+      />
+      <AppButton
+        variant="choice"
+        size="sm"
+        rounded="full"
+        selected={selectedFilter === 'service'}
+        title={formatFavoriteFilterLabel(t('favoritesServices'), counts.service)}
+        onPress={() => setSelectedFilter('service')}
       />
     </CardScroller>
   );

@@ -10,6 +10,7 @@ import {
 } from '@/constants/homeCuratedHaircutsCarousel';
 import type { Locale } from '@/contexts/LanguageContext';
 import type { TranslationKey } from '@/locales';
+import { serviceDetailHref } from '@/constants/profileDetailRoutes';
 
 const PLACEHOLDER_IMAGE = require('@/assets/img/barbers.png');
 
@@ -81,7 +82,7 @@ export function mapPublicServiceToGridItem(
     id: service.id,
     title: getLocalizedServiceName(service, locale),
     image: imageUrl || PLACEHOLDER_IMAGE,
-    href: `/screens/service-detail?id=${encodeURIComponent(service.id)}`,
+    href: serviceDetailHref(service.id),
     entityType: 'item',
     entityId: service.id,
     priceAmount: minPrice > 0 ? formatServicePriceAmount(minPrice) : undefined,

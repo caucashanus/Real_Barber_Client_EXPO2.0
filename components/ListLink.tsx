@@ -20,6 +20,7 @@ interface ListLinkProps {
   rightIcon?: IconName;
   disabled?: boolean;
   style?: ViewStyle;
+  accessibilityLabel?: string;
   hasBorder?: boolean;
   hasBadge?: boolean;
 }
@@ -37,6 +38,7 @@ const ListLink: React.FC<ListLinkProps> = ({
   rightIcon = 'ChevronRight',
   disabled = false,
   style,
+  accessibilityLabel,
   hasBorder = false,
   hasBadge = false,
 }) => {
@@ -77,7 +79,7 @@ const ListLink: React.FC<ListLinkProps> = ({
         href={href}
         asChild
         className={` ${hasBorder ? 'border-b border-light-secondary dark:border-dark-secondary' : ''}`}>
-        <Pressable>
+        <Pressable accessibilityLabel={accessibilityLabel}>
           <Content />
         </Pressable>
       </Link>
@@ -87,6 +89,7 @@ const ListLink: React.FC<ListLinkProps> = ({
   return (
     <Pressable
       onPress={disabled ? undefined : onPress}
+      accessibilityLabel={accessibilityLabel}
       className={` ${hasBorder ? 'border-b border-light-secondary dark:border-dark-secondary' : ''}`}>
       <Content />
     </Pressable>

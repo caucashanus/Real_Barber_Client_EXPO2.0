@@ -1,4 +1,4 @@
-import { useLocalSearchParams, router } from 'expo-router';
+import { useLocalSearchParams } from 'expo-router';
 import { useFocusEffect } from '@react-navigation/native';
 import React, { useCallback, useContext, useMemo, useRef } from 'react';
 import {
@@ -19,11 +19,10 @@ import ThemeScroller from '@/components/ThemeScroller';
 import ThemedText from '@/components/ThemedText';
 import BranchContactActions from '@/components/branch/BranchContactActions';
 import BranchHomeSlotsSection from '@/components/branch/BranchHomeSlotsSection';
-import BranchReviewsSection from '@/components/branch/BranchReviewsSection';
+import BarberReviewsSection from '@/components/barber/BarberReviewsSection';
 import HairstyleDetailContentCard from '@/components/inspirace/HairstyleDetailContentCard';
 import HairstyleIdentityMetaRow from '@/components/inspirace/HairstyleIdentityMetaRow';
 import HairstyleIdentitySection from '@/components/inspirace/HairstyleIdentitySection';
-import HairstylePreferredBarbersSection from '@/components/inspirace/HairstylePreferredBarbersSection';
 import HairstyleSimilarSection from '@/components/inspirace/HairstyleSimilarSection';
 import SiteBreadcrumbs from '@/components/shared/SiteBreadcrumbs';
 import InspiraceServiceGallery from '@/components/inspirace/InspiraceServiceGallery';
@@ -46,11 +45,10 @@ export default function HairstyleDetailScreen() {
     loading,
     error,
     reviews,
-    loadingReviews,
+    reviewsPagination,
     hasReviewed,
+    ownReviewIds,
     reviewParams,
-    average,
-    countByRating,
     displayTotal,
     slotGroups,
     locale,
@@ -202,23 +200,25 @@ export default function HairstyleDetailScreen() {
               <InspiraceServiceGallery images={detail.galleryImages} t={t} />
             </View>
 
-            <HairstylePreferredBarbersSection employees={detail.preferredEmployees} t={t} />
-
             <HairstyleSimilarSection items={detail.similarHairstyles} t={t} />
 
-            <BranchReviewsSection
+            <BarberReviewsSection
               reviews={reviews}
-              loadingReviews={loadingReviews}
               hasReviewed={hasReviewed}
+              ownReviewIds={ownReviewIds}
               reviewParams={reviewParams}
-              countByRating={countByRating}
-              average={average}
               displayTotal={displayTotal}
               locale={locale}
+              showPagination={reviewsPagination.showPagination}
+              reviewsLoading={reviewsPagination.loading}
+              reviewsError={reviewsPagination.error}
+              canGoPrevious={reviewsPagination.canGoPrevious}
+              canGoNext={reviewsPagination.canGoNext}
+              onPrevious={reviewsPagination.goPrevious}
+              onNext={reviewsPagination.goNext}
               onLayout={(event) => {
                 reviewsSectionYRef.current = event.nativeEvent.layout.y;
               }}
-              onOpenRatingModal={() => router.push(`/screens/review?${reviewParams}` as never)}
               t={t}
             />
           </View>

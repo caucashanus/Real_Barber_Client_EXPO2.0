@@ -60,3 +60,11 @@ export function blogBreadcrumbItems(articleTitle: string, t: Translate): Breadcr
     { name: articleTitle },
   ];
 }
+
+export function promoBreadcrumbItems(itemTitle: string, t: Translate): BreadcrumbItem[] {
+  return [
+    { name: BREADCRUMB_BRAND, href: BREADCRUMB_APP_ROUTES.home },
+    { name: t('homePromoSectionTitle') },
+    { name: itemTitle },
+  ];
+}

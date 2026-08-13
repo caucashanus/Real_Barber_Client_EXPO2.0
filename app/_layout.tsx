@@ -16,12 +16,14 @@ import PushNotificationsProvider from '@/contexts/PushNotificationsProvider';
 import { SelectedPurchaseProvider } from '@/contexts/SelectedPurchaseContext';
 import { ThemeProvider } from '@/contexts/ThemeContext';
 import { CopyFeedbackProvider } from '@/contexts/CopyFeedbackContext';
+import { PhoneCallFeedbackProvider } from '@/contexts/PhoneCallFeedbackContext';
 import { TransferRecipientProvider } from '@/contexts/TransferRecipientContext';
 import useThemedNavigation from '@/hooks/useThemedNavigation';
 
 import AuthGuard from '@/components/AuthGuard';
+import { APP_OPENS_KEY } from '@/constants/appOpens';
 
-export const APP_OPENS_KEY = '@app_opens_count';
+export { APP_OPENS_KEY };
 
 async function incrementAppOpens(): Promise<void> {
   const raw = await AsyncStorage.getItem(APP_OPENS_KEY).catch(() => null);
@@ -55,27 +57,29 @@ export default function RootLayout() {
       style={{ flex: 1 }}>
       <LanguageProvider>
         <ThemeProvider>
-          <AccentColorProvider>
-            <AuthProvider>
-              <BookingsBadgeProvider>
-                <TransferRecipientProvider>
-                  <SelectedPurchaseProvider>
-                    <BranchFilterProvider>
-                      <FavoritesSyncProvider>
-                        <PushNotificationsProvider>
-                          <AuthGuard>
-                            <CopyFeedbackProvider>
-                              <ThemedLayout />
-                            </CopyFeedbackProvider>
-                          </AuthGuard>
-                        </PushNotificationsProvider>
-                      </FavoritesSyncProvider>
-                    </BranchFilterProvider>
-                  </SelectedPurchaseProvider>
-                </TransferRecipientProvider>
-              </BookingsBadgeProvider>
-            </AuthProvider>
-          </AccentColorProvider>
+          <CopyFeedbackProvider>
+            <AccentColorProvider>
+              <AuthProvider>
+                <BookingsBadgeProvider>
+                  <TransferRecipientProvider>
+                    <SelectedPurchaseProvider>
+                      <BranchFilterProvider>
+                        <FavoritesSyncProvider>
+                          <PushNotificationsProvider>
+                            <AuthGuard>
+                              <PhoneCallFeedbackProvider>
+                                <ThemedLayout />
+                              </PhoneCallFeedbackProvider>
+                            </AuthGuard>
+                          </PushNotificationsProvider>
+                        </FavoritesSyncProvider>
+                      </BranchFilterProvider>
+                    </SelectedPurchaseProvider>
+                  </TransferRecipientProvider>
+                </BookingsBadgeProvider>
+              </AuthProvider>
+            </AccentColorProvider>
+          </CopyFeedbackProvider>
         </ThemeProvider>
       </LanguageProvider>
     </GestureHandlerRootView>

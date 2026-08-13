@@ -1,5 +1,7 @@
 import { Linking } from 'react-native';
 
+import { schedulePhoneCallFeedbackAfterOperatorCall } from '@/lib/phoneCallFeedback/schedule';
+
 export const OPERATOR_SUPPORT_E164 = '+420608332881';
 export const OPERATOR_SUPPORT_DISPLAY = '+420 608 332 881';
 const OPERATOR_PHONE_DIGITS = '420608332881';
@@ -17,6 +19,7 @@ export function buildOperatorTelegramUrl(): string {
 }
 
 export async function openOperatorPhone(): Promise<void> {
+  schedulePhoneCallFeedbackAfterOperatorCall();
   await Linking.openURL(buildOperatorPhoneUrl());
 }
 

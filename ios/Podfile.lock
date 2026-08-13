@@ -212,6 +212,8 @@ PODS:
     - ExpoModulesCore
   - ExpoLinking (55.0.11):
     - ExpoModulesCore
+  - ExpoLocalization (55.0.17):
+    - ExpoModulesCore
   - ExpoLocation (55.1.7):
     - ExpoModulesCore
   - ExpoLogBox (55.0.10):
@@ -2642,6 +2644,7 @@ DEPENDENCIES:
   - ExpoKeepAwake (from `../node_modules/expo-keep-awake/ios`)
   - ExpoLinearGradient (from `../node_modules/expo-linear-gradient/ios`)
   - ExpoLinking (from `../node_modules/expo-linking/ios`)
+  - ExpoLocalization (from `../node_modules/expo-localization/ios`)
   - ExpoLocation (from `../node_modules/expo-location/ios`)
   - "ExpoLogBox (from `../node_modules/@expo/log-box`)"
   - ExpoModulesCore (from `../node_modules/expo-modules-core`)
@@ -2804,6 +2807,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/expo-linear-gradient/ios"
   ExpoLinking:
     :path: "../node_modules/expo-linking/ios"
+  ExpoLocalization:
+    :path: "../node_modules/expo-localization/ios"
   ExpoLocation:
     :path: "../node_modules/expo-location/ios"
   ExpoLogBox:
@@ -3032,6 +3037,7 @@ SPEC CHECKSUMS:
   ExpoKeepAwake: a1baf9810a2dee1905aa9bdd336852598f7220e9
   ExpoLinearGradient: 7d17fcd3fd3a9c645005d463c4105e7fa16e4f22
   ExpoLinking: b42fd76bdda8662ddf797b17cb4cc793adabfe98
+  ExpoLocalization: f7e332c396d6dd5434b6a951900da84f14a5c277
   ExpoLocation: 61835877870dec5c6aa422a8878fa32f81c8789d
   ExpoLogBox: a3de999775d423ac9cb85d24bd47628e5392761f
   ExpoModulesCore: 964f01116faf01b68467a6c8ea06e14d65fe7b3c

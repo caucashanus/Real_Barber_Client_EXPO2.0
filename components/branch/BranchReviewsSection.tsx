@@ -1,46 +1,53 @@
 import { router } from 'expo-router';
 import React from 'react';
-import { ActivityIndicator, Pressable, View, type LayoutChangeEvent } from 'react-native';
+import { Pressable, View, type LayoutChangeEvent } from 'react-native';
 
 import type { EntityReviewItem } from '@/api/reviews';
-import useThemeColors from '@/contexts/ThemeColors';
+import { Button } from '@/components/Button';
 import { CardScroller } from '@/components/CardScroller';
-import ShowRating from '@/components/ShowRating';
 import ThemedText from '@/components/ThemedText';
 import EntityReviewCard from '@/components/detail/EntityReviewCard';
 import Section from '@/components/layout/Section';
 import type { TranslationKey } from '@/locales';
+import { BARBER_DETAIL_SECTION_SPACING } from '@/constants/barberDetailLayout';
 
 interface BranchReviewsSectionProps {
   reviews: EntityReviewItem[];
-  loadingReviews: boolean;
   hasReviewed: boolean;
   reviewParams: string;
-  countByRating: Record<number, number>;
-  average: number;
   displayTotal: number;
   clientId?: string | number | null;
+  ownReviewIds?: Set<string>;
   locale: string;
   onLayout: (e: LayoutChangeEvent) => void;
-  onOpenRatingModal: () => void;
+  showPagination?: boolean;
+  reviewsLoading?: boolean;
+  reviewsError?: string | null;
+  canGoPrevious?: boolean;
+  canGoNext?: boolean;
+  onPrevious?: () => void;
+  onNext?: () => void;
   t: (key: TranslationKey) => string;
 }
 
 export default function BranchReviewsSection({
   reviews,
-  loadingReviews,
   hasReviewed,
   reviewParams,
-  average,
   displayTotal,
   clientId,
+  ownReviewIds,
   locale,
   onLayout,
-  onOpenRatingModal,
+  showPagination = false,
+  reviewsLoading = false,
+  reviewsError = null,
+  canGoPrevious = false,
+  canGoNext = false,
+  onPrevious,
+  onNext,
   t,
 }: BranchReviewsSectionProps) {
-  const colors = useThemeColors();
-
   return (
     <View onLayout={onLayout}>
       <Section className="mb-6">
@@ -59,47 +66,63 @@ export default function BranchReviewsSection({
             </ThemedText>
           </Pressable>
         </View>
-        {loadingReviews ? (
-          <View className="items-center py-6">
-            <ActivityIndicator size="small" />
-            <ThemedText className="mt-2 text-sm text-light-subtext dark:text-dark-subtext">
-              {t('branchLoadingReviews')}
-            </ThemedText>
-          </View>
+
+        {reviews.length === 0 ? (
+          <ThemedText className="mt-1 py-4 text-sm text-light-subtext dark:text-dark-subtext">
+            {t('barberNoReviews')}
+          </ThemedText>
         ) : (
-          <CardScroller className="mt-1" space={10}>
-            {reviews.map((review) => {
-              const isOwnReview = clientId != null && review.client?.id === clientId;
-              return (
-                <EntityReviewCard
-                  key={review.id}
-                  review={review}
-                  locale={locale}
-                  isOwnReview={isOwnReview}
-                  reviewParams={reviewParams}
-                  ownReviewMode="badge"
-                  t={t}
-                />
-              );
-            })}
-          </CardScroller>
-        )}
-        <View className="mt-6 flex-row items-center justify-between rounded-lg bg-light-secondary p-4 dark:bg-dark-secondary">
-          <View className="flex-row items-center">
-            <ShowRating rating={average} size="lg" />
-            <ThemedText className="ml-2 text-light-subtext dark:text-dark-subtext">
-              ({displayTotal})
-            </ThemedText>
+          <View className={showPagination ? BARBER_DETAIL_SECTION_SPACING : ''}>
+            <CardScroller className="mt-1" space={10}>
+              {reviews.map((review) => {
+                const isOwnReview = ownReviewIds
+                  ? ownReviewIds.has(review.id)
+                  : clientId != null && review.client?.id === clientId;
+                return (
+                  <EntityReviewCard
+                    key={review.id}
+                    review={review}
+                    locale={locale}
+                    isOwnReview={Boolean(isOwnReview)}
+                    reviewParams={reviewParams}
+                    ownReviewMode="badge"
+                    t={t}
+                  />
+                );
+              })}
+            </CardScroller>
           </View>
-          <Pressable
-            onPress={onOpenRatingModal}
-            style={{ backgroundColor: colors.highlight }}
-            className="rounded-lg px-3 py-2">
-            <ThemedText className="text-sm font-medium text-white">
-              {t('branchFullRating')}
-            </ThemedText>
-          </Pressable>
-        </View>
+        )}
+
+        {reviewsError ? (
+          <ThemedText className="mt-3 text-sm text-red-500 dark:text-red-400">
+            {t('barberReviewsLoadError')}
+          </ThemedText>
+        ) : null}
+
+        {showPagination ? (
+          <View className="mt-4 flex-row items-center justify-center gap-3">
+            <Button
+              title={t('barberReviewsPrevious')}
+              variant="outline"
+              size="small"
+              rounded="lg"
+              onPress={onPrevious}
+              disabled={!canGoPrevious}
+            />
+            <Button
+              title={reviewsLoading ? t('barberReviewsLoading') : t('barberReviewsNext')}
+              variant="outline"
+              size="small"
+              rounded="lg"
+              onPress={() => {
+                void onNext?.();
+              }}
+              disabled={!canGoNext}
+              loading={reviewsLoading}
+            />
+          </View>
+        ) : null}
       </Section>
     </View>
   );

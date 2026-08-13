@@ -5,7 +5,7 @@ import { router, useLocalSearchParams } from 'expo-router';
 import React, { useState, useEffect } from 'react';
 import { View, TouchableOpacity, Alert, ActivityIndicator } from 'react-native';
 
-import { createReview, getEntityReviews, updateReview, deleteReview } from '@/api/reviews';
+import { createReview, getEntityReviews, getEntityReviewsForService, updateReview, deleteReview } from '@/api/reviews';
 import { useAuth } from '@/contexts/AuthContext';
 import useThemeColors from '@/contexts/ThemeColors';
 import { useTranslation } from '@/hooks/useTranslation';
@@ -117,9 +117,13 @@ const ReviewScreen = () => {
       return;
     }
     setLoadingExisting(true);
-    const type = entityType as 'branch' | 'reservation' | 'item' | 'sale_log' | 'employee';
+    const type = entityType as 'branch' | 'reservation' | 'item' | 'sale_log' | 'employee' | 'service';
     const id = decodeURIComponent(entityId);
-    getEntityReviews(apiToken, type, id, { limit: 1, includeOwn: true })
+    const loadReviews =
+      type === 'service'
+        ? getEntityReviewsForService(apiToken, id, { limit: 1, includeOwn: true })
+        : getEntityReviews(apiToken, type, id, { limit: 1, includeOwn: true });
+    loadReviews
       .then((data) => {
         if (data.hasReviewed && data.clientReview) {
           const cr = data.clientReview;
@@ -154,7 +158,7 @@ const ReviewScreen = () => {
         });
       } else if (entityType && entityId) {
         await createReview(apiToken, {
-          entityType: entityType as 'branch' | 'reservation' | 'item' | 'sale_log' | 'employee',
+          entityType: entityType as 'branch' | 'reservation' | 'item' | 'sale_log' | 'employee' | 'service',
           entityId: decodeURIComponent(entityId),
           rating,
           description: review.trim(),

@@ -94,7 +94,7 @@ export async function getClientReviewsList(
 /** GET /api/client/reviews/entity/[entityType]/[entityId] – list reviews for one entity (e.g. branch). */
 export async function getEntityReviews(
   apiToken: string,
-  entityType: 'branch' | 'reservation' | 'item' | 'sale_log' | 'employee',
+  entityType: 'branch' | 'reservation' | 'item' | 'sale_log' | 'employee' | 'service',
   entityId: string,
   options: GetEntityReviewsOptions = {}
 ): Promise<GetEntityReviewsResponse> {
@@ -115,8 +115,22 @@ export async function getEntityReviews(
   }
 }
 
+/** Client API may still expose service reviews under legacy `item` entityType. */
+export async function getEntityReviewsForService(
+  apiToken: string,
+  serviceId: string,
+  options: GetEntityReviewsOptions = {}
+): Promise<GetEntityReviewsResponse> {
+  try {
+    return await getEntityReviews(apiToken, 'service', serviceId, options);
+  } catch (e) {
+    if (e instanceof CrmHttpError && e.status === 401) throw e;
+    return getEntityReviews(apiToken, 'item', serviceId, options);
+  }
+}
+
 export interface CreateReviewParams {
-  entityType: 'branch' | 'reservation' | 'item' | 'sale_log' | 'employee';
+  entityType: 'branch' | 'reservation' | 'item' | 'sale_log' | 'employee' | 'service';
   entityId: string;
   rating: number;
   description?: string;

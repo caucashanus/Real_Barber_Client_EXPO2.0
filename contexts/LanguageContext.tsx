@@ -1,11 +1,17 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import React, { createContext, useCallback, useContext, useEffect, useState } from 'react';
+import { AppState, type AppStateStatus } from 'react-native';
+
+import { resolveAppLocaleFromSystem } from '@/utils/resolveAppLocale';
 
 const LOCALE_KEY = '@app_locale';
+const LOCALE_SOURCE_KEY = '@app_locale_source';
 
 export type Locale = 'en' | 'cs';
 
-/** Výchozí jazyk při prvním spuštění (žádná uložená volba v AsyncStorage). */
+type LocaleSource = 'user' | 'system';
+
+/** Fallback, když systém nevrátí podporovaný jazyk. */
 export const DEFAULT_LOCALE: Locale = 'cs';
 
 type LanguageContextType = {
@@ -16,30 +22,79 @@ type LanguageContextType = {
 
 const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
 
+async function readStoredLocaleSource(): Promise<LocaleSource | null> {
+  const raw = await AsyncStorage.getItem(LOCALE_SOURCE_KEY).catch(() => null);
+  return raw === 'user' || raw === 'system' ? raw : null;
+}
+
+async function persistLocale(next: Locale, source: LocaleSource): Promise<void> {
+  await AsyncStorage.multiSet([
+    [LOCALE_KEY, next],
+    [LOCALE_SOURCE_KEY, source],
+  ]).catch(() => {});
+}
+
 export function LanguageProvider({ children }: { children: React.ReactNode }) {
-  /** Výchozí čeština; uložená volba v AsyncStorage má přednost. */
   const [locale, setLocaleState] = useState<Locale>(DEFAULT_LOCALE);
 
   useEffect(() => {
-    AsyncStorage.getItem(LOCALE_KEY).then((stored) => {
-      if (stored === 'cs' || stored === 'en') {
+    let cancelled = false;
+
+    void (async () => {
+      const [stored, source] = await Promise.all([
+        AsyncStorage.getItem(LOCALE_KEY).catch(() => null),
+        readStoredLocaleSource(),
+      ]);
+
+      if (cancelled) return;
+
+      if (source === 'user' && (stored === 'cs' || stored === 'en')) {
         setLocaleState(stored);
-      } else {
-        setLocaleState(DEFAULT_LOCALE);
-        AsyncStorage.setItem(LOCALE_KEY, DEFAULT_LOCALE).catch(() => {});
+        return;
       }
-    });
+
+      const systemLocale = resolveAppLocaleFromSystem();
+      setLocaleState(systemLocale);
+      await persistLocale(systemLocale, 'system');
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  useEffect(() => {
+    const syncSystemLocale = () => {
+      void (async () => {
+        const source = await readStoredLocaleSource();
+        if (source === 'user') return;
+
+        const systemLocale = resolveAppLocaleFromSystem();
+        setLocaleState((prev) => {
+          if (prev === systemLocale) return prev;
+          void persistLocale(systemLocale, 'system');
+          return systemLocale;
+        });
+      })();
+    };
+
+    const handleAppStateChange = (state: AppStateStatus) => {
+      if (state === 'active') syncSystemLocale();
+    };
+
+    const subscription = AppState.addEventListener('change', handleAppStateChange);
+    return () => subscription.remove();
   }, []);
 
   const setLocale = useCallback((next: Locale) => {
     setLocaleState(next);
-    AsyncStorage.setItem(LOCALE_KEY, next);
+    void persistLocale(next, 'user');
   }, []);
 
   const toggleLocale = useCallback(() => {
     setLocaleState((prev) => {
-      const next = prev === 'en' ? 'cs' : 'en';
-      AsyncStorage.setItem(LOCALE_KEY, next);
+      const next: Locale = prev === 'en' ? 'cs' : 'en';
+      void persistLocale(next, 'user');
       return next;
     });
   }, []);

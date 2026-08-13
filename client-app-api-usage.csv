@@ -1,0 +1,78 @@
+app_version,build_ios,build_android,platform,flow_category,endpoint,http_method,auth,background,screen_or_module,notes
+1.0.13,50,50,iOS+Android,Registrace / login,POST /api/client/auth/otp/request,POST,none,no,login.tsx,Telefonní OTP – ověření existence klienta a odeslání kódu
+1.0.13,50,50,iOS+Android,Registrace / login,POST /api/client/auth/otp/verify,POST,none,no,login-otp.tsx,OTP verify; body obsahuje platform (iOS/Android) a appVersion
+1.0.13,50,50,iOS+Android,Registrace / login,POST /api/client/auth/login,POST,none,no,login-password.tsx,Přihlášení telefon + heslo; body platform = ios|android (lowercase)
+1.0.13,50,50,iOS+Android,Registrace / login,POST /api/client/auth/register,POST,none,no,useSignupFlow.ts,Registrace nového klienta (telefon+heslo nebo registrationToken po OTP)
+1.0.13,50,50,iOS+Android,Registrace / login,GET /api/media,GET,none,no,SignupAvatarPicker.tsx,Veřejný katalog avatarů při registraci (flag Avatarappdefault); paginace přes api/media.ts
+1.0.13,50,50,iOS+Android,Registrace / login,POST /api/client/avatar,POST,Bearer,no,useSignupFlow.ts,Nahrání vlastní profilové fotky po registraci
+1.0.13,50,50,iOS+Android,Registrace / login,PATCH /api/client/me,PATCH,Bearer,no,useSignupFlow.ts / edit-profile.tsx,Doplnění profilu po registraci (avatarUrl katalogu jméno email birthday)
+1.0.13,50,50,iOS+Android,Registrace / login,GET /api/client/me,GET,Bearer,no,useSignupFlow.ts / edit-profile.tsx,Načtení profilu po registraci nebo na obrazovce úprav
+1.0.13,50,50,iOS+Android,Google / Apple login,(neimplementováno),,,,,V kódu nejsou OAuth endpointy; welcome.tsx nabízí jen telefonní login
+1.0.13,50,50,iOS+Android,Zapomenuté heslo,POST /api/client/auth/forgot-password,POST,none,no,forgot-password.tsx,Reset hesla přes identifier (email nebo telefon)
+1.0.13,50,50,iOS+Android,Zapomenuté heslo / aktivace,(aktivace e-mailem),,,,,V appce není samostatný activation flow – jen OTP registrace
+1.0.13,50,50,iOS+Android,Profil – change password,POST /api/client/change-password,POST,Bearer,no,change-password.tsx,Změna hesla přihlášeného klienta
+1.0.13,50,50,iOS+Android,Profil – me / avatar / bio,GET /api/client/me,GET,Bearer,yes,profile.tsx / edit-profile.tsx,Profil: refresh při focus tabu (useFocusEffect)
+1.0.13,50,50,iOS+Android,Profil – me / avatar / bio,PATCH /api/client/me,PATCH,Bearer,no,edit-profile.tsx,Úprava jména adresy birthday atd.
+1.0.13,50,50,iOS+Android,Profil – me / avatar / bio,POST /api/client/media,POST,Bearer,no,edit-profile.tsx,Nahrání avataru přes media upload (edit profil)
+1.0.13,50,50,iOS+Android,Profil – smazání účtu,DELETE /api/client/account,DELETE,Bearer,no,delete-account.tsx,Anonymizace a deaktivace účtu
+1.0.13,50,50,iOS+Android,Home / overview,GET /api/client/reservations,GET,Bearer,yes,real-barber.tsx / BookingsBadgeContext.tsx,Seznam rezervací pro home spotlight a badge; refresh při focus home tabu
+1.0.13,50,50,iOS+Android,Home / overview,GET /api/client/coupons,GET,Bearer,yes,real-barber.tsx,Kupóny pro promo carousel na home; refresh při focus
+1.0.13,50,50,iOS+Android,Home / overview,GET /api/client/posters,GET,Bearer,yes,real-barber.tsx,Marketingové plakáty na home; refresh při focus
+1.0.13,50,50,iOS+Android,Home / overview,GET /api/client/overview,GET,Bearer,no,useBookingDetailScreen.ts,Overview recenzí u detailu rezervace (with/without reviews)
+1.0.13,50,50,iOS+Android,Rezervace – availability,GET /api/client/bookings/availability,GET,Bearer,no,useReservationAvailability.ts,Výběr termínu; noCache=true; při změně měsíce paralelní volání pro každý den v měsíci
+1.0.13,50,50,iOS+Android,Rezervace – availability,GET /api/client/availability/employees-nearest,GET,Bearer,no,useReservationCatalog.ts,Nejbližší volný slot holičů pro službu na pobočce
+1.0.13,50,50,iOS+Android,Rezervace – create,POST /api/client/bookings,POST,Bearer,no,useReservationSubmit.ts,Vytvoření rezervace (volitelně couponCode)
+1.0.13,50,50,iOS+Android,Rezervace – kupón preview,POST /api/client/coupons/preview,POST,Bearer,no,useReservationCoupon.ts,Náhled slevy před potvrzením rezervace
+1.0.13,50,50,iOS+Android,Rezervace – cancel,DELETE /api/client/bookings/{id},DELETE,Bearer,no,BookingDetailFooterActions.tsx,Zrušení rezervace (volitelný reason v body)
+1.0.13,50,50,iOS+Android,Rezervace – opakování / přeplánování,PATCH /api/client/bookings/{id},PATCH,Bearer,no,reschedule-summary.tsx,Změna termínu/holiče/služby (reschedule flow)
+1.0.13,50,50,iOS+Android,Rezervace – bootstrap data,GET /api/client/branches,GET,Bearer,no,useReservationBootstrap.ts / branches.tsx / map.tsx,Seznam poboček pro rezervaci a katalog
+1.0.13,50,50,iOS+Android,Rezervace – bootstrap data,GET /api/client/branches/{id},GET,Bearer,no,useReservationCatalog.ts,Detail pobočky při deep-link do reservation-create s branchId
+1.0.13,50,50,iOS+Android,Rezervace – bootstrap data,GET /api/client/employees,GET,Bearer,no,useReservationBootstrap.ts / experience.tsx,Seznam holičů
+1.0.13,50,50,iOS+Android,Rezervace – bootstrap data,GET /api/client/employees/{id},GET,Bearer,no,useReservationCatalog.ts / useBarberDetailScreen.ts,Detail holiče (služby pobočky media)
+1.0.13,50,50,iOS+Android,Rezervace – bootstrap data,GET /api/client/items,GET,Bearer,no,services.tsx / service-detail.tsx,Seznam služeb (paginace přes getItemsAll)
+1.0.13,50,50,iOS+Android,Moje rezervace,GET /api/client/reservations,GET,Bearer,yes,bookings.tsx / profile.tsx,Tab Rezervace + počet rezervací na profilu; pull-to-refresh a useFocusEffect
+1.0.13,50,50,iOS+Android,Moje rezervace – detail,GET /api/client/bookings/{id},GET,Bearer,no,useBookingDetailScreen.ts / reschedule.tsx,Primární detail; fallback paginace přes GET reservations
+1.0.13,50,50,iOS+Android,Holiči / pobočky / služby,GET /api/client/branches,GET,Bearer,no,branches.tsx / map.tsx / branch-detail / kudy-k-nam-detail.tsx,Pobočky včetně includeReviews
+1.0.13,50,50,iOS+Android,Holiči / pobočky / služby,GET /api/client/employees,GET,Bearer,no,experience.tsx / transfer-select-recipient.tsx,Holiči včetně workSchedule a recenzí
+1.0.13,50,50,iOS+Android,Holiči / pobočky / služby,GET /api/client/employees/{id},GET,Bearer,no,barber-detail.tsx,Detail holiče
+1.0.13,50,50,iOS+Android,Holiči / pobočky / služby,GET /api/client/items,GET,Bearer,no,services.tsx,Katalog služeb s includeMedia
+1.0.13,50,50,iOS+Android,Inspirace / účesy / media,GET /api/client/cuts,GET,Bearer,yes,my-haircuts.tsx,Seznam účesů klienta; refresh při focus
+1.0.13,50,50,iOS+Android,Inspirace / účesy / media,GET /api/client/cuts/{id},GET,Bearer,no,haircut-detail.tsx,Detail účesu
+1.0.13,50,50,iOS+Android,Inspirace / účesy / media,POST /api/client/cuts,POST,Bearer,no,haircut-create.tsx / haircut-add.tsx,Vytvoření záznamu účesu
+1.0.13,50,50,iOS+Android,Inspirace / účesy / media,PATCH /api/client/cuts/{id},PATCH,Bearer,no,haircut-detail.tsx,Úprava názvu poznámky holiče fotek
+1.0.13,50,50,iOS+Android,Inspirace / účesy / media,DELETE /api/client/cuts/{id},DELETE,Bearer,no,haircut-detail.tsx,Smazání účesu
+1.0.13,50,50,iOS+Android,Inspirace / účesy / media,POST /api/client/media,POST,Bearer,no,haircut-create.tsx / haircut-detail.tsx / haircut-add.tsx,Upload fotek k účesu
+1.0.13,50,50,iOS+Android,Inspirace / účesy / media,DELETE /api/client/media/{id},DELETE,Bearer,no,haircut-detail.tsx,Smazání jedné fotky z účesu
+1.0.13,50,50,iOS+Android,Průvodci / guides,GET /api/client/guides,GET,none,no,guides.tsx / guide-detail.tsx,Veřejné průvodce bez auth (checkAuth: false)
+1.0.13,50,50,iOS+Android,Stories / social feed,(neimplementováno),,,,,V repu není stories ani social feed API
+1.0.13,50,50,iOS+Android,Recenze,GET /api/client/reviews,GET,Bearer,no,experience.tsx / review flows,Seznam recenzí klienta (filtr entityType=employee)
+1.0.13,50,50,iOS+Android,Recenze,GET /api/client/reviews/entity/{entityType}/{entityId},GET,Bearer,no,barber-detail / branch-detail / product-detail / review.tsx,Recenze entity (branch employee reservation item sale_log)
+1.0.13,50,50,iOS+Android,Recenze,POST /api/client/reviews,POST,Bearer,no,review.tsx,Vytvoření recenze
+1.0.13,50,50,iOS+Android,Recenze,PATCH /api/client/reviews/{id},PATCH,Bearer,no,review.tsx,Úprava vlastní recenze
+1.0.13,50,50,iOS+Android,Recenze,DELETE /api/client/reviews/{id},DELETE,Bearer,no,review.tsx,Smazání vlastní recenze
+1.0.13,50,50,iOS+Android,Kupóny / promo,GET /api/client/coupons,GET,Bearer,yes,real-barber.tsx / client-coupon-detail.tsx,Klientské kupóny (home + detail)
+1.0.13,50,50,iOS+Android,Kupóny / promo,POST /api/client/coupons/preview,POST,Bearer,no,useReservationCoupon.ts,Náhled slevy v rezervačním flow
+1.0.13,50,50,iOS+Android,Kupóny / promo,GET /api/client/posters,GET,Bearer,yes,real-barber.tsx,Promo plakáty (viz home)
+1.0.13,50,50,iOS+Android,Produkty / gift cards,GET /api/client/products,GET,Bearer,no,products.tsx,Zakoupené produkty klienta
+1.0.13,50,50,iOS+Android,Produkty / gift cards,GET /api/client/products/by-flag,GET,Bearer,no,products.tsx / product-detail.tsx,Katalog produktů a dárků (flag Prodejní + Dárky); resolveClientProductForDetail prohledá oba flagy
+1.0.13,50,50,iOS+Android,RB coins / referrals,GET /api/rb-coins/balance,GET,Bearer,yes,wallet.tsx / transfer-select-recipient.tsx / rbc/index.tsx,Saldo RBC; refresh při focus peněženky
+1.0.13,50,50,iOS+Android,RB coins / referrals,GET /api/rb-coins/history,GET,Bearer,yes,wallet.tsx / wallet-history.tsx / transfer-select-recipient.tsx,Historie transakcí RBC
+1.0.13,50,50,iOS+Android,RB coins / referrals,POST /api/rb-coins/transfer,POST,Bearer,no,transfer-chat/[id].tsx,Převod RBC na klienta nebo holiče
+1.0.13,50,50,iOS+Android,RB coins / referrals,GET /api/client/referrals,GET,Bearer,yes,wallet.tsx / referrals.tsx / referral-* screens,Referral programy statistiky pozvánky; includeProgress=true na detailech
+1.0.13,50,50,iOS+Android,RB coins / referrals,POST /api/client/referrals/generate,POST,Bearer,no,referral-program/[id].tsx,Generování referral kódu pro program
+1.0.13,50,50,iOS+Android,Push notifikace,POST /api/client/push/register-token,POST,Bearer,yes,PushNotificationsProvider.tsx,Po loginu a při návratu app do foreground (AppState active); body platform iOS|Android
+1.0.13,50,50,iOS+Android,Push notifikace,POST /api/client/push/unregister-token,POST,Bearer,yes,PushNotificationsProvider.tsx,Při logoutu (apiToken cleared)
+1.0.13,50,50,iOS+Android,Live Activity (ActivityKit),(neimplementováno),,,,,V repu není registrace ActivityKit push tokenu ani související endpoint
+1.0.13,50,50,iOS+Android,Oblíbené,GET /api/client/favorites,GET,Bearer,yes,favorites.tsx / experience.tsx / Favorite.tsx,Seznam oblíbených; refresh při focus favorites tabu
+1.0.13,50,50,iOS+Android,Oblíbené,POST /api/client/favorites,POST,Bearer,no,Favorite.tsx,Přidání do oblíbených (branch employee item product guide…)
+1.0.13,50,50,iOS+Android,Oblíbené,DELETE /api/client/favorites/{id},DELETE,Bearer,no,favorites.tsx / Favorite.tsx,Odebrání z oblíbených
+1.0.13,50,50,iOS+Android,Oblíbené,GET /api/client/favorites/{id},GET,Bearer,no,(api only),Wrapper v api/favorites.ts – v UI v1.0.13 nevolán
+1.0.13,50,50,iOS+Android,Oblíbené,PATCH /api/client/favorites/{id},PATCH,Bearer,no,(api only),Wrapper v api/favorites.ts – v UI v1.0.13 nevolán
+1.0.13,50,50,iOS+Android,Nastavení komunikace,GET /api/client/communication-settings,GET,Bearer,yes,communication-settings.tsx,Načtení preferencí kanálů a obsahu; refresh při focus
+1.0.13,50,50,iOS+Android,Nastavení komunikace,PATCH /api/client/communication-settings,PATCH,Bearer,no,communication-settings.tsx,Uložení preferencí (channels contentTypes)
+1.0.13,50,50,iOS+Android,Vyhledávání,GET /api/client/clients/search,GET,Bearer,no,transfer-select-recipient.tsx,Hledání klienta pro RBC převod (telefon 420…)
+1.0.13,50,50,iOS+Android,Vyhledávání,(globální search API),,,,,SearchBar.tsx je jen navigace na obrazovky – nevolá CRM search endpoint
+1.0.13,50,50,iOS+Android,Notifikace – historie,GET /api/internal/notifications/history,GET,Bearer,no,notifications.tsx,Historie in-app notifikací (namespace /api/internal ne /api/client)
+1.0.13,50,50,iOS+Android,/api/public/*,(nepoužito),,,,,V kódu klienta nenalezeno
+1.0.13,50,50,iOS+Android,/api/follow/*,(nepoužito),,,,,V kódu klienta nenalezeno
+1.0.13,50,50,iOS+Android,/api/forms/*,(nepoužito),,,,,V kódu klienta nenalezeno

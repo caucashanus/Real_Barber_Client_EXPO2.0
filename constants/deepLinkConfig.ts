@@ -33,6 +33,8 @@ export const APP_KNOWN_ROUTE_PATHS = [
   '/guides',
   '/barber-detail',
   '/branch-detail',
+  '/service-detail',
+  '/hairstyle-detail',
   '/favorites',
   '/bookings',
   '/profile',
@@ -40,7 +42,7 @@ export const APP_KNOWN_ROUTE_PATHS = [
 ] as const;
 
 /** Prefixes for nested / dynamic in-app routes. */
-export const APP_KNOWN_ROUTE_PREFIXES = ['/screens/', '/(tabs)/'] as const;
+export const APP_KNOWN_ROUTE_PREFIXES = ['/screens/', '/(tabs)/', '/promo/'] as const;
 
 export const APP_BUNDLE_ID = 'com.realbarber.client';
 
@@ -102,6 +104,12 @@ export function resolveIncomingDeepLinkRoute(path: string): string {
   const normalized = normalizeIncomingDeepLinkPath(path);
   const smartDownloadRoute = resolveSmartDownloadRoute(normalized);
   if (smartDownloadRoute) return smartDownloadRoute;
+
+  const promoMatch = normalized.match(/^\/promo\/(poster|kupon)\/([^/?#]+)\/?$/);
+  if (promoMatch) {
+    return `/promo/${promoMatch[1]}/${promoMatch[2]}`;
+  }
+
   if (isKnownAppRoute(normalized)) return normalized;
   return APP_UNKNOWN_PATH_FALLBACK_ROUTE;
 }

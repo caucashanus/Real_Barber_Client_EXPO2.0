@@ -2,22 +2,31 @@ import { useFocusEffect } from '@react-navigation/native';
 import Constants from 'expo-constants';
 import * as Notifications from 'expo-notifications';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { View, RefreshControl, Text, ActivityIndicator, Share, Linking } from 'react-native';
+import { View, RefreshControl, Text, ActivityIndicator, Linking } from 'react-native';
+import { ActionSheetRef } from 'react-native-actions-sheet';
 
 import { getClientMe, type ClientMe } from '@/api/client';
 import { useAccentColor } from '@/contexts/AccentColorContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { useBookings } from '@/contexts/BookingsBadgeContext';
+import { useLanguage } from '@/contexts/LanguageContext';
 import { useTranslation } from '@/hooks/useTranslation';
-import { useUnreadNotificationBadge } from '@/hooks/useUnreadNotificationBadge';
 import AnimatedView from '@/components/AnimatedView';
 import Avatar from '@/components/Avatar';
 import Header, { HeaderIcon } from '@/components/Header';
 import ListLink from '@/components/ListLink';
+import { ProfileCompletionSheet } from '@/components/profile/ProfileCompletionSheet';
+import ProfileContactsSection from '@/components/profile/ProfileContactsSection';
+import { LanguageSwitcherDrawer } from '@/components/shared/LanguageSwitcherDrawer';
+import LocaleFlag from '@/components/shared/LocaleFlag';
 import ThemedScroller from '@/components/ThemeScroller';
 import ThemeToggle from '@/components/ThemeToggle';
 import ThemedText from '@/components/ThemedText';
+import type { ProfileCompletionStepId } from '@/constants/profileCompletionSchema';
+import { PROFILE_BOOKINGS_ROUTE } from '@/constants/profileContacts';
+import { useProfileCompletionPrompt } from '@/hooks/useProfileCompletionPrompt';
 import { maybeRequestAppStoreReview } from '@/utils/appStoreReview';
+import { hasServerProfileAvatar } from '@/utils/editProfileAvatar';
 import { shouldStaleRefresh } from '@/utils/staleRefresh';
 import { shadowPresets } from '@/utils/useShadow';
 
@@ -114,8 +123,11 @@ const PersonalProfile = ({
 }) => {
   const { apiToken, signOutToLogin } = useAuth();
   const { bookings } = useBookings();
+  const { locale } = useLanguage();
   const { t } = useTranslation();
-  const hasUnreadNotifications = useUnreadNotificationBadge();
+  const languageSheetRef = useRef<ActionSheetRef>(null);
+  const completionSheetRef = useRef<ActionSheetRef>(null);
+  const [completionStep, setCompletionStep] = useState<ProfileCompletionStepId | null>(null);
   const [client, setClient] = useState<ClientMe | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -175,8 +187,25 @@ const PersonalProfile = ({
     }, [fetchData])
   );
 
+  const handleCompletionStepChange = useCallback((step: ProfileCompletionStepId | null) => {
+    setCompletionStep(step);
+  }, []);
+
+  const handleCompletionClose = useCallback(() => {
+    setCompletionStep(null);
+  }, []);
+
+  useProfileCompletionPrompt({
+    client,
+    loading,
+    sheetRef: completionSheetRef,
+    onStepChange: handleCompletionStepChange,
+  });
+
   const displayName = client?.firstName?.trim() || client?.name?.trim() || null;
-  const avatarSrc = client?.avatarUrl ?? require('@/assets/img/wallet/RB.avatar.jpg');
+  const profileAvatarSrc = hasServerProfileAvatar(client?.avatarUrl)
+    ? client!.avatarUrl!
+    : undefined;
   const addressLine =
     [client?.address?.trim(), client?.city?.trim()].filter(Boolean).join(', ') || null;
   const daysMember = daysSinceCreatedAt(client?.createdAt);
@@ -198,7 +227,11 @@ const PersonalProfile = ({
               <ActivityIndicator />
             </View>
           ) : (
-            <Avatar src={avatarSrc} size="xxl" />
+            <Avatar
+              src={profileAvatarSrc}
+              fallbackIcon="CircleUser"
+              size="xxl"
+            />
           )}
           <View className="flex-1 items-center justify-center">
             <ThemedText className="text-2xl font-bold">
@@ -231,6 +264,12 @@ const PersonalProfile = ({
       <View className="gap-1 px-4">
         <ListLink
           showChevron
+          title={t('profileMyReservations')}
+          icon="Calendar"
+          href={PROFILE_BOOKINGS_ROUTE}
+        />
+        <ListLink
+          showChevron
           title={t('profileFeatureSettings')}
           icon="SlidersHorizontal"
           href="/screens/feature-settings"
@@ -243,26 +282,16 @@ const PersonalProfile = ({
         />
         <ListLink
           showChevron
+          title={t('profileAppLanguage')}
+          leading={<LocaleFlag locale={locale} />}
+          accessibilityLabel={t('localeSwitch')}
+          onPress={() => languageSheetRef.current?.show()}
+        />
+        <ListLink
+          showChevron
           title={t('profileEditProfile')}
           icon="UserRoundPen"
           href="/screens/edit-profile"
-        />
-        <ListLink
-          showChevron
-          hasBadge={hasUnreadNotifications}
-          title={t('profileNotificationHistory')}
-          icon="Bell"
-          href="/screens/notifications"
-        />
-        <ListLink
-          showChevron
-          title="Poslat apku kamarádovi"
-          icon="Share"
-          onPress={() =>
-            Share.share({
-              message: 'https://apps.apple.com/ca/app/rb/id6760221388',
-            })
-          }
         />
         <ListLink
           showChevron
@@ -273,6 +302,13 @@ const PersonalProfile = ({
           }}
         />
       </View>
+      <LanguageSwitcherDrawer ref={languageSheetRef} />
+      <ProfileCompletionSheet
+        ref={completionSheetRef}
+        step={completionStep}
+        onClose={handleCompletionClose}
+      />
+      <ProfileContactsSection />
       <ProfileVersionBadge />
     </AnimatedView>
   );

@@ -36,6 +36,15 @@
           "calendarPermission": "Aplikace může přidat termín do vašeho kalendáře.",
           "remindersPermission": "Aplikace může přidat připomínku k termínu."
         }
+      ],
+      [
+        "expo-localization",
+        {
+          "supportedLocales": {
+            "ios": ["cs", "en"],
+            "android": ["cs", "en"]
+          }
+        }
       ]
     ],
     "orientation": "portrait",

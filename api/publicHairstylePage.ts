@@ -1,8 +1,11 @@
 import { fetchCrm } from './http';
 
+import type { TeamMemberPageReview } from './publicTeamMember';
+
 import {
   HAIRSTYLE_PAGE_INCLUDE,
   HAIRSTYLE_PAGE_MEDIA_LIMIT,
+  HAIRSTYLE_PAGE_REVIEWS_LIMIT,
   HAIRSTYLE_PAGE_SIMILAR_LIMIT,
 } from '@/constants/hairstylePage';
 
@@ -80,6 +83,8 @@ export interface PublicHairstyle {
   similarHairstyles: PublicHairstyleSimilar[];
   nearestSlots?: PublicHairstyleNearestSlot[];
   preferredEmployees?: PublicHairstylePreferredEmployee[];
+  stats?: { totalReviews?: number; averageRating?: number };
+  reviews?: TeamMemberPageReview[];
 }
 
 export interface PublicHairstylePageResponse {
@@ -156,6 +161,20 @@ export function normalizePublicHairstyle(raw: PublicHairstyle & Record<string, u
           .map(normalizePreferredEmployee)
           .filter((emp): emp is PublicHairstylePreferredEmployee => emp != null)
       : [],
+    stats:
+      raw.stats && typeof raw.stats === 'object'
+        ? {
+            totalReviews:
+              typeof (raw.stats as { totalReviews?: unknown }).totalReviews === 'number'
+                ? (raw.stats as { totalReviews: number }).totalReviews
+                : 0,
+            averageRating:
+              typeof (raw.stats as { averageRating?: unknown }).averageRating === 'number'
+                ? (raw.stats as { averageRating: number }).averageRating
+                : 0,
+          }
+        : { totalReviews: 0, averageRating: 0 },
+    reviews: Array.isArray(raw.reviews) ? raw.reviews : [],
     stylingDifficulty:
       typeof raw.stylingDifficulty === 'number' ? raw.stylingDifficulty : null,
     popularity: typeof raw.popularity === 'number' ? raw.popularity : null,
@@ -168,12 +187,17 @@ export function normalizePublicHairstyle(raw: PublicHairstyle & Record<string, u
 }
 
 /** GET /api/public/pages/hairstyle/{idOrSlug} */
-export async function fetchPublicHairstylePage(idOrSlug: string): Promise<PublicHairstyle | null> {
+export async function fetchPublicHairstylePage(
+  idOrSlug: string,
+  options?: { bustCache?: boolean }
+): Promise<PublicHairstyle | null> {
   const params = new URLSearchParams({
     include: HAIRSTYLE_PAGE_INCLUDE,
     similarLimit: String(HAIRSTYLE_PAGE_SIMILAR_LIMIT),
     mediaLimit: String(HAIRSTYLE_PAGE_MEDIA_LIMIT),
+    reviewsLimit: String(HAIRSTYLE_PAGE_REVIEWS_LIMIT),
   });
+  if (options?.bustCache) params.set('_', String(Date.now()));
 
   const data = await fetchCrm<PublicHairstylePageResponse>(
     `/api/public/pages/hairstyle/${encodeURIComponent(idOrSlug)}?${params}`,

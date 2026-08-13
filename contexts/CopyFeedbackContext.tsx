@@ -1,5 +1,5 @@
 import React, { createContext, useCallback, useContext, useMemo, useRef, useState } from 'react';
-import { Clipboard } from 'react-native';
+import { Clipboard, View } from 'react-native';
 
 import { useTranslation } from '@/hooks/useTranslation';
 import CopyFeedback from '@/components/CopyFeedback';
@@ -46,13 +46,15 @@ export function CopyFeedbackProvider({ children }: { children: React.ReactNode }
 
   return (
     <CopyFeedbackContext.Provider value={value}>
-      {children}
-      <CopyFeedback
-        key={feedback.key}
-        isVisible={feedback.visible}
-        message={feedback.message}
-        onHide={hideFeedback}
-      />
+      <View style={{ flex: 1 }}>
+        {children}
+        <CopyFeedback
+          key={feedback.key}
+          isVisible={feedback.visible}
+          message={feedback.message}
+          onHide={hideFeedback}
+        />
+      </View>
     </CopyFeedbackContext.Provider>
   );
 }

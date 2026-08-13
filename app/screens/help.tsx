@@ -12,7 +12,7 @@ import { OperatorSupportSheet } from '@/components/OperatorSupportSheet';
 import ThemedText from '@/components/ThemedText';
 import Section from '@/components/layout/Section';
 import type { TranslationKey } from '@/locales';
-import { buildOperatorPhoneUrl } from '@/utils/operatorContact';
+import { openOperatorPhone } from '@/utils/operatorContact';
 
 const FAQ_KEYS: { q: TranslationKey; a: TranslationKey }[] = [
   { q: 'helpFaq1Q', a: 'helpFaq1A' },
@@ -28,7 +28,6 @@ const FAQ_KEYS: { q: TranslationKey; a: TranslationKey }[] = [
 ];
 
 const HELP_EMAIL = 'info@realbarber.cz';
-const HELP_TEL_URI = buildOperatorPhoneUrl();
 
 const CONTACT_ROWS: {
   id: string;
@@ -49,7 +48,9 @@ const CONTACT_ROWS: {
     typeKey: 'helpContactPhoneType',
     valueKey: 'helpContactPhoneValue',
     icon: 'Phone',
-    action: () => Linking.openURL(HELP_TEL_URI),
+    action: () => {
+      void openOperatorPhone().catch(() => {});
+    },
   },
   {
     id: 'hours',

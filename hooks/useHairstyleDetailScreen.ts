@@ -1,12 +1,12 @@
 import { useFocusEffect } from '@react-navigation/native';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 
-import { getPublicEntityReviews } from '@/api/publicTeamMember';
-import type { EntityReviewItem } from '@/api/reviews';
 import { fetchPublicHairstylePage } from '@/api/publicHairstylePage';
+import type { TeamMemberPageReview } from '@/api/publicTeamMember';
+import { getEntityReviewsForService } from '@/api/reviews';
 import { useAuth } from '@/contexts/AuthContext';
 import { useLanguage } from '@/contexts/LanguageContext';
-import { computeReviewStats } from '@/utils/barberDetailHelpers';
+import { usePublicReviewsPagination } from '@/hooks/usePublicReviewsPagination';
 import {
   buildHairstyleReviewParams,
   mapHairstyleToServiceDetail,
@@ -16,96 +16,134 @@ import {
   groupNearestBranchSlots,
   type NearestBranchHomeSlot,
 } from '@/utils/nearestBranchHomeSlots';
-import { getPragueTodayDateString } from '@/utils/teamMemberPageHelpers';
+import {
+  bumpStatsTotalForAddedReview,
+  mergePageReviewsWithOwnReview,
+} from '@/utils/publicReviewHelpers';
+import { buildReviewStatsFromPage, getPragueTodayDateString } from '@/utils/teamMemberPageHelpers';
 
-function mapPublicReviewToEntityReview(
-  review: {
-    id: string;
-    rating: number;
-    text?: string | null;
-    authorName?: string | null;
-    authorAvatarUrl?: string | null;
-    createdAt?: string | null;
-    images?: string[];
-  },
-  entityId: string
-): EntityReviewItem {
-  return {
-    id: review.id,
-    rating: review.rating,
-    positiveFeedback: review.text ?? null,
-    negativeFeedback: null,
-    description: review.text ?? null,
-    images: review.images ?? [],
-    isAnonymous: !review.authorName?.trim(),
-    createdAt: review.createdAt ?? new Date().toISOString(),
-    updatedAt: review.createdAt ?? new Date().toISOString(),
-    client: {
-      id: review.id,
-      name: review.authorName?.trim() || 'Anonymous',
-      firstName: review.authorName?.trim() || null,
-      lastName: null,
-      avatarUrl: review.authorAvatarUrl ?? null,
-    },
-    entityType: 'service',
-    entityId,
-  };
-}
+type LoadPageOptions = {
+  background?: boolean;
+  bustCache?: boolean;
+};
 
 export function useHairstyleDetailScreen(idOrSlug: string) {
-  const { apiToken } = useAuth();
+  const { apiToken, client } = useAuth();
   const { locale } = useLanguage();
 
   const [detail, setDetail] = useState<HairstyleServiceDetail | null>(null);
+  const [pageReviews, setPageReviews] = useState<TeamMemberPageReview[]>([]);
+  const [statsTotal, setStatsTotal] = useState(0);
+  const [statsAverage, setStatsAverage] = useState(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [reviews, setReviews] = useState<EntityReviewItem[]>([]);
-  const [loadingReviews, setLoadingReviews] = useState(false);
   const [hasReviewed, setHasReviewed] = useState(false);
+  const [ownReviewIds, setOwnReviewIds] = useState<Set<string>>(() => new Set());
 
   const todayIso = useMemo(() => getPragueTodayDateString(), []);
 
-  useEffect(() => {
-    if (!idOrSlug) {
-      setLoading(false);
-      return;
-    }
-    setLoading(true);
-    setError(null);
-    fetchPublicHairstylePage(idOrSlug)
-      .then((hairstyle) => {
+  const loadPage = useCallback(
+    async (options?: LoadPageOptions) => {
+      if (!idOrSlug) {
+        setLoading(false);
+        return;
+      }
+
+      if (!options?.background) {
+        setLoading(true);
+      }
+      setError(null);
+
+      try {
+        const hairstyle = await fetchPublicHairstylePage(idOrSlug, {
+          bustCache: options?.bustCache,
+        });
         if (!hairstyle) {
           setDetail(null);
+          setPageReviews([]);
+          setStatsTotal(0);
+          setStatsAverage(0);
+          setHasReviewed(false);
+          setOwnReviewIds(new Set());
           setError('not-found');
           return;
         }
+
+        let reviews = hairstyle.reviews ?? [];
+        let totalReviews = hairstyle.stats?.totalReviews ?? 0;
+        let nextHasReviewed = false;
+        let nextOwnReviewIds = new Set<string>();
+
+        if (apiToken) {
+          try {
+            const ownData = await getEntityReviewsForService(apiToken, hairstyle.id, {
+              page: 1,
+              limit: 100,
+              includeOwn: true,
+            });
+            const merged = mergePageReviewsWithOwnReview(reviews, ownData, client?.id);
+            reviews = merged.reviews;
+            nextHasReviewed = merged.hasReviewed;
+            nextOwnReviewIds = merged.ownReviewIds;
+            totalReviews = bumpStatsTotalForAddedReview(
+              totalReviews,
+              reviews,
+              merged.addedReview
+            );
+          } catch {
+            // Public page reviews still render when own-review fetch fails.
+          }
+        }
+
         setDetail(mapHairstyleToServiceDetail(hairstyle, locale));
-      })
-      .catch(() => setError('load-error'))
-      .finally(() => setLoading(false));
-  }, [idOrSlug, locale]);
+        setPageReviews(reviews);
+        setStatsTotal(totalReviews);
+        setStatsAverage(hairstyle.stats?.averageRating ?? 0);
+        setHasReviewed(nextHasReviewed);
+        setOwnReviewIds(nextOwnReviewIds);
+      } catch {
+        setDetail(null);
+        setPageReviews([]);
+        setStatsTotal(0);
+        setStatsAverage(0);
+        setHasReviewed(false);
+        setOwnReviewIds(new Set());
+        setError('load-error');
+      } finally {
+        if (!options?.background) {
+          setLoading(false);
+        }
+      }
+    },
+    [apiToken, client?.id, idOrSlug, locale]
+  );
 
   useEffect(() => {
-    if (!detail?.id) return;
-    setLoadingReviews(true);
-    getPublicEntityReviews('service', detail.id, { limit: 20, offset: 0 })
-      .then((data) => {
-        setReviews((data.reviews ?? []).map((review) => mapPublicReviewToEntityReview(review, detail.id)));
-        setHasReviewed(false);
-      })
-      .catch(() => {
-        setReviews([]);
-        setHasReviewed(false);
-      })
-      .finally(() => setLoadingReviews(false));
-  }, [detail?.id]);
+    loadPage().catch(() => {});
+  }, [loadPage]);
 
   useFocusEffect(
     useCallback(() => {
-      if (!detail?.id || !apiToken) return;
-      // Client reviews refresh could go here when API supports service entity.
-    }, [apiToken, detail?.id])
+      loadPage({ background: true, bustCache: true }).catch(() => {});
+    }, [loadPage])
   );
+
+  const reviewsPagination = usePublicReviewsPagination(
+    'service',
+    detail?.id,
+    pageReviews,
+    statsTotal
+  );
+
+  const pageReviewStats = useMemo(
+    () => buildReviewStatsFromPage(pageReviews),
+    [pageReviews]
+  );
+  const countByRating = pageReviewStats.countByRating;
+  const average = statsTotal > 0 ? statsAverage : pageReviewStats.average;
+  const displayTotal = statsTotal > 0 ? statsTotal : pageReviewStats.total;
+
+  const reviews = reviewsPagination.visibleReviews;
 
   const slotGroups = useMemo(() => {
     if (!detail?.nearestSlots.length) return [];
@@ -116,18 +154,14 @@ export function useHairstyleDetailScreen(idOrSlug: string) {
     ? buildHairstyleReviewParams(detail.id, detail.title, detail.heroSlides[0]?.src)
     : '';
 
-  const { average, countByRating, total: displayTotal } = useMemo(
-    () => computeReviewStats(reviews),
-    [reviews]
-  );
-
   return {
     detail,
     loading,
     error,
     reviews,
-    loadingReviews,
+    reviewsPagination,
     hasReviewed,
+    ownReviewIds,
     reviewParams,
     average,
     countByRating,

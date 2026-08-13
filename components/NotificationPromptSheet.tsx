@@ -52,6 +52,7 @@ const NotificationPromptSheet = forwardRef<
 >(({ onPermissionGranted, enableAutoCheck = true }, ref) => {
   const internalRef = useRef<ActionSheetRef>(null);
   const sheetRef = internalRef;
+  const didOpenSettingsRef = useRef(false);
 
   const openPromptSheet = useCallback(() => {
     setTimeout(() => sheetRef.current?.show(), 100);
@@ -86,18 +87,22 @@ const NotificationPromptSheet = forwardRef<
   }, [check, enableAutoCheck]);
 
   const handleOpenSettings = async () => {
+    didOpenSettingsRef.current = true;
     sheetRef.current?.hide();
     await markDismissed();
     await Linking.openSettings();
   };
 
-  const handleDismiss = async () => {
-    sheetRef.current?.hide();
-    await markDismissed();
+  const handleSheetClose = () => {
+    if (didOpenSettingsRef.current) {
+      didOpenSettingsRef.current = false;
+      return;
+    }
+    void markDismissed();
   };
 
   return (
-    <ActionSheetThemed ref={sheetRef} gestureEnabled>
+    <ActionSheetThemed ref={sheetRef} gestureEnabled onClose={handleSheetClose}>
       <View className="p-4 pb-6">
         <ThemedText className="mb-1 mt-4 text-left text-lg font-bold">
           Nezmeškejte svou rezervaci
@@ -112,10 +117,7 @@ const NotificationPromptSheet = forwardRef<
           Doporučujeme zapnout notifikace — dostanete připomínku před každou návštěvou a přehled o
           stavu rezervace. Slibujeme, že vás nebudeme obtěžovat zbytečnými zprávami.
         </ThemedText>
-        <View className="w-full flex-col gap-3">
-          <Button title="Otevřít Nastavení" className="w-full" onPress={handleOpenSettings} />
-          <Button title="Teď ne" variant="outline" className="w-full" onPress={handleDismiss} />
-        </View>
+        <Button title="Otevřít Nastavení" className="w-full" onPress={handleOpenSettings} />
       </View>
     </ActionSheetThemed>
   );

@@ -27,7 +27,7 @@ import { KUDY_K_NAM_VIDEOS } from '@/constants/kudy-k-nam-videos';
 import type { TranslationKey } from '@/locales';
 import {
   OPERATOR_SUPPORT_DISPLAY,
-  buildOperatorPhoneUrl,
+  openOperatorPhone,
 } from '@/utils/operatorContact';
 import { getContentCarouselSize } from '@/utils/contentCarouselLayout';
 
@@ -89,7 +89,7 @@ export default function BranchesScreen() {
               </ThemedText>
 
               <View className="mt-5 gap-2">
-                <Pressable onPress={() => openUrl(buildOperatorPhoneUrl())}>
+                <Pressable onPress={() => void openOperatorPhone().catch(() => {})}>
                   <ThemedText className="text-sm font-medium">{OPERATOR_SUPPORT_DISPLAY}</ThemedText>
                 </Pressable>
                 <Pressable onPress={() => openUrl(`mailto:${HELP_EMAIL}`)}>

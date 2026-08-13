@@ -174,7 +174,7 @@ export default function RealBarberHomeTab() {
           </View>
         ) : null}
 
-        <View className="mt-6 flex-row flex-wrap justify-between">
+        <View className="mb-4 mt-6 flex-row flex-wrap justify-between">
           {actions.map((a) => (
             <Pressable
               key={a.id}
@@ -258,7 +258,7 @@ export default function RealBarberHomeTab() {
           error={todayTeamError}
           locale={locale}
           t={t}
-          className="mt-6"
+          className="mt-10"
           titleAction={{ titleKey: 'homeTodayTeamOpenFullTeam', href: '/experience' }}
         />
       </ThemeScroller>
