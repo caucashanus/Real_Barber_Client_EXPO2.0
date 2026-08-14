@@ -16,6 +16,7 @@ import {
   BookingEngineScrollProvider,
   useBookingEngineScroll,
 } from '@/components/booking/engine/BookingEngineScrollContext';
+import { BookingCouponSheetsHost } from '@/components/booking/engine/BookingCouponSheetsHost';
 import StepProgressIndicator from '@/components/StepProgressIndicator';
 import Icon from '@/components/Icon';
 import ThemedText from '@/components/ThemedText';
@@ -28,7 +29,9 @@ interface BookingEngineFlowShellProps {
 export default function BookingEngineFlowShell({ flow, children }: BookingEngineFlowShellProps) {
   return (
     <BookingEngineScrollProvider>
-      <BookingEngineFlowShellBody flow={flow}>{children}</BookingEngineFlowShellBody>
+      <BookingCouponSheetsHost flow={flow}>
+        <BookingEngineFlowShellBody flow={flow}>{children}</BookingEngineFlowShellBody>
+      </BookingCouponSheetsHost>
     </BookingEngineScrollProvider>
   );
 }
@@ -81,7 +84,10 @@ function BookingEngineFlowShellBody({ flow, children }: BookingEngineFlowShellPr
         <ScrollView
           ref={bookingScroll?.scrollRef}
           className="flex-1"
-          contentContainerStyle={{ padding: 16, paddingBottom: 32 }}
+          contentContainerStyle={{
+            padding: 16,
+            paddingBottom: footerAction ? 120 : 32,
+          }}
           keyboardShouldPersistTaps="handled"
           showsVerticalScrollIndicator={false}
           scrollEventThrottle={16}

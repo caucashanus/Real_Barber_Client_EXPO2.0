@@ -12,13 +12,14 @@ import {
   formatBookingSlotHandoffContextLine,
   formatBookingSlotHandoffServiceTimeButtonLabel,
 } from '@/utils/reservationCreateHelpers';
+import { formatBookingServicePriceLabel } from '@/lib/booking/designShared';
 import { shadowPresets } from '@/utils/useShadow';
 
 function slotServiceToBookingService(service: BookingSlotServiceItem): BookingService {
   return {
     id: service.id,
     name: service.name,
-    pricing: { minPrice: service.price },
+    pricing: { minPrice: service.price, maxPrice: service.price, kind: 'exact' },
     duration: service.durationMinutes,
     imageUrl: service.imageUrl,
   };
@@ -84,6 +85,15 @@ export default function BookingEngineHandoffServiceStep({ flow }: Props) {
               t,
             });
 
+            const priceLabel =
+              service.price > 0
+                ? formatBookingServicePriceLabel(
+                    slotServiceToBookingService(service),
+                    t('reservationPriceFromPrefix'),
+                    t('reservationCurrencySuffix')
+                  )
+                : undefined;
+
             return (
               <View
                 key={service.id}
@@ -108,6 +118,11 @@ export default function BookingEngineHandoffServiceStep({ flow }: Props) {
                       numberOfLines={2}>
                       {service.name}
                     </ThemedText>
+                    {priceLabel ? (
+                      <ThemedText className="mt-1 text-sm text-light-subtext dark:text-dark-subtext">
+                        {priceLabel}
+                      </ThemedText>
+                    ) : null}
                     <View className="mt-3 self-start">
                       <BookingHandoffServiceTimeButton
                         title={timeButtonLabel}

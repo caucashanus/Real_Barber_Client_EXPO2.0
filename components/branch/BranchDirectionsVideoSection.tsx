@@ -18,8 +18,16 @@ export default function BranchDirectionsVideoSection({
 }: BranchDirectionsVideoSectionProps) {
   return (
     <BranchContentCardSection title={t('branchDirectionsVideoTitle')} isFirst={isFirst}>
-      <View className="w-full overflow-hidden rounded-xl bg-black" style={{ aspectRatio: 16 / 9 }}>
-        <VideoPlayer uri={videoUrl} contentFit="cover" nativeControls style={{ flex: 1 }} />
+      <View className="w-full overflow-hidden rounded-xl bg-black">
+        <VideoPlayer
+          uri={videoUrl}
+          style={{ width: '100%', height: 220 }}
+          contentFit="cover"
+          nativeControls
+          shouldPlay
+          isLooping
+          isMuted
+        />
       </View>
     </BranchContentCardSection>
   );

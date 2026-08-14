@@ -39,6 +39,7 @@ import { getBranchInteriorCarouselImages } from '@/constants/branchInteriorGalle
 import type { BranchInternalId } from '@/constants/crmBranchIds';
 import { getBranchPageContent } from '@/constants/branchPageContent';
 import { BARBER_DETAIL_SECTION_SPACING, getBranchDetailMapSize } from '@/constants/barberDetailLayout';
+import { BRANCH_DIRECTIONS_VIDEO_ENABLED } from '@/constants/branchPage';
 import {
   buildBranchReviewParams,
   getEmployeesList,
@@ -220,11 +221,14 @@ export default function BranchDetailScreen() {
   const reviewParams = buildBranchReviewParams(branch);
   const ratingLocale = locale.startsWith('cs') ? 'cs' : 'en';
 
+  const showDirectionsVideo =
+    BRANCH_DIRECTIONS_VIDEO_ENABLED && directionsVideoUrl != null;
+
   const showContentCard =
     aboutParagraphs.length > 0 ||
     employeesList.length > 0 ||
     pageContent != null ||
-    directionsVideoUrl != null ||
+    showDirectionsVideo ||
     internalBranchId != null ||
     vrTourUrl != null;
 
@@ -304,7 +308,7 @@ export default function BranchDetailScreen() {
                   />
                 ) : null}
 
-                {directionsVideoUrl ? (
+                {showDirectionsVideo && directionsVideoUrl ? (
                   <BranchDirectionsVideoSection videoUrl={directionsVideoUrl} t={t} />
                 ) : null}
 

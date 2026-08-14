@@ -60,7 +60,7 @@ export default function BookingEngineSummaryStep({ flow }: Props) {
             </View>
           ))}
 
-          <BookingCouponSection flow={flow} coupon={coupon} onReserve={flow.handleSubmit} plain />
+          <BookingCouponSection flow={flow} coupon={coupon} plain />
         </View>
       </Section>
 

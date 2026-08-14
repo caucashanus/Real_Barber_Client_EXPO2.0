@@ -4,7 +4,6 @@ import { Switch, TextInput, View } from 'react-native';
 import type { BookingEngineFlow } from '@/hooks/useBookingEngineFlow';
 import ThemedText from '@/components/ThemedText';
 import BookingContactSummaryPanel from '@/components/booking/engine/BookingContactSummaryPanel';
-import BookingCouponPriceBreakdown from '@/components/booking/engine/BookingCouponPriceBreakdown';
 import BookingCouponSection from '@/components/booking/engine/BookingCouponSection';
 import PhoneInput from '@/components/forms/PhoneInput';
 
@@ -85,12 +84,7 @@ export default function BookingEngineContactStep({ flow }: Props) {
         </>
       ) : null}
       {!flow.skipContact ? (
-        <>
-          {flow.coupon.preview ? (
-            <BookingCouponPriceBreakdown preview={flow.coupon.preview} t={t} className="mt-0" />
-          ) : null}
-          <BookingCouponSection flow={flow} coupon={flow.coupon} onReserve={flow.handleSubmit} />
-        </>
+        <BookingCouponSection flow={flow} coupon={flow.coupon} />
       ) : null}
       {flow.contact.submitError ? (
         <ThemedText className="text-sm text-red-500 dark:text-red-400">

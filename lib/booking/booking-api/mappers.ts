@@ -7,7 +7,11 @@ import type {
 } from '@/lib/booking/booking-api/types';
 
 export function mapCatalogItemToService(item: BookingCatalogItem): BookingService {
-  const minPrice = item.priceFrom ?? item.price;
+  const fromPrice = item.priceFrom != null && item.priceFrom > 0 ? item.priceFrom : undefined;
+  const exactPrice = item.price != null && item.price > 0 ? item.price : undefined;
+  const kind = fromPrice != null ? 'from' : exactPrice != null ? 'exact' : undefined;
+  const minPrice = fromPrice ?? exactPrice;
+
   return {
     id: item.id,
     slug: item.slug,
@@ -19,7 +23,10 @@ export function mapCatalogItemToService(item: BookingCatalogItem): BookingServic
           name: item.category.name,
         }
       : undefined,
-    pricing: minPrice != null ? { minPrice } : undefined,
+    pricing:
+      minPrice != null && kind
+        ? { minPrice, maxPrice: kind === 'exact' ? minPrice : undefined, kind }
+        : undefined,
     duration: item.durationMinutes ?? undefined,
     imageUrl: item.imageUrl ?? undefined,
     avatarUrl: item.imageUrl ?? undefined,

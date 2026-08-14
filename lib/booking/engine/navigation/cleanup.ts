@@ -74,7 +74,7 @@ export function enrichServiceFromStoredSlotContext(
   return {
     ...service,
     name: stored.serviceName?.trim() || service.name,
-    ...(price != null ? { pricing: { minPrice: price, maxPrice: price } } : {}),
+    ...(price != null ? { pricing: { minPrice: price, maxPrice: price, kind: 'exact' as const } } : {}),
     ...(duration != null ? { duration } : {}),
     ...(imageUrl ? { imageUrl, avatarUrl: imageUrl } : {}),
   };
@@ -93,7 +93,7 @@ export function bookingServiceFromStoredSlotContext(
   return {
     id: stored.serviceId,
     name: stored.serviceName?.trim() || stored.serviceId,
-    ...(price != null ? { pricing: { minPrice: price, maxPrice: price } } : {}),
+    ...(price != null ? { pricing: { minPrice: price, maxPrice: price, kind: 'exact' as const } } : {}),
     ...(duration != null ? { duration } : {}),
     ...(imageUrl ? { imageUrl, avatarUrl: imageUrl } : {}),
   };

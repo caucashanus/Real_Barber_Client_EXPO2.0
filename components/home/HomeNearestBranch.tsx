@@ -150,7 +150,7 @@ export default function HomeNearestBranch({
             <ThemedText
               className="min-w-0 flex-1 text-sm font-semibold leading-tight"
               numberOfLines={2}>
-              {t('nearestBranchFindCta')}
+              {t('nearestBranchCta')}
             </ThemedText>
           </View>
         )}

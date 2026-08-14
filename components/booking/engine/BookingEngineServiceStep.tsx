@@ -13,6 +13,7 @@ import {
   isBookingServiceAccordionCategory,
 } from '@/lib/booking/groupServicesByCategory';
 import { SERVICES_CATEGORY_ID } from '@/lib/booking/categoryIds';
+import { formatBookingServicePriceLabel } from '@/lib/booking/designShared';
 
 interface BookingEngineServiceStepProps {
   services: BookingService[];
@@ -24,20 +25,6 @@ interface BookingEngineServiceStepProps {
   currencySuffix: string;
   onSelect: (service: BookingService) => void;
   closeLabel: string;
-}
-
-function formatServicePrice(
-  service: BookingService,
-  fromPriceLabel: string,
-  currencySuffix: string
-): string | undefined {
-  const min = service.pricing?.minPrice;
-  const max = service.pricing?.maxPrice;
-  if (min == null || min <= 0) return undefined;
-  if (max != null && max !== min) {
-    return `${fromPriceLabel} ${min} ${currencySuffix}`;
-  }
-  return `${min} ${currencySuffix}`;
 }
 
 function serviceImageUrl(service: BookingService): string | null {
@@ -79,7 +66,7 @@ export default function BookingEngineServiceStep({
         avatarSize="xl"
         fallbackName={service.name ?? service.id}
         title={service.name ?? service.id}
-        description={formatServicePrice(service, fromPriceLabel, currencySuffix)}
+        description={formatBookingServicePriceLabel(service, fromPriceLabel, currencySuffix)}
         selectLabel={selectLabel}
         showInfo={showServiceInfo}
         selected={selectedServiceId === service.id}
@@ -122,7 +109,7 @@ export default function BookingEngineServiceStep({
           </ThemedText>
           {detailService ? (
             <ThemedText className="mt-2 text-sm text-light-subtext dark:text-dark-subtext">
-              {formatServicePrice(detailService, fromPriceLabel, currencySuffix) ?? '—'}
+              {formatBookingServicePriceLabel(detailService, fromPriceLabel, currencySuffix) ?? '—'}
             </ThemedText>
           ) : null}
           <View className="mt-5 flex-row gap-3">

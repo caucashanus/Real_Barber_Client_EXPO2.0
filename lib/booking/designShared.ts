@@ -1,6 +1,20 @@
-import type { BookingEntity } from '@/lib/booking/constants';
+import type { BookingEntity, BookingService } from '@/lib/booking/constants';
 import { formatRelativeDayLabel } from '@/utils/formatRelativeDayLabel';
 import { getPragueTodayDateString } from '@/utils/teamMemberPageHelpers';
+
+export function formatBookingServicePriceLabel(
+  service: BookingService | null | undefined,
+  fromPriceLabel: string,
+  currencySuffix: string
+): string | undefined {
+  const pricing = service?.pricing;
+  const amount = pricing?.minPrice;
+  if (amount == null || amount <= 0) return undefined;
+  if (pricing.kind === 'exact') {
+    return `${amount} ${currencySuffix}`;
+  }
+  return `${fromPriceLabel} ${amount} ${currencySuffix}`;
+}
 
 export function resolveBranchName(
   branchId: string | undefined,

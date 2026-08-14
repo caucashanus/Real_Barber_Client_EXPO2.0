@@ -22,7 +22,7 @@ export type BookingEntity = {
 
 export type BookingService = BookingEntity & {
   category?: { id: string; name: string };
-  pricing?: { minPrice?: number; maxPrice?: number };
+  pricing?: { minPrice?: number; maxPrice?: number; kind?: 'from' | 'exact' };
   duration?: number;
 };
 
