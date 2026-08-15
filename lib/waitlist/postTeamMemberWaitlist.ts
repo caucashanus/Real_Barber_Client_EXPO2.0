@@ -1,5 +1,6 @@
 import { WEB_BFF_ORIGIN } from '@/constants/bookingMonitor';
 
+import { WAITLIST_PREFERRED_CONTACT_DEFAULT } from './preferredContact';
 import type {
   PostTeamMemberWaitlistParams,
   PostTeamMemberWaitlistResult,
@@ -26,6 +27,7 @@ export function buildTeamMemberWaitlistPayload(
     dayIso: params.dayIso ?? null,
     source: 'app',
     isLoggedIn: true,
+    preferredContact: params.preferredContact ?? WAITLIST_PREFERRED_CONTACT_DEFAULT,
     clientName: params.clientName ?? null,
     clientEmail: params.clientEmail ?? null,
   };
