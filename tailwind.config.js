@@ -30,7 +30,8 @@ module.exports = {
         },
         light: {
           primary: '#ffffff', // White
-          secondary: '#F5F5F5', // Light gray
+          secondary: '#F1F1F1', // Light gray
+          surface: '#D1D5DB', // Cement gray panel (SurfaceCard)
           text: '#000000', // Black
           subtext: '#64748B',
         },

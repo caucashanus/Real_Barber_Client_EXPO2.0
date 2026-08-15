@@ -1,24 +1,33 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useThemeColors } from '@/contexts/ThemeColors';
 import { TabButton } from 'components/TabButton';
+import TabBarProfileAvatarIconCapture from '@/components/TabBarProfileAvatarIconCapture';
+import { getCachedTabBarProfileAvatarIcon } from '@/utils/tabBarProfileAvatarIcon';
 import { router, usePathname } from 'expo-router';
 import { Tabs, TabList, TabSlot, TabTrigger } from 'expo-router/ui';
 import { NativeTabs } from 'expo-router/unstable-native-tabs';
-import React, { useEffect, useRef } from 'react';
-import { AppState, Platform } from 'react-native';
+import React, { useEffect, useRef, useState } from 'react';
+import { AppState, Platform, type ImageSourcePropType } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { useAuth } from '@/contexts/AuthContext';
 import { useBookingsBadge } from '@/contexts/BookingsBadgeContext';
 import { useTranslation } from '@/hooks/useTranslation';
+import { hasServerProfileAvatar } from '@/utils/editProfileAvatar';
 
 function TabsContent() {
   const colors = useThemeColors();
   const { t } = useTranslation();
   const insets = useSafeAreaInsets();
   const { hasUpcomingBookings } = useBookingsBadge();
-  const { apiToken } = useAuth();
+  const { apiToken, client } = useAuth();
   const pathname = usePathname();
+  const profileTabAvatarUrl = hasServerProfileAvatar(client?.avatarUrl)
+    ? client!.avatarUrl!.trim()
+    : undefined;
+  const [iosProfileTabIcon, setIosProfileTabIcon] = useState<ImageSourcePropType | null>(() =>
+    profileTabAvatarUrl ? getCachedTabBarProfileAvatarIcon(profileTabAvatarUrl) ?? null : null
+  );
 
   const appStateRef = useRef(AppState.currentState);
   const didHydrateRef = useRef(false);
@@ -59,9 +68,26 @@ function TabsContent() {
     return () => sub.remove();
   }, [apiToken, pathname]);
 
+  useEffect(() => {
+    if (!profileTabAvatarUrl) {
+      setIosProfileTabIcon(null);
+      return;
+    }
+
+    const cached = getCachedTabBarProfileAvatarIcon(profileTabAvatarUrl);
+    setIosProfileTabIcon(cached ?? null);
+  }, [profileTabAvatarUrl]);
+
   if (Platform.OS === 'ios') {
     return (
-      <NativeTabs tintColor={colors.highlight}>
+      <>
+        {profileTabAvatarUrl ? (
+          <TabBarProfileAvatarIconCapture
+            uri={profileTabAvatarUrl}
+            onReady={setIosProfileTabIcon}
+          />
+        ) : null}
+        <NativeTabs tintColor={colors.highlight}>
         <NativeTabs.Trigger name="(home)">
           <NativeTabs.Trigger.Icon sf="house" />
           <NativeTabs.Trigger.Label>{t('navHome')}</NativeTabs.Trigger.Label>
@@ -76,10 +102,15 @@ function TabsContent() {
           {hasUpcomingBookings ? <NativeTabs.Trigger.Badge>1</NativeTabs.Trigger.Badge> : null}
         </NativeTabs.Trigger>
         <NativeTabs.Trigger name="profile">
-          <NativeTabs.Trigger.Icon sf="person.circle" />
+          {profileTabAvatarUrl && iosProfileTabIcon ? (
+            <NativeTabs.Trigger.Icon src={iosProfileTabIcon} renderingMode="original" />
+          ) : (
+            <NativeTabs.Trigger.Icon sf="person.circle" />
+          )}
           <NativeTabs.Trigger.Label>{t('navProfile')}</NativeTabs.Trigger.Label>
         </NativeTabs.Trigger>
       </NativeTabs>
+      </>
     );
   }
 
@@ -109,7 +140,10 @@ function TabsContent() {
           </TabButton>
         </TabTrigger>
         <TabTrigger name="profile" href="/profile" asChild>
-          <TabButton labelAnimated={false} icon="CircleUser">
+          <TabButton
+            labelAnimated={false}
+            icon={profileTabAvatarUrl ? undefined : 'CircleUser'}
+            avatar={profileTabAvatarUrl}>
             {t('navProfile')}
           </TabButton>
         </TabTrigger>

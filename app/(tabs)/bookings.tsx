@@ -210,7 +210,9 @@ const TripsScreen = () => {
     }, [apiToken, refreshBookingsIfStale])
   );
 
-  const byYear = groupBookingsByYear(filteredBookings, { upcomingFirst: activeFilter === 'all' });
+  const byYear = groupBookingsByYear(filteredBookings, {
+    upcomingFirst: activeFilter === 'all' || activeFilter === 'without_cancelled',
+  });
   const years = Object.keys(byYear).sort((a, b) => Number(b) - Number(a));
 
   const handleNewBooking = useCallback(async () => {
@@ -298,6 +300,13 @@ const TripsScreen = () => {
                 selected={activeFilter === 'cancelled'}
                 title={`${t('tripsFilterCancelled')} (${counts.cancelled})`}
                 onPress={() => setSelectedFilter('cancelled')}
+              />
+              <AppButton
+                variant="choice"
+                size="sm"
+                selected={activeFilter === 'without_cancelled'}
+                title={`${t('tripsFilterWithoutCancelled')} (${counts.withoutCancelled})`}
+                onPress={() => setSelectedFilter('without_cancelled')}
               />
               <AppButton
                 variant="choice"

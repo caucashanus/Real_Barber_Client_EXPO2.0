@@ -3,10 +3,8 @@ import { TabTriggerSlotProps } from 'expo-router/ui';
 import { forwardRef, useEffect, useState, ReactNode } from 'react';
 import { Pressable, View, Animated } from 'react-native';
 
-import Avatar from './Avatar';
-import ThemedText from './ThemedText';
-
 import Icon, { IconName } from '@/components/Icon';
+import TabBarProfileAvatar from '@/components/TabBarProfileAvatar';
 
 export type TabButtonProps = TabTriggerSlotProps & {
   icon?: IconName;
@@ -91,11 +89,11 @@ export const TabButton = forwardRef<View, TabButtonProps>(
       }
       if (avatar) {
         return (
-          <View
-            style={isFocused ? { borderColor: colors.highlight } : undefined}
-            className={`rounded-full border-2 ${!isFocused ? 'border-transparent' : ''}`}>
-            <Avatar src={avatar} size="xxs" />
-          </View>
+          <TabBarProfileAvatar
+            uri={avatar}
+            focused={isFocused}
+            borderColor={colors.highlight}
+          />
         );
       }
       return null;

@@ -18,6 +18,7 @@ import Icon from '@/components/Icon';
 import ThemeScroller from '@/components/ThemeScroller';
 import ThemedText from '@/components/ThemedText';
 import Section from '@/components/layout/Section';
+import SurfaceCard from '@/components/layout/SurfaceCard';
 import {
   isHaircutIntroCooldownActive,
   setHaircutIntroCooldown24h,
@@ -136,7 +137,7 @@ const MyHaircutsScreen = () => {
       scrollEventThrottle={16}>
       <AnimatedView animation="scaleIn" className="mt-4 flex-1">
         {showIntroBanner ? (
-          <View className="mb-6 items-center rounded-3xl bg-slate-200 p-10 dark:bg-dark-secondary">
+          <SurfaceCard className="mb-6 items-center p-10">
             <View className="relative h-20 w-20">
               <View className="relative z-20 h-full w-full overflow-hidden rounded-xl border-2 border-light-primary dark:border-dark-primary">
                 <Image
@@ -174,7 +175,7 @@ const MyHaircutsScreen = () => {
                 router.push('/screens/haircut-create-start?from=cta');
               }}
             />
-          </View>
+          </SurfaceCard>
         ) : null}
 
         <View className="mb-4 flex-row items-center justify-between gap-2 py-2">

@@ -14,21 +14,24 @@ import { useTranslation } from '@/hooks/useTranslation';
 import AnimatedView from '@/components/AnimatedView';
 import Avatar from '@/components/Avatar';
 import Header, { HeaderIcon } from '@/components/Header';
+import Icon from '@/components/Icon';
 import ListLink from '@/components/ListLink';
 import { ProfileCompletionSheet } from '@/components/profile/ProfileCompletionSheet';
 import ProfileContactsSection from '@/components/profile/ProfileContactsSection';
+import SurfaceCard from '@/components/layout/SurfaceCard';
+import { ThemeAppearanceSheet } from '@/components/profile/ThemeAppearanceSheet';
+import { AccentColorSheet } from '@/components/profile/AccentColorSheet';
 import { LanguageSwitcherDrawer } from '@/components/shared/LanguageSwitcherDrawer';
 import LocaleFlag from '@/components/shared/LocaleFlag';
 import ThemedScroller from '@/components/ThemeScroller';
-import ThemeToggle from '@/components/ThemeToggle';
 import ThemedText from '@/components/ThemedText';
 import type { ProfileCompletionStepId } from '@/constants/profileCompletionSchema';
+import { useTheme } from '@/contexts/ThemeContext';
 import { PROFILE_BOOKINGS_ROUTE } from '@/constants/profileContacts';
 import { useProfileCompletionPrompt } from '@/hooks/useProfileCompletionPrompt';
 import { maybeRequestAppStoreReview } from '@/utils/appStoreReview';
 import { hasServerProfileAvatar } from '@/utils/editProfileAvatar';
 import { shouldStaleRefresh } from '@/utils/staleRefresh';
-import { shadowPresets } from '@/utils/useShadow';
 
 /** Spodní badge s číslem verze (přizpůsobeno iOS/Android buildu). */
 function ProfileVersionBadge() {
@@ -82,7 +85,6 @@ export default function ProfileScreen() {
   return (
     <View className="flex-1 bg-light-primary dark:bg-dark-primary">
       <Header
-        leftComponent={<ThemeToggle />}
         rightComponents={[
           <HeaderIcon
             key="notifications"
@@ -125,7 +127,11 @@ const PersonalProfile = ({
   const { bookings } = useBookings();
   const { locale } = useLanguage();
   const { t } = useTranslation();
+  const { isDark } = useTheme();
+  const { accentColor } = useAccentColor();
   const languageSheetRef = useRef<ActionSheetRef>(null);
+  const appearanceSheetRef = useRef<ActionSheetRef>(null);
+  const accentSheetRef = useRef<ActionSheetRef>(null);
   const completionSheetRef = useRef<ActionSheetRef>(null);
   const [completionStep, setCompletionStep] = useState<ProfileCompletionStepId | null>(null);
   const [client, setClient] = useState<ClientMe | null>(null);
@@ -218,12 +224,10 @@ const PersonalProfile = ({
 
   return (
     <AnimatedView className="pt-4" animation="scaleIn">
-      <View
-        style={{ ...shadowPresets.large }}
-        className="mb-4  flex-row items-center justify-center rounded-3xl bg-light-primary p-10 dark:bg-dark-secondary">
+      <SurfaceCard className="mb-4 flex-row items-center justify-center p-10">
         <View className="w-1/2 flex-col items-center">
           {loading ? (
-            <View className="h-20 w-20 items-center justify-center rounded-full bg-light-secondary dark:bg-dark-primary">
+            <View className="h-20 w-20 items-center justify-center rounded-full bg-light-primary dark:bg-dark-primary">
               <ActivityIndicator />
             </View>
           ) : (
@@ -259,7 +263,7 @@ const PersonalProfile = ({
             <ThemedText className="text-xs">{t('profileMemberDays')}</ThemedText>
           </View>
         </View>
-      </View>
+      </SurfaceCard>
 
       <View className="gap-1 px-4">
         <ListLink
@@ -295,6 +299,26 @@ const PersonalProfile = ({
         />
         <ListLink
           showChevron
+          title={isDark ? t('profileAppearanceLightMode') : t('profileAppearanceDarkMode')}
+          icon={isDark ? 'Sun' : 'Moon'}
+          onPress={() => appearanceSheetRef.current?.show()}
+        />
+        <ListLink
+          showChevron
+          title={t('settingsAccent')}
+          leading={
+            <View className="relative">
+              <Icon name="Palette" size={24} strokeWidth={1.3} />
+              <View
+                className="absolute -bottom-0.5 -right-0.5 h-3 w-3 rounded-full border border-light-primary dark:border-dark-primary"
+                style={{ backgroundColor: accentColor }}
+              />
+            </View>
+          }
+          onPress={() => accentSheetRef.current?.show()}
+        />
+        <ListLink
+          showChevron
           title={t('profileLogout')}
           icon="LogOut"
           onPress={() => {
@@ -303,6 +327,8 @@ const PersonalProfile = ({
         />
       </View>
       <LanguageSwitcherDrawer ref={languageSheetRef} />
+      <ThemeAppearanceSheet ref={appearanceSheetRef} />
+      <AccentColorSheet ref={accentSheetRef} />
       <ProfileCompletionSheet
         ref={completionSheetRef}
         step={completionStep}

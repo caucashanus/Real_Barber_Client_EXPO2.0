@@ -22,6 +22,14 @@ let sessionNearest: NearestApiBranch | null = null;
 let sessionLocationLabel: string | null = null;
 let sessionError: NearestBranchError | null = null;
 let inFlight: Promise<ResolveResult> | null = null;
+let resolveGeneration = 0;
+
+function clearSessionCache() {
+  sessionNearest = null;
+  sessionLocationLabel = null;
+  sessionError = null;
+  inFlight = null;
+}
 
 function isBranchInternalId(id: string): id is BranchInternalId {
   return ALL_BRANCH_INTERNAL_IDS.includes(id as BranchInternalId);
@@ -167,10 +175,7 @@ export function useNearestBranch() {
       }
 
       if (options?.force) {
-        sessionNearest = null;
-        sessionLocationLabel = null;
-        sessionError = null;
-        inFlight = null;
+        clearSessionCache();
       }
 
       if (sessionNearest && !sessionError && !options?.force) {
@@ -194,36 +199,32 @@ export function useNearestBranch() {
   );
 
   const resolveNearest = useCallback(async () => {
-    if (sessionNearest && !sessionError) {
-      applyResult({
-        nearest: sessionNearest,
-        error: sessionError,
-        userLocationLabel: sessionLocationLabel,
-      });
-      setHasLocationPermission(true);
-      return;
-    }
+    const generation = ++resolveGeneration;
+    clearSessionCache();
 
     setLoading(true);
     setError(null);
     try {
       const result = await runNearestResolve(true);
+      if (generation !== resolveGeneration) return;
+
       applySession(result);
       applyResult(result);
       setHasLocationPermission(result.error !== 'denied');
     } finally {
-      setLoading(false);
+      if (generation === resolveGeneration) {
+        setLoading(false);
+      }
     }
   }, [applyResult]);
 
   const resetSession = useCallback(() => {
-    sessionNearest = null;
-    sessionLocationLabel = null;
-    sessionError = null;
-    inFlight = null;
+    resolveGeneration += 1;
+    clearSessionCache();
     setNearest(null);
     setError(null);
     setUserLocationLabel(null);
+    setLoading(false);
   }, []);
 
   return {

@@ -27,12 +27,6 @@ export default function SettingsScreen() {
 
         <View className="px-4">
           <ListLink
-            title={t('settingsAccent')}
-            description={t('settingsAccentDesc')}
-            icon="Palette"
-            href="/screens/settings-accent"
-          />
-          <ListLink
             title={t('settingsCommunicationPrefs')}
             description={t('settingsCommunicationPrefsDesc')}
             icon="MessagesSquare"

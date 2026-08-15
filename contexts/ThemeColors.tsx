@@ -10,7 +10,7 @@ export const useThemeColors = () => {
     icon: isDark ? 'white' : 'black',
     bg,
     invert: isDark ? '#000000' : '#ffffff',
-    secondary: isDark ? '#262626' : '#F5F5F5',
+    secondary: isDark ? '#262626' : '#F1F1F1',
     state: isDark ? 'rgba(255, 255, 255, 0.3)' : 'rgba(0, 0, 0, 0.3)',
     /** Bottom sheets / drawers — stejné jako globální pozadí obrazovky. */
     sheet: bg,

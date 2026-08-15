@@ -24,12 +24,12 @@ import ThemedText from '@/components/ThemedText';
 import { List } from '@/components/layout/List';
 import ListItem from '@/components/layout/ListItem';
 import Section from '@/components/layout/Section';
+import SurfaceCard from '@/components/layout/SurfaceCard';
 import {
   normalizePhoneDigitsForLookup,
   isCompleteCzPhoneForClientLookup,
   toClientSearchPhoneQuery,
 } from '@/utils/clientPhoneSearch';
-import { shadowPresets } from '@/utils/useShadow';
 
 function formatBalance(value: number): string {
   return value.toLocaleString('cs-CZ', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
@@ -261,9 +261,7 @@ export default function TransferSelectRecipientScreen() {
       <Header showBackButton title={t('transferNewPayment')} onBackPress={() => router.back()} />
       <ThemedScroller className="flex-1 p-global">
         {/* Balance */}
-        <View
-          style={{ ...shadowPresets.large }}
-          className="mb-4 rounded-2xl bg-light-secondary p-4 dark:bg-dark-secondary">
+        <SurfaceCard rounded="2xl" className="mb-4 p-4">
           <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext">
             {t('transferAvailable')}
           </ThemedText>
@@ -271,7 +269,7 @@ export default function TransferSelectRecipientScreen() {
             {formatBalance(balance)}{' '}
             <ThemedText className="text-base font-semibold">RBC</ThemedText>
           </ThemedText>
-        </View>
+        </SurfaceCard>
 
         {/* Search */}
         <View className="mb-4 flex-row items-center rounded-xl border border-light-secondary bg-light-secondary px-3 py-2 dark:border-dark-secondary dark:bg-dark-secondary">
@@ -327,9 +325,7 @@ export default function TransferSelectRecipientScreen() {
             </Pressable>
           </View>
         ) : (
-          <View
-            style={{ ...shadowPresets.large }}
-            className="overflow-hidden rounded-2xl bg-light-secondary dark:bg-dark-secondary">
+          <SurfaceCard rounded="2xl" className="overflow-hidden">
             <List variant="divided" spacing={12} className="px-4">
               {filtered.map((r) => (
                 <ListItem
@@ -342,7 +338,7 @@ export default function TransferSelectRecipientScreen() {
                 />
               ))}
             </List>
-          </View>
+          </SurfaceCard>
         )}
       </ThemedScroller>
 

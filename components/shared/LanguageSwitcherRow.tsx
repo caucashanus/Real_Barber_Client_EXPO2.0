@@ -25,7 +25,7 @@ export default function LanguageSwitcherRow({ item, selected, onPress }: Languag
       onPress={onPress}
       className="w-full flex-row items-center gap-3 rounded-md px-3 py-2.5 active:bg-light-secondary/50 dark:active:bg-dark-secondary/50">
       <LocaleFlag locale={item.locale as Locale} size={20} />
-      <View className="min-w-0 flex-1">
+      <View className="min-w-0 flex-1 flex-row items-baseline gap-2">
         <ThemedText className="text-sm font-medium">{item.label}</ThemedText>
         <ThemedText className="text-xs text-light-subtext dark:text-dark-subtext">
           {item.subtitle}

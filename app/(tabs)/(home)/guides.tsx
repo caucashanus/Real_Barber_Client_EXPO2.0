@@ -12,7 +12,7 @@ import AnimatedView from '@/components/AnimatedView';
 import Favorite from '@/components/Favorite';
 import ThemeScroller from '@/components/ThemeScroller';
 import ThemedText from '@/components/ThemedText';
-import { shadowPresets } from '@/utils/useShadow';
+import SurfaceCard from '@/components/layout/SurfaceCard';
 
 function formatAddedAt(iso: string): string {
   const d = new Date(iso);
@@ -35,10 +35,8 @@ function GuideCard({ guide }: { guide: ClientGuide }) {
     router.push({ pathname: '/screens/guide-detail', params: { id: guide.id } });
 
   return (
-    <Pressable
-      onPress={onPress}
-      style={{ ...shadowPresets.large }}
-      className="mb-8 flex flex-row items-center rounded-2xl bg-light-primary p-5 dark:bg-dark-secondary">
+    <Pressable onPress={onPress} className="mb-8">
+      <SurfaceCard rounded="2xl" className="flex flex-row items-center p-5">
       <View className="flex-1 pr-3">
         <ThemedText className="text-base font-medium" numberOfLines={2}>
           {guide.title}
@@ -61,6 +59,7 @@ function GuideCard({ guide }: { guide: ClientGuide }) {
           <Favorite entityType="guide" entityId={guide.id} title={guide.title} size={20} isWhite />
         </View>
       </View>
+      </SurfaceCard>
     </Pressable>
   );
 }

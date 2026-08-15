@@ -11,6 +11,7 @@ import Icon from './Icon';
 import ThemedScroller from './ThemeScroller';
 import ThemedText from './ThemedText';
 
+import SurfaceCard from '@/components/layout/SurfaceCard';
 import { useTranslation } from '@/hooks/useTranslation';
 import { shadowPresets } from '@/utils/useShadow';
 
@@ -131,11 +132,8 @@ const SearchModal = ({ showModal, setShowModal }: SearchModalProps) => {
               </Pressable>
 
               {NAV_ITEM_IDS.map((id, i) => (
-                <Pressable
-                  key={id}
-                  onPress={() => handleNav(NAV_HREFS[i])}
-                  style={{ ...shadowPresets.large }}
-                  className="mb-4 w-full flex-row items-center rounded-2xl bg-light-primary p-global dark:bg-dark-secondary">
+                <Pressable key={id} onPress={() => handleNav(NAV_HREFS[i])} className="mb-4 w-full">
+                  <SurfaceCard rounded="2xl" className="w-full flex-row items-center p-global">
                   <View className="mr-4 h-12 w-12 items-center justify-center overflow-hidden rounded-xl bg-light-secondary dark:bg-dark-primary">
                     <Image
                       source={SEARCH_MODAL_IMAGES[i]}
@@ -156,6 +154,7 @@ const SearchModal = ({ showModal, setShowModal }: SearchModalProps) => {
                     size={20}
                     className="text-light-subtext dark:text-dark-subtext"
                   />
+                  </SurfaceCard>
                 </Pressable>
               ))}
             </ThemedScroller>

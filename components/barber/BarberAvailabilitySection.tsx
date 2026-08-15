@@ -35,7 +35,7 @@ interface BarberAvailabilitySectionProps {
 
 const EMBEDDED_SHIFT_CARD_CLASS = 'bg-light-primary dark:bg-[#1C1C1C]';
 const STANDALONE_SHIFT_CARD_CLASS = 'bg-light-secondary dark:bg-dark-secondary';
-const AVAILABILITY_INFO_HINT_BORDER_CLASS = 'border border-[#632F26]';
+const AVAILABILITY_INFO_HINT_BORDER_CLASS = 'border border-neutral-200 dark:border-neutral-700';
 
 function ShiftRow({
   row,

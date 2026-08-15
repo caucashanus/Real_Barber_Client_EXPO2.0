@@ -77,7 +77,7 @@ function OtpInput({
 
   const focusedBorderColor = isDark ? '#ffffff' : '#000000';
   const textColor = isDark ? '#ffffff' : '#000000';
-  const bgColor = isDark ? '#262626' : '#F5F5F5';
+  const bgColor = isDark ? '#262626' : '#F1F1F1';
 
   return (
     <View>

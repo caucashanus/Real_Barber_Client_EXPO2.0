@@ -29,12 +29,14 @@ import TransactionDetailSheet from '@/components/TransactionDetailSheet';
 import { List } from '@/components/layout/List';
 import ListItem from '@/components/layout/ListItem';
 import Section from '@/components/layout/Section';
+import SurfaceCard from '@/components/layout/SurfaceCard';
 import {
   getRbCoinsTransactionAvatarSrc,
   getRbCoinsTransactionListTitle,
   RB_COINS_TX_LIST_KEYS_WALLET,
 } from '@/utils/rbcCoinsHistoryUi';
 import { shouldStaleRefresh } from '@/utils/staleRefresh';
+import { useTheme } from '@/contexts/ThemeContext';
 import { shadowPresets } from '@/utils/useShadow';
 
 /** In-memory fallback when AsyncStorage native module is unavailable (e.g. web, some dev builds). */
@@ -88,6 +90,7 @@ const WalletScreen = () => {
   const router = useRouter();
   const scrollY = useContext(ScrollContext);
   const colors = useThemeColors();
+  const { isDark } = useTheme();
   const { accentColor } = useAccentColor();
   const { apiToken } = useAuth();
   const { t } = useTranslation();
@@ -276,9 +279,7 @@ const WalletScreen = () => {
         </View>
 
         {/* 2. Akční tlačítka */}
-        <View
-          style={{ ...shadowPresets.large }}
-          className="-mt-2 flex-row justify-around rounded-2xl bg-light-secondary p-5 dark:bg-dark-secondary">
+        <SurfaceCard rounded="2xl" className="-mt-2 flex-row justify-around p-5">
           <Pressable
             className="items-center"
             onPress={() => router.push('/screens/transfer-select-recipient')}>
@@ -299,7 +300,7 @@ const WalletScreen = () => {
               {t('walletStats')}
             </ThemedText>
           </Pressable>
-        </View>
+        </SurfaceCard>
 
         {/* 3. Karty aktivních referral programů z GET /api/client/referrals – X skryje na 24 h */}
         {showReferralPromoStrip ? (
@@ -313,11 +314,12 @@ const WalletScreen = () => {
               paddingVertical: 18,
             }}>
             {referralsLoading && visibleReferralPrograms.length === 0 ? (
-              <View
-                style={{ ...shadowPresets.large, width: 280, marginRight: 15 }}
-                className="min-h-[120px] flex-shrink-0 items-center justify-center rounded-2xl bg-light-secondary p-5 dark:bg-dark-secondary">
+              <SurfaceCard
+                rounded="2xl"
+                style={{ width: 280, marginRight: 15 }}
+                className="min-h-[120px] flex-shrink-0 items-center justify-center p-5">
                 <ActivityIndicator size="small" />
-              </View>
+              </SurfaceCard>
             ) : null}
             {visibleReferralPrograms.map((program) => {
               const coverUri = program.coverImageUrl?.trim();
@@ -353,8 +355,8 @@ const WalletScreen = () => {
                     key={program.id}
                     source={{ uri: coverUri }}
                     style={[
-                      { ...shadowPresets.large, width: 280, marginRight: 15 },
-                      { minHeight: 140 },
+                      isDark ? shadowPresets.large : undefined,
+                      { width: 280, marginRight: 15, minHeight: 140 },
                     ]}
                     className="flex-shrink-0 overflow-hidden rounded-2xl"
                     imageStyle={{ borderRadius: 16 }}>
@@ -368,12 +370,13 @@ const WalletScreen = () => {
               }
 
               return (
-                <View
+                <SurfaceCard
                   key={program.id}
-                  style={{ ...shadowPresets.large, width: 280, marginRight: 15 }}
-                  className="flex-shrink-0 rounded-2xl bg-light-secondary p-5 dark:bg-dark-secondary">
+                  rounded="2xl"
+                  style={{ width: 280, marginRight: 15 }}
+                  className="flex-shrink-0 p-5">
                   {cardInner}
-                </View>
+                </SurfaceCard>
               );
             })}
           </ScrollView>
@@ -381,9 +384,7 @@ const WalletScreen = () => {
 
         {/* 4. Transakce – stejný blok se stínem jako na Branches */}
         <Section title={t('walletTransactions')} titleSize="lg" className="mt-6">
-          <View
-            style={{ ...shadowPresets.large }}
-            className="mt-2 overflow-hidden rounded-2xl bg-light-secondary p-global dark:bg-dark-secondary">
+          <SurfaceCard rounded="2xl" className="mt-2 overflow-hidden p-global">
             <List variant="divided" spacing={12}>
               {historyLoading ? (
                 <View className="items-center py-6">
@@ -423,7 +424,7 @@ const WalletScreen = () => {
                 })
               )}
             </List>
-          </View>
+          </SurfaceCard>
           <Link href="/screens/wallet-history" asChild>
             <Pressable className="mt-3 items-center py-3">
               <ThemedText className="text-base font-medium text-light-text dark:text-dark-text">

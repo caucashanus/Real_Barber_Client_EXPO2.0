@@ -11,6 +11,7 @@ import {
 
 export type ClientBookingFilter =
   | 'all'
+  | 'without_cancelled'
   | 'current'
   | 'upcoming'
   | 'past'
@@ -18,11 +19,17 @@ export type ClientBookingFilter =
   | 'rated'
   | 'pending_review';
 
+function isBookingCancelled(booking: Booking): boolean {
+  const status = (booking.status ?? '').toLowerCase();
+  return status === 'cancelled' || status === 'canceled';
+}
+
 export function countClientBookingsByFilter(bookings: Booking[]): {
   current: number;
   upcoming: number;
   past: number;
   cancelled: number;
+  withoutCancelled: number;
   rated: number;
   pendingReview: number;
 } {
@@ -62,7 +69,15 @@ export function countClientBookingsByFilter(bookings: Booking[]): {
       }
     }
   }
-  return { current, upcoming, past, cancelled, rated, pendingReview };
+  return {
+    current,
+    upcoming,
+    past,
+    cancelled,
+    withoutCancelled: bookings.length - cancelled,
+    rated,
+    pendingReview,
+  };
 }
 
 export function filterClientBookings(
@@ -70,14 +85,14 @@ export function filterClientBookings(
   filter: ClientBookingFilter
 ): Booking[] {
   if (filter === 'all') return bookings;
+  if (filter === 'without_cancelled') {
+    return bookings.filter((b) => !isBookingCancelled(b));
+  }
   if (filter === 'current') return bookings.filter((b) => isBookingCurrent(b));
   if (filter === 'upcoming') return bookings.filter((b) => isBookingUpcoming(b));
   if (filter === 'past') return bookings.filter((b) => isBookingPast(b));
   if (filter === 'cancelled') {
-    return bookings.filter((b) => {
-      const status = (b.status ?? '').toLowerCase();
-      return status === 'cancelled' || status === 'canceled';
-    });
+    return bookings.filter(isBookingCancelled);
   }
   if (filter === 'rated') {
     return bookings.filter((b) => isBookingPast(b) && getBookingClientReviewRating(b) != null);

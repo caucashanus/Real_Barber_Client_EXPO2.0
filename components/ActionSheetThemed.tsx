@@ -6,13 +6,17 @@ import useThemeColors from '@/contexts/ThemeColors';
 interface ActionSheetThemedProps extends ActionSheetProps {}
 
 const ActionSheetThemed = forwardRef<ActionSheetRef, ActionSheetThemedProps>(
-  ({ containerStyle, ...props }, ref) => {
+  ({ containerStyle, indicatorStyle, ...props }, ref) => {
     const colors = useThemeColors();
 
     return (
       <ActionSheet
         {...props}
         ref={ref}
+        indicatorStyle={{
+          backgroundColor: colors.isDark ? 'rgba(255, 255, 255, 0.35)' : '#525252',
+          ...indicatorStyle,
+        }}
         containerStyle={{
           backgroundColor: colors.sheet,
           borderTopLeftRadius: 20,

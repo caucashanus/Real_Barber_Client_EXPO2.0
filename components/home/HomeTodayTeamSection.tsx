@@ -4,7 +4,7 @@ import { ActivityIndicator, View } from 'react-native';
 import type { Locale } from '@/contexts/LanguageContext';
 import AppButton from '@/components/AppButton';
 import BarberAvailabilityGrid from '@/components/home/BarberAvailabilityGrid';
-import CustomCard from '@/components/CustomCard';
+import SurfaceCard from '@/components/layout/SurfaceCard';
 import Section from '@/components/layout/Section';
 import ThemedText from '@/components/ThemedText';
 import type { TranslationKey } from '@/locales';
@@ -100,12 +100,7 @@ export default function HomeTodayTeamSection({
   if (useCardLayout) {
     return (
       <View className={`w-full pb-4 ${className}`}>
-        <CustomCard
-          rounded="2xl"
-          padding="md"
-          border
-          background={false}
-          className="bg-light-secondary dark:bg-dark-secondary">
+        <SurfaceCard rounded="2xl" className="p-4">
           <ThemedText className="text-lg font-semibold">{t(sectionTitleKey)}</ThemedText>
           {introTextKey ? (
             <ThemedText className="mt-3 text-sm leading-6 text-light-subtext dark:text-dark-subtext">
@@ -113,8 +108,8 @@ export default function HomeTodayTeamSection({
             </ThemedText>
           ) : null}
           <View className="mt-4 w-full items-end">{titleActionButton}</View>
-        </CustomCard>
-        {teamContent}
+        </SurfaceCard>
+        <View className="mt-6">{teamContent}</View>
       </View>
     );
   }

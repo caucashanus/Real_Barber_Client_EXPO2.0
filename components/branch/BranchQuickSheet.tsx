@@ -62,6 +62,7 @@ export interface BranchQuickSheetProps {
   t: (key: TranslationKey) => string;
   loading?: boolean;
   errorMessage?: string | null;
+  onClose?: () => void;
 }
 
 function BranchQuickTravelRow({
@@ -398,6 +399,7 @@ export const BranchQuickSheet = forwardRef<ActionSheetRef, BranchQuickSheetProps
       t,
       loading = false,
       errorMessage = null,
+      onClose,
     },
     ref
   ) {
@@ -497,7 +499,7 @@ export const BranchQuickSheet = forwardRef<ActionSheetRef, BranchQuickSheetProps
 
     return (
       <>
-        <ActionSheetThemed ref={ref} gestureEnabled snapPoints={[100]}>
+        <ActionSheetThemed ref={ref} gestureEnabled snapPoints={[100]} onClose={onClose}>
           {errorMessage ? (
             <View className="px-4 pb-8 pt-2">
               <ThemedText className="py-6 text-left text-sm text-light-subtext dark:text-dark-subtext">
@@ -537,35 +539,35 @@ export const BranchQuickSheet = forwardRef<ActionSheetRef, BranchQuickSheetProps
               shareSheetRef={shareRef}
             />
           ) : null}
-        </ActionSheetThemed>
 
-        <BranchNavigateSheet
-          nested
-          ref={navigateRef}
-          branchName={branchMeta?.shortLabel}
-          address={branchMeta?.address}
-          latitude={branchMeta?.latitude}
-          longitude={branchMeta?.longitude}
-        />
-        <OperatorSupportSheet nested ref={callUsRef} variant="callUs" />
-        <ProfileActionsSheet
-          nested
-          ref={actionsRef}
-          title={t('branchMenuOpen')}
-          bookLabel={t('branchMenuBook')}
-          onShare={openActionsShare}
-          onRate={handleActionsRate}
-          onBook={handleActionsBook}
-        />
-        <ProfileShareSheet
-          nested
-          ref={shareRef}
-          displayName={branchMeta?.shortLabel ?? ''}
-          shareUrl={shareUrl}
-          title={shareCopy.title}
-          emailSubject={shareCopy.emailSubject}
-          emailBody={shareCopy.emailBody}
-        />
+          <BranchNavigateSheet
+            nested
+            ref={navigateRef}
+            branchName={branchMeta?.shortLabel}
+            address={branchMeta?.address}
+            latitude={branchMeta?.latitude}
+            longitude={branchMeta?.longitude}
+          />
+          <OperatorSupportSheet nested ref={callUsRef} variant="callUs" />
+          <ProfileActionsSheet
+            nested
+            ref={actionsRef}
+            title={t('branchMenuOpen')}
+            bookLabel={t('branchMenuBook')}
+            onShare={openActionsShare}
+            onRate={handleActionsRate}
+            onBook={handleActionsBook}
+          />
+          <ProfileShareSheet
+            nested
+            ref={shareRef}
+            displayName={branchMeta?.shortLabel ?? ''}
+            shareUrl={shareUrl}
+            title={shareCopy.title}
+            emailSubject={shareCopy.emailSubject}
+            emailBody={shareCopy.emailBody}
+          />
+        </ActionSheetThemed>
       </>
     );
   }

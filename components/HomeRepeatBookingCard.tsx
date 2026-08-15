@@ -7,6 +7,7 @@ import AppButton from '@/components/AppButton';
 import Avatar from '@/components/Avatar';
 import Icon from '@/components/Icon';
 import ThemedText from '@/components/ThemedText';
+import SurfaceCard from '@/components/layout/SurfaceCard';
 import type { TranslationKey } from '@/locales';
 import { buildRepeatReservationHref } from '@/utils/repeatBooking';
 
@@ -35,7 +36,7 @@ export function HomeRepeatBookingCard({
 
   return (
     <View className="mb-2">
-      <View className="flex-row overflow-hidden rounded-2xl bg-light-secondary dark:bg-dark-secondary">
+      <SurfaceCard rounded="2xl" className="flex-row overflow-hidden">
         <View className="min-w-0 flex-1">
           <Pressable onPress={openRepeat} accessibilityRole="button" className="active:opacity-70">
             <View className={`flex-row items-center gap-3 px-4 py-4 ${showBottomActions ? 'pb-3' : ''}`}>
@@ -85,7 +86,7 @@ export function HomeRepeatBookingCard({
             </View>
           ) : null}
         </View>
-      </View>
+      </SurfaceCard>
     </View>
   );
 }

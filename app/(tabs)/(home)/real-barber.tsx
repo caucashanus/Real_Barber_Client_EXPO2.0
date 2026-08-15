@@ -13,6 +13,7 @@ import { HomeRepeatBookingCard } from '@/components/HomeRepeatBookingCard';
 import { HomeSpotlightCard } from '@/components/HomeSpotlightCard';
 import HomeNearestBranch from '@/components/home/HomeNearestBranch';
 import HomeTodayTeamSection from '@/components/home/HomeTodayTeamSection';
+import SurfaceCard from '@/components/layout/SurfaceCard';
 import Icon from '@/components/Icon';
 import NotificationPromptSheet from '@/components/NotificationPromptSheet';
 import ThemeScroller from '@/components/ThemeScroller';
@@ -38,6 +39,7 @@ const HOME_ACTION_IMAGES = {
   branches: require('@/assets/img/search-modal-branches.png'),
   barbers: require('@/assets/img/barbers.png'),
   bookings: require('@/assets/img/search-modal-bookings.png'),
+  haircuts: require('@/assets/img/my-haircuts.png'),
 } as const;
 
 export default function RealBarberHomeTab() {
@@ -75,6 +77,11 @@ export default function RealBarberHomeTab() {
         id: 'bookings' as const,
         title: t('homeBookings'),
         onPress: () => router.push('/bookings' as any),
+      },
+      {
+        id: 'haircuts' as const,
+        title: t('homeHaircuts'),
+        onPress: () => router.push('/inspirace' as any),
       },
     ],
     [t]
@@ -179,27 +186,24 @@ export default function RealBarberHomeTab() {
             <Pressable
               key={a.id}
               onPress={a.onPress}
-              className="mb-2 w-[48.7%] rounded-2xl bg-light-secondary dark:bg-dark-secondary active:opacity-70">
-              <View className="flex-row items-center gap-3 p-3.5">
-                <Image
-                  source={HOME_ACTION_IMAGES[a.id]}
-                  style={{ width: 28, height: 28 }}
-                  contentFit="contain"
-                />
-                <ThemedText
-                  className="min-w-0 flex-1 text-sm font-semibold leading-tight"
-                  numberOfLines={2}>
-                  {a.title}
-                </ThemedText>
-              </View>
+              className="mb-2 w-[48.7%] active:opacity-70">
+              <SurfaceCard rounded="2xl" className="w-full">
+                <View className="flex-row items-center gap-3 p-3.5">
+                  <Image
+                    source={HOME_ACTION_IMAGES[a.id]}
+                    style={{ width: 28, height: 28 }}
+                    contentFit="contain"
+                  />
+                  <ThemedText
+                    className="min-w-0 flex-1 text-sm font-semibold leading-tight"
+                    numberOfLines={2}>
+                    {a.title}
+                  </ThemedText>
+                </View>
+              </SurfaceCard>
             </Pressable>
           ))}
-          <HomeNearestBranch
-            teamCards={todayTeamCards}
-            locale={locale}
-            t={t}
-            homeRefreshing={refreshing}
-          />
+          <HomeNearestBranch teamCards={todayTeamCards} locale={locale} t={t} />
         </View>
 
         {!loading && recentBookings.length > 0 ? (

@@ -13,13 +13,13 @@ import TransactionDetailSheet from '@/components/TransactionDetailSheet';
 import { List } from '@/components/layout/List';
 import ListItem from '@/components/layout/ListItem';
 import Section from '@/components/layout/Section';
+import SurfaceCard from '@/components/layout/SurfaceCard';
 import type { TranslationKey } from '@/locales';
 import {
   getRbCoinsTransactionAvatarSrc,
   getRbCoinsTransactionListTitle,
   RB_COINS_TX_LIST_KEYS_WALLET,
 } from '@/utils/rbcCoinsHistoryUi';
-import { shadowPresets } from '@/utils/useShadow';
 
 function formatBalance(value: number): string {
   return value.toLocaleString('en-GB', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
@@ -137,9 +137,7 @@ export default function WalletHistoryScreen() {
               title={getSectionTitle(dateKey, t, locale)}
               titleSize="lg"
               className="pb-2 pt-4">
-              <View
-                style={{ ...shadowPresets.large }}
-                className="overflow-hidden rounded-2xl bg-light-secondary p-global dark:bg-dark-secondary">
+              <SurfaceCard rounded="2xl" className="overflow-hidden p-global">
                 <List variant="divided" spacing={12}>
                   {items.map((tx) => {
                     const isSent = tx.direction === 'sent';
@@ -164,7 +162,7 @@ export default function WalletHistoryScreen() {
                     );
                   })}
                 </List>
-              </View>
+              </SurfaceCard>
             </Section>
           ))
         )}

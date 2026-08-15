@@ -9,6 +9,7 @@ import {
   type HomePromoCarouselOverlaySlide,
 } from '@/components/HomePromoCarouselOverlay';
 import ImageCarousel from '@/components/ImageCarousel';
+import SurfaceCard from '@/components/layout/SurfaceCard';
 import ThemedText from '@/components/ThemedText';
 import { promoKuponHref, promoPosterHref } from '@/constants/promoDetailRoutes';
 import type { TranslationKey } from '@/locales';
@@ -116,14 +117,15 @@ export function HomePromoCarousel({
 
   if (loading) {
     return (
-      <View
+      <SurfaceCard
+        rounded="2xl"
         style={{ height }}
-        className="w-full items-center justify-center rounded-xl bg-light-secondary dark:bg-dark-secondary">
+        className="w-full items-center justify-center">
         <ActivityIndicator size="small" />
         <ThemedText className="mt-2 text-sm text-light-subtext dark:text-dark-subtext">
           {t('commonLoading')}
         </ThemedText>
-      </View>
+      </SurfaceCard>
     );
   }
 

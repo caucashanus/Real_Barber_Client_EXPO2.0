@@ -12,6 +12,7 @@ import BranchAddress from '@/components/shared/BranchAddress';
 import Icon from '@/components/Icon';
 import LiveIndicator from '@/components/LiveIndicator';
 import ThemedText from '@/components/ThemedText';
+import SurfaceCard from '@/components/layout/SurfaceCard';
 import type { TranslationKey } from '@/locales';
 import { addBookingToCalendar } from '@/utils/bookingCalendar';
 import {
@@ -83,7 +84,7 @@ export function HomeSpotlightCard({
   return (
     <>
       <View className="relative">
-        <View className="flex-row overflow-hidden rounded-2xl bg-light-secondary dark:bg-dark-secondary">
+        <SurfaceCard rounded="2xl" className="flex-row overflow-hidden">
           <View className="min-w-0 flex-1">
             <Pressable onPress={openDetail} className="active:opacity-70">
               <View
@@ -205,7 +206,7 @@ export function HomeSpotlightCard({
               </View>
             ) : null}
           </View>
-        </View>
+        </SurfaceCard>
 
         {showShareAction ? (
           <View className="absolute z-10" style={{ top: 12, right: 12 }}>
