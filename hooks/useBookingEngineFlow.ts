@@ -11,6 +11,11 @@ import {
   getBookingSlotServices,
   loadBookingEmployeesWithNearestSlots,
 } from '@/api/bookingEngine';
+import {
+  useBookingEngineContext,
+  useBookingEngineNavigation,
+  useBookingEngineSelections,
+} from '@/contexts/BookingEngineContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { useLanguage } from '@/contexts/LanguageContext';
 import useThemeColors from '@/contexts/ThemeColors';
@@ -42,14 +47,12 @@ import {
 } from '@/lib/booking/booking-api/mappers';
 import type { BookingFlatAvailabilityMap, BookingSlotServiceItem } from '@/lib/booking/booking-api/types';
 import { isAuthContactComplete } from '@/lib/booking/authContact';
+import { resolveBranchName } from '@/lib/booking/designShared';
 import { resolveBookingFlowFooterAction } from '@/lib/booking/bookingFlowFooter';
 import { ensureBookingSessionId } from '@/lib/booking/booking-api/session';
 import {
-  applyBookingBackwardCleanup,
   bookingServiceFromStoredSlotContext,
   clearBookingSlotContext,
-  computeMaxAllowedStep,
-  isStepSatisfiedForKind,
   readBookingSlotContext,
   resolveBranchEntityForSlotRestore,
   saveBookingSlotContext,
@@ -59,7 +62,6 @@ import {
   readBookingSlotHandoff,
   type StoredBookingSlotHandoff,
 } from '@/lib/booking/engine/navigation/slotHandoff';
-import { resolvePresetFromRouteParams } from '@/lib/booking/engine/resolvePresetFromParams';
 import { getRecipe } from '@/lib/booking/engine/recipes';
 import {
   resolveActiveSteps,
@@ -81,7 +83,7 @@ import { setFreshBookingSnapshot } from '@/utils/freshBookingSnapshot';
 import { buildOptimisticBooking } from '@/utils/optimisticBooking';
 import { setPendingCalendarPromo } from '@/utils/pendingCalendarPromo';
 import { setPendingStoreReviewAfterBooking } from '@/utils/pendingStoreReview';
-import { toIsoDate } from '@/utils/reservationCreateHelpers';
+import { toIsoDate, calendarTargetFromNearestSlot, findNearestAvailableBookingDate, formatBookingCalendarLongDate, findBookingSlotMatchingStart, normalizeBookingSlotStartForMatch } from '@/utils/reservationCreateHelpers';
 
 function stepTitleKey(kind: BookingStepKind): TranslationKey {
   switch (kind) {
@@ -116,37 +118,23 @@ export function useBookingEngineFlow() {
   const colors = useThemeColors();
   const { refresh: refreshBookings } = useBookings();
   const dateLocaleTag = locale === 'cs' ? 'cs-CZ' : 'en-GB';
+  const { recipeId, preset, draftReady, clearDraft } = useBookingEngineContext();
+  const {
+    selectedBranch,
+    selectedService,
+    selectedEmployee,
+    selectedDate,
+    selectedSlot,
+    setBranch,
+    setService,
+    setEmployee,
+    setDate,
+    setSlot,
+    patchSelections,
+    toBookingSelections,
+  } = useBookingEngineSelections();
 
-  const routeRecipe = trimSearchParam(params.recipe);
-  const routeBranchId = trimSearchParam(params.branchId);
-  const routeEmployeeId = trimSearchParam(params.employeeId);
-  const routeItemId = trimSearchParam(params.itemId);
-  const routeBranchSlug = trimSearchParam(params.branchSlug);
-  const routeEmployeeSlug = trimSearchParam(params.employeeSlug);
-  const routeServiceSlug = trimSearchParam(params.serviceSlug);
   const routeMonitorFrom = trimSearchParam(params.from);
-
-  const { recipeId, preset } = useMemo(
-    () =>
-      resolvePresetFromRouteParams({
-        recipe: routeRecipe,
-        branchId: routeBranchId,
-        employeeId: routeEmployeeId,
-        itemId: routeItemId,
-        branchSlug: routeBranchSlug,
-        employeeSlug: routeEmployeeSlug,
-        serviceSlug: routeServiceSlug,
-      }),
-    [
-      routeRecipe,
-      routeBranchId,
-      routeEmployeeId,
-      routeItemId,
-      routeBranchSlug,
-      routeEmployeeSlug,
-      routeServiceSlug,
-    ]
-  );
   const recipe = useMemo(() => getRecipe(recipeId), [recipeId]);
 
   const [bootstrapState, setBootstrapState] = useState<{
@@ -179,24 +167,25 @@ export function useBookingEngineFlow() {
     [recipe, preset, flowBootstrap]
   );
 
-  const [stepIndex, setStepIndex] = useState(0);
-  const step = activeSteps[stepIndex] ?? activeSteps[0] ?? 'branch';
+  const {
+    stepIndex,
+    step,
+    goToStepIndex,
+    goToStepByKind,
+    isNextDisabled,
+    onStepIndexChange: onStepIndexChangeBase,
+  } = useBookingEngineNavigation(activeSteps);
   const prevStepRef = useRef(step);
 
   const [branches, setBranches] = useState<BookingEntity[]>([]);
   const [services, setServices] = useState<BookingService[]>([]);
   const [employees, setEmployees] = useState<BookingEntity[]>([]);
+  const [employeesLoading, setEmployeesLoading] = useState(false);
   const [employeeNearestSlot, setEmployeeNearestSlot] = useState<
     Record<string, { date: string; start: string } | null>
   >({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-
-  const [selectedBranch, setSelectedBranch] = useState<BookingEntity | null>(null);
-  const [selectedService, setSelectedService] = useState<BookingService | null>(null);
-  const [selectedEmployee, setSelectedEmployee] = useState<BookingEntity | null>(null);
-  const [selectedDate, setSelectedDate] = useState<string | null>(null);
-  const [selectedSlot, setSelectedSlot] = useState<BookingSlot | null>(null);
 
   const [slotServices, setSlotServices] = useState<BookingSlotServiceItem[]>([]);
   const [loadingSlotServices, setLoadingSlotServices] = useState(false);
@@ -328,12 +317,6 @@ export function useBookingEngineFlow() {
     void ensureBookingSessionId();
   }, []);
 
-  useEffect(() => {
-    if (stepIndex >= activeSteps.length) {
-      setStepIndex(Math.max(0, activeSteps.length - 1));
-    }
-  }, [activeSteps.length, stepIndex]);
-
   // Bootstrap branches
   useEffect(() => {
     let cancelled = false;
@@ -380,7 +363,7 @@ export function useBookingEngineFlow() {
         const profileBranchesList = emp.branches ?? [];
         setProfileEmployee(emp);
         setProfileBranches(profileBranchesList);
-        setSelectedEmployee(emp);
+        setEmployee(emp, { clearDownstream: false });
         setBootstrapState({
           employeeBranchCount: profileBranchesList.length,
           employeeProfileMultiBranch: profileBranchesList.length >= 2,
@@ -409,7 +392,7 @@ export function useBookingEngineFlow() {
         if (cancelled) return;
         const mapped = mapCatalogItemToService(data.item);
         setServices([mapped]);
-        setSelectedService(mapped);
+        setService(mapped, { clearDownstream: false });
         if (data.branches?.length) setBranches(data.branches);
       })
       .catch((err) => {
@@ -428,14 +411,15 @@ export function useBookingEngineFlow() {
     if (!preset.branchId || !branches.length) return;
     const branch = branches.find((b) => b.id === preset.branchId);
     if (branch && selectedBranch?.id !== branch.id) {
-      setSelectedBranch(branch);
+      setBranch(branch, { clearDownstream: false });
     }
   }, [preset.branchId, branches, selectedBranch?.id]);
 
-  // Branch catalog
+  // Branch catalog — only while user is picking branch/service (avoid re-fetch on employee step)
   useEffect(() => {
     if (recipeId === 'employee-profile' || recipeId === 'service-detail') return;
     if (!selectedBranch?.id) return;
+    if (step !== 'branch' && step !== 'service') return;
     let cancelled = false;
     setLoading(true);
     getBookingBranchCatalog(selectedBranch.id, locale, apiToken)
@@ -451,7 +435,7 @@ export function useBookingEngineFlow() {
     return () => {
       cancelled = true;
     };
-  }, [recipeId, selectedBranch?.id, locale, apiToken, t]);
+  }, [recipeId, selectedBranch?.id, locale, apiToken, step, t]);
 
   // Hydrate preset service when the service step is skipped (repeat / deep link).
   useEffect(() => {
@@ -463,7 +447,7 @@ export function useBookingEngineFlow() {
 
     const match = services.find((service) => service.id === preset.serviceId);
     if (match) {
-      setSelectedService(match);
+      setService(match, { clearDownstream: false });
     }
   }, [
     recipeId,
@@ -486,14 +470,14 @@ export function useBookingEngineFlow() {
     const fromList = employees.find((employee) => employee.id === preset.employeeId);
     if (fromList) {
       if (selectedEmployee?.id !== fromList.id) {
-        setSelectedEmployee(fromList);
+        setEmployee(fromList, { clearDownstream: false });
       }
       return;
     }
 
     if (selectedEmployee?.id === preset.employeeId) return;
 
-    setSelectedEmployee({ id: preset.employeeId });
+    setEmployee({ id: preset.employeeId }, { clearDownstream: false });
   }, [
     recipeId,
     preset,
@@ -510,11 +494,17 @@ export function useBookingEngineFlow() {
     const shouldLoad =
       step === 'employee' ||
       (step === 'datetime' && selectedBranch?.id && selectedService?.id && preset.employeeId);
-    if (!shouldLoad || !selectedBranch?.id || !selectedService?.id) return;
+    if (!shouldLoad || !selectedBranch?.id || !selectedService?.id) {
+      if (step !== 'employee' && step !== 'datetime') {
+        setEmployees([]);
+        setEmployeeNearestSlot({});
+      }
+      return;
+    }
     if (recipeId === 'employee-profile') return;
 
     let cancelled = false;
-    setLoading(true);
+    setEmployeesLoading(true);
     loadBookingEmployeesWithNearestSlots({
       branchId: selectedBranch.id,
       itemId: selectedService.id,
@@ -531,7 +521,7 @@ export function useBookingEngineFlow() {
         if (!cancelled) setError(err instanceof Error ? err.message : t('reservationErrorGeneric'));
       })
       .finally(() => {
-        if (!cancelled) setLoading(false);
+        if (!cancelled) setEmployeesLoading(false);
       });
     return () => {
       cancelled = true;
@@ -557,25 +547,24 @@ export function useBookingEngineFlow() {
 
       setSlotHandoff(handoff);
       setFromSlotHandoff(true);
-      setSelectedBranch((current) => {
+      patchSelections((current) => {
         const resolved = resolveBranchEntityForSlotRestore(
           handoff.branchId,
-          current,
+          current.branch,
           { branches, profileBranches },
           handoff.slot.branchName ?? handoff.branchName,
           handoff.branchAddress
         );
-        if (current?.id === resolved.id && current?.name === resolved.name) {
-          return current;
-        }
-        return resolved;
+        const branch =
+          current.branch?.id === resolved.id && current.branch?.name === resolved.name
+            ? current.branch
+            : resolved;
+        const slot =
+          current.slot?.start === handoff.slot.start && current.slot?.end === handoff.slot.end
+            ? current.slot
+            : handoff.slot;
+        return { branch, date: handoff.date, slot };
       });
-      setSelectedDate(handoff.date);
-      setSelectedSlot((current) =>
-        current?.start === handoff.slot.start && current?.end === handoff.slot.end
-          ? current
-          : handoff.slot
-      );
     });
 
     return () => {
@@ -593,22 +582,21 @@ export function useBookingEngineFlow() {
 
       setSlotHandoff(handoff);
       setFromSlotHandoff(true);
-      setSelectedBranch((current) =>
-        resolveBranchEntityForSlotRestore(
+      patchSelections((current) => ({
+        branch: resolveBranchEntityForSlotRestore(
           handoff.branchId,
-          current,
+          current.branch,
           { branches, profileBranches },
           handoff.slot.branchName ?? handoff.branchName,
           handoff.branchAddress
-        )
-      );
-      setSelectedEmployee((current) =>
-        current?.id === handoff.employeeId
-          ? current
-          : { id: handoff.employeeId, name: handoff.employeeName }
-      );
-      setSelectedDate(handoff.date);
-      setSelectedSlot(handoff.slot);
+        ),
+        employee:
+          current.employee?.id === handoff.employeeId
+            ? current.employee
+            : { id: handoff.employeeId, name: handoff.employeeName },
+        date: handoff.date,
+        slot: handoff.slot,
+      }));
     });
 
     return () => {
@@ -736,16 +724,40 @@ export function useBookingEngineFlow() {
     t,
   ]);
 
-  const selections = useMemo(
+  const selections = useMemo(() => toBookingSelections(), [toBookingSelections]);
+
+  const navigationOptions = useMemo(
     () => ({
-      branch: selectedBranch ? { id: selectedBranch.id, name: selectedBranch.name } : null,
-      service: selectedService ? { id: selectedService.id, name: selectedService.name } : null,
-      employee: selectedEmployee ? { id: selectedEmployee.id, name: selectedEmployee.name } : null,
-      date: selectedDate,
-      slot: selectedSlot,
+      awaitingOtp: contact.awaitingPhoneOtp,
+      clearContactOtp: contact.cancelPhoneOtp,
     }),
-    [selectedBranch, selectedService, selectedEmployee, selectedDate, selectedSlot]
+    [contact.awaitingPhoneOtp, contact.cancelPhoneOtp]
   );
+
+  const goToStepIndexWithContact = useCallback(
+    (nextIndex: number) => {
+      goToStepIndex(nextIndex, {
+        fromStep: activeSteps[stepIndex] ?? step,
+        ...navigationOptions,
+      });
+    },
+    [goToStepIndex, activeSteps, stepIndex, step, navigationOptions]
+  );
+
+  const onStepIndexChange = useCallback(
+    (index: number, reason: 'next' | 'back' | 'skip') => {
+      onStepIndexChangeBase(index, reason, navigationOptions);
+    },
+    [onStepIndexChangeBase, navigationOptions]
+  );
+
+  const handleBack = useCallback(() => {
+    if (stepIndex > 0) {
+      goToStepIndexWithContact(stepIndex - 1);
+      return;
+    }
+    router.back();
+  }, [stepIndex, goToStepIndexWithContact]);
 
   const couponEmployeeId = useMemo(() => {
     const employee = profileEmployee ?? selectedEmployee;
@@ -810,22 +822,25 @@ export function useBookingEngineFlow() {
       if (preset.serviceId && stored.serviceId !== preset.serviceId) return;
       if (preset.employeeId && stored.employeeId !== preset.employeeId) return;
 
-      setSelectedBranch((current) =>
-        current?.id === stored.branchId
-          ? current
-          : resolveBranchEntityForSlotRestore(stored.branchId, current, {
-              branches,
-              profileBranches,
-            })
-      );
-      setSelectedService((current) =>
-        current?.id === stored.serviceId ? current : bookingServiceFromStoredSlotContext(stored)
-      );
-      setSelectedEmployee((current) =>
-        current?.id === stored.employeeId ? current : { id: stored.employeeId }
-      );
-      setSelectedDate(stored.date);
-      setSelectedSlot(stored.slot);
+      patchSelections((current) => ({
+        branch:
+          current.branch?.id === stored.branchId
+            ? current.branch
+            : resolveBranchEntityForSlotRestore(stored.branchId, current.branch, {
+                branches,
+                profileBranches,
+              }),
+        service:
+          current.service?.id === stored.serviceId
+            ? current.service
+            : bookingServiceFromStoredSlotContext(stored),
+        employee:
+          current.employee?.id === stored.employeeId
+            ? current.employee
+            : { id: stored.employeeId },
+        date: stored.date,
+        slot: stored.slot,
+      }));
     });
     return () => {
       cancelled = true;
@@ -840,28 +855,6 @@ export function useBookingEngineFlow() {
     branches,
     profileBranches,
   ]);
-
-  const goToStepIndex = useCallback(
-    (nextIndex: number) => {
-      const clamped = Math.max(0, Math.min(nextIndex, activeSteps.length - 1));
-      const fromStep = activeSteps[stepIndex] ?? step;
-      const toStep = activeSteps[clamped] ?? step;
-      if (clamped < stepIndex) {
-        applyBookingBackwardCleanup(fromStep, toStep, activeSteps, {
-          setBranch: (b) => setSelectedBranch(b as BookingEntity | null),
-          setService: (s) => setSelectedService(s as BookingService | null),
-          setEmployee: (e) => setSelectedEmployee(e as BookingEntity | null),
-          setDate: setSelectedDate,
-          setSlot: setSelectedSlot,
-        }, {
-          awaitingOtp: contact.awaitingPhoneOtp,
-          clearContactOtp: contact.cancelPhoneOtp,
-        });
-      }
-      setStepIndex(clamped);
-    },
-    [activeSteps, stepIndex, step, contact.awaitingPhoneOtp, contact.cancelPhoneOtp]
-  );
 
   useEffect(() => {
     if (recipeId !== 'service-detail' || !slotHandoff || !selectedService?.id) return;
@@ -883,7 +876,7 @@ export function useBookingEngineFlow() {
     if (!skipContact) return;
     const contactIdx = activeSteps.indexOf('contact');
     if (contactIdx >= 0 && stepIndex !== contactIdx) {
-      goToStepIndex(contactIdx);
+      goToStepIndexWithContact(contactIdx);
     }
   }, [
     recipeId,
@@ -896,7 +889,7 @@ export function useBookingEngineFlow() {
     skipContact,
     activeSteps,
     stepIndex,
-    goToStepIndex,
+    goToStepIndexWithContact,
   ]);
 
   const nextStepAfter = useCallback(
@@ -912,24 +905,31 @@ export function useBookingEngineFlow() {
       const next = nextStepAfter(kind);
       if (!next) return;
       const nextIdx = activeSteps.indexOf(next);
-      if (nextIdx >= 0) goToStepIndex(nextIdx);
+      if (nextIdx >= 0) goToStepIndexWithContact(nextIdx);
     },
-    [nextStepAfter, activeSteps, goToStepIndex]
+    [nextStepAfter, activeSteps, goToStepIndexWithContact]
   );
+
+  const handleContinue = useCallback(() => {
+    const next = nextStepAfter(step);
+    if (!next) return;
+    const nextIdx = activeSteps.indexOf(next);
+    if (nextIdx >= 0) goToStepIndexWithContact(nextIdx);
+  }, [step, nextStepAfter, activeSteps, goToStepIndexWithContact]);
+
+  const [employeeNearestChipEmployeeId, setEmployeeNearestChipEmployeeId] = useState<
+    string | null
+  >(null);
 
   const selectBranch = useCallback(
     (branch: BookingEntity) => {
-      setSelectedBranch(branch);
-      setSelectedEmployee(null);
-      setSelectedDate(null);
-      setSelectedSlot(null);
+      setBranch(branch);
       trackBookingMonitor('selected_branch', {
         ...monitorFields('branch'),
         branchName: branch.name ?? branch.displayName ?? null,
       });
-      advanceAfterSelect('branch');
     },
-    [advanceAfterSelect, monitorFields]
+    [monitorFields, setBranch]
   );
 
   const selectSlotHandoffService = useCallback(
@@ -947,11 +947,11 @@ export function useBookingEngineFlow() {
         handoff.slot.branchName ?? handoff.branchName,
         handoff.branchAddress
       );
-      setSelectedBranch(branch);
-      setSelectedService(service);
-      setSelectedEmployee(employee as BookingEntity);
-      setSelectedDate(handoff.date);
-      setSelectedSlot(handoff.slot);
+      setBranch(branch);
+      setService(service);
+      setEmployee(employee as BookingEntity);
+      setDate(handoff.date);
+      setSlot(handoff.slot);
       promoteBookingMonitorEntryNearestSlot();
       const handoffFields = bookingMonitorFieldsFromSelections({
         recipeId,
@@ -983,7 +983,7 @@ export function useBookingEngineFlow() {
         void clearBookingSlotHandoff();
         setSlotHandoff(null);
         const contactIdx = activeSteps.indexOf('contact');
-        if (contactIdx >= 0) goToStepIndex(contactIdx);
+        if (contactIdx >= 0) goToStepIndexWithContact(contactIdx);
         return;
       }
       void clearBookingSlotHandoff();
@@ -999,7 +999,7 @@ export function useBookingEngineFlow() {
       profileBranches,
       skipContact,
       activeSteps,
-      goToStepIndex,
+      goToStepIndexWithContact,
       advanceAfterSelect,
       recipeId,
       locale,
@@ -1012,10 +1012,7 @@ export function useBookingEngineFlow() {
         selectSlotHandoffService(service);
         return;
       }
-      setSelectedService(service);
-      if (recipeId !== 'employee-profile') setSelectedEmployee(null);
-      setSelectedDate(null);
-      setSelectedSlot(null);
+      setService(service);
       void clearBookingSlotHandoff();
       setSlotHandoff(null);
       setFromSlotHandoff(false);
@@ -1023,35 +1020,63 @@ export function useBookingEngineFlow() {
         ...monitorFields('service'),
         serviceName: service.name ?? null,
       });
-      advanceAfterSelect('service');
     },
-    [recipeId, slotHandoff, selectSlotHandoffService, advanceAfterSelect, monitorFields]
+    [recipeId, slotHandoff, selectSlotHandoffService, monitorFields]
   );
 
   const selectEmployee = useCallback(
     (employee: BookingEntity) => {
-      setSelectedEmployee(employee);
-      setSelectedDate(null);
-      setSelectedSlot(null);
+      setEmployee(employee);
+      setEmployeeNearestChipEmployeeId(null);
       trackBookingMonitor('selected_employee', {
         ...monitorFields('employee'),
         employeeName: employee.name ?? employee.displayName ?? null,
       });
-      advanceAfterSelect('employee');
     },
-    [advanceAfterSelect, monitorFields]
+    [monitorFields, setEmployee]
+  );
+
+  const selectEmployeeNearestChip = useCallback(
+    (employee: BookingEntity, nearest: { date: string; start: string }) => {
+      const dateIso = nearest.date.slice(0, 10);
+      const normalizedStart = normalizeBookingSlotStartForMatch(nearest.start);
+      patchSelections(() => ({
+        employee,
+        date: dateIso,
+        slot: { start: normalizedStart, end: '' },
+      }));
+      setEmployeeNearestChipEmployeeId(employee.id);
+      const target = calendarTargetFromNearestSlot(dateIso);
+      if (target) setMonthOffset(target.monthOffset);
+      trackBookingMonitor('selected_employee', {
+        ...monitorFields('employee'),
+        employeeName: employee.name ?? employee.displayName ?? null,
+      });
+      trackBookingMonitor('selected_date', {
+        ...monitorFields('datetime'),
+        date: dateIso,
+      });
+      trackBookingMonitor('selected_slot', {
+        ...monitorFields('datetime'),
+        date: dateIso,
+        slotStart: normalizedStart,
+        employeeName: employee.name ?? employee.displayName ?? null,
+      });
+    },
+    [patchSelections, setMonthOffset, monitorFields]
   );
 
   const selectDate = useCallback(
     (date: string) => {
-      setSelectedDate(date);
-      setSelectedSlot(null);
+      setDate(date);
+      setSlot(null);
+      setEmployeeNearestChipEmployeeId(null);
       trackBookingMonitor('selected_date', {
         ...monitorFields('datetime'),
         date,
       });
     },
-    [monitorFields]
+    [monitorFields, setDate, setSlot]
   );
 
   const selectSlot = useCallback(
@@ -1064,9 +1089,10 @@ export function useBookingEngineFlow() {
           { branches, profileBranches },
           slot.branchName
         );
-        setSelectedBranch(branch);
+        setBranch(branch);
       }
-      setSelectedSlot(slot);
+      setSlot(slot);
+      setEmployeeNearestChipEmployeeId(null);
       const employee = profileEmployee ?? selectedEmployee;
       trackBookingMonitor('selected_slot', {
         ...monitorFields('datetime'),
@@ -1085,7 +1111,6 @@ export function useBookingEngineFlow() {
           slot,
         });
       }
-      advanceAfterSelect('datetime');
     },
     [
       selectedBranch,
@@ -1095,7 +1120,6 @@ export function useBookingEngineFlow() {
       selectedDate,
       branches,
       profileBranches,
-      advanceAfterSelect,
       monitorFields,
     ]
   );
@@ -1145,6 +1169,102 @@ export function useBookingEngineFlow() {
     return out;
   }, [monthAnchor, dateLocaleTag, todayIso, datesWithSlots]);
 
+  const monthCalendarDays = useMemo(() => {
+    const year = monthAnchor.getFullYear();
+    const month = monthAnchor.getMonth();
+    const daysInMonth = new Date(year, month + 1, 0).getDate();
+    const out: Array<{ value: string; label: string; available: boolean; isToday: boolean }> = [];
+    for (let day = 1; day <= daysInMonth; day++) {
+      const date = new Date(year, month, day);
+      const value = toIsoDate(date);
+      if (value < todayIso) continue;
+      out.push({
+        value,
+        label: date.toLocaleDateString(dateLocaleTag, { weekday: 'short', day: 'numeric' }),
+        available: datesWithSlots.includes(value),
+        isToday: value === todayIso,
+      });
+    }
+    return out;
+  }, [monthAnchor, dateLocaleTag, todayIso, datesWithSlots]);
+
+  const nearestAvailableDate = useMemo(
+    () => findNearestAvailableBookingDate(datesWithSlots, selectedDate),
+    [datesWithSlots, selectedDate]
+  );
+
+  const nearestAvailableDateLabel = useMemo(() => {
+    if (!nearestAvailableDate) return null;
+    return formatBookingCalendarLongDate(nearestAvailableDate, dateLocaleTag);
+  }, [nearestAvailableDate, dateLocaleTag]);
+
+  const selectedDateHasNoSlots = Boolean(
+    selectedDate && !loadingCalendar && slotsForSelectedDate.length === 0
+  );
+
+  const jumpToNearestAvailableDate = useCallback(() => {
+    if (!nearestAvailableDate) return;
+    const target = calendarTargetFromNearestSlot(nearestAvailableDate);
+    if (target) setMonthOffset(target.monthOffset);
+    setDate(nearestAvailableDate);
+    setSlot(null);
+    trackBookingMonitor('selected_date', {
+      ...monitorFields('datetime'),
+      date: nearestAvailableDate,
+    });
+  }, [nearestAvailableDate, setDate, setSlot, setMonthOffset, monitorFields]);
+
+  useEffect(() => {
+    if (step !== 'datetime' || loadingCalendar) return;
+    if (selectedDate) return;
+    setDate(todayIso);
+  }, [step, loadingCalendar, selectedDate, todayIso, setDate]);
+
+  useEffect(() => {
+    if (step !== 'datetime' || loadingCalendar) return;
+    if (!employeeNearestChipEmployeeId || !selectedDate || !selectedSlot?.start) return;
+
+    const slots = slotsForSelectedDate;
+    if (slots.length === 0) return;
+
+    const matched = findBookingSlotMatchingStart(slots, selectedSlot.start);
+    if (!matched) {
+      setSlot(null);
+      setEmployeeNearestChipEmployeeId(null);
+      return;
+    }
+
+    const branchName = matched.branchId
+      ? resolveBranchName(matched.branchId, branches, profileBranches)
+      : undefined;
+
+    const needsUpdate =
+      selectedSlot.start !== matched.start ||
+      selectedSlot.end !== matched.end ||
+      (matched.branchId ?? '') !== (selectedSlot.branchId ?? '') ||
+      (matched.employeeId ?? '') !== (selectedSlot.employeeId ?? '');
+
+    if (!needsUpdate) return;
+
+    setSlot({
+      start: matched.start,
+      end: matched.end,
+      branchId: matched.branchId,
+      employeeId: matched.employeeId,
+      branchName,
+    });
+  }, [
+    step,
+    loadingCalendar,
+    employeeNearestChipEmployeeId,
+    selectedDate,
+    selectedSlot,
+    slotsForSelectedDate,
+    branches,
+    profileBranches,
+    setSlot,
+  ]);
+
   const employeesForPicker = useMemo(() => {
     if (recipeId === 'service-detail') return employees;
     const anyEmployee: BookingEntity = {
@@ -1175,6 +1295,7 @@ export function useBookingEngineFlow() {
 
       await clearBookingSlotContext();
       await clearBookingSlotHandoff();
+      await clearDraft();
       await refreshBookings({ force: true });
       const record = (data ?? {}) as { id?: string; booking?: { id?: string }; reservation?: { id?: string } };
       const createdId = record.id ?? record.booking?.id ?? record.reservation?.id;
@@ -1232,6 +1353,8 @@ export function useBookingEngineFlow() {
       selectedService,
       selectedDate,
       selectedSlot,
+      skipContact,
+      clearDraft,
     ]
   );
 
@@ -1277,7 +1400,7 @@ export function useBookingEngineFlow() {
       buildPayload: buildSubmitPayload,
       onSuccess: (data) => void handleSubmitSuccess(data, hadCoupon),
       onSlotConflict: () => {
-        setSelectedSlot(null);
+        setSlot(null);
         void clearBookingSlotContext();
       },
       formatError: (err) => formatBookingSubmitError(err, t),
@@ -1287,17 +1410,24 @@ export function useBookingEngineFlow() {
   const footerAction = useMemo(
     () =>
       resolveBookingFlowFooterAction({
-        isContactStep: step === 'contact',
-        isSummaryStep: step === 'summary',
-        authPrefillReady: contact.authPrefillReady,
+        step,
         submitSuccess: contact.submitSuccess,
-        selectedSlot,
-        selectedService,
+        isSlotHandoffFlow: Boolean(slotHandoff) && step === 'service',
+        authPrefillReady: contact.authPrefillReady,
+        selections: {
+          branch: selectedBranch,
+          service: selectedService,
+          employee: selectedEmployee,
+          date: selectedDate,
+          slot: selectedSlot,
+        },
         awaitingPhoneOtp: contact.awaitingPhoneOtp,
         otpDigits: contact.otpDigits,
         submitting: contact.submitting,
+        onContinue: handleContinue,
         onSubmit: handleSubmit,
         labels: {
+          continue: t('bookingContinue'),
           submit:
             step === 'contact' || step === 'summary'
               ? t('bookingReserveTerm')
@@ -1309,39 +1439,17 @@ export function useBookingEngineFlow() {
       }),
     [
       step,
-      skipContact,
+      slotHandoff,
       contact,
-      selectedSlot,
+      selectedBranch,
       selectedService,
+      selectedEmployee,
+      selectedDate,
+      selectedSlot,
+      handleContinue,
       handleSubmit,
       t,
     ]
-  );
-
-  const isNextDisabled = useCallback(
-    (index: number) => {
-      const kind = activeSteps[index];
-      if (!kind) return true;
-      return !isStepSatisfiedForKind(kind, selections);
-    },
-    [activeSteps, selections]
-  );
-
-  const onStepIndexChange = useCallback(
-    (index: number, reason: 'next' | 'back' | 'skip') => {
-      if (reason === 'back') {
-        goToStepIndex(index);
-        return;
-      }
-      const maxAllowed = computeMaxAllowedStep(activeSteps, selections);
-      const maxIdx = activeSteps.indexOf(maxAllowed);
-      if (index > maxIdx) {
-        goToStepIndex(maxIdx);
-        return;
-      }
-      setStepIndex(index);
-    },
-    [goToStepIndex, activeSteps, selections]
   );
 
   useEffect(() => {
@@ -1355,11 +1463,12 @@ export function useBookingEngineFlow() {
   }, [step]);
 
   const bootstrapStatus = useMemo(() => {
+    if (!draftReady) return 'pending' as const;
     if (recipeId === 'employee-profile' && profileLoading) return 'pending' as const;
     if (recipeId === 'employee-profile' && error && preset.employeeId) return 'error' as const;
     if (loading && branches.length === 0) return 'pending' as const;
     return 'ready' as const;
-  }, [recipeId, profileLoading, error, preset.employeeId, loading, branches.length]);
+  }, [draftReady, recipeId, profileLoading, error, preset.employeeId, loading, branches.length]);
 
   const stepLabels = useMemo(
     (): Partial<Record<BookingStepKind, string>> => ({
@@ -1372,23 +1481,6 @@ export function useBookingEngineFlow() {
     }),
     [t]
   );
-
-  const goToStepByKind = useCallback(
-    (kind: BookingStepKind) => {
-      const targetIdx = activeSteps.indexOf(kind);
-      if (targetIdx === -1 || targetIdx >= stepIndex) return;
-      goToStepIndex(targetIdx);
-    },
-    [activeSteps, stepIndex, goToStepIndex]
-  );
-
-  const handleBack = useCallback(() => {
-    if (stepIndex > 0) {
-      goToStepIndex(stepIndex - 1);
-      return;
-    }
-    router.back();
-  }, [stepIndex, goToStepIndex]);
 
   return {
     t,
@@ -1412,6 +1504,7 @@ export function useBookingEngineFlow() {
     services,
     employeesForPicker,
     employeeNearestSlot,
+    employeesLoading,
     selectedBranch,
     selectedService,
     selectedEmployee,
@@ -1421,8 +1514,11 @@ export function useBookingEngineFlow() {
     selectBranch,
     selectService,
     selectEmployee,
+    selectEmployeeNearestChip,
+    employeeNearestChipEmployeeId,
     selectDate,
     selectSlot,
+    handleContinue,
     slotHandoff,
     isSlotHandoffFlow: Boolean(slotHandoff),
     slotServices,
@@ -1436,9 +1532,14 @@ export function useBookingEngineFlow() {
     todayIso,
     tomorrowIso,
     visibleMonthDays,
+    monthCalendarDays,
     datesWithSlots,
     slotsForSelectedDate,
     loadingCalendar,
+    selectedDateHasNoSlots,
+    nearestAvailableDate,
+    nearestAvailableDateLabel,
+    jumpToNearestAvailableDate,
     showTodayChip: datesWithSlots.includes(todayIso),
     showTomorrowChip: datesWithSlots.includes(tomorrowIso),
     contact,

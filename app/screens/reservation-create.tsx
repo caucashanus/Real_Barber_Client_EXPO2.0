@@ -1,13 +1,14 @@
 import React from 'react';
 import { View } from 'react-native';
 
+import { BookingEngineProvider } from '@/contexts/BookingEngineContext';
 import { useBookingEngineFlow } from '@/hooks/useBookingEngineFlow';
 import BookingEngineFlowShell from '@/components/booking/engine/BookingEngineFlowShell';
 import BookingEngineStepContent from '@/components/booking/engine/BookingEngineStepContent';
 import Header from '@/components/Header';
 import ThemedText from '@/components/ThemedText';
 
-export default function ReservationCreateScreen() {
+function ReservationCreateContent() {
   const flow = useBookingEngineFlow();
 
   if (flow.bootstrapStatus === 'pending') {
@@ -48,5 +49,13 @@ export default function ReservationCreateScreen() {
     <BookingEngineFlowShell flow={flow}>
       <BookingEngineStepContent flow={flow} stepKind={flow.step} />
     </BookingEngineFlowShell>
+  );
+}
+
+export default function ReservationCreateScreen() {
+  return (
+    <BookingEngineProvider>
+      <ReservationCreateContent />
+    </BookingEngineProvider>
   );
 }

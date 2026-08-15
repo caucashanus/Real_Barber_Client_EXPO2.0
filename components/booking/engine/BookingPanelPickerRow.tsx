@@ -3,9 +3,9 @@ import React, { type ReactNode } from 'react';
 import { Pressable, View, type ImageSourcePropType } from 'react-native';
 
 import Avatar from '@/components/Avatar';
-import { Button } from '@/components/Button';
 import Icon from '@/components/Icon';
 import ThemedText from '@/components/ThemedText';
+import useThemeColors from '@/contexts/ThemeColors';
 import { shadowPresets } from '@/utils/useShadow';
 
 /** Stejná karta jako `BookingCard` v `bookings.tsx` — shadow + mt-4 na jednom View. */
@@ -32,9 +32,8 @@ interface BookingPanelPickerRowProps {
   description?: ReactNode;
   meta?: ReactNode;
   selected?: boolean;
-  selectLabel: string;
-  onSelect: () => void;
-  actionDisabled?: boolean;
+  onPress: () => void;
+  disabled?: boolean;
   showInfo?: boolean;
   onInfo?: () => void;
 }
@@ -50,90 +49,96 @@ export default function BookingPanelPickerRow({
   description,
   meta,
   selected = false,
-  selectLabel,
-  onSelect,
-  actionDisabled = false,
+  onPress,
+  disabled = false,
   showInfo = false,
   onInfo,
 }: BookingPanelPickerRowProps) {
+  const colors = useThemeColors();
   const avatarClass = avatarSize === 'xl' ? 'h-20 w-20' : 'h-12 w-12';
   const avatarRadius = imageShape === 'round' ? 'rounded-full' : 'rounded-xl';
 
   return (
     <View
       style={shadowPresets.card}
-      className={`${BOOKING_FLOW_CARD_OUTER_CLASS} ${actionDisabled ? 'opacity-60' : ''} ${
+      className={`${BOOKING_FLOW_CARD_OUTER_CLASS} ${disabled ? 'opacity-60' : ''} ${
         selected ? 'border-2 border-light-text dark:border-dark-text' : ''
       }`}>
       <View className="flex-row items-start gap-3 p-4">
-        <View className={`${avatarClass} shrink-0 items-center justify-center overflow-hidden`}>
-          {imageSource ? (
-            <Image
-              source={imageSource}
-              className={`${avatarClass} ${avatarRadius}`}
-              contentFit={imageFit}
-            />
-          ) : imageUrl?.trim() ? (
-            <Image
-              source={{ uri: imageUrl.trim() }}
-              className={`${avatarClass} ${avatarRadius}`}
-              contentFit={imageFit}
-            />
-          ) : (
-            <Avatar
-              size={avatarSize === 'xl' ? 'xl' : 'sm'}
-              name={fallbackName}
-              className={avatarRadius}
-            />
-          )}
-        </View>
+        <Pressable
+          disabled={disabled}
+          onPress={onPress}
+          className={`${avatarClass} shrink-0 active:opacity-80`}>
+          <View className={`${avatarClass} items-center justify-center overflow-hidden`}>
+            {imageSource ? (
+              <Image
+                source={imageSource}
+                className={`${avatarClass} ${avatarRadius}`}
+                contentFit={imageFit}
+              />
+            ) : imageUrl?.trim() ? (
+              <Image
+                source={{ uri: imageUrl.trim() }}
+                className={`${avatarClass} ${avatarRadius}`}
+                contentFit={imageFit}
+              />
+            ) : (
+              <Avatar
+                size={avatarSize === 'xl' ? 'xl' : 'sm'}
+                name={fallbackName}
+                className={avatarRadius}
+              />
+            )}
+          </View>
+        </Pressable>
 
         <View className="min-w-0 flex-1 gap-1">
-          {typeof title === 'string' ? (
-            <ThemedText className="text-base font-medium" numberOfLines={2}>
-              {title}
-            </ThemedText>
-          ) : (
-            title
-          )}
-          {description ? (
-            typeof description === 'string' ? (
-              <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext" numberOfLines={2}>
-                {description}
+          <Pressable disabled={disabled} onPress={onPress} className="active:opacity-80">
+            {typeof title === 'string' ? (
+              <ThemedText className="text-base font-medium" numberOfLines={2}>
+                {title}
               </ThemedText>
             ) : (
-              description
-            )
-          ) : null}
+              title
+            )}
+            {description ? (
+              typeof description === 'string' ? (
+                <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext" numberOfLines={2}>
+                  {description}
+                </ThemedText>
+              ) : (
+                description
+              )
+            ) : null}
+          </Pressable>
           {meta ?? null}
         </View>
 
-        {showInfo ? (
-          <Pressable
-            className="rounded-full p-2 active:opacity-70"
-            onPress={(event) => {
-              event.stopPropagation();
-              onInfo?.();
-            }}
-            hitSlop={8}
-            accessibilityRole="button"
-            accessibilityLabel="Info">
-            <Icon name="Info" size={18} className="text-light-subtext dark:text-dark-subtext" />
-          </Pressable>
-        ) : null}
-      </View>
-
-      <View className="border-t border-neutral-200 bg-light-secondary dark:border-neutral-700 dark:bg-dark-secondary">
-        <Button
-          title={selectLabel}
-          variant="ghost"
-          size="small"
-          rounded="none"
-          className="w-full rounded-none rounded-b-2xl px-4 py-3.5"
-          textClassName="text-sm font-semibold text-neutral-800 dark:text-neutral-200"
-          disabled={actionDisabled}
-          onPress={onSelect}
-        />
+        <View className="shrink-0 flex-row items-start gap-1">
+          {showInfo ? (
+            <Pressable
+              className="rounded-full p-2 active:opacity-70"
+              onPress={(event) => {
+                event.stopPropagation();
+                onInfo?.();
+              }}
+              hitSlop={8}
+              accessibilityRole="button"
+              accessibilityLabel="Info">
+              <Icon name="Info" size={18} className="text-light-subtext dark:text-dark-subtext" />
+            </Pressable>
+          ) : null}
+          {selected ? (
+            <Icon name="CheckCircle2" size={22} color={colors.highlight} />
+          ) : (
+            <Icon
+              name="Circle"
+              size={22}
+              className="text-light-subtext dark:text-dark-subtext"
+              strokeWidth={1.5}
+            />
+          )}
+        </View>
       </View>
     </View>
   );

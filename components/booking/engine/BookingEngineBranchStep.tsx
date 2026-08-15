@@ -41,8 +41,7 @@ export default function BookingEngineBranchStep({ flow }: Props) {
             title={branch.name ?? branch.id}
             description={branch.address ?? ''}
             selected={flow.selectedBranch?.id === branch.id}
-            selectLabel={t('bookingBranchSelect')}
-            onSelect={() => flow.selectBranch(branch)}
+            onPress={() => flow.selectBranch(branch)}
           />
         ))
       )}

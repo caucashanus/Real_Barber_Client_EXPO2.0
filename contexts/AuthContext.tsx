@@ -5,6 +5,7 @@ import React, { createContext, useCallback, useContext, useEffect, useState } fr
 import type { CrmClient } from '@/api/auth';
 import { setUnauthorizedHandler } from '@/api/session';
 import { LOGIN_PATH } from '@/constants/authRoutes';
+import { clearBookingDraft } from '@/lib/booking/engine/bookingDraft';
 
 const TOKEN_KEY = '@crm_token';
 const API_TOKEN_KEY = '@crm_api_token';
@@ -40,6 +41,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         AsyncStorage.removeItem(TOKEN_KEY),
         AsyncStorage.removeItem(API_TOKEN_KEY),
         AsyncStorage.removeItem(CLIENT_KEY),
+        clearBookingDraft(),
       ]);
     } catch {
       // AsyncStorage unavailable; in-memory state is still updated

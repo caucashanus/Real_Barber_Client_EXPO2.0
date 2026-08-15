@@ -24,6 +24,8 @@ interface SlotTimePillProps {
   className?: string;
   textClassName?: string;
   disabled?: boolean;
+  /** Nedostupný den — šedý vzhled, stále klikací. */
+  muted?: boolean;
   /** Menší pill pro úzké karty na stránce holičů. */
   compact?: boolean;
   /** Mezera mezi pills ve flex-wrap řádku (RN gap ne vždy funguje). */
@@ -39,6 +41,7 @@ export default function SlotTimePill({
   className,
   textClassName,
   disabled = false,
+  muted = false,
   compact = false,
   spaced = false,
 }: SlotTimePillProps) {
@@ -55,6 +58,7 @@ export default function SlotTimePill({
       disableHaptic
       className={[
         compact ? NEXT_SLOT_BUTTON_COMPACT_CLASS : NEXT_SLOT_BUTTON_CLASS,
+        muted && !selected ? 'opacity-45' : '',
         className,
       ]
         .filter(Boolean)

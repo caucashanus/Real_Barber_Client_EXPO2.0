@@ -241,12 +241,12 @@ export function computeMaxAllowedStep(
 }
 
 function isStepSatisfied(kind: BookingStepKind, selections: BookingSelections): boolean {
-  if (kind === 'branch') return !!selections.branch;
-  if (kind === 'service') return !!selections.service;
-  if (kind === 'employee') return !!selections.employee;
-  if (kind === 'datetime') return !!selections.slot;
+  if (kind === 'branch') return Boolean(selections.branch?.id);
+  if (kind === 'service') return Boolean(selections.service?.id);
+  if (kind === 'employee') return Boolean(selections.employee?.id);
+  if (kind === 'datetime') return Boolean(selections.slot?.start);
   if (kind === 'contact') return true;
-  if (kind === 'summary') return !!selections.slot;
+  if (kind === 'summary') return Boolean(selections.slot?.start);
   return true;
 }
 

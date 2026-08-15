@@ -340,6 +340,31 @@ export function getMonthKeyFromDate(date: Date): string {
   return `${date.getFullYear()}-${`${date.getMonth() + 1}`.padStart(2, '0')}`;
 }
 
+/** Dlouhý formát data v kalendáři rezervace — „úterý, 18. srpna“. */
+export function formatBookingCalendarLongDate(isoDate: string, dateLocaleTag: string): string {
+  const parts = isoDate.split('-').map((x) => parseInt(x, 10));
+  if (parts.length !== 3 || parts.some((n) => Number.isNaN(n))) return isoDate;
+  const [year, month, day] = parts;
+  const date = new Date(year, month - 1, day);
+  if (Number.isNaN(date.getTime())) return isoDate;
+  const formatted = date.toLocaleDateString(dateLocaleTag, {
+    weekday: 'long',
+    day: 'numeric',
+    month: 'long',
+  });
+  return formatted.charAt(0).toUpperCase() + formatted.slice(1);
+}
+
+/** Nejbližší datum s volnými sloty po vybraném dni (nebo první dostupné). */
+export function findNearestAvailableBookingDate(
+  datesWithSlots: string[],
+  selectedDate: string | null
+): string | null {
+  if (datesWithSlots.length === 0) return null;
+  if (!selectedDate) return datesWithSlots[0] ?? null;
+  return datesWithSlots.find((date) => date > selectedDate) ?? datesWithSlots[0] ?? null;
+}
+
 export function isReservationStepValid(stepIndex: number, d: ReservationFlowData): boolean {
   if (stepIndex === 0) return Boolean(d.branchId);
   if (stepIndex === 1) return Boolean(d.itemId);
@@ -444,6 +469,41 @@ export function formatNextSlotDisplayTime(slotStart: string): string {
   const nm = total % 60;
   if (nh >= 24) return '23:45';
   return `${String(nh).padStart(2, '0')}:${String(nm).padStart(2, '0')}`;
+}
+
+/** Normalizace startu slotu pro porovnání (HH:MM / HH:MM:SS → mřížka 15 min). */
+export function normalizeBookingSlotStartForMatch(slotStart: string): string {
+  const trimmed = slotStart.trim();
+  const hhmm = trimmed.length >= 5 ? trimmed.slice(0, 5) : trimmed;
+  return formatNextSlotDisplayTime(hhmm);
+}
+
+export function findBookingSlotMatchingStart<T extends { start: string }>(
+  slots: T[],
+  nearestStart: string
+): T | null {
+  if (!nearestStart.trim() || slots.length === 0) return null;
+  const target = normalizeBookingSlotStartForMatch(nearestStart);
+  return (
+    slots.find((slot) => normalizeBookingSlotStartForMatch(slot.start) === target) ??
+    slots.find((slot) => slot.start === nearestStart) ??
+    null
+  );
+}
+
+export function isBookingSlotSelected(
+  selected: { start?: string; end?: string; branchId?: string; employeeId?: string } | null | undefined,
+  slot: { start: string; end?: string; branchId?: string; employeeId?: string }
+): boolean {
+  if (!selected?.start) return false;
+  const startMatches =
+    normalizeBookingSlotStartForMatch(selected.start) === normalizeBookingSlotStartForMatch(slot.start) ||
+    selected.start === slot.start;
+  if (!startMatches) return false;
+  if (selected.end && slot.end && selected.end !== slot.end) return false;
+  if (selected.branchId && slot.branchId && selected.branchId !== slot.branchId) return false;
+  if (selected.employeeId && slot.employeeId && selected.employeeId !== slot.employeeId) return false;
+  return true;
 }
 
 /** Souhrn rezervace — „Dnes 6.8 19:30-20:00“ (bez roku). */

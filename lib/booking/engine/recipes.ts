@@ -7,10 +7,6 @@ function withTerminal(picker: BookingStepKind[]): BookingStepKind[] {
 
 const BASE_ORDERS: Record<BookingRecipeId, BookingStepKind[]> = {
   'branch-first': withTerminal(['branch', 'service', 'employee']),
-  'branch-first-classic': withTerminal(['branch', 'service', 'employee']),
-  'employee-first': withTerminal(['employee', 'branch', 'service']),
-  'hairstyle-first': withTerminal(['service', 'branch', 'employee']),
-  'packages-first': withTerminal(['service', 'branch', 'employee']),
   'employee-profile': withTerminal(['service']),
   'service-detail': withTerminal(['branch', 'employee']),
 };
@@ -19,18 +15,10 @@ export function getRecipe(id: BookingRecipeId): BookingRecipe {
   return {
     id,
     baseStepOrder: [...BASE_ORDERS[id]],
-    ui: {
-      pickerStyle: id === 'branch-first-classic' ? 'classic' : 'modern',
-    },
+    ui: { pickerStyle: 'modern' },
   };
 }
 
 export function isCatalogRecipe(id: BookingRecipeId): boolean {
-  return (
-    id === 'branch-first' ||
-    id === 'branch-first-classic' ||
-    id === 'employee-first' ||
-    id === 'hairstyle-first' ||
-    id === 'packages-first'
-  );
+  return id === 'branch-first';
 }

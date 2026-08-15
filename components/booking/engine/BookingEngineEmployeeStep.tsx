@@ -3,46 +3,108 @@ import { Pressable, View } from 'react-native';
 
 import type { BookingEngineFlow } from '@/hooks/useBookingEngineFlow';
 import { useTheme } from '@/contexts/ThemeContext';
-import RatingBadge from '@/components/RatingBadge';
+import AppButton from '@/components/AppButton';
 import ThemedText from '@/components/ThemedText';
 import BookingPanelPickerRow from '@/components/booking/engine/BookingPanelPickerRow';
 import EmployeeBookingProfileSheet, {
   type EmployeeBookingProfileSheetHandle,
 } from '@/components/booking/engine/EmployeeBookingProfileSheet';
 import { ANY_EMPLOYEE_ID, type BookingEntity } from '@/lib/booking/constants';
-import { formatBookingEmployeeNearestLine } from '@/lib/booking/designShared';
+import {
+  formatBookingEmployeeNearestDayLabel,
+} from '@/lib/booking/designShared';
+import { formatNextSlotDisplayTime } from '@/utils/reservationCreateHelpers';
 
 interface Props {
   flow: BookingEngineFlow;
+}
+
+function formatPlainRating(rating: number, locale: 'cs' | 'en'): string {
+  const value = rating.toFixed(1);
+  const formatted = locale === 'cs' ? value.replace('.', ',') : value;
+  return `★ ${formatted}`;
 }
 
 function EmployeeCardContent({
   name,
   rating,
   locale,
-  meta,
-  viewProfileLabel,
-  onViewProfile,
 }: {
   name: string;
   rating?: number;
   locale: 'cs' | 'en';
-  meta: React.ReactNode;
-  viewProfileLabel: string;
-  onViewProfile: () => void;
 }) {
   return (
-    <View className="w-full gap-1">
-      <View className="flex-row flex-wrap items-center">
-        <ThemedText className="mr-2 text-base font-semibold" numberOfLines={1}>
+    <View className="w-full">
+      <View className="flex-row flex-wrap items-center gap-2">
+        <ThemedText className="text-base font-semibold" numberOfLines={1}>
           {name}
         </ThemedText>
-        {rating != null ? <RatingBadge rating={rating} locale={locale} /> : null}
+        {rating != null ? (
+          <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext">
+            {formatPlainRating(rating, locale)}
+          </ThemedText>
+        ) : null}
       </View>
-      {meta}
-      <Pressable onPress={onViewProfile} className="self-start active:opacity-70">
-        <ThemedText className="font-semibold text-black dark:text-white">{viewProfileLabel}</ThemedText>
-      </Pressable>
+    </View>
+  );
+}
+
+function EmployeeNearestMeta({
+  flow,
+  emp,
+  nearest,
+  loadingNearest,
+  noSlots,
+  locale,
+}: {
+  flow: BookingEngineFlow;
+  emp: BookingEntity;
+  nearest?: { date: string; start: string } | null;
+  loadingNearest: boolean;
+  noSlots: boolean;
+  locale: 'cs' | 'en';
+}) {
+  const { t } = flow;
+
+  if (loadingNearest) {
+    return (
+      <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext">
+        {t('reservationEmployeeNearestLoading')}
+      </ThemedText>
+    );
+  }
+
+  if (noSlots || !nearest) {
+    return (
+      <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext">
+        {t('bookingEmployeeNoSlots')}
+      </ThemedText>
+    );
+  }
+
+  const dayLabel = formatBookingEmployeeNearestDayLabel(nearest.date.slice(0, 10), locale);
+  const timeLabel = formatNextSlotDisplayTime(nearest.start);
+  const chipLabel = dayLabel && timeLabel ? `${dayLabel} · ${timeLabel}` : dayLabel || timeLabel;
+  const chipSelected =
+    flow.selectedEmployee?.id === emp.id && flow.employeeNearestChipEmployeeId === emp.id;
+
+  return (
+    <View className="flex-row flex-wrap items-center gap-2">
+      <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext">
+        {t('bookingEmployeeNearest')}
+      </ThemedText>
+      <AppButton
+        variant="choice"
+        size="xs"
+        title={chipLabel}
+        selected={chipSelected}
+        onPress={() => flow.selectEmployeeNearestChip(emp, nearest)}
+        disableHaptic
+        className="h-[22px] min-h-[22px] justify-center rounded-md px-2 py-0"
+        textClassName="text-xs font-semibold leading-none tabular-nums"
+        style={{ justifyContent: 'center', alignItems: 'center' }}
+      />
     </View>
   );
 }
@@ -65,7 +127,7 @@ export default function BookingEngineEmployeeStep({ flow }: Props) {
 
   return (
     <View>
-      {flow.loading ? (
+      {flow.employeesLoading ? (
         <ThemedText className="py-6 text-center text-sm text-light-subtext dark:text-dark-subtext">
           {t('commonLoading')}
         </ThemedText>
@@ -82,23 +144,22 @@ export default function BookingEngineEmployeeStep({ flow }: Props) {
           <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext">
             {t('bookingAnyEmployeeMeta')}
           </ThemedText>
-        ) : loadingNearest ? (
-          <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext">
-            {t('reservationEmployeeNearestLoading')}
-          </ThemedText>
-        ) : nearest ? (
-          <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext">
-            {formatBookingEmployeeNearestLine(
-              nearest.date.slice(0, 10),
-              nearest.start,
-              t('bookingEmployeeNearest'),
-              locale
-            )}
-          </ThemedText>
         ) : (
-          <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext">
-            {t('bookingEmployeeNoSlots')}
-          </ThemedText>
+          <View className="gap-1">
+            <EmployeeNearestMeta
+              flow={flow}
+              emp={emp}
+              nearest={nearest}
+              loadingNearest={loadingNearest}
+              noSlots={noSlots}
+              locale={locale}
+            />
+            <Pressable onPress={() => openProfile(emp)} className="self-start active:opacity-70">
+              <ThemedText className="font-semibold text-black dark:text-white">
+                {t('bookingEmployeeViewProfile')}
+              </ThemedText>
+            </Pressable>
+          </View>
         );
 
         const name = emp.displayName ?? emp.name ?? emp.id;
@@ -115,25 +176,15 @@ export default function BookingEngineEmployeeStep({ flow }: Props) {
             fallbackName={name}
             title={
               isAny ? (
-                <View className="w-full gap-1">
-                  <ThemedText className="text-base font-semibold">{name}</ThemedText>
-                  {meta}
-                </View>
+                <ThemedText className="text-base font-semibold">{name}</ThemedText>
               ) : (
-                <EmployeeCardContent
-                  name={name}
-                  rating={rating}
-                  locale={locale}
-                  meta={meta}
-                  viewProfileLabel={t('bookingEmployeeViewProfile')}
-                  onViewProfile={() => openProfile(emp)}
-                />
+                <EmployeeCardContent name={name} rating={rating} locale={locale} />
               )
             }
+            meta={meta}
             selected={flow.selectedEmployee?.id === emp.id}
-            selectLabel={t('bookingEmployeeSelect')}
-            onSelect={() => flow.selectEmployee(emp)}
-            actionDisabled={disabled}
+            disabled={disabled}
+            onPress={() => flow.selectEmployee(emp)}
           />
         );
       })}

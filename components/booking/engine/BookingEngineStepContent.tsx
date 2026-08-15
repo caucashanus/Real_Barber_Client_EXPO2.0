@@ -42,7 +42,7 @@ export default function BookingEngineStepContent({ flow, stepKind }: Props) {
           loading={flow.loading}
           showServiceInfo={isEmployeeProfile}
           selectedServiceId={flow.selectedService?.id}
-          selectLabel={t('bookingServiceSelect')}
+          detailSelectLabel={t('bookingServiceSelect')}
           fromPriceLabel={t('reservationPriceFromPrefix')}
           currencySuffix={t('reservationCurrencySuffix')}
           closeLabel={t('sheetClose')}

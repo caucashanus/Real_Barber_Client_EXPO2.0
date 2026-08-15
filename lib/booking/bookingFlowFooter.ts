@@ -1,15 +1,23 @@
+import { isStepSatisfiedForKind } from '@/lib/booking/engine/navigation/cleanup';
+import type { BookingSelections, BookingStepKind } from '@/lib/booking/engine/types';
+
+export type BookingFlowFooterVariant = 'continue' | 'submit' | 'outline';
+
+const PICKER_STEPS: BookingStepKind[] = ['branch', 'service', 'employee', 'datetime'];
+
 export function resolveBookingFlowFooterAction(params: {
-  isContactStep: boolean;
-  isSummaryStep?: boolean;
-  authPrefillReady?: boolean;
+  step: BookingStepKind;
   submitSuccess: boolean;
-  selectedSlot: unknown | null;
-  selectedService?: unknown | null;
+  isSlotHandoffFlow?: boolean;
+  authPrefillReady?: boolean;
+  selections: BookingSelections;
   awaitingPhoneOtp: boolean;
   otpDigits: string;
   submitting: boolean;
+  onContinue: () => void;
   onSubmit: () => void;
   labels: {
+    continue: string;
     submit: string;
     submitting: string;
     otpConfirm: string;
@@ -20,29 +28,40 @@ export function resolveBookingFlowFooterAction(params: {
   onPress: () => void;
   loading: boolean;
   disabled: boolean;
-  variant: 'default' | 'outline';
+  variant: BookingFlowFooterVariant;
 } | null {
   const {
-    isContactStep,
-    isSummaryStep = false,
-    authPrefillReady = true,
+    step,
     submitSuccess,
-    selectedSlot,
-    selectedService = null,
+    isSlotHandoffFlow = false,
+    authPrefillReady = true,
+    selections,
     awaitingPhoneOtp,
     otpDigits,
     submitting,
+    onContinue,
     onSubmit,
     labels,
   } = params;
 
   if (submitSuccess) return null;
 
-  const canSubmit = (isContactStep || isSummaryStep) && authPrefillReady;
-
-  if (!canSubmit) {
+  if (PICKER_STEPS.includes(step)) {
+    if (step === 'service' && isSlotHandoffFlow) return null;
+    if (isStepSatisfiedForKind(step, selections)) {
+      return {
+        title: labels.continue,
+        onPress: onContinue,
+        loading: false,
+        disabled: false,
+        variant: 'continue',
+      };
+    }
     return null;
   }
+
+  const canSubmit = (step === 'contact' || step === 'summary') && authPrefillReady;
+  if (!canSubmit) return null;
 
   if (awaitingPhoneOtp) {
     const code = otpDigits.replace(/\D/g, '');
@@ -55,13 +74,13 @@ export function resolveBookingFlowFooterAction(params: {
     };
   }
 
-  if (!selectedSlot) return null;
+  if (!selections.slot?.start) return null;
 
   return {
     title: submitting ? labels.submitting : labels.submit,
     onPress: onSubmit,
     loading: submitting,
     disabled: submitting,
-    variant: 'default',
+    variant: 'submit',
   };
 }

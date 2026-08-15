@@ -20,7 +20,7 @@ interface BookingEngineServiceStepProps {
   loading?: boolean;
   showServiceInfo?: boolean;
   selectedServiceId?: string;
-  selectLabel: string;
+  detailSelectLabel: string;
   fromPriceLabel: string;
   currencySuffix: string;
   onSelect: (service: BookingService) => void;
@@ -37,7 +37,7 @@ export default function BookingEngineServiceStep({
   loading = false,
   showServiceInfo = false,
   selectedServiceId,
-  selectLabel,
+  detailSelectLabel,
   fromPriceLabel,
   currencySuffix,
   onSelect,
@@ -67,10 +67,9 @@ export default function BookingEngineServiceStep({
         fallbackName={service.name ?? service.id}
         title={service.name ?? service.id}
         description={formatBookingServicePriceLabel(service, fromPriceLabel, currencySuffix)}
-        selectLabel={selectLabel}
         showInfo={showServiceInfo}
         selected={selectedServiceId === service.id}
-        onSelect={() => onSelect(service)}
+        onPress={() => onSelect(service)}
         onInfo={() => openServiceDetail(service)}
       />
     ));
@@ -114,7 +113,7 @@ export default function BookingEngineServiceStep({
           ) : null}
           <View className="mt-5 flex-row gap-3">
             <Button
-              title={selectLabel}
+              title={detailSelectLabel}
               variant="outline"
               className="flex-1"
               onPress={() => {

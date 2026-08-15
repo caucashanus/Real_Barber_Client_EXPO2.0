@@ -9,10 +9,6 @@ export type BookingMonitorEntry =
   | 'spotlight'
   | 'deep-link'
   | 'branch-first'
-  | 'branch-first-classic'
-  | 'employee-first'
-  | 'hairstyle-first'
-  | 'packages-first'
   | 'employee-profile'
   | 'service-detail'
   | 'unknown';

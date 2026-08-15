@@ -25,15 +25,7 @@ export function resolveBookingMonitorEntry(params: {
   if (hasRepeatPreset) return 'repeat';
 
   const recipe = params.recipeId?.trim();
-  if (
-    recipe === 'branch-first' ||
-    recipe === 'branch-first-classic' ||
-    recipe === 'employee-first' ||
-    recipe === 'hairstyle-first' ||
-    recipe === 'packages-first' ||
-    recipe === 'employee-profile' ||
-    recipe === 'service-detail'
-  ) {
+  if (recipe === 'branch-first' || recipe === 'employee-profile' || recipe === 'service-detail') {
     return recipe;
   }
 

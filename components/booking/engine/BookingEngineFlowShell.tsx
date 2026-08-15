@@ -109,13 +109,25 @@ function BookingEngineFlowShellBody({ flow, children }: BookingEngineFlowShellPr
                 </ThemedText>
               </View>
             ) : null}
-            {footerAction.variant === 'default' ? (
+            {footerAction.variant === 'submit' ? (
               <ReserveButton
                 title={footerAction.title}
                 size="lg"
                 rounded="full"
                 fullWidth
                 className="w-full"
+                loading={footerAction.loading}
+                disabled={footerAction.disabled}
+                onPress={footerAction.onPress}
+              />
+            ) : footerAction.variant === 'continue' ? (
+              <AppButton
+                title={footerAction.title}
+                size="lg"
+                rounded="full"
+                fullWidth
+                className="w-full bg-light-text dark:bg-dark-text"
+                textClassName="font-semibold text-light-primary dark:text-dark-primary"
                 loading={footerAction.loading}
                 disabled={footerAction.disabled}
                 onPress={footerAction.onPress}

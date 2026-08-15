@@ -120,7 +120,16 @@ export default function AppButton({
         color={variant === 'default' || variant === 'secondary' || variant === 'destructive' ? '#FFFFFF' : undefined}
       />
     ) : (
-      <View className={`flex-row items-center ${variant === 'panel' ? 'justify-start gap-3' : variant === 'choice' ? 'justify-start' : 'justify-center'}`}>
+      <View
+        className={`flex-row items-center ${
+          variant === 'panel'
+            ? 'justify-start gap-3'
+            : variant === 'choice'
+              ? iconStart || iconEnd
+                ? 'justify-start'
+                : 'justify-center'
+              : 'justify-center'
+        }`}>
         {iconStart ? (
           <Icon
             name={iconStart}

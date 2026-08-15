@@ -12,14 +12,7 @@ export const BOOKING_TERMINAL_STEPS = [
   'summary',
 ] as const satisfies readonly BookingStepKind[];
 
-export type BookingRecipeId =
-  | 'branch-first'
-  | 'branch-first-classic'
-  | 'employee-first'
-  | 'hairstyle-first'
-  | 'packages-first'
-  | 'employee-profile'
-  | 'service-detail';
+export type BookingRecipeId = 'branch-first' | 'employee-profile' | 'service-detail';
 
 export type BookingPickerStyle = 'classic' | 'modern';
 
