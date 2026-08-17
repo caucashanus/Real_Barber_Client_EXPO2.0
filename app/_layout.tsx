@@ -5,6 +5,7 @@ import { NativeWindStyleSheet } from 'nativewind';
 import React, { useEffect } from 'react';
 import { Platform } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import { vexo } from 'vexo-analytics';
 
 import { AccentColorProvider } from '@/contexts/AccentColorContext';
 import { AuthProvider } from '@/contexts/AuthContext';
@@ -24,6 +25,10 @@ import AuthGuard from '@/components/AuthGuard';
 import { APP_OPENS_KEY } from '@/constants/appOpens';
 
 export { APP_OPENS_KEY };
+
+if (!__DEV__) {
+  vexo('03e85209-b9e7-49b5-b098-0712f981606e');
+}
 
 async function incrementAppOpens(): Promise<void> {
   const raw = await AsyncStorage.getItem(APP_OPENS_KEY).catch(() => null);
