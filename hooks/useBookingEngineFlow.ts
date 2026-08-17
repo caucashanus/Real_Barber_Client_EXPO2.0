@@ -44,10 +44,16 @@ import {
   getSlotsForDate,
   mapCatalogItemToService,
   mapCatalogItemsFromEmployee,
+  minPricesFromCatalogItems,
 } from '@/lib/booking/booking-api/mappers';
 import type { BookingFlatAvailabilityMap, BookingSlotServiceItem } from '@/lib/booking/booking-api/types';
 import { isAuthContactComplete } from '@/lib/booking/authContact';
 import { resolveBranchName } from '@/lib/booking/designShared';
+import {
+  branchPriceForServiceId,
+  isValidBookingPrice,
+  resolveBookingPrice,
+} from '@/lib/booking/resolveBookingPrice';
 import { resolveBookingFlowFooterAction } from '@/lib/booking/bookingFlowFooter';
 import { ensureBookingSessionId } from '@/lib/booking/booking-api/session';
 import {
@@ -180,6 +186,7 @@ export function useBookingEngineFlow() {
 
   const [branches, setBranches] = useState<BookingEntity[]>([]);
   const [services, setServices] = useState<BookingService[]>([]);
+  const [branchMinPrices, setBranchMinPrices] = useState<Record<string, number>>({});
   const [employees, setEmployees] = useState<BookingEntity[]>([]);
   const [employeesLoading, setEmployeesLoading] = useState(false);
   const [employeeNearestSlot, setEmployeeNearestSlot] = useState<
@@ -407,14 +414,31 @@ export function useBookingEngineFlow() {
     };
   }, [recipeId, preset.serviceId, locale, apiToken, t]);
 
-  // Preset branch from params
+  // service-detail: doplnit priceFrom pobočky ze service-context (handoff stub ho nemá)
+  useEffect(() => {
+    if (recipeId !== 'service-detail' || !selectedBranch?.id || !branches.length) return;
+    const match = branches.find((b) => b.id === selectedBranch.id);
+    if (!match || !isValidBookingPrice(match.priceFrom)) return;
+    if (selectedBranch.priceFrom === match.priceFrom) return;
+    setBranch({ ...selectedBranch, priceFrom: match.priceFrom }, { clearDownstream: false });
+  }, [recipeId, branches, selectedBranch, setBranch]);
+
+  // Preset branch from params / service-context (včetně doplnění priceFrom u stejného id)
   useEffect(() => {
     if (!preset.branchId || !branches.length) return;
     const branch = branches.find((b) => b.id === preset.branchId);
-    if (branch && selectedBranch?.id !== branch.id) {
+    if (!branch) return;
+
+    if (selectedBranch?.id !== branch.id) {
       setBranch(branch, { clearDownstream: false });
+      return;
     }
-  }, [preset.branchId, branches, selectedBranch?.id]);
+
+    const priceFrom = branch.priceFrom;
+    if (isValidBookingPrice(priceFrom) && selectedBranch.priceFrom !== priceFrom) {
+      setBranch({ ...selectedBranch, priceFrom }, { clearDownstream: false });
+    }
+  }, [preset.branchId, branches, selectedBranch, setBranch]);
 
   // Branch catalog — only while user is picking branch/service (avoid re-fetch on employee step)
   useEffect(() => {
@@ -425,7 +449,10 @@ export function useBookingEngineFlow() {
     setLoading(true);
     getBookingBranchCatalog(selectedBranch.id, locale, apiToken)
       .then((data) => {
-        if (!cancelled) setServices(data.items.map(mapCatalogItemToService));
+        if (!cancelled) {
+          setServices(data.items.map(mapCatalogItemToService));
+          setBranchMinPrices(minPricesFromCatalogItems(data.items));
+        }
       })
       .catch((err) => {
         if (!cancelled) setError(err instanceof Error ? err.message : t('reservationErrorGeneric'));
@@ -490,13 +517,26 @@ export function useBookingEngineFlow() {
     selectedEmployee?.id,
   ]);
 
-  // Employee picker
+  // Employee picker (+ dopočet ceny holiče na kontaktu/shrnutí po next-slot handoffu)
   useEffect(() => {
+    const hasSelection =
+      selectedBranch?.id && selectedService?.id && selectedEmployee?.id;
+    const needsEmployeePrice =
+      hasSelection &&
+      selectedEmployee!.id !== ANY_EMPLOYEE_ID &&
+      !isValidBookingPrice(selectedEmployee!.price);
     const shouldLoad =
       step === 'employee' ||
-      (step === 'datetime' && selectedBranch?.id && selectedService?.id && preset.employeeId);
+      (step === 'datetime' && Boolean(preset.employeeId)) ||
+      ((step === 'contact' || step === 'summary') && needsEmployeePrice);
+
     if (!shouldLoad || !selectedBranch?.id || !selectedService?.id) {
-      if (step !== 'employee' && step !== 'datetime') {
+      if (
+        step !== 'employee' &&
+        step !== 'datetime' &&
+        step !== 'contact' &&
+        step !== 'summary'
+      ) {
         setEmployees([]);
         setEmployeeNearestSlot({});
       }
@@ -531,12 +571,83 @@ export function useBookingEngineFlow() {
     step,
     selectedBranch?.id,
     selectedService?.id,
+    selectedEmployee,
     recipeId,
     preset.employeeId,
     locale,
     apiToken,
     t,
   ]);
+
+  // Dopočítat cenu holiče z employee-picker po načtení seznamu.
+  useEffect(() => {
+    if (!selectedEmployee?.id || selectedEmployee.id === ANY_EMPLOYEE_ID) return;
+    const match = employees.find((row) => row.id === selectedEmployee.id);
+    if (!match?.price || match.price === selectedEmployee.price) return;
+    setEmployee({ ...selectedEmployee, price: match.price }, { clearDownstream: false });
+  }, [employees, selectedEmployee, setEmployee]);
+
+  const branchPriceForSelectedService = useMemo(() => {
+    const fromCatalog = branchPriceForServiceId(selectedService?.id, branchMinPrices);
+    if (fromCatalog != null) return fromCatalog;
+    if (recipeId === 'service-detail' && isValidBookingPrice(selectedBranch?.priceFrom)) {
+      return selectedBranch!.priceFrom!;
+    }
+    return null;
+  }, [selectedService?.id, branchMinPrices, recipeId, selectedBranch?.priceFrom]);
+
+  const resolvedBookingPrice = useMemo(
+    () =>
+      resolveBookingPrice({
+        employee:
+          selectedEmployee?.id === ANY_EMPLOYEE_ID ? null : selectedEmployee ?? profileEmployee,
+        service: selectedService,
+        branch: selectedBranch,
+        branchPriceForService: branchPriceForSelectedService,
+      }),
+    [
+      selectedEmployee,
+      profileEmployee,
+      selectedService,
+      selectedBranch,
+      branchPriceForSelectedService,
+    ]
+  );
+
+  const saveCurrentSlotContext = useCallback(
+    (slotOverride?: BookingSlot) => {
+      const slot = slotOverride ?? selectedSlot;
+      const employee = profileEmployee ?? selectedEmployee;
+      if (
+        !selectedBranch?.id ||
+        !selectedService?.id ||
+        !employee?.id ||
+        !selectedDate ||
+        !slot?.start
+      ) {
+        return;
+      }
+      void saveBookingSlotContext({
+        branchId: selectedBranch.id,
+        serviceId: selectedService.id,
+        employeeId: employee.id,
+        date: selectedDate,
+        serviceName: selectedService.name,
+        servicePrice: resolvedBookingPrice.amount ?? undefined,
+        serviceDurationMinutes: selectedService.duration,
+        slot,
+      });
+    },
+    [
+      profileEmployee,
+      selectedEmployee,
+      selectedBranch,
+      selectedService,
+      selectedDate,
+      selectedSlot,
+      resolvedBookingPrice.amount,
+    ]
+  );
 
   // Slot handoff read (employee-profile)
   useEffect(() => {
@@ -868,7 +979,7 @@ export function useBookingEngineFlow() {
       employeeId: selectedEmployee.id,
       date: selectedDate,
       serviceName: selectedService.name,
-      servicePrice: selectedService.pricing?.minPrice,
+      servicePrice: resolvedBookingPrice.amount ?? undefined,
       serviceDurationMinutes:
         slotHandoff.serviceDurationMinutes ?? selectedService.duration ?? undefined,
       slot: selectedSlot,
@@ -891,6 +1002,7 @@ export function useBookingEngineFlow() {
     activeSteps,
     stepIndex,
     goToStepIndexWithContact,
+    resolvedBookingPrice.amount,
   ]);
 
   const nextStepAfter = useCallback(
@@ -925,6 +1037,7 @@ export function useBookingEngineFlow() {
   const selectBranch = useCallback(
     (branch: BookingEntity) => {
       setBranch(branch);
+      setBranchMinPrices({});
       trackBookingMonitor('selected_branch', {
         ...monitorFields('branch'),
         branchName: branch.name ?? branch.displayName ?? null,
@@ -976,7 +1089,13 @@ export function useBookingEngineFlow() {
         employeeId: employee.id!,
         date: handoff.date,
         serviceName: service.name,
-        servicePrice: service.pricing?.minPrice,
+        servicePrice:
+          resolveBookingPrice({
+            employee: employee as BookingEntity,
+            service,
+            branch,
+            branchPriceForService: branchPriceForServiceId(service.id, branchMinPrices),
+          }).amount ?? undefined,
         serviceDurationMinutes: service.duration,
         slot: handoff.slot,
       });
@@ -1004,6 +1123,7 @@ export function useBookingEngineFlow() {
       advanceAfterSelect,
       recipeId,
       locale,
+      branchMinPrices,
     ]
   );
 
@@ -1106,13 +1226,7 @@ export function useBookingEngineFlow() {
         employeeName: employee?.name ?? employee?.displayName ?? null,
       });
       if (branch && selectedService && employee && selectedDate) {
-        void saveBookingSlotContext({
-          branchId: branch.id,
-          serviceId: selectedService.id,
-          employeeId: employee.id,
-          date: selectedDate,
-          slot,
-        });
+        saveCurrentSlotContext(slot);
       }
     },
     [
@@ -1124,6 +1238,7 @@ export function useBookingEngineFlow() {
       branches,
       profileBranches,
       monitorFields,
+      saveCurrentSlotContext,
     ]
   );
 
@@ -1313,7 +1428,7 @@ export function useBookingEngineFlow() {
           slotStart: selectedSlot?.start ?? '',
           slotEnd: selectedSlot?.end,
           duration: selectedService?.duration ?? 0,
-          price: selectedService?.pricing?.minPrice ?? 0,
+          price: resolvedBookingPrice.amount ?? 0,
           branch: selectedBranch as never,
           employee: selectedEmployee
             ? {
@@ -1332,7 +1447,7 @@ export function useBookingEngineFlow() {
             ? {
                 id: selectedService.id,
                 name: selectedService.name ?? '',
-                price: selectedService.pricing?.minPrice ?? 0,
+                price: resolvedBookingPrice.amount ?? 0,
                 duration: selectedService.duration ?? 0,
               }
             : null,
@@ -1358,6 +1473,7 @@ export function useBookingEngineFlow() {
       selectedSlot,
       skipContact,
       clearDraft,
+      resolvedBookingPrice.amount,
     ]
   );
 
@@ -1461,9 +1577,18 @@ export function useBookingEngineFlow() {
       if ((prev === 'contact' || prev === 'summary') && step !== 'contact' && step !== 'summary') {
         void clearBookingSlotContext();
       }
+      if ((step === 'contact' || step === 'summary') && prev === 'datetime') {
+        saveCurrentSlotContext();
+      }
       prevStepRef.current = step;
     }
-  }, [step]);
+  }, [step, saveCurrentSlotContext]);
+
+  useEffect(() => {
+    if (step !== 'contact' && step !== 'summary') return;
+    if (resolvedBookingPrice.amount == null) return;
+    saveCurrentSlotContext();
+  }, [step, resolvedBookingPrice.amount, saveCurrentSlotContext]);
 
   const bootstrapStatus = useMemo(() => {
     if (!draftReady) return 'pending' as const;
@@ -1512,6 +1637,7 @@ export function useBookingEngineFlow() {
     selectedService,
     selectedEmployee,
     profileEmployee,
+    resolvedBookingPrice,
     selectedDate,
     selectedSlot,
     selectBranch,

@@ -1,6 +1,7 @@
 import React from 'react';
 import { View } from 'react-native';
 
+import { formatResolvedBookingPriceLabel } from '@/lib/booking/designShared';
 import type { BookingEngineFlow } from '@/hooks/useBookingEngineFlow';
 import BookingCouponSection from '@/components/booking/engine/BookingCouponSection';
 import Section from '@/components/layout/Section';
@@ -40,10 +41,19 @@ export default function BookingEngineSummaryStep({ flow }: Props) {
     { titleKey: 'haircutBarber', label: employeeName },
   ];
 
-  if (flow.selectedService?.pricing?.minPrice && !coupon.preview) {
+  const priceLabel =
+    !coupon.preview
+      ? formatResolvedBookingPriceLabel(
+          flow.resolvedBookingPrice,
+          t('reservationPriceFromPrefix'),
+          t('reservationCurrencySuffix')
+        )
+      : undefined;
+
+  if (priceLabel) {
     rows.push({
       titleKey: 'bookingSummaryPrice',
-      label: `${flow.selectedService.pricing.minPrice} ${t('reservationCurrencySuffix')}`,
+      label: priceLabel,
     });
   }
 

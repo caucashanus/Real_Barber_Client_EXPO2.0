@@ -51,6 +51,7 @@ export function mapPickerEmployeeToEntity(emp: BookingEmployeePickerEmployee): B
     displayName: emp.displayName ?? emp.name,
     avatarUrl: emp.avatarUrl,
     stats: emp.averageRating != null ? { averageRating: emp.averageRating } : undefined,
+    ...(emp.price != null && emp.price > 0 ? { price: emp.price } : {}),
   };
 }
 

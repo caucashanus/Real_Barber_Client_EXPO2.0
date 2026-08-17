@@ -17,6 +17,10 @@ export type BookingEntity = {
   items?: unknown[];
   services?: unknown[];
   stats?: { averageRating?: number };
+  /** Finální cena holiče z employee-picker. */
+  price?: number;
+  /** Cena „od“ pobočky (service-context). */
+  priceFrom?: number;
   [key: string]: unknown;
 };
 

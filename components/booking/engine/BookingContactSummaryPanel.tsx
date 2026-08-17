@@ -1,6 +1,7 @@
 import React from 'react';
 import { View } from 'react-native';
 
+import { formatResolvedBookingPriceLabel } from '@/lib/booking/designShared';
 import type { BookingEngineFlow } from '@/hooks/useBookingEngineFlow';
 import Icon from '@/components/Icon';
 import BranchAddress from '@/components/shared/BranchAddress';
@@ -46,6 +47,15 @@ export default function BookingContactSummaryPanel({
   const branchName = flow.selectedBranch?.name ?? '—';
   const branchAddress = flow.selectedBranch?.address;
 
+  const priceLabel =
+    !hideCatalogPrice
+      ? formatResolvedBookingPriceLabel(
+          flow.resolvedBookingPrice,
+          t('reservationPriceFromPrefix'),
+          t('reservationCurrencySuffix')
+        )
+      : undefined;
+
   const rows: SummaryRow[] = [
     {
       icon: 'Calendar',
@@ -62,12 +72,12 @@ export default function BookingContactSummaryPanel({
       titleKey: 'haircutBarber',
       label: employeeName,
     },
-    ...(flow.selectedService?.pricing?.minPrice && !hideCatalogPrice
+    ...(priceLabel
       ? [
           {
             icon: 'CreditCard' as const,
             titleKey: 'bookingSummaryPrice' as const,
-            label: `${flow.selectedService.pricing.minPrice} ${t('reservationCurrencySuffix')}`,
+            label: priceLabel,
           },
         ]
       : []),

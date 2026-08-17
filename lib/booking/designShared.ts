@@ -3,6 +3,8 @@ import type { BookingEntity, BookingService } from '@/lib/booking/constants';
 import { formatRelativeDayLabel } from '@/utils/formatRelativeDayLabel';
 import { getPragueTodayDateString } from '@/utils/teamMemberPageHelpers';
 
+import type { ResolvedBookingPrice } from '@/lib/booking/resolveBookingPrice';
+
 export function formatBookingServicePriceLabel(
   service: BookingService | null | undefined,
   fromPriceLabel: string,
@@ -15,6 +17,26 @@ export function formatBookingServicePriceLabel(
     return `${amount} ${currencySuffix}`;
   }
   return `${fromPriceLabel} ${amount} ${currencySuffix}`;
+}
+
+export function formatResolvedBookingPriceLabel(
+  resolved: ResolvedBookingPrice | null | undefined,
+  fromPriceLabel: string,
+  currencySuffix: string
+): string | undefined {
+  if (!resolved?.amount) return undefined;
+  return formatBookingServicePriceLabel(
+    {
+      id: '',
+      pricing: {
+        minPrice: resolved.amount,
+        maxPrice: resolved.kind === 'exact' ? resolved.amount : undefined,
+        kind: resolved.kind,
+      },
+    },
+    fromPriceLabel,
+    currencySuffix
+  );
 }
 
 export function resolveBranchName(
