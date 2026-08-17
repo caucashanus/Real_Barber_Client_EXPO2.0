@@ -16,7 +16,7 @@ interface BarberIdentitySectionProps {
   displayName: string;
   avatarUrl?: string | null;
   average: number;
-  locale?: 'cs' | 'en';
+  locale?: 'cs' | 'en' | 'uk';
   languages?: string[];
   shiftStatus: TodayShiftStatus;
   shareUrl: string;

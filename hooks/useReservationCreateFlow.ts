@@ -19,6 +19,7 @@ import {
   type ServiceOption,
 } from '@/utils/reservationCreateHelpers';
 import type { BookingSlotServiceItem } from '@/api/bookings';
+import { intlLocaleTag } from '@/utils/intlLocaleTag';
 
 function serviceOptionFromSlotService(service: BookingSlotServiceItem): ServiceOption {
   return {
@@ -35,7 +36,7 @@ export function useReservationCreateFlow() {
   const { apiToken, client } = useAuth();
   const { t } = useTranslation();
   const { locale } = useLanguage();
-  const dateLocaleTag = locale === 'cs' ? 'cs-CZ' : 'en-GB';
+  const dateLocaleTag = intlLocaleTag(locale);
   const colors = useThemeColors();
 
   const [data, setData] = useState<ReservationFlowData>({

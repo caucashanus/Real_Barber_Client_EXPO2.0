@@ -8,6 +8,7 @@ import type { HomepageNextSlot, HomepageTodayTeamBranch } from '@/api/homeTeamTy
 import type { Locale } from '@/contexts/LanguageContext';
 import { HOMEPAGE_TODAY_TEAM_MAX_SLOTS } from '@/constants/homepage';
 import type { TranslationKey } from '@/locales';
+import { localeCompareTag } from '@/utils/intlLocaleTag';
 import { formatRelativeDayLabel, formatWaitlistDayWhen } from '@/utils/formatRelativeDayLabel';
 import {
   buildLiveDotVariantFromShiftPhase,
@@ -367,7 +368,7 @@ function sortCardsByNearestSlot(cards: HomeTodayTeamCardModel[], locale: Locale)
     const rankB = tsB != null ? 0 : 1;
     if (rankA !== rankB) return rankA - rankB;
     if (tsA != null && tsB != null && tsA !== tsB) return tsA - tsB;
-    return a.name.localeCompare(b.name, locale === 'cs' ? 'cs' : 'en');
+    return a.name.localeCompare(b.name, localeCompareTag(locale));
   });
 }
 
@@ -393,7 +394,7 @@ function sortCardsByNearestSlotOnDay(
     const rankB = homepageAvailabilityRank(tsB, b.shiftPhase);
     if (rankA !== rankB) return rankA - rankB;
     if (tsA != null && tsB != null && tsA !== tsB) return tsA - tsB;
-    return a.name.localeCompare(b.name, locale === 'cs' ? 'cs' : 'en');
+    return a.name.localeCompare(b.name, localeCompareTag(locale));
   });
 }
 

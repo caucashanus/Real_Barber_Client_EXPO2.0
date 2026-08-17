@@ -1,13 +1,14 @@
 import type { Locale } from '@/contexts/LanguageContext';
 import { DEFAULT_LOCALE } from '@/contexts/LanguageContext';
 
-export const SUPPORTED_APP_LOCALES: readonly Locale[] = ['cs', 'en'];
+export const SUPPORTED_APP_LOCALES: readonly Locale[] = ['cs', 'en', 'uk'];
 
 export function resolveLocaleFromLanguageCode(code: string | null | undefined): Locale | null {
   if (!code) return null;
   const lower = code.toLowerCase();
   if (lower === 'cs' || lower.startsWith('cs-')) return 'cs';
   if (lower === 'en' || lower.startsWith('en-')) return 'en';
+  if (lower === 'uk' || lower.startsWith('uk-')) return 'uk';
   return null;
 }
 

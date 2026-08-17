@@ -23,6 +23,7 @@ import ThemedText from '@/components/ThemedText';
 import CurrentBookingCard from '@/components/booking/CurrentBookingCard';
 import Section from '@/components/layout/Section';
 import { dedupeAvailabilitySlots } from '@/utils/availabilitySlots';
+import { intlLocaleTag } from '@/utils/intlLocaleTag';
 
 function toIsoDate(d: Date): string {
   const y = d.getFullYear();
@@ -64,7 +65,7 @@ export default function RescheduleScreen() {
   const { apiToken } = useAuth();
   const { t } = useTranslation();
   const { locale } = useLanguage();
-  const dateLocaleTag = locale === 'cs' ? 'cs-CZ' : 'en-GB';
+  const dateLocaleTag = intlLocaleTag(locale);
   const colors = useThemeColors();
 
   const [booking, setBooking] = useState<Booking | null>(null);

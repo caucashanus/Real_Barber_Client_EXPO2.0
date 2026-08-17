@@ -7,7 +7,7 @@ import { resolveAppLocaleFromSystem } from '@/utils/resolveAppLocale';
 const LOCALE_KEY = '@app_locale';
 const LOCALE_SOURCE_KEY = '@app_locale_source';
 
-export type Locale = 'en' | 'cs';
+export type Locale = 'cs' | 'en' | 'uk';
 
 type LocaleSource = 'user' | 'system';
 
@@ -48,7 +48,7 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
 
       if (cancelled) return;
 
-      if (source === 'user' && (stored === 'cs' || stored === 'en')) {
+      if (source === 'user' && (stored === 'cs' || stored === 'en' || stored === 'uk')) {
         setLocaleState(stored);
         return;
       }
@@ -93,7 +93,7 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
 
   const toggleLocale = useCallback(() => {
     setLocaleState((prev) => {
-      const next: Locale = prev === 'en' ? 'cs' : 'en';
+      const next: Locale = prev === 'cs' ? 'en' : prev === 'en' ? 'uk' : 'cs';
       void persistLocale(next, 'user');
       return next;
     });

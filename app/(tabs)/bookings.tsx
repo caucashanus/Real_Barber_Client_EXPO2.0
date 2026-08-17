@@ -43,10 +43,11 @@ import {
 } from '@/utils/clientBookingsFilter';
 import { isReservationIntroCooldownActive } from '@/utils/reservation-intro-cooldown';
 import { shadowPresets } from '@/utils/useShadow';
+import { intlLocaleTag } from '@/utils/intlLocaleTag';
 
 function formatBookingDate(b: Booking, locale: string = 'en'): string {
   const d = new Date(b.date);
-  const dateLocale = locale === 'cs' ? 'cs-CZ' : 'en-GB';
+  const dateLocale = intlLocaleTag(locale);
   const day = d.getDate();
   const month = d.toLocaleString(dateLocale, { month: 'short' });
   const year = d.getFullYear();

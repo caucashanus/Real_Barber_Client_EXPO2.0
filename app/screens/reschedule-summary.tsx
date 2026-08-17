@@ -15,6 +15,7 @@ import ThemedFooter from '@/components/ThemeFooter';
 import ThemedText from '@/components/ThemedText';
 import CurrentBookingCard from '@/components/booking/CurrentBookingCard';
 import Section from '@/components/layout/Section';
+import { intlLocaleTag } from '@/utils/intlLocaleTag';
 
 function formatDateLabel(date: string, locale: string): string {
   const parsed = new Date(date);
@@ -81,7 +82,7 @@ export default function RescheduleSummaryScreen() {
     return Number.isFinite(parsed) ? parsed : 0;
   }, [duration]);
 
-  const dateLocaleTag = locale === 'cs' ? 'cs-CZ' : 'en-GB';
+  const dateLocaleTag = intlLocaleTag(locale);
   const nextDateLabel = formatDateLabel(String(date ?? ''), dateLocaleTag);
 
   const onConfirm = useCallback(async () => {

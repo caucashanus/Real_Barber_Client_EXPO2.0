@@ -2,6 +2,7 @@ import type { ImageSourcePropType } from 'react-native';
 
 import type { RbCoinsHistoryItem } from '@/api/rb-coins';
 import type { TranslationKey } from '@/locales';
+import { intlLocaleTag } from '@/utils/intlLocaleTag';
 
 export const VISIT_APP_BONUS_RESERVATION_PREFIX = 'VISIT_APP_BONUS_RESERVATION:';
 
@@ -62,7 +63,7 @@ export function formatRbCoinsTransactionAmount(
 }
 
 export function formatRbCoinsTransactionListSubtitle(iso: string, locale: string): string {
-  const tag = locale === 'cs' ? 'cs-CZ' : 'en-GB';
+  const tag = intlLocaleTag(locale);
   const d = new Date(iso);
   const date = d.toLocaleDateString(tag, { day: 'numeric', month: 'short' });
   const time = d.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });

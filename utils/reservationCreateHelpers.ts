@@ -1,3 +1,4 @@
+import type { Locale } from '@/contexts/LanguageContext';
 import type { EmployeesNearestNextSlot } from '@/api/availability';
 import type { Branch, BranchEmployee } from '@/api/branches';
 import type { Employee, EmployeeBranch, EmployeeDetail, EmployeeService } from '@/api/employees';
@@ -453,8 +454,10 @@ export function findServiceOptionOnBranch(
   return buildBranchServicePickerData(branch).options.find((s) => s.id === itemId) ?? null;
 }
 
-function localeFromDateLocaleTag(dateLocaleTag: string): 'cs' | 'en' {
-  return dateLocaleTag.startsWith('cs') ? 'cs' : 'en';
+function localeFromDateLocaleTag(dateLocaleTag: string): Locale {
+  if (dateLocaleTag.startsWith('cs')) return 'cs';
+  if (dateLocaleTag.startsWith('uk')) return 'uk';
+  return 'en';
 }
 
 /** Zarovnání HH:MM nahoru na mřížku 15 min (profil holiče, badge nejbližšího termínu). Při přetečení dne → 23:45. */
@@ -570,7 +573,7 @@ function formatBookingSlotHandoffButtonDateLabel(
   const parts = isoDate.split('-').map((x) => parseInt(x, 10));
   if (parts.length === 3 && !parts.some((n) => Number.isNaN(n))) {
     const [yy, mm, dd] = parts;
-    if (dateLocaleTag.startsWith('cs')) {
+    if (dateLocaleTag.startsWith('cs') || dateLocaleTag.startsWith('uk')) {
       return `${dd}. ${mm}.`;
     }
     const d = new Date(yy, mm - 1, dd);

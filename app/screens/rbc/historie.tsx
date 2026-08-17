@@ -14,6 +14,7 @@ import ListItem from '@/components/layout/ListItem';
 import Section from '@/components/layout/Section';
 import SurfaceCard from '@/components/layout/SurfaceCard';
 import type { TranslationKey } from '@/locales';
+import { intlLocaleTag } from '@/utils/intlLocaleTag';
 import {
   getRbCoinsTransactionListTitle,
   RB_COINS_TX_LIST_KEYS_RBC,
@@ -49,7 +50,7 @@ function getSectionTitle(
   if (dateKey === yesterdayKey) return t('rbcYesterday');
   if (dateKey === dayBeforeKey) return t('rbcDayBeforeYesterday');
   const d = new Date(dateKey + 'T12:00:00');
-  const dateLocale = locale === 'cs' ? 'cs-CZ' : 'en-GB';
+  const dateLocale = intlLocaleTag(locale);
   return d.toLocaleDateString(dateLocale, { day: 'numeric', month: 'long' });
 }
 

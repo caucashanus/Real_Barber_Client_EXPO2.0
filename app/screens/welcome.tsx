@@ -4,21 +4,24 @@ import React from 'react';
 import { View, Text, Pressable } from 'react-native';
 import { useSafeAreaInsets, SafeAreaView } from 'react-native-safe-area-context';
 
-import { useLanguage } from '@/contexts/LanguageContext';
+import { LOCALE_FLAG_CS, LOCALE_FLAG_EN, LOCALE_FLAG_UK } from '@/constants/appLanguage';
+import { useLanguage, type Locale } from '@/contexts/LanguageContext';
 import { useTranslation } from '@/hooks/useTranslation';
 import ThemeToggle from '@/components/ThemeToggle';
 import ThemedText from '@/components/ThemedText';
 
-const FLAG_CZ = '🇨🇿';
-const FLAG_EN = '🇬🇧';
+const NEXT_LOCALE_SWITCH: Record<Locale, { flag: string; label: string }> = {
+  cs: { flag: LOCALE_FLAG_EN, label: 'EN' },
+  en: { flag: LOCALE_FLAG_UK, label: 'UK' },
+  uk: { flag: LOCALE_FLAG_CS, label: 'CZ' },
+};
 
 export default function OnboardingScreen() {
   const insets = useSafeAreaInsets();
   const { locale, toggleLocale } = useLanguage();
   const { t } = useTranslation();
 
-  const isEnglish = locale === 'en';
-  const switchFlag = isEnglish ? FLAG_CZ : FLAG_EN;
+  const switchTarget = NEXT_LOCALE_SWITCH[locale];
 
   return (
     <SafeAreaView
@@ -29,9 +32,9 @@ export default function OnboardingScreen() {
           <Pressable
             onPress={toggleLocale}
             className="flex-row items-center gap-1.5 rounded-full border border-neutral-300 px-3 py-1.5 dark:border-neutral-600">
-            <Text style={{ fontSize: 14 }}>{switchFlag}</Text>
+            <Text style={{ fontSize: 14 }}>{switchTarget.flag}</Text>
             <Text className="text-xs font-medium text-neutral-800 dark:text-neutral-200">
-              {isEnglish ? 'CZ' : 'EN'}
+              {switchTarget.label}
             </Text>
           </Pressable>
           <ThemeToggle />

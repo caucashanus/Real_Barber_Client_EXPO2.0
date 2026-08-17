@@ -84,6 +84,7 @@ import { buildOptimisticBooking } from '@/utils/optimisticBooking';
 import { setPendingCalendarPromo } from '@/utils/pendingCalendarPromo';
 import { setPendingStoreReviewAfterBooking } from '@/utils/pendingStoreReview';
 import { toIsoDate, calendarTargetFromNearestSlot, findNearestAvailableBookingDate, formatBookingCalendarLongDate, findBookingSlotMatchingStart, normalizeBookingSlotStartForMatch } from '@/utils/reservationCreateHelpers';
+import { intlLocaleTag } from '@/utils/intlLocaleTag';
 
 function stepTitleKey(kind: BookingStepKind): TranslationKey {
   switch (kind) {
@@ -117,7 +118,7 @@ export function useBookingEngineFlow() {
   const { t } = useTranslation();
   const colors = useThemeColors();
   const { refresh: refreshBookings } = useBookings();
-  const dateLocaleTag = locale === 'cs' ? 'cs-CZ' : 'en-GB';
+  const dateLocaleTag = intlLocaleTag(locale);
   const { recipeId, preset, draftReady, clearDraft } = useBookingEngineContext();
   const {
     selectedBranch,
@@ -1089,7 +1090,9 @@ export function useBookingEngineFlow() {
           { branches, profileBranches },
           slot.branchName
         );
-        setBranch(branch);
+        if (branch.id !== selectedBranch?.id) {
+          setBranch(branch, { clearDownstream: false });
+        }
       }
       setSlot(slot);
       setEmployeeNearestChipEmployeeId(null);

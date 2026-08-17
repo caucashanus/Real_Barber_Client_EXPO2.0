@@ -19,6 +19,7 @@ import ThemedFooter from '@/components/ThemeFooter';
 import ThemedScroller from '@/components/ThemeScroller';
 import ThemedText from '@/components/ThemedText';
 import Section from '@/components/layout/Section';
+import { intlLocaleTag } from '@/utils/intlLocaleTag';
 
 const REFERRAL_SHARE_BASE = 'https://crm.xrb.cz/ref/';
 const FALLBACK_COVER = require('@/assets/img/branches/Modrany.jpg');
@@ -27,7 +28,7 @@ function formatDate(iso: string, locale: string): string {
   const d = new Date(iso);
   if (!Number.isFinite(d.getTime())) return iso;
   try {
-    return new Intl.DateTimeFormat(locale === 'cs' ? 'cs-CZ' : 'en-GB', {
+    return new Intl.DateTimeFormat(intlLocaleTag(locale), {
       day: '2-digit',
       month: '2-digit',
       year: 'numeric',

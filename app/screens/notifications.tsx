@@ -32,6 +32,7 @@ import {
   markNotificationRead,
 } from '@/utils/notificationReadState';
 import { consumePendingNotificationOpen } from '@/utils/pendingNotificationOpen';
+import { intlLocaleTag } from '@/utils/intlLocaleTag';
 import {
   buildNotificationActionHref,
   getNotificationActionLabelKey,
@@ -426,7 +427,7 @@ function toRelativeTime(iso: string): string {
 function formatNotificationDateTime(iso: string, locale: string): string {
   const d = new Date(iso);
   if (Number.isNaN(d.getTime())) return '';
-  const dateLocale = locale === 'cs' ? 'cs-CZ' : 'en-GB';
+  const dateLocale = intlLocaleTag(locale);
   return d.toLocaleString(dateLocale, {
     day: 'numeric',
     month: 'long',

@@ -12,6 +12,7 @@ import { Button } from '@/components/Button';
 import Icon from '@/components/Icon';
 import ThemedText from '@/components/ThemedText';
 import { formatDateLocaleLong } from '@/utils/date';
+import { intlLocaleTag } from '@/utils/intlLocaleTag';
 
 interface DatePickerProps {
   value?: Date;
@@ -44,7 +45,7 @@ export const DatePicker: React.FC<DatePickerProps> = ({
   const placeholder = placeholderProp ?? t('datePickerPlaceholder');
   const { locale: appLocale } = useLanguage();
   /** BCP 47 – měsíce v iOS spinneru; tlačítka modalu přes t() */
-  const pickerLocale = appLocale === 'cs' ? 'cs-CZ' : 'en-GB';
+  const pickerLocale = intlLocaleTag(appLocale);
   const animatedLabelValue = useRef(new Animated.Value(value ? 1 : 0)).current;
 
   useEffect(() => {

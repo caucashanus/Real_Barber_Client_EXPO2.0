@@ -98,9 +98,9 @@ export function pickHomeSpotlight(bookings: Booking[], nowMs: number): HomeSpotl
 
 export function formatHomeSpotlightCountdown(ms: number, locale: string): string {
   const totalMin = Math.floor(ms / 60000);
-  const prefix = locale.startsWith('cs') ? 'za' : 'in';
+  const prefix = locale.startsWith('cs') ? 'za' : locale.startsWith('uk') ? 'за' : 'in';
   const minLabel = locale.startsWith('cs') ? 'min' : 'min';
-  const hourLabel = locale.startsWith('cs') ? 'hod' : 'h';
+  const hourLabel = locale.startsWith('cs') ? 'hod' : locale.startsWith('uk') ? 'год' : 'h';
   if (totalMin < 60) return `${prefix} ${totalMin} ${minLabel}`;
   const hours = Math.floor(totalMin / 60);
   const mins = totalMin % 60;

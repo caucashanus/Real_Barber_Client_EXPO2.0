@@ -8,6 +8,7 @@ import { useTranslation } from '@/hooks/useTranslation';
 import Avatar from '@/components/Avatar';
 import BranchAddress from '@/components/shared/BranchAddress';
 import ThemedText from '@/components/ThemedText';
+import { intlLocaleTag } from '@/utils/intlLocaleTag';
 
 interface CurrentBookingCardProps {
   booking: Booking;
@@ -16,7 +17,7 @@ interface CurrentBookingCardProps {
 export default function CurrentBookingCard({ booking }: CurrentBookingCardProps) {
   const { t } = useTranslation();
   const { locale } = useLanguage();
-  const dateLocaleTag = locale === 'cs' ? 'cs-CZ' : 'en-GB';
+  const dateLocaleTag = intlLocaleTag(locale);
 
   const dateLabel = useMemo(() => {
     const d = new Date(booking.date);

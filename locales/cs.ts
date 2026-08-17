@@ -503,15 +503,15 @@ export const cs: Record<TranslationKey, string> = {
   servicesPageSupplementary: 'Doplňkové služby',
   servicesPageSupplementaryIntro:
     'Rádi Vám poskytneme další služby, jako jsou například barvení vlasů, melíry, epilace horkým voskem, barvení vousů nebo pro Vás natočíme stylové video.',
-  servicesPageHaircutInspiration: 'Inspirace účesů',
-  inspiracePageTitle: 'Inspirace pro výběr pánského účesu',
+  servicesPageHaircutInspiration: 'Katalog účesů',
+  inspiracePageTitle: 'Účesy - inspirace pro výběr pánského střihu',
   inspiracePageIntroBeforeStylist:
     'Stránka slouží pouze jako inspirační, je možné že Vám holič vybraný typ účesu nedoporučí na základě tvaru Vašeho obličeje a hlavy, nebo kvality, zdravý a délky vlasů. Dále obsahuje pouze zlomek všech námi poskytovaných typů účesů, které postupně doplňujeme. Na Vaše přání si troufáme na jakkoli náročné účesy, pro nejednoduší domluvu se ',
   inspiracePageIntroStylistLink: 'stylistou',
   inspiracePageIntroAfterStylist:
     ', doporučujeme si před Vaší návštěvou připravit fotografii s účesem, nejpodobnějším Vaší ideální představě.',
   inspiraceExpandMore: 'Zobrazit více',
-  inspiraceLoadError: 'Inspirace se nepodařilo načíst.',
+  inspiraceLoadError: 'Účesy se nepodařilo načíst.',
   inspiraceNoItems: 'Žádné účesy k zobrazení.',
   inspiraceDetailNotFound: 'Účes nebyl nalezen.',
   inspiraceDetailPopularityIndex: 'Index popularity',
@@ -524,7 +524,7 @@ export const cs: Record<TranslationKey, string> = {
   inspiraceDetailHairLengths: 'Délka vlasů',
   inspiraceDetailPreferredBarbers: 'Kdo rád stříhá tento účes?',
   inspiraceDetailSimilar: 'Podobné účesy',
-  inspiraceDetailBackToInspirace: 'Zpět na inspiraci',
+  inspiraceDetailBackToInspirace: 'Zpět na účesy',
   inspiraceDetailGallery: 'Galerie',
   inspiraceDetailMenuOpen: 'Možnosti účesu',
   inspiraceDetailAvailabilityMessage: 'Dobrý den, chtěl/a bych si rezervovat tento účes',
@@ -689,7 +689,7 @@ export const cs: Record<TranslationKey, string> = {
   bookingYourAppointment: 'Vaše návštěva',
   bookingAddToCalendar: 'Přidat do kalendáře',
   bookingAddToCalendarDescription: 'Přidá událost s datem, časem a místem do kalendáře.',
-  bookingCalendarNoteBarber: 'Kadeřník',
+  bookingCalendarNoteBarber: 'Holič',
   bookingAddToCalendarFailed: 'Kalendář se nepodařilo otevřít. Zkuste to prosím znovu.',
   bookingDetailPostBookingCalendarTitle: 'Přidat do kalendáře?',
   bookingDetailPostBookingCalendarMessage:

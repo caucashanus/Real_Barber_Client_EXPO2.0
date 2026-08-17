@@ -1,3 +1,4 @@
+import { intlLocaleTag } from '@/utils/intlLocaleTag';
 import type { RbCoinsHistoryItem } from '@/api/rb-coins';
 
 export const RBC_WALLET_RECENT_TX_LIMIT = 5;
@@ -76,7 +77,7 @@ export function aggregateRbCoinsByMonth(
 
 export function formatMonthName(monthKey: string, locale: string): string {
   const [y, m] = monthKey.split('-').map(Number);
-  const tag = locale === 'cs' ? 'cs-CZ' : 'en-GB';
+  const tag = intlLocaleTag(locale);
   return new Date(Number.isFinite(y) ? y : 0, Number.isFinite(m) ? m - 1 : 0, 1).toLocaleDateString(
     tag,
     { month: 'long' }
@@ -85,7 +86,7 @@ export function formatMonthName(monthKey: string, locale: string): string {
 
 export function formatMonthShortLabel(monthKey: string, locale: string): string {
   const [y, m] = monthKey.split('-').map(Number);
-  const tag = locale === 'cs' ? 'cs-CZ' : 'en-GB';
+  const tag = intlLocaleTag(locale);
   return new Date(Number.isFinite(y) ? y : 0, Number.isFinite(m) ? m - 1 : 0, 1).toLocaleDateString(
     tag,
     { month: 'short' }

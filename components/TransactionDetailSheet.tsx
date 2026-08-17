@@ -12,6 +12,7 @@ import AppButton from '@/components/AppButton';
 import ThemedText from '@/components/ThemedText';
 import type { TranslationKey } from '@/locales';
 import { isVisitReservationBonusTransaction, getRbCoinsTransactionAvatarSrc } from '@/utils/rbcCoinsHistoryUi';
+import { intlLocaleTag } from '@/utils/intlLocaleTag';
 
 function formatBalance(value: number): string {
   return value.toLocaleString('cs-CZ', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
@@ -19,7 +20,7 @@ function formatBalance(value: number): string {
 
 function formatDateTime(iso: string, locale: string): { date: string; time: string } {
   const d = new Date(iso);
-  const dateLocale = locale === 'cs' ? 'cs-CZ' : 'en-GB';
+  const dateLocale = intlLocaleTag(locale);
   return {
     date: d.toLocaleDateString(dateLocale, { day: 'numeric', month: 'long', year: 'numeric' }),
     time: d.toLocaleTimeString(dateLocale, { hour: '2-digit', minute: '2-digit' }),

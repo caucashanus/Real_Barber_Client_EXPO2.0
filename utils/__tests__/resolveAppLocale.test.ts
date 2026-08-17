@@ -16,6 +16,11 @@ describe('resolveLocaleFromLanguageCode', () => {
     expect(resolveLocaleFromLanguageCode('en-US')).toBe('en');
   });
 
+  it('maps Ukrainian codes to uk', () => {
+    expect(resolveLocaleFromLanguageCode('uk')).toBe('uk');
+    expect(resolveLocaleFromLanguageCode('uk-UA')).toBe('uk');
+  });
+
   it('returns null for unsupported codes', () => {
     expect(resolveLocaleFromLanguageCode('de')).toBeNull();
     expect(resolveLocaleFromLanguageCode(undefined)).toBeNull();
@@ -27,7 +32,11 @@ describe('resolveAppLocaleFromLanguageCodes', () => {
     expect(resolveAppLocaleFromLanguageCodes(['de', 'en'])).toBe('en');
   });
 
+  it('uses uk when present in device preferences', () => {
+    expect(resolveAppLocaleFromLanguageCodes(['de', 'uk'])).toBe('uk');
+  });
+
   it('falls back to cs when no supported locale is found', () => {
-    expect(resolveAppLocaleFromLanguageCodes(['de', 'uk'])).toBe('cs');
+    expect(resolveAppLocaleFromLanguageCodes(['de', 'fr'])).toBe('cs');
   });
 });

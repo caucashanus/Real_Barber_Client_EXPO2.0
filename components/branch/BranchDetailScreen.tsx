@@ -219,7 +219,7 @@ export default function BranchDetailScreen() {
 
   const employeesList = getEmployeesList(branch);
   const reviewParams = buildBranchReviewParams(branch);
-  const ratingLocale = locale.startsWith('cs') ? 'cs' : 'en';
+  const ratingLocale = locale;
 
   const showDirectionsVideo =
     BRANCH_DIRECTIONS_VIDEO_ENABLED && directionsVideoUrl != null;

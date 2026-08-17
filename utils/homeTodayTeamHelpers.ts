@@ -12,7 +12,8 @@ import {
   getPragueTodayDateString,
   pickTeamMemberLocalizedField,
 } from '@/utils/teamMemberPageHelpers';
-import { formatRelativeDayLabel, formatWaitlistDayWhen } from '@/utils/formatRelativeDayLabel';
+import { localeCompareTag } from '@/utils/intlLocaleTag';
+import { formatWaitlistDayWhen } from '@/utils/formatRelativeDayLabel';
 import { showIsNew } from '@/utils/crmIsNew';
 import { shouldShowTeamMemberWaitlistCta } from '@/utils/teamMemberWaitlist';
 
@@ -403,7 +404,7 @@ export function buildHomeTodayTeamCards(params: {
       return aRunningWithoutSlot ? -1 : 1;
     }
 
-    return a.name.localeCompare(b.name, params.locale === 'cs' ? 'cs' : 'en');
+    return a.name.localeCompare(b.name, localeCompareTag(params.locale));
   });
 }
 

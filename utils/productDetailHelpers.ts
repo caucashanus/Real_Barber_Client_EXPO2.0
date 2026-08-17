@@ -6,11 +6,12 @@ import type {
 import type { Locale } from '@/contexts/LanguageContext';
 import type { TranslationKey } from '@/locales';
 import { compareCatalogStockWarehouseRows, warehouseUiName } from '@/utils/catalogWarehouse';
+import { intlLocaleTag } from '@/utils/intlLocaleTag';
 
 export function formatReviewDate(iso: string, locale: string): string {
   try {
     const d = new Date(iso);
-    return new Intl.DateTimeFormat(locale === 'cs' ? 'cs-CZ' : 'en-GB', {
+    return new Intl.DateTimeFormat(intlLocaleTag(locale), {
       month: 'long',
       year: 'numeric',
     }).format(d);

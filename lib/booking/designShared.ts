@@ -1,3 +1,4 @@
+import type { Locale } from '@/contexts/LanguageContext';
 import type { BookingEntity, BookingService } from '@/lib/booking/constants';
 import { formatRelativeDayLabel } from '@/utils/formatRelativeDayLabel';
 import { getPragueTodayDateString } from '@/utils/teamMemberPageHelpers';
@@ -28,7 +29,7 @@ export function resolveBranchName(
   return fromList?.name ?? branchId;
 }
 
-export function formatNearestTermLabel(dateStr: string, locale: 'cs' | 'en' = 'cs'): string {
+export function formatNearestTermLabel(dateStr: string, locale: Locale = 'cs'): string {
   if (!dateStr || typeof dateStr !== 'string') return '';
   return formatRelativeDayLabel({
     dayIso: dateStr,
@@ -41,7 +42,7 @@ export function formatNearestTermLabel(dateStr: string, locale: 'cs' | 'en' = 'c
 /** Relative day label for booking employee list — lowercase in sentence (zítra · 14:30). */
 export function formatBookingEmployeeNearestDayLabel(
   dateStr: string,
-  locale: 'cs' | 'en' = 'cs'
+  locale: Locale = 'cs'
 ): string {
   return formatNearestTermLabel(dateStr, locale);
 }
@@ -50,7 +51,7 @@ export function formatBookingEmployeeNearestLine(
   dateStr: string,
   time: string,
   nearestLabel: string,
-  locale: 'cs' | 'en' = 'cs'
+  locale: Locale = 'cs'
 ): string {
   const day = formatBookingEmployeeNearestDayLabel(dateStr, locale);
   const trimmedTime = time.trim();

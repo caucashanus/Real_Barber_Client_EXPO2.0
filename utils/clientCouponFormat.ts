@@ -1,8 +1,9 @@
+import { intlLocaleTag } from '@/utils/intlLocaleTag';
 import type { TranslationKey } from '@/locales';
 
 /** Jedno datum platnosti kupónu (lokále Real Barber / EN). */
 function formatCouponDate(d: Date, locale: string): string {
-  const dl = locale === 'cs' ? 'cs-CZ' : 'en-GB';
+  const dl = intlLocaleTag(locale);
   return d.toLocaleDateString(dl, {
     day: 'numeric',
     month: 'short',

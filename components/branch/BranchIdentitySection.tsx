@@ -19,7 +19,7 @@ interface BranchIdentitySectionProps {
   branchName: string;
   internalBranchId?: BranchInternalId;
   average: number;
-  locale: 'cs' | 'en';
+  locale: 'cs' | 'en' | 'uk';
   shareUrl: string;
   shareTitle: string;
   shareEmailSubject: string;

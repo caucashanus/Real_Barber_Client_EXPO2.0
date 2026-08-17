@@ -59,7 +59,7 @@ export default function PhoneInput({
   placeholder = '123 456 789',
 }: PhoneInputProps) {
   const { t, locale } = useTranslation();
-  const filterLocale: CountryFilterLocale = locale === 'cs' ? 'cs' : 'en';
+  const filterLocale: CountryFilterLocale = locale;
 
   const countryOptions = useMemo(
     () => COUNTRY_CODE_OPTIONS.map((option) => toSheetOption(option, filterLocale)),

@@ -13,15 +13,16 @@ import { ANY_EMPLOYEE_ID, type BookingEntity } from '@/lib/booking/constants';
 import {
   formatBookingEmployeeNearestDayLabel,
 } from '@/lib/booking/designShared';
+import { appLocaleFromIntlTag } from '@/utils/intlLocaleTag';
 import { formatNextSlotDisplayTime } from '@/utils/reservationCreateHelpers';
 
 interface Props {
   flow: BookingEngineFlow;
 }
 
-function formatPlainRating(rating: number, locale: 'cs' | 'en'): string {
+function formatPlainRating(rating: number, locale: 'cs' | 'en' | 'uk'): string {
   const value = rating.toFixed(1);
-  const formatted = locale === 'cs' ? value.replace('.', ',') : value;
+  const formatted = locale === 'en' ? value : value.replace('.', ',');
   return `★ ${formatted}`;
 }
 
@@ -32,7 +33,7 @@ function EmployeeCardContent({
 }: {
   name: string;
   rating?: number;
-  locale: 'cs' | 'en';
+  locale: 'cs' | 'en' | 'uk';
 }) {
   return (
     <View className="w-full">
@@ -63,7 +64,7 @@ function EmployeeNearestMeta({
   nearest?: { date: string; start: string } | null;
   loadingNearest: boolean;
   noSlots: boolean;
-  locale: 'cs' | 'en';
+  locale: 'cs' | 'en' | 'uk';
 }) {
   const { t } = flow;
 
@@ -112,7 +113,7 @@ function EmployeeNearestMeta({
 export default function BookingEngineEmployeeStep({ flow }: Props) {
   const { t } = flow;
   const { isDark } = useTheme();
-  const locale = flow.dateLocaleTag.startsWith('cs') ? 'cs' : 'en';
+  const locale = appLocaleFromIntlTag(flow.dateLocaleTag);
   const anyEmployeeLogo = isDark
     ? require('@/assets/img/wallet/realbarber-dark.png')
     : require('@/assets/img/wallet/realbarber-light.png');

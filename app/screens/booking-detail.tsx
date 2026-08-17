@@ -31,6 +31,7 @@ import {
   formatCancelSheetWhen,
 } from '@/utils/bookingDetailHelpers';
 import { isBookingCurrent, isBookingMarkedCompleted, isBookingPast, canShareClientBooking } from '@/utils/bookingHelpers';
+import { intlLocaleTag } from '@/utils/intlLocaleTag';
 
 const BookingDetailScreen = () => {
   const local = useLocalSearchParams<{
@@ -42,7 +43,7 @@ const BookingDetailScreen = () => {
   const { locale } = useLanguage();
   const { t } = useTranslation();
   const colors = useThemeColors();
-  const dateLocaleTag = locale === 'cs' ? 'cs-CZ' : 'en-GB';
+  const dateLocaleTag = intlLocaleTag(locale);
 
   const {
     booking,

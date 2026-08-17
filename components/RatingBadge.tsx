@@ -11,7 +11,7 @@ import {
 interface RatingBadgeProps {
   rating: number;
   reviewCount?: number;
-  locale?: 'cs' | 'en';
+  locale?: 'cs' | 'en' | 'uk';
   onPress?: () => void;
   className?: string;
   textClassName?: string;
@@ -19,9 +19,9 @@ interface RatingBadgeProps {
   compact?: boolean;
 }
 
-function formatRatingValue(rating: number, locale: 'cs' | 'en'): string {
+function formatRatingValue(rating: number, locale: 'cs' | 'en' | 'uk'): string {
   const value = rating.toFixed(1);
-  return locale === 'cs' ? value.replace('.', ',') : value;
+  return locale === 'en' ? value : value.replace('.', ',');
 }
 
 /** Choice chip pro rating — stejný globální `AppButton choice` jako `SlotTimePill`. */

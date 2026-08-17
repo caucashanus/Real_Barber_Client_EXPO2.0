@@ -30,6 +30,10 @@ function pickLocalized(
     const en = raw[`${baseKey}En`];
     if (typeof en === 'string' && en.trim()) return en.trim();
   }
+  if (locale === 'uk') {
+    const uk = raw[`${baseKey}Uk`];
+    if (typeof uk === 'string' && uk.trim()) return uk.trim();
+  }
   const cs = raw[baseKey];
   if (typeof cs === 'string' && cs.trim()) return cs.trim();
   return '';

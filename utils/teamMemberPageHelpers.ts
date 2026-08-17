@@ -9,6 +9,7 @@ import type {
 import type { Locale } from '@/contexts/LanguageContext';
 import { BARBER_DETAIL_ROUTE } from '@/constants/profileDetailRoutes';
 import { formatRelativeDayLabel } from '@/utils/formatRelativeDayLabel';
+import { intlLocaleTag } from '@/utils/intlLocaleTag';
 import { shouldShowTeamMemberWaitlistCta } from '@/utils/teamMemberWaitlist';
 
 type LocalizedEntity = Record<string, unknown>;
@@ -71,12 +72,6 @@ export function getPragueMinutesFromDate(now = new Date()): number {
   const hour = Number(parts.find((p) => p.type === 'hour')?.value ?? '0');
   const minute = Number(parts.find((p) => p.type === 'minute')?.value ?? '0');
   return hour * 60 + minute;
-}
-
-function intlLocaleTag(locale: Locale | string): string {
-  if (locale === 'cs' || locale.startsWith('cs')) return 'cs-CZ';
-  if (locale === 'uk' || locale.startsWith('uk')) return 'uk-UA';
-  return 'en-GB';
 }
 
 export function getTodayShiftStatus(
@@ -230,7 +225,7 @@ export function hasAnyShiftRows(shiftCalendar: TeamMemberShiftDay[] | undefined)
   return shiftCalendar.some((day) => (day.workIntervals?.length ?? 0) > 0);
 }
 
-/** Picks `field`, then `fieldEn` / `fieldUk` based on locale (app: cs | en). */
+/** Picks `field`, then `fieldEn` / `fieldUk` based on locale. */
 export function pickTeamMemberLocalizedField(
   entity: object,
   field: string,
@@ -240,6 +235,10 @@ export function pickTeamMemberLocalizedField(
   if (locale === 'en') {
     const en = readString(record[`${field}En`]);
     if (en) return en;
+  }
+  if (locale === 'uk') {
+    const uk = readString(record[`${field}Uk`]);
+    if (uk) return uk;
   }
   return readString(record[field]);
 }

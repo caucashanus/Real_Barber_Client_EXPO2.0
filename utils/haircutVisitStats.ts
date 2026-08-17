@@ -1,6 +1,7 @@
 import type { Booking } from '@/api/bookings';
 
 import { getBookingStartDate, isBookingPast } from '@/utils/bookingHelpers';
+import { intlLocaleTag } from '@/utils/intlLocaleTag';
 
 const DAY_MS = 24 * 60 * 60 * 1000;
 
@@ -37,7 +38,7 @@ export function visitStatusFromDaysSince(days: number): HaircutVisitStatus {
 }
 
 export function formatVisitDate(date: Date, locale: string): string {
-  const tag = locale === 'cs' ? 'cs-CZ' : 'en-GB';
+  const tag = intlLocaleTag(locale);
   return date.toLocaleDateString(tag, { day: 'numeric', month: 'long' });
 }
 
