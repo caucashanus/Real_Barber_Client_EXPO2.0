@@ -184,8 +184,9 @@ export const cs: Record<TranslationKey, string> = {
   tabBranches: 'Pobočky',
   tabBarbers: 'Tým',
   tabServices: 'Služby',
-  tabInspirace: 'Inspirace',
+  tabInspirace: 'Účesy',
   tabGuides: 'Návody',
+  isNewBadge: 'Nový',
   breadcrumbNavLabel: 'Drobečková navigace',
   breadcrumbBlog: 'Blog',
 

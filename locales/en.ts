@@ -182,6 +182,7 @@ export const en = {
   tabServices: 'Services',
   tabInspirace: 'Inspiration',
   tabGuides: 'Guides',
+  isNewBadge: 'New',
   breadcrumbNavLabel: 'Breadcrumb navigation',
   breadcrumbBlog: 'Blog',
 

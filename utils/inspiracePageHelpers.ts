@@ -3,6 +3,7 @@ import type { ServiceGridItem } from '@/components/services/ServiceItemGrid';
 import { INSPIRACE_GRID_MAX_LIMIT } from '@/constants/inspiraceGrid';
 import type { Locale } from '@/contexts/LanguageContext';
 import { hairstyleDetailHref } from '@/constants/profileDetailRoutes';
+import { showIsNew } from '@/utils/crmIsNew';
 
 const PLACEHOLDER_IMAGE = require('@/assets/img/barbers.png');
 
@@ -42,6 +43,7 @@ export function mapInspiraceItemToGridItem(
     entityType: 'service',
     entityId: item.id,
     badgeLabel: badgeLabel || undefined,
+    isNew: showIsNew(item),
   };
 }
 

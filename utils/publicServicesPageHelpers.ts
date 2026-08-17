@@ -11,6 +11,7 @@ import {
 import type { Locale } from '@/contexts/LanguageContext';
 import type { TranslationKey } from '@/locales';
 import { serviceDetailHref } from '@/constants/profileDetailRoutes';
+import { showIsNew } from '@/utils/crmIsNew';
 
 const PLACEHOLDER_IMAGE = require('@/assets/img/barbers.png');
 
@@ -87,6 +88,7 @@ export function mapPublicServiceToGridItem(
     entityId: service.id,
     priceAmount: minPrice > 0 ? formatServicePriceAmount(minPrice) : undefined,
     badgeLabel: badgeLabel || undefined,
+    isNew: showIsNew(service),
   };
 }
 

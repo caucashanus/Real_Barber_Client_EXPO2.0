@@ -9,7 +9,6 @@ import {
   type BranchPageResponse,
 } from '@/api/publicBranchPage';
 import type { TeamMemberPageReview } from '@/api/publicTeamMember';
-import { getEntityReviews } from '@/api/reviews';
 import { useAuth } from '@/contexts/AuthContext';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { BRANCH_PAGE_CACHE_MS } from '@/constants/branchPage';
@@ -17,9 +16,8 @@ import { resolveInternalBranchIdFromCrmUuid } from '@/constants/crmBranchIds';
 import { usePublicReviewsPagination } from '@/hooks/usePublicReviewsPagination';
 import { groupNearestBranchSlots } from '@/utils/nearestBranchHomeSlots';
 import {
-  bumpStatsTotalForAddedReview,
+  fetchMergedPageReviewsWithOwn,
   mapPublicPageReviewToEntityReview,
-  mergePageReviewsWithOwnReview,
 } from '@/utils/publicReviewHelpers';
 import { buildReviewStatsFromPage, getPragueTodayDateString } from '@/utils/teamMemberPageHelpers';
 
@@ -55,35 +53,18 @@ export function useBranchDetailScreen(id: string) {
   const applyBranchPageData = useCallback(
     async (data: BranchPageResponse | null) => {
       const mapped = data ? mapBranchPageToBranch(data) : null;
-      let reviews = data?.reviews ?? [];
-      let totalReviews = data?.stats?.totalReviews ?? 0;
-      let nextHasReviewed = false;
-      let nextOwnReviewIds = new Set<string>();
-
-      if (apiToken && mapped?.id) {
-        try {
-          const ownData = await getEntityReviews(apiToken, 'branch', mapped.id, {
-            page: 1,
-            limit: 100,
-            includeOwn: true,
-          });
-          const merged = mergePageReviewsWithOwnReview(reviews, ownData, client?.id);
-          reviews = merged.reviews;
-          nextHasReviewed = merged.hasReviewed;
-          nextOwnReviewIds = merged.ownReviewIds;
-          totalReviews = bumpStatsTotalForAddedReview(
-            totalReviews,
-            reviews,
-            merged.addedReview
-          );
-        } catch {
-          // Keep public page reviews when own-review fetch fails.
-        }
-      }
+      const merged = await fetchMergedPageReviewsWithOwn({
+        apiToken,
+        entityType: 'branch',
+        entityId: mapped?.id,
+        pageReviews: data?.reviews ?? [],
+        statsTotal: data?.stats?.totalReviews ?? 0,
+        clientId: client?.id,
+      });
 
       setBranch(mapped);
-      setPageReviews(reviews);
-      setStatsTotal(totalReviews);
+      setPageReviews(merged.reviews);
+      setStatsTotal(merged.statsTotal);
       setStatsAverage(data?.stats?.averageRating ?? 0);
       setBranchSlots(
         mapBranchPageSlotsToNearest(
@@ -92,8 +73,8 @@ export function useBranchDetailScreen(id: string) {
           mapped?.address ?? null
         )
       );
-      setHasReviewed(nextHasReviewed);
-      setOwnReviewIds(nextOwnReviewIds);
+      setHasReviewed(merged.hasReviewed);
+      setOwnReviewIds(merged.ownReviewIds);
       setError(mapped ? null : 'Branch not found');
     },
     [apiToken, client?.id]

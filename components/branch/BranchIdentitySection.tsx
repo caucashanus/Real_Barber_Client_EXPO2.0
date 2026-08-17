@@ -3,6 +3,7 @@ import { View } from 'react-native';
 
 import LiveIndicator from '@/components/LiveIndicator';
 import RatingBadge from '@/components/RatingBadge';
+import IsNewBadge from '@/components/shared/IsNewBadge';
 import Avatar from '@/components/Avatar';
 import Favorite from '@/components/Favorite';
 import ProfileActionsMenu from '@/components/profile/ProfileActionsMenu';
@@ -26,6 +27,7 @@ interface BranchIdentitySectionProps {
   rateUrl: string | null;
   bookingHref: string;
   onScrollToReviews: () => void;
+  isNew?: boolean;
   t: (key: TranslationKey) => string;
 }
 
@@ -42,6 +44,7 @@ export default function BranchIdentitySection({
   rateUrl,
   bookingHref,
   onScrollToReviews,
+  isNew = false,
   t,
 }: BranchIdentitySectionProps) {
   const openVariant = getBranchOpenLiveVariant(getBranchOpenStatus());
@@ -71,14 +74,33 @@ export default function BranchIdentitySection({
               </View>
 
               {average > 0 ? (
-                <View className="mt-1">
-                  <RatingBadge
-                    rating={average}
-                    locale={locale}
-                    compact={false}
-                    onPress={onScrollToReviews}
-                    className="self-start !pl-0"
-                  />
+                <View className="mt-2">
+                  {isNew ? (
+                    <View className="flex-row flex-wrap items-center">
+                      <RatingBadge
+                        rating={average}
+                        locale={locale}
+                        compact={false}
+                        onPress={onScrollToReviews}
+                        className="!pl-0"
+                      />
+                      <View className="ml-2">
+                        <IsNewBadge />
+                      </View>
+                    </View>
+                  ) : (
+                    <RatingBadge
+                      rating={average}
+                      locale={locale}
+                      compact={false}
+                      onPress={onScrollToReviews}
+                      className="!pl-0"
+                    />
+                  )}
+                </View>
+              ) : isNew ? (
+                <View className="mt-2">
+                  <IsNewBadge />
                 </View>
               ) : null}
             </View>

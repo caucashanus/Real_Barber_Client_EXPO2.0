@@ -1,6 +1,67 @@
 import type { TeamMemberPageReview } from '@/api/publicTeamMember';
+import { getEntityReviews, getEntityReviewsForService } from '@/api/reviews';
 import type { EntityReviewItem, GetEntityReviewsResponse } from '@/api/reviews';
 import { buildOwnReviewIds } from '@/utils/barberDetailHelpers';
+
+export type PublicReviewEntityType = 'branch' | 'employee' | 'service';
+
+export type MergedPublicPageReviews = {
+  reviews: TeamMemberPageReview[];
+  statsTotal: number;
+  hasReviewed: boolean;
+  ownReviewIds: Set<string>;
+};
+
+/** Fetch own review via client API and merge into public page reviews (detail screens). */
+export async function fetchMergedPageReviewsWithOwn(options: {
+  apiToken?: string | null;
+  entityType: PublicReviewEntityType;
+  entityId?: string;
+  pageReviews: TeamMemberPageReview[];
+  statsTotal: number;
+  clientId?: string | number | null;
+}): Promise<MergedPublicPageReviews> {
+  const { apiToken, entityType, entityId, pageReviews, statsTotal, clientId } = options;
+
+  if (!apiToken || !entityId) {
+    return {
+      reviews: pageReviews,
+      statsTotal,
+      hasReviewed: false,
+      ownReviewIds: new Set(),
+    };
+  }
+
+  try {
+    const ownData =
+      entityType === 'service'
+        ? await getEntityReviewsForService(apiToken, entityId, {
+            page: 1,
+            limit: 100,
+            includeOwn: true,
+          })
+        : await getEntityReviews(apiToken, entityType, entityId, {
+            page: 1,
+            limit: 100,
+            includeOwn: true,
+          });
+
+    const merged = mergePageReviewsWithOwnReview(pageReviews, ownData, clientId);
+    return {
+      reviews: merged.reviews,
+      statsTotal: bumpStatsTotalForAddedReview(statsTotal, merged.reviews, merged.addedReview),
+      hasReviewed: merged.hasReviewed,
+      ownReviewIds: merged.ownReviewIds,
+    };
+  } catch {
+    return {
+      reviews: pageReviews,
+      statsTotal,
+      hasReviewed: false,
+      ownReviewIds: new Set(),
+    };
+  }
+}
 
 export function mapPublicPageReviewToEntityReview(
   review: TeamMemberPageReview,

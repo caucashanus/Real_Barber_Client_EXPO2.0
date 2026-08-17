@@ -9,6 +9,7 @@ import HomeTodayTeamWaitlistSheet, {
 } from '@/components/home/HomeTodayTeamWaitlistSheet';
 import LiveIndicator from '@/components/LiveIndicator';
 import Grid from '@/components/layout/Grid';
+import IsNewBadge from '@/components/shared/IsNewBadge';
 import SlotTimePill from '@/components/SlotTimePill';
 import ThemedText from '@/components/ThemedText';
 import type { TranslationKey } from '@/locales';
@@ -192,6 +193,7 @@ function BarberAvailabilityGridCard({
       }
       belowTitle={belowTitle}
       footer={actionRow ? <View className={CARD_FOOTER_GAP_CLASS}>{actionRow}</View> : null}
+      imageTopLeftOverlay={card.isNew ? <IsNewBadge /> : undefined}
     />
   );
 }

@@ -13,6 +13,7 @@ import {
   pickTeamMemberLocalizedField,
 } from '@/utils/teamMemberPageHelpers';
 import { formatRelativeDayLabel, formatWaitlistDayWhen } from '@/utils/formatRelativeDayLabel';
+import { showIsNew } from '@/utils/crmIsNew';
 import { shouldShowTeamMemberWaitlistCta } from '@/utils/teamMemberWaitlist';
 
 export type HomeTodayShiftPhase = 'upcoming' | 'active' | 'ended' | 'none';
@@ -43,6 +44,7 @@ export interface HomeTodayTeamCardModel {
   waitlistDayIso: string;
   waitlistRequireActiveNow: boolean;
   footer: HomeTodayTeamCardFooter;
+  isNew?: boolean;
 }
 
 interface ParsedInterval {
@@ -374,6 +376,7 @@ export function buildHomeTodayTeamCards(params: {
       waitlistDayIso: today,
       waitlistRequireActiveNow: true,
       footer,
+      isNew: showIsNew(member),
     };
   });
 

@@ -43,6 +43,7 @@ export interface PublicCatalogService {
   imageUrl?: string | null;
   media?: PublicServiceMedia[];
   nearestSlots?: PublicServiceNearestSlot[];
+  isNew?: boolean;
 }
 
 export interface PublicServicePageResponse {

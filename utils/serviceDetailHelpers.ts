@@ -4,6 +4,7 @@ import type {
 } from '@/api/publicServicePage';
 import type { Locale } from '@/contexts/LanguageContext';
 import type { NearestBranchHomeSlot } from '@/utils/nearestBranchHomeSlots';
+import { showIsNew } from '@/utils/crmIsNew';
 
 export interface CatalogServiceHeroSlide {
   src: string;
@@ -17,6 +18,7 @@ export interface CatalogServiceDetail {
   webUrl: string | null;
   heroSlides: CatalogServiceHeroSlide[];
   nearestSlots: NearestBranchHomeSlot[];
+  isNew?: boolean;
 }
 
 function pickLocalized(
@@ -82,6 +84,7 @@ export function mapPublicServiceToDetail(
     webUrl: service.webUrl?.trim() || null,
     heroSlides: buildHeroSlides(service, locale, title),
     nearestSlots: (service.nearestSlots ?? []).map((slot) => mapNearestSlot(slot, locale)),
+    isNew: showIsNew(service),
   };
 }
 

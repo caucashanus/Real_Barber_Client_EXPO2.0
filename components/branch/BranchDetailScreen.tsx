@@ -54,6 +54,7 @@ import {
   getBranchProfileShareUrl,
 } from '@/utils/branchShareHelpers';
 import { branchBreadcrumbItems } from '@/utils/breadcrumbs';
+import { showIsNew } from '@/utils/crmIsNew';
 
 export default function BranchDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -197,23 +198,22 @@ export default function BranchDetailScreen() {
 
   if (!loading && (error || !branch)) {
     return (
-      <>
-        <Header showBackButton />
-        <View className="flex-1 items-center justify-center bg-light-primary p-6 dark:bg-dark-primary">
+      <View className="flex-1 bg-light-primary dark:bg-dark-primary">
+        {!isMobileHeader ? <Header showBackButton /> : null}
+        <View className="flex-1 items-center justify-center p-6">
           <ThemedText className="text-center text-red-500 dark:text-red-400">
             {error ?? 'Branch not found'}
           </ThemedText>
         </View>
-      </>
+      </View>
     );
   }
 
   if (!branch || !branchMeta) {
     return (
-      <>
-        <Header showBackButton />
-        <View className="flex-1 bg-light-primary dark:bg-dark-primary" />
-      </>
+      <View className="flex-1 bg-light-primary dark:bg-dark-primary">
+        {!isMobileHeader ? <Header showBackButton /> : null}
+      </View>
     );
   }
 
@@ -266,6 +266,7 @@ export default function BranchDetailScreen() {
                 rateUrl={branchRateUrl}
                 bookingHref={branchBookingHref}
                 onScrollToReviews={scrollToReviews}
+                isNew={showIsNew(branch)}
                 t={t}
               />
             </View>

@@ -18,6 +18,7 @@ export interface PublicHairstyleSimilar {
   imageAlt?: string | null;
   webUrl?: string | null;
   webUrlEn?: string | null;
+  isNew?: boolean;
 }
 
 export interface PublicHairstyleMedia {
@@ -85,6 +86,7 @@ export interface PublicHairstyle {
   preferredEmployees?: PublicHairstylePreferredEmployee[];
   stats?: { totalReviews?: number; averageRating?: number };
   reviews?: TeamMemberPageReview[];
+  isNew?: boolean;
 }
 
 export interface PublicHairstylePageResponse {

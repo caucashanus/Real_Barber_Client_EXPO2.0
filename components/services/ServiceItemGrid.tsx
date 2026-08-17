@@ -2,6 +2,7 @@ import React from 'react';
 import { useWindowDimensions, View, type ImageSourcePropType } from 'react-native';
 
 import FavoriteMediaCard from '@/components/favorites/FavoriteMediaCard';
+import IsNewBadge from '@/components/shared/IsNewBadge';
 import Grid from '@/components/layout/Grid';
 import ThemedText from '@/components/ThemedText';
 import useThemeColors from '@/contexts/ThemeColors';
@@ -26,6 +27,7 @@ export interface ServiceGridItem {
   /** Částka bez prefixu „od“, např. „590 Kč“. */
   priceAmount?: string;
   badgeLabel?: string;
+  isNew?: boolean;
 }
 
 function ServiceGridCardMeta({
@@ -91,6 +93,7 @@ export default function ServiceItemGrid({
             entityType={item.entityType}
             entityId={item.entityId}
             showFavorite={Boolean(item.entityType && item.entityId)}
+            imageTopLeftOverlay={item.isNew ? <IsNewBadge /> : undefined}
             belowTitle={
               <ServiceGridCardMeta
                 priceAmount={item.priceAmount}

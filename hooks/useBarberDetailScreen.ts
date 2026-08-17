@@ -6,13 +6,13 @@ import {
   type TeamMemberMediaItem,
   type TeamMemberPageEmployee,
   type TeamMemberPageReview,
+  type TeamMemberPageResponse,
 } from '@/api/publicTeamMember';
-import { getEntityReviews } from '@/api/reviews';
 import { useBarberReviewsPagination } from '@/hooks/useBarberReviewsPagination';
 import { useAuth } from '@/contexts/AuthContext';
 import { useLanguage } from '@/contexts/LanguageContext';
-import { buildOwnReviewIds } from '@/utils/barberDetailHelpers';
 import { TEAM_MEMBER_PAGE_CACHE_MS } from '@/constants/teamMemberPage';
+import { fetchMergedPageReviewsWithOwn } from '@/utils/publicReviewHelpers';
 import {
   branchesFromShiftCalendar,
   buildBarberNearestSlotDayGroups,
@@ -27,11 +27,16 @@ import {
   isShiftCalendarConfigured,
 } from '@/utils/teamMemberPageHelpers';
 
-const pageCache = new Map<string, { expiresAt: number; employee: TeamMemberPageEmployee | null }>();
+const pageCache = new Map<string, { expiresAt: number; data: TeamMemberPageResponse | null }>();
 
 function cacheKey(idOrSlug: string, date: string): string {
   return `${idOrSlug}:${date}`;
 }
+
+type LoadPageOptions = {
+  background?: boolean;
+  skipCache?: boolean;
+};
 
 export function useBarberDetailScreen(idOrSlug: string) {
   const { apiToken, client } = useAuth();
@@ -39,46 +44,87 @@ export function useBarberDetailScreen(idOrSlug: string) {
   const today = useMemo(() => getPragueTodayDateString(), []);
 
   const [employee, setEmployee] = useState<TeamMemberPageEmployee | null>(null);
+  const [pageReviews, setPageReviews] = useState<TeamMemberPageReview[]>([]);
+  const [statsTotal, setStatsTotal] = useState(0);
+  const [statsAverage, setStatsAverage] = useState(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [hasReviewed, setHasReviewed] = useState(false);
   const [ownReviewIds, setOwnReviewIds] = useState<Set<string>>(() => new Set());
   const [fullscreenMedia, setFullscreenMedia] = useState<TeamMemberMediaItem | null>(null);
 
-  const loadPage = useCallback(async () => {
-    if (!idOrSlug) {
-      setLoading(false);
-      setError('Barber not found');
-      return;
-    }
+  const applyEmployeePageData = useCallback(
+    async (data: TeamMemberPageResponse | null) => {
+      const nextEmployee = data?.employee ?? null;
+      const baseReviews = nextEmployee?.reviews ?? [];
+      const baseTotal = nextEmployee?.stats?.totalReviews ?? 0;
 
-    const key = cacheKey(idOrSlug, today);
-    const cached = pageCache.get(key);
-    if (cached && cached.expiresAt > Date.now()) {
-      setEmployee(cached.employee);
-      setError(cached.employee ? null : 'Barber not found');
-      setLoading(false);
-      return;
-    }
-
-    setLoading(true);
-    setError(null);
-    try {
-      const data = await getTeamMemberPage(idOrSlug, { date: today });
-      const nextEmployee = data.employee ?? null;
-      pageCache.set(key, {
-        employee: nextEmployee,
-        expiresAt: Date.now() + TEAM_MEMBER_PAGE_CACHE_MS,
+      const merged = await fetchMergedPageReviewsWithOwn({
+        apiToken,
+        entityType: 'employee',
+        entityId: nextEmployee?.id,
+        pageReviews: baseReviews,
+        statsTotal: baseTotal,
+        clientId: client?.id,
       });
+
       setEmployee(nextEmployee);
-      if (!nextEmployee) setError('Barber not found');
-    } catch (e) {
-      setEmployee(null);
-      setError(e instanceof Error ? e.message : 'Failed to load');
-    } finally {
-      setLoading(false);
-    }
-  }, [idOrSlug, today]);
+      setPageReviews(merged.reviews);
+      setStatsTotal(merged.statsTotal);
+      setStatsAverage(nextEmployee?.stats?.averageRating ?? 0);
+      setHasReviewed(merged.hasReviewed);
+      setOwnReviewIds(merged.ownReviewIds);
+      setError(nextEmployee ? null : 'Barber not found');
+    },
+    [apiToken, client?.id]
+  );
+
+  const loadPage = useCallback(
+    async (options?: LoadPageOptions) => {
+      if (!idOrSlug) {
+        setLoading(false);
+        setError('Barber not found');
+        return;
+      }
+
+      const key = cacheKey(idOrSlug, today);
+      if (!options?.skipCache) {
+        const cached = pageCache.get(key);
+        if (cached && cached.expiresAt > Date.now()) {
+          await applyEmployeePageData(cached.data);
+          setLoading(false);
+          return;
+        }
+      }
+
+      if (!options?.background) {
+        setLoading(true);
+      }
+      setError(null);
+
+      try {
+        const data = await getTeamMemberPage(idOrSlug, { date: today });
+        pageCache.set(key, {
+          data,
+          expiresAt: Date.now() + TEAM_MEMBER_PAGE_CACHE_MS,
+        });
+        await applyEmployeePageData(data);
+      } catch (e) {
+        setEmployee(null);
+        setPageReviews([]);
+        setStatsTotal(0);
+        setStatsAverage(0);
+        setHasReviewed(false);
+        setOwnReviewIds(new Set());
+        setError(e instanceof Error ? e.message : 'Failed to load');
+      } finally {
+        if (!options?.background) {
+          setLoading(false);
+        }
+      }
+    },
+    [applyEmployeePageData, idOrSlug, today]
+  );
 
   useEffect(() => {
     loadPage().catch(() => {});
@@ -86,35 +132,8 @@ export function useBarberDetailScreen(idOrSlug: string) {
 
   useFocusEffect(
     useCallback(() => {
-      loadPage().catch(() => {});
+      loadPage({ background: true, skipCache: true }).catch(() => {});
     }, [loadPage])
-  );
-
-  const loadOwnReviewState = useCallback(() => {
-    if (!apiToken || !employee?.id) {
-      setHasReviewed(false);
-      setOwnReviewIds(new Set());
-      return;
-    }
-    getEntityReviews(apiToken, 'employee', employee.id, { page: 1, limit: 100, includeOwn: true })
-      .then((data) => {
-        setHasReviewed(!!data.hasReviewed);
-        setOwnReviewIds(buildOwnReviewIds(data, client?.id));
-      })
-      .catch(() => {
-        setHasReviewed(false);
-        setOwnReviewIds(new Set());
-      });
-  }, [apiToken, client?.id, employee?.id]);
-
-  useEffect(() => {
-    loadOwnReviewState();
-  }, [loadOwnReviewState]);
-
-  useFocusEffect(
-    useCallback(() => {
-      loadOwnReviewState();
-    }, [loadOwnReviewState])
   );
 
   const displayName = useMemo(
@@ -129,22 +148,12 @@ export function useBarberDetailScreen(idOrSlug: string) {
     () => (employee ? branchesFromShiftCalendar(employee, employee.shiftCalendar) : []),
     [employee]
   );
-  const statsAverage = employee?.stats?.averageRating ?? 0;
-  const statsTotal = employee?.stats?.totalReviews ?? 0;
-  const pageReviews = useMemo(
-    () => employee?.reviews ?? ([] as TeamMemberPageReview[]),
-    [employee?.reviews]
-  );
   const pageReviewStats = useMemo(() => buildReviewStatsFromPage(pageReviews), [pageReviews]);
   const countByRating = pageReviewStats.countByRating;
   const average = statsTotal > 0 ? statsAverage : pageReviewStats.average;
   const displayTotal = statsTotal > 0 ? statsTotal : pageReviewStats.total;
 
-  const reviewsPagination = useBarberReviewsPagination(
-    employee?.id,
-    pageReviews,
-    statsTotal
-  );
+  const reviewsPagination = useBarberReviewsPagination(employee?.id, pageReviews, statsTotal);
   const todayShiftStatus = useMemo(
     () => getTodayShiftStatus(employee?.shiftCalendar, today),
     [employee?.shiftCalendar, today]

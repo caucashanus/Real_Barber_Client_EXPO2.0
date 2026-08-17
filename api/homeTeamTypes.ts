@@ -21,6 +21,7 @@ export interface HomepageTodayTeamMember {
   webUrl?: string | null;
   branches?: HomepageTodayTeamBranch[];
   workIntervals?: HomepageWorkInterval[];
+  isNew?: boolean;
 }
 
 export interface HomepageNextSlot {

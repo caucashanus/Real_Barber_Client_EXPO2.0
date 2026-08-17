@@ -116,6 +116,7 @@ export default function ServiceDetailScreen() {
                 shareEmailSubject={shareCopy.emailSubject}
                 shareEmailBody={shareCopy.emailBody}
                 bookingHref={bookingHref}
+                isNew={detail.isNew}
                 t={t}
               />
             </View>

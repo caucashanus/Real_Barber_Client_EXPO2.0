@@ -36,6 +36,7 @@ export interface BranchPageBranch {
   latitude?: number | null;
   longitude?: number | null;
   media?: { url: string; order?: number; type?: string }[];
+  isNew?: boolean;
   [key: string]: unknown;
 }
 

@@ -19,6 +19,7 @@ export interface PublicInspiracePageItem {
   description?: string | null;
   descriptionEn?: string | null;
   descriptionUk?: string | null;
+  isNew?: boolean;
 }
 
 export interface PublicInspiracePageResponse {

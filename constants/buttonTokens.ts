@@ -95,4 +95,24 @@ export const BUTTON_CHOICE = {
   },
 } as const;
 
+/**
+ * Soft variant — brand accent tint chip (badge Nový, promo tagy).
+ * Not solid CTA; not neutral choice. Web: softChipClassName / Button variant="soft".
+ */
+export const BUTTON_SOFT = {
+  backgroundAlpha: 0.15,
+  borderAlpha: 0.35,
+  pressedBackgroundAlpha: 0.2,
+  borderWidth: 1,
+} as const;
+
+/** Shared chip layout — compact brand tag (badge Nový, promo). */
+export const SOFT_CHIP_LAYOUT = {
+  container: 'h-8 justify-center rounded-lg px-2 py-1',
+  content: 'flex-row items-center gap-1.5',
+  text: 'text-sm font-semibold',
+  iconSize: 12,
+  iconStrokeWidth: 2,
+} as const;
+
 export type ButtonTokenKey = keyof typeof BUTTON_TOKENS;

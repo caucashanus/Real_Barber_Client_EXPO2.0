@@ -10,6 +10,7 @@ import { hairstyleDetailHref } from '@/constants/profileDetailRoutes';
 import type { Locale } from '@/contexts/LanguageContext';
 import type { NearestBranchHomeSlot } from '@/utils/nearestBranchHomeSlots';
 import { labelHairstyleEnumValues } from '@/utils/hairstyleEnumLabels';
+import { showIsNew } from '@/utils/crmIsNew';
 
 export interface HairstyleHeroSlide {
   src: string;
@@ -35,6 +36,7 @@ export interface HairstyleServiceDetail {
   galleryImages: { url: string; alt: string }[];
   nearestSlots: NearestBranchHomeSlot[];
   preferredEmployees: BranchEmployee[];
+  isNew?: boolean;
 }
 
 function pickLocalized(
@@ -118,6 +120,7 @@ function mapSimilarItem(similar: PublicHairstyleSimilar, locale: Locale): Servic
     href: hairstyleDetailHref(similar.id),
     entityType: 'service',
     entityId: similar.id,
+    isNew: showIsNew(similar),
   };
 }
 
@@ -195,6 +198,7 @@ export function mapHairstyleToServiceDetail(
     preferredEmployees: (hairstyle.preferredEmployees ?? []).map((item) =>
       mapPreferredEmployee(item, locale)
     ),
+    isNew: showIsNew(hairstyle),
   };
 }
 

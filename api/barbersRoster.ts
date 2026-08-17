@@ -45,6 +45,7 @@ export interface BarberRosterEmployee {
   branches: BarberRosterBranch[];
   nextSlots: BarberRosterSlot[];
   byDate: Record<string, BarberRosterDayEntry>;
+  isNew?: boolean;
 }
 
 export interface BarberRosterResponse {

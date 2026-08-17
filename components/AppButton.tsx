@@ -21,6 +21,7 @@ import {
   type AppButtonSurface,
   type AppButtonVariant,
 } from '@/constants/buttonVariants';
+import { SOFT_CHIP_LAYOUT } from '@/constants/buttonTokens';
 import { triggerImpact } from '@/utils/appHaptics';
 
 export type { AppButtonRounded, AppButtonSize, AppButtonSurface, AppButtonVariant };
@@ -94,7 +95,14 @@ export default function AppButton({
   });
 
   const resolvedIconSize =
-    iconSize ?? (size === 'xs' || size === 'icon-sm' ? 14 : size === 'sm' ? 16 : 18);
+    iconSize ??
+    (variant === 'soft'
+      ? SOFT_CHIP_LAYOUT.iconSize
+      : size === 'xs' || size === 'icon-sm'
+        ? 14
+        : size === 'sm'
+          ? 16
+          : 18);
 
   const iconColor =
     typeof textStyle?.color === 'string' ? textStyle.color : undefined;
@@ -124,18 +132,25 @@ export default function AppButton({
         className={`flex-row items-center ${
           variant === 'panel'
             ? 'justify-start gap-3'
-            : variant === 'choice'
-              ? iconStart || iconEnd
-                ? 'justify-start'
+            : variant === 'soft'
+              ? 'gap-1.5'
+              : variant === 'choice'
+                ? iconStart || iconEnd
+                  ? 'justify-start'
+                  : 'justify-center'
                 : 'justify-center'
-              : 'justify-center'
         }`}>
         {iconStart ? (
           <Icon
             name={iconStart}
             size={resolvedIconSize}
             color={iconColor}
-            className={`${title ? 'mr-2' : ''} ${iconClassName}`.trim()}
+            strokeWidth={variant === 'soft' ? 2 : undefined}
+            className={
+              variant === 'soft' || variant === 'panel'
+                ? iconClassName
+                : `${title ? 'mr-2' : ''} ${iconClassName}`.trim()
+            }
           />
         ) : null}
         {title ? (
@@ -171,5 +186,5 @@ export default function AppButton({
   );
 }
 
-export { getAppButtonClasses } from '@/constants/buttonVariants';
-export { BUTTON_CHOICE, BUTTON_OUTLINE } from '@/constants/buttonTokens';
+export { getAppButtonClasses, getSoftChipClasses } from '@/constants/buttonVariants';
+export { BUTTON_CHOICE, BUTTON_OUTLINE, BUTTON_SOFT, SOFT_CHIP_LAYOUT } from '@/constants/buttonTokens';

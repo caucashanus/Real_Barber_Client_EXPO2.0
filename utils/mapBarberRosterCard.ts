@@ -23,6 +23,7 @@ import {
   pickTeamMemberLocalizedField,
 } from '@/utils/teamMemberPageHelpers';
 import { shouldShowTeamMemberWaitlistCta } from '@/utils/teamMemberWaitlist';
+import { showIsNew } from '@/utils/crmIsNew';
 
 interface ParsedInterval {
   startTime: string;
@@ -345,6 +346,7 @@ export function mapBarberRosterCard(params: {
     waitlistDayIso: params.dayIso,
     waitlistRequireActiveNow: isLiveDay,
     footer,
+    isNew: showIsNew(params.employee),
   };
 }
 

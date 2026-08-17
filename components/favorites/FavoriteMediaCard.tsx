@@ -14,6 +14,8 @@ interface FavoriteMediaCardProps {
   entityType?: string;
   entityId?: string;
   showFavorite?: boolean;
+  /** Volitelný badge vlevo nahoře na fotce (např. CRM isNew). */
+  imageTopLeftOverlay?: React.ReactNode;
   address?: string;
   onFavoriteToggle?: (isFavorite: boolean) => void;
   /** Seznam oblíbených — srdce hned vyplněné. Jinak stav z API. */
@@ -44,6 +46,7 @@ export default function FavoriteMediaCard({
   titleTrailing,
   belowTitle,
   footer,
+  imageTopLeftOverlay,
 }: FavoriteMediaCardProps) {
   const imageSource = typeof image === 'string' ? { uri: image } : image;
   const showFavoriteHeart =
@@ -58,6 +61,9 @@ export default function FavoriteMediaCard({
           style={{ aspectRatio: 2 / 3 }}
           contentFit="cover"
         />
+        {imageTopLeftOverlay ? (
+          <View className="absolute left-2 top-2 z-10">{imageTopLeftOverlay}</View>
+        ) : null}
         {showFavoriteHeart ? (
           <View className="absolute right-3 top-3 z-10">
             <Favorite

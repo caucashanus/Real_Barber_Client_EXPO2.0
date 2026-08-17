@@ -2,6 +2,7 @@ import React from 'react';
 import { View } from 'react-native';
 
 import Favorite from '@/components/Favorite';
+import IsNewBadge from '@/components/shared/IsNewBadge';
 import ProfileActionsMenu from '@/components/profile/ProfileActionsMenu';
 import ThemedText from '@/components/ThemedText';
 import type { TranslationKey } from '@/locales';
@@ -14,6 +15,7 @@ interface ServiceDetailIdentitySectionProps {
   shareEmailSubject: string;
   shareEmailBody: string;
   bookingHref: string;
+  isNew?: boolean;
   t: (key: TranslationKey) => string;
 }
 
@@ -25,6 +27,7 @@ export default function ServiceDetailIdentitySection({
   shareEmailSubject,
   shareEmailBody,
   bookingHref,
+  isNew = false,
   t,
 }: ServiceDetailIdentitySectionProps) {
   return (
@@ -33,6 +36,11 @@ export default function ServiceDetailIdentitySection({
         <ThemedText className="text-2xl font-semibold" numberOfLines={3}>
           {title}
         </ThemedText>
+        {isNew ? (
+          <View className="mt-1 self-start">
+            <IsNewBadge />
+          </View>
+        ) : null}
       </View>
 
       <View className="flex-row items-center gap-1">

@@ -99,6 +99,7 @@ export interface TeamMemberPageEmployee {
   media?: TeamMemberMediaItem[];
   shiftCalendar?: TeamMemberShiftDay[];
   nearestSlots?: EmployeeTodaySlot[];
+  isNew?: boolean;
 }
 
 export interface TeamMemberPageResponse {

@@ -34,6 +34,7 @@ import {
 } from '@/utils/teamMemberPageHelpers';
 import { BARBER_DETAIL_SECTION_SPACING } from '@/constants/barberDetailLayout';
 import { teamMemberBreadcrumbItems } from '@/utils/breadcrumbs';
+import { showIsNew } from '@/utils/crmIsNew';
 
 export default function BarberDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -184,6 +185,7 @@ export default function BarberDetailScreen() {
               shareEmailSubject={employeeShareCopy.emailSubject}
               shareEmailBody={employeeShareCopy.emailBody}
               onScrollToReviews={scrollToReviews}
+              isNew={showIsNew(employee)}
               t={t}
             />
           </View>

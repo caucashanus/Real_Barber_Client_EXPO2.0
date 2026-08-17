@@ -10,10 +10,13 @@
  * - default surface, dark mode → gray border, white text, white/10 hover
  * - default surface, light mode → black border, black text, black/10 hover
  * - light-card surface → black/25 border, black text (for cards on light panels)
+ *
+ * Soft (`variant="soft"`):
+ * - accent tint chip (badge Nový, promo). Not solid CTA. Use `<SoftChip />` when non-interactive.
  */
 import type { ViewStyle } from 'react-native';
 
-import { BUTTON_CHOICE, BUTTON_OUTLINE, BUTTON_TOKENS } from '@/constants/buttonTokens';
+import { BUTTON_CHOICE, BUTTON_OUTLINE, BUTTON_SOFT, BUTTON_TOKENS, SOFT_CHIP_LAYOUT } from '@/constants/buttonTokens';
 import { hexToRgba } from '@/utils/colorHelpers';
 
 export type AppButtonVariant =
@@ -24,7 +27,8 @@ export type AppButtonVariant =
   | 'secondary'
   | 'ghost'
   | 'destructive'
-  | 'link';
+  | 'link'
+  | 'soft';
 
 export type AppButtonSize = 'xs' | 'sm' | 'md' | 'lg' | 'icon' | 'icon-sm';
 
@@ -137,6 +141,48 @@ function getDefaultContainerStyle(accentColor?: string): ViewStyle {
   };
 }
 
+function resolveAccentColor(accentColor?: string): string {
+  return accentColor?.trim() || BUTTON_TOKENS.accent;
+}
+
+function getSoftTheme(accentColor?: string) {
+  const accent = resolveAccentColor(accentColor);
+  return {
+    backgroundColor: hexToRgba(accent, BUTTON_SOFT.backgroundAlpha),
+    borderColor: hexToRgba(accent, BUTTON_SOFT.borderAlpha),
+    textColor: accent,
+    pressedBackgroundColor: hexToRgba(accent, BUTTON_SOFT.pressedBackgroundAlpha),
+  };
+}
+
+function getSoftContainerStyle(accentColor?: string): ViewStyle {
+  const theme = getSoftTheme(accentColor);
+  return {
+    backgroundColor: theme.backgroundColor,
+    borderColor: theme.borderColor,
+    borderWidth: BUTTON_SOFT.borderWidth,
+  };
+}
+
+export function getSoftChipClasses(
+  accentColor?: string,
+  className?: string,
+  textClassName?: string
+): {
+  container: string;
+  text: string;
+  containerStyle: ViewStyle;
+  textStyle: ViewStyle;
+} {
+  const theme = getSoftTheme(accentColor);
+  return {
+    container: joinClasses(SOFT_CHIP_LAYOUT.container, className),
+    text: joinClasses(SOFT_CHIP_LAYOUT.text, textClassName),
+    containerStyle: getSoftContainerStyle(accentColor),
+    textStyle: { color: theme.textColor },
+  };
+}
+
 function getVariantContainerClasses(
   variant: AppButtonVariant,
   options: Pick<AppButtonVariantOptions, 'selected' | 'surface' | 'isDark' | 'accentColor'>
@@ -173,6 +219,8 @@ function getVariantContainerClasses(
       return 'border-0 bg-brand-destructive active:opacity-90';
     case 'link':
       return 'border-0 bg-transparent active:opacity-80';
+    case 'soft':
+      return 'active:opacity-90';
     default:
       return '';
   }
@@ -212,6 +260,8 @@ function getVariantTextClasses(
       return onLightCard
         ? 'font-medium text-light-text underline-offset-4 active:underline'
         : 'font-medium text-light-text underline-offset-4 active:underline dark:text-brand-foreground';
+    case 'soft':
+      return 'font-semibold';
     default:
       return 'font-medium text-light-text dark:text-dark-text';
   }
@@ -221,7 +271,9 @@ function getLayoutClasses(variant: AppButtonVariant, fullWidth?: boolean): strin
   const base =
     variant === 'choice'
       ? 'flex-row items-center justify-start'
-      : 'flex-row items-center justify-center';
+      : variant === 'soft'
+        ? 'flex-row items-center justify-center gap-1.5'
+        : 'flex-row items-center justify-center';
   if (variant === 'panel') {
     return joinClasses(base.replace('justify-center', 'justify-start'), fullWidth && 'w-full');
   }
@@ -237,7 +289,7 @@ export function getAppButtonClasses(options: AppButtonVariantOptions): {
 } {
   const {
     variant,
-    size = variant === 'choice' ? 'xs' : 'md',
+    size = variant === 'choice' ? 'xs' : variant === 'soft' ? 'sm' : 'md',
     selected,
     disabled,
     surface,
@@ -250,16 +302,20 @@ export function getAppButtonClasses(options: AppButtonVariantOptions): {
   } = options;
 
   const container = joinClasses(
-    getLayoutClasses(variant, fullWidth),
-    getDefaultRounded(variant, rounded),
-    SIZE_CONTAINER[size],
+    variant === 'soft'
+      ? SOFT_CHIP_LAYOUT.container
+      : joinClasses(
+          getLayoutClasses(variant, fullWidth),
+          getDefaultRounded(variant, rounded),
+          SIZE_CONTAINER[size]
+        ),
     getVariantContainerClasses(variant, { selected, surface, isDark, accentColor }),
     disabled && 'opacity-50',
     className
   );
 
   const text = joinClasses(
-    SIZE_TEXT[size],
+    variant === 'soft' ? SOFT_CHIP_LAYOUT.text : SIZE_TEXT[size],
     getVariantTextClasses(variant, { selected, surface, isDark, accentColor }),
     textClassName
   );
@@ -270,6 +326,8 @@ export function getAppButtonClasses(options: AppButtonVariantOptions): {
     variant === 'choice'
       ? getChoiceTheme(surface ?? 'default', isDark ?? false, selected ?? false, accentColor)
       : undefined;
+
+  const softTheme = variant === 'soft' ? getSoftTheme(accentColor) : undefined;
 
   return {
     container,
@@ -286,10 +344,14 @@ export function getAppButtonClasses(options: AppButtonVariantOptions): {
                 selected ?? false,
                 accentColor
               )
-            : undefined,
+            : variant === 'soft'
+              ? getSoftContainerStyle(accentColor)
+              : undefined,
     textStyle:
-      outlineTheme || choiceTheme
-        ? { color: (outlineTheme ?? choiceTheme)?.textColor }
-        : undefined,
+      softTheme
+        ? { color: softTheme.textColor }
+        : outlineTheme || choiceTheme
+          ? { color: (outlineTheme ?? choiceTheme)?.textColor }
+          : undefined,
   };
 }

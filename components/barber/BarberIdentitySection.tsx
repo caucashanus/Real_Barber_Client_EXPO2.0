@@ -3,6 +3,7 @@ import { View } from 'react-native';
 
 import LiveIndicator from '@/components/LiveIndicator';
 import RatingBadge from '@/components/RatingBadge';
+import IsNewBadge from '@/components/shared/IsNewBadge';
 import Avatar from '@/components/Avatar';
 import BarberProfileHeaderActions from '@/components/barber/BarberProfileHeaderActions';
 import ThemedText from '@/components/ThemedText';
@@ -23,6 +24,7 @@ interface BarberIdentitySectionProps {
   shareEmailSubject: string;
   shareEmailBody: string;
   onScrollToReviews: () => void;
+  isNew?: boolean;
   t: (key: TranslationKey) => string;
 }
 
@@ -39,6 +41,7 @@ export default function BarberIdentitySection({
   shareEmailSubject,
   shareEmailBody,
   onScrollToReviews,
+  isNew = false,
   t,
 }: BarberIdentitySectionProps) {
   const languageList = (languages ?? []).filter(Boolean);
@@ -47,7 +50,7 @@ export default function BarberIdentitySection({
   return (
     <View>
       <View className="flex-row items-start gap-3">
-        <Avatar size="xl" src={avatarUrl ?? undefined} name={displayName} />
+        <Avatar size="lg" src={avatarUrl ?? undefined} name={displayName} />
         <View className="min-w-0 flex-1">
           <View className="flex-row items-start justify-between gap-2">
             <View className="min-w-0 flex-1 items-start">
@@ -63,14 +66,33 @@ export default function BarberIdentitySection({
               </View>
 
               {average > 0 ? (
-                <View className="mt-1">
-                  <RatingBadge
-                    rating={average}
-                    locale={locale}
-                    compact={false}
-                    onPress={onScrollToReviews}
-                    className="self-start !pl-0"
-                  />
+                <View className="mt-2">
+                  {isNew ? (
+                    <View className="flex-row flex-wrap items-center">
+                      <RatingBadge
+                        rating={average}
+                        locale={locale}
+                        compact={false}
+                        onPress={onScrollToReviews}
+                        className="!pl-0"
+                      />
+                      <View className="ml-2">
+                        <IsNewBadge />
+                      </View>
+                    </View>
+                  ) : (
+                    <RatingBadge
+                      rating={average}
+                      locale={locale}
+                      compact={false}
+                      onPress={onScrollToReviews}
+                      className="!pl-0"
+                    />
+                  )}
+                </View>
+              ) : isNew ? (
+                <View className="mt-2">
+                  <IsNewBadge />
                 </View>
               ) : null}
 

@@ -143,11 +143,12 @@ export default function HairstyleDetailScreen() {
                 onScrollToReviews={scrollToReviews}
                 t={t}
               />
-              {detail.aboutBadge || detail.popularityBadge ? (
+              {detail.aboutBadge || detail.popularityBadge || detail.isNew ? (
                 <View style={{ marginTop: 12 }}>
                   <HairstyleIdentityMetaRow
                     aboutBadge={detail.aboutBadge}
                     popularityBadge={detail.popularityBadge}
+                    isNew={detail.isNew}
                     t={t}
                   />
                 </View>

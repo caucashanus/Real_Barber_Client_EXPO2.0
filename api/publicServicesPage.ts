@@ -36,6 +36,7 @@ export interface PublicService {
   pricing?: PublicServicePricing;
   badge?: string | null;
   rating?: string | null;
+  isNew?: boolean;
   [key: string]: unknown;
 }
 

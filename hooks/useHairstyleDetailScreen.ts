@@ -3,7 +3,6 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 
 import { fetchPublicHairstylePage } from '@/api/publicHairstylePage';
 import type { TeamMemberPageReview } from '@/api/publicTeamMember';
-import { getEntityReviewsForService } from '@/api/reviews';
 import { useAuth } from '@/contexts/AuthContext';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { usePublicReviewsPagination } from '@/hooks/usePublicReviewsPagination';
@@ -16,10 +15,7 @@ import {
   groupNearestBranchSlots,
   type NearestBranchHomeSlot,
 } from '@/utils/nearestBranchHomeSlots';
-import {
-  bumpStatsTotalForAddedReview,
-  mergePageReviewsWithOwnReview,
-} from '@/utils/publicReviewHelpers';
+import { fetchMergedPageReviewsWithOwn } from '@/utils/publicReviewHelpers';
 import { buildReviewStatsFromPage, getPragueTodayDateString } from '@/utils/teamMemberPageHelpers';
 
 type LoadPageOptions = {
@@ -69,38 +65,21 @@ export function useHairstyleDetailScreen(idOrSlug: string) {
           return;
         }
 
-        let reviews = hairstyle.reviews ?? [];
-        let totalReviews = hairstyle.stats?.totalReviews ?? 0;
-        let nextHasReviewed = false;
-        let nextOwnReviewIds = new Set<string>();
-
-        if (apiToken) {
-          try {
-            const ownData = await getEntityReviewsForService(apiToken, hairstyle.id, {
-              page: 1,
-              limit: 100,
-              includeOwn: true,
-            });
-            const merged = mergePageReviewsWithOwnReview(reviews, ownData, client?.id);
-            reviews = merged.reviews;
-            nextHasReviewed = merged.hasReviewed;
-            nextOwnReviewIds = merged.ownReviewIds;
-            totalReviews = bumpStatsTotalForAddedReview(
-              totalReviews,
-              reviews,
-              merged.addedReview
-            );
-          } catch {
-            // Public page reviews still render when own-review fetch fails.
-          }
-        }
+        const merged = await fetchMergedPageReviewsWithOwn({
+          apiToken,
+          entityType: 'service',
+          entityId: hairstyle.id,
+          pageReviews: hairstyle.reviews ?? [],
+          statsTotal: hairstyle.stats?.totalReviews ?? 0,
+          clientId: client?.id,
+        });
 
         setDetail(mapHairstyleToServiceDetail(hairstyle, locale));
-        setPageReviews(reviews);
-        setStatsTotal(totalReviews);
+        setPageReviews(merged.reviews);
+        setStatsTotal(merged.statsTotal);
         setStatsAverage(hairstyle.stats?.averageRating ?? 0);
-        setHasReviewed(nextHasReviewed);
-        setOwnReviewIds(nextOwnReviewIds);
+        setHasReviewed(merged.hasReviewed);
+        setOwnReviewIds(merged.ownReviewIds);
       } catch {
         setDetail(null);
         setPageReviews([]);
