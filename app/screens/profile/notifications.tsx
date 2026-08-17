@@ -1,4 +1,4 @@
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation } from "expo-router/react-navigation";
 import * as Notifications from 'expo-notifications';
 import React, { useState } from 'react';
 import { View, Alert, Platform } from 'react-native';

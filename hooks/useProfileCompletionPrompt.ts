@@ -1,4 +1,4 @@
-import { useFocusEffect } from '@react-navigation/native';
+import { useFocusEffect } from "expo-router/react-navigation";
 import { useCallback, useRef } from 'react';
 import type { ActionSheetRef } from 'react-native-actions-sheet';
 

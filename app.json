@@ -15,6 +15,7 @@
     "plugins": [
       "expo-router",
       "expo-font",
+      "expo-status-bar",
       "expo-web-browser",
       "expo-notifications",
       [
@@ -65,7 +66,7 @@
       "**/*"
     ],
     "ios": {
-      "deploymentTarget": "16.2",
+      "deploymentTarget": "16.4",
       "appleTeamId": "VK8YT9654D",
       "bundleIdentifier": "com.realbarber.client",
       "buildNumber": "66",

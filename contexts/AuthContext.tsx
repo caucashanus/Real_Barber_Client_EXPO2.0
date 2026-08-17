@@ -5,7 +5,9 @@ import React, { createContext, useCallback, useContext, useEffect, useState } fr
 import type { CrmClient } from '@/api/auth';
 import { setUnauthorizedHandler } from '@/api/session';
 import { LOGIN_PATH } from '@/constants/authRoutes';
+import { getVexoDeviceId } from '@/lib/analytics/vexoIdentity';
 import { clearBookingDraft } from '@/lib/booking/engine/bookingDraft';
+import { identifyDevice } from 'vexo-analytics';
 
 const TOKEN_KEY = '@crm_token';
 const API_TOKEN_KEY = '@crm_api_token';
@@ -78,6 +80,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     };
     load();
   }, []);
+
+  useEffect(() => {
+    if (__DEV__) return;
+
+    const id = client ? getVexoDeviceId(client) : null;
+    identifyDevice(id).catch(() => {});
+  }, [client]);
 
   useEffect(() => {
     setUnauthorizedHandler(() => {
