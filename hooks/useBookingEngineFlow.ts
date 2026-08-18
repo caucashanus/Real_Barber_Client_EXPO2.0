@@ -10,6 +10,7 @@ import {
   getBookingServiceContext,
   getBookingSlotServices,
   loadBookingEmployeesWithNearestSlots,
+  type BookingHoldCreateBody,
 } from '@/api/bookingEngine';
 import {
   useBookingEngineContext,
@@ -24,6 +25,7 @@ import {
   useBookingEngineContact,
 } from '@/hooks/useBookingEngineContact';
 import { useBookingEngineCoupon } from '@/hooks/useBookingEngineCoupon';
+import { useBookingHold } from '@/hooks/useBookingHold';
 import { useTranslation } from '@/hooks/useTranslation';
 import type { TranslationKey } from '@/locales';
 import { useBookings } from '@/contexts/BookingsBadgeContext';
@@ -56,6 +58,8 @@ import {
 } from '@/lib/booking/resolveBookingPrice';
 import { resolveBookingFlowFooterAction } from '@/lib/booking/bookingFlowFooter';
 import { ensureBookingSessionId } from '@/lib/booking/booking-api/session';
+import { resolveHoldEmployeeId } from '@/lib/booking/hold/resolveEmployeeId';
+import { resolveHoldSlotEnd } from '@/lib/booking/hold/slotEnd';
 import {
   bookingServiceFromStoredSlotContext,
   clearBookingSlotContext,
@@ -206,6 +210,7 @@ export function useBookingEngineFlow() {
     Record<string, { availability?: BookingFlatAvailabilityMap } | null>
   >({});
   const [loadingCalendar, setLoadingCalendar] = useState(false);
+  const [calendarRefreshKey, setCalendarRefreshKey] = useState(0);
 
   const [monthOffset, setMonthOffset] = useState(0);
   const todayIso = useMemo(() => todayIsoInPrague(), []);
@@ -213,6 +218,7 @@ export function useBookingEngineFlow() {
 
   const multiBranchLegend = usesMultiBranchDatetimeLegend(preset, flowBootstrap);
   const contact = useBookingEngineContact(client, apiToken);
+  const hold = useBookingHold(apiToken);
 
   const monitorFields = useCallback(
     (stepKind: BookingStepKind) =>
@@ -321,6 +327,22 @@ export function useBookingEngineFlow() {
     };
   }, []);
 
+  const holdLeaveRef = useRef({
+    submitSuccess: false,
+    releaseHold: hold.releaseHoldBestEffort,
+  });
+  holdLeaveRef.current = {
+    submitSuccess: contact.submitSuccess,
+    releaseHold: hold.releaseHoldBestEffort,
+  };
+
+  useEffect(() => {
+    return () => {
+      if (holdLeaveRef.current.submitSuccess) return;
+      void holdLeaveRef.current.releaseHold();
+    };
+  }, []);
+
   useEffect(() => {
     void ensureBookingSessionId();
   }, []);
@@ -344,6 +366,16 @@ export function useBookingEngineFlow() {
       cancelled = true;
     };
   }, [locale, apiToken, t]);
+
+  // Doplnit address z katalogu, pokud CRM address chybí ve vybrané pobočce.
+  useEffect(() => {
+    if (!selectedBranch?.id || selectedBranch.address?.trim()) return;
+    const catalogAddress =
+      branches.find((b) => b.id === selectedBranch.id)?.address?.trim() ||
+      profileBranches.find((b) => b.id === selectedBranch.id)?.address?.trim();
+    if (!catalogAddress) return;
+    setBranch({ ...selectedBranch, address: catalogAddress }, { clearDownstream: false });
+  }, [selectedBranch, branches, profileBranches, setBranch]);
 
   // Employee profile bootstrap
   useEffect(() => {
@@ -635,6 +667,7 @@ export function useBookingEngineFlow() {
         serviceName: selectedService.name,
         servicePrice: resolvedBookingPrice.amount ?? undefined,
         serviceDurationMinutes: selectedService.duration,
+        branchAddress: selectedBranch.address?.trim() || undefined,
         slot,
       });
     },
@@ -647,6 +680,67 @@ export function useBookingEngineFlow() {
       selectedSlot,
       resolvedBookingPrice.amount,
     ]
+  );
+
+  const buildHoldPayload = useCallback(() => {
+    const branch = selectedBranch ?? profileBranches[0];
+    if (!branch?.id || !selectedService?.id || !selectedDate || !selectedSlot?.start) {
+      return null;
+    }
+    const employeeId = resolveHoldEmployeeId(
+      selectedSlot,
+      selectedEmployee,
+      profileEmployee
+    );
+    if (!employeeId) return null;
+
+    return {
+      branchId: branch.id,
+      itemId: selectedService.id,
+      employeeId,
+      date: selectedDate,
+      slotStart: selectedSlot.start,
+      slotEnd: resolveHoldSlotEnd(
+        selectedSlot,
+        selectedService.duration ?? slotHandoff?.serviceDurationMinutes
+      ),
+    };
+  }, [
+    selectedBranch,
+    profileBranches,
+    selectedService,
+    selectedDate,
+    selectedSlot,
+    selectedEmployee,
+    profileEmployee,
+    slotHandoff?.serviceDurationMinutes,
+  ]);
+
+  const goToDatetimeAfterHoldIssue = useCallback(() => {
+    setSlot(null);
+    void clearBookingSlotContext();
+    setCalendarRefreshKey((value) => value + 1);
+    const datetimeIdx = activeSteps.indexOf('datetime');
+    if (datetimeIdx >= 0) goToStepIndexWithContact(datetimeIdx);
+  }, [activeSteps, goToStepIndexWithContact, setSlot]);
+
+  const createHoldBeforeContact = useCallback(
+    async (override?: BookingHoldCreateBody): Promise<boolean> => {
+      const body = override ?? buildHoldPayload();
+      if (!body) {
+        hold.showUnavailableDialog();
+        goToDatetimeAfterHoldIssue();
+        return false;
+      }
+
+      const result = await hold.createHold(body);
+      if (result === 'ok') return true;
+      if (result === 'conflict') {
+        goToDatetimeAfterHoldIssue();
+      }
+      return false;
+    },
+    [buildHoldPayload, goToDatetimeAfterHoldIssue, hold]
   );
 
   // Slot handoff read (employee-profile)
@@ -774,6 +868,7 @@ export function useBookingEngineFlow() {
           days: CALENDAR_INITIAL_DAYS,
           branchIds: profileBranches.map((b) => b.id),
           locale,
+          holdId: hold.holdId,
         },
         apiToken
       )
@@ -805,6 +900,7 @@ export function useBookingEngineFlow() {
           from,
           days: CALENDAR_INITIAL_DAYS,
           locale,
+          holdId: hold.holdId,
         },
         apiToken
       )
@@ -834,6 +930,8 @@ export function useBookingEngineFlow() {
     locale,
     apiToken,
     t,
+    hold.holdId,
+    calendarRefreshKey,
   ]);
 
   const selections = useMemo(() => toBookingSelections(), [toBookingSelections]);
@@ -863,13 +961,18 @@ export function useBookingEngineFlow() {
     [onStepIndexChangeBase, navigationOptions]
   );
 
+  const leaveBookingFlow = useCallback(() => {
+    void hold.releaseHoldBestEffort();
+    router.back();
+  }, [hold, router]);
+
   const handleBack = useCallback(() => {
     if (stepIndex > 0) {
       goToStepIndexWithContact(stepIndex - 1);
       return;
     }
-    router.back();
-  }, [stepIndex, goToStepIndexWithContact]);
+    leaveBookingFlow();
+  }, [stepIndex, goToStepIndexWithContact, leaveBookingFlow]);
 
   const couponEmployeeId = useMemo(() => {
     const employee = profileEmployee ?? selectedEmployee;
@@ -935,13 +1038,16 @@ export function useBookingEngineFlow() {
       if (preset.employeeId && stored.employeeId !== preset.employeeId) return;
 
       patchSelections((current) => ({
-        branch:
-          current.branch?.id === stored.branchId
-            ? current.branch
-            : resolveBranchEntityForSlotRestore(stored.branchId, current.branch, {
-                branches,
-                profileBranches,
-              }),
+        branch: resolveBranchEntityForSlotRestore(
+          stored.branchId,
+          current.branch?.id === stored.branchId ? current.branch : null,
+          {
+            branches,
+            profileBranches,
+          },
+          stored.slot.branchName,
+          stored.branchAddress
+        ),
         service:
           current.service?.id === stored.serviceId
             ? current.service
@@ -982,13 +1088,18 @@ export function useBookingEngineFlow() {
       servicePrice: resolvedBookingPrice.amount ?? undefined,
       serviceDurationMinutes:
         slotHandoff.serviceDurationMinutes ?? selectedService.duration ?? undefined,
+      branchAddress: selectedBranch.address?.trim() || undefined,
       slot: selectedSlot,
     });
 
-    if (!skipContact) return;
+    if (skipContact) return;
     const contactIdx = activeSteps.indexOf('contact');
     if (contactIdx >= 0 && stepIndex !== contactIdx) {
-      goToStepIndexWithContact(contactIdx);
+      void (async () => {
+        const ok = await createHoldBeforeContact();
+        if (!ok) return;
+        goToStepIndexWithContact(contactIdx);
+      })();
     }
   }, [
     recipeId,
@@ -1003,6 +1114,7 @@ export function useBookingEngineFlow() {
     stepIndex,
     goToStepIndexWithContact,
     resolvedBookingPrice.amount,
+    createHoldBeforeContact,
   ]);
 
   const nextStepAfter = useCallback(
@@ -1024,11 +1136,28 @@ export function useBookingEngineFlow() {
   );
 
   const handleContinue = useCallback(() => {
-    const next = nextStepAfter(step);
-    if (!next) return;
-    const nextIdx = activeSteps.indexOf(next);
-    if (nextIdx >= 0) goToStepIndexWithContact(nextIdx);
-  }, [step, nextStepAfter, activeSteps, goToStepIndexWithContact]);
+    if (hold.isCreatingHold) return;
+    void (async () => {
+      const next = nextStepAfter(step);
+      if (!next) return;
+
+      if (step === 'datetime' && selectedSlot?.start) {
+        const ok = await createHoldBeforeContact();
+        if (!ok) return;
+      }
+
+      const nextIdx = activeSteps.indexOf(next);
+      if (nextIdx >= 0) goToStepIndexWithContact(nextIdx);
+    })();
+  }, [
+    step,
+    nextStepAfter,
+    activeSteps,
+    goToStepIndexWithContact,
+    selectedSlot?.start,
+    createHoldBeforeContact,
+    hold.isCreatingHold,
+  ]);
 
   const [employeeNearestChipEmployeeId, setEmployeeNearestChipEmployeeId] = useState<
     string | null
@@ -1097,18 +1226,37 @@ export function useBookingEngineFlow() {
             branchPriceForService: branchPriceForServiceId(service.id, branchMinPrices),
           }).amount ?? undefined,
         serviceDurationMinutes: service.duration,
+        branchAddress: branch.address?.trim() || undefined,
         slot: handoff.slot,
       });
-      if (!skipContact) {
+
+      const holdBody: BookingHoldCreateBody = {
+        branchId: branch.id,
+        itemId: service.id,
+        employeeId: resolveHoldEmployeeId(handoff.slot, employee as BookingEntity, profileEmployee) ?? handoff.employeeId,
+        date: handoff.date,
+        slotStart: handoff.slot.start,
+        slotEnd: resolveHoldSlotEnd(handoff.slot, service.duration ?? handoff.serviceDurationMinutes),
+      };
+
+      void (async () => {
+        const ok = await createHoldBeforeContact(holdBody);
+        if (!ok) return;
+
         void clearBookingSlotHandoff();
         setSlotHandoff(null);
-        const contactIdx = activeSteps.indexOf('contact');
-        if (contactIdx >= 0) goToStepIndexWithContact(contactIdx);
-        return;
-      }
-      void clearBookingSlotHandoff();
-      setSlotHandoff(null);
-      advanceAfterSelect('service');
+
+        if (!skipContact) {
+          const contactIdx = activeSteps.indexOf('contact');
+          if (contactIdx >= 0) goToStepIndexWithContact(contactIdx);
+          return;
+        }
+
+        const next = nextStepAfter('service');
+        if (!next) return;
+        const nextIdx = activeSteps.indexOf(next);
+        if (nextIdx >= 0) goToStepIndexWithContact(nextIdx);
+      })();
     },
     [
       slotHandoff,
@@ -1120,10 +1268,11 @@ export function useBookingEngineFlow() {
       skipContact,
       activeSteps,
       goToStepIndexWithContact,
-      advanceAfterSelect,
+      nextStepAfter,
       recipeId,
       locale,
       branchMinPrices,
+      createHoldBeforeContact,
     ]
   );
 
@@ -1411,10 +1560,6 @@ export function useBookingEngineFlow() {
       });
       endBookingMonitorVisitQuietly();
 
-      await clearBookingSlotContext();
-      await clearBookingSlotHandoff();
-      await clearDraft();
-      await refreshBookings({ force: true });
       const record = (data ?? {}) as { id?: string; booking?: { id?: string }; reservation?: { id?: string } };
       const createdId = record.id ?? record.booking?.id ?? record.reservation?.id;
       if (createdId && client) {
@@ -1459,6 +1604,14 @@ export function useBookingEngineFlow() {
       } else {
         router.replace('/bookings');
       }
+
+      void (async () => {
+        await clearBookingSlotContext();
+        await clearBookingSlotHandoff();
+        await clearDraft();
+        await hold.clearHoldLocal();
+        await refreshBookings({ force: true });
+      })();
     },
     [
       monitorFields,
@@ -1474,6 +1627,7 @@ export function useBookingEngineFlow() {
       skipContact,
       clearDraft,
       resolvedBookingPrice.amount,
+      hold,
     ]
   );
 
@@ -1481,7 +1635,15 @@ export function useBookingEngineFlow() {
     (ctx: { firstName: string; lastName: string; email: string; phone: string }) => {
       const employee = profileEmployee ?? selectedEmployee;
       const branch = selectedBranch;
-      if (!employee?.id || !branch?.id || !selectedService?.id || !selectedDate || !selectedSlot?.start) {
+      const holdId = hold.holdId;
+      if (
+        !employee?.id ||
+        !branch?.id ||
+        !selectedService?.id ||
+        !selectedDate ||
+        !selectedSlot?.start ||
+        !holdId
+      ) {
         return null;
       }
       return {
@@ -1494,6 +1656,7 @@ export function useBookingEngineFlow() {
         itemId: selectedService.id,
         date: selectedDate,
         slotStart: selectedSlot.start,
+        holdId,
         ...(selectedSlot.end ? { slotEnd: selectedSlot.end } : {}),
         ...(contact.fields.notes.trim() ? { notes: contact.fields.notes.trim() } : {}),
         marketingConsent: contact.fields.marketingConsent,
@@ -1507,6 +1670,7 @@ export function useBookingEngineFlow() {
       selectedService,
       selectedDate,
       selectedSlot,
+      hold.holdId,
       contact.fields.notes,
       contact.fields.marketingConsent,
       coupon.couponCodeForSubmit,
@@ -1519,12 +1683,45 @@ export function useBookingEngineFlow() {
       buildPayload: buildSubmitPayload,
       onSuccess: (data) => void handleSubmitSuccess(data, hadCoupon),
       onSlotConflict: () => {
-        setSlot(null);
-        void clearBookingSlotContext();
+        void hold.releaseHoldBestEffort();
+        hold.showUnavailableDialog();
+        goToDatetimeAfterHoldIssue();
       },
       formatError: (err) => formatBookingSubmitError(err, t),
     });
-  }, [contact, buildSubmitPayload, handleSubmitSuccess, coupon.couponCodeForSubmit, t]);
+  }, [
+    contact,
+    buildSubmitPayload,
+    handleSubmitSuccess,
+    coupon.couponCodeForSubmit,
+    t,
+    hold,
+    goToDatetimeAfterHoldIssue,
+  ]);
+
+  useEffect(() => {
+    const onHoldStep = step === 'contact' || (step === 'summary' && skipContact);
+    if (!onHoldStep || contact.submitSuccess) return;
+    void hold.extendOnce();
+  }, [step, skipContact, contact.submitSuccess, hold]);
+
+  useEffect(() => {
+    if (step !== 'datetime') return;
+    hold.resetExtendOnce();
+    if (hold.holdId) {
+      void hold.releaseHoldBestEffort();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- release once when entering datetime
+  }, [step]);
+
+  const handleHoldDialogConfirm = useCallback(() => {
+    const kind = hold.dialogKind;
+    hold.dismissDialog();
+    if (kind === 'expired' || kind === 'unavailable') {
+      void hold.releaseHoldBestEffort();
+      goToDatetimeAfterHoldIssue();
+    }
+  }, [goToDatetimeAfterHoldIssue, hold]);
 
   const footerAction = useMemo(
     () =>
@@ -1543,6 +1740,7 @@ export function useBookingEngineFlow() {
         awaitingPhoneOtp: contact.awaitingPhoneOtp,
         otpDigits: contact.otpDigits,
         submitting: contact.submitting,
+        isCreatingHold: hold.isCreatingHold,
         onContinue: handleContinue,
         onSubmit: handleSubmit,
         labels: {
@@ -1551,9 +1749,9 @@ export function useBookingEngineFlow() {
             step === 'contact' || step === 'summary'
               ? t('bookingReserveTerm')
               : t('commonReserve'),
-          submitting: t('reservationCreating'),
+          submitting: t('bookingSubmitting'),
           otpConfirm: t('bookingOtpConfirm'),
-          otpVerifying: t('reservationCreating'),
+          otpVerifying: t('bookingOtpVerifying'),
         },
       }),
     [
@@ -1567,6 +1765,7 @@ export function useBookingEngineFlow() {
       selectedSlot,
       handleContinue,
       handleSubmit,
+      hold.isCreatingHold,
       t,
     ]
   );
@@ -1622,6 +1821,7 @@ export function useBookingEngineFlow() {
     stepLabels,
     goToStepByKind,
     handleBack,
+    leaveBookingFlow,
     bootstrapStatus,
     error,
     loading: loading || profileLoading,
@@ -1673,6 +1873,8 @@ export function useBookingEngineFlow() {
     showTomorrowChip: datesWithSlots.includes(tomorrowIso),
     contact,
     coupon,
+    hold,
+    handleHoldDialogConfirm,
     trackOpenDiscountCode,
     trackOpenGiftVoucher,
     footerAction,

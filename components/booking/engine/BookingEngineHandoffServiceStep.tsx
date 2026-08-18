@@ -1,6 +1,6 @@
 import { Image } from 'expo-image';
 import React from 'react';
-import { ActivityIndicator, View } from 'react-native';
+import { View } from 'react-native';
 
 import type { BookingEngineFlow } from '@/hooks/useBookingEngineFlow';
 import BookingHandoffServiceTimeButton from '@/components/booking/BookingHandoffServiceTimeButton';
@@ -10,10 +10,10 @@ import type { BookingSlotServiceItem } from '@/lib/booking/booking-api/types';
 import type { BookingService } from '@/lib/booking/constants';
 import {
   formatBookingSlotHandoffContextLine,
-  formatBookingSlotHandoffServiceTimeButtonLabel,
-} from '@/utils/reservationCreateHelpers';
+  formatBookingSlotHandoffServiceTimeButtonLabel} from '@/utils/reservationCreateHelpers';
 import { formatBookingServicePriceLabel } from '@/lib/booking/designShared';
 import { shadowPresets } from '@/utils/useShadow';
+import SiteLoadingSpinner from '@/components/SiteLoadingSpinner';
 
 function slotServiceToBookingService(service: BookingSlotServiceItem): BookingService {
   return {
@@ -21,8 +21,7 @@ function slotServiceToBookingService(service: BookingSlotServiceItem): BookingSe
     name: service.name,
     pricing: { minPrice: service.price, maxPrice: service.price, kind: 'exact' },
     duration: service.durationMinutes,
-    imageUrl: service.imageUrl,
-  };
+    imageUrl: service.imageUrl};
 }
 
 interface Props {
@@ -41,8 +40,7 @@ export default function BookingEngineHandoffServiceStep({ flow }: Props) {
     date: handoff.date,
     slotStart: handoff.slot.start,
     dateLocaleTag: flow.dateLocaleTag,
-    t,
-  });
+    t});
 
   return (
     <View>
@@ -54,7 +52,7 @@ export default function BookingEngineHandoffServiceStep({ flow }: Props) {
 
       {flow.loadingSlotServices ? (
         <View className="items-center py-10">
-          <ActivityIndicator size="small" />
+          <SiteLoadingSpinner size="compact" />
           <ThemedText className="mt-3 text-sm text-light-subtext dark:text-dark-subtext">
             {t('commonLoading')}
           </ThemedText>
@@ -82,8 +80,7 @@ export default function BookingEngineHandoffServiceStep({ flow }: Props) {
               handoffSlotStart: handoff.slot.start,
               nextAvailable: service.nextAvailable,
               dateLocaleTag: flow.dateLocaleTag,
-              t,
-            });
+              t});
 
             const priceLabel =
               service.price > 0

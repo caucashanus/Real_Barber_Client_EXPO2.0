@@ -1,10 +1,11 @@
 import React from 'react';
-import { ActivityIndicator, View } from 'react-native';
+import { View } from 'react-native';
 
 import type { BookingEngineFlow } from '@/hooks/useBookingEngineFlow';
 import AppButton from '@/components/AppButton';
 import BookingPanelPickerRow from '@/components/booking/engine/BookingPanelPickerRow';
 import { branchImageUrl } from '@/lib/booking/designShared';
+import SiteLoadingSpinner from '@/components/SiteLoadingSpinner';
 
 interface Props {
   flow: BookingEngineFlow;
@@ -29,7 +30,7 @@ export default function BookingEngineBranchStep({ flow }: Props) {
 
       {flow.loading ? (
         <View className="items-center py-10">
-          <ActivityIndicator size="small" />
+          <SiteLoadingSpinner size="compact" />
         </View>
       ) : (
         flow.branches.map((branch) => (

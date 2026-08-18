@@ -9,6 +9,7 @@ import type {
   BookingCreateReservationResponse,
   BookingEmployeePickerResponse,
   BookingEmployeeProfileResponse,
+  BookingHoldResponse,
   BookingOtpRequestResult,
   BookingServiceContextResponse,
   BookingSlotServicesResponse,
@@ -22,6 +23,14 @@ type FetchOptions = {
   method?: 'GET' | 'POST';
   body?: Record<string, unknown>;
 };
+
+function withHoldId(
+  params: Record<string, string | number | undefined>,
+  holdId?: string | null
+): Record<string, string | number | undefined> {
+  if (holdId) return { ...params, holdId };
+  return params;
+}
 
 async function bookingFetch<T>(path: string, options: FetchOptions = {}): Promise<T> {
   const { locale, apiToken, method = 'GET', body } = options;
@@ -105,17 +114,23 @@ export function getBookingEmployeePicker(
     locale?: string;
     fromDate?: string;
     maxDays?: number;
+    holdId?: string | null;
   },
   apiToken?: string | null
 ) {
   return bookingFetch<BookingEmployeePickerResponse>(
-    `/employee-picker${q({
-      branchId: params.branchId,
-      itemId: params.itemId,
-      locale: params.locale,
-      fromDate: params.fromDate,
-      maxDays: params.maxDays,
-    })}`,
+    `/employee-picker${q(
+      withHoldId(
+        {
+          branchId: params.branchId,
+          itemId: params.itemId,
+          locale: params.locale,
+          fromDate: params.fromDate,
+          maxDays: params.maxDays,
+        },
+        params.holdId
+      )
+    )}`,
     { locale: params.locale, apiToken }
   );
 }
@@ -128,18 +143,24 @@ export function getBookingCalendar(
     from: string;
     days?: number;
     locale?: string;
+    holdId?: string | null;
   },
   apiToken?: string | null
 ) {
   return bookingFetch<BookingCalendarResponse>(
-    `/calendar${q({
-      branchId: params.branchId,
-      itemId: params.itemId,
-      employeeId: params.employeeId,
-      from: params.from,
-      days: params.days ?? 42,
-      locale: params.locale,
-    })}`,
+    `/calendar${q(
+      withHoldId(
+        {
+          branchId: params.branchId,
+          itemId: params.itemId,
+          employeeId: params.employeeId,
+          from: params.from,
+          days: params.days ?? 42,
+          locale: params.locale,
+        },
+        params.holdId
+      )
+    )}`,
     { locale: params.locale, apiToken }
   );
 }
@@ -152,18 +173,24 @@ export function getBookingCalendarMultiBranch(
     days?: number;
     branchIds?: string[];
     locale?: string;
+    holdId?: string | null;
   },
   apiToken?: string | null
 ) {
   return bookingFetch<BookingCalendarMultiBranchResponse>(
-    `/calendar-multi-branch${q({
-      employeeId: params.employeeId,
-      itemId: params.itemId,
-      from: params.from,
-      days: params.days ?? 42,
-      branchIds: params.branchIds?.join(','),
-      locale: params.locale,
-    })}`,
+    `/calendar-multi-branch${q(
+      withHoldId(
+        {
+          employeeId: params.employeeId,
+          itemId: params.itemId,
+          from: params.from,
+          days: params.days ?? 42,
+          branchIds: params.branchIds?.join(','),
+          locale: params.locale,
+        },
+        params.holdId
+      )
+    )}`,
     { locale: params.locale, apiToken }
   );
 }
@@ -205,21 +232,60 @@ export function getBookingSlotServices(
     slotEnd?: string;
     categoryId?: string;
     locale?: string;
+    holdId?: string | null;
   },
   apiToken?: string | null
 ) {
   return bookingFetch<BookingSlotServicesResponse>(
-    `/slot-services${q({
-      employeeId: params.employeeId,
-      branchId: params.branchId,
-      date: params.date,
-      slotStart: params.slotStart,
-      slotEnd: params.slotEnd,
-      categoryId: params.categoryId,
-      locale: params.locale,
-    })}`,
+    `/slot-services${q(
+      withHoldId(
+        {
+          employeeId: params.employeeId,
+          branchId: params.branchId,
+          date: params.date,
+          slotStart: params.slotStart,
+          slotEnd: params.slotEnd,
+          categoryId: params.categoryId,
+          locale: params.locale,
+        },
+        params.holdId
+      )
+    )}`,
     { locale: params.locale, apiToken }
   );
+}
+
+export type BookingHoldCreateBody = {
+  branchId: string;
+  itemId: string;
+  employeeId: string;
+  date: string;
+  slotStart: string;
+  slotEnd: string;
+};
+
+export function createBookingHold(body: BookingHoldCreateBody, apiToken?: string | null) {
+  return bookingFetch<{ hold: BookingHoldResponse }>('/holds', {
+    method: 'POST',
+    body,
+    apiToken,
+  });
+}
+
+export function extendBookingHold(holdId: string, apiToken?: string | null) {
+  return bookingFetch<{ hold: BookingHoldResponse }>('/holds', {
+    method: 'POST',
+    body: { action: 'extend', holdId },
+    apiToken,
+  });
+}
+
+export function releaseBookingHold(holdId: string, apiToken?: string | null) {
+  return bookingFetch<{ ok?: boolean }>('/holds', {
+    method: 'POST',
+    body: { action: 'release', holdId },
+    apiToken,
+  });
 }
 
 export function requestBookingApiOtp(phone: string) {

@@ -127,7 +127,7 @@ export default function ChatDetailScreen() {
   }, [messages, scrollToBottom]);
 
   if (isLoading) {
-    return <PageLoader text="Loading chat..." />;
+    return <PageLoader />;
   }
 
   const handleSend = () => {

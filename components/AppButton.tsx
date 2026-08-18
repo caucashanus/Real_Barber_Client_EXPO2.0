@@ -1,14 +1,7 @@
 import * as Haptics from 'expo-haptics';
 import { router } from 'expo-router';
 import React from 'react';
-import {
-  ActivityIndicator,
-  Pressable,
-  Text,
-  View,
-  type StyleProp,
-  type ViewStyle,
-} from 'react-native';
+import { Pressable, Text, View, type StyleProp, type ViewStyle } from 'react-native';
 import { styled } from 'nativewind';
 
 import Icon, { type IconName } from '@/components/Icon';
@@ -122,12 +115,7 @@ export default function AppButton({
   };
 
   const content =
-    children ??
-    (loading ? (
-      <ActivityIndicator
-        color={variant === 'default' || variant === 'secondary' || variant === 'destructive' ? '#FFFFFF' : undefined}
-      />
-    ) : (
+    children ?? (
       <View
         className={`flex-row items-center ${
           variant === 'panel'
@@ -140,7 +128,7 @@ export default function AppButton({
                   : 'justify-center'
                 : 'justify-center'
         }`}>
-        {iconStart ? (
+        {iconStart && !loading ? (
           <Icon
             name={iconStart}
             size={resolvedIconSize}
@@ -158,7 +146,7 @@ export default function AppButton({
             {title}
           </ButtonText>
         ) : null}
-        {iconEnd ? (
+        {iconEnd && !loading ? (
           <Icon
             name={iconEnd}
             size={resolvedIconSize}
@@ -167,7 +155,7 @@ export default function AppButton({
           />
         ) : null}
       </View>
-    ));
+    );
 
   return (
     <Pressable

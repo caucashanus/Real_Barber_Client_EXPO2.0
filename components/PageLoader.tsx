@@ -1,23 +1,13 @@
 import React from 'react';
-import { View, ActivityIndicator } from 'react-native';
+import { View } from 'react-native';
 
-import ThemedText from './ThemedText';
+import SiteLoadingState from '@/components/SiteLoadingState';
 
-import useThemeColors from '@/contexts/ThemeColors';
-
-interface PageLoaderProps {
-  text?: string;
-}
-
-export default function PageLoader({ text }: PageLoaderProps) {
-  const colors = useThemeColors();
-
+/** Full-screen page bootstrap loader (web SiteLoadingState). */
+export default function PageLoader() {
   return (
-    <View className="flex-1 items-center justify-center bg-light-primary dark:bg-dark-primary">
-      <ActivityIndicator size="large" color={colors.highlight} />
-      {text && (
-        <ThemedText className="mt-4 text-light-subtext dark:text-dark-subtext">{text}</ThemedText>
-      )}
+    <View className="flex-1 bg-light-primary dark:bg-dark-primary">
+      <SiteLoadingState layout="page" />
     </View>
   );
 }

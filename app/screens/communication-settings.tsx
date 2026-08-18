@@ -1,14 +1,13 @@
 import { useFocusEffect } from "expo-router/react-navigation";
 import * as Notifications from 'expo-notifications';
 import React, { useCallback, useEffect, useState } from 'react';
-import { View, ActivityIndicator, Alert, Linking } from 'react-native';
+import { View, Alert, Linking } from 'react-native';
 
 import {
   getCommunicationSettings,
   patchCommunicationSettings,
   type CommunicationChannels,
-  type CommunicationContentTypes,
-} from '@/api/communication-settings';
+  type CommunicationContentTypes} from '@/api/communication-settings';
 import { useAuth } from '@/contexts/AuthContext';
 import { useTranslation } from '@/hooks/useTranslation';
 import Header from '@/components/Header';
@@ -17,6 +16,7 @@ import ThemedText from '@/components/ThemedText';
 import Switch from '@/components/forms/Switch';
 import Section from '@/components/layout/Section';
 import type { TranslationKey } from '@/locales';
+import SiteLoadingSpinner from '@/components/SiteLoadingSpinner';
 
 const CHANNEL_ROWS: { key: keyof CommunicationChannels; label: TranslationKey }[] = [
   { key: 'phoneCall', label: 'communicationChannel_phoneCall' },
@@ -83,8 +83,7 @@ export default function CommunicationSettingsScreen() {
       try {
         const res = await patchCommunicationSettings(apiToken, {
           channels: nextChannels,
-          contentTypes: nextContent,
-        });
+          contentTypes: nextContent});
         setChannels(res.channels);
         setContentTypes(res.contentTypes);
       } catch {
@@ -163,7 +162,7 @@ export default function CommunicationSettingsScreen() {
           </ThemedText>
         ) : loading ? (
           <View className="items-center py-12">
-            <ActivityIndicator size="small" />
+            <SiteLoadingSpinner size="compact" />
             <ThemedText className="mt-3 text-sm text-light-subtext dark:text-dark-subtext">
               {t('commonLoading')}
             </ThemedText>

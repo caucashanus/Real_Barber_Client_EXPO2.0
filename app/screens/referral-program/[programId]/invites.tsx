@@ -1,12 +1,11 @@
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import React, { useEffect, useMemo, useState } from 'react';
-import { View, ActivityIndicator } from 'react-native';
+import { View } from 'react-native';
 
 import {
   getReferrals,
   type ClientReferralItem,
-  type PendingAttributionItem,
-} from '@/api/referrals';
+  type PendingAttributionItem} from '@/api/referrals';
 import { useAuth } from '@/contexts/AuthContext';
 import { useTranslation } from '@/hooks/useTranslation';
 import Avatar from '@/components/Avatar';
@@ -16,6 +15,7 @@ import ThemedText from '@/components/ThemedText';
 import { List } from '@/components/layout/List';
 import ListItem from '@/components/layout/ListItem';
 import Section from '@/components/layout/Section';
+import SiteLoadingSpinner from '@/components/SiteLoadingSpinner';
 
 function inviteStatusLabel(status: string, t: (k: any) => string): string {
   const s = String(status || '').toUpperCase();
@@ -78,16 +78,14 @@ export default function ReferralInvitesScreen() {
       title: refereeTitle(invite),
       subtitle: inviteStatusLabel(invite.status, t),
       avatar: refereeAvatar(invite),
-      onPress: () => router.push(`/screens/referral-invite/${encodeURIComponent(invite.id)}`),
-    }));
+      onPress: () => router.push(`/screens/referral-invite/${encodeURIComponent(invite.id)}`)}));
     const pendingRows = pending.map((a) => ({
       key: `pending:${a.id}`,
       title: a.phone,
       subtitle: t('referralInviteLeadPhoneEntered'),
       avatar:
         require('@/assets/img/wallet/realbarber.png') as import('react-native').ImageSourcePropType,
-      onPress: () => router.push(`/screens/referral-attribution/${encodeURIComponent(a.id)}`),
-    }));
+      onPress: () => router.push(`/screens/referral-attribution/${encodeURIComponent(a.id)}`)}));
     return [...pendingRows, ...inviteRows];
   }, [invites, pending, router, t]);
 
@@ -99,7 +97,7 @@ export default function ReferralInvitesScreen() {
 
         {loading ? (
           <View className="items-center py-8">
-            <ActivityIndicator size="small" />
+            <SiteLoadingSpinner size="compact" />
             <ThemedText className="mt-2 text-sm text-light-subtext dark:text-dark-subtext">
               {t('commonLoading')}
             </ThemedText>

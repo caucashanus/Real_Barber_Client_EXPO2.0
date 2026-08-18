@@ -7,10 +7,8 @@ import {
   RefreshControl,
   Animated,
   Pressable,
-  ActivityIndicator,
   ScrollView,
-  ImageBackground,
-} from 'react-native';
+  ImageBackground} from 'react-native';
 
 import { ScrollContext } from './_layout';
 
@@ -33,11 +31,11 @@ import SurfaceCard from '@/components/layout/SurfaceCard';
 import {
   getRbCoinsTransactionAvatarSrc,
   getRbCoinsTransactionListTitle,
-  RB_COINS_TX_LIST_KEYS_WALLET,
-} from '@/utils/rbcCoinsHistoryUi';
+  RB_COINS_TX_LIST_KEYS_WALLET} from '@/utils/rbcCoinsHistoryUi';
 import { shouldStaleRefresh } from '@/utils/staleRefresh';
 import { useTheme } from '@/contexts/ThemeContext';
 import { shadowPresets } from '@/utils/useShadow';
+import SiteLoadingSpinner from '@/components/SiteLoadingSpinner';
 
 /** In-memory fallback when AsyncStorage native module is unavailable (e.g. web, some dev builds). */
 let memoryLastSeen: string | null = null;
@@ -234,8 +232,7 @@ const WalletScreen = () => {
       Animated.timing(countAnim, {
         toValue: 1,
         duration: ANIM_DURATION_MS,
-        useNativeDriver: false,
-      }).start(() => {
+        useNativeDriver: false}).start(() => {
         countAnim.removeListener(listener);
         setDisplayAmount(balance);
         setLastSeenBalance(WALLET_LAST_SEEN_BALANCE_KEY, String(balance));
@@ -253,8 +250,7 @@ const WalletScreen = () => {
   return (
     <ThemeScroller
       onScroll={Animated.event([{ nativeEvent: { contentOffset: { y: scrollY } } }], {
-        useNativeDriver: false,
-      })}
+        useNativeDriver: false})}
       refreshControl={
         <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={accentColor} />
       }
@@ -266,7 +262,7 @@ const WalletScreen = () => {
             {t('walletPersonalRbcCaption')}
           </ThemedText>
           {balanceLoading ? (
-            <ActivityIndicator color="white" size="small" className="mt-2" />
+            <SiteLoadingSpinner />
           ) : balanceError ? (
             <ThemedText className="mt-1 text-center text-lg text-white/90">
               {balanceError}
@@ -311,14 +307,13 @@ const WalletScreen = () => {
             contentContainerStyle={{
               paddingHorizontal: 16,
               paddingRight: 24,
-              paddingVertical: 18,
-            }}>
+              paddingVertical: 18}}>
             {referralsLoading && visibleReferralPrograms.length === 0 ? (
               <SurfaceCard
                 rounded="2xl"
                 style={{ width: 280, marginRight: 15 }}
                 className="min-h-[120px] flex-shrink-0 items-center justify-center p-5">
-                <ActivityIndicator size="small" />
+                <SiteLoadingSpinner size="compact" />
               </SurfaceCard>
             ) : null}
             {visibleReferralPrograms.map((program) => {
@@ -388,7 +383,7 @@ const WalletScreen = () => {
             <List variant="divided" spacing={12}>
               {historyLoading ? (
                 <View className="items-center py-6">
-                  <ActivityIndicator size="small" />
+                  <SiteLoadingSpinner size="compact" />
                   <ThemedText className="mt-2 text-sm text-light-subtext dark:text-dark-subtext">
                     {t('commonLoading')}
                   </ThemedText>

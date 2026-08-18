@@ -2,13 +2,11 @@ import { useLocalSearchParams } from 'expo-router';
 import { useFocusEffect } from "expo-router/react-navigation";
 import React, { useCallback, useContext, useMemo, useRef } from 'react';
 import {
-  ActivityIndicator,
   Animated,
   ScrollView,
   View,
   useWindowDimensions,
-  type LayoutChangeEvent,
-} from 'react-native';
+  type LayoutChangeEvent} from 'react-native';
 
 import { ScrollContext } from '@/app/(tabs)/(home)/_layout';
 import { useHairstyleDetailScreen } from '@/hooks/useHairstyleDetailScreen';
@@ -28,10 +26,10 @@ import SiteBreadcrumbs from '@/components/shared/SiteBreadcrumbs';
 import InspiraceServiceGallery from '@/components/inspirace/InspiraceServiceGallery';
 import { BARBER_DETAIL_SECTION_SPACING } from '@/constants/barberDetailLayout';
 import {
-  buildHairstyleBookingHref,
-} from '@/utils/inspiraceServiceDetailHelpers';
+  buildHairstyleBookingHref} from '@/utils/inspiraceServiceDetailHelpers';
 import { startHairstyleSlotHandoffBooking } from '@/utils/hairstyleSlotHandoff';
 import { hairstyleBreadcrumbItems } from '@/utils/breadcrumbs';
+import SiteLoadingState from '@/components/SiteLoadingState';
 
 export default function HairstyleDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -52,8 +50,7 @@ export default function HairstyleDetailScreen() {
     displayTotal,
     slotGroups,
     locale,
-    todayIso,
-  } = useHairstyleDetailScreen(id ?? '');
+    todayIso} = useHairstyleDetailScreen(id ?? '');
 
   const scrollRef = useRef<ScrollView>(null);
   const reviewsSectionYRef = useRef(0);
@@ -83,8 +80,7 @@ export default function HairstyleDetailScreen() {
     () => ({
       title: detail?.title ?? '',
       emailSubject: detail?.title ?? '',
-      emailBody: detail?.webUrl ?? '',
-    }),
+      emailBody: detail?.webUrl ?? ''}),
     [detail]
   );
 
@@ -95,9 +91,7 @@ export default function HairstyleDetailScreen() {
 
   if (loading) {
     return (
-      <View className="flex-1 items-center justify-center bg-light-primary dark:bg-dark-primary">
-        <ActivityIndicator size="large" />
-      </View>
+      <SiteLoadingState layout="section" />
     );
   }
 
@@ -123,8 +117,7 @@ export default function HairstyleDetailScreen() {
           ref={scrollRef}
           className="px-0"
           onScroll={Animated.event([{ nativeEvent: { contentOffset: { y: scrollY } } }], {
-            useNativeDriver: false,
-          })}
+            useNativeDriver: false})}
           scrollEventThrottle={16}>
           <View className={isMobileHeader ? 'mt-4 px-global pb-8' : 'p-global pb-8'}>
             <SiteBreadcrumbs
@@ -182,8 +175,7 @@ export default function HairstyleDetailScreen() {
                   void startHairstyleSlotHandoffBooking({
                     serviceId: detail.id,
                     serviceName: detail.title,
-                    slot,
-                  }).catch(() => {});
+                    slot}).catch(() => {});
                 }}
               />
             ) : null}

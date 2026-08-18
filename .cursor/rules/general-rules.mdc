@@ -13,6 +13,7 @@ Always prefer existing components over creating new ones. Follow these principle
 - **Scrollable Content:** Use `ThemedScroller` with className for padding control
 - **Selections:** Use `Chip` for filterable selections and categories
 - **Cards:** Use `Card` and `CardScroller` for featured content with consistent sizing
+- **Panel cards:** Use `SurfaceCard` for all elevated panel blocks (profile header, wallet blocks, transaction lists, guide rows, search modal rows, etc.). Light: cement gray `#D1D5DB` (`bg-light-surface`), no shadow. Dark: `dark-secondary` + shadow. Props: `rounded="2xl" | "3xl"`.
 - **Lists:** Use `List` and `ListItem` for vertical data, with consistent spacing
 - **Sections:** Use `Section` with appropriate titleSize for content blocks
 - **Icons:** Use `Icon` with specific IconName constants from the icon system

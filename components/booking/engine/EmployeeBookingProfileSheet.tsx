@@ -4,22 +4,18 @@ import React, {
   useCallback,
   useImperativeHandle,
   useRef,
-  useState,
-} from 'react';
+  useState} from 'react';
 import {
-  ActivityIndicator,
   Dimensions,
   ScrollView,
   View,
-  type LayoutChangeEvent,
-} from 'react-native';
+  type LayoutChangeEvent} from 'react-native';
 import { ActionSheetRef } from 'react-native-actions-sheet';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import {
   getTeamMemberPage,
-  type TeamMemberPageEmployee,
-} from '@/api/publicTeamMember';
+  type TeamMemberPageEmployee} from '@/api/publicTeamMember';
 import type { Locale } from '@/contexts/LanguageContext';
 import ActionSheetThemed from '@/components/ActionSheetThemed';
 import AppButton from '@/components/AppButton';
@@ -33,12 +29,12 @@ import ThemedText from '@/components/ThemedText';
 import type { BookingEntity } from '@/lib/booking/constants';
 import type { TranslationKey } from '@/locales';
 import { barberDetailHref } from '@/constants/profileDetailRoutes';
+import SiteLoadingSpinner from '@/components/SiteLoadingSpinner';
 import {
   getPragueTodayDateString,
   getTeamMemberBio,
   getTeamMemberDisplayName,
-  pickTeamMemberLocalizedField,
-} from '@/utils/teamMemberPageHelpers';
+  pickTeamMemberLocalizedField} from '@/utils/teamMemberPageHelpers';
 
 const BOOKING_PROFILE_REVIEWS_LIMIT = 5;
 const SHEET_SCROLL_MAX_HEIGHT = Dimensions.get('window').height * 0.62;
@@ -104,8 +100,7 @@ const EmployeeBookingProfileSheet = forwardRef<
         const data = await getTeamMemberPage(idOrSlug, {
           date: getPragueTodayDateString(),
           serviceId: nextTarget.serviceId,
-          reviewsLimit: BOOKING_PROFILE_REVIEWS_LIMIT,
-        });
+          reviewsLimit: BOOKING_PROFILE_REVIEWS_LIMIT});
         setEmployee(data.employee ?? null);
         if (!data.employee) setError(t('reservationFromBarberLoadError'));
       } catch {
@@ -125,8 +120,7 @@ const EmployeeBookingProfileSheet = forwardRef<
       setError(null);
       void loadProfile(nextTarget);
       setTimeout(() => sheetRef.current?.show(), 50);
-    },
-  }));
+    }}));
 
   const handleSelect = () => {
     if (!target) return;
@@ -183,7 +177,7 @@ const EmployeeBookingProfileSheet = forwardRef<
         <View className="px-4 pt-4">
           {loading ? (
             <View className="items-center py-10">
-              <ActivityIndicator size="small" />
+              <SiteLoadingSpinner size="compact" />
             </View>
           ) : null}
 

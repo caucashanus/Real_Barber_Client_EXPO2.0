@@ -1,13 +1,11 @@
 import { router } from 'expo-router';
 import React, { forwardRef, useCallback, useMemo, useRef } from 'react';
 import {
-  ActivityIndicator,
   Linking,
   Pressable,
   ScrollView,
   useWindowDimensions,
-  View,
-} from 'react-native';
+  View} from 'react-native';
 import { ActionSheetRef } from 'react-native-actions-sheet';
 import MapView, { Marker } from 'react-native-maps';
 
@@ -31,8 +29,7 @@ import { getBranchContactMeta } from '@/constants/branchContacts';
 import { branchDetailHref } from '@/constants/profileDetailRoutes';
 import {
   getBranchInteriorCarouselImages,
-  type BranchInteriorCarouselImage,
-} from '@/constants/branchInteriorGallery';
+  type BranchInteriorCarouselImage} from '@/constants/branchInteriorGallery';
 import type { BranchInternalId } from '@/constants/crmBranchIds';
 import { resolveCrmBranchId } from '@/constants/crmBranchIds';
 import type { NearestApiBranch } from '@/lib/branches/postNearestBranches';
@@ -41,8 +38,7 @@ import { groupNearestBranchSlots, type NearestBranchHomeSlot } from '@/utils/nea
 import {
   buildBranchBookingHref,
   buildBranchShareCopy,
-  getBranchGoogleReviewUrlForCrmId,
-} from '@/utils/branchShareHelpers';
+  getBranchGoogleReviewUrlForCrmId} from '@/utils/branchShareHelpers';
 import { formatTravelDistanceMeters } from '@/utils/formatTravelDistanceMeters';
 import { formatTravelDurationMinutes } from '@/utils/formatTravelDurationSeconds';
 import { openBranchMapsApp } from '@/utils/branchDetailHelpers';
@@ -50,6 +46,7 @@ import { interpolateTemplate, MENU_SHARE_OPEN_DELAY_MS } from '@/utils/profileSh
 import { formatNextSlotDisplayTime } from '@/utils/reservationCreateHelpers';
 import { startBarberSlotHandoffBooking } from '@/utils/reservationSlotHandoff';
 import { getPragueTodayDateString } from '@/utils/teamMemberPageHelpers';
+import SiteLoadingSpinner from '@/components/SiteLoadingSpinner';
 
 const SHEET_HORIZONTAL_PAD = 16;
 
@@ -69,8 +66,7 @@ function BranchQuickTravelRow({
   icon,
   label,
   onPress,
-  isLast = false,
-}: {
+  isLast = false}: {
   icon: React.ComponentProps<typeof Icon>['name'];
   label: string;
   onPress: () => void;
@@ -104,34 +100,26 @@ function buildTravelRows(
       key: 'distance',
       icon: 'MapPin',
       label: interpolateTemplate(t('nearestBranchTravelFromYou'), {
-        distance: formatTravelDistanceMeters(branchTravel.drive.distanceMeters, locale),
-      }),
-    });
+        distance: formatTravelDistanceMeters(branchTravel.drive.distanceMeters, locale)})});
     rows.push({
       key: 'drive',
       icon: 'Car',
       label: `${interpolateTemplate(t('nearestBranchTravelDrive'), {
-        minutes: String(formatTravelDurationMinutes(branchTravel.drive.durationSeconds)),
-      })}${branchTravel.drive.trafficAware ? t('nearestBranchTravelTrafficSuffix') : ''}`,
-    });
+        minutes: String(formatTravelDurationMinutes(branchTravel.drive.durationSeconds))})}${branchTravel.drive.trafficAware ? t('nearestBranchTravelTrafficSuffix') : ''}`});
   }
   if (branchTravel.bicycle) {
     rows.push({
       key: 'bike',
       icon: 'Bike',
       label: interpolateTemplate(t('nearestBranchTravelBicycle'), {
-        minutes: String(formatTravelDurationMinutes(branchTravel.bicycle.durationSeconds)),
-      }),
-    });
+        minutes: String(formatTravelDurationMinutes(branchTravel.bicycle.durationSeconds))})});
   }
   if (branchTravel.walk) {
     rows.push({
       key: 'walk',
       icon: 'Footprints',
       label: interpolateTemplate(t('nearestBranchTravelWalk'), {
-        minutes: String(formatTravelDurationMinutes(branchTravel.walk.durationSeconds)),
-      }),
-    });
+        minutes: String(formatTravelDurationMinutes(branchTravel.walk.durationSeconds))})});
   }
 
   return rows.map((row, index) => (
@@ -164,8 +152,7 @@ function BranchQuickSheetContent({
   onOpenCallUs,
   onLeaveFlow,
   actionsSheetRef,
-  shareSheetRef,
-}: {
+  shareSheetRef}: {
   branchInternalId: BranchInternalId;
   branchTravel: NearestApiBranch;
   branchMeta: ReturnType<typeof getBranchContactMeta>;
@@ -237,8 +224,7 @@ function BranchQuickSheetContent({
                 openBranchMapsApp(branchMeta.shortLabel, {
                   address: branchMeta.address,
                   latitude: branchMeta.latitude,
-                  longitude: branchMeta.longitude,
-                })
+                  longitude: branchMeta.longitude})
               }
               className={`overflow-hidden rounded-2xl bg-black ${
                 interiorImages.length > 0 ? 'min-w-0 flex-1' : 'w-full'
@@ -254,13 +240,11 @@ function BranchQuickSheetContent({
                   latitude: branchMeta.latitude,
                   longitude: branchMeta.longitude,
                   latitudeDelta: 0.012,
-                  longitudeDelta: 0.012,
-                }}>
+                  longitudeDelta: 0.012}}>
                 <Marker
                   coordinate={{
                     latitude: branchMeta.latitude,
-                    longitude: branchMeta.longitude,
-                  }}
+                    longitude: branchMeta.longitude}}
                   title={branchMeta.shortLabel}
                 />
               </MapView>
@@ -341,7 +325,7 @@ function BranchQuickSheetContent({
             </ThemedText>
             {slotsLoading ? (
               <View className="items-start py-1">
-                <ActivityIndicator size="small" />
+                <SiteLoadingSpinner size="compact" />
               </View>
             ) : slotGroups.length === 0 ? (
               <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext">
@@ -371,8 +355,7 @@ function BranchQuickSheetContent({
                               branchAddress: slot.branchAddress,
                               date: slot.date,
                               slotStart: slot.time,
-                              slotEnd: slot.endTime || undefined,
-                            }).catch(() => {});
+                              slotEnd: slot.endTime || undefined}).catch(() => {});
                           }}
                         />
                       ))}
@@ -399,8 +382,7 @@ export const BranchQuickSheet = forwardRef<ActionSheetRef, BranchQuickSheetProps
       t,
       loading = false,
       errorMessage = null,
-      onClose,
-    },
+      onClose},
     ref
   ) {
     const { width: screenWidth } = useWindowDimensions();
@@ -493,8 +475,7 @@ export const BranchQuickSheet = forwardRef<ActionSheetRef, BranchQuickSheetProps
             name: branchMeta?.shortLabel ?? '',
             drive: null,
             walk: null,
-            bicycle: null,
-          }
+            bicycle: null}
         : null);
 
     return (

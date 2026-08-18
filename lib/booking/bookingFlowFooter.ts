@@ -11,6 +11,7 @@ export function resolveBookingFlowFooterAction(params: {
   isSlotHandoffFlow?: boolean;
   authPrefillReady?: boolean;
   selections: BookingSelections;
+  isCreatingHold?: boolean;
   awaitingPhoneOtp: boolean;
   otpDigits: string;
   submitting: boolean;
@@ -42,6 +43,7 @@ export function resolveBookingFlowFooterAction(params: {
     onContinue,
     onSubmit,
     labels,
+    isCreatingHold = false,
   } = params;
 
   if (submitSuccess) return null;
@@ -52,8 +54,8 @@ export function resolveBookingFlowFooterAction(params: {
       return {
         title: labels.continue,
         onPress: onContinue,
-        loading: false,
-        disabled: false,
+        loading: isCreatingHold,
+        disabled: isCreatingHold,
         variant: 'continue',
       };
     }

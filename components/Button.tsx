@@ -2,14 +2,7 @@
 import * as Haptics from 'expo-haptics';
 import { router } from 'expo-router';
 import React from 'react';
-import {
-  Text,
-  ActivityIndicator,
-  TouchableOpacity,
-  View,
-  type StyleProp,
-  type ViewStyle,
-} from 'react-native';
+import { Text, TouchableOpacity, View, type StyleProp, type ViewStyle } from 'react-native';
 
 import Icon, { IconName } from './Icon';
 
@@ -117,33 +110,27 @@ export const Button: React.FC<ButtonProps> = ({
   };
 
   const ButtonContent = (
-    <>
-      {loading ? (
-        <ActivityIndicator color={variant === 'primary' ? '#ffffff' : '#0EA5E9'} />
-      ) : (
-        <View className="flex-row items-center justify-center">
-          {iconStart && (
-            <Icon
-              name={iconStart}
-              size={getIconSize()}
-              color={getIconColor()}
-              className={`mr-2 ${iconClassName} `}
-            />
-          )}
+    <View className="flex-row items-center justify-center">
+      {iconStart && !loading ? (
+        <Icon
+          name={iconStart}
+          size={getIconSize()}
+          color={getIconColor()}
+          className={`mr-2 ${iconClassName} `}
+        />
+      ) : null}
 
-          <Text className={titleClassName}>{title}</Text>
+      <Text className={titleClassName}>{title}</Text>
 
-          {iconEnd && (
-            <Icon
-              name={iconEnd}
-              size={getIconSize()}
-              color={getIconColor()}
-              className={`ml-2 ${iconClassName}`}
-            />
-          )}
-        </View>
-      )}
-    </>
+      {iconEnd && !loading ? (
+        <Icon
+          name={iconEnd}
+          size={getIconSize()}
+          color={getIconColor()}
+          className={`ml-2 ${iconClassName}`}
+        />
+      ) : null}
+    </View>
   );
 
   const triggerHaptic = () => {

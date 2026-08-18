@@ -1,5 +1,5 @@
 import React from 'react';
-import { ActivityIndicator, View } from 'react-native';
+import { View } from 'react-native';
 
 import type { Locale } from '@/contexts/LanguageContext';
 import AppButton from '@/components/AppButton';
@@ -9,6 +9,7 @@ import Section from '@/components/layout/Section';
 import ThemedText from '@/components/ThemedText';
 import type { TranslationKey } from '@/locales';
 import type { HomeTodayTeamCardModel } from '@/utils/homeTodayTeamHelpers';
+import SiteLoadingState from '@/components/SiteLoadingState';
 
 interface HomeTodayTeamTitleAction {
   titleKey: TranslationKey;
@@ -17,8 +18,7 @@ interface HomeTodayTeamTitleAction {
 
 const DEFAULT_TITLE_ACTION: HomeTodayTeamTitleAction = {
   titleKey: 'experienceSchedule',
-  href: '/screens/schedule',
-};
+  href: '/screens/schedule'};
 
 interface HomeTodayTeamSectionProps {
   cards: HomeTodayTeamCardModel[];
@@ -54,8 +54,7 @@ export default function HomeTodayTeamSection({
   introTextKey,
   useCardLayout = false,
   contentOnly = false,
-  titleAction = DEFAULT_TITLE_ACTION,
-}: HomeTodayTeamSectionProps) {
+  titleAction = DEFAULT_TITLE_ACTION}: HomeTodayTeamSectionProps) {
   const titleActionButton = (
     <AppButton
       variant="outline"
@@ -66,12 +65,7 @@ export default function HomeTodayTeamSection({
   );
 
   const teamContent = loading ? (
-    <View className="mt-2 items-center py-6">
-      <ActivityIndicator size="small" />
-      <ThemedText className="mt-2 text-sm text-light-subtext dark:text-dark-subtext">
-        {t(loadingTextKey)}
-      </ThemedText>
-    </View>
+    <SiteLoadingState layout="section" size="compact" className="mt-2 py-6" />
   ) : error ? (
     <View className="mt-2 py-4">
       <ThemedText className="text-sm text-red-500 dark:text-red-400">

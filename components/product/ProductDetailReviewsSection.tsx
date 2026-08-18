@@ -1,7 +1,7 @@
 import { Image } from 'expo-image';
 import { router } from 'expo-router';
 import React from 'react';
-import { ActivityIndicator, Pressable, View, type LayoutChangeEvent } from 'react-native';
+import { Pressable, View, type LayoutChangeEvent } from 'react-native';
 
 import type { ClientCatalogProductReview, ClientProductPurchase } from '@/api/products';
 import type { EntityReviewItem } from '@/api/reviews';
@@ -12,12 +12,12 @@ import ShowRating from '@/components/ShowRating';
 import ThemedText from '@/components/ThemedText';
 import Section from '@/components/layout/Section';
 import type { TranslationKey } from '@/locales';
+import SiteLoadingSpinner from '@/components/SiteLoadingSpinner';
 import {
   catalogReviewBody,
   catalogReviewDisplayName,
   computeReviewStats,
-  formatReviewDate,
-} from '@/utils/productDetailHelpers';
+  formatReviewDate} from '@/utils/productDetailHelpers';
 
 interface ProductDetailReviewsSectionProps {
   purchase: ClientProductPurchase | null;
@@ -46,8 +46,7 @@ export default function ProductDetailReviewsSection({
   clientId,
   locale,
   onLayout,
-  t,
-}: ProductDetailReviewsSectionProps) {
+  t}: ProductDetailReviewsSectionProps) {
   const colors = useThemeColors();
   const { countByRating, average, total: reviewsComputedTotal } = computeReviewStats(reviews);
   const displayTotal = reviewsTotal ?? reviewsComputedTotal;
@@ -92,7 +91,7 @@ export default function ProductDetailReviewsSection({
             </View>
             {loadingReviews ? (
               <View className="items-center py-6">
-                <ActivityIndicator size="small" />
+                <SiteLoadingSpinner size="compact" />
                 <ThemedText className="mt-2 text-sm text-light-subtext dark:text-dark-subtext">
                   {t('branchLoadingReviews')}
                 </ThemedText>
@@ -236,8 +235,7 @@ export function productDetailHeaderReviewSummary(params: {
   if (hasCatalogReviews) {
     return {
       rating: catalogReviewStats.average,
-      label: `${catalogReviewStats.total} ${t('productReviewsCount')}`,
-    };
+      label: `${catalogReviewStats.total} ${t('productReviewsCount')}`};
   }
   return { rating: 0, label: '' };
 }

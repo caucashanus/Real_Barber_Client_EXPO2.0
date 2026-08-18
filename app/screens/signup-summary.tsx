@@ -3,7 +3,7 @@ import { Image } from 'expo-image';
 import { Stack, router } from 'expo-router';
 import LottieView from 'lottie-react-native';
 import React, { useEffect } from 'react';
-import { View, ActivityIndicator, useWindowDimensions } from 'react-native';
+import { View, useWindowDimensions } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { useAuth } from '@/contexts/AuthContext';
@@ -12,6 +12,7 @@ import { useTranslation } from '@/hooks/useTranslation';
 import AppButton from '@/components/AppButton';
 import Icon from '@/components/Icon';
 import ThemedText from '@/components/ThemedText';
+import SiteLoadingState from '@/components/SiteLoadingState';
 
 const REGISTRATION_SUMMARY_LOTTIE = require('@/assets/lottie/registrationsummary.json');
 
@@ -29,8 +30,8 @@ export default function SignupSummaryScreen() {
 
   if (isLoading || !client) {
     return (
-      <View className="flex-1 items-center justify-center bg-light-primary dark:bg-dark-primary">
-        <ActivityIndicator />
+      <View className="flex-1 bg-light-primary dark:bg-dark-primary">
+        <SiteLoadingState layout="page" />
       </View>
     );
   }
@@ -46,8 +47,7 @@ export default function SignupSummaryScreen() {
         options={{
           headerShown: false,
           gestureEnabled: false,
-          animation: 'fade',
-        }}
+          animation: 'fade'}}
       />
       <SafeAreaView className="flex-1 bg-light-primary dark:bg-dark-primary">
         <View className="flex-1">

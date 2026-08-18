@@ -2,7 +2,7 @@ import { useFocusEffect } from "expo-router/react-navigation";
 import { Image } from 'expo-image';
 import { router } from 'expo-router';
 import React, { useCallback, useContext, useState } from 'react';
-import { View, Pressable, Animated, ActivityIndicator } from 'react-native';
+import { View, Pressable, Animated } from 'react-native';
 
 import { ScrollContext } from './_layout';
 
@@ -13,6 +13,7 @@ import Favorite from '@/components/Favorite';
 import ThemeScroller from '@/components/ThemeScroller';
 import ThemedText from '@/components/ThemedText';
 import SurfaceCard from '@/components/layout/SurfaceCard';
+import SiteLoadingSpinner from '@/components/SiteLoadingSpinner';
 
 function formatAddedAt(iso: string): string {
   const d = new Date(iso);
@@ -89,13 +90,12 @@ const GuidesScreen = () => {
   return (
     <ThemeScroller
       onScroll={Animated.event([{ nativeEvent: { contentOffset: { y: scrollY } } }], {
-        useNativeDriver: false,
-      })}
+        useNativeDriver: false})}
       scrollEventThrottle={16}>
       <AnimatedView animation="scaleIn" className="mt-4 flex-1">
         {loading ? (
           <View className="items-center py-12">
-            <ActivityIndicator size="large" />
+            <SiteLoadingSpinner />
             <ThemedText className="mt-2 text-light-subtext dark:text-dark-subtext">
               {t('guidesLoading')}
             </ThemedText>

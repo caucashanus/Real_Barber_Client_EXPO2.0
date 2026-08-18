@@ -6,11 +6,9 @@ import {
   ScrollView,
   KeyboardAvoidingView,
   Platform,
-  ActivityIndicator,
   Alert,
   Keyboard,
-  TouchableOpacity,
-} from 'react-native';
+  TouchableOpacity} from 'react-native';
 import { ActionSheetRef } from 'react-native-actions-sheet';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -18,14 +16,12 @@ import {
   getRbCoinsBalance,
   getRbCoinsHistory,
   rbCoinsTransfer,
-  type RbCoinsHistoryItem,
-} from '@/api/rb-coins';
+  type RbCoinsHistoryItem} from '@/api/rb-coins';
 import { useAuth } from '@/contexts/AuthContext';
 import useThemeColors from '@/contexts/ThemeColors';
 import {
   useTransferRecipient,
-  useSetTransferRecipient,
-} from '@/contexts/TransferRecipientContext';
+  useSetTransferRecipient} from '@/contexts/TransferRecipientContext';
 import { useTranslation } from '@/hooks/useTranslation';
 import ActionSheetThemed from '@/components/ActionSheetThemed';
 import Avatar from '@/components/Avatar';
@@ -35,6 +31,7 @@ import Icon from '@/components/Icon';
 import ThemedText from '@/components/ThemedText';
 import { barberDetailHref } from '@/constants/profileDetailRoutes';
 import type { TranslationKey } from '@/locales';
+import SiteLoadingSpinner from '@/components/SiteLoadingSpinner';
 
 function formatBalance(value: number): string {
   return value.toLocaleString('cs-CZ', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
@@ -154,8 +151,7 @@ export default function TransferChatScreen() {
         amount,
         receiverId: id,
         receiverType,
-        description: sendNote.trim() || undefined,
-      });
+        description: sendNote.trim() || undefined});
       setSendAmount('');
       setSendNote('');
       await loadData();
@@ -212,7 +208,7 @@ export default function TransferChatScreen() {
           keyboardShouldPersistTaps="handled">
           {loading ? (
             <View className="items-center py-12">
-              <ActivityIndicator size="small" />
+              <SiteLoadingSpinner size="compact" />
               <ThemedText className="mt-2 text-sm text-light-subtext dark:text-dark-subtext">
                 {t('commonLoading')}
               </ThemedText>
@@ -300,8 +296,7 @@ export default function TransferChatScreen() {
             gestureEnabled
             containerStyle={{
               borderTopLeftRadius: 20,
-              borderTopRightRadius: 20,
-            }}>
+              borderTopRightRadius: 20}}>
             <View className="p-4">
               <TouchableOpacity
                 className="flex-row items-center py-4"

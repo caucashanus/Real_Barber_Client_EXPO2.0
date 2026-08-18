@@ -4,11 +4,9 @@ import React, { useCallback, useEffect, useState, useRef } from 'react';
 import {
   View,
   TouchableOpacity,
-  ActivityIndicator,
   Animated,
   Pressable,
-  RefreshControl,
-} from 'react-native';
+  RefreshControl} from 'react-native';
 
 import type { Booking } from '@/api/bookings';
 import { useAccentColor } from '@/contexts/AccentColorContext';
@@ -33,17 +31,16 @@ import {
   getBookingUiStatusTranslationKey,
   isBookingCurrent,
   isBookingPast,
-  isBookingUpcoming,
-} from '@/utils/bookingHelpers';
+  isBookingUpcoming} from '@/utils/bookingHelpers';
 import {
   countClientBookingsByFilter,
   filterClientBookings,
   normalizeClientBookingFilter,
-  type ClientBookingFilter,
-} from '@/utils/clientBookingsFilter';
+  type ClientBookingFilter} from '@/utils/clientBookingsFilter';
 import { isReservationIntroCooldownActive } from '@/utils/reservation-intro-cooldown';
 import { shadowPresets } from '@/utils/useShadow';
 import { intlLocaleTag } from '@/utils/intlLocaleTag';
+import SiteLoadingSpinner from '@/components/SiteLoadingSpinner';
 
 function formatBookingDate(b: Booking, locale: string = 'en'): string {
   const d = new Date(b.date);
@@ -175,8 +172,7 @@ const TripsScreen = () => {
     bookings,
     loading,
     refresh: refreshBookings,
-    refreshIfStale: refreshBookingsIfStale,
-  } = useBookings();
+    refreshIfStale: refreshBookingsIfStale} = useBookings();
   const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [selectedFilter, setSelectedFilter] = useState<ClientBookingFilter>('all');
@@ -212,8 +208,7 @@ const TripsScreen = () => {
   );
 
   const byYear = groupBookingsByYear(filteredBookings, {
-    upcomingFirst: activeFilter === 'all' || activeFilter === 'without_cancelled',
-  });
+    upcomingFirst: activeFilter === 'all' || activeFilter === 'without_cancelled'});
   const years = Object.keys(byYear).sort((a, b) => Number(b) - Number(a));
 
   const handleNewBooking = useCallback(async () => {
@@ -241,7 +236,7 @@ const TripsScreen = () => {
       <AnimatedView animation="scaleIn" className="flex-1">
         {loading ? (
           <View className="flex-1 items-center justify-center py-12">
-            <ActivityIndicator size="large" />
+            <SiteLoadingSpinner />
             <ThemedText className="mt-2 text-light-subtext dark:text-dark-subtext">
               {t('tripsLoading')}
             </ThemedText>

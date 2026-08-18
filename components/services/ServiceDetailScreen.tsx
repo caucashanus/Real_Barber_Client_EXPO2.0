@@ -2,12 +2,10 @@ import { useLocalSearchParams } from 'expo-router';
 import { useFocusEffect } from "expo-router/react-navigation";
 import React, { useCallback, useContext, useMemo, useRef } from 'react';
 import {
-  ActivityIndicator,
   Animated,
   ScrollView,
   View,
-  useWindowDimensions,
-} from 'react-native';
+  useWindowDimensions} from 'react-native';
 
 import { ScrollContext } from '@/app/(tabs)/(home)/_layout';
 import { useServiceDetailScreen } from '@/hooks/useServiceDetailScreen';
@@ -25,6 +23,7 @@ import { BARBER_DETAIL_SECTION_SPACING } from '@/constants/barberDetailLayout';
 import { serviceBreadcrumbItems } from '@/utils/breadcrumbs';
 import { startHairstyleSlotHandoffBooking } from '@/utils/hairstyleSlotHandoff';
 import { buildServiceBookingHref } from '@/utils/serviceDetailHelpers';
+import SiteLoadingState from '@/components/SiteLoadingState';
 
 export default function ServiceDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -59,8 +58,7 @@ export default function ServiceDetailScreen() {
       title: detail?.title ?? '',
       emailSubject: detail?.title ?? '',
       emailBody: detail?.webUrl ?? '',
-      shareUrl: detail?.webUrl ?? '',
-    }),
+      shareUrl: detail?.webUrl ?? ''}),
     [detail]
   );
 
@@ -71,9 +69,7 @@ export default function ServiceDetailScreen() {
 
   if (loading) {
     return (
-      <View className="flex-1 items-center justify-center bg-light-primary dark:bg-dark-primary">
-        <ActivityIndicator size="large" />
-      </View>
+      <SiteLoadingState layout="section" />
     );
   }
 
@@ -99,8 +95,7 @@ export default function ServiceDetailScreen() {
           ref={scrollRef}
           className="px-0"
           onScroll={Animated.event([{ nativeEvent: { contentOffset: { y: scrollY } } }], {
-            useNativeDriver: false,
-          })}
+            useNativeDriver: false})}
           scrollEventThrottle={16}>
           <View className={isMobileHeader ? 'mt-4 px-global pb-8' : 'p-global pb-8'}>
             <SiteBreadcrumbs
@@ -148,8 +143,7 @@ export default function ServiceDetailScreen() {
                   void startHairstyleSlotHandoffBooking({
                     serviceId: detail.id,
                     serviceName: detail.title,
-                    slot,
-                  }).catch(() => {});
+                    slot}).catch(() => {});
                 }}
               />
             ) : null}

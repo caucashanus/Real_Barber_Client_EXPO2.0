@@ -1,10 +1,13 @@
 import React from 'react';
 import { View } from 'react-native';
 
+import BookingHoldSummaryRow, {
+  shouldShowBookingHoldSummaryRow,
+} from '@/components/booking/engine/BookingHoldSummaryRow';
+import BookingSummaryBranchSection from '@/components/booking/engine/BookingSummaryBranchSection';
 import { formatResolvedBookingPriceLabel } from '@/lib/booking/designShared';
 import type { BookingEngineFlow } from '@/hooks/useBookingEngineFlow';
 import Icon from '@/components/Icon';
-import BranchAddress from '@/components/shared/BranchAddress';
 import ThemedText from '@/components/ThemedText';
 import { formatBookingSummaryDatetimeLabel } from '@/utils/reservationCreateHelpers';
 
@@ -83,43 +86,37 @@ export default function BookingContactSummaryPanel({
       : []),
   ];
 
-  const branchBlock = plain ? (
-    <View>
-      <ThemedText className="text-sm font-semibold">{t('bookingProgressBranch')}</ThemedText>
-      <ThemedText className="mt-1 text-sm">{branchName}</ThemedText>
-      <BranchAddress address={branchAddress} className="mt-1" />
-    </View>
-  ) : (
-    <View className="flex-row items-start gap-3">
-      <Icon name="MapPin" size={16} className="mt-0.5 text-light-subtext dark:text-dark-subtext" />
-      <View className="min-w-0 flex-1">
-        <ThemedText className="text-sm">{branchName}</ThemedText>
-        <BranchAddress address={branchAddress} className="mt-1" />
-      </View>
-    </View>
-  );
+  const renderRow = (row: SummaryRow, index: number, hasHoldAbove = false) => {
+    const topClass =
+      index > 0 || hasHoldAbove ? (plain ? 'mt-4' : 'mt-3') : undefined;
 
-  const renderRow = (row: SummaryRow, index: number) =>
-    plain ? (
-      <View key={row.titleKey} className={index > 0 ? 'mt-4' : undefined}>
+    return plain ? (
+      <View key={row.titleKey} className={topClass}>
         <ThemedText className="text-sm font-semibold">{t(row.titleKey)}</ThemedText>
         <ThemedText className="mt-1 text-sm text-light-subtext dark:text-dark-subtext">
           {row.label}
         </ThemedText>
       </View>
     ) : (
-      <View
-        key={row.titleKey}
-        className={`flex-row items-start gap-3 ${index > 0 ? 'mt-3' : ''}`}>
+      <View key={row.titleKey} className={`flex-row items-start gap-3 ${topClass ?? ''}`}>
         <Icon name={row.icon} size={16} className="mt-0.5 text-light-subtext dark:text-dark-subtext" />
         <ThemedText className="flex-1 text-sm">{row.label}</ThemedText>
       </View>
     );
+  };
+
+  const holdVisible = shouldShowBookingHoldSummaryRow(flow);
 
   return (
     <View className={plain ? undefined : 'rounded-2xl border border-light-secondary bg-light-secondary p-4 dark:border-dark-secondary dark:bg-dark-secondary'}>
-      {renderRow(rows[0], 0)}
-      <View className={plain ? 'mt-4' : 'mt-3'}>{branchBlock}</View>
+      <BookingHoldSummaryRow flow={flow} plain={plain} />
+      {renderRow(rows[0], 0, holdVisible)}
+      <BookingSummaryBranchSection
+        branchName={branchName}
+        branchAddress={branchAddress}
+        topClassName={plain ? 'mt-4' : 'mt-3'}
+        valueClassName={plain ? 'mt-1 text-sm font-semibold' : 'mt-1 text-sm font-semibold'}
+      />
       {rows.slice(1).map((row, index) => renderRow(row, index + 1))}
     </View>
   );

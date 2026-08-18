@@ -1,5 +1,5 @@
 import React from 'react';
-import { ActivityIndicator, View } from 'react-native';
+import { View } from 'react-native';
 
 import CustomCard from '@/components/CustomCard';
 import SlotTimePill from '@/components/SlotTimePill';
@@ -10,10 +10,10 @@ import type { TranslationKey } from '@/locales';
 import {
   groupNearestBranchHomeSlotsByBranch,
   groupNearestBranchSlots,
-  type NearestBranchHomeSlot,
-} from '@/utils/nearestBranchHomeSlots';
+  type NearestBranchHomeSlot} from '@/utils/nearestBranchHomeSlots';
 import { formatNextSlotDisplayTime } from '@/utils/reservationCreateHelpers';
 import { startBarberSlotHandoffBooking } from '@/utils/reservationSlotHandoff';
+import SiteLoadingSpinner from '@/components/SiteLoadingSpinner';
 
 interface BranchHomeSlotsSectionProps {
   slotGroups: { dayLabel: string; slots: NearestBranchHomeSlot[] }[];
@@ -38,8 +38,7 @@ export default function BranchHomeSlotsSection({
   locale = 'cs',
   todayIso,
   groupByBranch = false,
-  onSlotPress,
-}: BranchHomeSlotsSectionProps) {
+  onSlotPress}: BranchHomeSlotsSectionProps) {
   if (loading) {
     return (
       <CustomCard
@@ -49,7 +48,7 @@ export default function BranchHomeSlotsSection({
         background={false}
         className={cardClassName}>
         <View className="items-start py-2">
-          <ActivityIndicator size="small" />
+          <SiteLoadingSpinner size="compact" />
         </View>
       </CustomCard>
     );
@@ -74,8 +73,7 @@ export default function BranchHomeSlotsSection({
       branchAddress: slot.branchAddress,
       date: slot.date,
       slotStart: slot.time,
-      slotEnd: slot.endTime || undefined,
-    }).catch(() => {});
+      slotEnd: slot.endTime || undefined}).catch(() => {});
   };
 
   const renderDayGroups = (slots: NearestBranchHomeSlot[]) =>

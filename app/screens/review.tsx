@@ -3,7 +3,7 @@ import * as Haptics from 'expo-haptics';
 import { Image } from 'expo-image';
 import { router, useLocalSearchParams } from 'expo-router';
 import React, { useState, useEffect } from 'react';
-import { View, TouchableOpacity, Alert, ActivityIndicator } from 'react-native';
+import { View, TouchableOpacity, Alert } from 'react-native';
 
 import { createReview, getEntityReviews, getEntityReviewsForService, updateReview, deleteReview } from '@/api/reviews';
 import { useAuth } from '@/contexts/AuthContext';
@@ -19,11 +19,11 @@ import Input from '@/components/forms/Input';
 import Switch from '@/components/forms/Switch';
 import { formatReservationReviewSubtitle } from '@/utils/bookingDetailHelpers';
 import { triggerImpact } from '@/utils/appHaptics';
+import SiteLoadingSpinner from '@/components/SiteLoadingSpinner';
 
 const StarRating = ({
   rating,
-  setRating,
-}: {
+  setRating}: {
   rating: number;
   setRating: (rating: number) => void;
 }) => {
@@ -76,8 +76,7 @@ const ReviewScreen = () => {
     presetRating,
     entityDate,
     entityTime,
-    entityBranch,
-  } = useLocalSearchParams<{
+    entityBranch} = useLocalSearchParams<{
     entityType?: string;
     entityId?: string;
     entityName?: string;
@@ -154,16 +153,14 @@ const ReviewScreen = () => {
         await updateReview(apiToken, existingReviewId, {
           rating,
           description: review.trim(),
-          isAnonymous: allowAnonymous ? isAnonymous : false,
-        });
+          isAnonymous: allowAnonymous ? isAnonymous : false});
       } else if (entityType && entityId) {
         await createReview(apiToken, {
           entityType: entityType as 'branch' | 'reservation' | 'item' | 'sale_log' | 'employee' | 'service',
           entityId: decodeURIComponent(entityId),
           rating,
           description: review.trim(),
-          isAnonymous: allowAnonymous ? isAnonymous : false,
-        });
+          isAnonymous: allowAnonymous ? isAnonymous : false});
       }
       router.back();
     } catch (e) {
@@ -190,8 +187,7 @@ const ReviewScreen = () => {
           } finally {
             setDeleting(false);
           }
-        },
-      },
+        }},
     ]);
   };
 
@@ -211,7 +207,7 @@ const ReviewScreen = () => {
       <ThemedScroller className="flex-1 pt-8" keyboardShouldPersistTaps="handled">
         {loadingExisting ? (
           <View className="items-center py-12">
-            <ActivityIndicator size="large" />
+            <SiteLoadingSpinner />
             <ThemedText className="mt-3 text-sm text-light-subtext dark:text-dark-subtext">
               {t('commonLoading')}
             </ThemedText>
@@ -253,8 +249,7 @@ const ReviewScreen = () => {
               isMultiline
               style={{
                 textAlignVertical: 'top',
-                height: 120,
-              }}
+                height: 120}}
               value={review}
               onChangeText={setReview}
             />

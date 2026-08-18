@@ -1,6 +1,6 @@
 import { useFocusEffect } from "expo-router/react-navigation";
 import React, { useCallback, useRef, useState } from 'react';
-import { View, ActivityIndicator, useWindowDimensions } from 'react-native';
+import { View, useWindowDimensions } from 'react-native';
 
 import { getFavorites, type Favorite } from '@/api/favorites';
 import { useAuth } from '@/contexts/AuthContext';
@@ -18,10 +18,10 @@ import Grid from '@/components/layout/Grid';
 import {
   countClientFavoritesByFilter,
   filterClientFavorites,
-  type ClientFavoriteFilter,
-} from '@/utils/clientFavoritesFilter';
+  type ClientFavoriteFilter} from '@/utils/clientFavoritesFilter';
 import { barberDetailHref, branchDetailHref, serviceDetailHref } from '@/constants/profileDetailRoutes';
 import { shouldStaleRefresh } from '@/utils/staleRefresh';
+import SiteLoadingSpinner from '@/components/SiteLoadingSpinner';
 
 const DESKTOP_BREAKPOINT = 768;
 const GRID_GAP = 16;
@@ -198,7 +198,7 @@ const FavoritesScreen = () => {
           className="px-global pt-4">
           {loading ? (
             <View className="items-center py-12">
-              <ActivityIndicator size="large" />
+              <SiteLoadingSpinner />
               <ThemedText className="mt-2 text-light-subtext dark:text-dark-subtext">
                 Loading…
               </ThemedText>

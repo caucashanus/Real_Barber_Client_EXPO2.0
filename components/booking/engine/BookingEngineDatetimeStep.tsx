@@ -1,12 +1,11 @@
 import React, { useMemo, useRef } from 'react';
-import { ActivityIndicator, Pressable, View } from 'react-native';
+import { Pressable, View } from 'react-native';
 import type { ActionSheetRef } from 'react-native-actions-sheet';
 
 import type { BookingEngineFlow } from '@/hooks/useBookingEngineFlow';
 import AppButton from '@/components/AppButton';
 import HomeTodayTeamWaitlistSheet, {
-  type HomeTodayTeamWaitlistSheetHandle,
-} from '@/components/home/HomeTodayTeamWaitlistSheet';
+  type HomeTodayTeamWaitlistSheetHandle} from '@/components/home/HomeTodayTeamWaitlistSheet';
 import Icon from '@/components/Icon';
 import { OperatorSupportSheet } from '@/components/OperatorSupportSheet';
 import SlotTimePill from '@/components/SlotTimePill';
@@ -17,8 +16,7 @@ import { resolveBranchName } from '@/lib/booking/designShared';
 import {
   formatBookingCalendarLongDate,
   formatNextSlotDisplayTime,
-  isBookingSlotSelected,
-} from '@/utils/reservationCreateHelpers';
+  isBookingSlotSelected} from '@/utils/reservationCreateHelpers';
 
 interface Props {
   flow: BookingEngineFlow;
@@ -45,8 +43,7 @@ function groupSlotsByDayPart(slots: BookingFlatSlot[]) {
 function SlotGroup({
   title,
   slots,
-  flow,
-}: {
+  flow}: {
   title: string;
   slots: Array<BookingFlatSlot & { branchId?: string }>;
   flow: BookingEngineFlow;
@@ -82,8 +79,7 @@ function SlotGroup({
                   end: slot.end,
                   branchId: slot.branchId,
                   branchName,
-                  employeeId: slot.employeeId,
-                })
+                  employeeId: slot.employeeId})
               }
             />
           );
@@ -96,8 +92,7 @@ function SlotGroup({
 function CalendarDayPill({
   day,
   selected,
-  onPress,
-}: {
+  onPress}: {
   day: { value: string; label: string; available: boolean; isToday: boolean };
   selected: boolean;
   onPress: () => void;
@@ -158,8 +153,6 @@ export default function BookingEngineDatetimeStep({ flow }: Props) {
         </Pressable>
       </View>
 
-      {flow.loadingCalendar ? <ActivityIndicator size="small" className="py-4" /> : null}
-
       <View className="flex-row flex-wrap items-start self-start">
         {flow.monthCalendarDays.map((day) => (
           <CalendarDayPill
@@ -197,8 +190,7 @@ export default function BookingEngineDatetimeStep({ flow }: Props) {
               {flow.nearestAvailableDateLabel ? (
                 <AppButton
                   title={interpolate(t('bookingDatetimeGoToDay'), {
-                    day: flow.nearestAvailableDateLabel,
-                  })}
+                    day: flow.nearestAvailableDateLabel})}
                   variant="outline"
                   size="sm"
                   rounded="full"
@@ -231,8 +223,7 @@ export default function BookingEngineDatetimeStep({ flow }: Props) {
                         employeeId: activeEmployee.id,
                         employeeName: employeeName ?? activeEmployee.id,
                         branchLabel: flow.selectedBranch?.name ?? flow.selectedBranch?.displayName,
-                        dayIso: flow.selectedDate ?? undefined,
-                      })
+                        dayIso: flow.selectedDate ?? undefined})
                     }
                   />
                 ) : null}

@@ -1,7 +1,7 @@
 import * as Location from 'expo-location';
 import { router, useLocalSearchParams } from 'expo-router';
 import React, { useRef, useEffect, useState, useMemo, useCallback } from 'react';
-import { View, Text, Pressable, ActivityIndicator, Platform, Linking } from 'react-native';
+import { View, Text, Pressable, Platform, Linking } from 'react-native';
 import ActionSheet, { ActionSheetRef, FlatList } from 'react-native-actions-sheet';
 import MapView, { Callout, Marker } from 'react-native-maps';
 
@@ -28,6 +28,7 @@ import { branchDetailHref } from '@/constants/profileDetailRoutes';
 import { getBranchServicesList, getMediaUrlsSorted } from '@/utils/branchMediaHelpers';
 import { buildMinimalBranchTravel, fetchBranchTravelInfo } from '@/utils/branchTravelHelpers';
 import type { NearestApiBranch } from '@/lib/branches/postNearestBranches';
+import SiteLoadingSpinner from '@/components/SiteLoadingSpinner';
 
 const CENTRAL_WAREHOUSE_TEL = '+420774522114';
 
@@ -38,8 +39,7 @@ const BRANCH_COORDINATES: Record<string, { lat: number; lng: number }> = {
   Kačerov: { lat: 50.04219531986807, lng: 14.459689653073983 },
   Hagibor: { lat: 50.07850819920388, lng: 14.48365959725635 },
   Modřany: { lat: 50.00477408096832, lng: 14.416534741433177 },
-  Barrandov: { lat: 50.030533187365194, lng: 14.361240910745531 },
-};
+  Barrandov: { lat: 50.030533187365194, lng: 14.361240910745531 }};
 
 function branchImages(branch: Branch): string[] {
   const urls = getMediaUrlsSorted(branch.media);
@@ -86,8 +86,7 @@ function branchToMapItem(branch: Branch, index: number): MapBranchItem {
     image:
       images.length > 0
         ? images
-        : ['https://images.unsplash.com/photo-1521590832167-7bcbfaa6381f?w=400'],
-  };
+        : ['https://images.unsplash.com/photo-1521590832167-7bcbfaa6381f?w=400']};
 }
 
 function passesFilter(branchTitle: string, filter: BranchFilterState): boolean {
@@ -197,8 +196,7 @@ const MapScreen = () => {
               latitude,
               longitude,
               latitudeDelta: 0.05,
-              longitudeDelta: 0.05,
-            },
+              longitudeDelta: 0.05},
             500
           );
         });
@@ -262,8 +260,7 @@ const MapScreen = () => {
             latitude: PRAGUE_CENTER.lat - 0.055,
             longitude: PRAGUE_CENTER.lng - 0.015,
             latitudeDelta: 0.28,
-            longitudeDelta: 0.28,
-          }}>
+            longitudeDelta: 0.28}}>
           {branches.map((branch) => (
             <PriceMarker
               key={branch.id}
@@ -338,8 +335,7 @@ const MapScreen = () => {
           containerStyle={{
             borderTopLeftRadius: 20,
             borderTopRightRadius: 20,
-            backgroundColor: colors.bg,
-          }}>
+            backgroundColor: colors.bg}}>
           <FlatList
             className="px-2"
             data={branches}
@@ -348,7 +344,7 @@ const MapScreen = () => {
             ListEmptyComponent={
               loading ? (
                 <View className="items-center py-12">
-                  <ActivityIndicator size="large" />
+                  <SiteLoadingSpinner />
                   <ThemedText className="mt-3 text-light-subtext dark:text-dark-subtext">
                     {t('mapLoadingBranches')}
                   </ThemedText>

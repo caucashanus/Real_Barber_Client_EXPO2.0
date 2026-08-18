@@ -1,15 +1,14 @@
 import { Image } from 'expo-image';
 import { useLocalSearchParams, router } from 'expo-router';
 import React, { useEffect, useMemo, useState } from 'react';
-import { View, ScrollView, ActivityIndicator, Dimensions, Pressable } from 'react-native';
+import { View, ScrollView, Dimensions, Pressable } from 'react-native';
 
 import {
   getCachedGuide,
   getCachedGuidesList,
   getClientGuides,
   type ClientGuide,
-  type GuideMedia,
-} from '@/api/guides';
+  type GuideMedia} from '@/api/guides';
 import { useTranslation } from '@/hooks/useTranslation';
 import Favorite from '@/components/Favorite';
 import Header from '@/components/Header';
@@ -19,6 +18,7 @@ import ThemedText from '@/components/ThemedText';
 import SiteBreadcrumbs from '@/components/shared/SiteBreadcrumbs';
 import VideoPlayer from '@/components/VideoPlayer';
 import { blogBreadcrumbItems } from '@/utils/breadcrumbs';
+import SiteLoadingSpinner from '@/components/SiteLoadingSpinner';
 
 const screenWidth = Dimensions.get('window').width;
 
@@ -71,8 +71,7 @@ function MediaItem({ item }: { item: GuideMedia }) {
         onPress={() =>
           router.push({
             pathname: '/screens/in-app-web',
-            params: { url: encodeURIComponent(file.url) },
-          })
+            params: { url: encodeURIComponent(file.url) }})
         }
         className="mr-3 flex-row items-center justify-center rounded-xl bg-light-secondary p-4 dark:bg-dark-secondary"
         style={{ width: screenWidth * 0.6, minHeight: 80 }}>
@@ -146,7 +145,7 @@ export default function GuideDetailScreen() {
       <>
         <Header title="" showBackButton />
         <View className="flex-1 items-center justify-center bg-light-primary dark:bg-dark-primary">
-          <ActivityIndicator size="large" />
+          <SiteLoadingSpinner />
           <ThemedText className="mt-2 text-light-subtext dark:text-dark-subtext">
             Loading…
           </ThemedText>

@@ -1,6 +1,6 @@
 import { useRouter } from 'expo-router';
 import React, { useEffect, useState, useRef } from 'react';
-import { View, ActivityIndicator, TextInput, Pressable } from 'react-native';
+import { View, TextInput, Pressable } from 'react-native';
 import { ActionSheetRef } from 'react-native-actions-sheet';
 
 import { searchClients } from '@/api/clients';
@@ -9,8 +9,7 @@ import {
   getRbCoinsBalance,
   getRbCoinsHistory,
   type RbCoinsHistoryItem,
-  type RbCoinsHistoryItemOtherParty,
-} from '@/api/rb-coins';
+  type RbCoinsHistoryItemOtherParty} from '@/api/rb-coins';
 import { useAuth } from '@/contexts/AuthContext';
 import { useSetTransferRecipient } from '@/contexts/TransferRecipientContext';
 import { useTranslation } from '@/hooks/useTranslation';
@@ -24,12 +23,12 @@ import ThemedText from '@/components/ThemedText';
 import { List } from '@/components/layout/List';
 import ListItem from '@/components/layout/ListItem';
 import Section from '@/components/layout/Section';
+import SiteLoadingSpinner from '@/components/SiteLoadingSpinner';
 import SurfaceCard from '@/components/layout/SurfaceCard';
 import {
   normalizePhoneDigitsForLookup,
   isCompleteCzPhoneForClientLookup,
-  toClientSearchPhoneQuery,
-} from '@/utils/clientPhoneSearch';
+  toClientSearchPhoneQuery} from '@/utils/clientPhoneSearch';
 
 function formatBalance(value: number): string {
   return value.toLocaleString('cs-CZ', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
@@ -66,8 +65,7 @@ function buildRecipientsFromHistory(
         type: op.type || 'CLIENT',
         avatarUrl: op.avatarUrl ?? undefined,
         lastTransaction: lastText,
-        lastTransactionDate: tx.createdAt,
-      };
+        lastTransactionDate: tx.createdAt};
     } else {
       const cur = byId[op.id];
       const curDate = cur.lastTransactionDate ? new Date(cur.lastTransactionDate).getTime() : 0;
@@ -100,8 +98,7 @@ function mergeEmployeesWithHistory(
     type: 'EMPLOYEE',
     avatarUrl: emp.avatarUrl ?? undefined,
     lastTransaction: historyById[emp.id]?.lastTransaction,
-    lastTransactionDate: historyById[emp.id]?.lastTransactionDate,
-  }));
+    lastTransactionDate: historyById[emp.id]?.lastTransactionDate}));
   const withRecent = merged.filter((r) => r.lastTransactionDate);
   const withoutRecent = merged.filter((r) => !r.lastTransactionDate);
   const sortByDate = (a: TransferRecipient, b: TransferRecipient) => {
@@ -216,8 +213,7 @@ export default function TransferSelectRecipientScreen() {
             name:
               c.name || c.displayName || [c.firstName, c.lastName].filter(Boolean).join(' ') || '?',
             type: 'CLIENT',
-            avatarUrl: c.avatarUrl ?? undefined,
-          }));
+            avatarUrl: c.avatarUrl ?? undefined}));
           setClientSearchResults(list);
         })
         .catch(() => setClientSearchResults([]))
@@ -244,16 +240,13 @@ export default function TransferSelectRecipientScreen() {
       id: r.id,
       name: r.name,
       type: recType,
-      avatarUrl: r.avatarUrl ?? undefined,
-    });
+      avatarUrl: r.avatarUrl ?? undefined});
     router.push({
       pathname: `/screens/transfer-chat/${r.id}`,
       params: {
         name: r.name,
         type: recType,
-        avatarUrl: r.avatarUrl ?? '',
-      },
-    });
+        avatarUrl: r.avatarUrl ?? ''}});
   };
 
   return (
@@ -296,7 +289,7 @@ export default function TransferSelectRecipientScreen() {
 
         {loading ? (
           <View className="items-center py-8">
-            <ActivityIndicator size="small" />
+            <SiteLoadingSpinner size="compact" />
             <ThemedText className="mt-2 text-sm text-light-subtext dark:text-dark-subtext">
               {t('commonLoading')}
             </ThemedText>

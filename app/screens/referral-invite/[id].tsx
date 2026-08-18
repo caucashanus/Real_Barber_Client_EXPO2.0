@@ -1,6 +1,6 @@
 import { useLocalSearchParams } from 'expo-router';
 import React, { useEffect, useMemo, useState } from 'react';
-import { View, ActivityIndicator, Animated } from 'react-native';
+import { View, Animated } from 'react-native';
 
 import { getReferrals, type ClientReferralItem } from '@/api/referrals';
 import { useAuth } from '@/contexts/AuthContext';
@@ -13,6 +13,7 @@ import ThemedScroller from '@/components/ThemeScroller';
 import ThemedText from '@/components/ThemedText';
 import Section from '@/components/layout/Section';
 import { intlLocaleTag } from '@/utils/intlLocaleTag';
+import SiteLoadingSpinner from '@/components/SiteLoadingSpinner';
 
 function safeText(v: unknown): string {
   if (v == null) return '—';
@@ -29,8 +30,7 @@ function formatDateTime(iso: string, locale: string): string {
       month: '2-digit',
       year: 'numeric',
       hour: '2-digit',
-      minute: '2-digit',
-    }).format(d);
+      minute: '2-digit'}).format(d);
   } catch {
     return d.toISOString();
   }
@@ -65,8 +65,7 @@ type ChecklistState = 'done' | 'current' | 'pending';
 function ChecklistRow({
   title,
   subtitle,
-  state,
-}: {
+  state}: {
   title: string;
   subtitle?: string | null;
   state: ChecklistState;
@@ -142,7 +141,7 @@ export default function ReferralInviteDetailScreen() {
       <>
         <Header title={t('referralInviteDetailTitle')} showBackButton />
         <View className="flex-1 items-center justify-center bg-light-primary dark:bg-dark-primary">
-          <ActivityIndicator size="large" />
+          <SiteLoadingSpinner />
           <ThemedText className="mt-2 text-light-subtext dark:text-dark-subtext">
             {t('commonLoading')}
           </ThemedText>
@@ -197,8 +196,7 @@ export default function ReferralInviteDetailScreen() {
         className="flex-1 px-0"
         keyboardShouldPersistTaps="handled"
         onScroll={Animated.event([{ nativeEvent: { contentOffset: { y: heroScrollY } } }], {
-          useNativeDriver: false,
-        })}
+          useNativeDriver: false})}
         scrollEventThrottle={16}>
         {/* Hero image */}
         <View className="px-global">

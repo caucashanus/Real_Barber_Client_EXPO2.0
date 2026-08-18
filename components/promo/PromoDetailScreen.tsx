@@ -3,12 +3,10 @@ import { useLocalSearchParams } from 'expo-router';
 import { useFocusEffect } from "expo-router/react-navigation";
 import React, { useCallback, useContext, useMemo, useRef } from 'react';
 import {
-  ActivityIndicator,
   Animated,
   ScrollView,
   View,
-  useWindowDimensions,
-} from 'react-native';
+  useWindowDimensions} from 'react-native';
 
 import { ScrollContext } from '@/app/(tabs)/(home)/_layout';
 import type { ClientCoupon } from '@/api/client-coupons';
@@ -28,9 +26,9 @@ import { useTranslation } from '@/hooks/useTranslation';
 import { promoBreadcrumbItems } from '@/utils/breadcrumbs';
 import {
   CONTENT_CAROUSEL_ASPECT_RATIO,
-  CONTENT_HORIZONTAL_PADDING,
-} from '@/utils/contentCarouselLayout';
+  CONTENT_HORIZONTAL_PADDING} from '@/utils/contentCarouselLayout';
 import { openPromoTargetUrl } from '@/utils/openPromoTargetUrl';
+import SiteLoadingState from '@/components/SiteLoadingState';
 
 function PromoHeroImage({ uri, width, height }: { uri: string; width: number; height: number }) {
   return (
@@ -76,9 +74,7 @@ export default function PromoDetailScreen() {
 
   if (loading) {
     return (
-      <View className="flex-1 items-center justify-center bg-light-primary dark:bg-dark-primary">
-        <ActivityIndicator size="large" />
-      </View>
+      <SiteLoadingState layout="section" />
     );
   }
 
@@ -207,8 +203,7 @@ export default function PromoDetailScreen() {
         ref={scrollRef}
         className="px-0"
         onScroll={Animated.event([{ nativeEvent: { contentOffset: { y: scrollY } } }], {
-          useNativeDriver: false,
-        })}
+          useNativeDriver: false})}
         scrollEventThrottle={16}>
         <View className={isMobileHeader ? 'mt-4 px-global pb-8' : 'p-global pb-8'}>
           <SiteBreadcrumbs items={breadcrumbItems} accessibilityLabel={t('breadcrumbNavLabel')} />

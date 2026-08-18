@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useMemo, useState } from 'react';
-import { ActivityIndicator, Animated, View } from 'react-native';
+import { Animated, View } from 'react-native';
 import { router } from 'expo-router';
 
 import { ScrollContext } from './_layout';
@@ -14,27 +14,25 @@ import SlotTimePill from '@/components/SlotTimePill';
 import ThemeScroller from '@/components/ThemeScroller';
 import ThemedText from '@/components/ThemedText';
 import Section from '@/components/layout/Section';
+import SiteLoadingState from '@/components/SiteLoadingState';
 import type { TranslationKey } from '@/locales';
 import {
   getHaircutCarouselItems,
   getSupplementaryServiceGridItems,
   mapPublicServiceToGridItem,
-  sortMainServices,
-} from '@/utils/publicServicesPageHelpers';
+  sortMainServices} from '@/utils/publicServicesPageHelpers';
 
 const EMPTY_PAGE: PublicServicesPageResponse = {
   mainServices: [],
   barveniServices: [],
-  balickyServices: [],
-};
+  balickyServices: []};
 
 function ServicesSectionIntroCard({
   t,
   titleKey,
   bodyKey,
   actionTitleKey,
-  actionHref,
-}: {
+  actionHref}: {
   t: ReturnType<typeof useTranslation>['t'];
   titleKey: TranslationKey;
   bodyKey: TranslationKey;
@@ -105,7 +103,7 @@ const ServicesScreen = () => {
   if (loading) {
     return (
       <View className="mt-4 flex-1 items-center justify-center py-16">
-        <ActivityIndicator size="large" />
+        <SiteLoadingSpinner />
         <ThemedText className="mt-4 text-light-subtext dark:text-dark-subtext">
           {t('commonLoading')}
         </ThemedText>
@@ -116,8 +114,7 @@ const ServicesScreen = () => {
   return (
     <ThemeScroller
       onScroll={Animated.event([{ nativeEvent: { contentOffset: { y: scrollY } } }], {
-        useNativeDriver: false,
-      })}
+        useNativeDriver: false})}
       scrollEventThrottle={16}>
       <AnimatedView animation="scaleIn" className="mt-4 flex-1">
         {error ? (

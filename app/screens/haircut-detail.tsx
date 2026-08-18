@@ -5,13 +5,11 @@ import { useLocalSearchParams, router } from 'expo-router';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   View,
-  ActivityIndicator,
   Alert,
   Animated,
   TouchableOpacity,
   ScrollView,
-  Pressable,
-} from 'react-native';
+  Pressable} from 'react-native';
 
 import { deleteClientMedia, uploadClientMedia } from '@/api/client';
 import { getClientCut, patchClientCut, deleteClientCut, type ClientCut } from '@/api/cuts';
@@ -35,6 +33,7 @@ import ThemedScroller from '@/components/ThemeScroller';
 import ThemedText from '@/components/ThemedText';
 import Input from '@/components/forms/Input';
 import Section from '@/components/layout/Section';
+import SiteLoadingSpinner from '@/components/SiteLoadingSpinner';
 
 const PLACEHOLDER_IMAGE = require('@/assets/img/barbers.png');
 /** Stejný limit jako ve wizardu `haircut-create`. */
@@ -49,13 +48,10 @@ function formatCutCreatedAtParts(iso: string | undefined): { date: string; time:
       date: d.toLocaleDateString(undefined, {
         year: 'numeric',
         month: 'short',
-        day: 'numeric',
-      }),
+        day: 'numeric'}),
       time: d.toLocaleTimeString(undefined, {
         hour: '2-digit',
-        minute: '2-digit',
-      }),
-    };
+        minute: '2-digit'})};
   } catch {
     return { date: '—', time: '—' };
   }
@@ -144,8 +140,7 @@ export default function HaircutDetailScreen() {
       return {
         hairstyle: '',
         note: null as string | null,
-        barber_id: null as string | null,
-      };
+        barber_id: null as string | null};
     }
     const hairstyle = (editing ? draftHairstyle : cut.hairstyle).trim();
     const noteRaw = editing ? draftNote : (cut.note ?? '');
@@ -153,8 +148,7 @@ export default function HaircutDetailScreen() {
     return {
       hairstyle,
       note: noteRaw.trim() || null,
-      barber_id: barberRaw.trim() || null,
-    };
+      barber_id: barberRaw.trim() || null};
   }, [cut, editing, draftHairstyle, draftNote, draftBarberId]);
 
   const appendPhotosFromAssets = useCallback(
@@ -177,16 +171,14 @@ export default function HaircutDetailScreen() {
             name: asset.fileName ?? undefined,
             mimeType: asset.mimeType ?? undefined,
             title: label,
-            alt: label,
-          });
+            alt: label});
           mediaIds.push(uploaded.id);
         }
         const updated = await patchClientCut(apiToken, id, {
           hairstyle: pf.hairstyle,
           note: pf.note,
           barber_id: pf.barber_id,
-          photos: mediaIds,
-        });
+          photos: mediaIds});
         setCut(updated);
       } catch (e) {
         Alert.alert('', e instanceof Error ? e.message : t('haircutDetailPhotoUploadFailed'));
@@ -226,8 +218,7 @@ export default function HaircutDetailScreen() {
       allowsEditing: false,
       allowsMultipleSelection: true,
       selectionLimit: MAX_CUT_PHOTOS - cut.photos.length,
-      quality: 0.85,
-    });
+      quality: 0.85});
     if (!result.canceled && result.assets.length) {
       await appendPhotosFromAssets(result.assets);
     }
@@ -239,8 +230,7 @@ export default function HaircutDetailScreen() {
     if (status !== 'granted') return;
     const result = await ImagePicker.launchCameraAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
-      quality: 0.85,
-    });
+      quality: 0.85});
     if (!result.canceled && result.assets[0]) {
       await appendPhotosFromAssets([result.assets[0]]);
     }
@@ -259,8 +249,7 @@ export default function HaircutDetailScreen() {
       const updated = await patchClientCut(apiToken, id, {
         hairstyle: trimmedName,
         note: draftNote.trim() || null,
-        barber_id: draftBarberId.trim() || null,
-      });
+        barber_id: draftBarberId.trim() || null});
       setCut(updated);
       setEditing(false);
     } catch (e) {
@@ -292,8 +281,7 @@ export default function HaircutDetailScreen() {
             } catch (e) {
               setError(e instanceof Error ? e.message : 'Failed to delete');
             }
-          },
-        },
+          }},
       ]
     );
   };
@@ -303,7 +291,7 @@ export default function HaircutDetailScreen() {
       <>
         <Header title={t('haircutTitle')} showBackButton />
         <View className="flex-1 items-center justify-center bg-light-primary dark:bg-dark-primary">
-          <ActivityIndicator size="large" />
+          <SiteLoadingSpinner />
           <ThemedText className="mt-2 text-light-subtext dark:text-dark-subtext">
             {t('commonLoading')}
           </ThemedText>
@@ -340,8 +328,7 @@ export default function HaircutDetailScreen() {
         className="flex-1 px-0"
         keyboardShouldPersistTaps="handled"
         onScroll={Animated.event([{ nativeEvent: { contentOffset: { y: heroScrollY } } }], {
-          useNativeDriver: false,
-        })}
+          useNativeDriver: false})}
         scrollEventThrottle={16}>
         <AnimatedView animation="fadeIn" duration={400} delay={100}>
           <View className="px-global">
@@ -418,8 +405,7 @@ export default function HaircutDetailScreen() {
                         id: barber.id,
                         name: barber.name ?? '—',
                         type: 'EMPLOYEE',
-                        avatarUrl: barber.avatarUrl ?? undefined,
-                      });
+                        avatarUrl: barber.avatarUrl ?? undefined});
                       router.push(`/screens/transfer-chat/${encodeURIComponent(barber.id)}`);
                     }}
                   />

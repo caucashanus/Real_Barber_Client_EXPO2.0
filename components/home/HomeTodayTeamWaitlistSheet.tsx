@@ -1,5 +1,5 @@
 import React, { forwardRef, useImperativeHandle, useMemo, useRef, useState } from 'react';
-import { ActivityIndicator, Pressable, View } from 'react-native';
+import { Pressable, View } from 'react-native';
 import { ActionSheetRef } from 'react-native-actions-sheet';
 
 import { joinEmployeeWaitlist } from '@/api/waitlist';
@@ -14,8 +14,7 @@ import ThemedText from '@/components/ThemedText';
 import WaitlistPreferredContactPickerSheet, {
   preferredContactIcon,
   preferredContactLabelKey,
-  type WaitlistPreferredContactPickerHandle,
-} from '@/components/home/WaitlistPreferredContactPickerSheet';
+  type WaitlistPreferredContactPickerHandle} from '@/components/home/WaitlistPreferredContactPickerSheet';
 import useThemeColors from '@/contexts/ThemeColors';
 import type { TranslationKey } from '@/locales';
 import {
@@ -24,10 +23,10 @@ import {
   isValidWaitlistEmail,
   isValidWaitlistPhone,
   type WaitlistContactPickerSelection,
-  type WaitlistPreferredContact,
-} from '@/lib/waitlist/preferredContact';
+  type WaitlistPreferredContact} from '@/lib/waitlist/preferredContact';
 import { formatWaitlistDayWhen } from '@/utils/teamMemberWaitlist';
 import { getPragueTodayDateString } from '@/utils/teamMemberPageHelpers';
+import SiteLoadingSpinner from '@/components/SiteLoadingSpinner';
 
 export interface HomeTodayTeamWaitlistTarget {
   employeeId: string;
@@ -183,8 +182,7 @@ const HomeTodayTeamWaitlistSheet = forwardRef<
       setSubmittedUseAlternateContact(false);
       setLoading(false);
       setTimeout(() => sheetRef.current?.show(), 50);
-    },
-  }));
+    }}));
 
   const handleClose = () => {
     sheetRef.current?.hide();
@@ -264,13 +262,11 @@ const HomeTodayTeamWaitlistSheet = forwardRef<
         ? buildAlternateWaitlistPayload({
             profilePhone,
             alternatePhone: alternatePhoneDraft,
-            alternateEmail: alternateEmailDraft,
-          })
+            alternateEmail: alternateEmailDraft})
         : {
             phone: profilePhone,
             clientEmail: resolveProfileClientEmail(),
-            preferredContact,
-          };
+            preferredContact};
 
       const result = await joinEmployeeWaitlist({
         phone: payload.phone,
@@ -280,8 +276,7 @@ const HomeTodayTeamWaitlistSheet = forwardRef<
         dayIso,
         preferredContact: payload.preferredContact,
         clientName: client?.name?.trim() || null,
-        clientEmail: payload.clientEmail,
-      });
+        clientEmail: payload.clientEmail});
 
       if (!result.ok) {
         setError(
@@ -319,21 +314,18 @@ const HomeTodayTeamWaitlistSheet = forwardRef<
     if (submittedUseAlternateContact) {
       return interpolate(t('homeTodayTeamWaitlistSuccessBodyAlternate'), {
         contact: submittedContactValue ?? '',
-        when: whenLabel,
-      });
+        when: whenLabel});
     }
     if (submittedPreferredContact === 'email') {
       return interpolate(t('homeTodayTeamWaitlistSuccessBodyEmail'), {
         channel: t('homeTodayTeamWaitlistPreferredEmail'),
         email: submittedContactValue ?? '',
-        when: whenLabel,
-      });
+        when: whenLabel});
     }
     return interpolate(t('homeTodayTeamWaitlistSuccessBodyChannel'), {
       channel: t(preferredContactLabelKey(submittedPreferredContact)),
       phone: submittedContactValue ?? '',
-      when: whenLabel,
-    });
+      when: whenLabel});
   }, [
     submittedUseAlternateContact,
     submittedPreferredContact,
@@ -369,8 +361,7 @@ const HomeTodayTeamWaitlistSheet = forwardRef<
               <ThemedText className="mt-4 text-base text-light-text dark:text-dark-text">
                 {interpolate(t('homeTodayTeamWaitlistLead'), {
                   name: target.employeeName,
-                  when: whenLabel,
-                })}
+                  when: whenLabel})}
               </ThemedText>
             ) : null}
 
@@ -483,7 +474,7 @@ const HomeTodayTeamWaitlistSheet = forwardRef<
             </View>
             {loading ? (
               <View className="mt-3 items-center">
-                <ActivityIndicator size="small" />
+                <SiteLoadingSpinner size="compact" />
               </View>
             ) : null}
           </>

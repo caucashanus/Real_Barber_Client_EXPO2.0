@@ -2,7 +2,7 @@ import { useFocusEffect } from "expo-router/react-navigation";
 import { Image } from 'expo-image';
 import { router } from 'expo-router';
 import React, { useCallback, useContext, useMemo, useState } from 'react';
-import { View, Animated, Pressable, ActivityIndicator } from 'react-native';
+import { View, Animated, Pressable } from 'react-native';
 
 import { ScrollContext } from './_layout';
 
@@ -18,11 +18,11 @@ import Icon from '@/components/Icon';
 import ThemeScroller from '@/components/ThemeScroller';
 import ThemedText from '@/components/ThemedText';
 import Section from '@/components/layout/Section';
+import SiteLoadingState from '@/components/SiteLoadingState';
 import SurfaceCard from '@/components/layout/SurfaceCard';
 import {
   isHaircutIntroCooldownActive,
-  setHaircutIntroCooldown24h,
-} from '@/utils/haircut-intro-cooldown';
+  setHaircutIntroCooldown24h} from '@/utils/haircut-intro-cooldown';
 
 const CUT_PLACEHOLDER = require('@/assets/img/barbers.png');
 
@@ -132,8 +132,7 @@ const MyHaircutsScreen = () => {
   return (
     <ThemeScroller
       onScroll={Animated.event([{ nativeEvent: { contentOffset: { y: scrollY } } }], {
-        useNativeDriver: false,
-      })}
+        useNativeDriver: false})}
       scrollEventThrottle={16}>
       <AnimatedView animation="scaleIn" className="mt-4 flex-1">
         {showIntroBanner ? (
@@ -207,12 +206,7 @@ const MyHaircutsScreen = () => {
                 {t('myHaircutsLoginToSee')}
               </ThemedText>
             ) : loading ? (
-              <View className="flex-row items-center gap-3 py-4">
-                <ActivityIndicator size="small" />
-                <ThemedText className="text-light-subtext dark:text-dark-subtext">
-                  {t('commonLoading')}
-                </ThemedText>
-              </View>
+              <SiteLoadingState layout="inline" size="compact" className="py-4" />
             ) : loadError ? (
               <ThemedText className="py-2 pr-4 text-red-500 dark:text-red-400">
                 {loadError}

@@ -1,6 +1,6 @@
 import { useLocalSearchParams } from 'expo-router';
 import React, { useEffect, useMemo, useState } from 'react';
-import { View, ActivityIndicator } from 'react-native';
+import { View } from 'react-native';
 
 import { getReferrals, type PendingAttributionItem } from '@/api/referrals';
 import { useAuth } from '@/contexts/AuthContext';
@@ -10,6 +10,7 @@ import ThemedScroller from '@/components/ThemeScroller';
 import ThemedText from '@/components/ThemedText';
 import Section from '@/components/layout/Section';
 import { intlLocaleTag } from '@/utils/intlLocaleTag';
+import SiteLoadingSpinner from '@/components/SiteLoadingSpinner';
 
 function formatDateTime(iso: string, locale: string): string {
   const d = new Date(iso);
@@ -20,8 +21,7 @@ function formatDateTime(iso: string, locale: string): string {
       month: '2-digit',
       year: 'numeric',
       hour: '2-digit',
-      minute: '2-digit',
-    }).format(d);
+      minute: '2-digit'}).format(d);
   } catch {
     return d.toISOString();
   }
@@ -55,7 +55,7 @@ export default function ReferralAttributionDetailScreen() {
       <ThemedScroller className="flex-1 p-global">
         {loading ? (
           <View className="items-center py-8">
-            <ActivityIndicator size="small" />
+            <SiteLoadingSpinner size="compact" />
             <ThemedText className="mt-2 text-sm text-light-subtext dark:text-dark-subtext">
               {t('commonLoading')}
             </ThemedText>

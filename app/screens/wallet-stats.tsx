@@ -1,6 +1,6 @@
 import { useFocusEffect } from "expo-router/react-navigation";
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { View, ScrollView, Animated, Pressable, ActivityIndicator } from 'react-native';
+import { View, ScrollView, Animated, Pressable } from 'react-native';
 
 import { getRbCoinsHistory, type RbCoinsHistoryItem } from '@/api/rb-coins';
 import { useAuth } from '@/contexts/AuthContext';
@@ -28,15 +28,14 @@ import {
   shiftMonthKeyInYear,
   monthKeyFromDate,
   type RbcWalletChartMonth,
-  type RbcWalletHeroMonth,
-} from '@/utils/rbcWalletStats';
+  type RbcWalletHeroMonth} from '@/utils/rbcWalletStats';
+import SiteLoadingState from '@/components/SiteLoadingState';
 import {
   formatRbCoinsTransactionAmount,
   formatRbCoinsTransactionListSubtitle,
   getRbCoinsTransactionAvatarSrc,
   getRbCoinsTransactionListTitle,
-  RB_COINS_TX_LIST_KEYS_WALLET,
-} from '@/utils/rbcCoinsHistoryUi';
+  RB_COINS_TX_LIST_KEYS_WALLET} from '@/utils/rbcCoinsHistoryUi';
 
 const RECEIVED_BAR = '#22c55e';
 const SENT_BAR = '#ef4444';
@@ -105,8 +104,7 @@ const GroupedWalletBarChart = ({
   selectedMonthKey,
   onSelectMonth,
   selectionColor,
-  chartYear,
-}: {
+  chartYear}: {
   months: RbcWalletChartMonth[];
   borderColor: string;
   labelColor: string;
@@ -139,8 +137,7 @@ const GroupedWalletBarChart = ({
               className="absolute right-1 text-xs"
               style={{
                 ...yTickLabelPosition(tick, maxValue),
-                color: labelColor,
-              }}>
+                color: labelColor}}>
               {formatChartYLabel(tick)}
             </ThemedText>
           ))}
@@ -157,8 +154,7 @@ const GroupedWalletBarChart = ({
                 bottom: (tick / maxValue) * PLOT_HEIGHT,
                 borderTopWidth: 1,
                 borderTopColor: borderColor,
-                opacity: tick === 0 ? 1 : 0.35,
-              }}
+                opacity: tick === 0 ? 1 : 0.35}}
             />
           ))}
 
@@ -174,8 +170,7 @@ const GroupedWalletBarChart = ({
                     height: barHeight(month.received, maxValue),
                     backgroundColor: RECEIVED_BAR,
                     borderTopLeftRadius: 4,
-                    borderTopRightRadius: 4,
-                  }}
+                    borderTopRightRadius: 4}}
                 />
                 <View
                   style={{
@@ -183,8 +178,7 @@ const GroupedWalletBarChart = ({
                     height: barHeight(month.sent, maxValue),
                     backgroundColor: SENT_BAR,
                     borderTopLeftRadius: 4,
-                    borderTopRightRadius: 4,
-                  }}
+                    borderTopRightRadius: 4}}
                 />
               </>
             );
@@ -195,8 +189,7 @@ const GroupedWalletBarChart = ({
               gap: BAR_GAP,
               opacity: dimmed ? 0.35 : 1,
               backgroundColor: isSelected ? `${selectionColor}22` : 'transparent',
-              borderRadius: 8,
-            } as const;
+              borderRadius: 8} as const;
 
             if (!selectable) {
               return (
@@ -283,8 +276,7 @@ const ChartYearSelector = ({
   minYear,
   maxYear,
   onPrevious,
-  onNext,
-}: {
+  onNext}: {
   year: number;
   minYear: number;
   maxYear: number;
@@ -379,8 +371,7 @@ const WalletStatsScreen = () => {
     if (index < 0) return;
     chartScrollRef.current?.scrollTo({
       x: Math.max(0, index * GROUP_WIDTH - 24),
-      animated: true,
-    });
+      animated: true});
   }, [selectedMonthKey, chartMonths]);
 
   const handleSelectMonth = useCallback((monthKey: string) => {
@@ -407,8 +398,7 @@ const WalletStatsScreen = () => {
       isCurrentMonth: key === monthKeyFromDate(new Date()),
       monthName: formatMonthName(key, locale),
       received: 0,
-      sent: 0,
-    };
+      sent: 0};
   }, [chartMonths, locale, selectedChartYear, selectedMonthKey]);
 
   const heroNavAnchorKey =
@@ -445,7 +435,7 @@ const WalletStatsScreen = () => {
           </View>
         ) : loading ? (
           <View className="mt-20 items-center px-global">
-            <ActivityIndicator size="large" />
+            <SiteLoadingSpinner />
             <ThemedText className="mt-3 text-light-subtext dark:text-dark-subtext">
               {t('walletStatsLoading')}
             </ThemedText>
@@ -550,8 +540,7 @@ const StatsCounter = ({
   canNavigateOlder,
   canNavigateNewer,
   onNavigateOlder,
-  onNavigateNewer,
-}: {
+  onNavigateNewer}: {
   heroMonth: RbcWalletHeroMonth;
   canNavigateOlder: boolean;
   canNavigateNewer: boolean;
@@ -578,8 +567,7 @@ const StatsCounter = ({
     Animated.timing(countAnim, {
       toValue: 1,
       duration: 500,
-      useNativeDriver: false,
-    }).start();
+      useNativeDriver: false}).start();
 
     return () => {
       countAnim.removeListener(listener);
@@ -591,13 +579,11 @@ const StatsCounter = ({
       Animated.timing(fadeAnim, {
         toValue: 0,
         duration: 200,
-        useNativeDriver: true,
-      }),
+        useNativeDriver: true}),
       Animated.timing(fadeAnim, {
         toValue: 1,
         duration: 200,
-        useNativeDriver: true,
-      }),
+        useNativeDriver: true}),
     ]).start();
 
     setTimeout(callback, 200);

@@ -4,6 +4,10 @@ import { View } from 'react-native';
 import { formatResolvedBookingPriceLabel } from '@/lib/booking/designShared';
 import type { BookingEngineFlow } from '@/hooks/useBookingEngineFlow';
 import BookingCouponSection from '@/components/booking/engine/BookingCouponSection';
+import BookingHoldSummaryRow, {
+  shouldShowBookingHoldSummaryRow,
+} from '@/components/booking/engine/BookingHoldSummaryRow';
+import BookingSummaryBranchSection from '@/components/booking/engine/BookingSummaryBranchSection';
 import Section from '@/components/layout/Section';
 import ThemedText from '@/components/ThemedText';
 import type { TranslationKey } from '@/locales';
@@ -36,7 +40,6 @@ export default function BookingEngineSummaryStep({ flow }: Props) {
 
   const rows: Array<{ titleKey: TranslationKey; label: string }> = [
     { titleKey: 'bookingProgressDatetime', label: dateLabel },
-    { titleKey: 'bookingProgressBranch', label: flow.selectedBranch?.name ?? '—' },
     { titleKey: 'bookingProgressService', label: flow.selectedService?.name ?? '—' },
     { titleKey: 'haircutBarber', label: employeeName },
   ];
@@ -61,8 +64,26 @@ export default function BookingEngineSummaryStep({ flow }: Props) {
     <View className="gap-5">
       <Section title={t('reservationSummaryTitle')} titleSize="lg" className="mt-6">
         <View className="mt-2">
-          {rows.map((row, index) => (
-            <View key={row.titleKey} className={index > 0 ? 'mt-4' : undefined}>
+          <BookingHoldSummaryRow flow={flow} plain />
+          {rows.slice(0, 1).map((row, index) => (
+            <View
+              key={row.titleKey}
+              className={
+                index > 0 || shouldShowBookingHoldSummaryRow(flow) ? 'mt-4' : undefined
+              }>
+              <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext">
+                {t(row.titleKey)}
+              </ThemedText>
+              <ThemedText className="mt-1 text-sm font-semibold">{row.label}</ThemedText>
+            </View>
+          ))}
+          <BookingSummaryBranchSection
+            branchName={flow.selectedBranch?.name ?? '—'}
+            branchAddress={flow.selectedBranch?.address}
+            topClassName="mt-4"
+          />
+          {rows.slice(1).map((row) => (
+            <View key={row.titleKey} className="mt-4">
               <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext">
                 {t(row.titleKey)}
               </ThemedText>

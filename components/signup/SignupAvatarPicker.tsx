@@ -1,12 +1,13 @@
 import { Image } from 'expo-image';
 import * as ImagePicker from 'expo-image-picker';
 import React, { useCallback, useEffect, useState } from 'react';
-import { View, Pressable, ScrollView, useWindowDimensions, ActivityIndicator } from 'react-native';
+import { View, Pressable, ScrollView, useWindowDimensions } from 'react-native';
 
 import { getAllPublicMediaByFlag, type MediaFile } from '@/api/media';
 import { useTranslation } from '@/hooks/useTranslation';
 import Icon from '@/components/Icon';
 import ThemedText from '@/components/ThemedText';
+import SiteLoadingSpinner from '@/components/SiteLoadingSpinner';
 
 export type AvatarChoice =
   | { kind: 'none' }
@@ -37,8 +38,7 @@ interface SignupAvatarPickerProps {
 export default function SignupAvatarPicker({
   value,
   onChange,
-  carouselHint,
-}: SignupAvatarPickerProps) {
+  carouselHint}: SignupAvatarPickerProps) {
   const { t } = useTranslation();
   const { width: windowWidth } = useWindowDimensions();
   const slotWidth = THUMB + THUMB_GAP;
@@ -82,8 +82,7 @@ export default function SignupAvatarPicker({
       mediaTypes: ['images'],
       allowsEditing: true,
       aspect: [1, 1],
-      quality: 0.85,
-    });
+      quality: 0.85});
     if (!result.canceled && result.assets[0]?.uri) {
       onChange({ kind: 'custom', uri: result.assets[0].uri });
     }
@@ -121,7 +120,7 @@ export default function SignupAvatarPicker({
 
       {loading ? (
         <View className="py-8">
-          <ActivityIndicator size="small" />
+          <SiteLoadingSpinner size="compact" />
           <ThemedText className="mt-2 text-center text-xs text-light-subtext dark:text-dark-subtext">
             {t('signupAvatarLoading')}
           </ThemedText>
@@ -153,8 +152,7 @@ export default function SignupAvatarPicker({
             contentContainerStyle={{
               paddingHorizontal: Math.max(16, (windowWidth - slotWidth) / 2),
               paddingVertical: 8,
-              gap: THUMB_GAP,
-            }}>
+              gap: THUMB_GAP}}>
             <Pressable
               onPress={pickFromLibrary}
               className="items-center justify-center rounded-full border-2 border-dashed border-neutral-400 bg-light-primary dark:border-neutral-500 dark:bg-dark-primary"

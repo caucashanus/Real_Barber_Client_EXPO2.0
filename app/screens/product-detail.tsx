@@ -6,11 +6,9 @@ import {
   View,
   Pressable,
   ScrollView,
-  ActivityIndicator,
   Animated,
   Share,
-  type LayoutChangeEvent,
-} from 'react-native';
+  type LayoutChangeEvent} from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { resolveClientProductForDetail } from '@/api/products';
@@ -20,8 +18,7 @@ import {
   useSelectedCatalogProduct,
   useSelectedPurchase,
   useSetSelectedCatalogProduct,
-  useSetSelectedPurchase,
-} from '@/contexts/SelectedPurchaseContext';
+  useSetSelectedPurchase} from '@/contexts/SelectedPurchaseContext';
 import { useTranslation } from '@/hooks/useTranslation';
 import Avatar from '@/components/Avatar';
 import { Button } from '@/components/Button';
@@ -36,10 +33,10 @@ import Section from '@/components/layout/Section';
 import ProductCatalogDetailsSection from '@/components/product/ProductCatalogDetailsSection';
 import ProductDetailBottomBar from '@/components/product/ProductDetailBottomBar';
 import ProductDetailReviewsSection, {
-  productDetailHeaderReviewSummary,
-} from '@/components/product/ProductDetailReviewsSection';
+  productDetailHeaderReviewSummary} from '@/components/product/ProductDetailReviewsSection';
 import ProductPurchaseDetailsSection from '@/components/product/ProductPurchaseDetailsSection';
 import { buildProductShareMessage, computeReviewStats } from '@/utils/productDetailHelpers';
+import SiteLoadingSpinner from '@/components/SiteLoadingSpinner';
 
 const PLACEHOLDER_IMAGE = require('@/assets/img/barbers.png');
 
@@ -191,8 +188,7 @@ const PropertyDetail = () => {
     getEntityReviews(apiToken, 'sale_log', purchase.purchaseId, {
       page: 1,
       limit: 9999,
-      includeOwn: true,
-    })
+      includeOwn: true})
       .then((data) => {
         setReviews(data.reviews);
         setReviewsTotal(data.pagination.total);
@@ -213,8 +209,7 @@ const PropertyDetail = () => {
         getEntityReviews(apiToken, 'sale_log', purchase.purchaseId, {
           page: 1,
           limit: 9999,
-          includeOwn: true,
-        })
+          includeOwn: true})
           .then((data) => {
             setReviews(data.reviews);
             setReviewsTotal(data.pagination.total);
@@ -236,8 +231,7 @@ const PropertyDetail = () => {
     catalogReviewStats,
     reviewsAverage: average,
     displayTotal,
-    t,
-  });
+    t});
 
   const scrollRef = useRef<ScrollView>(null);
   const roundedViewYRef = useRef(0);
@@ -253,7 +247,7 @@ const PropertyDetail = () => {
       <View className="flex-1 bg-light-primary dark:bg-dark-primary">
         <Header showBackButton title="" />
         <View className="flex-1 items-center justify-center px-global">
-          <ActivityIndicator size="large" />
+          <SiteLoadingSpinner />
           <ThemedText className="mt-3 text-light-subtext dark:text-dark-subtext">
             {t('commonLoading')}
           </ThemedText>
@@ -291,8 +285,7 @@ const PropertyDetail = () => {
         productTitle: title,
         totalPriceLabel:
           purchase != null ? `${totalPrice} ${t('productPricePerProduct')}` : totalPrice,
-        primaryImageUrl: productImageUrl || undefined,
-      });
+        primaryImageUrl: productImageUrl || undefined});
       await Share.share({ message, title: t('productShareDialogTitle') });
     } catch (error) {
       console.error('Error sharing:', error);
@@ -321,8 +314,7 @@ const PropertyDetail = () => {
         ref={scrollRef}
         className="bg-light-primary px-0 dark:bg-dark-primary"
         onScroll={Animated.event([{ nativeEvent: { contentOffset: { y: heroScrollY } } }], {
-          useNativeDriver: false,
-        })}
+          useNativeDriver: false})}
         scrollEventThrottle={16}>
         <ImageCarousel
           images={displayImages}

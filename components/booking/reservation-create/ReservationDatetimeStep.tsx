@@ -1,6 +1,6 @@
 import { Image } from 'expo-image';
 import React from 'react';
-import { ActivityIndicator, Pressable, ScrollView, View } from 'react-native';
+import { Pressable, ScrollView, View } from 'react-native';
 
 import type { ReservationCreateStepProps } from './types';
 
@@ -9,6 +9,7 @@ import Icon from '@/components/Icon';
 import ThemedText from '@/components/ThemedText';
 import Section from '@/components/layout/Section';
 import { getMonthOffsetFromToday, toIsoDate } from '@/utils/reservationCreateHelpers';
+import SiteLoadingSpinner from '@/components/SiteLoadingSpinner';
 
 export default function ReservationDatetimeStep({ flow }: ReservationCreateStepProps) {
   const { t } = flow;
@@ -74,7 +75,7 @@ export default function ReservationDatetimeStep({ flow }: ReservationCreateStepP
       </View>
       {flow.loadingMonthAvailability ? (
         <View className="items-center py-4">
-          <ActivityIndicator size="small" />
+          <SiteLoadingSpinner size="compact" />
         </View>
       ) : null}
       <View className="flex-row flex-wrap gap-2">
@@ -101,7 +102,7 @@ export default function ReservationDatetimeStep({ flow }: ReservationCreateStepP
       </View>
       {flow.loadingAvailability ? (
         <View className="items-center py-10">
-          <ActivityIndicator size="small" />
+          <SiteLoadingSpinner size="compact" />
         </View>
       ) : flow.availabilityError ? (
         <ThemedText className="text-red-500">{flow.availabilityError}</ThemedText>

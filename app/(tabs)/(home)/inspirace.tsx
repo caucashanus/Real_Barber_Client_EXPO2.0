@@ -1,12 +1,11 @@
 import React, { useContext, useEffect, useMemo, useState } from 'react';
-import { ActivityIndicator, Animated, View } from 'react-native';
+import { Animated, View } from 'react-native';
 
 import { ScrollContext } from './_layout';
 
 import {
   fetchPublicInspiracePage,
-  type PublicInspiracePageItem,
-} from '@/api/publicInspiracePage';
+  type PublicInspiracePageItem} from '@/api/publicInspiracePage';
 import AppButton from '@/components/AppButton';
 import AnimatedView from '@/components/AnimatedView';
 import InspiraceIntroCard from '@/components/inspirace/InspiraceIntroCard';
@@ -15,14 +14,13 @@ import ThemeScroller from '@/components/ThemeScroller';
 import ThemedText from '@/components/ThemedText';
 import {
   INSPIRACE_GRID_INITIAL,
-  INSPIRACE_GRID_STEP,
-} from '@/constants/inspiraceGrid';
+  INSPIRACE_GRID_STEP} from '@/constants/inspiraceGrid';
 import { useTranslation } from '@/hooks/useTranslation';
+import SiteLoadingState from '@/components/SiteLoadingState';
 import {
   mapInspiraceItemsToGridItems,
   sliceInspiraceGridItems,
-  sortInspiraceItems,
-} from '@/utils/inspiracePageHelpers';
+  sortInspiraceItems} from '@/utils/inspiracePageHelpers';
 
 const InspiraceScreen = () => {
   const scrollY = useContext(ScrollContext);
@@ -67,7 +65,7 @@ const InspiraceScreen = () => {
   if (loading) {
     return (
       <View className="mt-4 flex-1 items-center justify-center py-16">
-        <ActivityIndicator size="large" />
+        <SiteLoadingSpinner />
         <ThemedText className="mt-4 text-light-subtext dark:text-dark-subtext">
           {t('commonLoading')}
         </ThemedText>
@@ -78,8 +76,7 @@ const InspiraceScreen = () => {
   return (
     <ThemeScroller
       onScroll={Animated.event([{ nativeEvent: { contentOffset: { y: scrollY } } }], {
-        useNativeDriver: false,
-      })}
+        useNativeDriver: false})}
       scrollEventThrottle={16}>
       <AnimatedView animation="scaleIn" className="mt-4 flex-1">
         {error ? (

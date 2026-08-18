@@ -1,19 +1,19 @@
 import { router } from 'expo-router';
 import React, { useCallback, useMemo } from 'react';
-import { ActivityIndicator, View } from 'react-native';
+import { View } from 'react-native';
 
 import type { ClientPoster } from '@/api/client-posters';
 import {
   getHomePromoSlideAccessibilityLabel,
   HomePromoCarouselOverlay,
-  type HomePromoCarouselOverlaySlide,
-} from '@/components/HomePromoCarouselOverlay';
+  type HomePromoCarouselOverlaySlide} from '@/components/HomePromoCarouselOverlay';
 import ImageCarousel from '@/components/ImageCarousel';
 import SurfaceCard from '@/components/layout/SurfaceCard';
 import ThemedText from '@/components/ThemedText';
 import { promoKuponHref, promoPosterHref } from '@/constants/promoDetailRoutes';
 import type { TranslationKey } from '@/locales';
 import type { HomePromoFeedItem } from '@/utils/homePromoFeed';
+import SiteLoadingSpinner from '@/components/SiteLoadingSpinner';
 
 interface HomePromoSlide {
   imageUrl: string;
@@ -51,12 +51,10 @@ function buildHomePromoSlides(feed: HomePromoFeedItem[]): HomePromoSlide[] {
         imageUrl,
         overlay: {
           buttonText: resolveButtonText(item.coupon.buttonText),
-          accessibilityFallback: item.coupon.name,
-        },
+          accessibilityFallback: item.coupon.name},
         onPress: () => {
           router.push(promoKuponHref(item.coupon.id) as never);
-        },
-      });
+        }});
       continue;
     }
     const imageUrl = item.poster.imageUrl?.trim();
@@ -65,12 +63,10 @@ function buildHomePromoSlides(feed: HomePromoFeedItem[]): HomePromoSlide[] {
       imageUrl,
       overlay: {
         buttonText: resolveButtonText(item.poster.buttonText),
-        accessibilityFallback: posterAccessibilityFallback(item.poster),
-      },
+        accessibilityFallback: posterAccessibilityFallback(item.poster)},
       onPress: () => {
         router.push(promoPosterHref(item.poster.id) as never);
-      },
-    });
+      }});
   }
   return slides;
 }
@@ -81,8 +77,7 @@ export function HomePromoCarousel({
   height,
   loading,
   locale: _locale,
-  t,
-}: HomePromoCarouselProps) {
+  t}: HomePromoCarouselProps) {
   const slides = useMemo(() => buildHomePromoSlides(feed), [feed]);
   const images = useMemo(() => slides.map((slide) => slide.imageUrl), [slides]);
 
@@ -117,14 +112,8 @@ export function HomePromoCarousel({
 
   if (loading) {
     return (
-      <SurfaceCard
-        rounded="2xl"
-        style={{ height }}
-        className="w-full items-center justify-center">
-        <ActivityIndicator size="small" />
-        <ThemedText className="mt-2 text-sm text-light-subtext dark:text-dark-subtext">
-          {t('commonLoading')}
-        </ThemedText>
+      <SurfaceCard rounded="2xl" style={{ height }} className="w-full items-center justify-center">
+        <SiteLoadingSpinner size="compact" />
       </SurfaceCard>
     );
   }

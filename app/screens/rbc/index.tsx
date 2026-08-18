@@ -3,7 +3,7 @@ import { Image } from 'expo-image';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useFocusEffect, useRouter } from 'expo-router';
 import React, { useCallback, useRef, useState } from 'react';
-import { View, Pressable, Animated, Dimensions, StyleSheet, ActivityIndicator } from 'react-native';
+import { View, Pressable, Animated, Dimensions, StyleSheet } from 'react-native';
 
 import { getRbCoinsBalance, getRbCoinsHistory } from '@/api/rb-coins';
 import { useAuth } from '@/contexts/AuthContext';
@@ -14,6 +14,7 @@ import RBLogo from '@/components/RBLogo';
 import ThemedScroller from '@/components/ThemeScroller';
 import ThemedText from '@/components/ThemedText';
 import { cardDesigns, RBC_SELECTED_CARD_KEY, type CardDesign } from '@/constants/card-designs';
+import SiteLoadingSpinner from '@/components/SiteLoadingSpinner';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 const CARD_ASPECT_RATIO = 1.625;
@@ -85,8 +86,7 @@ export default function RBCScreen() {
     Animated.timing(flipAnimation, {
       toValue: next ? 1 : 0,
       duration: 600,
-      useNativeDriver: true,
-    }).start();
+      useNativeDriver: true}).start();
   };
 
   const toggleShowDetails = () => setShowDetails((p) => !p);
@@ -99,20 +99,16 @@ export default function RBCScreen() {
 
   const frontOpacity = flipAnimation.interpolate({
     inputRange: [0, 0.5, 1],
-    outputRange: [1, 1, 0],
-  });
+    outputRange: [1, 1, 0]});
   const frontRotateY = flipAnimation.interpolate({
     inputRange: [0, 1],
-    outputRange: ['0deg', '180deg'],
-  });
+    outputRange: ['0deg', '180deg']});
   const backOpacity = flipAnimation.interpolate({
     inputRange: [0, 0.5, 1],
-    outputRange: [0, 0, 1],
-  });
+    outputRange: [0, 0, 1]});
   const backRotateY = flipAnimation.interpolate({
     inputRange: [0, 1],
-    outputRange: ['180deg', '360deg'],
-  });
+    outputRange: ['180deg', '360deg']});
 
   const cardContent = (design: CardDesign, isBack: boolean) => {
     const textColor = design.textColor;
@@ -217,7 +213,7 @@ export default function RBCScreen() {
               {t('rbcYourBalance')}
             </ThemedText>
             {loading ? (
-              <ActivityIndicator size="small" className="mt-2" />
+              <SiteLoadingSpinner size="compact" />
             ) : error ? (
               <ThemedText className="mt-1 text-lg text-red-500 dark:text-red-400">
                 {error}
@@ -302,23 +298,19 @@ const styles = StyleSheet.create({
     right: 0,
     bottom: 0,
     backfaceVisibility: 'hidden',
-    alignItems: 'center',
-  },
+    alignItems: 'center'},
   card: {
     borderRadius: 16,
     padding: 20,
     justifyContent: 'space-between',
     overflow: 'hidden',
-    alignSelf: 'center',
-  },
+    alignSelf: 'center'},
   cardImageOverlay: {
     ...StyleSheet.absoluteFillObject,
-    backgroundColor: 'rgba(0,0,0,0.12)',
-  },
+    backgroundColor: 'rgba(0,0,0,0.12)'},
   cardImageContentWrap: {
     padding: 20,
-    justifyContent: 'space-between',
-  },
+    justifyContent: 'space-between'},
   cardContent: { flex: 1, justifyContent: 'space-between' },
   cardHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start' },
   cardDebit: { fontSize: 10, letterSpacing: 1, opacity: 0.9 },
@@ -326,8 +318,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 6,
     paddingVertical: 2,
     justifyContent: 'center',
-    alignItems: 'center',
-  },
+    alignItems: 'center'},
   cardNumberContainer: { marginVertical: 12 },
   cardNumber: { fontSize: 16, fontWeight: '600', letterSpacing: 2 },
   cardFooter: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-end' },
@@ -344,7 +335,5 @@ const styles = StyleSheet.create({
     borderRadius: 4,
     minWidth: 72,
     alignItems: 'center',
-    backgroundColor: 'rgba(255,255,255,0.2)',
-  },
-  cardBackCVVText: { fontSize: 16, fontWeight: '600' },
-});
+    backgroundColor: 'rgba(255,255,255,0.2)'},
+  cardBackCVVText: { fontSize: 16, fontWeight: '600' }});

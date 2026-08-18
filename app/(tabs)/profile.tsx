@@ -2,7 +2,7 @@ import { useFocusEffect } from "expo-router/react-navigation";
 import Constants from 'expo-constants';
 import * as Notifications from 'expo-notifications';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { View, RefreshControl, Text, ActivityIndicator, Linking } from 'react-native';
+import { View, RefreshControl, Text, Linking } from 'react-native';
 import { ActionSheetRef } from 'react-native-actions-sheet';
 
 import { getClientMe, type ClientMe } from '@/api/client';
@@ -32,6 +32,7 @@ import { useProfileCompletionPrompt } from '@/hooks/useProfileCompletionPrompt';
 import { maybeRequestAppStoreReview } from '@/utils/appStoreReview';
 import { hasServerProfileAvatar } from '@/utils/editProfileAvatar';
 import { shouldStaleRefresh } from '@/utils/staleRefresh';
+import SiteLoadingSpinner from '@/components/SiteLoadingSpinner';
 
 /** Spodní badge s číslem verze (přizpůsobeno iOS/Android buildu). */
 function ProfileVersionBadge() {
@@ -119,8 +120,7 @@ function daysSinceCreatedAt(createdAt: string | null | undefined): number | null
 }
 
 const PersonalProfile = ({
-  onRegisterRefresh,
-}: {
+  onRegisterRefresh}: {
   onRegisterRefresh?: (fn: () => Promise<void>) => void;
 }) => {
   const { apiToken, signOutToLogin } = useAuth();
@@ -205,8 +205,7 @@ const PersonalProfile = ({
     client,
     loading,
     sheetRef: completionSheetRef,
-    onStepChange: handleCompletionStepChange,
-  });
+    onStepChange: handleCompletionStepChange});
 
   const displayName = client?.firstName?.trim() || client?.name?.trim() || null;
   const profileAvatarSrc = hasServerProfileAvatar(client?.avatarUrl)
@@ -228,7 +227,7 @@ const PersonalProfile = ({
         <View className="w-1/2 flex-col items-center">
           {loading ? (
             <View className="h-20 w-20 items-center justify-center rounded-full bg-light-primary dark:bg-dark-primary">
-              <ActivityIndicator />
+              <SiteLoadingSpinner />
             </View>
           ) : (
             <Avatar

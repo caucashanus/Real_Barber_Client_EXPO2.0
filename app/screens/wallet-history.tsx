@@ -1,6 +1,6 @@
 import { useLocalSearchParams } from 'expo-router';
 import React, { useEffect, useRef, useState } from 'react';
-import { View, ActivityIndicator } from 'react-native';
+import { View } from 'react-native';
 
 import { getRbCoinsHistory, type RbCoinsHistoryItem } from '@/api/rb-coins';
 import { useAuth } from '@/contexts/AuthContext';
@@ -16,11 +16,11 @@ import Section from '@/components/layout/Section';
 import SurfaceCard from '@/components/layout/SurfaceCard';
 import type { TranslationKey } from '@/locales';
 import { intlLocaleTag } from '@/utils/intlLocaleTag';
+import SiteLoadingState from '@/components/SiteLoadingState';
 import {
   getRbCoinsTransactionAvatarSrc,
   getRbCoinsTransactionListTitle,
-  RB_COINS_TX_LIST_KEYS_WALLET,
-} from '@/utils/rbcCoinsHistoryUi';
+  RB_COINS_TX_LIST_KEYS_WALLET} from '@/utils/rbcCoinsHistoryUi';
 
 function formatBalance(value: number): string {
   return value.toLocaleString('en-GB', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
@@ -114,7 +114,7 @@ export default function WalletHistoryScreen() {
       <ThemedScroller>
         {loading ? (
           <View className="items-center py-12">
-            <ActivityIndicator size="large" />
+            <SiteLoadingSpinner />
             <ThemedText className="mt-2 text-sm text-light-subtext dark:text-dark-subtext">
               {t('walletHistoryLoading')}
             </ThemedText>

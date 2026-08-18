@@ -1,5 +1,5 @@
 import React, { useMemo, useRef, useState } from 'react';
-import { ActivityIndicator, View } from 'react-native';
+import { View } from 'react-native';
 import type { ActionSheetRef } from 'react-native-actions-sheet';
 
 import ActionSheetThemed from '@/components/ActionSheetThemed';
@@ -10,10 +10,10 @@ import BookingServiceCategoryAccordion from '@/components/booking/engine/Booking
 import type { BookingService } from '@/lib/booking/constants';
 import {
   groupServicesByCategory,
-  isBookingServiceAccordionCategory,
-} from '@/lib/booking/groupServicesByCategory';
+  isBookingServiceAccordionCategory} from '@/lib/booking/groupServicesByCategory';
 import { SERVICES_CATEGORY_ID } from '@/lib/booking/categoryIds';
 import { formatBookingServicePriceLabel } from '@/lib/booking/designShared';
+import SiteLoadingSpinner from '@/components/SiteLoadingSpinner';
 
 interface BookingEngineServiceStepProps {
   services: BookingService[];
@@ -41,8 +41,7 @@ export default function BookingEngineServiceStep({
   fromPriceLabel,
   currencySuffix,
   onSelect,
-  closeLabel,
-}: BookingEngineServiceStepProps) {
+  closeLabel}: BookingEngineServiceStepProps) {
   const detailSheetRef = useRef<ActionSheetRef>(null);
   const [detailService, setDetailService] = useState<BookingService | null>(null);
 
@@ -77,7 +76,7 @@ export default function BookingEngineServiceStep({
   if (loading) {
     return (
       <View className="items-center py-10">
-        <ActivityIndicator size="small" />
+        <SiteLoadingSpinner size="compact" />
       </View>
     );
   }

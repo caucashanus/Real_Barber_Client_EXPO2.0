@@ -65,7 +65,9 @@ const BookingDiscountCodeSheet = forwardRef<BookingDiscountCodeSheetHandle, Prop
               className="min-h-[44px] flex-1 rounded-xl border border-neutral-400/30 bg-light-secondary px-3 py-2 text-base text-light-text dark:border-neutral-500/40 dark:bg-dark-secondary dark:text-dark-text"
             />
             <AppButton
-              title={t('reservationCouponVerify')}
+              title={
+                coupon.verifying ? t('bookingCouponVerifying') : t('reservationCouponVerify')
+              }
               variant="outline"
               size="sm"
               loading={coupon.verifying}
@@ -88,7 +90,9 @@ const BookingDiscountCodeSheet = forwardRef<BookingDiscountCodeSheetHandle, Prop
               </View>
               <BookingCouponPriceBreakdown preview={coupon.preview} t={t} />
               <AppButton
-                title={flow.contact.submitting ? t('reservationCreating') : t('bookingReserveTerm')}
+                title={
+                  flow.contact.submitting ? t('bookingSubmitting') : t('bookingReserveTerm')
+                }
                 loading={flow.contact.submitting}
                 disabled={flow.contact.submitting}
                 onPress={handleReserve}

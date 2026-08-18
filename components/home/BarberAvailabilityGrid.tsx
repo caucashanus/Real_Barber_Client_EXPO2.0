@@ -1,12 +1,11 @@
 import { router } from 'expo-router';
 import React, { useCallback, useRef } from 'react';
-import { ActivityIndicator, useWindowDimensions, View } from 'react-native';
+import { useWindowDimensions, View } from 'react-native';
 
 import type { Locale } from '@/contexts/LanguageContext';
 import FavoriteMediaCard from '@/components/favorites/FavoriteMediaCard';
 import HomeTodayTeamWaitlistSheet, {
-  type HomeTodayTeamWaitlistSheetHandle,
-} from '@/components/home/HomeTodayTeamWaitlistSheet';
+  type HomeTodayTeamWaitlistSheetHandle} from '@/components/home/HomeTodayTeamWaitlistSheet';
 import LiveIndicator from '@/components/LiveIndicator';
 import Grid from '@/components/layout/Grid';
 import IsNewBadge from '@/components/shared/IsNewBadge';
@@ -17,11 +16,11 @@ import { barberDetailHref } from '@/constants/profileDetailRoutes';
 import type { HomeTodayTeamCardModel } from '@/utils/homeTodayTeamHelpers';
 import { resolveHomeTodaySlotBranch } from '@/utils/homeTodayTeamHelpers';
 import { startBarberSlotHandoffBooking } from '@/utils/reservationSlotHandoff';
+import SiteLoadingSpinner from '@/components/SiteLoadingSpinner';
 import {
   isTeamMemberWaitlistJoined,
   markTeamMemberWaitlistJoined,
-  useTeamMemberWaitlistJoined,
-} from '@/utils/teamMemberWaitlistSession';
+  useTeamMemberWaitlistJoined} from '@/utils/teamMemberWaitlistSession';
 
 const DESKTOP_BREAKPOINT = 768;
 const GRID_GAP = 16;
@@ -66,8 +65,7 @@ function renderActionRow({
   locale,
   t,
   alreadyOnWaitlist,
-  onOpenWaitlist,
-}: {
+  onOpenWaitlist}: {
   card: HomeTodayTeamCardModel;
   locale: Locale;
   t: (key: TranslationKey) => string;
@@ -126,8 +124,7 @@ function renderActionRow({
                 branchAddress,
                 date: slot.date,
                 slotStart: slot.time,
-                slotEnd: slot.endTime,
-              }).catch(() => {});
+                slotEnd: slot.endTime}).catch(() => {});
             }}
           />
         );
@@ -146,8 +143,7 @@ function BarberAvailabilityGridCard({
   card,
   locale,
   t,
-  onOpenWaitlist,
-}: {
+  onOpenWaitlist}: {
   card: HomeTodayTeamCardModel;
   locale: Locale;
   t: (key: TranslationKey) => string;
@@ -161,8 +157,7 @@ function BarberAvailabilityGridCard({
     locale,
     t,
     alreadyOnWaitlist,
-    onOpenWaitlist,
-  });
+    onOpenWaitlist});
   const belowTitle =
     showShiftStatus || hint ? (
       <View className={CARD_META_GAP_CLASS}>
@@ -211,8 +206,7 @@ export default function BarberAvailabilityGrid({
   locale,
   t,
   refreshing = false,
-  className = '',
-}: BarberAvailabilityGridProps) {
+  className = ''}: BarberAvailabilityGridProps) {
   const { width: windowWidth } = useWindowDimensions();
   const gridColumns = windowWidth >= DESKTOP_BREAKPOINT ? 4 : 2;
   const waitlistSheetRef = useRef<HomeTodayTeamWaitlistSheetHandle>(null);
@@ -232,8 +226,7 @@ export default function BarberAvailabilityGrid({
       employeeName: card.name,
       branchLabel: branchLabel && branchLabel !== '—' ? branchLabel : undefined,
       dayIso: card.waitlistDayIso,
-      requireActiveNow: card.waitlistRequireActiveNow,
-    });
+      requireActiveNow: card.waitlistRequireActiveNow});
   }, [locale]);
 
   const handleWaitlistJoined = useCallback((employeeId: string, dayIso?: string) => {
@@ -245,7 +238,7 @@ export default function BarberAvailabilityGrid({
       <View className={`relative ${GRID_BLEED_CLASS} ${className}`}>
         {refreshing ? (
           <View className="absolute right-0 top-1 z-10">
-            <ActivityIndicator size="small" />
+            <SiteLoadingSpinner size="compact" />
           </View>
         ) : null}
         <Grid className="mt-2" columns={gridColumns} spacing={GRID_GAP}>

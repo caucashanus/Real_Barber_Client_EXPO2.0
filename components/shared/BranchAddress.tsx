@@ -15,7 +15,17 @@ export interface BranchAddressProps {
   numberOfLines?: number;
 }
 
-const ROW_CLASS = 'flex-row items-center gap-1.5 self-start';
+const ROW_CLASS = 'flex-row items-center self-start';
+
+/** Mezera text ↔ vedlejší prvek (px) — spolehlivější než `gap` v RN layoutu. */
+export const INLINE_TEXT_ACCESSORY_GAP_PX = 6;
+
+export const inlineTextAccessoryGapStyle = { marginLeft: INLINE_TEXT_ACCESSORY_GAP_PX } as const;
+
+/** Tailwind ekvivalent pro accessory bez inline stylu (copy ikona). */
+export const inlineTextAccessoryGapClassName = 'ml-1.5';
+
+export const inlineTextAccessoryRowClassName = ROW_CLASS;
 
 /**
  * Jednotný řádek plné adresy pobočky — muted text + Copy (parity s web BranchAddress).
@@ -56,7 +66,7 @@ export default function BranchAddress({
       <Icon
         name="Copy"
         size={12}
-        className="shrink-0 text-light-subtext dark:text-dark-subtext"
+        className={`shrink-0 ${inlineTextAccessoryGapClassName} text-light-subtext dark:text-dark-subtext`}
       />
     </Pressable>
   );

@@ -1,5 +1,5 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import {
   createBookingApiReservation,
@@ -67,6 +67,12 @@ export function useBookingEngineContact(client: CrmClient | null | undefined, ap
   const [awaitingPhoneOtp, setAwaitingPhoneOtp] = useState(false);
   const [otpDigits, setOtpDigits] = useState('');
   const [otpChallengeToken, setOtpChallengeToken] = useState<string | null>(null);
+  const submitLockRef = useRef(false);
+  const submitSuccessRef = useRef(false);
+
+  useEffect(() => {
+    submitSuccessRef.current = submitSuccess;
+  }, [submitSuccess]);
 
   useEffect(() => {
     let cancelled = false;
@@ -158,6 +164,8 @@ export function useBookingEngineContact(client: CrmClient | null | undefined, ap
       const { buildPayload, onSuccess, onSlotConflict, formatError } = params;
       const formatErr = formatError ?? ((err: unknown) => (err instanceof Error ? err.message : 'Submit failed'));
 
+      if (submitSuccessRef.current || submitLockRef.current) return;
+
       if (awaitingPhoneOtp && otpChallengeToken) {
         const code = otpDigits.replace(/\D/g, '');
         if (code.length !== 6) {
@@ -166,6 +174,7 @@ export function useBookingEngineContact(client: CrmClient | null | undefined, ap
         }
         const base = buildPayload(contactContext);
         if (!base) return;
+        submitLockRef.current = true;
         setSubmitting(true);
         setSubmitError(null);
         try {
@@ -178,8 +187,10 @@ export function useBookingEngineContact(client: CrmClient | null | undefined, ap
           resetOtpState();
           onSuccess?.(data);
         } catch (err) {
+          if (submitSuccessRef.current) return;
           setSubmitError(formatErr(err));
         } finally {
+          submitLockRef.current = false;
           setSubmitting(false);
         }
         return;
@@ -194,6 +205,7 @@ export function useBookingEngineContact(client: CrmClient | null | undefined, ap
       const base = buildPayload(contactContext);
       if (!base) return;
 
+      submitLockRef.current = true;
       setSubmitting(true);
       setSubmitError(null);
       try {
@@ -215,6 +227,7 @@ export function useBookingEngineContact(client: CrmClient | null | undefined, ap
         setAwaitingPhoneOtp(true);
         setOtpChallengeToken(otpRes.challengeToken ?? null);
       } catch (err) {
+        if (submitSuccessRef.current) return;
         if (isBookingSlotConflict(err)) {
           onSlotConflict?.();
           setSubmitError(formatErr(err));
@@ -224,6 +237,7 @@ export function useBookingEngineContact(client: CrmClient | null | undefined, ap
           setSubmitError(formatErr(err));
         }
       } finally {
+        submitLockRef.current = false;
         setSubmitting(false);
       }
     },

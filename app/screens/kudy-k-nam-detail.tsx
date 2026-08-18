@@ -1,7 +1,7 @@
 import { useLocalSearchParams } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import React, { useEffect, useState } from 'react';
-import { View, Pressable, Linking, ActivityIndicator } from 'react-native';
+import { View, Pressable, Linking } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { getBranches, type Branch } from '@/api/branches';
@@ -17,6 +17,7 @@ import ThemedText from '@/components/ThemedText';
 import VideoPlayer from '@/components/VideoPlayer';
 import Section from '@/components/layout/Section';
 import { KUDY_K_NAM_VIDEOS } from '@/constants/kudy-k-nam-videos';
+import SiteLoadingSpinner from '@/components/SiteLoadingSpinner';
 
 function getKudyVideoUrl(branch: Branch): string | null {
   const media = branch.media;
@@ -72,7 +73,7 @@ const KudyKNamDetail = () => {
         <StatusBar style="dark" />
         <Header title={t('howToGetToUs')} showBackButton />
         <View className="flex-1 items-center justify-center p-global">
-          <ActivityIndicator size="large" />
+          <SiteLoadingSpinner />
           <ThemedText className="mt-4 text-light-subtext dark:text-dark-subtext">
             {t('commonLoading')}
           </ThemedText>

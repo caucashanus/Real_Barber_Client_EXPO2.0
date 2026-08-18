@@ -19,7 +19,7 @@ import { CardScroller } from '@/components/CardScroller';
 import { Chip } from '@/components/Chip';
 import Header from '@/components/Header';
 import Icon from '@/components/Icon';
-import SkeletonLoader from '@/components/SkeletonLoader';
+import SiteLoadingState from '@/components/SiteLoadingState';
 import ThemedScroller from '@/components/ThemeScroller';
 import ThemedText from '@/components/ThemedText';
 import { CLIENT_APP_V1_ENABLED } from '@/constants/clientAppApi';
@@ -298,9 +298,7 @@ export default function NotificationsScreen() {
 
         <ThemedScroller>
           {isLoading ? (
-            <View className="p-4">
-              <SkeletonLoader variant="list" count={6} />
-            </View>
+            <SiteLoadingState layout="section" className="p-4" />
           ) : loadError ? (
             <View className="items-center p-8">
               <ThemedText className="text-red-500 dark:text-red-400">{loadError}</ThemedText>

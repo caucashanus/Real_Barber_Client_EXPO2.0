@@ -1,15 +1,14 @@
 import { Image } from 'expo-image';
 import { router, useLocalSearchParams } from 'expo-router';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { View, ScrollView, Pressable, ActivityIndicator } from 'react-native';
+import { View, ScrollView, Pressable } from 'react-native';
 
 import {
   fetchAvailableDatesInMonth,
   getBookingById,
   getBookingAvailability,
   type Booking,
-  type BookingAvailabilityResponse,
-} from '@/api/bookings';
+  type BookingAvailabilityResponse} from '@/api/bookings';
 import { useAuth } from '@/contexts/AuthContext';
 import { useLanguage } from '@/contexts/LanguageContext';
 import useThemeColors from '@/contexts/ThemeColors';
@@ -24,6 +23,7 @@ import CurrentBookingCard from '@/components/booking/CurrentBookingCard';
 import Section from '@/components/layout/Section';
 import { dedupeAvailabilitySlots } from '@/utils/availabilitySlots';
 import { intlLocaleTag } from '@/utils/intlLocaleTag';
+import SiteLoadingSpinner from '@/components/SiteLoadingSpinner';
 
 function toIsoDate(d: Date): string {
   const y = d.getFullYear();
@@ -44,8 +44,7 @@ function getMonthDays(offset: number, dateLocale: string): { value: string; labe
     if (dt < new Date(now.getFullYear(), now.getMonth(), now.getDate())) continue;
     out.push({
       value: toIsoDate(dt),
-      label: dt.toLocaleDateString(dateLocale, { weekday: 'short', day: '2-digit' }),
-    });
+      label: dt.toLocaleDateString(dateLocale, { weekday: 'short', day: '2-digit' })});
   }
   return out;
 }
@@ -126,8 +125,7 @@ export default function RescheduleScreen() {
     initialRef.current = {
       date: d,
       slotStart: booking.slotStart || '',
-      slotEnd: booking.slotEnd || '',
-    };
+      slotEnd: booking.slotEnd || ''};
   }, [booking]);
 
   const monthDays = useMemo(
@@ -172,8 +170,7 @@ export default function RescheduleScreen() {
       employeeId,
       date,
       branchId: branchId || undefined,
-      itemId: itemId || undefined,
-    })
+      itemId: itemId || undefined})
       .then((res) => {
         if (!cancelled) setAvailability(res);
       })
@@ -204,8 +201,7 @@ export default function RescheduleScreen() {
       branchId,
       itemId,
       monthOffset,
-      monthDays,
-    })
+      monthDays})
       .then((available) => {
         if (cancelled) return;
         setAvailableDatesInMonth(new Set(available));
@@ -254,7 +250,7 @@ export default function RescheduleScreen() {
       <>
         <Header title={t('rescheduleTitle')} showBackButton />
         <View className="flex-1 items-center justify-center bg-light-primary dark:bg-dark-primary">
-          <ActivityIndicator size="large" />
+          <SiteLoadingSpinner />
           <ThemedText className="mt-2 text-light-subtext dark:text-dark-subtext">
             {t('commonLoading')}
           </ThemedText>
@@ -336,7 +332,7 @@ export default function RescheduleScreen() {
             </View>
             {loadingMonthAvailability ? (
               <View className="items-center py-4">
-                <ActivityIndicator size="small" />
+                <SiteLoadingSpinner size="compact" />
               </View>
             ) : null}
             <View className="flex-row flex-wrap gap-2">
@@ -366,7 +362,7 @@ export default function RescheduleScreen() {
             </View>
             {loadingAvailability ? (
               <View className="items-center py-10">
-                <ActivityIndicator size="small" />
+                <SiteLoadingSpinner size="compact" />
               </View>
             ) : availabilityError ? (
               <ThemedText className="text-red-500">{availabilityError}</ThemedText>

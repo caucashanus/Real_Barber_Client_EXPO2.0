@@ -1,6 +1,6 @@
 import { Image } from 'expo-image';
 import React, { useMemo } from 'react';
-import { ActivityIndicator, Pressable, ScrollView, View } from 'react-native';
+import { Pressable, ScrollView, View } from 'react-native';
 
 import type { BookingSlotServiceItem } from '@/api/bookings';
 import type { ReservationCreateStepProps } from './types';
@@ -10,6 +10,7 @@ import { CardScroller } from '@/components/CardScroller';
 import ThemedText from '@/components/ThemedText';
 import Section from '@/components/layout/Section';
 import { formatBookingSlotHandoffServiceTimeButtonLabel } from '@/utils/reservationCreateHelpers';
+import SiteLoadingSpinner from '@/components/SiteLoadingSpinner';
 
 export default function ReservationServiceStep({ flow }: ReservationCreateStepProps) {
   const { t } = flow;
@@ -32,7 +33,7 @@ export default function ReservationServiceStep({ flow }: ReservationCreateStepPr
 
         {flow.loadingSlotServices ? (
           <View className="items-center py-10">
-            <ActivityIndicator size="small" />
+            <SiteLoadingSpinner size="compact" />
             <ThemedText className="mt-3 text-sm text-light-subtext dark:text-dark-subtext">
               {t('commonLoading')}
             </ThemedText>
@@ -62,8 +63,7 @@ export default function ReservationServiceStep({ flow }: ReservationCreateStepPr
                 handoffSlotStart: handoff.slotStart,
                 nextAvailable: service.nextAvailable,
                 dateLocaleTag: flow.dateLocaleTag,
-                t,
-              });
+                t});
 
               return (
                 <Pressable
@@ -138,7 +138,7 @@ export default function ReservationServiceStep({ flow }: ReservationCreateStepPr
         (flow.loadingAggregatedBranchServices && flow.branchStepServiceOptions.length === 0)) &&
       flow.branchStepServiceOptions.length === 0 ? (
         <View className="items-center py-10">
-          <ActivityIndicator size="small" />
+          <SiteLoadingSpinner size="compact" />
           <ThemedText className="mt-3 text-sm text-light-subtext dark:text-dark-subtext">
             {t('commonLoading')}
           </ThemedText>

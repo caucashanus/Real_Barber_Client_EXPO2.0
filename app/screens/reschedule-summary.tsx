@@ -1,7 +1,7 @@
 import { Image } from 'expo-image';
 import { router, useLocalSearchParams } from 'expo-router';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { View, ScrollView, ActivityIndicator } from 'react-native';
+import { View, ScrollView } from 'react-native';
 
 import { getBookingById, updateBooking, type Booking } from '@/api/bookings';
 import { useAuth } from '@/contexts/AuthContext';
@@ -16,6 +16,7 @@ import ThemedText from '@/components/ThemedText';
 import CurrentBookingCard from '@/components/booking/CurrentBookingCard';
 import Section from '@/components/layout/Section';
 import { intlLocaleTag } from '@/utils/intlLocaleTag';
+import SiteLoadingSpinner from '@/components/SiteLoadingSpinner';
 
 function formatDateLabel(date: string, locale: string): string {
   const parsed = new Date(date);
@@ -24,8 +25,7 @@ function formatDateLabel(date: string, locale: string): string {
     weekday: 'long',
     day: '2-digit',
     month: 'long',
-    year: 'numeric',
-  });
+    year: 'numeric'});
 }
 
 export default function RescheduleSummaryScreen() {
@@ -96,8 +96,7 @@ export default function RescheduleSummaryScreen() {
       await updateBooking(apiToken, booking.id, {
         date,
         slotStart,
-        slotEnd,
-      });
+        slotEnd});
       await refreshBookings({ force: true });
       router.replace('/bookings');
     } catch (e) {
@@ -112,7 +111,7 @@ export default function RescheduleSummaryScreen() {
       <>
         <Header title={t('rescheduleSummaryTitle')} showBackButton />
         <View className="flex-1 items-center justify-center bg-light-primary dark:bg-dark-primary">
-          <ActivityIndicator size="large" />
+          <SiteLoadingSpinner />
           <ThemedText className="mt-2 text-light-subtext dark:text-dark-subtext">
             {t('commonLoading')}
           </ThemedText>

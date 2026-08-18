@@ -1,5 +1,4 @@
-import { router } from 'expo-router';
-import React from 'react';
+import React, { useMemo, useRef } from 'react';
 import {
   KeyboardAvoidingView,
   Platform,
@@ -8,10 +7,12 @@ import {
   View,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import type { ActionSheetRef } from 'react-native-actions-sheet';
 
 import type { BookingEngineFlow } from '@/hooks/useBookingEngineFlow';
 import AppButton from '@/components/AppButton';
 import ReserveButton from '@/components/ReserveButton';
+import ConfirmationModal from '@/components/ConfirmationModal';
 import {
   BookingEngineScrollProvider,
   useBookingEngineScroll,
@@ -40,6 +41,31 @@ function BookingEngineFlowShellBody({ flow, children }: BookingEngineFlowShellPr
   const insets = useSafeAreaInsets();
   const { activeSteps, stepLabels, footerAction } = flow;
   const bookingScroll = useBookingEngineScroll();
+  const holdDialogRef = useRef<ActionSheetRef>(null);
+
+  const holdDialogCopy = useMemo(() => {
+    if (flow.hold.dialogKind === 'expired') {
+      return {
+        title: flow.t('bookingHoldExpiredTitle'),
+        message: flow.t('bookingHoldExpiredDescription'),
+        confirmText: flow.t('bookingHoldExpiredConfirm'),
+      };
+    }
+    if (flow.hold.dialogKind === 'unavailable') {
+      return {
+        title: flow.t('bookingHoldUnavailableTitle'),
+        message: flow.t('bookingHoldUnavailableDescription'),
+        confirmText: flow.t('bookingHoldUnavailableConfirm'),
+      };
+    }
+    return null;
+  }, [flow.hold.dialogKind, flow.t]);
+
+  React.useEffect(() => {
+    if (holdDialogCopy) {
+      holdDialogRef.current?.show();
+    }
+  }, [holdDialogCopy]);
 
   return (
     <KeyboardAvoidingView
@@ -63,7 +89,7 @@ function BookingEngineFlowShellBody({ flow, children }: BookingEngineFlowShellPr
               )}
             </View>
             <Pressable
-              onPress={() => router.back()}
+              onPress={flow.leaveBookingFlow}
               className="rounded-full p-2 active:opacity-70"
               hitSlop={8}>
               <Icon name="X" size={24} className="text-light-text dark:text-dark-text" />
@@ -102,10 +128,11 @@ function BookingEngineFlowShellBody({ flow, children }: BookingEngineFlowShellPr
           <View
             className="border-t border-light-secondary bg-light-secondary px-4 py-3 dark:border-dark-secondary dark:bg-dark-secondary"
             style={{ paddingBottom: Math.max(insets.bottom, 12) }}>
-            {flow.contact.submitError ? (
+            {flow.contact.submitError || flow.hold.createError ? (
               <View className="mb-3 rounded-xl border border-amber-500/40 bg-amber-500/10 px-3 py-2">
                 <ThemedText className="text-sm text-amber-700 dark:text-amber-300">
-                  {flow.contact.submitError}
+                  {flow.contact.submitError ??
+                    flow.t('bookingHoldFailed')}
                 </ThemedText>
               </View>
             ) : null}
@@ -148,6 +175,18 @@ function BookingEngineFlowShellBody({ flow, children }: BookingEngineFlowShellPr
           </View>
         ) : null}
       </View>
+
+      {holdDialogCopy ? (
+        <ConfirmationModal
+          actionSheetRef={holdDialogRef}
+          title={holdDialogCopy.title}
+          message={holdDialogCopy.message}
+          confirmText={holdDialogCopy.confirmText}
+          cancelText={flow.t('commonCancel')}
+          onConfirm={() => flow.handleHoldDialogConfirm()}
+          onCancel={() => flow.hold.dismissDialog()}
+        />
+      ) : null}
     </KeyboardAvoidingView>
   );
 }

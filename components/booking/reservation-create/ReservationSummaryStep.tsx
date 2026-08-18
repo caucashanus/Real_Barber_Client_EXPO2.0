@@ -1,6 +1,6 @@
 import { Image } from 'expo-image';
 import React from 'react';
-import { ActivityIndicator, ScrollView, TextInput, View } from 'react-native';
+import { ScrollView, TextInput, View } from 'react-native';
 
 import type { ReservationCreateStepProps } from './types';
 
@@ -179,14 +179,6 @@ export default function ReservationSummaryStep({ flow }: ReservationCreateStepPr
         ) : null}
       </Section>
 
-      {flow.creatingBooking ? (
-        <View className="mt-3 flex-row items-center justify-center">
-          <ActivityIndicator size="small" />
-          <ThemedText className="ml-2 text-sm text-light-subtext dark:text-dark-subtext">
-            {t('reservationSummaryCreating')}
-          </ThemedText>
-        </View>
-      ) : null}
       {flow.createBookingError ? (
         <ThemedText className="mt-3 text-sm text-red-500 dark:text-red-400">
           {flow.createBookingError}

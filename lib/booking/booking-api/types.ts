@@ -147,6 +147,18 @@ export type BookingOtpRequestResult = {
   expiresInSeconds?: number;
 };
 
+export type BookingHoldResponse = {
+  holdId: string;
+  expiresAt: string;
+  ttlSeconds?: number;
+  branchId: string;
+  itemId: string;
+  employeeId: string;
+  date: string;
+  slotStart: string;
+  slotEnd: string;
+};
+
 export type BookingCreateReservationResponse = {
   id?: string;
   booking?: { id?: string };

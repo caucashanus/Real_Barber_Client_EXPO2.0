@@ -2,7 +2,7 @@ import { Image } from 'expo-image';
 import type { ImagePickerAsset } from 'expo-image-picker';
 import { router, useLocalSearchParams } from 'expo-router';
 import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react';
-import { View, TouchableOpacity, ActivityIndicator, Pressable, Linking, ScrollView } from 'react-native';
+import { View, TouchableOpacity, Pressable, Linking, ScrollView } from 'react-native';
 import { ActionSheetRef } from 'react-native-actions-sheet';
 
 import { getClientMe, patchClientMe, uploadClientMedia, type ClientMe } from '@/api/client';
@@ -23,9 +23,9 @@ import { pickSquareAvatarFromLibrary, takeSquareAvatarPhoto } from '@/utils/avat
 import { formatBirthdayToIsoUtcMidnight, formatToYYYYMMDD } from '@/utils/date';
 import {
   buildEditProfileAvatarPatch,
-  hasServerProfileAvatar,
-} from '@/utils/editProfileAvatar';
+  hasServerProfileAvatar} from '@/utils/editProfileAvatar';
 import { COUNTRY_OPTIONS } from '@/utils/phone';
+import SiteLoadingSpinner from '@/components/SiteLoadingSpinner';
 
 type EditProfileFocus = 'email' | 'birthday' | 'avatar' | 'address';
 
@@ -69,8 +69,7 @@ export default function EditProfileScreen() {
     const timer = setTimeout(() => {
       scrollRef.current?.scrollTo({
         y: Math.max(0, (sectionOffsetsRef.current[focusKey] ?? 0) - 16),
-        animated: true,
-      });
+        animated: true});
     }, 250);
 
     return () => clearTimeout(timer);
@@ -162,16 +161,14 @@ export default function EditProfileScreen() {
           name: avatarAsset.fileName ?? undefined,
           mimeType: avatarAsset.mimeType ?? undefined,
           title: `${firstName.trim()} ${lastName.trim()}`.trim() || undefined,
-          alt: `${firstName.trim()} ${lastName.trim()}`.trim() || undefined,
-        });
+          alt: `${firstName.trim()} ${lastName.trim()}`.trim() || undefined});
         uploadedAvatarUrl = uploaded.url;
       }
 
       const updated = await patchClientMe(apiToken, {
         ...buildEditProfileAvatarPatch({
           uploadedAvatarUrl,
-          avatarRemoved,
-        }),
+          avatarRemoved}),
         firstName: firstName.trim() || undefined,
         lastName: lastName.trim() || undefined,
         email: email.trim() || undefined,
@@ -181,8 +178,7 @@ export default function EditProfileScreen() {
         address: street.trim() || undefined,
         city: city.trim() || undefined,
         zip: zip.trim() || undefined,
-        country: country.trim() || undefined,
-      });
+        country: country.trim() || undefined});
 
       if (token && authClient) {
         const displayName =
@@ -196,8 +192,7 @@ export default function EditProfileScreen() {
           phone: updated.phone ?? authClient.phone,
           avatarUrl: updated.avatarUrl,
           address: updated.address ?? authClient.address,
-          birthday: updated.birthday ?? authClient.birthday,
-        });
+          birthday: updated.birthday ?? authClient.birthday});
       }
 
       setClient(updated);
@@ -247,7 +242,7 @@ export default function EditProfileScreen() {
 
         {loading ? (
           <View className="items-center py-12">
-            <ActivityIndicator size="large" />
+            <SiteLoadingSpinner />
             <ThemedText className="mt-3 text-light-subtext dark:text-dark-subtext">
               {t('editProfileLoading')}
             </ThemedText>

@@ -1,13 +1,12 @@
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { View, ActivityIndicator, Animated, Share } from 'react-native';
+import { View, Animated, Share } from 'react-native';
 
 import {
   generateReferral,
   getReferrals,
   type ClientReferralItem,
-  type ReferralActiveProgram,
-} from '@/api/referrals';
+  type ReferralActiveProgram} from '@/api/referrals';
 import { useAuth } from '@/contexts/AuthContext';
 import { useTranslation } from '@/hooks/useTranslation';
 import AnimatedView from '@/components/AnimatedView';
@@ -20,6 +19,7 @@ import ThemedScroller from '@/components/ThemeScroller';
 import ThemedText from '@/components/ThemedText';
 import Section from '@/components/layout/Section';
 import { intlLocaleTag } from '@/utils/intlLocaleTag';
+import SiteLoadingSpinner from '@/components/SiteLoadingSpinner';
 
 const REFERRAL_SHARE_BASE = 'https://crm.xrb.cz/ref/';
 const FALLBACK_COVER = require('@/assets/img/branches/Modrany.jpg');
@@ -31,8 +31,7 @@ function formatDate(iso: string, locale: string): string {
     return new Intl.DateTimeFormat(intlLocaleTag(locale), {
       day: '2-digit',
       month: '2-digit',
-      year: 'numeric',
-    }).format(d);
+      year: 'numeric'}).format(d);
   } catch {
     return d.toISOString().slice(0, 10);
   }
@@ -91,8 +90,7 @@ export default function ReferralProgramDetailScreen() {
     try {
       const res = await generateReferral(apiToken, {
         programId: program.id,
-        coverImageUrl: program.coverImageUrl ?? null,
-      });
+        coverImageUrl: program.coverImageUrl ?? null});
       const shareUrl = `${REFERRAL_SHARE_BASE}${encodeURIComponent(res.referral.code)}`;
       await Share.share({ message: shareUrl });
     } catch (e) {
@@ -107,7 +105,7 @@ export default function ReferralProgramDetailScreen() {
       <>
         <Header title={t('referralProgramTitle')} showBackButton />
         <View className="flex-1 items-center justify-center bg-light-primary dark:bg-dark-primary">
-          <ActivityIndicator size="large" />
+          <SiteLoadingSpinner />
           <ThemedText className="mt-2 text-light-subtext dark:text-dark-subtext">
             {t('commonLoading')}
           </ThemedText>
@@ -140,8 +138,7 @@ export default function ReferralProgramDetailScreen() {
         className="flex-1 px-0"
         keyboardShouldPersistTaps="handled"
         onScroll={Animated.event([{ nativeEvent: { contentOffset: { y: heroScrollY } } }], {
-          useNativeDriver: false,
-        })}
+          useNativeDriver: false})}
         scrollEventThrottle={16}>
         <AnimatedView animation="fadeIn" duration={400} delay={100}>
           {/* Hero image */}

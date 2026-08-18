@@ -59,6 +59,15 @@ function branchHasDisplayName(entity: BookingEntity): boolean {
   return Boolean(name && name !== entity.id);
 }
 
+function resolveCatalogBranchAddress(
+  branchId: string,
+  catalogs: BookingSlotRestoreCatalogs
+): string | undefined {
+  const fromBranches = catalogs.branches.find((b) => b.id === branchId)?.address?.trim();
+  if (fromBranches) return fromBranches;
+  return catalogs.profileBranches.find((b) => b.id === branchId)?.address?.trim() || undefined;
+}
+
 export function enrichServiceFromStoredSlotContext(
   service: BookingService,
   stored: StoredBookingSlotContext
@@ -159,6 +168,12 @@ function enrichBranchDisplayName(
       catalogs.branches.find((b) => b.id === branchId)?.name?.trim();
     if (betterName && betterName !== branchId) {
       next = { ...next, name: betterName };
+    }
+  }
+  if (!next.address?.trim()) {
+    const catalogAddress = resolveCatalogBranchAddress(branchId, catalogs);
+    if (catalogAddress) {
+      next = { ...next, address: catalogAddress };
     }
   }
   const address = storedBranchAddress?.trim();

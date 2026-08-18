@@ -1,6 +1,6 @@
 import { Image } from 'expo-image';
 import React from 'react';
-import { ActivityIndicator, Pressable, ScrollView, View } from 'react-native';
+import { Pressable, ScrollView, View } from 'react-native';
 
 import type { ReservationCreateStepProps } from './types';
 
@@ -9,6 +9,7 @@ import AppButton from '@/components/AppButton';
 import ThemedText from '@/components/ThemedText';
 import Selectable from '@/components/forms/Selectable';
 import { getBranchImageUrl } from '@/utils/reservationCreateHelpers';
+import SiteLoadingSpinner from '@/components/SiteLoadingSpinner';
 
 export default function ReservationBranchStep({ flow }: ReservationCreateStepProps) {
   const { t } = flow;
@@ -45,7 +46,7 @@ export default function ReservationBranchStep({ flow }: ReservationCreateStepPro
       </View>
       {flow.loadingBranches ? (
         <View className="items-center py-10">
-          <ActivityIndicator size="small" />
+          <SiteLoadingSpinner size="compact" />
         </View>
       ) : (
         flow.branchesForReservation.map((branch) => {
