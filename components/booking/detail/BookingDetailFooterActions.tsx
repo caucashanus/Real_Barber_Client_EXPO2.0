@@ -13,6 +13,7 @@ import ThemedFooter from '@/components/ThemeFooter';
 import ThemedText from '@/components/ThemedText';
 import type { TranslationKey } from '@/locales';
 import { buildReservationReviewContextQuery } from '@/utils/bookingDetailHelpers';
+import { invalidateListingAvailability } from '@/lib/availability/listingCache';
 
 interface BookingDetailFooterActionsProps {
   booking: Booking;
@@ -125,6 +126,13 @@ export default function BookingDetailFooterActions({
             if (!apiToken) return;
             cancelBooking(apiToken, booking.id)
               .then(() => refreshBookings({ force: true }))
+              .then(() => {
+                invalidateListingAvailability({
+                  employeeId: booking.employeeId,
+                  branchId: booking.branchId,
+                  serviceId: booking.itemId,
+                });
+              })
               .then(() => {
                 router.back();
               })

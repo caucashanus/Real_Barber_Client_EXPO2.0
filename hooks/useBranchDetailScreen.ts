@@ -11,7 +11,10 @@ import {
 import type { TeamMemberPageReview } from '@/api/publicTeamMember';
 import { useAuth } from '@/contexts/AuthContext';
 import { useLanguage } from '@/contexts/LanguageContext';
-import { BRANCH_PAGE_CACHE_MS } from '@/constants/branchPage';
+import {
+  ackListingFetch,
+  shouldRefetchListing,
+} from '@/lib/availability/listingCache';
 import { resolveInternalBranchIdFromCrmUuid } from '@/constants/crmBranchIds';
 import { usePublicReviewsPagination } from '@/hooks/usePublicReviewsPagination';
 import { groupNearestBranchSlots } from '@/utils/nearestBranchHomeSlots';
@@ -21,10 +24,10 @@ import {
 } from '@/utils/publicReviewHelpers';
 import { buildReviewStatsFromPage, getPragueTodayDateString } from '@/utils/teamMemberPageHelpers';
 
-const pageCache = new Map<string, { expiresAt: number; data: BranchPageResponse | null }>();
+const pageCache = new Map<string, { fetchedAt: number; data: BranchPageResponse | null }>();
 
 function cacheKey(idOrSlug: string, date: string): string {
-  return `${idOrSlug}:${date}`;
+  return `branch:${idOrSlug}:${date}`;
 }
 
 type LoadPageOptions = {
@@ -89,13 +92,12 @@ export function useBranchDetailScreen(id: string) {
       }
 
       const key = cacheKey(id, todayIso);
-      if (!options?.skipCache) {
-        const cached = pageCache.get(key);
-        if (cached && cached.expiresAt > Date.now()) {
-          await applyBranchPageData(cached.data);
-          setLoading(false);
-          return;
-        }
+      const cached = pageCache.get(key);
+      const cachedAt = cached?.fetchedAt ?? 0;
+      if (!options?.skipCache && cached && !shouldRefetchListing(key, cachedAt)) {
+        await applyBranchPageData(cached.data);
+        setLoading(false);
+        return;
       }
 
       if (!options?.background) {
@@ -107,8 +109,9 @@ export function useBranchDetailScreen(id: string) {
         const data = await getPublicBranchPage(id, { date: todayIso });
         pageCache.set(key, {
           data,
-          expiresAt: Date.now() + BRANCH_PAGE_CACHE_MS,
+          fetchedAt: Date.now(),
         });
+        ackListingFetch(key);
         await applyBranchPageData(data);
       } catch (e) {
         setBranch(null);
@@ -134,7 +137,7 @@ export function useBranchDetailScreen(id: string) {
 
   useFocusEffect(
     useCallback(() => {
-      loadPage({ background: true, skipCache: true }).catch(() => {});
+      loadPage({ background: true }).catch(() => {});
     }, [loadPage])
   );
 

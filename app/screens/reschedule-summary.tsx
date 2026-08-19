@@ -17,6 +17,7 @@ import CurrentBookingCard from '@/components/booking/CurrentBookingCard';
 import Section from '@/components/layout/Section';
 import { intlLocaleTag } from '@/utils/intlLocaleTag';
 import SiteLoadingSpinner from '@/components/SiteLoadingSpinner';
+import { invalidateListingAvailability } from '@/lib/availability/listingCache';
 
 function formatDateLabel(date: string, locale: string): string {
   const parsed = new Date(date);
@@ -98,6 +99,11 @@ export default function RescheduleSummaryScreen() {
         slotStart,
         slotEnd});
       await refreshBookings({ force: true });
+      invalidateListingAvailability({
+        employeeId: booking.employeeId,
+        branchId: booking.branchId,
+        serviceId: booking.itemId,
+      });
       router.replace('/bookings');
     } catch (e) {
       setSubmitError(e instanceof Error ? e.message : String(e));

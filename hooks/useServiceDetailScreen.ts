@@ -4,15 +4,21 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { fetchPublicServicePage } from '@/api/publicServicePage';
 import { useLanguage } from '@/contexts/LanguageContext';
 import {
+  ackListingFetch,
+  shouldRefetchListing,
+} from '@/lib/availability/listingCache';
+import {
   mapPublicServiceToDetail,
   type CatalogServiceDetail,
 } from '@/utils/serviceDetailHelpers';
 import { groupNearestBranchSlots } from '@/utils/nearestBranchHomeSlots';
 import { getPragueTodayDateString } from '@/utils/teamMemberPageHelpers';
 
+const pageCache = new Map<string, { fetchedAt: number; detail: CatalogServiceDetail | null }>();
+
 type LoadPageOptions = {
   background?: boolean;
-  bustCache?: boolean;
+  force?: boolean;
 };
 
 export function useServiceDetailScreen(idOrSlug: string) {
@@ -23,10 +29,23 @@ export function useServiceDetailScreen(idOrSlug: string) {
   const [error, setError] = useState<string | null>(null);
 
   const todayIso = useMemo(() => getPragueTodayDateString(), []);
+  const listingKey = useMemo(
+    () => `service:${idOrSlug}:${todayIso}`,
+    [idOrSlug, todayIso]
+  );
 
   const loadPage = useCallback(
     async (options?: LoadPageOptions) => {
       if (!idOrSlug) {
+        setLoading(false);
+        return;
+      }
+
+      const cached = pageCache.get(listingKey);
+      const cachedAt = cached?.fetchedAt ?? 0;
+      if (!options?.force && cached && !shouldRefetchListing(listingKey, cachedAt)) {
+        setDetail(cached.detail);
+        setError(cached.detail ? null : 'not-found');
         setLoading(false);
         return;
       }
@@ -39,15 +58,20 @@ export function useServiceDetailScreen(idOrSlug: string) {
       try {
         const service = await fetchPublicServicePage(idOrSlug, {
           date: todayIso,
-          bustCache: options?.bustCache,
+          bustCache: options?.force,
         });
         if (!service) {
+          pageCache.set(listingKey, { fetchedAt: Date.now(), detail: null });
+          ackListingFetch(listingKey);
           setDetail(null);
           setError('not-found');
           return;
         }
 
-        setDetail(mapPublicServiceToDetail(service, locale));
+        const nextDetail = mapPublicServiceToDetail(service, locale);
+        pageCache.set(listingKey, { fetchedAt: Date.now(), detail: nextDetail });
+        ackListingFetch(listingKey);
+        setDetail(nextDetail);
       } catch {
         setDetail(null);
         setError('load-error');
@@ -57,7 +81,7 @@ export function useServiceDetailScreen(idOrSlug: string) {
         }
       }
     },
-    [idOrSlug, locale, todayIso]
+    [idOrSlug, listingKey, locale, todayIso]
   );
 
   useEffect(() => {
@@ -66,7 +90,7 @@ export function useServiceDetailScreen(idOrSlug: string) {
 
   useFocusEffect(
     useCallback(() => {
-      loadPage({ background: true, bustCache: true }).catch(() => {});
+      loadPage({ background: true }).catch(() => {});
     }, [loadPage])
   );
 

@@ -10,23 +10,32 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useTranslation } from '@/hooks/useTranslation';
 import {
+  ackListingFetch,
+  shouldRefetchListing,
+} from '@/lib/availability/listingCache';
+import {
   buildHomeTodayTeamCards,
   mergeTodayTeamWithAvailability,
   type HomeTodayTeamCardModel,
 } from '@/utils/homeTodayTeamHelpers';
-import { shouldStaleRefresh } from '@/utils/staleRefresh';
 import { warmBranchHomeSlotsCatalogFromHomeResponse } from '@/utils/fetchBranchHomeSlotsCatalog';
 import { getPragueTodayDateString } from '@/utils/teamMemberPageHelpers';
 
-const HOME_STALE_MS = 60_000;
-
 type MergedTodayTeamMember = HomepageTodayTeamMember & { nextSlots: HomepageNextSlot[] };
+
+function homeListingKey(today: string, locale: string, apiToken?: string | null): string {
+  return `home:${today}:${locale}:${apiToken ?? 'guest'}`;
+}
 
 export function useHomePage() {
   const { apiToken } = useAuth();
   const { locale } = useLanguage();
   const { t } = useTranslation();
   const today = useMemo(() => getPragueTodayDateString(), []);
+  const listingKey = useMemo(
+    () => homeListingKey(today, locale, apiToken),
+    [today, locale, apiToken]
+  );
 
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -46,20 +55,20 @@ export function useHomePage() {
       setCoupons(data.coupons ?? []);
       setPosters(data.posters ?? []);
       lastFetchedAtRef.current = Date.now();
+      ackListingFetch(listingKey);
       if (apiToken) {
         warmBranchHomeSlotsCatalogFromHomeResponse(data, locale, t, apiToken, today);
       }
     },
-    [apiToken, locale, t, today]
+    [apiToken, listingKey, locale, t, today]
   );
 
   const loadHome = useCallback(
     async (options?: { force?: boolean; silent?: boolean }) => {
-      const isStale = shouldStaleRefresh(lastFetchedAtRef.current, {
+      const needsFetch = shouldRefetchListing(listingKey, lastFetchedAtRef.current, {
         force: options?.force,
-        staleMs: HOME_STALE_MS,
       });
-      if (!isStale) return;
+      if (!needsFetch) return;
 
       if (inflightRef.current) return inflightRef.current;
 
@@ -88,7 +97,7 @@ export function useHomePage() {
 
       return inflightRef.current;
     },
-    [apiToken, applyHomeData, locale, today]
+    [apiToken, applyHomeData, listingKey, locale, today]
   );
 
   const refresh = useCallback(async () => {
@@ -109,7 +118,7 @@ export function useHomePage() {
 
   useFocusEffect(
     useCallback(() => {
-      loadHome().catch(() => {});
+      loadHome({ silent: true }).catch(() => {});
     }, [loadHome])
   );
 

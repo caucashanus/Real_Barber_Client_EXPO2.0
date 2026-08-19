@@ -11,7 +11,10 @@ import {
 import { useBarberReviewsPagination } from '@/hooks/useBarberReviewsPagination';
 import { useAuth } from '@/contexts/AuthContext';
 import { useLanguage } from '@/contexts/LanguageContext';
-import { TEAM_MEMBER_PAGE_CACHE_MS } from '@/constants/teamMemberPage';
+import {
+  ackListingFetch,
+  shouldRefetchListing,
+} from '@/lib/availability/listingCache';
 import { fetchMergedPageReviewsWithOwn } from '@/utils/publicReviewHelpers';
 import {
   branchesFromShiftCalendar,
@@ -27,10 +30,10 @@ import {
   isShiftCalendarConfigured,
 } from '@/utils/teamMemberPageHelpers';
 
-const pageCache = new Map<string, { expiresAt: number; data: TeamMemberPageResponse | null }>();
+const pageCache = new Map<string, { fetchedAt: number; data: TeamMemberPageResponse | null }>();
 
 function cacheKey(idOrSlug: string, date: string): string {
-  return `${idOrSlug}:${date}`;
+  return `employee:${idOrSlug}:${date}`;
 }
 
 type LoadPageOptions = {
@@ -88,13 +91,12 @@ export function useBarberDetailScreen(idOrSlug: string) {
       }
 
       const key = cacheKey(idOrSlug, today);
-      if (!options?.skipCache) {
-        const cached = pageCache.get(key);
-        if (cached && cached.expiresAt > Date.now()) {
-          await applyEmployeePageData(cached.data);
-          setLoading(false);
-          return;
-        }
+      const cached = pageCache.get(key);
+      const cachedAt = cached?.fetchedAt ?? 0;
+      if (!options?.skipCache && cached && !shouldRefetchListing(key, cachedAt)) {
+        await applyEmployeePageData(cached.data);
+        setLoading(false);
+        return;
       }
 
       if (!options?.background) {
@@ -106,8 +108,9 @@ export function useBarberDetailScreen(idOrSlug: string) {
         const data = await getTeamMemberPage(idOrSlug, { date: today });
         pageCache.set(key, {
           data,
-          expiresAt: Date.now() + TEAM_MEMBER_PAGE_CACHE_MS,
+          fetchedAt: Date.now(),
         });
+        ackListingFetch(key);
         await applyEmployeePageData(data);
       } catch (e) {
         setEmployee(null);
@@ -132,7 +135,7 @@ export function useBarberDetailScreen(idOrSlug: string) {
 
   useFocusEffect(
     useCallback(() => {
-      loadPage({ background: true, skipCache: true }).catch(() => {});
+      loadPage({ background: true }).catch(() => {});
     }, [loadPage])
   );
 

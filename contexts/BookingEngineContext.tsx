@@ -6,19 +6,11 @@ import React, {
   useEffect,
   useMemo,
   useReducer,
-  useRef,
   useState,
 } from 'react';
 
 import type { BookingEntity, BookingService, BookingSlot } from '@/lib/booking/constants';
-import {
-  buildBookingDraftSnapshot,
-  clearBookingDraft,
-  readBookingDraft,
-  restoreSelectionsFromDraft,
-  saveBookingDraft,
-  shouldRestoreBookingDraft,
-} from '@/lib/booking/engine/bookingDraft';
+import { clearBookingDraft } from '@/lib/booking/engine/bookingDraft';
 import { resolvePresetFromRouteParams } from '@/lib/booking/engine/resolvePresetFromParams';
 import {
   bookingSelectionsReducer,
@@ -31,8 +23,6 @@ import {
   computeMaxAllowedStep,
   isStepSatisfiedForKind,
 } from '@/lib/booking/engine/navigation/cleanup';
-import { getRecipe } from '@/lib/booking/engine/recipes';
-import { resolveActiveSteps } from '@/lib/booking/engine/resolveActiveSteps';
 
 type BookingEngineContextValue = {
   recipeId: ReturnType<typeof resolvePresetFromRouteParams>['recipeId'];
@@ -89,59 +79,17 @@ export function BookingEngineProvider({ children }: { children: React.ReactNode 
   );
   const [stepIndex, setStepIndex] = useState(0);
   const [draftReady, setDraftReady] = useState(false);
-  const draftSaveTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const skipDraftSaveRef = useRef(true);
 
   useEffect(() => {
     let cancelled = false;
     void (async () => {
-      const draft = await readBookingDraft();
-      if (cancelled) return;
-      if (
-        draft &&
-        shouldRestoreBookingDraft({
-          draft,
-          recipeId,
-          presetBranchId: preset.branchId,
-          presetServiceId: preset.serviceId,
-          presetEmployeeId: preset.employeeId,
-        })
-      ) {
-        const restored = restoreSelectionsFromDraft(draft);
-        dispatch({ type: 'RESTORE', payload: restored });
-        const recipe = getRecipe(recipeId);
-        const activeSteps = resolveActiveSteps(recipe, preset, {
-          skipContact: false,
-          skipDatetime: false,
-        });
-        const maxAllowed = computeMaxAllowedStep(activeSteps, {
-          branch: restored.branch ? { id: restored.branch.id, name: restored.branch.name } : null,
-          service: restored.service ? { id: restored.service.id, name: restored.service.name } : null,
-          employee: restored.employee ? { id: restored.employee.id, name: restored.employee.name } : null,
-          date: restored.date ?? null,
-          slot: restored.slot ?? null,
-        });
-        const maxIdx = Math.max(0, activeSteps.indexOf(maxAllowed));
-        setStepIndex(Math.min(restored.stepIndex, maxIdx));
-      }
-      skipDraftSaveRef.current = false;
-      setDraftReady(true);
+      await clearBookingDraft();
+      if (!cancelled) setDraftReady(true);
     })();
     return () => {
       cancelled = true;
     };
   }, [recipeId, preset.branchId, preset.serviceId, preset.employeeId]);
-
-  useEffect(() => {
-    if (!draftReady || skipDraftSaveRef.current) return;
-    if (draftSaveTimerRef.current) clearTimeout(draftSaveTimerRef.current);
-    draftSaveTimerRef.current = setTimeout(() => {
-      void saveBookingDraft(buildBookingDraftSnapshot(recipeId, selections, stepIndex));
-    }, 400);
-    return () => {
-      if (draftSaveTimerRef.current) clearTimeout(draftSaveTimerRef.current);
-    };
-  }, [draftReady, recipeId, selections, stepIndex]);
 
   const setBranch = useCallback(
     (branch: BookingEntity | null, options?: { clearDownstream?: boolean }) => {
@@ -200,9 +148,7 @@ export function BookingEngineProvider({ children }: { children: React.ReactNode 
   }, [selections]);
 
   const clearDraft = useCallback(async () => {
-    skipDraftSaveRef.current = true;
     await clearBookingDraft();
-    skipDraftSaveRef.current = false;
   }, []);
 
   const value = useMemo(

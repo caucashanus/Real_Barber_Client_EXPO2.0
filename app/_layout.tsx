@@ -20,6 +20,7 @@ import { CopyFeedbackProvider } from '@/contexts/CopyFeedbackContext';
 import { PhoneCallFeedbackProvider } from '@/contexts/PhoneCallFeedbackContext';
 import { TransferRecipientProvider } from '@/contexts/TransferRecipientContext';
 import useThemedNavigation from '@/hooks/useThemedNavigation';
+import { useListingCacheResume } from '@/hooks/useListingCacheResume';
 
 import AuthGuard from '@/components/AuthGuard';
 import { APP_OPENS_KEY } from '@/constants/appOpens';
@@ -42,6 +43,7 @@ NativeWindStyleSheet.setOutput({
 
 function ThemedLayout() {
   const { ThemedStatusBar, screenOptions } = useThemedNavigation();
+  useListingCacheResume();
 
   useEffect(() => {
     incrementAppOpens();

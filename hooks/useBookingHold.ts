@@ -7,6 +7,7 @@ import {
   type BookingHoldCreateBody,
 } from '@/api/bookingEngine';
 import { isBookingSlotConflict } from '@/lib/booking/booking-api/errors';
+import { invalidateListingAvailability } from '@/lib/availability/listingCache';
 import { formatHoldCountdownMs, holdRemainingMs } from '@/lib/booking/hold/formatCountdown';
 import {
   clearBookingHoldStorage,
@@ -121,6 +122,13 @@ export function useBookingHold(apiToken?: string | null) {
 
   const releaseHoldBestEffort = useCallback(async () => {
     const current = holdRef.current;
+    if (current?.holdId) {
+      invalidateListingAvailability({
+        employeeId: current.employeeId,
+        branchId: current.branchId,
+        serviceId: current.itemId,
+      });
+    }
     if (!current?.holdId) {
       await clearHoldLocal();
       return;
@@ -155,6 +163,11 @@ export function useBookingHold(apiToken?: string | null) {
           const response = await createBookingHold(body, apiToken);
           const next = mapApiHoldToState(response.hold);
           await persistHold(next);
+          invalidateListingAvailability({
+            employeeId: next.employeeId,
+            branchId: next.branchId,
+            serviceId: next.itemId,
+          });
           extendOnceRef.current = false;
           return 'ok' as const;
         });

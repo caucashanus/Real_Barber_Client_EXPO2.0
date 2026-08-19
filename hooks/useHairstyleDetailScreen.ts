@@ -7,6 +7,10 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { usePublicReviewsPagination } from '@/hooks/usePublicReviewsPagination';
 import {
+  ackListingFetch,
+  shouldRefetchListing,
+} from '@/lib/availability/listingCache';
+import {
   buildHairstyleReviewParams,
   mapHairstyleToServiceDetail,
   type HairstyleServiceDetail,
@@ -18,9 +22,23 @@ import {
 import { fetchMergedPageReviewsWithOwn } from '@/utils/publicReviewHelpers';
 import { buildReviewStatsFromPage, getPragueTodayDateString } from '@/utils/teamMemberPageHelpers';
 
+const pageCache = new Map<
+  string,
+  {
+    fetchedAt: number;
+    detail: HairstyleServiceDetail | null;
+    pageReviews: TeamMemberPageReview[];
+    statsTotal: number;
+    statsAverage: number;
+    hasReviewed: boolean;
+    ownReviewIds: Set<string>;
+    error: string | null;
+  }
+>();
+
 type LoadPageOptions = {
   background?: boolean;
-  bustCache?: boolean;
+  force?: boolean;
 };
 
 export function useHairstyleDetailScreen(idOrSlug: string) {
@@ -37,10 +55,29 @@ export function useHairstyleDetailScreen(idOrSlug: string) {
   const [ownReviewIds, setOwnReviewIds] = useState<Set<string>>(() => new Set());
 
   const todayIso = useMemo(() => getPragueTodayDateString(), []);
+  const listingKey = useMemo(() => `service:${idOrSlug}:${todayIso}`, [idOrSlug, todayIso]);
+
+  const applyCached = useCallback((cached: NonNullable<ReturnType<typeof pageCache.get>>) => {
+    setDetail(cached.detail);
+    setPageReviews(cached.pageReviews);
+    setStatsTotal(cached.statsTotal);
+    setStatsAverage(cached.statsAverage);
+    setHasReviewed(cached.hasReviewed);
+    setOwnReviewIds(cached.ownReviewIds);
+    setError(cached.error);
+  }, []);
 
   const loadPage = useCallback(
     async (options?: LoadPageOptions) => {
       if (!idOrSlug) {
+        setLoading(false);
+        return;
+      }
+
+      const cached = pageCache.get(listingKey);
+      const cachedAt = cached?.fetchedAt ?? 0;
+      if (!options?.force && cached && !shouldRefetchListing(listingKey, cachedAt)) {
+        applyCached(cached);
         setLoading(false);
         return;
       }
@@ -52,16 +89,22 @@ export function useHairstyleDetailScreen(idOrSlug: string) {
 
       try {
         const hairstyle = await fetchPublicHairstylePage(idOrSlug, {
-          bustCache: options?.bustCache,
+          bustCache: options?.force,
         });
         if (!hairstyle) {
-          setDetail(null);
-          setPageReviews([]);
-          setStatsTotal(0);
-          setStatsAverage(0);
-          setHasReviewed(false);
-          setOwnReviewIds(new Set());
-          setError('not-found');
+          const empty = {
+            fetchedAt: Date.now(),
+            detail: null,
+            pageReviews: [] as TeamMemberPageReview[],
+            statsTotal: 0,
+            statsAverage: 0,
+            hasReviewed: false,
+            ownReviewIds: new Set<string>(),
+            error: 'not-found',
+          };
+          pageCache.set(listingKey, empty);
+          ackListingFetch(listingKey);
+          applyCached(empty);
           return;
         }
 
@@ -74,12 +117,19 @@ export function useHairstyleDetailScreen(idOrSlug: string) {
           clientId: client?.id,
         });
 
-        setDetail(mapHairstyleToServiceDetail(hairstyle, locale));
-        setPageReviews(merged.reviews);
-        setStatsTotal(merged.statsTotal);
-        setStatsAverage(hairstyle.stats?.averageRating ?? 0);
-        setHasReviewed(merged.hasReviewed);
-        setOwnReviewIds(merged.ownReviewIds);
+        const next = {
+          fetchedAt: Date.now(),
+          detail: mapHairstyleToServiceDetail(hairstyle, locale),
+          pageReviews: merged.reviews,
+          statsTotal: merged.statsTotal,
+          statsAverage: hairstyle.stats?.averageRating ?? 0,
+          hasReviewed: merged.hasReviewed,
+          ownReviewIds: merged.ownReviewIds,
+          error: null,
+        };
+        pageCache.set(listingKey, next);
+        ackListingFetch(listingKey);
+        applyCached(next);
       } catch {
         setDetail(null);
         setPageReviews([]);
@@ -94,7 +144,7 @@ export function useHairstyleDetailScreen(idOrSlug: string) {
         }
       }
     },
-    [apiToken, client?.id, idOrSlug, locale]
+    [apiToken, applyCached, client?.id, idOrSlug, listingKey, locale]
   );
 
   useEffect(() => {
@@ -103,7 +153,7 @@ export function useHairstyleDetailScreen(idOrSlug: string) {
 
   useFocusEffect(
     useCallback(() => {
-      loadPage({ background: true, bustCache: true }).catch(() => {});
+      loadPage({ background: true }).catch(() => {});
     }, [loadPage])
   );
 

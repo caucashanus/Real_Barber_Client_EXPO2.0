@@ -5,7 +5,10 @@ import { getBarbersRoster, type BarberRosterResponse } from '@/api/barbersRoster
 import { useAuth } from '@/contexts/AuthContext';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useTranslation } from '@/hooks/useTranslation';
-import { TEAM_MEMBER_PAGE_CACHE_MS } from '@/constants/teamMemberPage';
+import {
+  ackListingFetch,
+  shouldRefetchListing,
+} from '@/lib/availability/listingCache';
 import type { HomeTodayTeamCardModel } from '@/utils/homeTodayTeamHelpers';
 import {
   buildScheduleDayTabs,
@@ -14,10 +17,10 @@ import {
 } from '@/utils/mapBarberRosterCard';
 import { getPragueTodayDateString } from '@/utils/teamMemberPageHelpers';
 
-const rosterCache = new Map<string, { expiresAt: number; roster: BarberRosterResponse }>();
+const rosterCache = new Map<string, { fetchedAt: number; roster: BarberRosterResponse }>();
 
 function rosterCacheKey(date: string, days: number, locale: string): string {
-  return `${date}:${days}:${locale}`;
+  return `roster:${date}:${days}:${locale}`;
 }
 
 export function useBarbersRoster(days = 7) {
@@ -30,14 +33,14 @@ export function useBarbersRoster(days = 7) {
   const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [roster, setRoster] = useState<BarberRosterResponse | null>(null);
-  const lastFetchRef = useRef(0);
+  const lastFetchedAtRef = useRef(0);
+  const listingKey = rosterCacheKey(anchorDate, days, locale);
 
   const loadRoster = useCallback(
     async (options?: { force?: boolean }) => {
-      const key = rosterCacheKey(anchorDate, days, locale);
-      const cached = rosterCache.get(key);
-      const isStale = !cached || cached.expiresAt <= Date.now();
-      if (!options?.force && !isStale && cached) {
+      const cached = rosterCache.get(listingKey);
+      const cachedAt = cached?.fetchedAt ?? lastFetchedAtRef.current;
+      if (!options?.force && cached && !shouldRefetchListing(listingKey, cachedAt)) {
         return cached.roster;
       }
 
@@ -47,14 +50,15 @@ export function useBarbersRoster(days = 7) {
         locale,
         apiToken,
       });
-      rosterCache.set(key, {
+      rosterCache.set(listingKey, {
         roster: data,
-        expiresAt: Date.now() + TEAM_MEMBER_PAGE_CACHE_MS,
+        fetchedAt: Date.now(),
       });
-      lastFetchRef.current = Date.now();
+      lastFetchedAtRef.current = Date.now();
+      ackListingFetch(listingKey);
       return data;
     },
-    [anchorDate, apiToken, days, locale]
+    [anchorDate, apiToken, days, listingKey, locale]
   );
 
   const refresh = useCallback(async () => {
@@ -68,20 +72,6 @@ export function useBarbersRoster(days = 7) {
     }
   }, [loadRoster]);
 
-  const refreshIfStale = useCallback(async () => {
-    if (Date.now() - lastFetchRef.current < TEAM_MEMBER_PAGE_CACHE_MS) return;
-    setRefreshing(true);
-    try {
-      const data = await loadRoster({ force: true });
-      setRoster(data);
-      setError(null);
-    } catch (e) {
-      setError(e instanceof Error ? e.message : 'Failed to load');
-    } finally {
-      setRefreshing(false);
-    }
-  }, [loadRoster]);
-
   useEffect(() => {
     setLoading(true);
     refresh()
@@ -92,8 +82,15 @@ export function useBarbersRoster(days = 7) {
   useFocusEffect(
     useCallback(() => {
       if (!roster) return;
-      refreshIfStale().catch(() => {});
-    }, [refreshIfStale, roster])
+      loadRoster()
+        .then((data) => {
+          setRoster(data);
+          setError(null);
+        })
+        .catch((e) => {
+          setError(e instanceof Error ? e.message : 'Failed to load');
+        });
+    }, [loadRoster, roster])
   );
 
   const teamCards: HomeTodayTeamCardModel[] = useMemo(() => {

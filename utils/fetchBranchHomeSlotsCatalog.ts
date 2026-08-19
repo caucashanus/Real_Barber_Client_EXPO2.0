@@ -4,6 +4,10 @@ import type { Locale } from '@/contexts/LanguageContext';
 import type { BranchInternalId } from '@/constants/crmBranchIds';
 import type { TranslationKey } from '@/locales';
 import {
+  ackListingFetch,
+  shouldRefetchListing,
+} from '@/lib/availability/listingCache';
+import {
   buildHomeTodayTeamCards,
   mergeTodayTeamWithAvailability,
   type HomeTodayTeamCardModel,
@@ -15,11 +19,13 @@ import {
 } from '@/utils/nearestBranchHomeSlots';
 import { getPragueTodayDateString } from '@/utils/teamMemberPageHelpers';
 
-const CACHE_MS = 60_000;
-
 let cachedCatalog: Record<BranchInternalId, NearestBranchHomeSlot[]> | null = null;
 let cachedAt = 0;
 let cacheKey = '';
+
+function homeCatalogCacheKey(apiToken: string, locale: Locale, todayIso: string): string {
+  return `home:catalog:${todayIso}:${locale}:${apiToken}`;
+}
 
 export type FetchBranchHomeSlotsCatalogParams = {
   apiToken: string;
@@ -38,7 +44,8 @@ export function warmBranchHomeSlotsCatalog(
   const catalog = buildNearestBranchSlotsByInternalId(cards, locale);
   cachedCatalog = catalog;
   cachedAt = Date.now();
-  cacheKey = `${apiToken}:${locale}:${todayIso}`;
+  cacheKey = homeCatalogCacheKey(apiToken, locale, todayIso);
+  ackListingFetch(cacheKey);
   return catalog;
 }
 
@@ -61,8 +68,12 @@ export async function fetchBranchHomeSlotsCatalog({
   todayIso = getPragueTodayDateString(),
   force = false,
 }: FetchBranchHomeSlotsCatalogParams): Promise<Record<BranchInternalId, NearestBranchHomeSlot[]>> {
-  const key = `${apiToken}:${locale}:${todayIso}`;
-  if (!force && cachedCatalog && cacheKey === key && Date.now() - cachedAt < CACHE_MS) {
+  const key = homeCatalogCacheKey(apiToken, locale, todayIso);
+  if (
+    !shouldRefetchListing(key, cachedAt, { force }) &&
+    cachedCatalog &&
+    cacheKey === key
+  ) {
     return cachedCatalog;
   }
 
@@ -74,6 +85,7 @@ export async function fetchBranchHomeSlotsCatalog({
     cachedCatalog = catalog;
     cachedAt = Date.now();
     cacheKey = key;
+    ackListingFetch(key);
     return catalog;
   } catch {
     return emptyNearestBranchSlots();

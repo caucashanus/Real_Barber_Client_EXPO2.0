@@ -1,4 +1,4 @@
-import { router, useLocalSearchParams } from 'expo-router';
+import { router, useFocusEffect, useLocalSearchParams } from 'expo-router';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 import {
@@ -90,6 +90,7 @@ import {
   trackBookingMonitorSessionStarted,
 } from '@/lib/booking/monitor/client';
 import { setFreshBookingSnapshot } from '@/utils/freshBookingSnapshot';
+import { invalidateListingAvailability } from '@/lib/availability/listingCache';
 import { buildOptimisticBooking } from '@/utils/optimisticBooking';
 import { setPendingCalendarPromo } from '@/utils/pendingCalendarPromo';
 import { setPendingStoreReviewAfterBooking } from '@/utils/pendingStoreReview';
@@ -129,7 +130,8 @@ export function useBookingEngineFlow() {
   const colors = useThemeColors();
   const { refresh: refreshBookings } = useBookings();
   const dateLocaleTag = intlLocaleTag(locale);
-  const { recipeId, preset, draftReady, clearDraft } = useBookingEngineContext();
+  const { recipeId, preset, draftReady, clearDraft, resetSelections, setStepIndex } =
+    useBookingEngineContext();
   const {
     selectedBranch,
     selectedService,
@@ -219,6 +221,24 @@ export function useBookingEngineFlow() {
   const multiBranchLegend = usesMultiBranchDatetimeLegend(preset, flowBootstrap);
   const contact = useBookingEngineContact(client, apiToken);
   const hold = useBookingHold(apiToken);
+
+  const abandonBookingFlow = useCallback(() => {
+    resetSelections();
+    setStepIndex(0);
+    setSlotHandoff(null);
+    setFromSlotHandoff(false);
+    contact.cancelPhoneOtp();
+    void clearDraft();
+    void clearBookingSlotContext();
+    void clearBookingSlotHandoff();
+    void hold.releaseHoldBestEffort();
+  }, [
+    resetSelections,
+    setStepIndex,
+    contact,
+    clearDraft,
+    hold,
+  ]);
 
   const monitorFields = useCallback(
     (stepKind: BookingStepKind) =>
@@ -327,19 +347,37 @@ export function useBookingEngineFlow() {
     };
   }, []);
 
+  const flowAbandonRef = useRef({
+    submitSuccess: false,
+    abandon: () => {},
+  });
+  flowAbandonRef.current = {
+    submitSuccess: contact.submitSuccess,
+    abandon: abandonBookingFlow,
+  };
+
+  useFocusEffect(
+    useCallback(() => {
+      return () => {
+        if (flowAbandonRef.current.submitSuccess) return;
+        flowAbandonRef.current.abandon();
+      };
+    }, [])
+  );
+
   const holdLeaveRef = useRef({
     submitSuccess: false,
-    releaseHold: hold.releaseHoldBestEffort,
+    abandon: () => {},
   });
   holdLeaveRef.current = {
     submitSuccess: contact.submitSuccess,
-    releaseHold: hold.releaseHoldBestEffort,
+    abandon: abandonBookingFlow,
   };
 
   useEffect(() => {
     return () => {
       if (holdLeaveRef.current.submitSuccess) return;
-      void holdLeaveRef.current.releaseHold();
+      holdLeaveRef.current.abandon();
     };
   }, []);
 
@@ -962,9 +1000,9 @@ export function useBookingEngineFlow() {
   );
 
   const leaveBookingFlow = useCallback(() => {
-    void hold.releaseHoldBestEffort();
+    abandonBookingFlow();
     router.back();
-  }, [hold, router]);
+  }, [abandonBookingFlow, router]);
 
   const handleBack = useCallback(() => {
     if (stepIndex > 0) {
@@ -1559,6 +1597,12 @@ export function useBookingEngineFlow() {
         isNewClient: false,
       });
       endBookingMonitorVisitQuietly();
+
+      invalidateListingAvailability({
+        employeeId: selectedEmployee?.id ?? profileEmployee?.id,
+        branchId: selectedBranch?.id,
+        serviceId: selectedService?.id,
+      });
 
       const record = (data ?? {}) as { id?: string; booking?: { id?: string }; reservation?: { id?: string } };
       const createdId = record.id ?? record.booking?.id ?? record.reservation?.id;
