@@ -76,7 +76,7 @@ const Selectable: React.FC<SelectableProps> = ({
           {icon && (
             <View
               style={selected ? { backgroundColor: colors.highlight } : undefined}
-              className={`mr-4 h-12 w-12 items-center justify-center rounded-xl bg-light-secondary dark:bg-white/10 ${!selected ? '' : ''}`}>
+              className={`mr-4 h-12 w-12 items-center justify-center rounded-xl bg-light-surface dark:bg-white/10 ${!selected ? '' : ''}`}>
               <Icon
                 name={icon}
                 size={20}
@@ -89,7 +89,7 @@ const Selectable: React.FC<SelectableProps> = ({
             (customIconUnstyled ? (
               <View className="mr-4 justify-center">{customIcon}</View>
             ) : (
-              <View className="mr-4 h-12 w-12 items-center justify-center rounded-xl bg-light-secondary dark:bg-dark-secondary">
+              <View className="mr-4 h-12 w-12 items-center justify-center rounded-xl bg-light-surface dark:bg-dark-secondary">
                 {customIcon}
               </View>
             ))}

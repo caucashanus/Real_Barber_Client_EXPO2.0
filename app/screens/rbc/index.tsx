@@ -255,7 +255,7 @@ export default function RBCScreen() {
             <Pressable
               onPress={() => router.push('/screens/transfer-select-recipient')}
               className="items-center">
-              <View className="h-14 w-14 items-center justify-center rounded-full bg-light-secondary dark:bg-dark-secondary">
+              <View className="h-14 w-14 items-center justify-center rounded-full bg-light-surface dark:bg-dark-secondary">
                 <Icon name="Send" size={22} color="#0EA5E9" />
               </View>
               <ThemedText className="mt-2 text-xs text-light-text dark:text-dark-text">
@@ -265,7 +265,7 @@ export default function RBCScreen() {
             <Pressable
               onPress={() => router.push('/screens/rbc/historie')}
               className="items-center">
-              <View className="h-14 w-14 items-center justify-center rounded-full bg-light-secondary dark:bg-dark-secondary">
+              <View className="h-14 w-14 items-center justify-center rounded-full bg-light-surface dark:bg-dark-secondary">
                 <Icon name="Clock" size={22} />
               </View>
               <ThemedText className="mt-2 text-xs text-light-text dark:text-dark-text">
@@ -273,7 +273,7 @@ export default function RBCScreen() {
               </ThemedText>
             </Pressable>
             <Pressable onPress={() => router.push('/screens/rbc/design')} className="items-center">
-              <View className="h-14 w-14 items-center justify-center rounded-full bg-light-secondary dark:bg-dark-secondary">
+              <View className="h-14 w-14 items-center justify-center rounded-full bg-light-surface dark:bg-dark-secondary">
                 <Icon name="Palette" size={22} />
               </View>
               <ThemedText className="mt-2 text-xs text-light-text dark:text-dark-text">

@@ -127,7 +127,7 @@ export default function HaircutAddScreen() {
               <View key={`${asset.uri}-${index}`} className="relative">
                 <Image
                   source={{ uri: asset.uri }}
-                  className="h-20 w-20 rounded-xl bg-light-secondary dark:bg-dark-secondary"
+                  className="h-20 w-20 rounded-xl bg-light-surface dark:bg-dark-secondary"
                   contentFit="cover"
                 />
                 <Pressable
@@ -141,7 +141,7 @@ export default function HaircutAddScreen() {
               <>
                 <Pressable
                   onPress={pickFromGallery}
-                  className="h-20 w-20 items-center justify-center rounded-xl border-2 border-dashed border-light-secondary bg-light-secondary/50 dark:border-dark-secondary dark:bg-dark-secondary/50">
+                  className="h-20 w-20 items-center justify-center rounded-xl border-2 border-dashed border-light-secondary bg-light-surface/50 dark:border-dark-secondary dark:bg-dark-secondary/50">
                   <Icon
                     name="Image"
                     size={28}
@@ -153,7 +153,7 @@ export default function HaircutAddScreen() {
                 </Pressable>
                 <Pressable
                   onPress={takePhoto}
-                  className="h-20 w-20 items-center justify-center rounded-xl border-2 border-dashed border-light-secondary bg-light-secondary/50 dark:border-dark-secondary dark:bg-dark-secondary/50">
+                  className="h-20 w-20 items-center justify-center rounded-xl border-2 border-dashed border-light-secondary bg-light-surface/50 dark:border-dark-secondary dark:bg-dark-secondary/50">
                   <Icon
                     name="Camera"
                     size={28}

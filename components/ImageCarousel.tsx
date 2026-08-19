@@ -171,7 +171,7 @@ const ImageCarousel: React.FC<ImageCarouselProps> = ({
     }
 
     return (
-      <View className={`rounded-full px-3 py-1 ${isBelow ? 'bg-light-secondary dark:bg-dark-secondary' : 'bg-black/50'}`}>
+      <View className={`rounded-full px-3 py-1 ${isBelow ? 'bg-light-surface dark:bg-dark-secondary' : 'bg-black/50'}`}>
         <ThemedText className={isBelow ? 'text-light-text dark:text-dark-text' : 'text-white'}>
           {activeIndex + 1} / {images.length}
         </ThemedText>

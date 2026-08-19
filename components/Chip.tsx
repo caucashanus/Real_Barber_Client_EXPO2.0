@@ -6,6 +6,7 @@ import { Text, View, TouchableOpacity, ViewStyle, ImageSourcePropType } from 're
 import Icon, { IconName } from './Icon';
 
 import useThemeColors from '@/contexts/ThemeColors';
+import { INACTIVE_CONTROL_SURFACE_CLASS } from '@/components/layout/SurfaceCard';
 type ChipSize = 'xs' | 'sm' | 'md' | 'lg' | 'xl' | 'xxl';
 type ChipRounded = 'full' | 'xl' | 'lg' | 'md';
 
@@ -139,7 +140,7 @@ export const Chip = ({
     <View className={`${className || ''}`} style={style}>
       <View
         style={isChipSelected ? { backgroundColor: colors.highlight } : undefined}
-        className={`${paddingClasses} ${roundedClasses[rounded]} ${!isChipSelected ? 'bg-light-secondary dark:bg-dark-secondary' : ''} flex-row items-center justify-center`}>
+        className={`${paddingClasses} ${roundedClasses[rounded]} ${!isChipSelected ? INACTIVE_CONTROL_SURFACE_CLASS : ''} flex-row items-center justify-center`}>
         {children}
       </View>
     </View>

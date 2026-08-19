@@ -40,7 +40,7 @@ function ProfileVersionBadge() {
   const version = Constants.nativeApplicationVersion ?? Constants.expoConfig?.version ?? '—';
   return (
     <View className="mt-8 items-center px-4 pb-8">
-      <View className="rounded-full bg-light-secondary px-4 py-2 dark:bg-dark-secondary">
+      <View className="rounded-full bg-light-surface px-4 py-2 dark:bg-dark-secondary">
         <ThemedText className="text-center text-xs text-light-subtext dark:text-dark-subtext">
           {t('profileAppVersionLabel')} – {version}
         </ThemedText>

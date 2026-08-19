@@ -2,6 +2,7 @@ import React, { useState, useRef } from 'react';
 import { View, Pressable, Animated } from 'react-native';
 
 import useThemeColors from '@/contexts/ThemeColors';
+import { INACTIVE_CONTROL_SURFACE_CLASS } from '@/components/layout/SurfaceCard';
 
 interface ToggleProps {
   value?: boolean;
@@ -42,7 +43,7 @@ const Toggle: React.FC<ToggleProps> = ({ value, onChange, disabled = false, clas
       className={`h-7 w-12 rounded-full ${disabled ? 'opacity-50' : ''} ${className}`}>
       <View
         style={isOn ? { backgroundColor: colors.highlight } : undefined}
-        className={`absolute h-full w-full rounded-full ${!isOn ? 'bg-light-secondary dark:bg-dark-secondary' : ''}`}
+        className={`absolute h-full w-full rounded-full ${!isOn ? INACTIVE_CONTROL_SURFACE_CLASS : ''}`}
       />
       <Animated.View
         style={{

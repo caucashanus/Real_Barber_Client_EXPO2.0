@@ -98,7 +98,7 @@ export default function HelpScreen() {
                 onPress={contact.action}
                 disabled={!contact.action}
                 className="flex-row items-center border-b border-light-secondary py-4 dark:border-dark-secondary">
-                <View className="mr-4 h-10 w-10 items-center justify-center rounded-full bg-light-secondary dark:bg-dark-secondary">
+                <View className="mr-4 h-10 w-10 items-center justify-center rounded-full bg-light-surface dark:bg-dark-secondary">
                   <Icon name={contact.icon} size={20} />
                 </View>
                 <View className="flex-1 pr-2">

@@ -61,7 +61,7 @@ export default function ProductDetailReviewsSection({
       <Section title={t('productBuyerReviews')} titleSize="lg" subtitle={subtitle} className="mb-6">
         {purchase ? (
           <>
-            <View className="mt-4 rounded-lg bg-light-secondary p-4 dark:bg-dark-secondary">
+            <View className="mt-4 rounded-lg bg-light-surface p-4 dark:bg-dark-secondary">
               <View className="mb-4 flex-row items-center">
                 <ShowRating rating={average} size="lg" />
                 <ThemedText className="ml-2 text-light-subtext dark:text-dark-subtext">
@@ -83,7 +83,7 @@ export default function ProductDetailReviewsSection({
               <ThemedText className="text-lg font-semibold">{t('productBuyerReviews')}</ThemedText>
               <Pressable
                 onPress={() => router.push(`/screens/review?${reviewParams}`)}
-                className="rounded-lg bg-light-secondary px-3 py-2 dark:bg-dark-secondary">
+                className="rounded-lg bg-light-surface px-3 py-2 dark:bg-dark-secondary">
                 <ThemedText className="text-sm font-medium">
                   {hasReviewed ? t('reviewUpdate') : t('productNapsatRecenzi')}
                 </ThemedText>
@@ -103,7 +103,7 @@ export default function ProductDetailReviewsSection({
                   return (
                     <View
                       key={review.id}
-                      className="w-[280px] rounded-lg bg-light-secondary p-4 dark:bg-dark-secondary">
+                      className="w-[280px] rounded-lg bg-light-surface p-4 dark:bg-dark-secondary">
                       <View className="mb-2 flex-row items-center justify-between">
                         <View className="min-w-0 flex-1 flex-row items-center">
                           {review.client?.avatarUrl ? (
@@ -150,7 +150,7 @@ export default function ProductDetailReviewsSection({
           </>
         ) : (
           <>
-            <View className="mt-4 rounded-lg bg-light-secondary p-4 dark:bg-dark-secondary">
+            <View className="mt-4 rounded-lg bg-light-surface p-4 dark:bg-dark-secondary">
               <View className="mb-4 flex-row items-center">
                 <ShowRating rating={catalogReviewStats.average} size="lg" />
                 <ThemedText className="ml-2 text-light-subtext dark:text-dark-subtext">
@@ -181,7 +181,7 @@ export default function ProductDetailReviewsSection({
                 return (
                   <View
                     key={review.id}
-                    className="w-[280px] rounded-lg bg-light-secondary p-4 dark:bg-dark-secondary">
+                    className="w-[280px] rounded-lg bg-light-surface p-4 dark:bg-dark-secondary">
                     <View className="mb-2 flex-row items-center">
                       {avatarUri ? (
                         <Image

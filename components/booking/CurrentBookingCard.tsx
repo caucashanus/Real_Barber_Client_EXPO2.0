@@ -31,7 +31,7 @@ export default function CurrentBookingCard({ booking }: CurrentBookingCardProps)
   }, [booking.date, dateLocaleTag]);
 
   return (
-    <View className="mt-2 overflow-hidden rounded-2xl border border-neutral-200 bg-light-secondary dark:border-neutral-700 dark:bg-dark-secondary">
+    <View className="mt-2 overflow-hidden rounded-2xl border border-neutral-200 bg-light-surface dark:border-neutral-700 dark:bg-dark-secondary">
       <View className="gap-4 p-4">
         <View>
           <ThemedText className="mb-1.5 text-xs font-semibold uppercase tracking-wide text-light-subtext dark:text-dark-subtext">
@@ -89,7 +89,7 @@ export default function CurrentBookingCard({ booking }: CurrentBookingCardProps)
           <ThemedText className="mb-2 text-base font-semibold text-light-subtext line-through decoration-neutral-400 decoration-2 dark:text-dark-subtext dark:decoration-neutral-500">
             {dateLabel}
           </ThemedText>
-          <View className="flex-row items-center justify-between rounded-lg border border-neutral-200/80 bg-light-secondary/80 p-3 dark:border-neutral-600/80 dark:bg-dark-secondary/80">
+          <View className="flex-row items-center justify-between rounded-lg border border-neutral-200/80 bg-light-surface/80 p-3 dark:border-neutral-600/80 dark:bg-dark-secondary/80">
             <View>
               <ThemedText className="text-xs text-light-subtext opacity-80 dark:text-dark-subtext">
                 {t('reservationSummaryFrom')}

@@ -17,7 +17,7 @@ export default function BranchContentCard({ children }: BranchContentCardProps) 
       padding="md"
       border
       background={false}
-      className={`${BARBER_DETAIL_SECTION_SPACING} bg-light-secondary dark:bg-dark-secondary`}>
+      className={`${BARBER_DETAIL_SECTION_SPACING}`}>
       {sections.map((child, index) =>
         React.isValidElement(child)
           ? React.cloneElement(child as React.ReactElement<{ isFirst?: boolean }>, {

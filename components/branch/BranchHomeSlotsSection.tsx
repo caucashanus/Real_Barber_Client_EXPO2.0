@@ -4,7 +4,6 @@ import { View } from 'react-native';
 import CustomCard from '@/components/CustomCard';
 import SlotTimePill from '@/components/SlotTimePill';
 import ThemedText from '@/components/ThemedText';
-import { BARBER_DETAIL_SECTION_SPACING } from '@/constants/barberDetailLayout';
 import type { Locale } from '@/contexts/LanguageContext';
 import type { TranslationKey } from '@/locales';
 import {
@@ -13,6 +12,7 @@ import {
   type NearestBranchHomeSlot} from '@/utils/nearestBranchHomeSlots';
 import { formatNextSlotDisplayTime } from '@/utils/reservationCreateHelpers';
 import { startBarberSlotHandoffBooking } from '@/utils/reservationSlotHandoff';
+import { BARBER_DETAIL_SECTION_SPACING } from '@/constants/barberDetailLayout';
 import SiteLoadingSpinner from '@/components/SiteLoadingSpinner';
 
 interface BranchHomeSlotsSectionProps {
@@ -25,7 +25,7 @@ interface BranchHomeSlotsSectionProps {
   onSlotPress?: (slot: NearestBranchHomeSlot) => void;
 }
 
-const cardClassName = `${BARBER_DETAIL_SECTION_SPACING} bg-light-secondary dark:bg-dark-secondary`;
+const cardClassName = `${BARBER_DETAIL_SECTION_SPACING}`;
 
 function firstName(fullName: string): string {
   return fullName.trim().split(/\s+/)[0] || fullName;

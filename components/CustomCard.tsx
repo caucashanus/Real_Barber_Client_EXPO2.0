@@ -9,6 +9,8 @@ import {
   TouchableOpacity,
 } from 'react-native';
 
+import { SURFACE_CARD_BG_CLASS } from '@/components/layout/SurfaceCard';
+
 interface CustomCardProps {
   children: ReactNode;
   rounded?: 'none' | 'sm' | 'md' | 'lg' | 'xl' | '2xl' | 'full';
@@ -142,7 +144,7 @@ const CustomCard: React.FC<CustomCardProps> = ({
   };
 
   const getBackgroundClass = () => {
-    if (!background) return '';
+    if (!background) return SURFACE_CARD_BG_CLASS;
     return 'bg-light-primary dark:bg-dark-primary';
   };
 

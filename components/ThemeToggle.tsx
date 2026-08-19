@@ -5,6 +5,7 @@ import { View, Animated, TouchableOpacity } from 'react-native';
 import Icon from './Icon';
 
 import useThemeColors from '@/contexts/ThemeColors';
+import { INACTIVE_CONTROL_SURFACE_CLASS } from '@/components/layout/SurfaceCard';
 
 interface ThemeToggleProps {
   value?: boolean;
@@ -47,7 +48,7 @@ const ThemeToggle: React.FC<ThemeToggleProps> = ({ value, onChange, className = 
       onPress={handlePress}
       className={`flex-row items-center py-1 ${className}`}>
       <View className="h-10 w-20 flex-row items-center justify-between rounded-full">
-        <View className="absolute h-full w-full rounded-full bg-light-secondary dark:bg-dark-secondary" />
+        <View className={`absolute h-full w-full rounded-full ${INACTIVE_CONTROL_SURFACE_CLASS}`} />
 
         {/* Sun icon on left */}
         <View className="z-10 ml-1 h-8 w-8 items-center justify-center">

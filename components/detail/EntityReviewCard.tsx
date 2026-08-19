@@ -39,7 +39,7 @@ export default function EntityReviewCard({
       : reviewParams;
 
   return (
-    <View className="w-[280px] rounded-lg bg-light-secondary p-4 dark:bg-dark-secondary">
+    <View className="w-[280px] rounded-lg bg-light-surface p-4 dark:bg-dark-secondary">
       <View className="mb-2 flex-row items-center justify-between">
         <View className="min-w-0 flex-1 flex-row items-center">
           {review.isAnonymous ? (

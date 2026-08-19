@@ -77,7 +77,7 @@ const ReferralsScreen = () => {
           </ThemedText>
           <Pressable
             onPress={handleShare}
-            className="flex-row items-center justify-center rounded-xl bg-light-secondary px-6 py-4 dark:bg-dark-secondary">
+            className="flex-row items-center justify-center rounded-xl bg-light-surface px-6 py-4 dark:bg-dark-secondary">
             <Icon name="Share2" size={22} />
             <ThemedText className="ml-3 text-base font-semibold">
               {t('referralsShareLink')}

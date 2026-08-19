@@ -467,6 +467,7 @@ export const en = {
 
   // Common
   commonLoading: 'Loading…',
+  commonAny: 'Any',
   commonError: 'Error',
   commonCancel: 'Cancel',
   commonDelete: 'Delete',
@@ -773,6 +774,7 @@ export const en = {
   serviceDetailNotFound: 'Service not found.',
 
   // Map
+  mapBranchesSheetTitle: 'Branches',
   mapLoadingBranches: 'Loading branches…',
   mapCentralWarehouseCalloutBeforePhone:
     'This location is our central warehouse, not a retail shop. Purchases and in-person collection are available here only by prior telephone arrangement. To coordinate, please contact us at',

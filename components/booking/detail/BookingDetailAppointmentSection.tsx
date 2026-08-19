@@ -50,7 +50,7 @@ export default function BookingDetailAppointmentSection({
       className="mt-6 px-global pt-4">
       <View className="mt-4 space-y-4">
         <ThemedText className="text-lg font-semibold">{appointment.dateStr}</ThemedText>
-        <View className="flex-row items-center justify-between rounded-xl bg-light-secondary p-4 dark:bg-dark-secondary">
+        <View className="flex-row items-center justify-between rounded-xl bg-light-surface p-4 dark:bg-dark-secondary">
           <View>
             <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext">
               {t('bookingFrom')}
@@ -70,7 +70,7 @@ export default function BookingDetailAppointmentSection({
             title={t('bookingAddToCalendar')}
             description={t('bookingAddToCalendarDescription')}
             showChevron
-            className="rounded-xl bg-light-secondary px-4 py-3 dark:bg-dark-secondary"
+            className="rounded-xl bg-light-surface px-4 py-3 dark:bg-dark-secondary"
             onPress={onAddToCalendar}
           />
         ) : null}

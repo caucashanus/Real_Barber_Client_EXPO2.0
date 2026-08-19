@@ -397,7 +397,7 @@ export default function HaircutDetailScreen() {
                     title={t('bookingSendRbcTip')}
                     description={t('bookingSendRbcTip')}
                     showChevron
-                    className="rounded-xl bg-light-secondary px-4 py-3 dark:bg-dark-secondary"
+                    className="rounded-xl bg-light-surface px-4 py-3 dark:bg-dark-secondary"
                     onPress={() => {
                       const barber = cut.barber;
                       if (!barber?.id) return;
@@ -419,7 +419,7 @@ export default function HaircutDetailScreen() {
             titleSize="lg"
             className="mt-6 px-global pt-4">
             <View className="mt-4">
-              <View className="flex-row items-center justify-between rounded-xl bg-light-secondary p-4 dark:bg-dark-secondary">
+              <View className="flex-row items-center justify-between rounded-xl bg-light-surface p-4 dark:bg-dark-secondary">
                 <View>
                   <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext">
                     {t('haircutDetailCreatedDateLabel')}
@@ -468,7 +468,7 @@ export default function HaircutDetailScreen() {
                           <View key={p.id} className="relative h-44 w-36 shrink-0">
                             <Image
                               source={{ uri }}
-                              className="h-44 w-36 rounded-xl bg-light-secondary dark:bg-dark-secondary"
+                              className="h-44 w-36 rounded-xl bg-light-surface dark:bg-dark-secondary"
                               contentFit="cover"
                             />
                             <Pressable
@@ -484,7 +484,7 @@ export default function HaircutDetailScreen() {
                         <Image
                           key={`${uri}-${index}`}
                           source={{ uri }}
-                          className="h-44 w-36 shrink-0 rounded-xl bg-light-secondary dark:bg-dark-secondary"
+                          className="h-44 w-36 shrink-0 rounded-xl bg-light-surface dark:bg-dark-secondary"
                           contentFit="cover"
                         />
                       ))}

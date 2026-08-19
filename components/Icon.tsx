@@ -65,7 +65,7 @@ const Icon: React.FC<IconProps> = ({
       case 'bordered':
         return 'border border-light-secondary dark:border-dark-secondary rounded-full items-center justify-center';
       case 'contained':
-        return 'bg-light-secondary dark:bg-dark-secondary rounded-full items-center justify-center';
+        return 'bg-light-surface dark:bg-dark-secondary rounded-full items-center justify-center';
       default:
         return '';
     }

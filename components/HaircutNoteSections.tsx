@@ -62,7 +62,7 @@ function NoteRow({
   onRemove?: () => void;
 }) {
   return (
-    <View className="relative mb-2 flex-row items-center rounded-xl bg-light-secondary p-3 last:mb-0 dark:bg-dark-secondary">
+    <View className="relative mb-2 flex-row items-center rounded-xl bg-light-surface p-3 last:mb-0 dark:bg-dark-secondary">
       <View className={`min-w-0 flex-1 ${editing && onRemove ? 'pr-10' : 'pr-2'}`}>
         {label ? (
           <ThemedText className="mb-1 text-xs text-light-subtext dark:text-dark-subtext">
@@ -241,7 +241,7 @@ export default function HaircutNoteSections({
       <Pressable
         onPress={() => setPickerKind(kind)}
         hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
-        className="h-8 w-8 items-center justify-center rounded-full bg-light-secondary dark:bg-dark-secondary">
+        className="h-8 w-8 items-center justify-center rounded-full bg-light-surface dark:bg-dark-secondary">
         <Icon name="Plus" size={16} className="text-light-text dark:text-dark-text" />
       </Pressable>
     );
@@ -251,7 +251,7 @@ export default function HaircutNoteSections({
     if (!editNote) {
       return (
         <Section title={t('haircutDetailNoteTitle')} titleSize="lg" className="px-global pt-4">
-          <View className="mt-4 rounded-xl bg-light-secondary p-4 dark:bg-dark-secondary">
+          <View className="mt-4 rounded-xl bg-light-surface p-4 dark:bg-dark-secondary">
             <ThemedText className="text-sm text-light-text dark:text-dark-text">—</ThemedText>
           </View>
         </Section>
@@ -288,7 +288,7 @@ export default function HaircutNoteSections({
           onApply={(next) => applyNote(next)}
         />
         <Section title={t('haircutDetailNoteTitle')} titleSize="lg" className="px-global pt-4">
-          <View className="relative mt-4 rounded-xl bg-light-secondary p-4 dark:bg-dark-secondary">
+          <View className="relative mt-4 rounded-xl bg-light-surface p-4 dark:bg-dark-secondary">
             {editNote ? (
               <Pressable
                 onPress={() => applyNote('')}
@@ -399,7 +399,7 @@ export default function HaircutNoteSections({
                     return (
                       <View
                         key={`${row.label}-${rowIndex}`}
-                        className="relative rounded-xl bg-light-secondary p-4 dark:bg-dark-secondary">
+                        className="relative rounded-xl bg-light-surface p-4 dark:bg-dark-secondary">
                         {editNote ? (
                           <Pressable
                             onPress={() => removeRow(row)}
@@ -423,7 +423,7 @@ export default function HaircutNoteSections({
                     return (
                       <View
                         key={`${row.label}-${rowIndex}`}
-                        className="relative flex-row items-center rounded-xl bg-light-secondary p-4 pr-12 dark:bg-dark-secondary">
+                        className="relative flex-row items-center rounded-xl bg-light-surface p-4 pr-12 dark:bg-dark-secondary">
                         <View className="min-w-0 flex-1 flex-row items-center justify-between pr-2">
                           <ThemedText className="flex-1 pr-2 text-sm text-light-subtext dark:text-dark-subtext">
                             {row.label}

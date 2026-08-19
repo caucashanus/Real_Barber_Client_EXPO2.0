@@ -272,7 +272,7 @@ export default function EditProfileScreen() {
                       className="h-20 w-20 rounded-full border-2 border-light-secondary dark:border-dark-secondary"
                     />
                   ) : (
-                    <View className="h-20 w-20 items-center justify-center rounded-full bg-light-secondary dark:bg-dark-secondary">
+                    <View className="h-20 w-20 items-center justify-center rounded-full bg-light-surface dark:bg-dark-secondary">
                       <Icon
                         name="CircleUser"
                         size={32}

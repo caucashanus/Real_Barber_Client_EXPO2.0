@@ -188,7 +188,7 @@ export default function BarberTodaySlotsSection({
         padding="md"
         border
         background={false}
-        className={`${BARBER_DETAIL_SECTION_SPACING} bg-light-secondary dark:bg-dark-secondary`}>
+        className={`${BARBER_DETAIL_SECTION_SPACING}`}>
         <ThemedText className="mb-3 text-lg font-semibold">{t('barberNearestSlotsTitle')}</ThemedText>
 
         {dayGroups.map((dayGroup, index) => (

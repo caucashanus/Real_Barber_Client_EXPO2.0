@@ -221,7 +221,7 @@ const ReviewScreen = () => {
                 {imageUrl ? (
                   <Image
                     source={{ uri: imageUrl }}
-                    className="h-24 w-24 rounded-lg bg-light-secondary dark:bg-dark-secondary"
+                    className="h-24 w-24 rounded-lg bg-light-surface dark:bg-dark-secondary"
                     contentFit="cover"
                   />
                 ) : null}
@@ -270,7 +270,7 @@ const ReviewScreen = () => {
         )}
       </ThemedScroller>
       <ThemedFooter>
-        <View className="flex-row overflow-hidden rounded-2xl bg-light-secondary dark:bg-dark-secondary">
+        <View className="flex-row overflow-hidden rounded-2xl bg-light-surface dark:bg-dark-secondary">
           {isEditMode ? (
             <>
               <Button

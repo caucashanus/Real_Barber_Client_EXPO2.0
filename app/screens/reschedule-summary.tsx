@@ -159,7 +159,7 @@ export default function RescheduleSummaryScreen() {
 
           <Section title={t('reschedulePickTitle')} titleSize="lg" className="mt-6 pb-1 pt-3">
             <ThemedText className="mt-2 text-base font-semibold">{nextDateLabel}</ThemedText>
-            <View className="mt-2 flex-row items-center justify-between rounded-xl bg-light-secondary p-3 dark:bg-dark-secondary">
+            <View className="mt-2 flex-row items-center justify-between rounded-xl bg-light-surface p-3 dark:bg-dark-secondary">
               <View>
                 <ThemedText className="text-xs text-light-subtext dark:text-dark-subtext">
                   {t('reservationSummaryFrom')}
@@ -192,7 +192,7 @@ export default function RescheduleSummaryScreen() {
         </ScrollView>
 
         <ThemedFooter>
-          <View className="flex-row overflow-hidden rounded-2xl bg-light-secondary dark:bg-dark-secondary">
+          <View className="flex-row overflow-hidden rounded-2xl bg-light-surface dark:bg-dark-secondary">
             <AppButton
               variant="default"
               size="sm"

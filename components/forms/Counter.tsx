@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import { View, Pressable, StyleProp, ViewStyle } from 'react-native';
 
 import ThemedText from '../ThemedText';
+import { INACTIVE_CONTROL_SURFACE_CLASS } from '@/components/layout/SurfaceCard';
+import { useTranslation } from '@/hooks/useTranslation';
 
 interface CounterProps {
   label?: string;
@@ -22,6 +24,7 @@ export default function Counter({
   className,
   style,
 }: CounterProps) {
+  const { t } = useTranslation();
   const [internalValue, setInternalValue] = useState<number | undefined>(undefined);
 
   // Handle controlled and uncontrolled modes
@@ -54,7 +57,7 @@ export default function Counter({
   return (
     <View className={`w-auto ${className}`} style={style}>
       <View className="w-full flex-row items-center justify-between">
-        <View className="min-w-[100px] flex-row items-center justify-between overflow-hidden rounded-full bg-light-secondary p-1  dark:bg-dark-secondary">
+        <View className={`min-w-[100px] flex-row items-center justify-between overflow-hidden rounded-full p-1 ${INACTIVE_CONTROL_SURFACE_CLASS}`}>
           <Pressable
             onPress={decrement}
             className="h-8 w-8 items-center justify-center rounded-full bg-light-primary dark:bg-dark-primary">
@@ -63,7 +66,7 @@ export default function Counter({
 
           <View className="min-w-[80px] items-center justify-center px-4">
             <ThemedText className="text-base font-medium">
-              {value === undefined ? 'any' : value}
+              {value === undefined ? t('commonAny') : value}
             </ThemedText>
           </View>
 

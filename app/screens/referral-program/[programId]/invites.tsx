@@ -115,7 +115,7 @@ export default function ReferralInvitesScreen() {
             </ThemedText>
           </View>
         ) : (
-          <View className="overflow-hidden rounded-2xl bg-light-secondary dark:bg-dark-secondary">
+          <View className="overflow-hidden rounded-2xl bg-light-surface dark:bg-dark-secondary">
             <List variant="divided" spacing={12} className="px-4">
               {rows.map((row) => (
                 <ListItem

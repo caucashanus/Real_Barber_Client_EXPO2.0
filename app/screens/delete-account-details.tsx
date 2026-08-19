@@ -62,7 +62,7 @@ export default function DeleteAccountDetailsScreen() {
             </ThemedText>
           </View>
 
-          <View className="rounded-xl bg-light-secondary p-4 dark:bg-dark-secondary">
+          <View className="rounded-xl bg-light-surface p-4 dark:bg-dark-secondary">
             <ThemedText className="text-sm font-semibold leading-6 text-light-text dark:text-dark-text">
               {t('settingsDeleteAccountDetailsSummary')}
             </ThemedText>

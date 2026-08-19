@@ -238,7 +238,7 @@ const Select: React.FC<SelectProps> = ({
             <Pressable
               key={String(option.value)}
               onPress={() => handleSelect(option)}
-              className={`mb-2 rounded-lg px-4 py-3 ${selectedOption?.value === option.value ? 'bg-light-secondary dark:bg-dark-secondary' : ''}`}>
+              className={`mb-2 rounded-lg px-4 py-3 ${selectedOption?.value === option.value ? 'bg-light-surface dark:bg-dark-secondary' : ''}`}>
               {renderSheetOptionLabel(option)}
             </Pressable>
           ))

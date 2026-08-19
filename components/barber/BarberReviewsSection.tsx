@@ -57,7 +57,7 @@ export default function BarberReviewsSection({
               <ThemedText className="text-lg font-semibold">{t('profileReviews')}</ThemedText>
               <Pressable
                 onPress={() => router.push(`/screens/review?${reviewParams}` as never)}
-                className="shrink-0 rounded-lg bg-light-secondary px-3 py-2 dark:bg-dark-secondary">
+                className="shrink-0 rounded-lg bg-light-surface px-3 py-2 dark:bg-dark-secondary">
                 <ThemedText className="text-sm font-medium">
                   {hasReviewed ? t('barberUpdateReview') : t('barberWriteReview')}
                 </ThemedText>

@@ -75,7 +75,7 @@ export default function ReferralAttributionDetailScreen() {
         ) : (
           <>
             <Section title={t('referralAttributionLead')} titleSize="lg" />
-            <View className="rounded-2xl bg-light-secondary p-5 dark:bg-dark-secondary">
+            <View className="rounded-2xl bg-light-surface p-5 dark:bg-dark-secondary">
               <View className="flex-row justify-between">
                 <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext">
                   {t('referralAttributionPhone')}
@@ -91,7 +91,7 @@ export default function ReferralAttributionDetailScreen() {
             </View>
 
             <Section title={t('referralAttributionTimeline')} titleSize="lg" className="mt-6" />
-            <View className="rounded-2xl bg-light-secondary p-5 dark:bg-dark-secondary">
+            <View className="rounded-2xl bg-light-surface p-5 dark:bg-dark-secondary">
               <ThemedText className="text-sm font-semibold">
                 {t('referralStepPhoneEntered')}
               </ThemedText>

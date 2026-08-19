@@ -160,7 +160,7 @@ export default function ServiceDetailScreen() {
               padding="md"
               border
               background={false}
-              className={`${BARBER_DETAIL_SECTION_SPACING} bg-light-secondary dark:bg-dark-secondary`}>
+              className={BARBER_DETAIL_SECTION_SPACING}>
               <ThemedText className="text-lg font-semibold">{t('serviceAbout')}</ThemedText>
               <ThemedText className="mt-3 text-sm leading-6 text-light-subtext dark:text-dark-subtext">
                 {detail.description?.trim() || '—'}

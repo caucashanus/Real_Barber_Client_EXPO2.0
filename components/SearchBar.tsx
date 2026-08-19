@@ -134,7 +134,7 @@ const SearchModal = ({ showModal, setShowModal }: SearchModalProps) => {
               {NAV_ITEM_IDS.map((id, i) => (
                 <Pressable key={id} onPress={() => handleNav(NAV_HREFS[i])} className="mb-4 w-full">
                   <SurfaceCard rounded="2xl" className="w-full flex-row items-center p-global">
-                  <View className="mr-4 h-12 w-12 items-center justify-center overflow-hidden rounded-xl bg-light-secondary dark:bg-dark-primary">
+                  <View className="mr-4 h-12 w-12 items-center justify-center overflow-hidden rounded-xl bg-light-surface dark:bg-dark-primary">
                     <Image
                       source={SEARCH_MODAL_IMAGES[i]}
                       className="h-8 w-8"

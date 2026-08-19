@@ -25,7 +25,7 @@ export default function ProductPurchaseInfoScreen() {
           <ThemedText className="text-base leading-7 text-light-text dark:text-dark-text">
             {t('productPurchaseInfoP3')}
           </ThemedText>
-          <View className="mt-2 rounded-xl bg-light-secondary p-4 dark:bg-dark-secondary">
+          <View className="mt-2 rounded-xl bg-light-surface p-4 dark:bg-dark-secondary">
             <ThemedText className="text-base font-semibold leading-7 text-light-text dark:text-dark-text">
               {t('productPurchaseInfoThanks')}
             </ThemedText>

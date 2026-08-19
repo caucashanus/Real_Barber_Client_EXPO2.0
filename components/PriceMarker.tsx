@@ -73,7 +73,7 @@ const PriceMarker: React.FC<PriceMarkerProps> = ({
             <Image
               source={{ uri: imageUrl! }}
               style={{ width: 48, height: 48 }}
-              className="rounded-t-xl bg-light-secondary dark:bg-dark-secondary"
+              className="rounded-t-xl bg-light-surface dark:bg-dark-secondary"
               contentFit="cover"
               onLoadEnd={handleImageLoad}
             />

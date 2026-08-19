@@ -137,7 +137,7 @@ const KudyKNamDetail = () => {
             {item?.mapsUrl ? (
               <Pressable
                 onPress={() => Linking.openURL(item.mapsUrl!)}
-                className="mb-3 flex-row items-center rounded-xl bg-light-secondary px-4 py-3 active:opacity-80 dark:bg-dark-secondary">
+                className="mb-3 flex-row items-center rounded-xl bg-light-surface px-4 py-3 active:opacity-80 dark:bg-dark-secondary">
                 <Icon name="MapPin" size={22} color={colors.highlight} className="mr-3" />
                 <ThemedText className="text-base font-medium">{t('kudyOpenGoogleMaps')}</ThemedText>
               </Pressable>
@@ -145,7 +145,7 @@ const KudyKNamDetail = () => {
             {item?.wazeUrl ? (
               <Pressable
                 onPress={() => Linking.openURL(item.wazeUrl!)}
-                className="mb-3 flex-row items-center rounded-xl bg-light-secondary px-4 py-3 active:opacity-80 dark:bg-dark-secondary">
+                className="mb-3 flex-row items-center rounded-xl bg-light-surface px-4 py-3 active:opacity-80 dark:bg-dark-secondary">
                 <Icon name="Car" size={22} color={colors.highlight} className="mr-3" />
                 <ThemedText className="text-base font-medium">{t('kudyOpenWaze')}</ThemedText>
               </Pressable>
@@ -153,7 +153,7 @@ const KudyKNamDetail = () => {
             {item?.uberUrl ? (
               <Pressable
                 onPress={() => Linking.openURL(item.uberUrl!)}
-                className="flex-row items-center rounded-xl bg-light-secondary px-4 py-3 active:opacity-80 dark:bg-dark-secondary">
+                className="flex-row items-center rounded-xl bg-light-surface px-4 py-3 active:opacity-80 dark:bg-dark-secondary">
                 <Icon name="Car" size={22} color={colors.highlight} className="mr-3" />
                 <ThemedText className="text-base font-medium">{t('kudyRideUber')}</ThemedText>
               </Pressable>

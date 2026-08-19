@@ -49,7 +49,7 @@ function statusPillClass(status: string): string {
   if (s === 'REWARDED') return 'bg-emerald-100 dark:bg-emerald-900/30';
   if (s === 'QUALIFIED') return 'bg-blue-100 dark:bg-blue-900/30';
   if (s === 'LIMIT_REACHED') return 'bg-red-100 dark:bg-red-900/30';
-  return 'bg-light-secondary dark:bg-dark-secondary';
+  return 'bg-light-surface dark:bg-dark-secondary';
 }
 
 function statusTextClass(status: string): string {
@@ -72,7 +72,7 @@ function ChecklistRow({
 }) {
   const isDone = state === 'done';
   const isCurrent = state === 'current';
-  const bgClass = isDone ? 'bg-emerald-600' : 'bg-light-secondary dark:bg-dark-secondary';
+  const bgClass = isDone ? 'bg-emerald-600' : 'bg-light-surface dark:bg-dark-secondary';
   const borderClass =
     isDone || isCurrent ? 'border-emerald-600' : 'border-light-border dark:border-dark-border';
   const iconColor = isDone ? '#ffffff' : isCurrent ? '#16a34a' : '#9ca3af';
@@ -238,7 +238,7 @@ export default function ReferralInviteDetailScreen() {
         </Section>
 
         <Section title={t('referralAttributionLead')} titleSize="lg" className="mt-6 px-global pt-4">
-          <View className="mt-4 gap-1 rounded-2xl bg-light-secondary p-5 dark:bg-dark-secondary">
+          <View className="mt-4 gap-1 rounded-2xl bg-light-surface p-5 dark:bg-dark-secondary">
             <InfoRow label={t('referralProgramTitle')} value={programName} />
             {invite.referrerReward != null ? (
               <InfoRow label={t('referralRewardAmount')} value={`${invite.referrerReward} RBC`} />
@@ -253,7 +253,7 @@ export default function ReferralInviteDetailScreen() {
         </Section>
 
         <Section title={t('referralAttributionTimeline')} titleSize="lg" className="mt-6 px-global pt-4">
-          <View className="mt-4 gap-3 rounded-2xl bg-light-secondary p-5 dark:bg-dark-secondary">
+          <View className="mt-4 gap-3 rounded-2xl bg-light-surface p-5 dark:bg-dark-secondary">
             <ChecklistRow
               title={t('referralChecklistAccepted')}
               subtitle={

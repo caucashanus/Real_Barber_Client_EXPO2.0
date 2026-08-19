@@ -69,7 +69,7 @@
       "deploymentTarget": "16.4",
       "appleTeamId": "VK8YT9654D",
       "bundleIdentifier": "com.realbarber.client",
-      "buildNumber": "67",
+      "buildNumber": "68",
       "appStoreUrl": "https://apps.apple.com/app/id6760221388",
       "supportsTablet": false,
       "associatedDomains": [
@@ -94,7 +94,7 @@
     },
     "android": {
       "package": "com.realbarber.client",
-      "versionCode": 59,
+      "versionCode": 60,
       "playStoreUrl": "https://play.google.com/store/apps/details?id=com.realbarber.client",
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",

@@ -42,7 +42,7 @@ export default function BookingCouponSection({ flow, coupon, plain = false }: Pr
         className={
           plain
             ? 'active:opacity-80'
-            : 'flex-row items-center justify-between rounded-2xl border border-light-secondary bg-light-secondary px-4 py-3 dark:border-dark-secondary dark:bg-dark-secondary active:opacity-80'
+            : 'flex-row items-center justify-between rounded-2xl border border-light-secondary bg-light-surface px-4 py-3 dark:border-dark-secondary dark:bg-dark-secondary active:opacity-80'
         }>
         {plain ? (
           <View className="flex-row items-center justify-between gap-3">

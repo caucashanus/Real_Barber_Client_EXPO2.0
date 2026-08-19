@@ -79,7 +79,7 @@ export default function BookingDetailEmployeeSection({
         title={t('bookingSendRbcTip')}
         description={t('bookingSendRbcTip')}
         showChevron
-        className="rounded-xl bg-light-secondary px-4 py-3 dark:bg-dark-secondary"
+        className="rounded-xl bg-light-surface px-4 py-3 dark:bg-dark-secondary"
         onPress={() => {
           const emp = booking.employee;
           if (!emp?.id) return;

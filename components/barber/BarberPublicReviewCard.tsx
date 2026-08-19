@@ -6,6 +6,7 @@ import type { TeamMemberPageReview } from '@/api/publicTeamMember';
 import Avatar from '@/components/Avatar';
 import ShowRating from '@/components/ShowRating';
 import ThemedText from '@/components/ThemedText';
+import { SURFACE_CARD_BG_CLASS } from '@/components/layout/SurfaceCard';
 import type { TranslationKey } from '@/locales';
 import { formatReviewDate, normalizeReviewDisplayText } from '@/utils/productDetailHelpers';
 
@@ -31,7 +32,7 @@ export default function BarberPublicReviewCard({
   const author = review.authorName?.trim() || t('productReviewAuthorAnonymous');
   const surfaceClass = embedded
     ? 'border border-neutral-200 bg-light-secondary dark:border-neutral-700 dark:bg-dark-primary'
-    : 'bg-light-secondary dark:bg-dark-secondary';
+    : SURFACE_CARD_BG_CLASS;
 
   return (
     <View className={`w-[280px] rounded-lg p-4 ${surfaceClass}`}>

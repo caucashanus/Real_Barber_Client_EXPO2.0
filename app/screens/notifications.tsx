@@ -85,7 +85,7 @@ function NotificationDetailSheet({
   return (
     <View className="px-global pb-8 pt-2">
       <View className="mb-4 flex-row items-start gap-3">
-        <View className="h-11 w-11 items-center justify-center rounded-full bg-light-secondary dark:bg-dark-secondary">
+        <View className="h-11 w-11 items-center justify-center rounded-full bg-light-surface dark:bg-dark-secondary">
           <Icon name={notification.icon} size={22} />
         </View>
         <View className="min-w-0 flex-1">

@@ -1,6 +1,7 @@
 import React, { forwardRef } from 'react';
 import ActionSheet, { ActionSheetProps, ActionSheetRef } from 'react-native-actions-sheet';
 
+import { getSheetHandleIndicatorColor } from '@/components/layout/SurfaceCard';
 import useThemeColors from '@/contexts/ThemeColors';
 
 interface ActionSheetThemedProps extends ActionSheetProps {}
@@ -14,7 +15,7 @@ const ActionSheetThemed = forwardRef<ActionSheetRef, ActionSheetThemedProps>(
         {...props}
         ref={ref}
         indicatorStyle={{
-          backgroundColor: colors.isDark ? 'rgba(255, 255, 255, 0.35)' : '#525252',
+          backgroundColor: getSheetHandleIndicatorColor(colors.isDark),
           ...indicatorStyle,
         }}
         containerStyle={{

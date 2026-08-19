@@ -30,7 +30,7 @@ export default function ReservationSummaryStep({ flow }: ReservationCreateStepPr
       </ThemedText>
 
       <Section title={t('reservationSummaryBranch')} titleSize="lg" className="mt-6 pb-1 pt-3">
-        <View className="mt-2 overflow-hidden rounded-2xl bg-light-secondary dark:bg-dark-secondary">
+        <View className="mt-2 overflow-hidden rounded-2xl bg-light-surface dark:bg-dark-secondary">
           <Image
             source={
               typeof flow.summaryBranchCardImage === 'number'
@@ -58,7 +58,7 @@ export default function ReservationSummaryStep({ flow }: ReservationCreateStepPr
               name={flow.selectedEmployee.name}
             />
           ) : (
-            <View className="h-12 w-12 items-center justify-center rounded-full bg-light-secondary dark:bg-dark-secondary">
+            <View className="h-12 w-12 items-center justify-center rounded-full bg-light-surface dark:bg-dark-secondary">
               <ThemedText className="text-xs text-light-subtext dark:text-dark-subtext">
                 —
               </ThemedText>
@@ -88,7 +88,7 @@ export default function ReservationSummaryStep({ flow }: ReservationCreateStepPr
 
       <Section title={t('reservationSummaryAppointment')} titleSize="lg" className="mt-6 pb-1 pt-3">
         <ThemedText className="mt-2 text-base font-semibold">{flow.selectedDateLabel}</ThemedText>
-        <View className="mt-2 flex-row items-center justify-between rounded-xl bg-light-secondary p-3 dark:bg-dark-secondary">
+        <View className="mt-2 flex-row items-center justify-between rounded-xl bg-light-surface p-3 dark:bg-dark-secondary">
           <View>
             <ThemedText className="text-xs text-light-subtext dark:text-dark-subtext">
               {t('reservationSummaryFrom')}
@@ -137,7 +137,7 @@ export default function ReservationSummaryStep({ flow }: ReservationCreateStepPr
           />
         </View>
         {flow.couponPreview ? (
-          <View className="mt-3 rounded-xl bg-light-secondary p-3 dark:bg-dark-secondary">
+          <View className="mt-3 rounded-xl bg-light-surface p-3 dark:bg-dark-secondary">
             {flow.couponPreview.couponName ? (
               <ThemedText className="mb-2 text-sm font-semibold text-light-text dark:text-dark-text">
                 {flow.couponPreview.couponName}

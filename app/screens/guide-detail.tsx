@@ -42,7 +42,7 @@ function MediaItem({ item }: { item: GuideMedia }) {
 
   if (file.fileType === 'image') {
     return (
-      <View className="mr-3 overflow-hidden rounded-xl bg-light-secondary dark:bg-dark-secondary">
+      <View className="mr-3 overflow-hidden rounded-xl bg-light-surface dark:bg-dark-secondary">
         <Image
           source={{ uri: file.url }}
           style={{ width: screenWidth * 0.6, height: 220 }}
@@ -73,7 +73,7 @@ function MediaItem({ item }: { item: GuideMedia }) {
             pathname: '/screens/in-app-web',
             params: { url: encodeURIComponent(file.url) }})
         }
-        className="mr-3 flex-row items-center justify-center rounded-xl bg-light-secondary p-4 dark:bg-dark-secondary"
+        className="mr-3 flex-row items-center justify-center rounded-xl bg-light-surface p-4 dark:bg-dark-secondary"
         style={{ width: screenWidth * 0.6, minHeight: 80 }}>
         <Icon
           name="FileText"

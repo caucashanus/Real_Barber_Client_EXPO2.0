@@ -25,7 +25,7 @@ export default function BranchLinksSection({
       {vrTourUrl ? (
         <Pressable
           onPress={() => WebBrowser.openBrowserAsync(vrTourUrl)}
-          className="mb-3 flex-row items-center rounded-xl bg-light-secondary p-4 dark:bg-dark-secondary">
+          className="mb-3 flex-row items-center rounded-xl bg-light-surface p-4 dark:bg-dark-secondary">
           <Icon name="Box" size={24} className="mr-3" />
           <View className="flex-1">
             <ThemedText className="font-medium">3D VR tour</ThemedText>
@@ -39,7 +39,7 @@ export default function BranchLinksSection({
       {webUrl ? (
         <Pressable
           onPress={() => WebBrowser.openBrowserAsync(webUrl)}
-          className="mb-3 flex-row items-center rounded-xl bg-light-secondary p-4 dark:bg-dark-secondary">
+          className="mb-3 flex-row items-center rounded-xl bg-light-surface p-4 dark:bg-dark-secondary">
           <Icon name="Globe" size={24} className="mr-3" />
           <View className="flex-1">
             <ThemedText className="font-medium">{t('branchWeb')}</ThemedText>
@@ -54,7 +54,7 @@ export default function BranchLinksSection({
       ) : null}
       <Pressable
         onPress={() => router.push(`/screens/kudy-k-nam-detail?id=${encodeURIComponent(branchId)}`)}
-        className="mb-3 flex-row items-center rounded-xl bg-light-secondary p-4 dark:bg-dark-secondary">
+        className="mb-3 flex-row items-center rounded-xl bg-light-surface p-4 dark:bg-dark-secondary">
         <Icon name="MapPin" size={24} className="mr-3" />
         <View className="flex-1">
           <ThemedText className="font-medium">{t('howToGetToUs')}</ThemedText>

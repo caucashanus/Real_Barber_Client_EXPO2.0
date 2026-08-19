@@ -104,8 +104,7 @@ export default function HairstyleDetailContentCard({ detail, t }: HairstyleDetai
       rounded="2xl"
       padding="md"
       border
-      background={false}
-      className="bg-light-secondary dark:bg-dark-secondary">
+      background={false}>
       {blocks.map((block, index) => {
         const isFirst = index === 0;
 

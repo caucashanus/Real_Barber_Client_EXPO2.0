@@ -20,6 +20,7 @@ import PriceMarker from '@/components/PriceMarker';
 import SearchBar from '@/components/SearchBar';
 import ShowRating from '@/components/ShowRating';
 import ThemedText from '@/components/ThemedText';
+import { INACTIVE_CONTROL_SURFACE_CLASS } from '@/components/layout/SurfaceCard';
 import { BRANCH_FILTER_DATA } from '@/constants/branch-filter-data';
 import { BRANCH_MARKER_IMAGES } from '@/constants/branch-marker-images';
 import type { BranchInternalId } from '@/constants/crmBranchIds';
@@ -320,9 +321,9 @@ const MapScreen = () => {
           isModal={false}
           CustomHeaderComponent={
             <View className="mb-2 w-full items-center justify-center">
-              <View className="mt-2 h-2 w-14 rounded-full bg-light-secondary dark:bg-dark-secondary" />
+              <View className={`mt-2 h-2 w-14 rounded-full ${INACTIVE_CONTROL_SURFACE_CLASS}`} />
               <ThemedText className="mt-3 font-bold">
-                {loading ? '…' : `${branches.length} Branches`}
+                {loading ? '…' : t('mapBranchesSheetTitle')}
               </ThemedText>
             </View>
           }

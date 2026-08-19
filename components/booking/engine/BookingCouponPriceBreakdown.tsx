@@ -26,7 +26,7 @@ export default function BookingCouponPriceBreakdown({
 
   return (
     <View
-      className={`${plain ? '' : 'rounded-xl bg-light-secondary p-3 dark:bg-dark-secondary'} ${className}`}>
+      className={`${plain ? '' : 'rounded-xl bg-light-surface p-3 dark:bg-dark-secondary'} ${className}`}>
       {preview.couponName ? (
         <ThemedText className="mb-2 text-sm font-semibold">{preview.couponName}</ThemedText>
       ) : null}

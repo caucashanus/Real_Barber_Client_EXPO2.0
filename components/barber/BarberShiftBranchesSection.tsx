@@ -7,6 +7,7 @@ import type { TeamMemberPageBranch } from '@/api/publicTeamMember';
 import Icon from '@/components/Icon';
 import ThemedText from '@/components/ThemedText';
 import type { Locale } from '@/contexts/LanguageContext';
+import { SURFACE_CARD_BG_CLASS } from '@/components/layout/SurfaceCard';
 import type { TranslationKey } from '@/locales';
 import { getTeamMemberBranchName, formatBranchAddressShort } from '@/utils/teamMemberPageHelpers';
 import { BARBER_DETAIL_SECTION_SPACING } from '@/constants/barberDetailLayout';
@@ -26,7 +27,7 @@ export default function BarberShiftBranchesSection({
   if (branches.length === 0) return null;
 
   return (
-    <View className={`${BARBER_DETAIL_SECTION_SPACING} rounded-2xl bg-light-secondary p-4 dark:bg-dark-secondary`}>
+    <View className={`${BARBER_DETAIL_SECTION_SPACING} rounded-2xl p-4 ${SURFACE_CARD_BG_CLASS}`}>
       <ThemedText className="mb-3 text-lg font-semibold">
         {branches.length === 1 ? t('barberFindMeAtBranch') : t('barberFindMeAtBranches')}
       </ThemedText>

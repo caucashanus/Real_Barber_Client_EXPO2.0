@@ -263,7 +263,7 @@ const Card: React.FC<CardProps> = ({
                         ? { uri: descriptionAvatar }
                         : descriptionAvatar
                     }
-                    className="h-5 w-5 shrink-0 rounded-full bg-light-secondary dark:bg-dark-secondary"
+                    className="h-5 w-5 shrink-0 rounded-full bg-light-surface dark:bg-dark-secondary"
                   />
                 ) : null}
                 <ThemedText

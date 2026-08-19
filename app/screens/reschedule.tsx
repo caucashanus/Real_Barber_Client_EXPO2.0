@@ -448,7 +448,7 @@ export default function RescheduleScreen() {
         </ScrollView>
 
         <ThemedFooter>
-          <View className="flex-row overflow-hidden rounded-2xl bg-light-secondary dark:bg-dark-secondary">
+          <View className="flex-row overflow-hidden rounded-2xl bg-light-surface dark:bg-dark-secondary">
             <AppButton
               variant={canSave ? 'default' : 'ghost'}
               size="sm"

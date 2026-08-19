@@ -46,7 +46,7 @@ export default function BookingDetailPriceSection({
                         {t('bookingCouponCodeLabel')}: {c.code}
                       </ThemedText>
                     ) : null}
-                    <View className="mt-3 space-y-2 rounded-xl bg-light-secondary p-3 dark:bg-dark-secondary">
+                    <View className="mt-3 space-y-2 rounded-xl bg-light-surface p-3 dark:bg-dark-secondary">
                       <View className="flex-row justify-between">
                         <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext">
                           {t('reservationCouponOriginalPrice')}

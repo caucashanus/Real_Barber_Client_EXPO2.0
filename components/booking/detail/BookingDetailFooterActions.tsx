@@ -44,7 +44,7 @@ export default function BookingDetailFooterActions({
   return (
     <>
       <ThemedFooter>
-        <View className="flex-row overflow-hidden rounded-2xl bg-light-secondary dark:bg-dark-secondary">
+        <View className="flex-row overflow-hidden rounded-2xl bg-light-surface dark:bg-dark-secondary">
           {isCancelled && (
             <View className="flex-1 flex-row items-center justify-center gap-2 py-3.5">
               <ThemedText className="text-sm font-semibold text-red-500 dark:text-red-400">

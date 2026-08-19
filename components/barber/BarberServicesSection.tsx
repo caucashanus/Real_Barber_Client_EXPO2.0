@@ -5,6 +5,7 @@ import { Pressable, View } from 'react-native';
 import Icon from '@/components/Icon';
 import ThemedText from '@/components/ThemedText';
 import Section from '@/components/layout/Section';
+import { SURFACE_CARD_BG_CLASS } from '@/components/layout/SurfaceCard';
 import type { TranslationKey } from '@/locales';
 import type { CategoryGroup } from '@/utils/barberDetailHelpers';
 
@@ -31,7 +32,7 @@ export default function BarberServicesSection({
             return (
               <View
                 key={group.categoryId}
-                className="overflow-hidden rounded-xl bg-light-secondary dark:bg-dark-secondary">
+                className={`overflow-hidden rounded-xl ${SURFACE_CARD_BG_CLASS}`}>
                 <Pressable
                   onPress={() => onToggleCategory(group.categoryId)}
                   className="flex-row items-center justify-between p-3">
@@ -55,7 +56,7 @@ export default function BarberServicesSection({
                             contentFit="cover"
                           />
                         ) : (
-                          <View className="h-12 w-12 rounded-lg bg-light-secondary dark:bg-dark-secondary" />
+                          <View className="h-12 w-12 rounded-lg bg-light-surface dark:bg-dark-secondary" />
                         )}
                         <View className="ml-3 flex-1">
                           <ThemedText className="text-sm font-medium">{svc.name}</ThemedText>

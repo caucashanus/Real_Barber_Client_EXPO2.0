@@ -86,7 +86,7 @@ const Switch: React.FC<SwitchProps> = ({
       <View className="h-6 w-10 rounded-full">
         <View
           style={switchValue ? { backgroundColor: colors.highlight } : undefined}
-          className={`absolute h-full w-full rounded-full ${!switchValue ? 'bg-light-secondary dark:bg-white/40' : ''}`}
+          className={`absolute h-full w-full rounded-full ${!switchValue ? 'bg-light-surface dark:bg-white/40' : ''}`}
         />
         <Animated.View
           style={{

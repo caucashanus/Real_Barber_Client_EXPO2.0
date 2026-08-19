@@ -37,7 +37,7 @@ const VARIANT_CLASSES: Record<
     value: 'text-[10px] font-semibold text-light-text dark:text-dark-text',
   },
   sheet: {
-    pill: 'rounded-full border border-neutral-200 bg-light-secondary px-3 py-1.5 dark:border-dark-secondary dark:bg-dark-secondary',
+    pill: 'rounded-full border border-neutral-200 bg-light-surface px-3 py-1.5 dark:border-dark-secondary dark:bg-dark-secondary',
     prefix: 'text-xs text-light-subtext dark:text-dark-subtext',
     value: 'text-sm font-semibold text-light-text dark:text-dark-text',
   },

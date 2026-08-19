@@ -25,7 +25,7 @@ export default function BarberBranchesSection({ branches, t }: BarberBranchesSec
         {branches.map((branch) => (
           <View
             key={branch.id}
-            className="flex-row items-start rounded-xl bg-light-secondary p-3 dark:bg-dark-secondary">
+            className="flex-row items-start rounded-xl bg-light-surface p-3 dark:bg-dark-secondary">
             <Pressable
               onPress={() => router.push(branchDetailHref(branch.id) as never)}
               className="shrink-0 active:opacity-70">

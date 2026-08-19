@@ -354,7 +354,7 @@ const PropertyDetail = () => {
                 {purchase ? (
                   <Pressable
                     onPress={() => router.push(`/screens/review?${reviewParams}`)}
-                    className="ml-4 rounded-lg bg-light-secondary px-3 py-2 dark:bg-dark-secondary">
+                    className="ml-4 rounded-lg bg-light-surface px-3 py-2 dark:bg-dark-secondary">
                     <ThemedText className="text-sm font-medium">
                       {hasReviewed ? t('reviewUpdate') : t('productRecenzovat')}
                     </ThemedText>

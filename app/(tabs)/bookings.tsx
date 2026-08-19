@@ -473,7 +473,7 @@ const BookingCard = (props: {
         </View>
       </Pressable>
       {!isCancelled && (
-        <View className="flex-row rounded-b-2xl bg-light-secondary dark:bg-dark-secondary">
+        <View className="flex-row rounded-b-2xl bg-light-surface dark:bg-dark-secondary">
           {isCurrent ? (
             <Button
               variant="ghost"

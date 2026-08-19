@@ -471,6 +471,7 @@ export const cs: Record<TranslationKey, string> = {
 
   // Common
   commonLoading: 'Načítám…',
+  commonAny: 'Libovolně',
   commonError: 'Chyba',
   commonCancel: 'Zrušit',
   commonDelete: 'Smazat',
@@ -778,6 +779,7 @@ export const cs: Record<TranslationKey, string> = {
   serviceDetailNotFound: 'Služba nebyla nalezena.',
 
   // Map
+  mapBranchesSheetTitle: 'Provozovny',
   mapLoadingBranches: 'Načítání poboček…',
   mapCentralWarehouseCalloutBeforePhone:
     'Zobrazená adresa odpovídá centrálnímu skladu, nikoli kamenné prodejně. Nákup i osobní vyzvednutí zboží je na tomto místě možné výhradně po předchozí telefonické domluvě. Pro koordinaci nás prosím kontaktujte na',

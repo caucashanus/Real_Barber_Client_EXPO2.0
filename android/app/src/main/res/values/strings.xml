@@ -1,3 +1,4 @@
 <resources>
-    <string name="app_name">Real Barber</string>
+  <string name="app_name">Real Barber</string>
+  <string name="expo_runtime_version">1.0.20</string>
 </resources>

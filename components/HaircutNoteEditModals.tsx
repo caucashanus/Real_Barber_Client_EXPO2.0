@@ -15,6 +15,7 @@ import Counter from '@/components/forms/Counter';
 import Input from '@/components/forms/Input';
 import Selectable from '@/components/forms/Selectable';
 import Section from '@/components/layout/Section';
+import { INACTIVE_CONTROL_SURFACE_CLASS } from '@/components/layout/SurfaceCard';
 import {
   AMENITY_OPTIONS,
   GUEST_ACCESS_OPTIONS,
@@ -240,7 +241,7 @@ export default function HaircutNoteEditModals({
         <View className="mb-1 w-full flex-row items-start justify-between px-2 pb-2 pt-1">
           <View className="w-10" />
           <View className="flex-1 items-center px-1">
-            <View className="mt-1 h-2 w-14 rounded-full bg-light-secondary dark:bg-dark-secondary" />
+            <View className={`mt-1 h-2 w-14 rounded-full ${INACTIVE_CONTROL_SURFACE_CLASS}`} />
             <ThemedText className="mt-2 text-center font-bold" numberOfLines={2}>
               {sheetTitle}
             </ThemedText>

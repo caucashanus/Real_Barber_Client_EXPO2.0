@@ -69,7 +69,7 @@ export default function ReservationServiceStep({ flow }: ReservationCreateStepPr
                 <Pressable
                   key={service.id}
                   onPress={() => flow.selectSlotService(service)}
-                  className="rounded-2xl border p-3 active:opacity-80 border-light-secondary bg-light-secondary dark:border-dark-secondary dark:bg-dark-secondary"
+                  className="rounded-2xl border p-3 active:opacity-80 border-light-secondary bg-light-surface dark:border-dark-secondary dark:bg-dark-secondary"
                   style={
                     isSelected
                       ? { borderColor: flow.colors.highlight, borderWidth: 2 }

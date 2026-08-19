@@ -52,7 +52,7 @@ function GuideCard({ guide }: { guide: ClientGuide }) {
             <Image className="h-full w-full" source={{ uri: imageUrl }} contentFit="cover" />
           </View>
         ) : (
-          <View className="h-full w-full items-center justify-center rounded-xl border-2 border-light-primary bg-light-secondary dark:border-dark-primary dark:bg-dark-secondary">
+          <View className="h-full w-full items-center justify-center rounded-xl border-2 border-light-primary bg-light-surface dark:border-dark-primary dark:bg-dark-secondary">
             <ThemedText className="text-xs text-light-subtext dark:text-dark-subtext">—</ThemedText>
           </View>
         )}

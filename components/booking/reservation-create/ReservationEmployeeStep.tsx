@@ -111,7 +111,7 @@ export default function ReservationEmployeeStep({ flow }: ReservationCreateStepP
                 }
                 customIcon={
                   <View
-                    className="h-12 w-12 items-center justify-center overflow-hidden rounded-xl bg-light-secondary dark:bg-dark-secondary"
+                    className="h-12 w-12 items-center justify-center overflow-hidden rounded-xl bg-light-surface dark:bg-dark-secondary"
                     style={
                       flow.data.employeeId === emp.id
                         ? { borderColor: flow.colors.highlight, borderWidth: 2 }

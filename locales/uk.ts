@@ -471,6 +471,7 @@ export const uk: Record<TranslationKey, string> = {
 
   // Common
   commonLoading: 'Завантажую…',
+  commonAny: 'Будь-яка',
   commonError: 'Помилка',
   commonCancel: 'Скасувати',
   commonDelete: 'Видалити',
@@ -778,6 +779,7 @@ export const uk: Record<TranslationKey, string> = {
   serviceDetailNotFound: 'Послугу не знайдено.',
 
   // Map
+  mapBranchesSheetTitle: 'Філії',
   mapLoadingBranches: 'Завантаження філій…',
   mapCentralWarehouseCalloutBeforePhone:
     'Zobrazená adresa odpovídá centrálnímu skladu, nikoli kamenné prodejně. Nákup i osobní vyzvednutí zboží je na tomto místě možné výhradně po předchozí telefonické domluvě. Pro koordinaci nás prosím kontaktujte na',

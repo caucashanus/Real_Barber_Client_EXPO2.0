@@ -265,7 +265,7 @@ export default function TransferSelectRecipientScreen() {
         </SurfaceCard>
 
         {/* Search */}
-        <View className="mb-4 flex-row items-center rounded-xl border border-light-secondary bg-light-secondary px-3 py-2 dark:border-dark-secondary dark:bg-dark-secondary">
+        <View className="mb-4 flex-row items-center rounded-xl border border-light-secondary bg-light-surface px-3 py-2 dark:border-dark-secondary dark:bg-dark-secondary">
           <Icon
             name="Search"
             size={20}

@@ -81,8 +81,7 @@ export default function BranchesScreen() {
               rounded="2xl"
               padding="md"
               border
-              background={false}
-              className="bg-light-secondary dark:bg-dark-secondary">
+              background={false}>
               <ThemedText className="text-lg font-semibold">{t('contactsTitle')}</ThemedText>
               <ThemedText className="mt-3 text-sm leading-6 text-light-subtext dark:text-dark-subtext">
                 {t('contactsIntro')}

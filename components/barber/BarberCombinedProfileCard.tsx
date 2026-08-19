@@ -12,6 +12,7 @@ import BarberAboutSection from '@/components/barber/BarberAboutSection';
 import BarberAvailabilitySection from '@/components/barber/BarberAvailabilitySection';
 import BarberSkillsSection from '@/components/barber/BarberSkillsSection';
 import BarberWorkSamplesSection from '@/components/barber/BarberWorkSamplesSection';
+import { SURFACE_CARD_BG_CLASS } from '@/components/layout/SurfaceCard';
 import type { TranslationKey } from '@/locales';
 import { BARBER_DETAIL_SECTION_SPACING } from '@/constants/barberDetailLayout';
 
@@ -62,7 +63,7 @@ export default function BarberCombinedProfileCard({
     <View
       onLayout={onLayout}
       nativeID="dostupnost"
-      className={`${BARBER_DETAIL_SECTION_SPACING} rounded-2xl bg-light-secondary p-4 dark:bg-dark-secondary`}>
+      className={`${BARBER_DETAIL_SECTION_SPACING} rounded-2xl p-4 ${SURFACE_CARD_BG_CLASS}`}>
       {showAbout ? <BarberAboutSection description={bio} embedded t={t} /> : null}
 
       {showSkills ? (

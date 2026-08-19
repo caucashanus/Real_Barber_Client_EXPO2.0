@@ -1,6 +1,6 @@
 import { Image } from 'expo-image';
 import React from 'react';
-import { View } from 'react-native';
+import { Pressable, View } from 'react-native';
 
 import type { BookingEngineFlow } from '@/hooks/useBookingEngineFlow';
 import BookingHandoffServiceTimeButton from '@/components/booking/BookingHandoffServiceTimeButton';
@@ -99,10 +99,12 @@ export default function BookingEngineHandoffServiceStep({ flow }: Props) {
                 : undefined;
 
             return (
-              <View
+              <Pressable
                 key={service.id}
+                onPress={() => flow.selectSlotHandoffServiceItem(service)}
+                accessibilityRole="button"
                 style={shadowPresets.card}
-                className={`${BOOKING_FLOW_CARD_OUTER_CLASS} p-4 ${
+                className={`${BOOKING_FLOW_CARD_OUTER_CLASS} p-4 active:opacity-90 ${
                   isSelected ? 'border-2 border-light-text dark:border-dark-text' : ''
                 }`}>
                 <View className="flex-row items-start gap-3">
@@ -136,7 +138,7 @@ export default function BookingEngineHandoffServiceStep({ flow }: Props) {
                     </View>
                   </View>
                 </View>
-              </View>
+              </Pressable>
             );
           })}
         </View>

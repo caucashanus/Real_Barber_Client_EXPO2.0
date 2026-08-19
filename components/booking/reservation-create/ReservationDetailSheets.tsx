@@ -34,7 +34,7 @@ export default function ReservationDetailSheets({ flow }: ReservationCreateStepP
                 {flow.detailsMedia.map((m, index) => (
                   <View
                     key={`${m.url}-${index}`}
-                    className="h-24 w-24 overflow-hidden rounded-xl bg-light-secondary dark:bg-dark-secondary">
+                    className="h-24 w-24 overflow-hidden rounded-xl bg-light-surface dark:bg-dark-secondary">
                     <Image source={{ uri: m.url }} className="h-full w-full" contentFit="cover" />
                   </View>
                 ))}
@@ -96,7 +96,7 @@ export default function ReservationDetailSheets({ flow }: ReservationCreateStepP
                 {flow.detailsBranchImages.map((m, index) => (
                   <View
                     key={`${m.url}-${index}`}
-                    className="h-24 w-24 overflow-hidden rounded-xl bg-light-secondary dark:bg-dark-secondary">
+                    className="h-24 w-24 overflow-hidden rounded-xl bg-light-surface dark:bg-dark-secondary">
                     <Image source={{ uri: m.url }} className="h-full w-full" contentFit="cover" />
                   </View>
                 ))}

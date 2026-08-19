@@ -15,6 +15,7 @@ import {
   isShiftCalendarConfigured,
   paginateShiftRowsByDayCount,
 } from '@/utils/teamMemberPageHelpers';
+import { SURFACE_CARD_BG_CLASS } from '@/components/layout/SurfaceCard';
 import type { TranslationKey } from '@/locales';
 
 const DEFAULT_VISIBLE_DAYS = 4;
@@ -34,7 +35,7 @@ interface BarberAvailabilitySectionProps {
 }
 
 const EMBEDDED_SHIFT_CARD_CLASS = 'bg-light-primary dark:bg-[#1C1C1C]';
-const STANDALONE_SHIFT_CARD_CLASS = 'bg-light-secondary dark:bg-dark-secondary';
+const STANDALONE_SHIFT_CARD_CLASS = SURFACE_CARD_BG_CLASS;
 const AVAILABILITY_INFO_HINT_BORDER_CLASS = 'border border-neutral-200 dark:border-neutral-700';
 
 function ShiftRow({
@@ -208,7 +209,7 @@ export default function BarberAvailabilitySection({
         className={`rounded-xl p-3 ${AVAILABILITY_INFO_HINT_BORDER_CLASS} ${
           embedded
             ? `mt-4 ${EMBEDDED_SHIFT_CARD_CLASS}`
-            : 'mt-4 bg-light-secondary dark:bg-dark-secondary'
+            : `mt-4 ${SURFACE_CARD_BG_CLASS}`
         }`}>
         <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext">
           {t('barberAvailabilityInfoHint')}

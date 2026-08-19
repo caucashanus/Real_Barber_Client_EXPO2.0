@@ -163,7 +163,7 @@ export default function ReferralProgramDetailScreen() {
           </View>
 
           <Section title={t('referralProgramDetails')} titleSize="lg" className="mt-6 px-global pt-4">
-            <View className="mt-4 overflow-hidden rounded-2xl bg-light-secondary dark:bg-dark-secondary">
+            <View className="mt-4 overflow-hidden rounded-2xl bg-light-surface dark:bg-dark-secondary">
               <View className="gap-1 px-5">
                 <InfoRow
                   label={t('referralProgramReferrerReward')}
@@ -189,7 +189,7 @@ export default function ReferralProgramDetailScreen() {
               title={t('referralProgramTrackInvites')}
               titleSize="lg"
               className="mt-6 px-global pt-4">
-              <View className="mt-4 overflow-hidden rounded-2xl bg-light-secondary dark:bg-dark-secondary">
+              <View className="mt-4 overflow-hidden rounded-2xl bg-light-surface dark:bg-dark-secondary">
                 {programReferrals.map((ref) => (
                   <View key={ref.id} className="flex-row items-center justify-between px-5 py-3.5">
                         <View className="min-w-0 flex-1">
@@ -227,7 +227,7 @@ export default function ReferralProgramDetailScreen() {
 
       {/* Footer CTA */}
       <ThemedFooter>
-        <View className="flex-row overflow-hidden rounded-2xl bg-light-secondary dark:bg-dark-secondary">
+        <View className="flex-row overflow-hidden rounded-2xl bg-light-surface dark:bg-dark-secondary">
           <Button
             variant="ghost"
             size="small"

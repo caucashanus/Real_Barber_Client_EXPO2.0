@@ -230,7 +230,7 @@ export default function TransferChatScreen() {
                   className={`mb-4 flex-row ${isSent ? 'justify-end' : 'justify-start'}`}>
                   <View
                     style={isSent ? { backgroundColor: colors.highlight } : undefined}
-                    className={`max-w-[80%] rounded-2xl px-4 py-2 ${!isSent ? 'bg-light-secondary dark:bg-dark-secondary' : ''}`}>
+                    className={`max-w-[80%] rounded-2xl px-4 py-2 ${!isSent ? 'bg-light-surface dark:bg-dark-secondary' : ''}`}>
                     <ThemedText className={`text-base font-semibold ${isSent ? 'text-white' : ''}`}>
                       {isSent ? '-' : '+'}
                       {formatBalance(amount)} RBC

@@ -146,7 +146,7 @@ export default function PaymentsScreen() {
           {/* Apple Pay - only on iOS */}
 
           <TouchableOpacity className="flex-row items-center border-b border-light-secondary py-4 dark:border-dark-secondary">
-            <View className="mr-4 h-12 w-12 items-center justify-center rounded-lg bg-light-secondary dark:bg-dark-secondary">
+            <View className="mr-4 h-12 w-12 items-center justify-center rounded-lg bg-light-surface dark:bg-dark-secondary">
               <AntDesign name="apple" size={24} color={colors.icon} />
             </View>
             <View className="flex-1">
@@ -160,7 +160,7 @@ export default function PaymentsScreen() {
 
           {/* Google Pay - available on both platforms */}
           <TouchableOpacity className="flex-row items-center border-b border-light-secondary py-4 dark:border-dark-secondary">
-            <View className="mr-4 h-12 w-12 items-center justify-center rounded-lg bg-light-secondary dark:bg-dark-secondary">
+            <View className="mr-4 h-12 w-12 items-center justify-center rounded-lg bg-light-surface dark:bg-dark-secondary">
               <AntDesign name="google" size={24} color={colors.icon} />
             </View>
             <View className="flex-1">

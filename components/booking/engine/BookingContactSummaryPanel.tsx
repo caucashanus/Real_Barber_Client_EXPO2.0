@@ -108,7 +108,7 @@ export default function BookingContactSummaryPanel({
   const holdVisible = shouldShowBookingHoldSummaryRow(flow);
 
   return (
-    <View className={plain ? undefined : 'rounded-2xl border border-light-secondary bg-light-secondary p-4 dark:border-dark-secondary dark:bg-dark-secondary'}>
+    <View className={plain ? undefined : 'rounded-2xl border border-light-secondary bg-light-surface p-4 dark:border-dark-secondary dark:bg-dark-secondary'}>
       <BookingHoldSummaryRow flow={flow} plain={plain} />
       {renderRow(rows[0], 0, holdVisible)}
       <BookingSummaryBranchSection

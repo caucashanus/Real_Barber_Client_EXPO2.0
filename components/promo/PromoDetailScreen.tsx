@@ -33,7 +33,7 @@ import SiteLoadingState from '@/components/SiteLoadingState';
 function PromoHeroImage({ uri, width, height }: { uri: string; width: number; height: number }) {
   return (
     <View
-      className="overflow-hidden rounded-2xl bg-light-secondary dark:bg-dark-secondary"
+      className="overflow-hidden rounded-2xl bg-light-surface dark:bg-dark-secondary"
       style={{ width, height }}>
       <Image source={{ uri }} style={{ width, height }} contentFit="cover" />
     </View>

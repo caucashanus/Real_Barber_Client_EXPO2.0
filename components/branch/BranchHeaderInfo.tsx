@@ -74,7 +74,7 @@ export default function BranchHeaderInfo({
         </Pressable>
         <Pressable
           onPress={() => router.push(`/screens/review?${reviewParams}`)}
-          className="rounded-lg bg-light-secondary px-3 py-2 dark:bg-dark-secondary">
+          className="rounded-lg bg-light-surface px-3 py-2 dark:bg-dark-secondary">
           <ThemedText className="text-sm font-medium">
             {hasReviewed ? t('branchUpdateReview') : t('branchReview')}
           </ThemedText>
