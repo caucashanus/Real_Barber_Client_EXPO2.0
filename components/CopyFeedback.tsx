@@ -1,13 +1,13 @@
 import { Image } from 'expo-image';
 import React, { useCallback, useEffect, useRef } from 'react';
-import { Animated, Pressable, StyleSheet, View } from 'react-native';
+import { Animated, Modal, Pressable, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { useTranslation } from '@/hooks/useTranslation';
 import Icon from '@/components/Icon';
 import ThemedText from '@/components/ThemedText';
 
-/** Overlay nad obsahem — bez Modal okna, dotyky mimo toast projdou na stránku. */
+/** Nad native stackem (booking, modály) — Modal, ne sibling overlay v root View. */
 const COPY_FEEDBACK_LAYER_Z_INDEX = 9999;
 
 const COPY_FEEDBACK_MASCOT = require('@/assets/img/copy-feedback-toast.png');
@@ -73,40 +73,47 @@ export default function CopyFeedback({
   if (!isVisible) return null;
 
   return (
-    <View pointerEvents="box-none" style={styles.overlay}>
-      <Animated.View
-        pointerEvents="box-none"
-        style={[
-          styles.container,
-          {
-            top: Math.max(insets.top, 12) + 8,
-            transform: [{ translateY }],
-          },
-        ]}>
-        <View pointerEvents="auto" style={styles.card} className="relative w-full rounded-2xl py-2.5 pl-2.5 pr-3 pt-3">
-          <Pressable
-            accessibilityRole="button"
-            accessibilityLabel={t('sheetClose')}
-            onPress={dismiss}
-            hitSlop={8}
-            className="absolute right-2 top-2 z-10 rounded-full p-1 active:opacity-70">
-            <Icon name="X" size={16} color="#ffffff" strokeWidth={2.5} />
-          </Pressable>
+    <Modal
+      visible={isVisible}
+      transparent
+      animationType="none"
+      statusBarTranslucent
+      onRequestClose={dismiss}>
+      <View pointerEvents="box-none" style={styles.overlay}>
+        <Animated.View
+          pointerEvents="box-none"
+          style={[
+            styles.container,
+            {
+              top: Math.max(insets.top, 12) + 8,
+              transform: [{ translateY }],
+            },
+          ]}>
+          <View pointerEvents="auto" style={styles.card} className="relative w-full rounded-2xl py-2.5 pl-2.5 pr-3 pt-3">
+            <Pressable
+              accessibilityRole="button"
+              accessibilityLabel={t('sheetClose')}
+              onPress={dismiss}
+              hitSlop={8}
+              className="absolute right-2 top-2 z-10 rounded-full p-1 active:opacity-70">
+              <Icon name="X" size={16} color="#ffffff" strokeWidth={2.5} />
+            </Pressable>
 
-          <View className="flex-row items-center gap-3 pr-7">
-            <Image
-              source={COPY_FEEDBACK_MASCOT}
-              style={styles.mascot}
-              contentFit="contain"
-              accessibilityIgnoresInvertColors
-            />
-            <ThemedText className="min-w-0 flex-1 text-sm font-medium text-white">
-              {message}
-            </ThemedText>
+            <View className="flex-row items-center gap-3 pr-7">
+              <Image
+                source={COPY_FEEDBACK_MASCOT}
+                style={styles.mascot}
+                contentFit="contain"
+                accessibilityIgnoresInvertColors
+              />
+              <ThemedText className="min-w-0 flex-1 text-sm font-medium text-white">
+                {message}
+              </ThemedText>
+            </View>
           </View>
-        </View>
-      </Animated.View>
-    </View>
+        </Animated.View>
+      </View>
+    </Modal>
   );
 }
 

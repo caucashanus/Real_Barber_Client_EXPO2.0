@@ -1,6 +1,7 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import type { BookingEntity, BookingService, BookingSlot } from '@/lib/booking/constants';
+import { isRevisitDatetime } from '@/lib/booking/engine/session/stepPolicy';
 import type { BookingSelections, BookingStepKind } from '@/lib/booking/engine/types';
 
 export const BOOKING_SLOT_STORAGE_KEY = '@rezervace-selected-slot';
@@ -229,11 +230,16 @@ export function applyBookingBackwardCleanup(
     options.clearContactOtp?.();
   }
 
-  if (shouldClear('contact') || shouldClear('summary') || shouldClear('datetime')) {
+  const revisitDatetime = isRevisitDatetime(fromStep, toStep);
+
+  if (
+    !revisitDatetime &&
+    (shouldClear('contact') || shouldClear('summary') || shouldClear('datetime'))
+  ) {
     setters.setSlot(null);
   }
 
-  if (shouldClear('datetime') || (fromStep === 'contact' && toStep === 'datetime') || (fromStep === 'summary' && toStep === 'datetime')) {
+  if (!revisitDatetime && shouldClear('datetime')) {
     setters.setDate(null);
   }
 

@@ -14,8 +14,11 @@ export function shouldSkipStep(
     return bootstrap.skipContact !== true;
   }
 
+  const handoff = bootstrap.handoffPreset;
+
   if (step === 'branch') {
     if (preset.branchSlug || preset.branchId) return true;
+    if (handoff?.branchId) return true;
     if (preset.recipeId === 'employee-profile') return true;
     if (preset.employeeId && bootstrap.employeeBranchCount === 1) return true;
     return false;
@@ -23,11 +26,13 @@ export function shouldSkipStep(
 
   if (step === 'service') {
     if (preset.serviceSlug || preset.serviceId) return true;
+    if (handoff?.serviceId) return true;
     return false;
   }
 
   if (step === 'employee') {
     if (preset.employeeSlug || preset.employeeId) return true;
+    if (handoff?.employeeId) return true;
     if (preset.recipeId === 'employee-profile') return true;
     return false;
   }

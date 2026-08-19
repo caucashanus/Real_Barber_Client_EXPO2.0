@@ -129,6 +129,7 @@ export const cs: Record<TranslationKey, string> = {
   appearanceOptionDark: 'Tmavý',
   appearanceOptionLight: 'Světlý',
   profileMyReservations: 'Moje rezervace',
+  profileWallet: 'Peněženka s RBCoiny',
   profileNotificationHistory: 'Historie notifikací',
   profileGetHelp: 'Nápověda',
   profileReferrals: 'Doporučení',
@@ -1439,6 +1440,8 @@ export const cs: Record<TranslationKey, string> = {
   reservationStepServiceSubtitle: 'Vyberte službu, kterou chcete rezervovat.',
   reservationSlotHandoffTitle: 'Vyberte službu',
   bookingSlotHandoffSubtitle: 'Pro tento termín u vybraného holiče',
+  bookingSlotHandoffSlotGoneBanner:
+    'Termín {time} právě zmizel. Mezitím ho někdo stihl zarezervovat. Vyberte si nejbližší volný čas níže.',
   bookingSlotHandoffDayToday: 'dnes',
   reservationNoServices: 'Pro vybraného barbera nejsou dostupné žádné služby.',
   reservationStepDatetimeTitle: 'Vyberte datum a čas',

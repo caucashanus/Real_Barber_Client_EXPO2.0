@@ -273,6 +273,12 @@ const PersonalProfile = ({
         />
         <ListLink
           showChevron
+          title={t('profileWallet')}
+          icon="Wallet"
+          href="/wallet"
+        />
+        <ListLink
+          showChevron
           title={t('profileFeatureSettings')}
           icon="SlidersHorizontal"
           href="/screens/feature-settings"

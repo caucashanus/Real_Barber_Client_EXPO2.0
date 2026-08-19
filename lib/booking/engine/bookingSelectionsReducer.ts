@@ -1,4 +1,5 @@
 import type { BookingEntity, BookingService, BookingSlot } from '@/lib/booking/constants';
+import { applyBackwardSelectionCleanup } from '@/lib/booking/engine/session/stepPolicy';
 import type { BookingStepKind } from '@/lib/booking/engine/types';
 
 export type BookingSelectionsState = {
@@ -35,57 +36,6 @@ export type BookingSelectionsAction =
     }
   | { type: 'RESTORE'; payload: Partial<BookingSelectionsState> }
   | { type: 'RESET' };
-
-function shouldClearStep(
-  kind: BookingStepKind,
-  fromIdx: number,
-  toIdx: number,
-  activeSteps: readonly BookingStepKind[]
-): boolean {
-  const idx = activeSteps.indexOf(kind);
-  return idx !== -1 && fromIdx >= idx && toIdx < idx;
-}
-
-function applyBackwardCleanup(
-  state: BookingSelectionsState,
-  fromStep: BookingStepKind,
-  toStep: BookingStepKind,
-  activeSteps: readonly BookingStepKind[]
-): BookingSelectionsState {
-  const fromIdx = activeSteps.indexOf(fromStep);
-  const toIdx = activeSteps.indexOf(toStep);
-  if (fromIdx === -1 || toIdx === -1 || toIdx >= fromIdx) return state;
-
-  let next = state;
-
-  if (
-    shouldClearStep('contact', fromIdx, toIdx, activeSteps) ||
-    shouldClearStep('summary', fromIdx, toIdx, activeSteps) ||
-    shouldClearStep('datetime', fromIdx, toIdx, activeSteps)
-  ) {
-    next = { ...next, slot: null };
-  }
-
-  if (
-    shouldClearStep('datetime', fromIdx, toIdx, activeSteps) ||
-    (fromStep === 'contact' && toStep === 'datetime') ||
-    (fromStep === 'summary' && toStep === 'datetime')
-  ) {
-    next = { ...next, date: null };
-  }
-
-  if (shouldClearStep('employee', fromIdx, toIdx, activeSteps)) {
-    next = { ...next, employee: null };
-  }
-  if (shouldClearStep('service', fromIdx, toIdx, activeSteps)) {
-    next = { ...next, service: null };
-  }
-  if (shouldClearStep('branch', fromIdx, toIdx, activeSteps)) {
-    next = { ...next, branch: null };
-  }
-
-  return next;
-}
 
 export function bookingSelectionsReducer(
   state: BookingSelectionsState,
@@ -139,7 +89,12 @@ export function bookingSelectionsReducer(
     case 'PATCH':
       return { ...state, ...action.patch(state) };
     case 'BACKWARD_CLEANUP':
-      return applyBackwardCleanup(state, action.fromStep, action.toStep, action.activeSteps);
+      return applyBackwardSelectionCleanup(
+        state,
+        action.fromStep,
+        action.toStep,
+        action.activeSteps
+      );
     case 'RESTORE':
       return { ...state, ...action.payload };
     case 'RESET':

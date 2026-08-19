@@ -4,7 +4,18 @@ import type {
   BookingEmployeePickerEmployee,
   BookingFlatAvailabilityMap,
   BookingFlatSlot,
+  BookingSlotServiceItem,
 } from '@/lib/booking/booking-api/types';
+
+export function mapSlotServiceItemToBookingService(service: BookingSlotServiceItem): BookingService {
+  return {
+    id: service.id,
+    name: service.name,
+    pricing: { minPrice: service.price, maxPrice: service.price, kind: 'exact' },
+    duration: service.durationMinutes,
+    imageUrl: service.imageUrl ?? undefined,
+  };
+}
 
 export function mapCatalogItemToService(item: BookingCatalogItem): BookingService {
   const fromPrice = item.priceFrom != null && item.priceFrom > 0 ? item.priceFrom : undefined;

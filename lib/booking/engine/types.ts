@@ -26,12 +26,20 @@ export type BookingPreset = {
   employeeId?: string;
 };
 
+export type BookingHandoffPreset = {
+  branchId?: string;
+  serviceId?: string;
+  employeeId?: string;
+  employeeSlug?: string;
+};
+
 export type BookingBootstrap = {
   branchCount?: number;
   employeeBranchCount?: number;
   employeeProfileMultiBranch?: boolean;
   skipContact?: boolean;
   skipDatetime?: boolean;
+  handoffPreset?: BookingHandoffPreset;
 };
 
 export type BookingRecipe = {

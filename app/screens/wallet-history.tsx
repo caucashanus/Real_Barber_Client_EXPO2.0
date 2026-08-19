@@ -113,12 +113,7 @@ export default function WalletHistoryScreen() {
       <Header title={t('walletHistoryTitle')} showBackButton />
       <ThemedScroller>
         {loading ? (
-          <View className="items-center py-12">
-            <SiteLoadingSpinner />
-            <ThemedText className="mt-2 text-sm text-light-subtext dark:text-dark-subtext">
-              {t('walletHistoryLoading')}
-            </ThemedText>
-          </View>
+          <SiteLoadingState layout="section" />
         ) : error ? (
           <View className="px-4 py-6">
             <ThemedText className="text-center text-sm text-red-600 dark:text-red-400">

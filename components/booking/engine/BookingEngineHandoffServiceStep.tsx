@@ -6,23 +6,15 @@ import type { BookingEngineFlow } from '@/hooks/useBookingEngineFlow';
 import BookingHandoffServiceTimeButton from '@/components/booking/BookingHandoffServiceTimeButton';
 import ThemedText from '@/components/ThemedText';
 import { BOOKING_FLOW_CARD_OUTER_CLASS } from '@/components/booking/engine/BookingPanelPickerRow';
-import type { BookingSlotServiceItem } from '@/lib/booking/booking-api/types';
-import type { BookingService } from '@/lib/booking/constants';
+import { mapSlotServiceItemToBookingService } from '@/lib/booking/booking-api/mappers';
 import {
   formatBookingSlotHandoffContextLine,
-  formatBookingSlotHandoffServiceTimeButtonLabel} from '@/utils/reservationCreateHelpers';
+  formatBookingSlotHandoffServiceTimeButtonLabel,
+  formatNextSlotDisplayTime,
+} from '@/utils/reservationCreateHelpers';
 import { formatBookingServicePriceLabel } from '@/lib/booking/designShared';
 import { shadowPresets } from '@/utils/useShadow';
 import SiteLoadingSpinner from '@/components/SiteLoadingSpinner';
-
-function slotServiceToBookingService(service: BookingSlotServiceItem): BookingService {
-  return {
-    id: service.id,
-    name: service.name,
-    pricing: { minPrice: service.price, maxPrice: service.price, kind: 'exact' },
-    duration: service.durationMinutes,
-    imageUrl: service.imageUrl};
-}
 
 interface Props {
   flow: BookingEngineFlow;
@@ -40,13 +32,19 @@ export default function BookingEngineHandoffServiceStep({ flow }: Props) {
     date: handoff.date,
     slotStart: handoff.slot.start,
     dateLocaleTag: flow.dateLocaleTag,
-    t});
+    t,
+  });
+
+  const slotGoneBannerLabel = t('bookingSlotHandoffSlotGoneBanner').replace(
+    '{time}',
+    formatNextSlotDisplayTime(handoff.slot.start)
+  );
 
   return (
     <View>
       <ThemedText className="mb-2 text-lg font-semibold">{t('reservationSlotHandoffTitle')}</ThemedText>
       <ThemedText className="text-sm">{contextLabel}</ThemedText>
-      <ThemedText className="mb-5 mt-1 text-sm text-light-subtext dark:text-dark-subtext">
+      <ThemedText className="mt-1 text-sm text-light-subtext dark:text-dark-subtext">
         {t('bookingSlotHandoffSubtitle')}
       </ThemedText>
 
@@ -60,19 +58,27 @@ export default function BookingEngineHandoffServiceStep({ flow }: Props) {
       ) : null}
 
       {flow.slotServicesError ? (
-        <ThemedText className="text-sm text-red-500 dark:text-red-400">{flow.slotServicesError}</ThemedText>
+        <ThemedText className="mt-5 text-sm text-red-500 dark:text-red-400">{flow.slotServicesError}</ThemedText>
       ) : null}
 
       {!flow.loadingSlotServices && flow.slotServices.length === 0 ? (
-        <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext">
+        <ThemedText className="mt-5 text-sm text-light-subtext dark:text-dark-subtext">
           {t('reservationNoServices')}
         </ThemedText>
       ) : null}
 
       {!flow.loadingSlotServices && flow.slotServices.length > 0 ? (
-        <View>
+        <View className="mt-5">
+          {flow.showSlotHandoffSlotGoneBanner ? (
+            <View className="mb-4 rounded-xl border border-amber-500/40 bg-amber-500/10 px-3 py-2">
+              <ThemedText className="text-sm text-amber-700 dark:text-amber-300">
+                {slotGoneBannerLabel}
+              </ThemedText>
+            </View>
+          ) : null}
+
           {flow.slotServices.map((service) => {
-            const inSlot = service.available !== false;
+            const inSlot = service.available === true;
             const isSelected = flow.selectedService?.id === service.id;
             const timeButtonLabel = formatBookingSlotHandoffServiceTimeButtonLabel({
               inSlot,
@@ -80,12 +86,13 @@ export default function BookingEngineHandoffServiceStep({ flow }: Props) {
               handoffSlotStart: handoff.slot.start,
               nextAvailable: service.nextAvailable,
               dateLocaleTag: flow.dateLocaleTag,
-              t});
+              t,
+            });
 
             const priceLabel =
               service.price > 0
                 ? formatBookingServicePriceLabel(
-                    slotServiceToBookingService(service),
+                    mapSlotServiceItemToBookingService(service),
                     t('reservationPriceFromPrefix'),
                     t('reservationCurrencySuffix')
                   )
@@ -124,7 +131,7 @@ export default function BookingEngineHandoffServiceStep({ flow }: Props) {
                       <BookingHandoffServiceTimeButton
                         title={timeButtonLabel}
                         selected={isSelected}
-                        onPress={() => flow.selectService(slotServiceToBookingService(service))}
+                        onPress={() => flow.selectSlotHandoffServiceItem(service)}
                       />
                     </View>
                   </View>

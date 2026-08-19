@@ -256,8 +256,8 @@ const WalletScreen = () => {
       }
       scrollEventThrottle={16}>
       <AnimatedView animation="scaleIn" className="mt-4 flex-1">
-        {/* 1. Stav RBC – ve light mode tmavě šedé (ne černé), v dark mode jako dřív */}
-        <View className="mb-0 items-center rounded-t-3xl bg-slate-600 px-6 pb-6 pt-8 dark:bg-neutral-900">
+        {/* 1. Stav RBC */}
+        <View className="mb-0 items-center rounded-t-3xl bg-neutral-900 px-6 pb-6 pt-8">
           <ThemedText className="text-center text-sm text-white/80">
             {t('walletPersonalRbcCaption')}
           </ThemedText>

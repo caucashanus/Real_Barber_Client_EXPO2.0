@@ -5,7 +5,6 @@ import * as WebBrowser from 'expo-web-browser';
 
 import ListLink from '@/components/ListLink';
 import Section from '@/components/layout/Section';
-import { ProfileContactFormSheet } from '@/components/profile/ProfileContactFormSheet';
 import { ProfilePhoneContactSheet } from '@/components/profile/ProfilePhoneContactSheet';
 import {
   PROFILE_BRANCH_MAP_ROUTE,
@@ -18,7 +17,6 @@ import { useTranslation } from '@/hooks/useTranslation';
 export default function ProfileContactsSection() {
   const { t } = useTranslation();
   const { copyToClipboard } = useCopyFeedback();
-  const formSheetRef = useRef<ActionSheetRef>(null);
   const phoneSheetRef = useRef<ActionSheetRef>(null);
 
   const openPrivacyPolicy = useCallback(async () => {
@@ -46,12 +44,6 @@ export default function ProfileContactsSection() {
         className="mt-6 px-4"
         padding="none">
         <View className="gap-1">
-          <ListLink
-            showChevron
-            title={t('profileContactsForm')}
-            icon="Mail"
-            onPress={() => formSheetRef.current?.show()}
-          />
           <ListLink
             showChevron
             title={t('profileContactsPhone')}
@@ -83,7 +75,6 @@ export default function ProfileContactsSection() {
         </View>
       </Section>
 
-      <ProfileContactFormSheet ref={formSheetRef} />
       <ProfilePhoneContactSheet ref={phoneSheetRef} />
     </>
   );

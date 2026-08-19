@@ -129,6 +129,7 @@ export const uk: Record<TranslationKey, string> = {
   appearanceOptionDark: 'Темний',
   appearanceOptionLight: 'Світлий',
   profileMyReservations: 'Мої бронювання',
+  profileWallet: 'Гаманець з RBCoiny',
   profileNotificationHistory: 'Історія сповіщень',
   profileGetHelp: 'Допомога',
   profileReferrals: 'Рекомендації',
@@ -1439,6 +1440,8 @@ export const uk: Record<TranslationKey, string> = {
   reservationStepServiceSubtitle: '"Оберіть послугу, яку хочете забронювати."',
   reservationSlotHandoffTitle: 'Оберіть послугу',
   bookingSlotHandoffSubtitle: 'Для цього часу в обраного барбера',
+  bookingSlotHandoffSlotGoneBanner:
+    'Термін о {time} більше недоступний. За цей час його встигли забронювати. Оберіть найближчий вільний час нижче.',
   bookingSlotHandoffDayToday: 'сьогодні',
   reservationNoServices: 'Для обраного барбера немає доступних послуг.',
   reservationStepDatetimeTitle: 'Оберіть дату й час',

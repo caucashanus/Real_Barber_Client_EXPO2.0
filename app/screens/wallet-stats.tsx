@@ -8,6 +8,7 @@ import useThemeColors from '@/contexts/ThemeColors';
 import { useTranslation } from '@/hooks/useTranslation';
 import Avatar from '@/components/Avatar';
 import Header from '@/components/Header';
+import SiteLoadingState from '@/components/SiteLoadingState';
 import Icon from '@/components/Icon';
 import ThemedScroller from '@/components/ThemeScroller';
 import ThemedText from '@/components/ThemedText';
@@ -29,7 +30,6 @@ import {
   monthKeyFromDate,
   type RbcWalletChartMonth,
   type RbcWalletHeroMonth} from '@/utils/rbcWalletStats';
-import SiteLoadingState from '@/components/SiteLoadingState';
 import {
   formatRbCoinsTransactionAmount,
   formatRbCoinsTransactionListSubtitle,
@@ -434,12 +434,7 @@ const WalletStatsScreen = () => {
             </ThemedText>
           </View>
         ) : loading ? (
-          <View className="mt-20 items-center px-global">
-            <SiteLoadingSpinner />
-            <ThemedText className="mt-3 text-light-subtext dark:text-dark-subtext">
-              {t('walletStatsLoading')}
-            </ThemedText>
-          </View>
+          <SiteLoadingState layout="section" className="mt-20 px-global" />
         ) : error ? (
           <View className="mt-20 px-global">
             <ThemedText className="text-lg text-red-500 dark:text-red-400">{error}</ThemedText>

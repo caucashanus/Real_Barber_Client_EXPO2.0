@@ -46,6 +46,7 @@ import {
   getSlotsForDate,
   mapCatalogItemToService,
   mapCatalogItemsFromEmployee,
+  mapSlotServiceItemToBookingService,
   minPricesFromCatalogItems,
 } from '@/lib/booking/booking-api/mappers';
 import type { BookingFlatAvailabilityMap, BookingSlotServiceItem } from '@/lib/booking/booking-api/types';
@@ -163,16 +164,25 @@ export function useBookingEngineFlow() {
   const skipContact = Boolean(apiToken && isAuthContactComplete(client));
   const [slotHandoff, setSlotHandoff] = useState<StoredBookingSlotHandoff | null>(null);
   const [fromSlotHandoff, setFromSlotHandoff] = useState(false);
-  const hasSlotHandoff = Boolean(slotHandoff) || fromSlotHandoff;
-  const skipDatetime = skipContact && hasSlotHandoff;
+
+  const handoffPreset = useMemo(() => {
+    if (!slotHandoff) return undefined;
+    return {
+      branchId: slotHandoff.branchId,
+      serviceId: slotHandoff.serviceId,
+      employeeId: slotHandoff.employeeId,
+      employeeSlug: slotHandoff.employeeSlug,
+    };
+  }, [slotHandoff]);
 
   const flowBootstrap = useMemo(
     () => ({
       ...bootstrapState,
       skipContact,
-      skipDatetime,
+      skipDatetime: false,
+      handoffPreset,
     }),
-    [bootstrapState, skipContact, skipDatetime]
+    [bootstrapState, skipContact, handoffPreset]
   );
 
   const activeSteps = useMemo(
@@ -189,6 +199,8 @@ export function useBookingEngineFlow() {
     onStepIndexChange: onStepIndexChangeBase,
   } = useBookingEngineNavigation(activeSteps);
   const prevStepRef = useRef(step);
+  const slotGoneInvalidatedRef = useRef(false);
+  const handoffAppliedRef = useRef(false);
 
   const [branches, setBranches] = useState<BookingEntity[]>([]);
   const [services, setServices] = useState<BookingService[]>([]);
@@ -223,6 +235,16 @@ export function useBookingEngineFlow() {
   const hold = useBookingHold(apiToken);
 
   const abandonBookingFlow = useCallback(() => {
+    if (fromSlotHandoff || slotHandoff) {
+      invalidateListingAvailability({
+        employeeId: slotHandoff?.employeeId ?? selectedEmployee?.id ?? profileEmployee?.id,
+        branchId: slotHandoff?.branchId ?? selectedBranch?.id,
+        serviceId: selectedService?.id,
+      });
+    }
+    slotGoneInvalidatedRef.current = false;
+    handoffAppliedRef.current = false;
+
     resetSelections();
     setStepIndex(0);
     setSlotHandoff(null);
@@ -233,6 +255,12 @@ export function useBookingEngineFlow() {
     void clearBookingSlotHandoff();
     void hold.releaseHoldBestEffort();
   }, [
+    fromSlotHandoff,
+    slotHandoff,
+    selectedEmployee?.id,
+    profileEmployee?.id,
+    selectedBranch?.id,
+    selectedService?.id,
     resetSelections,
     setStepIndex,
     contact,
@@ -884,6 +912,34 @@ export function useBookingEngineFlow() {
     };
   }, [recipeId, step, slotHandoff, locale, apiToken, t]);
 
+  const showSlotHandoffSlotGoneBanner = useMemo(
+    () =>
+      !loadingSlotServices &&
+      !slotServicesError &&
+      slotServices.length > 0 &&
+      !slotServices.some((service) => service.available === true),
+    [loadingSlotServices, slotServicesError, slotServices]
+  );
+
+  useEffect(() => {
+    slotGoneInvalidatedRef.current = false;
+  }, [
+    slotHandoff?.employeeId,
+    slotHandoff?.branchId,
+    slotHandoff?.date,
+    slotHandoff?.slot?.start,
+  ]);
+
+  useEffect(() => {
+    if (!showSlotHandoffSlotGoneBanner || !slotHandoff || slotGoneInvalidatedRef.current) return;
+
+    slotGoneInvalidatedRef.current = true;
+    invalidateListingAvailability({
+      employeeId: slotHandoff.employeeId,
+      branchId: slotHandoff.branchId,
+    });
+  }, [showSlotHandoffSlotGoneBanner, slotHandoff]);
+
   // Calendar load
   useEffect(() => {
     if (step !== 'datetime') return;
@@ -1116,43 +1172,24 @@ export function useBookingEngineFlow() {
     if (recipeId !== 'service-detail' || !slotHandoff || !selectedService?.id) return;
     if (slotHandoff.serviceId !== selectedService.id) return;
     if (!selectedBranch?.id || !selectedEmployee?.id || !selectedDate || !selectedSlot?.start) return;
+    if (handoffAppliedRef.current) return;
 
-    void saveBookingSlotContext({
-      branchId: selectedBranch.id,
-      serviceId: selectedService.id,
-      employeeId: selectedEmployee.id,
-      date: selectedDate,
-      serviceName: selectedService.name,
-      servicePrice: resolvedBookingPrice.amount ?? undefined,
-      serviceDurationMinutes:
-        slotHandoff.serviceDurationMinutes ?? selectedService.duration ?? undefined,
-      branchAddress: selectedBranch.address?.trim() || undefined,
-      slot: selectedSlot,
-    });
-
-    if (skipContact) return;
-    const contactIdx = activeSteps.indexOf('contact');
-    if (contactIdx >= 0 && stepIndex !== contactIdx) {
-      void (async () => {
-        const ok = await createHoldBeforeContact();
-        if (!ok) return;
-        goToStepIndexWithContact(contactIdx);
-      })();
+    handoffAppliedRef.current = true;
+    const datetimeIdx = activeSteps.indexOf('datetime');
+    if (datetimeIdx >= 0 && stepIndex !== datetimeIdx) {
+      goToStepIndexWithContact(datetimeIdx);
     }
   }, [
     recipeId,
     slotHandoff,
-    selectedService,
+    selectedService?.id,
     selectedBranch?.id,
     selectedEmployee?.id,
     selectedDate,
-    selectedSlot,
-    skipContact,
+    selectedSlot?.start,
     activeSteps,
     stepIndex,
     goToStepIndexWithContact,
-    resolvedBookingPrice.amount,
-    createHoldBeforeContact,
   ]);
 
   const nextStepAfter = useCallback(
@@ -1213,10 +1250,21 @@ export function useBookingEngineFlow() {
     [monitorFields, setBranch]
   );
 
-  const selectSlotHandoffService = useCallback(
-    (service: BookingService) => {
+  const selectSlotHandoffServiceItem = useCallback(
+    (slotService: BookingSlotServiceItem) => {
       const handoff = slotHandoff;
       if (!handoff) return;
+
+      const inSlot = slotService.available === true;
+      const next = slotService.nextAvailable;
+      const resolvedDate = inSlot ? handoff.date : (next?.date ?? handoff.date);
+      const resolvedSlot = {
+        ...handoff.slot,
+        start: inSlot ? handoff.slot.start : (next?.slotStart ?? handoff.slot.start),
+        end: inSlot ? (handoff.slot.end ?? '') : (next?.slotEnd ?? ''),
+      };
+      const service = mapSlotServiceItemToBookingService(slotService);
+
       const employee = profileEmployee ?? selectedEmployee ?? {
         id: handoff.employeeId,
         name: handoff.employeeName,
@@ -1231,8 +1279,8 @@ export function useBookingEngineFlow() {
       setBranch(branch);
       setService(service);
       setEmployee(employee as BookingEntity);
-      setDate(handoff.date);
-      setSlot(handoff.slot);
+      setDate(resolvedDate);
+      setSlot(resolvedSlot);
       promoteBookingMonitorEntryNearestSlot();
       const handoffFields = bookingMonitorFieldsFromSelections({
         recipeId,
@@ -1242,59 +1290,16 @@ export function useBookingEngineFlow() {
         selectedService: service,
         selectedEmployee: employee as BookingEntity,
         profileEmployee,
-        selectedDate: handoff.date,
-        selectedSlot: handoff.slot,
+        selectedDate: resolvedDate,
+        selectedSlot: resolvedSlot,
       });
       trackBookingMonitor('selected_service', handoffFields);
       trackBookingMonitor('selected_slot', {
         ...handoffFields,
         step: 'datetime',
       });
-      void saveBookingSlotContext({
-        branchId: branch.id,
-        serviceId: service.id,
-        employeeId: employee.id!,
-        date: handoff.date,
-        serviceName: service.name,
-        servicePrice:
-          resolveBookingPrice({
-            employee: employee as BookingEntity,
-            service,
-            branch,
-            branchPriceForService: branchPriceForServiceId(service.id, branchMinPrices),
-          }).amount ?? undefined,
-        serviceDurationMinutes: service.duration,
-        branchAddress: branch.address?.trim() || undefined,
-        slot: handoff.slot,
-      });
 
-      const holdBody: BookingHoldCreateBody = {
-        branchId: branch.id,
-        itemId: service.id,
-        employeeId: resolveHoldEmployeeId(handoff.slot, employee as BookingEntity, profileEmployee) ?? handoff.employeeId,
-        date: handoff.date,
-        slotStart: handoff.slot.start,
-        slotEnd: resolveHoldSlotEnd(handoff.slot, service.duration ?? handoff.serviceDurationMinutes),
-      };
-
-      void (async () => {
-        const ok = await createHoldBeforeContact(holdBody);
-        if (!ok) return;
-
-        void clearBookingSlotHandoff();
-        setSlotHandoff(null);
-
-        if (!skipContact) {
-          const contactIdx = activeSteps.indexOf('contact');
-          if (contactIdx >= 0) goToStepIndexWithContact(contactIdx);
-          return;
-        }
-
-        const next = nextStepAfter('service');
-        if (!next) return;
-        const nextIdx = activeSteps.indexOf(next);
-        if (nextIdx >= 0) goToStepIndexWithContact(nextIdx);
-      })();
+      advanceAfterSelect('service');
     },
     [
       slotHandoff,
@@ -1303,21 +1308,20 @@ export function useBookingEngineFlow() {
       selectedBranch,
       branches,
       profileBranches,
-      skipContact,
-      activeSteps,
-      goToStepIndexWithContact,
-      nextStepAfter,
       recipeId,
       locale,
       branchMinPrices,
-      createHoldBeforeContact,
+      advanceAfterSelect,
     ]
   );
 
   const selectService = useCallback(
     (service: BookingService) => {
       if (recipeId === 'employee-profile' && slotHandoff) {
-        selectSlotHandoffService(service);
+        const slotService = slotServices.find((item) => item.id === service.id);
+        if (slotService) {
+          selectSlotHandoffServiceItem(slotService);
+        }
         return;
       }
       setService(service);
@@ -1329,7 +1333,7 @@ export function useBookingEngineFlow() {
         serviceName: service.name ?? null,
       });
     },
-    [recipeId, slotHandoff, selectSlotHandoffService, monitorFields]
+    [recipeId, slotHandoff, slotServices, selectSlotHandoffServiceItem, monitorFields]
   );
 
   const selectEmployee = useCallback(
@@ -1897,8 +1901,10 @@ export function useBookingEngineFlow() {
     slotServices,
     loadingSlotServices,
     slotServicesError,
+    showSlotHandoffSlotGoneBanner,
+    selectSlotHandoffServiceItem,
     skipContact,
-    skipDatetime,
+    skipDatetime: false,
     monthOffset,
     setMonthOffset,
     monthLabel,

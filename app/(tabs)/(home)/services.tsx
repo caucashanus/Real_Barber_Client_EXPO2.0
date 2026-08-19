@@ -101,14 +101,7 @@ const ServicesScreen = () => {
   const haircutCarouselItems = useMemo(() => getHaircutCarouselItems(locale), [locale]);
 
   if (loading) {
-    return (
-      <View className="mt-4 flex-1 items-center justify-center py-16">
-        <SiteLoadingSpinner />
-        <ThemedText className="mt-4 text-light-subtext dark:text-dark-subtext">
-          {t('commonLoading')}
-        </ThemedText>
-      </View>
-    );
+    return <SiteLoadingState layout="section" className="mt-4 flex-1 py-16" />;
   }
 
   return (

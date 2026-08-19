@@ -125,6 +125,7 @@ export const en = {
   appearanceOptionDark: 'Dark',
   appearanceOptionLight: 'Light',
   profileMyReservations: 'My reservations',
+  profileWallet: 'Wallet with RBCoins',
   profileNotificationHistory: 'Notification history',
   profileGetHelp: 'Get help',
   profileReferrals: 'Referrals',
@@ -1435,6 +1436,8 @@ export const en = {
   reservationStepServiceSubtitle: 'Select the service you want to book.',
   reservationSlotHandoffTitle: 'Choose a service',
   bookingSlotHandoffSubtitle: 'For this time with your selected barber',
+  bookingSlotHandoffSlotGoneBanner:
+    'The {time} slot is no longer available. Someone booked it in the meantime. Choose the nearest available time below.',
   bookingSlotHandoffDayToday: 'today',
   reservationNoServices: 'No services are available for this barber.',
   reservationStepDatetimeTitle: 'Choose date and time',
