@@ -32,14 +32,14 @@ export default function BookingEngineStepContent({ flow, stepKind }: Props) {
 
     return (
       <View>
-        {flow.services.length === 0 && !flow.loading ? (
+        {flow.services.length === 0 && !flow.loading && !flow.catalogLoading ? (
           <ThemedText className="mb-3 text-sm text-light-subtext dark:text-dark-subtext">
             {t('reservationNoServices')}
           </ThemedText>
         ) : null}
         <BookingEngineServiceStep
           services={flow.services}
-          loading={flow.loading}
+          loading={(flow.catalogLoading || flow.loading) && flow.services.length === 0}
           showServiceInfo={isEmployeeProfile}
           selectedServiceId={flow.selectedService?.id}
           detailSelectLabel={t('bookingServiceSelect')}

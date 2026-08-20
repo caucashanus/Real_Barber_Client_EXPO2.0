@@ -28,7 +28,7 @@ export default function BookingEngineBranchStep({ flow }: Props) {
         href="/screens/map"
       />
 
-      {flow.loading ? (
+      {flow.loading && flow.branches.length === 0 ? (
         <View className="items-center py-10">
           <SiteLoadingSpinner size="compact" />
         </View>

@@ -58,64 +58,62 @@ export default function BookingPanelPickerRow({
   const avatarClass = avatarSize === 'xl' ? 'h-20 w-20' : 'h-12 w-12';
   const avatarRadius = imageShape === 'round' ? 'rounded-full' : 'rounded-xl';
 
+  const borderStyle = selected
+    ? { borderWidth: 2 as const, borderColor: colors.highlight }
+    : { borderWidth: 1 as const, borderColor: colors.border };
+
   return (
-    <View
-      style={shadowPresets.card}
-      className={`${BOOKING_FLOW_CARD_OUTER_CLASS} ${disabled ? 'opacity-60' : ''} ${
-        selected ? 'border-2 border-light-text dark:border-dark-text' : ''
-      }`}>
+    <Pressable
+      disabled={disabled}
+      onPress={onPress}
+      accessibilityRole="button"
+      style={[shadowPresets.card, borderStyle]}
+      className={`${BOOKING_FLOW_CARD_OUTER_CLASS} border-0 active:opacity-70 ${disabled ? 'opacity-60' : ''}`}>
       <View className="flex-row items-start gap-3 p-4">
-        <Pressable
-          disabled={disabled}
-          onPress={onPress}
-          className={`${avatarClass} shrink-0 active:opacity-80`}>
-          <View className={`${avatarClass} items-center justify-center overflow-hidden`}>
-            {imageSource ? (
-              <Image
-                source={imageSource}
-                className={`${avatarClass} ${avatarRadius}`}
-                contentFit={imageFit}
-              />
-            ) : imageUrl?.trim() ? (
-              <Image
-                source={{ uri: imageUrl.trim() }}
-                className={`${avatarClass} ${avatarRadius}`}
-                contentFit={imageFit}
-              />
-            ) : (
-              <Avatar
-                size={avatarSize === 'xl' ? 'xl' : 'sm'}
-                name={fallbackName}
-                className={avatarRadius}
-              />
-            )}
-          </View>
-        </Pressable>
+        <View className={`${avatarClass} shrink-0 items-center justify-center overflow-hidden`}>
+          {imageSource ? (
+            <Image
+              source={imageSource}
+              className={`${avatarClass} ${avatarRadius}`}
+              contentFit={imageFit}
+            />
+          ) : imageUrl?.trim() ? (
+            <Image
+              source={{ uri: imageUrl.trim() }}
+              className={`${avatarClass} ${avatarRadius}`}
+              contentFit={imageFit}
+            />
+          ) : (
+            <Avatar
+              size={avatarSize === 'xl' ? 'xl' : 'sm'}
+              name={fallbackName}
+              className={avatarRadius}
+            />
+          )}
+        </View>
 
         <View className="min-w-0 flex-1 gap-1">
-          <Pressable disabled={disabled} onPress={onPress} className="active:opacity-80">
-            {typeof title === 'string' ? (
-              <ThemedText className="text-base font-medium" numberOfLines={2}>
-                {title}
+          {typeof title === 'string' ? (
+            <ThemedText className="text-base font-medium" numberOfLines={2}>
+              {title}
+            </ThemedText>
+          ) : (
+            title
+          )}
+          {description ? (
+            typeof description === 'string' ? (
+              <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext" numberOfLines={2}>
+                {description}
               </ThemedText>
             ) : (
-              title
-            )}
-            {description ? (
-              typeof description === 'string' ? (
-                <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext" numberOfLines={2}>
-                  {description}
-                </ThemedText>
-              ) : (
-                description
-              )
-            ) : null}
-          </Pressable>
+              description
+            )
+          ) : null}
           {meta ?? null}
         </View>
 
-        <View className="shrink-0 flex-row items-start gap-1">
-          {showInfo ? (
+        {showInfo ? (
+          <View className="shrink-0 flex-row items-start">
             <Pressable
               className="rounded-full p-2 active:opacity-70"
               onPress={(event) => {
@@ -127,19 +125,9 @@ export default function BookingPanelPickerRow({
               accessibilityLabel="Info">
               <Icon name="Info" size={18} className="text-light-subtext dark:text-dark-subtext" />
             </Pressable>
-          ) : null}
-          {selected ? (
-            <Icon name="CheckCircle2" size={22} color={colors.highlight} />
-          ) : (
-            <Icon
-              name="Circle"
-              size={22}
-              className="text-light-subtext dark:text-dark-subtext"
-              strokeWidth={1.5}
-            />
-          )}
-        </View>
+          </View>
+        ) : null}
       </View>
-    </View>
+    </Pressable>
   );
 }

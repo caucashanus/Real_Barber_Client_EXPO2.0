@@ -1,7 +1,7 @@
 import * as Haptics from 'expo-haptics';
 import { router } from 'expo-router';
 import React from 'react';
-import { Pressable, Text, View, type StyleProp, type ViewStyle } from 'react-native';
+import { Pressable, Text, View, type GestureResponderEvent, type StyleProp, type ViewStyle } from 'react-native';
 import { styled } from 'nativewind';
 
 import Icon, { type IconName } from '@/components/Icon';
@@ -24,7 +24,7 @@ const ButtonText = styled(Text);
 interface AppButtonProps {
   title?: string;
   children?: React.ReactNode;
-  onPress?: () => void;
+  onPress?: (event?: GestureResponderEvent) => void;
   href?: string;
   variant?: AppButtonVariant;
   size?: AppButtonSize;
@@ -105,13 +105,13 @@ export default function AppButton({
     triggerImpact(impactFeedbackStyle);
   };
 
-  const handlePress = () => {
+  const handlePress = (event: GestureResponderEvent) => {
     triggerHaptic();
     if (href) {
       router.push(href);
       return;
     }
-    onPress?.();
+    onPress?.(event);
   };
 
   const content =

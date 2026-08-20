@@ -68,7 +68,7 @@ export function HomeSpotlightCard({
   const showSlotBadge = state !== 'review' && state !== 'current';
   const showNavigateAction = state === 'soon';
   const showCalendarAction =
-    (state === 'upcoming' || state === 'today') &&
+    (state === 'upcoming' || state === 'today' || state === 'soon') &&
     (Platform.OS === 'ios' || Platform.OS === 'android');
   const showShareAction = state === 'current' && canShareClientBooking(booking);
   const showBottomActions = showSlotBadge;
@@ -81,12 +81,21 @@ export function HomeSpotlightCard({
     openBookingDetail(booking.id);
   };
 
+  const handleAddToCalendar = () => {
+    addBookingToCalendar(booking, {
+      noteBarberPrefix: t('bookingCalendarNoteBarber'),
+      reservationNumberPrefix: t('bookingReservationNumber'),
+      errorTitle: t('commonError'),
+      errorMessage: t('bookingAddToCalendarFailed'),
+    }).catch(() => {});
+  };
+
   return (
     <>
       <View className="relative">
-        <SurfaceCard rounded="2xl" className="flex-row overflow-hidden">
-          <View className="min-w-0 flex-1">
-            <Pressable onPress={openDetail} className="active:opacity-70">
+        <Pressable onPress={openDetail} accessibilityRole="button" className="active:opacity-70">
+          <SurfaceCard rounded="2xl" className="flex-row overflow-hidden">
+            <View className="min-w-0 flex-1">
               <View
                 className={`flex-row items-center gap-3 px-4 py-4 ${showShareAction ? 'pr-36' : ''}`}>
                 <Avatar
@@ -125,88 +134,87 @@ export function HomeSpotlightCard({
                       </View>
                     </View>
                   ) : (
-                    <View className="flex-row items-center gap-2">
-                      <ThemedText className="text-sm font-semibold" numberOfLines={1}>
-                        {t(titleKey)}
-                      </ThemedText>
-                      <View className="shrink-0 justify-center">
-                        <LiveIndicator
-                          variant={state === 'current' ? 'green' : 'orange'}
-                          size="sm"
-                          animated={state === 'current'}
-                        />
-                      </View>
-                    </View>
-                  )}
-                  {state !== 'review' && (
                     <>
+                      <View className="flex-row items-center gap-2">
+                        <ThemedText className="text-sm font-semibold" numberOfLines={1}>
+                          {t(titleKey)}
+                        </ThemedText>
+                        <View className="shrink-0 justify-center">
+                          <LiveIndicator
+                            variant={state === 'current' ? 'green' : 'orange'}
+                            size="sm"
+                            animated={state === 'current'}
+                          />
+                        </View>
+                      </View>
                       <ThemedText
                         className="mt-0.5 text-xs text-light-subtext dark:text-dark-subtext"
                         numberOfLines={1}>
                         {booking.employee?.name ?? '—'} · {booking.branch?.name ?? ''}
                       </ThemedText>
-                      <BranchAddress
-                        address={booking.branch?.address}
-                        className="mt-1"
-                        textClassName="text-xs leading-5 text-light-subtext dark:text-dark-subtext"
-                        numberOfLines={2}
-                      />
+                      {subtitle ? (
+                        <View className="mt-1.5 flex-row items-center gap-1.5">
+                          <ThemedText className="text-xs text-light-subtext dark:text-dark-subtext">
+                            {subtitle}
+                          </ThemedText>
+                        </View>
+                      ) : null}
                     </>
                   )}
-                  {subtitle ? (
-                    <View className="mt-1.5 flex-row items-center gap-1.5">
-                      <ThemedText className="text-xs text-light-subtext dark:text-dark-subtext">
-                        {subtitle}
-                      </ThemedText>
-                    </View>
-                  ) : null}
+                  {state !== 'review' && (
+                    <BranchAddress
+                      address={booking.branch?.address}
+                      className="mt-1"
+                      textClassName="text-xs leading-5 text-light-subtext dark:text-dark-subtext"
+                      numberOfLines={2}
+                    />
+                  )}
                 </View>
                 {state !== 'soon' && !showShareAction ? (
                   <Icon
                     name="ChevronRight"
                     size={16}
-                    className="text-light-subtext dark:text-dark-subtext"
+                    className="shrink-0 text-light-subtext dark:text-dark-subtext"
                   />
                 ) : null}
               </View>
-            </Pressable>
 
-            {showBottomActions ? (
-              <View className="flex-row items-center justify-between gap-2 px-4 pb-4 pt-0">
-                <ThemedText
-                  className="min-w-0 shrink text-xs font-semibold text-light-text dark:text-dark-text"
-                  numberOfLines={1}>
-                  {slotBadgeLabel}
-                </ThemedText>
-                <View className="min-w-0 shrink">
-                  {showNavigateAction ? (
-                    <AppButton
-                      {...SPOTLIGHT_OUTLINE_BUTTON}
-                      title={t('branchNavigateSectionTitle')}
-                      iconStart="Navigation"
-                      onPress={() => navSheetRef.current?.show()}
-                    />
-                  ) : null}
-                  {showCalendarAction ? (
-                    <AppButton
-                      {...SPOTLIGHT_OUTLINE_BUTTON}
-                      title={t('bookingAddToCalendar')}
-                      iconStart="CalendarPlus"
-                      onPress={() => {
-                        addBookingToCalendar(booking, {
-                          noteBarberPrefix: t('bookingCalendarNoteBarber'),
-                          reservationNumberPrefix: t('bookingReservationNumber'),
-                          errorTitle: t('commonError'),
-                          errorMessage: t('bookingAddToCalendarFailed'),
-                        }).catch(() => {});
-                      }}
-                    />
-                  ) : null}
+              {showBottomActions ? (
+                <View className="flex-row items-center justify-between gap-2 px-4 pb-4 pt-0">
+                  <ThemedText
+                    className="min-w-0 shrink text-xs font-semibold text-light-text dark:text-dark-text"
+                    numberOfLines={1}>
+                    {slotBadgeLabel}
+                  </ThemedText>
+                  <View className="min-w-0 shrink flex-row flex-wrap justify-end gap-2">
+                    {showNavigateAction ? (
+                      <AppButton
+                        {...SPOTLIGHT_OUTLINE_BUTTON}
+                        title={t('branchNavigateSectionTitle')}
+                        iconStart="Navigation"
+                        onPress={(event) => {
+                          event?.stopPropagation?.();
+                          navSheetRef.current?.show();
+                        }}
+                      />
+                    ) : null}
+                    {showCalendarAction ? (
+                      <AppButton
+                        {...SPOTLIGHT_OUTLINE_BUTTON}
+                        title={t('bookingAddToCalendar')}
+                        iconStart="CalendarPlus"
+                        onPress={(event) => {
+                          event?.stopPropagation?.();
+                          handleAddToCalendar();
+                        }}
+                      />
+                    ) : null}
+                  </View>
                 </View>
-              </View>
-            ) : null}
-          </View>
-        </SurfaceCard>
+              ) : null}
+            </View>
+          </SurfaceCard>
+        </Pressable>
 
         {showShareAction ? (
           <View className="absolute z-10" style={{ top: 12, right: 12 }}>

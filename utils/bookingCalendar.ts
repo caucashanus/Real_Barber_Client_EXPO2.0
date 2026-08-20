@@ -49,16 +49,16 @@ export async function addBookingToCalendar(
   noteLines.push(`${strings.reservationNumberPrefix}: #${booking.id.slice(0, 8)}`);
   const notes = noteLines.join('\n');
 
-  let calendarMod: typeof import('expo-calendar') | undefined;
+  let calendarMod: typeof import('expo-calendar/legacy') | undefined;
   try {
-    calendarMod = await import('expo-calendar');
+    calendarMod = await import('expo-calendar/legacy');
   } catch {
     calendarMod = undefined;
   }
 
   if (calendarMod) {
     try {
-      await calendarMod.createEventInCalendarAsync({
+      const result = await calendarMod.createEventInCalendarAsync({
         title,
         startDate,
         endDate,
@@ -66,6 +66,7 @@ export async function addBookingToCalendar(
         notes,
         alarms: [{ relativeOffset: -60 }],
       });
+      if (result.action === 'canceled') return;
       return;
     } catch {
       Alert.alert(strings.errorTitle, strings.errorMessage);

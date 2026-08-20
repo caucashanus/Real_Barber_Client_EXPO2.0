@@ -1,8 +1,12 @@
-import React, { createContext, useCallback, useContext, useMemo, useRef, useState } from 'react';
-import { Clipboard, View } from 'react-native';
+import React, { createContext, useCallback, useContext, useMemo } from 'react';
+import { Clipboard } from 'react-native';
 
+import CopyFeedbackToastContent from '@/components/animated-toast/CopyFeedbackToastContent';
+import { ToastProvider, useToast } from '@/components/animated-toast';
+import { ToastViewport } from '@/components/animated-toast/Viewport';
 import { useTranslation } from '@/hooks/useTranslation';
-import CopyFeedback from '@/components/CopyFeedback';
+
+const COPY_TOAST_DURATION_MS = 1800;
 
 type CopyFeedbackContextType = {
   copyToClipboard: (text: string, message?: string) => void;
@@ -10,52 +14,39 @@ type CopyFeedbackContextType = {
 
 const CopyFeedbackContext = createContext<CopyFeedbackContextType | null>(null);
 
-export function CopyFeedbackProvider({ children }: { children: React.ReactNode }) {
+function CopyFeedbackBridge({ children }: { children: React.ReactNode }) {
   const { t } = useTranslation();
-  const feedbackKeyRef = useRef(0);
-  const [feedback, setFeedback] = useState<{
-    key: number;
-    message: string;
-    visible: boolean;
-  }>({
-    key: 0,
-    message: '',
-    visible: false,
-  });
-
-  const hideFeedback = useCallback(() => {
-    setFeedback((prev) => ({ ...prev, visible: false }));
-  }, []);
+  const { show, dismissAll } = useToast();
 
   const copyToClipboard = useCallback(
     (text: string, message?: string) => {
       const trimmed = text.trim();
       if (!trimmed) return;
       Clipboard.setString(trimmed);
-      feedbackKeyRef.current += 1;
-      setFeedback({
-        key: feedbackKeyRef.current,
-        message: message ?? t('clipboardCopied'),
-        visible: true,
+
+      dismissAll();
+      show(<CopyFeedbackToastContent message={message ?? t('clipboardCopied')} />, {
+        position: 'top',
+        duration: COPY_TOAST_DURATION_MS,
+        type: 'default',
       });
     },
-    [t]
+    [dismissAll, show, t]
   );
 
   const value = useMemo(() => ({ copyToClipboard }), [copyToClipboard]);
 
+  return <CopyFeedbackContext.Provider value={value}>{children}</CopyFeedbackContext.Provider>;
+}
+
+export function CopyFeedbackProvider({ children }: { children: React.ReactNode }) {
   return (
-    <CopyFeedbackContext.Provider value={value}>
-      <View style={{ flex: 1 }}>
+    <ToastProvider>
+      <CopyFeedbackBridge>
         {children}
-        <CopyFeedback
-          key={feedback.key}
-          isVisible={feedback.visible}
-          message={feedback.message}
-          onHide={hideFeedback}
-        />
-      </View>
-    </CopyFeedbackContext.Provider>
+        <ToastViewport />
+      </CopyFeedbackBridge>
+    </ToastProvider>
   );
 }
 

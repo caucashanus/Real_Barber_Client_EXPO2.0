@@ -211,6 +211,7 @@ export function useBookingEngineFlow() {
     Record<string, { date: string; start: string } | null>
   >({});
   const [loading, setLoading] = useState(true);
+  const [catalogLoading, setCatalogLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const [slotServices, setSlotServices] = useState<BookingSlotServiceItem[]>([]);
@@ -544,7 +545,7 @@ export function useBookingEngineFlow() {
     if (!selectedBranch?.id) return;
     if (step !== 'branch' && step !== 'service') return;
     let cancelled = false;
-    setLoading(true);
+    setCatalogLoading(true);
     getBookingBranchCatalog(selectedBranch.id, locale, apiToken)
       .then((data) => {
         if (!cancelled) {
@@ -556,7 +557,7 @@ export function useBookingEngineFlow() {
         if (!cancelled) setError(err instanceof Error ? err.message : t('reservationErrorGeneric'));
       })
       .finally(() => {
-        if (!cancelled) setLoading(false);
+        if (!cancelled) setCatalogLoading(false);
       });
     return () => {
       cancelled = true;
@@ -643,7 +644,9 @@ export function useBookingEngineFlow() {
     if (recipeId === 'employee-profile') return;
 
     let cancelled = false;
-    setEmployeesLoading(true);
+    if (employees.length === 0) {
+      setEmployeesLoading(true);
+    }
     loadBookingEmployeesWithNearestSlots({
       branchId: selectedBranch.id,
       itemId: selectedService.id,
@@ -669,7 +672,6 @@ export function useBookingEngineFlow() {
     step,
     selectedBranch?.id,
     selectedService?.id,
-    selectedEmployee,
     recipeId,
     preset.employeeId,
     locale,
@@ -1873,6 +1875,7 @@ export function useBookingEngineFlow() {
     bootstrapStatus,
     error,
     loading: loading || profileLoading,
+    catalogLoading,
     branches,
     profileBranches,
     multiBranchLegend,

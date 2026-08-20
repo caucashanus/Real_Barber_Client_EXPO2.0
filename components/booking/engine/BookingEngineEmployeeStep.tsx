@@ -100,7 +100,10 @@ function EmployeeNearestMeta({
         size="xs"
         title={chipLabel}
         selected={chipSelected}
-        onPress={() => flow.selectEmployeeNearestChip(emp, nearest)}
+        onPress={(event) => {
+          event.stopPropagation();
+          flow.selectEmployeeNearestChip(emp, nearest);
+        }}
         disableHaptic
         className="h-[22px] min-h-[22px] justify-center rounded-md px-2 py-0"
         textClassName="text-xs font-semibold leading-none tabular-nums"
@@ -128,7 +131,7 @@ export default function BookingEngineEmployeeStep({ flow }: Props) {
 
   return (
     <View>
-      {flow.employeesLoading ? (
+      {flow.employeesLoading && flow.employeesForPicker.length === 0 ? (
         <ThemedText className="py-6 text-center text-sm text-light-subtext dark:text-dark-subtext">
           {t('commonLoading')}
         </ThemedText>
@@ -155,7 +158,12 @@ export default function BookingEngineEmployeeStep({ flow }: Props) {
               noSlots={noSlots}
               locale={locale}
             />
-            <Pressable onPress={() => openProfile(emp)} className="self-start active:opacity-70">
+            <Pressable
+              onPress={(event) => {
+                event.stopPropagation?.();
+                openProfile(emp);
+              }}
+              className="self-start active:opacity-70">
               <ThemedText className="font-semibold text-black dark:text-white">
                 {t('bookingEmployeeViewProfile')}
               </ThemedText>
