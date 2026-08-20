@@ -3,11 +3,13 @@ import { useFocusEffect } from "expo-router/react-navigation";
 import React, { useCallback, useContext, useMemo, useRef } from 'react';
 import {
   Animated,
+  RefreshControl,
   ScrollView,
   View,
   useWindowDimensions} from 'react-native';
 
 import { ScrollContext } from '@/app/(tabs)/(home)/_layout';
+import { useAccentColor } from '@/contexts/AccentColorContext';
 import { useServiceDetailScreen } from '@/hooks/useServiceDetailScreen';
 import { useTranslation } from '@/hooks/useTranslation';
 import BranchContactActions from '@/components/branch/BranchContactActions';
@@ -28,11 +30,13 @@ import SiteLoadingState from '@/components/SiteLoadingState';
 export default function ServiceDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const { t } = useTranslation();
+  const { accentColor } = useAccentColor();
   const scrollY = useContext(ScrollContext);
   const { width: winWidth } = useWindowDimensions();
   const isMobileHeader = winWidth < 768;
 
-  const { detail, loading, error, slotGroups, locale, todayIso } = useServiceDetailScreen(id ?? '');
+  const { detail, loading, refreshing, refresh, error, slotGroups, locale, todayIso } =
+    useServiceDetailScreen(id ?? '');
 
   const scrollRef = useRef<ScrollView>(null);
 
@@ -94,6 +98,9 @@ export default function ServiceDetailScreen() {
         <ThemeScroller
           ref={scrollRef}
           className="px-0"
+          refreshControl={
+            <RefreshControl refreshing={refreshing} onRefresh={refresh} tintColor={accentColor} />
+          }
           onScroll={Animated.event([{ nativeEvent: { contentOffset: { y: scrollY } } }], {
             useNativeDriver: false})}
           scrollEventThrottle={16}>

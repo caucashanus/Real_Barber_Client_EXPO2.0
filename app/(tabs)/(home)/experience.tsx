@@ -1,8 +1,9 @@
 import React, { useContext } from 'react';
-import { Animated } from 'react-native';
+import { Animated, RefreshControl } from 'react-native';
 
 import { ScrollContext } from './_layout';
 
+import { useAccentColor } from '@/contexts/AccentColorContext';
 import { useBarbersRoster } from '@/hooks/useBarbersRoster';
 import { useTranslation } from '@/hooks/useTranslation';
 import AnimatedView from '@/components/AnimatedView';
@@ -11,16 +12,21 @@ import ThemeScroller from '@/components/ThemeScroller';
 
 const ExperienceScreen = () => {
   const scrollY = useContext(ScrollContext);
+  const { accentColor } = useAccentColor();
   const { t, locale } = useTranslation();
   const {
     teamCards,
     loading: teamLoading,
     refreshing: teamRefreshing,
     error: teamError,
+    refresh,
   } = useBarbersRoster();
 
   return (
     <ThemeScroller
+      refreshControl={
+        <RefreshControl refreshing={teamRefreshing} onRefresh={refresh} tintColor={accentColor} />
+      }
       onScroll={Animated.event([{ nativeEvent: { contentOffset: { y: scrollY } } }], {
         useNativeDriver: false,
       })}

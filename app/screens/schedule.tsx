@@ -1,5 +1,7 @@
 import React, { useMemo, useState } from 'react';
+import { RefreshControl } from 'react-native';
 
+import { useAccentColor } from '@/contexts/AccentColorContext';
 import { useBarbersRoster } from '@/hooks/useBarbersRoster';
 import { useTranslation } from '@/hooks/useTranslation';
 import { CardScroller } from '@/components/CardScroller';
@@ -11,6 +13,7 @@ import Section from '@/components/layout/Section';
 
 export default function ScheduleScreen() {
   const { t, locale } = useTranslation();
+  const { accentColor } = useAccentColor();
   const {
     scheduleDayTabs,
     scheduleCardsByDate,
@@ -18,6 +21,7 @@ export default function ScheduleScreen() {
     loading,
     refreshing,
     error,
+    refresh,
   } = useBarbersRoster(7);
 
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
@@ -33,7 +37,10 @@ export default function ScheduleScreen() {
   return (
     <>
       <Header showBackButton />
-      <ThemedScroller className="flex-1" keyboardShouldPersistTaps="handled">
+      <ThemedScroller className="flex-1" keyboardShouldPersistTaps="handled"
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={refresh} tintColor={accentColor} />
+        }>
         <Section
           title={t('scheduleTitle')}
           titleSize="3xl"

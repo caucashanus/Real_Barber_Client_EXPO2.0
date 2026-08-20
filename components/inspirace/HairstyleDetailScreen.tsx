@@ -3,12 +3,14 @@ import { useFocusEffect } from "expo-router/react-navigation";
 import React, { useCallback, useContext, useMemo, useRef } from 'react';
 import {
   Animated,
+  RefreshControl,
   ScrollView,
   View,
   useWindowDimensions,
   type LayoutChangeEvent} from 'react-native';
 
 import { ScrollContext } from '@/app/(tabs)/(home)/_layout';
+import { useAccentColor } from '@/contexts/AccentColorContext';
 import { useHairstyleDetailScreen } from '@/hooks/useHairstyleDetailScreen';
 import { useTranslation } from '@/hooks/useTranslation';
 import Header from '@/components/Header';
@@ -34,6 +36,7 @@ import SiteLoadingState from '@/components/SiteLoadingState';
 export default function HairstyleDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const { t } = useTranslation();
+  const { accentColor } = useAccentColor();
   const scrollY = useContext(ScrollContext);
   const { width: winWidth } = useWindowDimensions();
   const isMobileHeader = winWidth < 768;
@@ -41,6 +44,8 @@ export default function HairstyleDetailScreen() {
   const {
     detail,
     loading,
+    refreshing,
+    refresh,
     error,
     reviews,
     reviewsPagination,
@@ -116,6 +121,9 @@ export default function HairstyleDetailScreen() {
         <ThemeScroller
           ref={scrollRef}
           className="px-0"
+          refreshControl={
+            <RefreshControl refreshing={refreshing} onRefresh={refresh} tintColor={accentColor} />
+          }
           onScroll={Animated.event([{ nativeEvent: { contentOffset: { y: scrollY } } }], {
             useNativeDriver: false})}
           scrollEventThrottle={16}>

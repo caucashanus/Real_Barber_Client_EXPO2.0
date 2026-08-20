@@ -51,6 +51,7 @@ export function useBarberDetailScreen(idOrSlug: string) {
   const [statsTotal, setStatsTotal] = useState(0);
   const [statsAverage, setStatsAverage] = useState(0);
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [hasReviewed, setHasReviewed] = useState(false);
   const [ownReviewIds, setOwnReviewIds] = useState<Set<string>>(() => new Set());
@@ -113,13 +114,15 @@ export function useBarberDetailScreen(idOrSlug: string) {
         ackListingFetch(key);
         await applyEmployeePageData(data);
       } catch (e) {
-        setEmployee(null);
-        setPageReviews([]);
-        setStatsTotal(0);
-        setStatsAverage(0);
-        setHasReviewed(false);
-        setOwnReviewIds(new Set());
-        setError(e instanceof Error ? e.message : 'Failed to load');
+        if (!options?.background) {
+          setEmployee(null);
+          setPageReviews([]);
+          setStatsTotal(0);
+          setStatsAverage(0);
+          setHasReviewed(false);
+          setOwnReviewIds(new Set());
+          setError(e instanceof Error ? e.message : 'Failed to load');
+        }
       } finally {
         if (!options?.background) {
           setLoading(false);
@@ -138,6 +141,15 @@ export function useBarberDetailScreen(idOrSlug: string) {
       loadPage({ background: true }).catch(() => {});
     }, [loadPage])
   );
+
+  const refresh = useCallback(async () => {
+    setRefreshing(true);
+    try {
+      await loadPage({ skipCache: true, background: true });
+    } finally {
+      setRefreshing(false);
+    }
+  }, [loadPage]);
 
   const displayName = useMemo(
     () => (employee ? getTeamMemberDisplayName(employee, locale) : ''),
@@ -189,6 +201,8 @@ export function useBarberDetailScreen(idOrSlug: string) {
   return {
     employee,
     loading,
+    refreshing,
+    refresh,
     error,
     displayName,
     bio,

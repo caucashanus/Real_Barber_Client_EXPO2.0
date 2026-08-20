@@ -50,6 +50,7 @@ export function useHairstyleDetailScreen(idOrSlug: string) {
   const [statsTotal, setStatsTotal] = useState(0);
   const [statsAverage, setStatsAverage] = useState(0);
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [hasReviewed, setHasReviewed] = useState(false);
   const [ownReviewIds, setOwnReviewIds] = useState<Set<string>>(() => new Set());
@@ -131,13 +132,15 @@ export function useHairstyleDetailScreen(idOrSlug: string) {
         ackListingFetch(listingKey);
         applyCached(next);
       } catch {
-        setDetail(null);
-        setPageReviews([]);
-        setStatsTotal(0);
-        setStatsAverage(0);
-        setHasReviewed(false);
-        setOwnReviewIds(new Set());
-        setError('load-error');
+        if (!options?.background) {
+          setDetail(null);
+          setPageReviews([]);
+          setStatsTotal(0);
+          setStatsAverage(0);
+          setHasReviewed(false);
+          setOwnReviewIds(new Set());
+          setError('load-error');
+        }
       } finally {
         if (!options?.background) {
           setLoading(false);
@@ -156,6 +159,15 @@ export function useHairstyleDetailScreen(idOrSlug: string) {
       loadPage({ background: true }).catch(() => {});
     }, [loadPage])
   );
+
+  const refresh = useCallback(async () => {
+    setRefreshing(true);
+    try {
+      await loadPage({ force: true, background: true });
+    } finally {
+      setRefreshing(false);
+    }
+  }, [loadPage]);
 
   const reviewsPagination = usePublicReviewsPagination(
     'service',
@@ -186,6 +198,8 @@ export function useHairstyleDetailScreen(idOrSlug: string) {
   return {
     detail,
     loading,
+    refreshing,
+    refresh,
     error,
     reviews,
     reviewsPagination,

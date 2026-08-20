@@ -3,6 +3,7 @@ import { useFocusEffect } from "expo-router/react-navigation";
 import React, { useCallback, useContext, useMemo, useRef, useState } from 'react';
 import {
   Animated,
+  RefreshControl,
   View,
   ScrollView,
   useWindowDimensions,
@@ -10,6 +11,7 @@ import {
 import { ActionSheetRef } from 'react-native-actions-sheet';
 
 import { ScrollContext } from '@/app/(tabs)/(home)/_layout';
+import { useAccentColor } from '@/contexts/AccentColorContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { useBranchDetailScreen } from '@/hooks/useBranchDetailScreen';
 import { useTranslation } from '@/hooks/useTranslation';
@@ -60,6 +62,7 @@ export default function BranchDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const { client } = useAuth();
   const { t } = useTranslation();
+  const { accentColor } = useAccentColor();
   const scrollY = useContext(ScrollContext);
   const { width: winWidth } = useWindowDimensions();
   const isMobileHeader = winWidth < 768;
@@ -68,6 +71,8 @@ export default function BranchDetailScreen() {
   const {
     branch,
     loading,
+    refreshing,
+    refresh,
     error,
     reviews,
     reviewsPagination,
@@ -240,6 +245,9 @@ export default function BranchDetailScreen() {
         <ThemeScroller
           ref={scrollRef}
           className="px-0"
+          refreshControl={
+            <RefreshControl refreshing={refreshing} onRefresh={refresh} tintColor={accentColor} />
+          }
           onScroll={Animated.event([{ nativeEvent: { contentOffset: { y: scrollY } } }], {
             useNativeDriver: false,
           })}
@@ -283,7 +291,7 @@ export default function BranchDetailScreen() {
 
             <BranchHomeSlotsSection
               slotGroups={slotGroups}
-              loading={loadingSlots}
+              loading={loadingSlots || refreshing}
               t={t}
             />
 

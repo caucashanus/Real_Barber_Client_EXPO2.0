@@ -47,6 +47,7 @@ export function useBranchDetailScreen(id: string) {
     []
   );
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [hasReviewed, setHasReviewed] = useState(false);
   const [ownReviewIds, setOwnReviewIds] = useState<Set<string>>(() => new Set());
@@ -114,14 +115,16 @@ export function useBranchDetailScreen(id: string) {
         ackListingFetch(key);
         await applyBranchPageData(data);
       } catch (e) {
-        setBranch(null);
-        setPageReviews([]);
-        setStatsTotal(0);
-        setStatsAverage(0);
-        setBranchSlots([]);
-        setHasReviewed(false);
-        setOwnReviewIds(new Set());
-        setError(e instanceof Error ? e.message : 'Failed to load');
+        if (!options?.background) {
+          setBranch(null);
+          setPageReviews([]);
+          setStatsTotal(0);
+          setStatsAverage(0);
+          setBranchSlots([]);
+          setHasReviewed(false);
+          setOwnReviewIds(new Set());
+          setError(e instanceof Error ? e.message : 'Failed to load');
+        }
       } finally {
         if (!options?.background) {
           setLoading(false);
@@ -140,6 +143,15 @@ export function useBranchDetailScreen(id: string) {
       loadPage({ background: true }).catch(() => {});
     }, [loadPage])
   );
+
+  const refresh = useCallback(async () => {
+    setRefreshing(true);
+    try {
+      await loadPage({ skipCache: true, background: true });
+    } finally {
+      setRefreshing(false);
+    }
+  }, [loadPage]);
 
   const reviewsPagination = usePublicReviewsPagination(
     'branch',
@@ -177,6 +189,8 @@ export function useBranchDetailScreen(id: string) {
   return {
     branch,
     loading,
+    refreshing,
+    refresh,
     error,
     reviews,
     reviewsPagination,

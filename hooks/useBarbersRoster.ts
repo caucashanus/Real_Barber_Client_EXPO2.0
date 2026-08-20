@@ -62,22 +62,42 @@ export function useBarbersRoster(days = 7) {
   );
 
   const refresh = useCallback(async () => {
+    setRefreshing(true);
     setError(null);
     try {
       const data = await loadRoster({ force: true });
       setRoster(data);
     } catch (e) {
-      setRoster(null);
-      setError(e instanceof Error ? e.message : 'Failed to load');
+      if (!roster) {
+        setRoster(null);
+        setError(e instanceof Error ? e.message : 'Failed to load');
+      }
+    } finally {
+      setRefreshing(false);
     }
-  }, [loadRoster]);
+  }, [loadRoster, roster]);
 
   useEffect(() => {
+    let cancelled = false;
     setLoading(true);
-    refresh()
-      .catch(() => {})
-      .finally(() => setLoading(false));
-  }, [refresh]);
+    setError(null);
+    loadRoster({ force: true })
+      .then((data) => {
+        if (!cancelled) setRoster(data);
+      })
+      .catch((e) => {
+        if (!cancelled) {
+          setRoster(null);
+          setError(e instanceof Error ? e.message : 'Failed to load');
+        }
+      })
+      .finally(() => {
+        if (!cancelled) setLoading(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [loadRoster]);
 
   useFocusEffect(
     useCallback(() => {

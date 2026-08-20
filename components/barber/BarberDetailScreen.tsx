@@ -3,6 +3,7 @@ import { useFocusEffect } from "expo-router/react-navigation";
 import React, { useCallback, useContext, useMemo, useRef } from 'react';
 import {
   Animated,
+  RefreshControl,
   View,
   ScrollView,
   useWindowDimensions,
@@ -13,6 +14,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { ScrollContext } from '@/app/(tabs)/(home)/_layout';
 import type { TeamMemberMediaItem } from '@/api/publicTeamMember';
+import { useAccentColor } from '@/contexts/AccentColorContext';
 import { useBarberDetailScreen } from '@/hooks/useBarberDetailScreen';
 import { useTranslation } from '@/hooks/useTranslation';
 import Header from '@/components/Header';
@@ -39,6 +41,7 @@ import { showIsNew } from '@/utils/crmIsNew';
 export default function BarberDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const { t } = useTranslation();
+  const { accentColor } = useAccentColor();
   const scrollY = useContext(ScrollContext);
   const insets = useSafeAreaInsets();
   const { width: winWidth, height: winHeight } = useWindowDimensions();
@@ -47,6 +50,8 @@ export default function BarberDetailScreen() {
   const {
     employee,
     loading,
+    refreshing,
+    refresh,
     error,
     displayName,
     bio,
@@ -162,6 +167,9 @@ export default function BarberDetailScreen() {
         <ThemeScroller
           ref={scrollRef}
           className="px-0"
+          refreshControl={
+            <RefreshControl refreshing={refreshing} onRefresh={refresh} tintColor={accentColor} />
+          }
           onScroll={Animated.event([{ nativeEvent: { contentOffset: { y: scrollY } } }], {
             useNativeDriver: false,
           })}

@@ -26,6 +26,7 @@ export function useServiceDetailScreen(idOrSlug: string) {
 
   const [detail, setDetail] = useState<CatalogServiceDetail | null>(null);
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const todayIso = useMemo(() => getPragueTodayDateString(), []);
@@ -73,8 +74,10 @@ export function useServiceDetailScreen(idOrSlug: string) {
         ackListingFetch(listingKey);
         setDetail(nextDetail);
       } catch {
-        setDetail(null);
-        setError('load-error');
+        if (!options?.background) {
+          setDetail(null);
+          setError('load-error');
+        }
       } finally {
         if (!options?.background) {
           setLoading(false);
@@ -94,6 +97,15 @@ export function useServiceDetailScreen(idOrSlug: string) {
     }, [loadPage])
   );
 
+  const refresh = useCallback(async () => {
+    setRefreshing(true);
+    try {
+      await loadPage({ force: true, background: true });
+    } finally {
+      setRefreshing(false);
+    }
+  }, [loadPage]);
+
   const slotGroups = useMemo(() => {
     if (!detail?.nearestSlots.length) return [];
     return groupNearestBranchSlots(detail.nearestSlots, locale, todayIso);
@@ -102,6 +114,8 @@ export function useServiceDetailScreen(idOrSlug: string) {
   return {
     detail,
     loading,
+    refreshing,
+    refresh,
     error,
     slotGroups,
     locale,

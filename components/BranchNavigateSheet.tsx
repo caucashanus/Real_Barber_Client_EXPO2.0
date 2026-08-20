@@ -98,6 +98,7 @@ export const BranchNavigateSheet = forwardRef<ActionSheetRef, BranchNavigateShee
     return (
       <ActionSheetThemed
         ref={setRef}
+        fitContent
         gestureEnabled
         isModal={!nested}
         zIndex={nested ? NESTED_SHEET_Z_INDEX : undefined}
