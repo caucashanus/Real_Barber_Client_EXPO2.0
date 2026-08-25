@@ -9,7 +9,6 @@ import { useLanguage } from '@/contexts/LanguageContext';
 import useThemeColors from '@/contexts/ThemeColors';
 import { useBookingDetailScreen } from '@/hooks/useBookingDetailScreen';
 import { useTranslation } from '@/hooks/useTranslation';
-import AnimatedView from '@/components/AnimatedView';
 import { BranchNavigateSheet, getBranchNavigateMapsQuery } from '@/components/BranchNavigateSheet';
 import Header from '@/components/Header';
 import ThemedScroller from '@/components/ThemeScroller';

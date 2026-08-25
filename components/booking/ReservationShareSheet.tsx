@@ -1,20 +1,19 @@
-import { router } from 'expo-router';
 import React, { forwardRef, useCallback, useMemo, useRef } from 'react';
 import { View } from 'react-native';
 import { ActionSheetRef } from 'react-native-actions-sheet';
+import * as WebBrowser from 'expo-web-browser';
 
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useCopyFeedback } from '@/contexts/CopyFeedbackContext';
 import { useTranslation } from '@/hooks/useTranslation';
 import ActionSheetThemed from '@/components/ActionSheetThemed';
 import AppButton from '@/components/AppButton';
+import Icon from '@/components/Icon';
+import SheetNavRow from '@/components/shared/SheetNavRow';
 import ThemedText from '@/components/ThemedText';
 import type { RelativeDayLocale } from '@/utils/formatRelativeDayLabel';
-import { MENU_SHARE_OPEN_DELAY_MS } from '@/utils/profileShareLinks';
-import {
-  buildReservationShareUrl,
-  shareReservationUrl,
-} from '@/utils/reservationShareHelpers';
+import { SHARE_OPEN_DELAY_MS } from '@/utils/profileShareLinks';
+import { buildReservationShareUrl, shareReservationUrl } from '@/utils/reservationShareHelpers';
 
 export interface ReservationShareSheetProps {
   bookingId: string;
@@ -48,22 +47,19 @@ export const ReservationShareSheet = forwardRef<ActionSheetRef, ReservationShare
     const openPublicPreview = () => {
       hideSheet();
       setTimeout(() => {
-        router.push({
-          pathname: '/screens/in-app-web',
-          params: { url: encodeURIComponent(shareUrl) },
-        });
-      }, MENU_SHARE_OPEN_DELAY_MS);
+        void WebBrowser.openBrowserAsync(shareUrl);
+      }, SHARE_OPEN_DELAY_MS);
     };
 
-    const handleShare = () => {
+    const handleNativeShare = () => {
       hideSheet();
       setTimeout(() => {
-        shareReservationUrl(shareUrl, copyToClipboard).catch(() => {});
-      }, MENU_SHARE_OPEN_DELAY_MS);
+        void shareReservationUrl(shareUrl, copyToClipboard);
+      }, SHARE_OPEN_DELAY_MS);
     };
 
     return (
-      <ActionSheetThemed ref={setRef} gestureEnabled>
+      <ActionSheetThemed ref={setRef} fitContent gestureEnabled>
         <View className="gap-4 px-4 pb-8 pt-2">
           <ThemedText className="text-base font-semibold">{t('bookingShareSheetTitle')}</ThemedText>
 
@@ -83,13 +79,13 @@ export const ReservationShareSheet = forwardRef<ActionSheetRef, ReservationShare
             textClassName="text-sm font-semibold"
           />
 
-          <AppButton
-            title={t('bookingShareButton')}
-            variant="outline"
-            fullWidth
-            iconStart="Share"
-            onPress={handleShare}
-          />
+          <View className="gap-1">
+            <SheetNavRow
+              label={t('bookingShareButton')}
+              icon={<Icon name="Share" size={16} strokeWidth={1.5} className="opacity-80" />}
+              onPress={handleNativeShare}
+            />
+          </View>
         </View>
       </ActionSheetThemed>
     );

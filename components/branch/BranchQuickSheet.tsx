@@ -152,7 +152,8 @@ function BranchQuickSheetContent({
   onOpenCallUs,
   onLeaveFlow,
   actionsSheetRef,
-  shareSheetRef}: {
+  shareSheetRef,
+  onShareFromMenu}: {
   branchInternalId: BranchInternalId;
   branchTravel: NearestApiBranch;
   branchMeta: ReturnType<typeof getBranchContactMeta>;
@@ -172,6 +173,7 @@ function BranchQuickSheetContent({
   onLeaveFlow: () => void;
   actionsSheetRef: React.RefObject<ActionSheetRef | null>;
   shareSheetRef: React.RefObject<ActionSheetRef | null>;
+  onShareFromMenu: () => void;
 }) {
   return (
     <ScrollView showsVerticalScrollIndicator={false} bounces={false}>
@@ -211,6 +213,7 @@ function BranchQuickSheetContent({
               bookingHref={buildBranchBookingHref(crmBranchId)}
               actionsSheetRef={actionsSheetRef}
               shareSheetRef={shareSheetRef}
+              onShareFromMenu={onShareFromMenu}
               onLeaveFlow={onLeaveFlow}
               t={t}
             />
@@ -390,6 +393,7 @@ export const BranchQuickSheet = forwardRef<ActionSheetRef, BranchQuickSheetProps
     const callUsRef = useRef<ActionSheetRef>(null);
     const actionsRef = useRef<ActionSheetRef>(null);
     const shareRef = useRef<ActionSheetRef>(null);
+    const pendingShareRef = useRef(false);
 
     const todayIso = useMemo(() => getPragueTodayDateString(), []);
     const branchMeta = branchInternalId ? getBranchContactMeta(branchInternalId) : null;
@@ -437,10 +441,14 @@ export const BranchQuickSheet = forwardRef<ActionSheetRef, BranchQuickSheetProps
     const branchRateUrl = crmBranchId ? getBranchGoogleReviewUrlForCrmId(crmBranchId) : null;
 
     const openActionsShare = useCallback(() => {
+      pendingShareRef.current = true;
       actionsRef.current?.hide();
-      setTimeout(() => {
-        shareRef.current?.show();
-      }, MENU_SHARE_OPEN_DELAY_MS);
+    }, []);
+
+    const handleActionsSheetClose = useCallback(() => {
+      if (!pendingShareRef.current) return;
+      pendingShareRef.current = false;
+      shareRef.current?.show();
     }, []);
 
     const handleActionsRate = useCallback(() => {
@@ -518,6 +526,7 @@ export const BranchQuickSheet = forwardRef<ActionSheetRef, BranchQuickSheetProps
               onLeaveFlow={leaveFlow}
               actionsSheetRef={actionsRef}
               shareSheetRef={shareRef}
+              onShareFromMenu={openActionsShare}
             />
           ) : null}
 
@@ -535,6 +544,7 @@ export const BranchQuickSheet = forwardRef<ActionSheetRef, BranchQuickSheetProps
             ref={actionsRef}
             title={t('branchMenuOpen')}
             bookLabel={t('branchMenuBook')}
+            onClose={handleActionsSheetClose}
             onShare={openActionsShare}
             onRate={handleActionsRate}
             onBook={handleActionsBook}

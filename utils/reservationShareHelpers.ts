@@ -1,6 +1,6 @@
 import type { Booking } from '@/api/bookings';
 import type { Locale } from '@/contexts/LanguageContext';
-import { Platform, Share } from 'react-native';
+import { Share } from 'react-native';
 import { APP_DEEP_LINK_ORIGIN } from '@/constants/deepLinkConfig';
 import { getTranslation } from '@/locales';
 import type { TranslationKey } from '@/locales';
@@ -83,10 +83,7 @@ export async function shareReservationUrl(
   copyFallback: (text: string) => void
 ): Promise<void> {
   try {
-    if (Platform.OS === 'ios') {
-      await Share.share({ url });
-      return;
-    }
+    // iOS `url` is for file:// only — https triggers "Cannot issue sandbox extension for URL".
     await Share.share({ message: url });
   } catch {
     copyFallback(url);

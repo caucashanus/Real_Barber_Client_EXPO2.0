@@ -23,6 +23,8 @@ type ProfileActionsMenuBaseProps = {
   actionsSheetRef?: React.RefObject<ActionSheetRef | null>;
   /** Externí nested share sheet (nearest drawer) — ne-mountovat vlastní. */
   shareSheetRef?: React.RefObject<ActionSheetRef | null>;
+  /** Externí handoff Sdílet → share sheet (nearest drawer). */
+  onShareFromMenu?: () => void;
   /** Nested bottom sheet nad parent drawerem (nearest pobočka). */
   nestedSheets?: boolean;
   /** Před odchodem z flow (booking) — zavře parent nearest sheet. */
@@ -64,11 +66,13 @@ export default function ProfileActionsMenu(props: ProfileActionsMenuProps) {
     onDarkBackground,
     actionsSheetRef: externalActionsSheetRef,
     shareSheetRef: externalShareSheetRef,
+    onShareFromMenu,
     nestedSheets = false,
     onLeaveFlow,
   } = props;
   const internalActionsSheetRef = useRef<ActionSheetRef>(null);
   const internalShareSheetRef = useRef<ActionSheetRef>(null);
+  const pendingShareRef = useRef(false);
   const actionsSheetRef = externalActionsSheetRef ?? internalActionsSheetRef;
   const shareSheetRef = externalShareSheetRef ?? internalShareSheetRef;
 
@@ -94,10 +98,18 @@ export default function ProfileActionsMenu(props: ProfileActionsMenuProps) {
   };
 
   const openShare = () => {
+    if (onShareFromMenu) {
+      onShareFromMenu();
+      return;
+    }
+    pendingShareRef.current = true;
     hideActionsSheet();
-    setTimeout(() => {
-      shareSheetRef.current?.show();
-    }, MENU_SHARE_OPEN_DELAY_MS);
+  };
+
+  const handleActionsSheetClose = () => {
+    if (!pendingShareRef.current) return;
+    pendingShareRef.current = false;
+    shareSheetRef.current?.show();
   };
 
   const handleRate = () => {
@@ -154,6 +166,7 @@ export default function ProfileActionsMenu(props: ProfileActionsMenuProps) {
           nested={nestedSheets}
           title={sheetTitle}
           bookLabel={bookLabel}
+          onClose={handleActionsSheetClose}
           onShare={openShare}
           onRate={handleRate}
           onBook={handleBook}

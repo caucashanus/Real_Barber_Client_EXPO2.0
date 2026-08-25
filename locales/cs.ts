@@ -1153,6 +1153,7 @@ export const cs: Record<TranslationKey, string> = {
   bookingShareMyBookingButton: 'Sdílet rezervaci',
   bookingShareSheetTitle: 'Sdílet rezervaci',
   bookingSharePreviewChip: 'Co uvidí příjemce?',
+  bookingShareLinkRow: 'Odkaz',
   bookingShareHowItWorksP1:
     'Odesláním odkazu můžete komukoliv sdílet termín vaší rezervace, čas začátku a konce a polohu provozovny.',
   bookingShareHowItWorksP2:

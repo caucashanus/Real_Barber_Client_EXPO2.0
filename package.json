@@ -1,6 +1,6 @@
 {
   "name": "real-barber-client",
-  "version": "1.0.20",
+  "version": "2.0",
   "scripts": {
     "android": "expo run:android",
     "ios": "expo run:ios",

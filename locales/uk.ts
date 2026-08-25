@@ -1153,6 +1153,7 @@ export const uk: Record<TranslationKey, string> = {
   bookingShareMyBookingButton: 'Поділитися бронюванням',
   bookingShareSheetTitle: 'Поділитися бронюванням',
   bookingSharePreviewChip: 'Що побачить одержувач?',
+  bookingShareLinkRow: 'Посилання',
   bookingShareHowItWorksP1:
     'Odesláním odkazu můžete komukoliv sdílet termín vaší rezervace, čas začátku a konce a polohu provozovny.',
   bookingShareHowItWorksP2:

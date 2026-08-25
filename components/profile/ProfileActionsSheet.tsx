@@ -13,6 +13,8 @@ export interface ProfileActionsSheetProps {
   bookLabel: string;
   /** Render inside another action sheet (non-modal overlay above parent). */
   nested?: boolean;
+  /** Po zavření menu (swipe / backdrop / hide). */
+  onClose?: () => void;
   onShare: () => void;
   onRate: () => void;
   onBook: () => void;
@@ -22,7 +24,10 @@ const NESTED_SHEET_Z_INDEX = 10000;
 const ACTIONS_SHEET_ELEVATION = 24;
 
 export const ProfileActionsSheet = forwardRef<ActionSheetRef, ProfileActionsSheetProps>(
-  function ProfileActionsSheet({ title, bookLabel, nested = false, onShare, onRate, onBook }, ref) {
+  function ProfileActionsSheet(
+    { title, bookLabel, nested = false, onClose, onShare, onRate, onBook },
+    ref
+  ) {
     const { t } = useTranslation();
     const innerRef = useRef<ActionSheetRef | null>(null);
 
@@ -38,8 +43,10 @@ export const ProfileActionsSheet = forwardRef<ActionSheetRef, ProfileActionsShee
     return (
       <ActionSheetThemed
         ref={setRef}
+        fitContent
         gestureEnabled
         isModal={!nested}
+        onClose={onClose}
         zIndex={nested ? NESTED_SHEET_Z_INDEX : undefined}
         elevation={nested ? ACTIONS_SHEET_ELEVATION : undefined}
         defaultOverlayOpacity={nested ? 0.45 : undefined}>

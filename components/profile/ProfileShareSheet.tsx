@@ -5,8 +5,8 @@ import { ActionSheetRef } from 'react-native-actions-sheet';
 import { useTranslation } from '@/hooks/useTranslation';
 import ActionSheetThemed from '@/components/ActionSheetThemed';
 import Icon from '@/components/Icon';
-import CopyIconButton from '@/components/shared/CopyIconButton';
 import SheetNavRow from '@/components/shared/SheetNavRow';
+import ShareUrlCopyRow from '@/components/shared/ShareUrlCopyRow';
 import { FacebookShareIcon } from '@/components/shared/ShareChannelIcons';
 import ThemedText from '@/components/ThemedText';
 import {
@@ -62,9 +62,12 @@ export const ProfileShareSheet = forwardRef<ActionSheetRef, ProfileShareSheetPro
     return (
       <ActionSheetThemed
         ref={setRef}
+        fitContent
         gestureEnabled
         isModal={!nested}
-        zIndex={nested ? NESTED_SHEET_Z_INDEX : undefined}>
+        zIndex={nested ? NESTED_SHEET_Z_INDEX : undefined}
+        elevation={nested ? 24 : undefined}
+        defaultOverlayOpacity={nested ? 0.45 : undefined}>
         <View className="gap-1 px-4 pb-8 pt-2">
           <ThemedText className="mb-2 text-base font-semibold">{title}</ThemedText>
 
@@ -99,17 +102,11 @@ export const ProfileShareSheet = forwardRef<ActionSheetRef, ProfileShareSheetPro
             onPress={() => openLink(links.email)}
           />
 
-          <View className="mt-3 flex-row items-center gap-2">
-            <ThemedText
-              className="min-w-0 flex-1 text-xs text-light-subtext dark:text-dark-subtext"
-              numberOfLines={1}>
-              {shareUrl}
-            </ThemedText>
-            <CopyIconButton
-              value={shareUrl}
-              accessibilityLabel={t('barberShareCopyLink')}
-            />
-          </View>
+          <ShareUrlCopyRow
+            className="mt-3"
+            shareUrl={shareUrl}
+            copyAccessibilityLabel={t('barberShareCopyLink')}
+          />
         </View>
       </ActionSheetThemed>
     );

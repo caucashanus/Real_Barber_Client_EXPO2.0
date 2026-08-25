@@ -1149,6 +1149,7 @@ export const en = {
   bookingShareMyBookingButton: 'Share booking',
   bookingShareSheetTitle: 'Share booking',
   bookingSharePreviewChip: 'What will they see?',
+  bookingShareLinkRow: 'Link',
   bookingShareHowItWorksP1:
     'By sending the link, you can share your booking date, start and end time, and the salon location with anyone.',
   bookingShareHowItWorksP2:
