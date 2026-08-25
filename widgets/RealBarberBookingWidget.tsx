@@ -88,10 +88,12 @@ const RealBarberBookingWidget = (
   return (
     <VStack modifiers={homeModifiers}>
       <HStack alignment="center">
-        <Image
-          assetName="RBWidgetLogo"
-          modifiers={[frame({ width: logoSize, height: logoSize }), resizable()]}
-        />
+        {props.logoUri ? (
+          <Image
+            uiImage={props.logoUri}
+            modifiers={[frame({ width: logoSize, height: logoSize }), resizable()]}
+          />
+        ) : null}
         <Spacer />
         {props.hasBooking ? (
           <Circle

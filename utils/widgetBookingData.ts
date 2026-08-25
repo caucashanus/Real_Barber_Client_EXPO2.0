@@ -24,6 +24,7 @@ export type RealBarberBookingWidgetProps = {
   isInProgress?: boolean;
   lockScreenLine?: string;
   deepLinkUrl?: string;
+  logoUri?: string;
 };
 
 export const EMPTY_WIDGET_BOOKING_PROPS: RealBarberBookingWidgetProps = {
