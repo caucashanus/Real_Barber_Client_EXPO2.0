@@ -62,41 +62,43 @@ const InspiraceScreen = () => {
     setVisibleCount((current) => Math.min(current + INSPIRACE_GRID_STEP, sortedItems.length));
   };
 
-  if (loading) {
-    return <SiteLoadingState layout="section" className="mt-4 flex-1 py-16" />;
-  }
-
   return (
     <ThemeScroller
       onScroll={Animated.event([{ nativeEvent: { contentOffset: { y: scrollY } } }], {
         useNativeDriver: false})}
       scrollEventThrottle={16}>
       <AnimatedView animation="scaleIn" className="mt-4 flex-1">
-        {error ? (
-          <View className="mb-4 items-center px-6">
-            <ThemedText className="text-center text-red-500 dark:text-red-400">{error}</ThemedText>
-          </View>
-        ) : null}
-
-        <InspiraceIntroCard />
-
-        {gridItems.length === 0 ? (
-          <ThemedText className="py-4 text-light-subtext dark:text-dark-subtext">
-            {t('inspiraceNoItems')}
-          </ThemedText>
+        {loading ? (
+          <SiteLoadingState layout="section" className="py-16" />
         ) : (
-          <ServiceItemGrid items={gridItems} accentBadgeLabels />
-        )}
+          <>
+            {error ? (
+              <View className="mb-4 items-center px-6">
+                <ThemedText className="text-center text-red-500 dark:text-red-400">{error}</ThemedText>
+              </View>
+            ) : null}
 
-        {hasMore ? (
-          <View className="mt-6 items-center pb-4">
-            <AppButton
-              title={t('inspiraceExpandMore')}
-              onPress={handleLoadMore}
-              variant="secondary"
-            />
-          </View>
-        ) : null}
+            <InspiraceIntroCard />
+
+            {gridItems.length === 0 ? (
+              <ThemedText className="py-4 text-light-subtext dark:text-dark-subtext">
+                {t('inspiraceNoItems')}
+              </ThemedText>
+            ) : (
+              <ServiceItemGrid items={gridItems} accentBadgeLabels />
+            )}
+
+            {hasMore ? (
+              <View className="mt-6 items-center pb-4">
+                <AppButton
+                  title={t('inspiraceExpandMore')}
+                  onPress={handleLoadMore}
+                  variant="secondary"
+                />
+              </View>
+            ) : null}
+          </>
+        )}
       </AnimatedView>
     </ThemeScroller>
   );

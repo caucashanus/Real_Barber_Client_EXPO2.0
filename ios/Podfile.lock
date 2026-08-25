@@ -270,9 +270,10 @@ PODS:
     - ExpoModulesCore
   - ExpoWebBrowser (56.0.6):
     - ExpoModulesCore
-  - EXStructuredHeaders (56.0.0)
-  - ExtensionStorage (1.0.0):
+  - ExpoWidgets (56.0.27):
     - ExpoModulesCore
+    - ExpoUI
+  - EXStructuredHeaders (56.0.0)
   - EXUpdates (56.0.25):
     - EASClient
     - EXManifests
@@ -2690,8 +2691,8 @@ DEPENDENCIES:
   - "ExpoUI (from `../node_modules/@expo/ui/ios`)"
   - ExpoVideo (from `../node_modules/expo-video/ios/ExpoVideo.podspec`)
   - ExpoWebBrowser (from `../node_modules/expo-web-browser/ios`)
+  - ExpoWidgets (from `../node_modules/expo-widgets/ios`)
   - EXStructuredHeaders (from `../node_modules/expo-structured-headers/ios`)
-  - "ExtensionStorage (from `../node_modules/@bacons/apple-targets/ios`)"
   - EXUpdates (from `../node_modules/expo-updates/ios`)
   - EXUpdatesInterface (from `../node_modules/expo-updates-interface/ios`)
   - FBLazyVector (from `../node_modules/react-native/Libraries/FBLazyVector`)
@@ -2869,10 +2870,10 @@ EXTERNAL SOURCES:
     :podspec: "../node_modules/expo-video/ios/ExpoVideo.podspec"
   ExpoWebBrowser:
     :path: "../node_modules/expo-web-browser/ios"
+  ExpoWidgets:
+    :path: "../node_modules/expo-widgets/ios"
   EXStructuredHeaders:
     :path: "../node_modules/expo-structured-headers/ios"
-  ExtensionStorage:
-    :path: "../node_modules/@bacons/apple-targets/ios"
   EXUpdates:
     :path: "../node_modules/expo-updates/ios"
   EXUpdatesInterface:
@@ -3095,8 +3096,8 @@ SPEC CHECKSUMS:
   ExpoUI: 15c5293922df464aefcfb528396c4db211795322
   ExpoVideo: 292b8c6be12bacf0b2e5a697276788280cdccdfb
   ExpoWebBrowser: 71e66c4f796a591708b4353d3aef2d1bd8cad49a
+  ExpoWidgets: 0f4d34e638de968fec940c61df7d3f317289333a
   EXStructuredHeaders: 9e89bcdd636ae2ecb59995cfba3230f5d7547c08
-  ExtensionStorage: 5796de20bf181317c376d693fedb64c6781a33ba
   EXUpdates: a4ea19fa20df25eaee5e8910a81524ff653eb24e
   EXUpdatesInterface: 25408a97d682355eb9fb37e5aa6e22caece1881f
   FBLazyVector: 24e62c765683b8d89006a88a2c8f5cf019f0074d
@@ -3191,6 +3192,6 @@ SPEC CHECKSUMS:
   VexoAnalytics: 3579bc9e7f2ad0aac4255a7001df0bb1bd15219c
   Yoga: 77dfa8673de2874e1855002ae59c68b8be9b007b
 
-PODFILE CHECKSUM: 0b13e2cfc7c3bcb51bfde1e79d90d5bc43678ccd
+PODFILE CHECKSUM: 5cd2c265e2cd07684ed037335072d1789ed4bb63
 
 COCOAPODS: 1.16.2

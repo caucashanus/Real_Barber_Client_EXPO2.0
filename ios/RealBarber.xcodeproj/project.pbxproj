@@ -8,37 +8,38 @@
 
 /* Begin PBXBuildFile section */
 		13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB51A68108700A75B9A /* Images.xcassets */; };
+		2F1137AE21C96E832CDB976B /* ExpoModulesProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD413238599D52C5EBEA07EB /* ExpoModulesProvider.swift */; };
 		3E461D99554A48A4959DE609 /* SplashScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = AA286B85B6C04FC6940260E9 /* SplashScreen.storyboard */; };
-		4657D8F5B8F51B0B68B672DB /* ExpoModulesProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = F26DEE0B43EE694E2FF6640E /* ExpoModulesProvider.swift */; };
-		6E4C31BF42C5ECFF5332E5A6 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = EBDD7DD3BCB4DCAA081E9D09 /* PrivacyInfo.xcprivacy */; };
-		99631FF39456E6B8107BCBC6 /* libPods-RealBarber.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 2990E25CC2788CD47BF9917F /* libPods-RealBarber.a */; };
+		514171A4329A4074A2496AA6 /* RealBarberBookingWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = 12AECE77580B4CC084642116 /* RealBarberBookingWidget.swift */; };
+		5906FA643C584CCABA42CCBD /* index.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2568B053B5F14138AAE1965C /* index.swift */; };
+		659AF40C1E66C48A80A59EFA /* ExpoModulesProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 68617B936D1E8B1B588176A0 /* ExpoModulesProvider.swift */; };
+		949709A7593E46428281AD54 /* ExpoWidgetsTarget.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 322C804C13D64AAD9FFFC750 /* ExpoWidgetsTarget.appex */; };
 		BB2F792D24A3F905000567C9 /* Expo.plist in Resources */ = {isa = PBXBuildFile; fileRef = BB2F792C24A3F905000567C9 /* Expo.plist */; };
+		C858E207F164E6FDD689C8BA /* libPods-ExpoWidgetsTarget.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 30100928674FE4EC51D714CA /* libPods-ExpoWidgetsTarget.a */; };
+		CA750CAA810F39FA330C6C72 /* libPods-RealBarber.a in Frameworks */ = {isa = PBXBuildFile; fileRef = A73A93B6C9B2765E7FE5FDB2 /* libPods-RealBarber.a */; };
 		F11748422D0307B40044C1D9 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = F11748412D0307B40044C1D9 /* AppDelegate.swift */; };
-		XX12B55A1EDABF083C3B51XX /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = XX470101BAEB8E0BBC8B0DXX /* WidgetKit.framework */; };
-		XX1A6800511A685AB346D2XX /* AppIntents.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = XXA12889081EB894481655XX /* AppIntents.framework */; };
-		XX1F47EB842085F0D229EEXX /* RealBarberWidget.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = XXEA8DDCD8FAEEA1B2A485XX /* RealBarberWidget.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
-		XX3C562DEF346B45594832XX /* ActivityKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = XXCAF23C3FC41F82140FA1XX /* ActivityKit.framework */; };
-		XX6A44985675A04437B8C4XX /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = XX4DFF38D47332D6BF0183XX /* SwiftUI.framework */; };
+		E4W1A2S3E4T5F6 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = E4W1A2S3E4T5F7 /* Assets.xcassets */; };
+		FCF3B7407AFEF90F5D54F108 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = E11CEE34EF9B4E72A66BA7CB /* PrivacyInfo.xcprivacy */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
-		XX9F65352BE2FA2EAC1BDFXX /* PBXContainerItemProxy */ = {
+		BB6885C1E9644C0E904153AE /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 83CBB9F71A601CBA00E9B192 /* Project object */;
 			proxyType = 1;
-			remoteGlobalIDString = XXF30FD1FC5C1A524452E1XX;
-			remoteInfo = RealBarberWidget;
+			remoteGlobalIDString = ABA4B4C59DDC4C2689E33784;
+			remoteInfo = ExpoWidgetsTarget;
 		};
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
-		XX72A8CFBF0FBA13A79902XX /* Embed Foundation Extensions */ = {
+		C64B530E35BE40F4B08AE7B5 /* Embed Foundation Extensions */ = {
 			isa = PBXCopyFilesBuildPhase;
 			buildActionMask = 2147483647;
 			dstPath = "";
 			dstSubfolderSpec = 13;
 			files = (
-				XX1F47EB842085F0D229EEXX /* RealBarberWidget.appex in Embed Foundation Extensions */,
+				949709A7593E46428281AD54 /* ExpoWidgetsTarget.appex in Embed Foundation Extensions */,
 			);
 			name = "Embed Foundation Extensions";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -46,69 +47,45 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		13B07F961A680F5B00A75B9A /* RealBarber.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; fileEncoding = 4; includeInIndex = 0; path = RealBarber.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		13B07FB51A68108700A75B9A /* Images.xcassets */ = {isa = PBXFileReference; fileEncoding = 4; includeInIndex = 0; lastKnownFileType = folder.assetcatalog; name = Images.xcassets; path = RealBarber/Images.xcassets; sourceTree = "<group>"; };
-		13B07FB61A68108700A75B9A /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; includeInIndex = 0; lastKnownFileType = text.plist.xml; name = Info.plist; path = RealBarber/Info.plist; sourceTree = "<group>"; };
-		2990E25CC2788CD47BF9917F /* libPods-RealBarber.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-RealBarber.a"; sourceTree = BUILT_PRODUCTS_DIR; };
-		8E818E0A4EACDA70A0C1DFF5 /* Pods-RealBarber.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-RealBarber.debug.xcconfig"; path = "Target Support Files/Pods-RealBarber/Pods-RealBarber.debug.xcconfig"; sourceTree = "<group>"; };
-		AA286B85B6C04FC6940260E9 /* SplashScreen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; includeInIndex = 0; lastKnownFileType = file.storyboard; name = SplashScreen.storyboard; path = RealBarber/SplashScreen.storyboard; sourceTree = "<group>"; };
-		B7EC1CADC03C7C680F0CC882 /* Pods-RealBarber.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-RealBarber.release.xcconfig"; path = "Target Support Files/Pods-RealBarber/Pods-RealBarber.release.xcconfig"; sourceTree = "<group>"; };
-		BB2F792C24A3F905000567C9 /* Expo.plist */ = {isa = PBXFileReference; fileEncoding = 4; includeInIndex = 0; lastKnownFileType = text.plist.xml; path = Expo.plist; sourceTree = "<group>"; };
-		EBDD7DD3BCB4DCAA081E9D09 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; includeInIndex = 1; name = PrivacyInfo.xcprivacy; path = RealBarber/PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
-		ED297162215061F000B7C4FE /* JavaScriptCore.framework */ = {isa = PBXFileReference; fileEncoding = 4; includeInIndex = undefined; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = System/Library/Frameworks/JavaScriptCore.framework; sourceTree = SDKROOT; };
-		F11748412D0307B40044C1D9 /* AppDelegate.swift */ = {isa = PBXFileReference; fileEncoding = 4; includeInIndex = 0; lastKnownFileType = sourcecode.swift; name = AppDelegate.swift; path = RealBarber/AppDelegate.swift; sourceTree = "<group>"; };
-		F11748442D0722820044C1D9 /* RealBarber-Bridging-Header.h */ = {isa = PBXFileReference; fileEncoding = 4; includeInIndex = 0; lastKnownFileType = sourcecode.c.h; name = "RealBarber-Bridging-Header.h"; path = "RealBarber/RealBarber-Bridging-Header.h"; sourceTree = "<group>"; };
-		F26DEE0B43EE694E2FF6640E /* ExpoModulesProvider.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ExpoModulesProvider.swift; path = "Pods/Target Support Files/Pods-RealBarber/ExpoModulesProvider.swift"; sourceTree = "<group>"; };
-		XX470101BAEB8E0BBC8B0DXX /* WidgetKit.framework */ = {isa = PBXFileReference; fileEncoding = 4; includeInIndex = undefined; lastKnownFileType = wrapper.framework; name = WidgetKit.framework; path = System/Library/Frameworks/WidgetKit.framework; sourceTree = SDKROOT; };
-		XX4DFF38D47332D6BF0183XX /* SwiftUI.framework */ = {isa = PBXFileReference; fileEncoding = 4; includeInIndex = undefined; lastKnownFileType = wrapper.framework; name = SwiftUI.framework; path = System/Library/Frameworks/SwiftUI.framework; sourceTree = SDKROOT; };
-		XXA12889081EB894481655XX /* AppIntents.framework */ = {isa = PBXFileReference; fileEncoding = 4; includeInIndex = undefined; lastKnownFileType = wrapper.framework; name = AppIntents.framework; path = System/Library/Frameworks/AppIntents.framework; sourceTree = SDKROOT; };
-		XXCAF23C3FC41F82140FA1XX /* ActivityKit.framework */ = {isa = PBXFileReference; fileEncoding = 4; includeInIndex = undefined; lastKnownFileType = wrapper.framework; name = ActivityKit.framework; path = System/Library/Frameworks/ActivityKit.framework; sourceTree = SDKROOT; };
-		XXEA8DDCD8FAEEA1B2A485XX /* RealBarberWidget.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; fileEncoding = 4; includeInIndex = 0; path = RealBarberWidget.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		12AECE77580B4CC084642116 /* RealBarberBookingWidget.swift */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 4; includeInIndex = 0; lastKnownFileType = sourcecode.swift; name = RealBarberBookingWidget.swift; path = RealBarberBookingWidget.swift; sourceTree = "<group>"; };
+		13B07F961A680F5B00A75B9A /* RealBarber.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = RealBarber.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		13B07FB51A68108700A75B9A /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Images.xcassets; path = RealBarber/Images.xcassets; sourceTree = "<group>"; };
+		13B07FB61A68108700A75B9A /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = Info.plist; path = RealBarber/Info.plist; sourceTree = "<group>"; };
+		13D99330FA4C4097ADD406E8 /* Info.plist */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 4; includeInIndex = 0; lastKnownFileType = text.plist.xml; name = Info.plist; path = Info.plist; sourceTree = "<group>"; };
+		159F28C93689F4FD68EDFFC3 /* Pods-RealBarber.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-RealBarber.release.xcconfig"; path = "Target Support Files/Pods-RealBarber/Pods-RealBarber.release.xcconfig"; sourceTree = "<group>"; };
+		2568B053B5F14138AAE1965C /* index.swift */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 4; includeInIndex = 0; lastKnownFileType = sourcecode.swift; name = index.swift; path = index.swift; sourceTree = "<group>"; };
+		30100928674FE4EC51D714CA /* libPods-ExpoWidgetsTarget.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-ExpoWidgetsTarget.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		322C804C13D64AAD9FFFC750 /* ExpoWidgetsTarget.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; fileEncoding = undefined; includeInIndex = 0; lastKnownFileType = undefined; name = ExpoWidgetsTarget.appex; path = ExpoWidgetsTarget.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		5DC692243EDA3E0A09DF4427 /* Pods-RealBarber.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-RealBarber.debug.xcconfig"; path = "Target Support Files/Pods-RealBarber/Pods-RealBarber.debug.xcconfig"; sourceTree = "<group>"; };
+		68617B936D1E8B1B588176A0 /* ExpoModulesProvider.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ExpoModulesProvider.swift; path = "Pods/Target Support Files/Pods-ExpoWidgetsTarget/ExpoModulesProvider.swift"; sourceTree = "<group>"; };
+		A73A93B6C9B2765E7FE5FDB2 /* libPods-RealBarber.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-RealBarber.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		AA286B85B6C04FC6940260E9 /* SplashScreen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = SplashScreen.storyboard; path = RealBarber/SplashScreen.storyboard; sourceTree = "<group>"; };
+		AD413238599D52C5EBEA07EB /* ExpoModulesProvider.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; name = ExpoModulesProvider.swift; path = "Pods/Target Support Files/Pods-RealBarber/ExpoModulesProvider.swift"; sourceTree = "<group>"; };
+		BB2F792C24A3F905000567C9 /* Expo.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Expo.plist; sourceTree = "<group>"; };
+		C156443E493E48D08B9108ED /* ExpoWidgetsTarget.entitlements */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = undefined; includeInIndex = 0; lastKnownFileType = unknown; name = ExpoWidgetsTarget.entitlements; path = ExpoWidgetsTarget.entitlements; sourceTree = "<group>"; };
+		D3559E7D24424C835CD87CD0 /* Pods-ExpoWidgetsTarget.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-ExpoWidgetsTarget.release.xcconfig"; path = "Target Support Files/Pods-ExpoWidgetsTarget/Pods-ExpoWidgetsTarget.release.xcconfig"; sourceTree = "<group>"; };
+		DC6A0B8CB77D41B78EEC6AB2 /* Pods-ExpoWidgetsTarget.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-ExpoWidgetsTarget.debug.xcconfig"; path = "Target Support Files/Pods-ExpoWidgetsTarget/Pods-ExpoWidgetsTarget.debug.xcconfig"; sourceTree = "<group>"; };
+		E4W1A2S3E4T5F7 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Assets.xcassets; path = ExpoWidgetsTarget/Assets.xcassets; sourceTree = "<group>"; };
+		E11CEE34EF9B4E72A66BA7CB /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; includeInIndex = 1; name = PrivacyInfo.xcprivacy; path = RealBarber/PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
+		ED297162215061F000B7C4FE /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = System/Library/Frameworks/JavaScriptCore.framework; sourceTree = SDKROOT; };
+		F11748412D0307B40044C1D9 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = AppDelegate.swift; path = RealBarber/AppDelegate.swift; sourceTree = "<group>"; };
+		F11748442D0722820044C1D9 /* RealBarber-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = "RealBarber-Bridging-Header.h"; path = "RealBarber/RealBarber-Bridging-Header.h"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
-
-/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
-		XX06F9C029CCC7276ED3FBXX /* Exceptions for "realbarber-widget" folder in "RealBarberWidget" target */ = {
-			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
-			membershipExceptions = (
-				Info.plist,
-				"expo-target.config.js",
-			);
-			target = XXF30FD1FC5C1A524452E1XX /* RealBarberWidget */;
-		};
-/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
-
-/* Begin PBXFileSystemSynchronizedRootGroup section */
-		XXEBE2F4791F9C29DF597AXX /* realbarber-widget */ = {
-			isa = PBXFileSystemSynchronizedRootGroup;
-			exceptions = (
-				XX06F9C029CCC7276ED3FBXX /* Exceptions for "realbarber-widget" folder in "RealBarberWidget" target */,
-			);
-			explicitFileTypes = {
-			};
-			explicitFolders = (
-			);
-			path = "realbarber-widget";
-			sourceTree = "<group>";
-		};
-/* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
 		13B07F8C1A680F5B00A75B9A /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				99631FF39456E6B8107BCBC6 /* libPods-RealBarber.a in Frameworks */,
+				CA750CAA810F39FA330C6C72 /* libPods-RealBarber.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		XX074B8811C1CF8E8A3D74XX /* Frameworks */ = {
+		27FA32FFE3244ED3B4F25A96 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				XX12B55A1EDABF083C3B51XX /* WidgetKit.framework in Frameworks */,
-				XX6A44985675A04437B8C4XX /* SwiftUI.framework in Frameworks */,
-				XX3C562DEF346B45594832XX /* ActivityKit.framework in Frameworks */,
-				XX1A6800511A685AB346D2XX /* AppIntents.framework in Frameworks */,
+				C858E207F164E6FDD689C8BA /* libPods-ExpoWidgetsTarget.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -124,7 +101,7 @@
 				13B07FB51A68108700A75B9A /* Images.xcassets */,
 				13B07FB61A68108700A75B9A /* Info.plist */,
 				AA286B85B6C04FC6940260E9 /* SplashScreen.storyboard */,
-				EBDD7DD3BCB4DCAA081E9D09 /* PrivacyInfo.xcprivacy */,
+				E11CEE34EF9B4E72A66BA7CB /* PrivacyInfo.xcprivacy */,
 			);
 			name = RealBarber;
 			sourceTree = "<group>";
@@ -133,13 +110,31 @@
 			isa = PBXGroup;
 			children = (
 				ED297162215061F000B7C4FE /* JavaScriptCore.framework */,
-				XX470101BAEB8E0BBC8B0DXX /* WidgetKit.framework */,
-				XX4DFF38D47332D6BF0183XX /* SwiftUI.framework */,
-				XXCAF23C3FC41F82140FA1XX /* ActivityKit.framework */,
-				XXA12889081EB894481655XX /* AppIntents.framework */,
-				2990E25CC2788CD47BF9917F /* libPods-RealBarber.a */,
+				30100928674FE4EC51D714CA /* libPods-ExpoWidgetsTarget.a */,
+				A73A93B6C9B2765E7FE5FDB2 /* libPods-RealBarber.a */,
 			);
 			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		3A5E123E66E66D4A7B335C1E /* Pods */ = {
+			isa = PBXGroup;
+			children = (
+				DC6A0B8CB77D41B78EEC6AB2 /* Pods-ExpoWidgetsTarget.debug.xcconfig */,
+				D3559E7D24424C835CD87CD0 /* Pods-ExpoWidgetsTarget.release.xcconfig */,
+				5DC692243EDA3E0A09DF4427 /* Pods-RealBarber.debug.xcconfig */,
+				159F28C93689F4FD68EDFFC3 /* Pods-RealBarber.release.xcconfig */,
+			);
+			name = Pods;
+			path = Pods;
+			sourceTree = "<group>";
+		};
+		78F781B5BC2E2FC95E855A36 /* ExpoModulesProviders */ = {
+			isa = PBXGroup;
+			children = (
+				DB2E93F388B1D0FF2E0DE093 /* ExpoWidgetsTarget */,
+				D506D8037494DF6CAE808055 /* RealBarber */,
+			);
+			name = ExpoModulesProviders;
 			sourceTree = "<group>";
 		};
 		832341AE1AAA6A7D00B99B32 /* Libraries */ = {
@@ -152,13 +147,13 @@
 		83CBB9F61A601CBA00E9B192 = {
 			isa = PBXGroup;
 			children = (
-				XX3E41C1850246162C0061XX /* expo:targets */,
 				13B07FAE1A68108700A75B9A /* RealBarber */,
 				832341AE1AAA6A7D00B99B32 /* Libraries */,
 				83CBBA001A601CBA00E9B192 /* Products */,
 				2D16E6871FA4F8E400B85C8A /* Frameworks */,
-				B42071B0AF5988F4651B7885 /* Pods */,
-				8839D051E0F7AE13365533E5 /* ExpoModulesProviders */,
+				F50C1ADA68084501B164595E /* ExpoWidgetsTarget */,
+				3A5E123E66E66D4A7B335C1E /* Pods */,
+				78F781B5BC2E2FC95E855A36 /* ExpoModulesProviders */,
 			);
 			indentWidth = 2;
 			sourceTree = "<group>";
@@ -169,35 +164,9 @@
 			isa = PBXGroup;
 			children = (
 				13B07F961A680F5B00A75B9A /* RealBarber.app */,
-				XXEA8DDCD8FAEEA1B2A485XX /* RealBarberWidget.appex */,
+				322C804C13D64AAD9FFFC750 /* ExpoWidgetsTarget.appex */,
 			);
 			name = Products;
-			sourceTree = "<group>";
-		};
-		8839D051E0F7AE13365533E5 /* ExpoModulesProviders */ = {
-			isa = PBXGroup;
-			children = (
-				9A10D5CEFDB2C29E00758DC8 /* RealBarber */,
-			);
-			name = ExpoModulesProviders;
-			sourceTree = "<group>";
-		};
-		9A10D5CEFDB2C29E00758DC8 /* RealBarber */ = {
-			isa = PBXGroup;
-			children = (
-				F26DEE0B43EE694E2FF6640E /* ExpoModulesProvider.swift */,
-			);
-			name = RealBarber;
-			sourceTree = "<group>";
-		};
-		B42071B0AF5988F4651B7885 /* Pods */ = {
-			isa = PBXGroup;
-			children = (
-				8E818E0A4EACDA70A0C1DFF5 /* Pods-RealBarber.debug.xcconfig */,
-				B7EC1CADC03C7C680F0CC882 /* Pods-RealBarber.release.xcconfig */,
-			);
-			name = Pods;
-			path = Pods;
 			sourceTree = "<group>";
 		};
 		BB2F792B24A3F905000567C9 /* Supporting */ = {
@@ -209,13 +178,33 @@
 			path = RealBarber/Supporting;
 			sourceTree = "<group>";
 		};
-		XX3E41C1850246162C0061XX /* expo:targets */ = {
+		D506D8037494DF6CAE808055 /* RealBarber */ = {
 			isa = PBXGroup;
 			children = (
-				XXEBE2F4791F9C29DF597AXX /* realbarber-widget */,
+				AD413238599D52C5EBEA07EB /* ExpoModulesProvider.swift */,
 			);
-			name = "expo:targets";
-			path = ../targets;
+			name = RealBarber;
+			sourceTree = "<group>";
+		};
+		DB2E93F388B1D0FF2E0DE093 /* ExpoWidgetsTarget */ = {
+			isa = PBXGroup;
+			children = (
+				68617B936D1E8B1B588176A0 /* ExpoModulesProvider.swift */,
+			);
+			name = ExpoWidgetsTarget;
+			sourceTree = "<group>";
+		};
+		F50C1ADA68084501B164595E /* ExpoWidgetsTarget */ = {
+			isa = PBXGroup;
+			children = (
+				E4W1A2S3E4T5F7 /* Assets.xcassets */,
+				C156443E493E48D08B9108ED /* ExpoWidgetsTarget.entitlements */,
+				13D99330FA4C4097ADD406E8 /* Info.plist */,
+				2568B053B5F14138AAE1965C /* index.swift */,
+				12AECE77580B4CC084642116 /* RealBarberBookingWidget.swift */,
+			);
+			name = ExpoWidgetsTarget;
+			path = ExpoWidgetsTarget;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -226,44 +215,44 @@
 			buildConfigurationList = 13B07F931A680F5B00A75B9A /* Build configuration list for PBXNativeTarget "RealBarber" */;
 			buildPhases = (
 				08A4A3CD28434E44B6B9DE2E /* [CP] Check Pods Manifest.lock */,
-				BCF464045310010019AB70EE /* [Expo] Configure project */,
+				44634FF62E6B32BCFED6E1B5 /* [Expo] Configure project */,
 				13B07F871A680F5B00A75B9A /* Sources */,
 				13B07F8C1A680F5B00A75B9A /* Frameworks */,
 				13B07F8E1A680F5B00A75B9A /* Resources */,
 				00DD1BFF1BD5951E006B06BC /* Bundle React Native code and images */,
 				800E24972A6A228C8D4807E9 /* [CP] Copy Pods Resources */,
-				E39DFF47EA8142BCA26D0E86 /* [Expo Dev Launcher] Strip Local Network Keys for Release */,
-				XX72A8CFBF0FBA13A79902XX /* Embed Foundation Extensions */,
-				B19291E7142A3292B9BBD819 /* [CP] Embed Pods Frameworks */,
+				8543CBB091D545D3BCBCFB0E /* [Expo Dev Launcher] Strip Local Network Keys for Release */,
+				C64B530E35BE40F4B08AE7B5 /* Embed Foundation Extensions */,
+				B106B372281167CAD05F4360 /* [CP] Embed Pods Frameworks */,
 			);
 			buildRules = (
 			);
 			dependencies = (
-				XXF64B09D8C00E90DBAC4AXX /* PBXTargetDependency */,
+				3C5732EF8E924784B49789F1 /* PBXTargetDependency */,
 			);
 			name = RealBarber;
 			productName = RealBarber;
 			productReference = 13B07F961A680F5B00A75B9A /* RealBarber.app */;
 			productType = "com.apple.product-type.application";
 		};
-		XXF30FD1FC5C1A524452E1XX /* RealBarberWidget */ = {
+		ABA4B4C59DDC4C2689E33784 /* ExpoWidgetsTarget */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = XXB830DF61972C316D2942XX /* Build configuration list for PBXNativeTarget "RealBarberWidget" */;
+			buildConfigurationList = AB1005C38015486DA09D8431 /* Build configuration list for PBXNativeTarget "ExpoWidgetsTarget" */;
 			buildPhases = (
-				XX074B8811C1CF8E8A3D74XX /* Frameworks */,
-				XXE45443DC38DCFE1DB622XX /* Sources */,
-				XXFA5A8CCDD805DF7AEF9CXX /* Resources */,
+				BE190780180EB9FCE28726B9 /* [CP] Check Pods Manifest.lock */,
+				2375D9379258A70225D93B68 /* [Expo] Configure project */,
+				2A52CDC6A8584A50B3ED1A2F /* Sources */,
+				E4W1A2S3E4T5F8 /* Resources */,
+				27FA32FFE3244ED3B4F25A96 /* Frameworks */,
+				0D9B5A12FAC035C2A6E4188D /* [CP] Copy Pods Resources */,
 			);
 			buildRules = (
 			);
 			dependencies = (
 			);
-			fileSystemSynchronizedGroups = (
-				XXEBE2F4791F9C29DF597AXX /* realbarber-widget */,
-			);
-			name = RealBarberWidget;
-			productName = RealBarberWidget;
-			productReference = XXEA8DDCD8FAEEA1B2A485XX /* RealBarberWidget.appex */;
+			name = ExpoWidgetsTarget;
+			productName = ExpoWidgetsTarget;
+			productReference = 322C804C13D64AAD9FFFC750 /* ExpoWidgetsTarget.appex */;
 			productType = "com.apple.product-type.app-extension";
 		};
 /* End PBXNativeTarget section */
@@ -277,10 +266,8 @@
 					13B07F861A680F5B00A75B9A = {
 						LastSwiftMigration = 1250;
 					};
-					XXF30FD1FC5C1A524452E1XX = {
-						CreatedOnToolsVersion = 14.3;
-						DevelopmentTeam = VK8YT9654D;
-						ProvisioningStyle = Automatic;
+					ABA4B4C59DDC4C2689E33784 = {
+						LastSwiftMigration = 1250;
 					};
 				};
 			};
@@ -298,7 +285,7 @@
 			projectRoot = "";
 			targets = (
 				13B07F861A680F5B00A75B9A /* RealBarber */,
-				XXF30FD1FC5C1A524452E1XX /* RealBarberWidget */,
+				ABA4B4C59DDC4C2689E33784 /* ExpoWidgetsTarget */,
 			);
 		};
 /* End PBXProject section */
@@ -311,14 +298,15 @@
 				BB2F792D24A3F905000567C9 /* Expo.plist in Resources */,
 				13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */,
 				3E461D99554A48A4959DE609 /* SplashScreen.storyboard in Resources */,
-				6E4C31BF42C5ECFF5332E5A6 /* PrivacyInfo.xcprivacy in Resources */,
+				FCF3B7407AFEF90F5D54F108 /* PrivacyInfo.xcprivacy in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		XXFA5A8CCDD805DF7AEF9CXX /* Resources */ = {
+		E4W1A2S3E4T5F8 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				E4W1A2S3E4T5F6 /* Assets.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -331,15 +319,11 @@
 			buildActionMask = 2147483647;
 			files = (
 			);
-			inputFileListPaths = (
-			);
 			inputPaths = (
 				"$(SRCROOT)/.xcode.env",
 				"$(SRCROOT)/.xcode.env.local",
 			);
 			name = "Bundle React Native code and images";
-			outputFileListPaths = (
-			);
 			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -368,6 +352,76 @@
 			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
 			showEnvVarsInLog = 0;
 		};
+		0D9B5A12FAC035C2A6E4188D /* [CP] Copy Pods Resources */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-ExpoWidgetsTarget/Pods-ExpoWidgetsTarget-resources.sh",
+				"${PODS_CONFIGURATION_BUILD_DIR}/ExpoWidgets/ExpoWidgets.bundle",
+				"${PODS_CONFIGURATION_BUILD_DIR}/React-Core/React-Core_privacy.bundle",
+				"${PODS_CONFIGURATION_BUILD_DIR}/React-cxxreact/React-cxxreact_privacy.bundle",
+			);
+			name = "[CP] Copy Pods Resources";
+			outputPaths = (
+				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/ExpoWidgets.bundle",
+				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/React-Core_privacy.bundle",
+				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/React-cxxreact_privacy.bundle",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-ExpoWidgetsTarget/Pods-ExpoWidgetsTarget-resources.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		2375D9379258A70225D93B68 /* [Expo] Configure project */ = {
+			isa = PBXShellScriptBuildPhase;
+			alwaysOutOfDate = 1;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"$(SRCROOT)/.xcode.env",
+				"$(SRCROOT)/.xcode.env.local",
+				"$(SRCROOT)/ExpoWidgetsTarget/ExpoWidgetsTarget.entitlements",
+				"$(SRCROOT)/Pods/Target Support Files/Pods-ExpoWidgetsTarget/expo-configure-project.sh",
+			);
+			name = "[Expo] Configure project";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"$(SRCROOT)/Pods/Target Support Files/Pods-ExpoWidgetsTarget/ExpoModulesProvider.swift",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "# This script configures Expo modules and generates the modules provider file.\nbash -l -c \"./Pods/Target\\ Support\\ Files/Pods-ExpoWidgetsTarget/expo-configure-project.sh\"\n";
+		};
+		44634FF62E6B32BCFED6E1B5 /* [Expo] Configure project */ = {
+			isa = PBXShellScriptBuildPhase;
+			alwaysOutOfDate = 1;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"$(SRCROOT)/.xcode.env",
+				"$(SRCROOT)/.xcode.env.local",
+				"$(SRCROOT)/RealBarber/RealBarber.entitlements",
+				"$(SRCROOT)/Pods/Target Support Files/Pods-RealBarber/expo-configure-project.sh",
+			);
+			name = "[Expo] Configure project";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"$(SRCROOT)/Pods/Target Support Files/Pods-RealBarber/ExpoModulesProvider.swift",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "# This script configures Expo modules and generates the modules provider file.\nbash -l -c \"./Pods/Target\\ Support\\ Files/Pods-RealBarber/expo-configure-project.sh\"\n";
+		};
 		800E24972A6A228C8D4807E9 /* [CP] Copy Pods Resources */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
@@ -383,6 +437,7 @@
 				"${PODS_CONFIGURATION_BUILD_DIR}/ExpoLocalization/ExpoLocalization_privacy.bundle",
 				"${PODS_CONFIGURATION_BUILD_DIR}/ExpoNotifications/ExpoNotifications_privacy.bundle",
 				"${PODS_CONFIGURATION_BUILD_DIR}/ExpoSystemUI/ExpoSystemUI_privacy.bundle",
+				"${PODS_CONFIGURATION_BUILD_DIR}/ExpoWidgets/ExpoWidgets.bundle",
 				"${PODS_CONFIGURATION_BUILD_DIR}/RNCAsyncStorage/RNCAsyncStorage_resources.bundle",
 				"${PODS_CONFIGURATION_BUILD_DIR}/RNSVG/RNSVGFilters.bundle",
 				"${PODS_CONFIGURATION_BUILD_DIR}/RNVexoAnalytics/RNVexoAnalytics_Privacy.bundle",
@@ -404,6 +459,7 @@
 				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/ExpoLocalization_privacy.bundle",
 				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/ExpoNotifications_privacy.bundle",
 				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/ExpoSystemUI_privacy.bundle",
+				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/ExpoWidgets.bundle",
 				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/RNCAsyncStorage_resources.bundle",
 				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/RNSVGFilters.bundle",
 				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/RNVexoAnalytics_Privacy.bundle",
@@ -420,7 +476,21 @@
 			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-RealBarber/Pods-RealBarber-resources.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
-		B19291E7142A3292B9BBD819 /* [CP] Embed Pods Frameworks */ = {
+		8543CBB091D545D3BCBCFB0E /* [Expo Dev Launcher] Strip Local Network Keys for Release */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "[Expo Dev Launcher] Strip Local Network Keys for Release";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "# Strip dev-launcher-specific local network permission keys from non-Debug builds\n# This only removes _expo._tcp Bonjour services and the dev-launcher usage description.\n# Other Bonjour services and custom descriptions are preserved for production use.\n\nif [ \"$CONFIGURATION\" != \"Debug\" ]; then\n  PLIST_PATH=\"${TARGET_BUILD_DIR}/${INFOPLIST_PATH}\"\n  if [ -f \"$PLIST_PATH\" ]; then\n    # Check if NSBonjourServices exists\n    if /usr/libexec/PlistBuddy -c \"Print :NSBonjourServices\" \"$PLIST_PATH\" >/dev/null 2>&1; then\n      # Get the count of services\n      COUNT=$(/usr/libexec/PlistBuddy -c \"Print :NSBonjourServices\" \"$PLIST_PATH\" 2>/dev/null | grep \"^    \" | wc -l | tr -d ' ')\n\n      # Remove _expo._tcp\n      for ((i=COUNT-1; i>=0; i--)); do\n        SERVICE=$(/usr/libexec/PlistBuddy -c \"Print :NSBonjourServices:$i\" \"$PLIST_PATH\" 2>/dev/null || echo \"\")\n        if echo \"$SERVICE\" | grep -q \"_expo._tcp\"; then\n          /usr/libexec/PlistBuddy -c \"Delete :NSBonjourServices:$i\" \"$PLIST_PATH\" 2>/dev/null || true\n        fi\n      done\n\n      # If the array is now empty, remove it entirely\n      REMAINING=$(/usr/libexec/PlistBuddy -c \"Print :NSBonjourServices\" \"$PLIST_PATH\" 2>/dev/null | grep \"^    \" | wc -l | tr -d ' ')\n      if [ \"$REMAINING\" -eq \"0\" ]; then\n        /usr/libexec/PlistBuddy -c \"Delete :NSBonjourServices\" \"$PLIST_PATH\" 2>/dev/null || true\n      fi\n    fi\n\n    # Only delete the description if it matches the dev-launcher default text\n    DESC=$(/usr/libexec/PlistBuddy -c \"Print :NSLocalNetworkUsageDescription\" \"$PLIST_PATH\" 2>/dev/null || echo \"\")\n    if echo \"$DESC\" | grep -q \"Expo Dev Launcher\"; then\n      /usr/libexec/PlistBuddy -c \"Delete :NSLocalNetworkUsageDescription\" \"$PLIST_PATH\" 2>/dev/null || true\n    fi\n  fi\nfi\n";
+		};
+		B106B372281167CAD05F4360 /* [CP] Embed Pods Frameworks */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -468,31 +538,7 @@
 			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-RealBarber/Pods-RealBarber-frameworks.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
-		BCF464045310010019AB70EE /* [Expo] Configure project */ = {
-			isa = PBXShellScriptBuildPhase;
-			alwaysOutOfDate = 1;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputFileListPaths = (
-			);
-			inputPaths = (
-				"$(SRCROOT)/.xcode.env",
-				"$(SRCROOT)/.xcode.env.local",
-				"$(SRCROOT)/RealBarber/RealBarber.entitlements",
-				"$(SRCROOT)/Pods/Target Support Files/Pods-RealBarber/expo-configure-project.sh",
-			);
-			name = "[Expo] Configure project";
-			outputFileListPaths = (
-			);
-			outputPaths = (
-				"$(SRCROOT)/Pods/Target Support Files/Pods-RealBarber/ExpoModulesProvider.swift",
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "# This script configures Expo modules and generates the modules provider file.\nbash -l -c \"./Pods/Target\\ Support\\ Files/Pods-RealBarber/expo-configure-project.sh\"\n";
-		};
-		E39DFF47EA8142BCA26D0E86 /* [Expo Dev Launcher] Strip Local Network Keys for Release */ = {
+		BE190780180EB9FCE28726B9 /* [CP] Check Pods Manifest.lock */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -500,15 +546,19 @@
 			inputFileListPaths = (
 			);
 			inputPaths = (
+				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
+				"${PODS_ROOT}/Manifest.lock",
 			);
-			name = "[Expo Dev Launcher] Strip Local Network Keys for Release";
+			name = "[CP] Check Pods Manifest.lock";
 			outputFileListPaths = (
 			);
 			outputPaths = (
+				"$(DERIVED_FILE_DIR)/Pods-ExpoWidgetsTarget-checkManifestLockResult.txt",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "# Strip dev-launcher-specific local network permission keys from non-Debug builds\n# This only removes _expo._tcp Bonjour services and the dev-launcher usage description.\n# Other Bonjour services and custom descriptions are preserved for production use.\n\nif [ \"$CONFIGURATION\" != \"Debug\" ]; then\n  PLIST_PATH=\"${TARGET_BUILD_DIR}/${INFOPLIST_PATH}\"\n  if [ -f \"$PLIST_PATH\" ]; then\n    # Check if NSBonjourServices exists\n    if /usr/libexec/PlistBuddy -c \"Print :NSBonjourServices\" \"$PLIST_PATH\" >/dev/null 2>&1; then\n      # Get the count of services\n      COUNT=$(/usr/libexec/PlistBuddy -c \"Print :NSBonjourServices\" \"$PLIST_PATH\" 2>/dev/null | grep \"^    \" | wc -l | tr -d ' ')\n\n      # Remove _expo._tcp\n      for ((i=COUNT-1; i>=0; i--)); do\n        SERVICE=$(/usr/libexec/PlistBuddy -c \"Print :NSBonjourServices:$i\" \"$PLIST_PATH\" 2>/dev/null || echo \"\")\n        if echo \"$SERVICE\" | grep -q \"_expo._tcp\"; then\n          /usr/libexec/PlistBuddy -c \"Delete :NSBonjourServices:$i\" \"$PLIST_PATH\" 2>/dev/null || true\n        fi\n      done\n\n      # If the array is now empty, remove it entirely\n      REMAINING=$(/usr/libexec/PlistBuddy -c \"Print :NSBonjourServices\" \"$PLIST_PATH\" 2>/dev/null | grep \"^    \" | wc -l | tr -d ' ')\n      if [ \"$REMAINING\" -eq \"0\" ]; then\n        /usr/libexec/PlistBuddy -c \"Delete :NSBonjourServices\" \"$PLIST_PATH\" 2>/dev/null || true\n      fi\n    fi\n\n    # Only delete the description if it matches the dev-launcher default text\n    DESC=$(/usr/libexec/PlistBuddy -c \"Print :NSLocalNetworkUsageDescription\" \"$PLIST_PATH\" 2>/dev/null || echo \"\")\n    if echo \"$DESC\" | grep -q \"Expo Dev Launcher\"; then\n      /usr/libexec/PlistBuddy -c \"Delete :NSLocalNetworkUsageDescription\" \"$PLIST_PATH\" 2>/dev/null || true\n    fi\n  fi\nfi\n";
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
+			showEnvVarsInLog = 0;
 		};
 /* End PBXShellScriptBuildPhase section */
 
@@ -518,31 +568,57 @@
 			buildActionMask = 2147483647;
 			files = (
 				F11748422D0307B40044C1D9 /* AppDelegate.swift in Sources */,
-				4657D8F5B8F51B0B68B672DB /* ExpoModulesProvider.swift in Sources */,
+				2F1137AE21C96E832CDB976B /* ExpoModulesProvider.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		XXE45443DC38DCFE1DB622XX /* Sources */ = {
+		2A52CDC6A8584A50B3ED1A2F /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				5906FA643C584CCABA42CCBD /* index.swift in Sources */,
+				514171A4329A4074A2496AA6 /* RealBarberBookingWidget.swift in Sources */,
+				659AF40C1E66C48A80A59EFA /* ExpoModulesProvider.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
-		XXF64B09D8C00E90DBAC4AXX /* PBXTargetDependency */ = {
+		3C5732EF8E924784B49789F1 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = XXF30FD1FC5C1A524452E1XX /* RealBarberWidget */;
-			targetProxy = XX9F65352BE2FA2EAC1BDFXX /* PBXContainerItemProxy */;
+			target = ABA4B4C59DDC4C2689E33784 /* ExpoWidgetsTarget */;
+			targetProxy = BB6885C1E9644C0E904153AE /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
+		065385060E0F473F8E681E96 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = DC6A0B8CB77D41B78EEC6AB2 /* Pods-ExpoWidgetsTarget.debug.xcconfig */;
+			buildSettings = {
+				APPLICATION_EXTENSION_API_ONLY = YES;
+				CODE_SIGN_ENTITLEMENTS = ExpoWidgetsTarget/ExpoWidgetsTarget.entitlements;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = VK8YT9654D;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = ExpoWidgetsTarget/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = ExpoWidgetsTarget;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				IPHONEOS_DEPLOYMENT_TARGET = 16.4;
+				MARKETING_VERSION = 1.0;
+				OTHER_SWIFT_FLAGS = "$(inherited) -D EXPO_CONFIGURATION_DEBUG";
+				PRODUCT_BUNDLE_IDENTIFIER = com.realbarber.client.ExpoWidgetsTarget;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
 		13B07F941A680F5B00A75B9A /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 8E818E0A4EACDA70A0C1DFF5 /* Pods-RealBarber.debug.xcconfig */;
+			baseConfigurationReference = 5DC692243EDA3E0A09DF4427 /* Pods-RealBarber.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
@@ -561,7 +637,7 @@
 					"@executable_path/Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 13.4;
-				MARKETING_VERSION = 1.0.20;
+				MARKETING_VERSION = 1.0;
 				OTHER_LDFLAGS = (
 					"$(inherited)",
 					"-ObjC",
@@ -580,7 +656,7 @@
 		};
 		13B07F951A680F5B00A75B9A /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = B7EC1CADC03C7C680F0CC882 /* Pods-RealBarber.release.xcconfig */;
+			baseConfigurationReference = 159F28C93689F4FD68EDFFC3 /* Pods-RealBarber.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
@@ -594,7 +670,7 @@
 					"@executable_path/Frameworks",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 13.4;
-				MARKETING_VERSION = 1.0.20;
+				MARKETING_VERSION = 1.0;
 				OTHER_LDFLAGS = (
 					"$(inherited)",
 					"-ObjC",
@@ -607,6 +683,29 @@
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = 1;
 				VERSIONING_SYSTEM = "apple-generic";
+			};
+			name = Release;
+		};
+		3F1D2F52C20C44A9B658BA8E /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = D3559E7D24424C835CD87CD0 /* Pods-ExpoWidgetsTarget.release.xcconfig */;
+			buildSettings = {
+				APPLICATION_EXTENSION_API_ONLY = YES;
+				CODE_SIGN_ENTITLEMENTS = ExpoWidgetsTarget/ExpoWidgetsTarget.entitlements;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = VK8YT9654D;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = ExpoWidgetsTarget/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = ExpoWidgetsTarget;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				IPHONEOS_DEPLOYMENT_TARGET = 16.4;
+				MARKETING_VERSION = 1.0;
+				OTHER_SWIFT_FLAGS = "$(inherited) -D EXPO_CONFIGURATION_RELEASE";
+				PRODUCT_BUNDLE_IDENTIFIER = com.realbarber.client.ExpoWidgetsTarget;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Release;
 		};
@@ -744,88 +843,6 @@
 			};
 			name = Release;
 		};
-		XX5642E2A59D8D669E8F6EXX /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				CLANG_ANALYZER_NONNULL = YES;
-				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
-				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
-				CLANG_ENABLE_OBJC_WEAK = YES;
-				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
-				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
-				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
-				CODE_SIGN_ENTITLEMENTS = "../targets/realbarber-widget/generated.entitlements";
-				CODE_SIGN_STYLE = Automatic;
-				COPY_PHASE_STRIP = NO;
-				CURRENT_PROJECT_VERSION = 67;
-				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
-				DEVELOPMENT_TEAM = VK8YT9654D;
-				GCC_C_LANGUAGE_STANDARD = gnu11;
-				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = "../targets/realbarber-widget/Info.plist";
-				INFOPLIST_KEY_CFBundleDisplayName = "Real Barber";
-				INFOPLIST_KEY_NSHumanReadableCopyright = "";
-				IPHONEOS_DEPLOYMENT_TARGET = 16.2;
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/Frameworks",
-					"@executable_path/../../Frameworks",
-				);
-				MARKETING_VERSION = 1.0.20;
-				MTL_FAST_MATH = YES;
-				OTHER_SWIFT_FLAGS = "$(inherited) -D EXPO_CONFIGURATION_RELEASE";
-				PRODUCT_BUNDLE_IDENTIFIER = com.realbarber.client.widget;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SKIP_INSTALL = YES;
-				SWIFT_COMPILATION_MODE = wholemodule;
-				SWIFT_EMIT_LOC_STRINGS = YES;
-				SWIFT_OPTIMIZATION_LEVEL = "-O";
-				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
-			};
-			name = Release;
-		};
-		XX58E21AA8B15027032072XX /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				CLANG_ANALYZER_NONNULL = YES;
-				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
-				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
-				CLANG_ENABLE_OBJC_WEAK = YES;
-				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
-				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
-				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
-				CODE_SIGN_ENTITLEMENTS = "../targets/realbarber-widget/generated.entitlements";
-				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 67;
-				DEBUG_INFORMATION_FORMAT = dwarf;
-				DEVELOPMENT_TEAM = VK8YT9654D;
-				GCC_C_LANGUAGE_STANDARD = gnu11;
-				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = "../targets/realbarber-widget/Info.plist";
-				INFOPLIST_KEY_CFBundleDisplayName = "Real Barber";
-				INFOPLIST_KEY_NSHumanReadableCopyright = "";
-				IPHONEOS_DEPLOYMENT_TARGET = 16.2;
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/Frameworks",
-					"@executable_path/../../Frameworks",
-				);
-				MARKETING_VERSION = 1.0.20;
-				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
-				MTL_FAST_MATH = YES;
-				OTHER_SWIFT_FLAGS = "$(inherited) -D EXPO_CONFIGURATION_DEBUG";
-				PRODUCT_BUNDLE_IDENTIFIER = com.realbarber.client.widget;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SKIP_INSTALL = YES;
-				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
-				SWIFT_EMIT_LOC_STRINGS = YES;
-				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
-				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
-			};
-			name = Debug;
-		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -847,11 +864,11 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		XXB830DF61972C316D2942XX /* Build configuration list for PBXNativeTarget "RealBarberWidget" */ = {
+		AB1005C38015486DA09D8431 /* Build configuration list for PBXNativeTarget "ExpoWidgetsTarget" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				XX58E21AA8B15027032072XX /* Debug */,
-				XX5642E2A59D8D669E8F6EXX /* Release */,
+				065385060E0F473F8E681E96 /* Debug */,
+				3F1D2F52C20C44A9B658BA8E /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

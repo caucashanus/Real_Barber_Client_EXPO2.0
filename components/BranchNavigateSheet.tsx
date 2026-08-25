@@ -1,13 +1,15 @@
 import { Image } from 'expo-image';
 import React, { forwardRef, useCallback, useRef } from 'react';
-import { Linking, View } from 'react-native';
+import { Linking } from 'react-native';
 import { ActionSheetRef } from 'react-native-actions-sheet';
 
 import { useTheme } from '@/contexts/ThemeContext';
 import { useTranslation } from '@/hooks/useTranslation';
-import ActionSheetThemed from '@/components/ActionSheetThemed';
 import Icon from '@/components/Icon';
 import BranchAddress from '@/components/shared/BranchAddress';
+import ExpoBottomSheet from '@/components/sheets/ExpoBottomSheet';
+import SheetContent from '@/components/sheets/SheetContent';
+import { SHEET_ICON_SIZE, SHEET_ICON_STROKE, SHEET_TITLE_CLASS } from '@/components/sheets/expoSheetTheme';
 import SheetNavRow from '@/components/shared/SheetNavRow';
 import ThemedText from '@/components/ThemedText';
 
@@ -16,17 +18,12 @@ export interface BranchNavigateSheetProps {
   address?: string | null;
   latitude?: number | null;
   longitude?: number | null;
-  /** Render inside another action sheet (non-modal overlay above parent). */
-  nested?: boolean;
 }
 
-const NAVIGATE_SHEET_ELEVATION = 24;
-const NESTED_SHEET_Z_INDEX = 10000;
 const BRAND_GOOGLE_MAPS = '#34A853';
 const BRAND_WAZE = '#33CCFF';
 const NAVIGATE_OPEN_DELAY_MS = 300;
 
-/** Adresa nebo název pobočky pro vyhledání v mapách (stejně jako HomeSpotlightCard). */
 export function getBranchNavigateMapsQuery(
   branchName?: string | null,
   address?: string | null
@@ -61,10 +58,8 @@ function buildWazeUrl(
 }
 
 export const BranchNavigateSheet = forwardRef<ActionSheetRef, BranchNavigateSheetProps>(
-  function BranchNavigateSheet({ branchName, address, latitude, longitude, nested = false }, ref) {
-    const { t } = useTranslation();
-    const { isDark } = useTheme();
-    const innerRef = useRef<ActionSheetRef | null>(null);
+  function BranchNavigateSheet({ branchName, address, latitude, longitude, nested: _nested = false }, ref) {
+    const innerRef = useRef<ActionSheetRef>(null);
 
     const setRef = useCallback(
       (node: ActionSheetRef | null) => {
@@ -75,12 +70,15 @@ export const BranchNavigateSheet = forwardRef<ActionSheetRef, BranchNavigateShee
       [ref]
     );
 
-    const hideSheet = () => {
-      innerRef.current?.hide();
-    };
+    const { t } = useTranslation();
+    const { isDark } = useTheme();
+    const trimmedBranchName = branchName?.trim() ?? '';
+    const logoSource = isDark
+      ? require('@/assets/img/wallet/realbarber-dark.png')
+      : require('@/assets/img/wallet/realbarber-light.png');
 
     const openMaps = (app: 'google' | 'waze') => {
-      hideSheet();
+      innerRef.current?.hide();
       const url =
         app === 'google'
           ? buildGoogleMapsUrl(branchName, address, latitude, longitude)
@@ -90,21 +88,9 @@ export const BranchNavigateSheet = forwardRef<ActionSheetRef, BranchNavigateShee
       }, NAVIGATE_OPEN_DELAY_MS);
     };
 
-    const trimmedBranchName = branchName?.trim() ?? '';
-    const logoSource = isDark
-      ? require('@/assets/img/wallet/realbarber-dark.png')
-      : require('@/assets/img/wallet/realbarber-light.png');
-
     return (
-      <ActionSheetThemed
-        ref={setRef}
-        fitContent
-        gestureEnabled
-        isModal={!nested}
-        zIndex={nested ? NESTED_SHEET_Z_INDEX : undefined}
-        elevation={NAVIGATE_SHEET_ELEVATION}
-        defaultOverlayOpacity={0.45}>
-        <View className="gap-1 px-4 pb-8 pt-2">
+      <ExpoBottomSheet ref={setRef}>
+        <SheetContent>
           <Image
             source={logoSource}
             style={{ height: 28, width: 32, marginBottom: 4, alignSelf: 'flex-start' }}
@@ -113,7 +99,7 @@ export const BranchNavigateSheet = forwardRef<ActionSheetRef, BranchNavigateShee
             accessibilityLabel="Real Barber"
           />
 
-          <ThemedText className="mb-2 text-base font-semibold leading-6">
+          <ThemedText className={SHEET_TITLE_CLASS}>
             {t('branchNavigateSheetHeading')}
             {trimmedBranchName ? ` ${trimmedBranchName}` : ''}
           </ThemedText>
@@ -123,8 +109,8 @@ export const BranchNavigateSheet = forwardRef<ActionSheetRef, BranchNavigateShee
             icon={
               <Icon
                 name="MapPin"
-                size={20}
-                strokeWidth={2}
+                size={SHEET_ICON_SIZE}
+                strokeWidth={SHEET_ICON_STROKE}
                 color={BRAND_GOOGLE_MAPS}
                 fill={BRAND_GOOGLE_MAPS}
               />
@@ -136,8 +122,8 @@ export const BranchNavigateSheet = forwardRef<ActionSheetRef, BranchNavigateShee
             icon={
               <Icon
                 name="Navigation"
-                size={20}
-                strokeWidth={2}
+                size={SHEET_ICON_SIZE}
+                strokeWidth={SHEET_ICON_STROKE}
                 color={BRAND_WAZE}
                 fill={BRAND_WAZE}
               />
@@ -146,8 +132,11 @@ export const BranchNavigateSheet = forwardRef<ActionSheetRef, BranchNavigateShee
           />
 
           <BranchAddress address={address} className="mt-3" numberOfLines={2} />
-        </View>
-      </ActionSheetThemed>
+        </SheetContent>
+      </ExpoBottomSheet>
     );
   }
 );
+
+/** Alias — render uvnitř parent draweru (nearest branch). */
+export const BranchNavigateNestedSheet = BranchNavigateSheet;

@@ -7,11 +7,13 @@ import React, {
   useRef,
   useState,
 } from 'react';
+import { AppState, Platform } from 'react-native';
 
 import { getBookings, type Booking } from '@/api/bookings';
 import { useAuth } from '@/contexts/AuthContext';
 import { isBookingUpcoming } from '@/utils/bookingHelpers';
 import { shouldStaleRefresh } from '@/utils/staleRefresh';
+import { syncBookingWidgetFromBookings } from '@/utils/widgetBookingSync';
 
 const BOOKINGS_STALE_MS = 60_000;
 
@@ -26,7 +28,7 @@ type BookingsContextType = {
 const BookingsContext = createContext<BookingsContextType | undefined>(undefined);
 
 export function BookingsBadgeProvider({ children }: { children: React.ReactNode }) {
-  const { apiToken } = useAuth();
+  const { apiToken, isLoading: authLoading } = useAuth();
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [loading, setLoading] = useState(false);
   const lastFetchedAtRef = useRef(0);
@@ -41,6 +43,9 @@ export function BookingsBadgeProvider({ children }: { children: React.ReactNode 
     if (!apiToken) {
       setBookings([]);
       lastFetchedAtRef.current = 0;
+      if (!authLoading) {
+        syncBookingWidgetFromBookings([]);
+      }
       return;
     }
 
@@ -67,7 +72,7 @@ export function BookingsBadgeProvider({ children }: { children: React.ReactNode 
     })();
 
     return inflightRef.current;
-  }, [apiToken]);
+  }, [apiToken, authLoading]);
 
   const refreshIfStale = useCallback(() => {
     void refresh();
@@ -76,6 +81,23 @@ export function BookingsBadgeProvider({ children }: { children: React.ReactNode 
   useEffect(() => {
     void refresh({ force: true });
   }, [refresh]);
+
+  useEffect(() => {
+    if (authLoading || !apiToken) return;
+    syncBookingWidgetFromBookings(bookings);
+  }, [authLoading, apiToken, bookings]);
+
+  useEffect(() => {
+    if (Platform.OS !== 'ios') return;
+
+    const sub = AppState.addEventListener('change', (nextState) => {
+      if (nextState === 'active' && apiToken && !authLoading) {
+        syncBookingWidgetFromBookings(bookings);
+      }
+    });
+
+    return () => sub.remove();
+  }, [apiToken, authLoading, bookings]);
 
   return (
     <BookingsContext.Provider

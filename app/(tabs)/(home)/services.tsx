@@ -99,69 +99,71 @@ const ServicesScreen = () => {
 
   const haircutCarouselItems = useMemo(() => getHaircutCarouselItems(locale), [locale]);
 
-  if (loading) {
-    return <SiteLoadingState layout="section" className="mt-4 flex-1 py-16" />;
-  }
-
   return (
     <ThemeScroller
       onScroll={Animated.event([{ nativeEvent: { contentOffset: { y: scrollY } } }], {
         useNativeDriver: false})}
       scrollEventThrottle={16}>
       <AnimatedView animation="scaleIn" className="mt-4 flex-1">
-        {error ? (
-          <View className="mb-4 items-center px-6">
-            <ThemedText className="text-center text-red-500 dark:text-red-400">{error}</ThemedText>
-          </View>
-        ) : null}
+        {loading ? (
+          <SiteLoadingState layout="section" className="py-16" />
+        ) : (
+          <>
+            {error ? (
+              <View className="mb-4 items-center px-6">
+                <ThemedText className="text-center text-red-500 dark:text-red-400">{error}</ThemedText>
+              </View>
+            ) : null}
 
-        <ServicesSectionIntroCard
-          t={t}
-          titleKey="servicesPageTitle"
-          bodyKey="servicesPageRBarberNote"
-          actionTitleKey="servicesPageHaircutBook"
-          actionHref="/inspirace"
-        />
-
-        <Section title={t('servicesPageHairAndBeard')} titleSize="lg">
-          {mainGridItems.length === 0 ? (
-            <ThemedText className="py-4 text-light-subtext dark:text-dark-subtext">
-              {t('servicesNoItems')}
-            </ThemedText>
-          ) : (
-            <ServiceItemGrid items={mainGridItems} />
-          )}
-        </Section>
-
-        {packageGridItems.length > 0 ? (
-          <View className="mt-6">
             <ServicesSectionIntroCard
               t={t}
-              titleKey="servicesPackages"
-              bodyKey="servicesPagePackagesIntro"
+              titleKey="servicesPageTitle"
+              bodyKey="servicesPageRBarberNote"
+              actionTitleKey="servicesPageHaircutBook"
+              actionHref="/inspirace"
             />
-            <ServiceItemGrid items={packageGridItems} />
-          </View>
-        ) : null}
 
-        <View className="mt-6">
-          <ServicesSectionIntroCard
-            t={t}
-            titleKey="servicesPageSupplementary"
-            bodyKey="servicesPageSupplementaryIntro"
-          />
-          {supplementaryGridItems.length === 0 ? (
-            <ThemedText className="py-4 text-light-subtext dark:text-dark-subtext">
-              {t('servicesNoItems')}
-            </ThemedText>
-          ) : (
-            <ServiceItemGrid items={supplementaryGridItems} />
-          )}
-        </View>
+            <Section title={t('servicesPageHairAndBeard')} titleSize="lg">
+              {mainGridItems.length === 0 ? (
+                <ThemedText className="py-4 text-light-subtext dark:text-dark-subtext">
+                  {t('servicesNoItems')}
+                </ThemedText>
+              ) : (
+                <ServiceItemGrid items={mainGridItems} />
+              )}
+            </Section>
 
-        <Section title={t('servicesPageHaircutInspiration')} titleSize="lg" className="mt-6">
-          <HaircutInspirationCarousel items={haircutCarouselItems} />
-        </Section>
+            {packageGridItems.length > 0 ? (
+              <View className="mt-6">
+                <ServicesSectionIntroCard
+                  t={t}
+                  titleKey="servicesPackages"
+                  bodyKey="servicesPagePackagesIntro"
+                />
+                <ServiceItemGrid items={packageGridItems} />
+              </View>
+            ) : null}
+
+            <View className="mt-6">
+              <ServicesSectionIntroCard
+                t={t}
+                titleKey="servicesPageSupplementary"
+                bodyKey="servicesPageSupplementaryIntro"
+              />
+              {supplementaryGridItems.length === 0 ? (
+                <ThemedText className="py-4 text-light-subtext dark:text-dark-subtext">
+                  {t('servicesNoItems')}
+                </ThemedText>
+              ) : (
+                <ServiceItemGrid items={supplementaryGridItems} />
+              )}
+            </View>
+
+            <Section title={t('servicesPageHaircutInspiration')} titleSize="lg" className="mt-6">
+              <HaircutInspirationCarousel items={haircutCarouselItems} />
+            </Section>
+          </>
+        )}
       </AnimatedView>
     </ThemeScroller>
   );

@@ -72,7 +72,7 @@ const KudyKNamDetail = () => {
       <>
         <StatusBar style="dark" />
         <Header title={t('howToGetToUs')} showBackButton />
-        <View className="flex-1 items-center justify-center p-global">
+        <View className="flex-1 items-center justify-center bg-light-primary p-global dark:bg-dark-primary">
           <SiteLoadingSpinner />
           <ThemedText className="mt-4 text-light-subtext dark:text-dark-subtext">
             {t('commonLoading')}
@@ -87,7 +87,7 @@ const KudyKNamDetail = () => {
       <>
         <StatusBar style="dark" />
         <Header title={t('howToGetToUs')} showBackButton />
-        <View className="flex-1 items-center justify-center p-global">
+        <View className="flex-1 items-center justify-center bg-light-primary p-global dark:bg-dark-primary">
           <ThemedText className="text-light-subtext dark:text-dark-subtext">
             {t('kudyBranchNotFound')}
           </ThemedText>

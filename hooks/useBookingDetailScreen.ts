@@ -44,8 +44,13 @@ export function useBookingDetailScreen(params: {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!apiToken || !id) {
+    if (!id) {
       setLoading(false);
+      return;
+    }
+    if (!apiToken) {
+      setLoading(true);
+      setError(null);
       return;
     }
     setLoading(true);

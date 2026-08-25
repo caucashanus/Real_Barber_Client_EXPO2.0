@@ -77,6 +77,31 @@ export function normalizeIncomingDeepLinkPath(path: string): string {
   return withoutQuery;
 }
 
+/** Zachová `?query` a `#hash` z deep linku pro Expo Router parametry. */
+export function extractIncomingDeepLinkSuffix(path: string): string {
+  let trimmed = path.trim();
+  if (!trimmed) return '';
+
+  trimmed = stripCustomAppScheme(trimmed);
+
+  try {
+    if (trimmed.startsWith('http://') || trimmed.startsWith('https://')) {
+      const url = new URL(trimmed);
+      return `${url.search}${url.hash}`;
+    }
+  } catch {
+    // fall through — treat as path
+  }
+
+  const queryIndex = trimmed.indexOf('?');
+  if (queryIndex !== -1) return trimmed.slice(queryIndex);
+
+  const hashIndex = trimmed.indexOf('#');
+  if (hashIndex !== -1) return trimmed.slice(hashIndex);
+
+  return '';
+}
+
 export function isSmartDownloadPath(path: string): boolean {
   const normalized = normalizeIncomingDeepLinkPath(path);
   return (APP_SMART_DOWNLOAD_PATHS as readonly string[]).includes(normalized);
@@ -101,15 +126,16 @@ export function isKnownAppRoute(path: string): boolean {
  * Unknown web-only paths (e.g. `/pobocky/...`) fall back to `/` instead of 404.
  */
 export function resolveIncomingDeepLinkRoute(path: string): string {
+  const suffix = extractIncomingDeepLinkSuffix(path);
   const normalized = normalizeIncomingDeepLinkPath(path);
   const smartDownloadRoute = resolveSmartDownloadRoute(normalized);
   if (smartDownloadRoute) return smartDownloadRoute;
 
   const promoMatch = normalized.match(/^\/promo\/(poster|kupon)\/([^/?#]+)\/?$/);
   if (promoMatch) {
-    return `/promo/${promoMatch[1]}/${promoMatch[2]}`;
+    return `/promo/${promoMatch[1]}/${promoMatch[2]}${suffix}`;
   }
 
-  if (isKnownAppRoute(normalized)) return normalized;
+  if (isKnownAppRoute(normalized)) return `${normalized}${suffix}`;
   return APP_UNKNOWN_PATH_FALLBACK_ROUTE;
 }

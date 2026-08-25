@@ -1,4 +1,5 @@
 import '../global.css';
+import '@/widgets/RealBarberBookingWidget';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Stack } from 'expo-router';
 import { NativeWindStyleSheet } from 'nativewind';

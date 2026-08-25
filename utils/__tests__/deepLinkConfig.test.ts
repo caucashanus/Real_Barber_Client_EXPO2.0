@@ -47,4 +47,19 @@ describe('deepLinkConfig', () => {
     expect(resolveIncomingDeepLinkRoute('/screens/login')).toBe('/screens/login');
     expect(resolveIncomingDeepLinkRoute('realbarber://barber-detail')).toBe('/barber-detail');
   });
+
+  it('preserves query params for known app routes', () => {
+    expect(
+      resolveIncomingDeepLinkRoute('realbarber://screens/booking-detail?id=abc-123')
+    ).toBe('/screens/booking-detail?id=abc-123');
+    expect(
+      resolveIncomingDeepLinkRoute('/screens/booking-detail?id=res-1&openReview=1')
+    ).toBe('/screens/booking-detail?id=res-1&openReview=1');
+  });
+
+  it('drops query params for unknown web paths', () => {
+    expect(resolveIncomingDeepLinkRoute('/pobocky/modrany?foo=bar')).toBe(
+      APP_SMART_DOWNLOAD_HOME_ROUTE
+    );
+  });
 });
