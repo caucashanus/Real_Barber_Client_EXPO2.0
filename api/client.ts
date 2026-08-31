@@ -1,3 +1,5 @@
+import { File } from 'expo-file-system';
+
 import { CLIENT_APP_V1_ENABLED } from '@/constants/clientAppApi';
 
 import { CrmHttpError, fetchClientAppV1, fetchCrm } from './http';
@@ -70,16 +72,11 @@ export interface ClientMediaFile {
   alt?: string | null;
 }
 
-function inferMimeTypeFromName(name: string): string {
-  const ext = name.toLowerCase().split('.').pop() ?? '';
-  if (ext === 'jpg' || ext === 'jpeg') return 'image/jpeg';
-  if (ext === 'png') return 'image/png';
-  if (ext === 'webp') return 'image/webp';
-  if (ext === 'heic') return 'image/heic';
-  if (ext === 'gif') return 'image/gif';
-  if (ext === 'mp4') return 'video/mp4';
-  if (ext === 'mov') return 'video/quicktime';
-  return 'application/octet-stream';
+/** Expo SDK 56 fetch nepodporuje RN `{ uri, name, type }` – použijeme `File` jako Blob. */
+function appendUploadFile(form: FormData, fieldName: string, input: UploadClientMediaInput): void {
+  const filename = input.name?.trim() || `client-media-${Date.now()}.jpg`;
+  const file = new File(input.uri);
+  form.append(fieldName, file, filename);
 }
 
 /** POST /api/client/media – upload client media and return created media file. */
@@ -87,15 +84,8 @@ export async function uploadClientMedia(
   apiToken: string,
   input: UploadClientMediaInput
 ): Promise<ClientMediaFile> {
-  const filename = input.name?.trim() || `client-media-${Date.now()}.jpg`;
-  const mimeType = input.mimeType?.trim() || inferMimeTypeFromName(filename);
-
   const form = new FormData();
-  form.append('file', {
-    uri: input.uri,
-    name: filename,
-    type: mimeType,
-  } as unknown as Blob);
+  appendUploadFile(form, 'file', input);
   if (input.title?.trim()) form.append('title', input.title.trim());
   if (input.alt?.trim()) form.append('alt', input.alt.trim());
   if (input.flagId?.trim()) form.append('flagId', input.flagId.trim());
@@ -134,15 +124,8 @@ export async function uploadClientAvatar(
   apiToken: string,
   input: UploadClientMediaInput
 ): Promise<void> {
-  const filename = input.name?.trim() || `avatar-${Date.now()}.jpg`;
-  const mimeType = input.mimeType?.trim() || inferMimeTypeFromName(filename);
-
   const form = new FormData();
-  form.append('file', {
-    uri: input.uri,
-    name: filename,
-    type: mimeType,
-  } as unknown as Blob);
+  appendUploadFile(form, 'file', input);
 
   try {
     await fetchCrm<void>('/api/client/avatar', { method: 'POST', apiToken, body: form });
