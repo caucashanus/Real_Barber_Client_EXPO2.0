@@ -1,6 +1,7 @@
-import { useLocalSearchParams } from 'expo-router';
-import React, { useCallback, useRef } from 'react';
-import { View, Animated, Platform, ImageSourcePropType } from 'react-native';
+import { router, useLocalSearchParams, useNavigation } from 'expo-router';
+import { useFocusEffect } from 'expo-router/react-navigation';
+import React, { useCallback, useEffect, useRef } from 'react';
+import { View, Animated, BackHandler, Platform, ImageSourcePropType } from 'react-native';
 import { ActionSheetRef } from 'react-native-actions-sheet';
 
 import type { Booking } from '@/api/bookings';
@@ -30,6 +31,7 @@ import {
   formatCancelSheetWhen,
 } from '@/utils/bookingDetailHelpers';
 import { isBookingCurrent, isBookingMarkedCompleted, isBookingPast, canShareClientBooking } from '@/utils/bookingHelpers';
+import { PROFILE_BOOKINGS_ROUTE } from '@/constants/profileContacts';
 import { intlLocaleTag } from '@/utils/intlLocaleTag';
 
 const BookingDetailScreen = () => {
@@ -58,10 +60,12 @@ const BookingDetailScreen = () => {
     justBooked: local.justBooked,
   });
 
+  const navigation = useNavigation();
   const cancelSheetRef = useRef<ActionSheetRef>(null);
   const branchNavigateRef = useRef<ActionSheetRef>(null);
   const shareSheetRef = useRef<ActionSheetRef>(null);
   const heroScrollY = useRef(new Animated.Value(0)).current;
+  const isLeavingToBookingsRef = useRef(false);
 
   const formatDetailMoney = useCallback(
     (value: unknown) => {
@@ -112,10 +116,37 @@ const BookingDetailScreen = () => {
     shareSheetRef.current?.show();
   }, [booking?.id]);
 
+  const handleBackToBookings = useCallback(() => {
+    if (isLeavingToBookingsRef.current) return;
+    isLeavingToBookingsRef.current = true;
+    router.replace(PROFILE_BOOKINGS_ROUTE);
+  }, []);
+
+  useFocusEffect(
+    useCallback(() => {
+      const subscription = BackHandler.addEventListener('hardwareBackPress', () => {
+        handleBackToBookings();
+        return true;
+      });
+      return () => subscription.remove();
+    }, [handleBackToBookings])
+  );
+
+  useEffect(() => {
+    const unsubscribe = navigation.addListener('beforeRemove', (event) => {
+      if (isLeavingToBookingsRef.current) return;
+      const actionType = event.data.action.type;
+      if (actionType !== 'GO_BACK' && actionType !== 'POP') return;
+      event.preventDefault();
+      handleBackToBookings();
+    });
+    return unsubscribe;
+  }, [navigation, handleBackToBookings]);
+
   if (!loading && (error || !booking)) {
     return (
       <>
-        <Header title={t('bookingDetailTitle')} showBackButton />
+        <Header title={t('bookingDetailTitle')} showBackButton onBackPress={handleBackToBookings} />
         <View className="flex-1 items-center justify-center bg-light-primary p-6 dark:bg-dark-primary">
           <ThemedText className="text-center text-red-500 dark:text-red-400">
             {error ?? t('bookingNotFound')}
@@ -128,7 +159,7 @@ const BookingDetailScreen = () => {
   if (!booking) {
     return (
       <>
-        <Header title={t('bookingDetailTitle')} showBackButton />
+        <Header title={t('bookingDetailTitle')} showBackButton onBackPress={handleBackToBookings} />
         <View className="flex-1 bg-light-primary dark:bg-dark-primary" />
       </>
     );
@@ -157,7 +188,7 @@ const BookingDetailScreen = () => {
 
   return (
     <>
-      <Header title={t('bookingDetailTitle')} showBackButton />
+      <Header title={t('bookingDetailTitle')} showBackButton onBackPress={handleBackToBookings} />
       <ThemedScroller
         className="flex-1 px-0"
         keyboardShouldPersistTaps="handled"

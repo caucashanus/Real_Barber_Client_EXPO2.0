@@ -5,7 +5,7 @@
     <key>CFBundleShortVersionString</key>
     <string>2.0.1</string>
     <key>CFBundleVersion</key>
-    <string>75</string>
+    <string>76</string>
     <key>ExpoWidgetsAppGroupIdentifier</key>
     <string>group.com.realbarber.client</string>
     <key>NSExtension</key>

@@ -1,0 +1,443 @@
+{
+  "generatedAt": "2026-08-27T17:17:37.517Z",
+  "source": "https://crm.xrb.cz/api/public/employees",
+  "count": 19,
+  "items": [
+    {
+      "id": "c85e1dc7-80ab-48a6-992d-c78cf79e4d79",
+      "slug": "alex",
+      "name": "Alex",
+      "webUrl": "/tym/alex/",
+      "description": "Zdravím tě! Jmenuji se Alex a stříhání se věnuji už více než čtyři roky. Zkušenosti jsem nasbíral nejen v pražských barbershopech, ale také v zahraničí. Měl jsem možnost působit i pod světovou značkou Menspire.\n\nNebojím se jakéhokoli střihu – všech délek i náročností. Věřím, že právě já jsem ten, kdo dokáže splnit vaše představy. Budu se na vás těšit u svého křesla.",
+      "branches": [
+        "Modřany"
+      ],
+      "favoriteHaircuts": [
+        "Buzz Cut",
+        "Buzz cut + Vystínované vousy",
+        "Crop",
+        "Curly Top",
+        "Elegantně načesané vlasy dozadu s výtratem na krku",
+        "Fringe Up + Upravené vousy"
+      ],
+      "totalReviews": 15,
+      "averageRating": 5,
+      "languages": [],
+      "isNew": false
+    },
+    {
+      "id": "df17e59a-3458-433d-a351-290114bab477",
+      "slug": "andrea",
+      "name": "Andrea",
+      "webUrl": "/tym/andrea/",
+      "description": "Jmenuju se Andrea a barbering je pro mě cesta, na které se každý den posouvám dál. Jsem člověk, který se rád učí novým věcem, nasává zkušenosti a neustále pracuje na zlepšení svého řemesla. Každý střih beru jako příležitost posunout svoje schopnosti zase o krok dál a vytvořit pro každého klienta co nejlepší výsledek. Baví mě detail, preciznost a to, že v tomhle oboru je pořád kam růst",
+      "branches": [
+        "Barrandov"
+      ],
+      "favoriteHaircuts": [
+        "Barvení vousů",
+        "Brush Cut",
+        "Buzz Cut",
+        "Crop"
+      ],
+      "totalReviews": 4,
+      "averageRating": 5,
+      "languages": [
+        "Angličtina",
+        "Čeština"
+      ],
+      "isNew": false
+    },
+    {
+      "id": "9a72d881-6667-4d5f-8210-32bbd443678b",
+      "slug": "andrej",
+      "name": "Andrej",
+      "webUrl": "/tym/andrej/",
+      "description": "Moje meno je Andrej a strihaniu sa venujem posledných 7 rokov. Moja kariéra začala v Brne ako hobby a postupne sa pretvorila do môjho remesla ktoré je mojou súčastou a naplňuje ma. Zakladám si na precíznosti a konštantnej kvalite ktorú sa vždy snažím na 100% predat svojím klientom.",
+      "branches": [
+        "Kačerov"
+      ],
+      "favoriteHaircuts": [
+        "Mullet",
+        "Taper Fade + Mullet",
+        "Caesar Cut",
+        "Černé vlasy s low Taper Fade",
+        "Drop Fade",
+        "Ivy League Cut"
+      ],
+      "totalReviews": 18,
+      "averageRating": 4.94,
+      "languages": [],
+      "isNew": false
+    },
+    {
+      "id": "cdf3532a-c630-4180-a241-3c1159911715",
+      "slug": "anna",
+      "name": "Anna",
+      "webUrl": "/tym/anna/",
+      "description": "Jmenuji se Anna a stříhání se věnuji  8 let. Součástí týmu Real Barber jsem 3 roky. Posledního půl roku jsem střihala na Tenerife, kde jsem načerpala novou inspiraci, zkušenosti a trochu jiný pohled na barbering. Teď se na nějaký čas vracím na pobočku Hagibor s novou flow, energií a zkušenostmi.\nBudu ráda, když si ke mně najdou cestu moji klienti, a stejně tak se těším na všechny nové tváře. \nNenechte svůj styl náhodě a doražte na Fresh cut – těším se na Vás v křesle!",
+      "branches": [
+        "Hagibor"
+      ],
+      "favoriteHaircuts": [
+        "Barvení vlasů",
+        "Mullet",
+        "Side Part",
+        "Vlasy a Vousy",
+        "Černé vlasy s low Taper Fade",
+        "Texturovaný crop + drop fade"
+      ],
+      "totalReviews": 4,
+      "averageRating": 5,
+      "languages": [
+        "Čeština",
+        "Angličtina"
+      ],
+      "isNew": true
+    },
+    {
+      "id": "c738c7b3-aa6a-4a4b-bb86-acf936373620",
+      "slug": "barca",
+      "name": "Barča",
+      "webUrl": "/tym/barca/",
+      "description": "Práce Holičky mě naplňuje už sedmým rokem je to práce v který jsem se našla a moc mě baví , ráda se učím nové věci a posouvám se dál v tom co dělám. Vždy když klient odchází spokojený tak si uvědomím že má práce dává smysl dělat radost druhým. Ne nadarmo se říká že ‘’vlasy jsou koruna krásy ‘’",
+      "branches": [
+        "Hagibor"
+      ],
+      "favoriteHaircuts": [
+        "Blow Taper Fade",
+        "Barvení vousů",
+        "Barvení vlasů",
+        "Černé vlasy s low Taper Fade",
+        "High Fade",
+        "Hard Part s Fade"
+      ],
+      "totalReviews": 20,
+      "averageRating": 5,
+      "languages": [],
+      "isNew": false
+    },
+    {
+      "id": "c5653185-fb87-4eea-8608-359cb922a5af",
+      "slug": "david",
+      "name": "David",
+      "webUrl": "/tym/david/",
+      "description": "Barbering se mi dostal do cesty náhodou. Vždy mě to přitahovalo, ale nikdy jsem se k tomu neodvážil. Jak se říká: „Každý muž je architektem svého vlastního štěstí.“ Dnes tím naplno žiju. Úprava vousů je jedna z mých oblíbených služeb.",
+      "branches": [
+        "Hagibor"
+      ],
+      "favoriteHaircuts": [
+        "French Crop",
+        "Fringe Up + Upravené vousy",
+        "Middle Fade",
+        "Pompadour",
+        "Rychlé stříhání",
+        "Taper Fade"
+      ],
+      "totalReviews": 20,
+      "averageRating": 5,
+      "languages": [],
+      "isNew": false
+    },
+    {
+      "id": "3dc86f5b-0e04-4bf9-82bb-319c604fd837",
+      "slug": "dominik",
+      "name": "Dominik",
+      "webUrl": "/tym/dominik/",
+      "description": "Jmenuji se Dominik a barbering je pro mě víc než jen práce – je to vášeň a životní styl. Ke každému klientovi přistupuji individuálně a zakládám si na preciznosti, důrazu na detail a profesionálním přístupu. Věřím, že kvalitní střih dokáže dodat sebevědomí i dobrou náladu. Mým cílem je, abyste odcházeli spokojení nejen s výsledkem, ale i s celkovým zážitkem. Důležitá je pro mě otevřená komunikace, díky které společně najdeme styl, který vám bude nejlépe sedět. Těším se, na vaší návštěvu.",
+      "branches": [
+        "Modřany"
+      ],
+      "favoriteHaircuts": [],
+      "totalReviews": 2,
+      "averageRating": 5,
+      "languages": [
+        "Čeština",
+        "Angličtina",
+        "Slovenština"
+      ],
+      "isNew": false
+    },
+    {
+      "id": "1b788e3e-0a55-452e-bd6e-7af620d8f194",
+      "slug": "filip",
+      "name": "Filip",
+      "webUrl": "/tym/filip/",
+      "description": "Být barber pro mě není jen práce ani pouhá vášeň ke stříhání – je to životní styl. Nejde mi jen o spokojenost zákazníka, ale o spokojenost nás obou. Dokud nejsem s výsledkem své práce stoprocentně spokojený, z křesla tě nepustím.\nZatímco většina barberů hraje na kvantitu, já patřím mezi ty, kteří vsadili na kvalitu.\nJsem komunikativní a přátelský člověk, se kterým nuda nehrozí. Empatie je pro mě samozřejmostí.",
+      "branches": [
+        "Kačerov"
+      ],
+      "favoriteHaircuts": [
+        "Barvení vousů",
+        "Low Fade",
+        "Krátký Crop",
+        "Side Part",
+        "Low Taper Fade + Vousy do ztracena",
+        "Faux Hawk"
+      ],
+      "totalReviews": 20,
+      "averageRating": 5,
+      "languages": [],
+      "isNew": false
+    },
+    {
+      "id": "3a253080-e9f0-4292-8092-a5aee3920219",
+      "slug": "karel",
+      "name": "Karel",
+      "webUrl": "/tym/karel/",
+      "description": "Jmenuji se Karel, specializuji se na moderní střihy a do své práce vkládám důraz na každý detail. Zakládám si na individuálním přístupu ke každému klientovi, protože mým cílem je vidět odcházet své klienty spokojené a s úsměvem na tváři. Zaučoval jsem se u těch nejlepších z RealBarber a teď dělám to, co mě naplňuje a věřím, že se to odráží na mých výsledcích.",
+      "branches": [
+        "Hagibor",
+        "Kačerov"
+      ],
+      "favoriteHaircuts": [
+        "Blow Taper Fade",
+        "Burst Fade + Messy long French Crop",
+        "Buzz cut + Vystínované vousy",
+        "French Crop",
+        "Fluffy účes",
+        "Low Taper Fade + Vousy do ztracena"
+      ],
+      "totalReviews": 20,
+      "averageRating": 5,
+      "languages": [],
+      "isNew": false
+    },
+    {
+      "id": "0f7ff2e8-4aef-4e9b-a28e-7e4437f7742f",
+      "slug": "katerina",
+      "name": "Káťa",
+      "webUrl": "/tym/katerina/",
+      "description": "Snažím se zlepšovat v tom, co mě baví a v tom, co mě naplňuje  zrovna tak u stříhání✂️, když se lidi vrací a prokazují mi tak, že se jim moje střihy líbí, tak mě to pak baví ještě víc a mám tak větší chuť na sobě pracovat a zdokonalovat se.",
+      "branches": [
+        "Modřany"
+      ],
+      "favoriteHaircuts": [
+        "Pokemon Hair Tattoo",
+        "Rozcuchané vlasy dopředu",
+        "Texturovaný crop + drop fade",
+        "Vlasy",
+        "Vlasy do 12 let",
+        "Vousy"
+      ],
+      "totalReviews": 20,
+      "averageRating": 5,
+      "languages": [
+        "Čeština",
+        "Angličtina",
+        "Slovenština"
+      ],
+      "isNew": false
+    },
+    {
+      "id": "9dc82296-e4ad-4c55-ab16-e6dcaecf35e8",
+      "slug": "lukas",
+      "name": "Lukáš",
+      "webUrl": "/tym/lukas/",
+      "description": "K barberingu jsem se dostal náhodou, ale hned jsem si tohle řemeslo zamiloval. Dnes mám za sebou 6 let praxe a vyučení v oboru. Každý střih beru jako příležitost ukázat poctivou práci, cit pro detail a respekt k tradičnímu řemeslu. Pro mě to není jen práce, ale vášeň, která je vidět na každém výsledku.",
+      "branches": [
+        "Barrandov"
+      ],
+      "favoriteHaircuts": [
+        "Buzz Cut",
+        "Elegantně načesané vlasy dozadu s výtratem na krku",
+        "Faux Hawk",
+        "Krátký Crop",
+        "Middle Fade",
+        "Mullet"
+      ],
+      "totalReviews": 16,
+      "averageRating": 5,
+      "languages": [],
+      "isNew": false
+    },
+    {
+      "id": "d948fc3b-25c5-4966-a52a-e500da8b4e77",
+      "slug": "mark",
+      "name": "Mark",
+      "webUrl": "/tym/mark/",
+      "description": "Ahoj! Jmenuji se Mark a jsem mladý barber, který se k řemeslu dostal neplánovaně, ale po prvním střihu jsem věděl, že to chci dělat naplno. Své dovednosti rozvíjím pod vedením Rejlise a zkušených holičů z RB, kteří mi předali to nejlepší ze svého umění.\nKaždý nový střih je pro mě výzvou a cílem je, aby každý zákazník odcházel spokojený. Ve volném čase se věnuji boxu, což mě učí disciplíně a soustředění – to se odráží i v mé práci.Rád vás přivítám ve svém křesle.",
+      "branches": [
+        "Kačerov",
+        "Modřany"
+      ],
+      "favoriteHaircuts": [
+        "Vlasy",
+        "Texturovaný Účes",
+        "Side Part",
+        "High Fade",
+        "Mohawk",
+        "Ofina nahoru + Mid Fade"
+      ],
+      "totalReviews": 13,
+      "averageRating": 5,
+      "languages": [
+        "Ukrajinština",
+        "Čeština",
+        "Ruština",
+        "Angličtina"
+      ],
+      "isNew": false
+    },
+    {
+      "id": "d619b104-da57-4b7c-be97-cf8208c261d4",
+      "slug": "maty",
+      "name": "Maty",
+      "webUrl": "/tym/maty/",
+      "description": "Říkají mi Maty a jsem naprosto oddaný svému řemeslu. Stříhání beru jako týmovou práci, svou vášeň a lásku. Je to pro mě na prvním místě, tak se přijď přesvědčit do nejlepšího salónu v ČR.",
+      "branches": [
+        "Hagibor"
+      ],
+      "favoriteHaircuts": [
+        "Buzz Cut",
+        "Buzz cut + Vystínované vousy",
+        "Crop",
+        "Krátký Crop",
+        "High Fade",
+        "Low Fade"
+      ],
+      "totalReviews": 20,
+      "averageRating": 4.95,
+      "languages": [],
+      "isNew": false
+    },
+    {
+      "id": "af55457a-8fe6-447b-9bd1-72829387bd4c",
+      "slug": "mia",
+      "name": "Mia",
+      "webUrl": "/tym/mia/",
+      "description": "Jmenuji se Mia a v barberingu jsem našla vášeň, kterou chci neustále rozvíjet. Jsem na začátku své kariéry, což pro mě znamená jediné: stoprocentní nasazení a chuť se učit od těch nejlepších. Jsem velmi učenlivá a zakládám si na preciznosti, protože věřím, že pevné základy jsou klíčem k dokonalému výsledku. Každá návštěva u mě v křesle je pro mě příležitostí dokázat, že se chci stát špičkou v oboru.",
+      "branches": [
+        "Modřany"
+      ],
+      "favoriteHaircuts": [
+        "Bro Flow",
+        "Brush Cut",
+        "Buzz Cut",
+        "Curly Fringe",
+        "Fluffy účes",
+        "French Crop"
+      ],
+      "totalReviews": 8,
+      "averageRating": 5,
+      "languages": [],
+      "isNew": false
+    },
+    {
+      "id": "3584dfe8-2177-4c50-9df0-267aeb43ae63",
+      "slug": "ondra",
+      "name": "Ondra",
+      "webUrl": "/tym/ondra/",
+      "description": "Ahoj, jsem Ondra\nJsem vyučený kadeřník a už od chvíle kdy jsem nastoupil na školu jsem věděl, že se chci věnovat holičství. Real Barber mi splnil sen. Od malička jsem miloval styl a vidět na lidech radost z nového vzhledu je pro mě něčím nepopsatelným. Jsem na sebe dost tvrdej, takže se snažím každým dnem zlepšovat.\nJsem sám svým soudcem, sokem i vzorem. Mám svoje priority a pravidla které neporušuju a to platí i při mojí práci, v každým detailu jsem stoprocentní.",
+      "branches": [
+        "Modřany"
+      ],
+      "favoriteHaircuts": [
+        "Bro Flow",
+        "Brush Cut",
+        "Burst Fade",
+        "Curly Fringe",
+        "French Crop"
+      ],
+      "totalReviews": 15,
+      "averageRating": 5,
+      "languages": [],
+      "isNew": false
+    },
+    {
+      "id": "58b37c74-b6e0-4d89-bf8c-4d6dee1f142d",
+      "slug": "pavel",
+      "name": "Pavel",
+      "webUrl": "/tym/pavel/",
+      "description": "Barbering přišel do mého života ze dne na den, ale rychle se stal součástí mé každodenní rutiny. Třetím rokem se věnuju střihům, fadeům a detailům, které dělají rozdíl. Mým cílem je, aby každý klient odešel fresh a rád se vracel.",
+      "branches": [
+        "Kačerov"
+      ],
+      "favoriteHaircuts": [
+        "Taper Fade",
+        "Side Part",
+        "Low Fade",
+        "Low Taper Fade",
+        "Low Taper Fade + Vousy do ztracena",
+        "Temple Fade"
+      ],
+      "totalReviews": 4,
+      "averageRating": 5,
+      "languages": [],
+      "isNew": false
+    },
+    {
+      "id": "f7dfa2d3-ea33-4377-b71e-6a5792f7a075",
+      "slug": "rejlis",
+      "name": "Rejlis",
+      "webUrl": "/tym/rejlis/",
+      "description": "Miluju adrenalin a nezapomenutelné zážitky. To se odráží i na podání mé služby, kdy dělám maximum pro to, aby se zákazník cítil skvěle.",
+      "branches": [
+        "Modřany"
+      ],
+      "favoriteHaircuts": [
+        "Bro Flow",
+        "Brush Cut",
+        "Faux Hawk s pěšinkou",
+        "Fluffy účes",
+        "High Fade",
+        "Ivy League Cut"
+      ],
+      "totalReviews": 20,
+      "averageRating": 5,
+      "languages": [
+        "Čeština",
+        "Angličtina"
+      ],
+      "isNew": false
+    },
+    {
+      "id": "d3eb186a-9d04-4fd4-8cee-7ee3057f6aa2",
+      "slug": "sasa",
+      "name": "Saša",
+      "webUrl": "/tym/sasa/",
+      "description": "Jmenuju se Saša a ke stříhání vlasů jsem se dostal úplnou náhodou, ale rychle mě to chytlo. I když se tomu věnuju teprve pár měsíců, dávám si záležet na každém detailu. Každý střih beru jako příležitost ukázat, co ve mně je, a mým cílem je, aby každý klient odcházel spokojený.",
+      "branches": [
+        "Barrandov"
+      ],
+      "favoriteHaircuts": [
+        "Burst Fade + Textured Fringe",
+        "Caesar Cut",
+        "Buzz cut + Vystínované vousy",
+        "Undercut se skin fade",
+        "Texturovaný Účes",
+        "Taper Fade"
+      ],
+      "totalReviews": 6,
+      "averageRating": 5,
+      "languages": [
+        "Angličtina",
+        "Čeština",
+        "Ukrajinština"
+      ],
+      "isNew": false
+    },
+    {
+      "id": "8aa0121c-e343-43be-ba7c-36f90303fe8d",
+      "slug": "zlatej",
+      "name": "Zlatej",
+      "webUrl": "/tym/zlatej/",
+      "description": "Říkají mi Zlatej a ke stříhání jsem měl vztah už od mala. Stříhal jsem sám sebe v době kdy Barbering byl ještě v plenkách. Neměl jsem jednoduché dětství ale díky tomu,  jsem zvyklí dělat vše na 100% a proto jsem v tom nejlepším salonu v ČR. Děláme to jinak a nejlíp.",
+      "branches": [
+        "Barrandov"
+      ],
+      "favoriteHaircuts": [
+        "Bowl Cut",
+        "Blow Taper Fade",
+        "Curly Fringe",
+        "Drop Fade",
+        "Černé vlasy s low Taper Fade",
+        "Ivy League Cut"
+      ],
+      "totalReviews": 16,
+      "averageRating": 5,
+      "languages": [],
+      "isNew": false
+    }
+  ]
+}

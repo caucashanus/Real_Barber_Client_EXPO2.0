@@ -420,6 +420,8 @@ export const en = {
   operatorContactWhatsApp: 'WhatsApp',
   operatorContactTelegram: 'Telegram',
   operatorFabAccessibility: 'Contact support',
+  customerAiFabAccessibility: 'Chat with Rbíček assistant',
+  customerAiSheetTitle: 'Rbíček assistant',
   phoneCallFeedbackTitle: 'How would you rate your call with our operator?',
   phoneCallFeedbackReasonsSubtitle: 'What went wrong?',
   phoneCallFeedbackSubmit: 'Submit',

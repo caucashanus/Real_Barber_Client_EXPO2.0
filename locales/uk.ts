@@ -424,6 +424,8 @@ export const uk: Record<TranslationKey, string> = {
   operatorContactWhatsApp: 'WhatsApp',
   operatorContactTelegram: 'Telegram',
   operatorFabAccessibility: 'Зв’язатися з підтримкою',
+  customerAiFabAccessibility: 'Чат з асистентом Rbíček',
+  customerAiSheetTitle: 'Асистент Rbíček',
   phoneCallFeedbackTitle: 'Як ви оцінюєте дзвінок з оператором?',
   phoneCallFeedbackReasonsSubtitle: 'Що було не так?',
   phoneCallFeedbackSubmit: 'Надіслати',

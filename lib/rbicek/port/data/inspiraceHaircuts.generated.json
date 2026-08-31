@@ -1,0 +1,4359 @@
+{
+  "generatedAt": "2026-08-30T10:33:17.102Z",
+  "source": "https://crm.xrb.cz/api/public/hairstyles",
+  "count": 75,
+  "items": [
+    {
+      "id": "a6124d60-3806-4261-ba33-694b1c412a15",
+      "slug": "afro",
+      "name": "Afro",
+      "webUrl": "/sluzby/afro/",
+      "description": "Tento účes je postavený na maximálním zvýraznění přirozeně kudrnatých až afro vlasů. Horní část si zachovává výrazný objem, délku a texturu s dokonale definovanými prstýnky. Boky a zátylek jsou upraveny precizní technikou Low Taper Fade, což znamená, že vytracení do kůže je provedeno pouze lokálně kolem kotlet a na spodní linii krku. Tím vzniká velmi čistý, upravený detail, zatímco celkový tvar účesu zůstává plný a přirozený.",
+      "intendedFor": "Účes je určen pro muže s afrem, silně kudrnatými či hustými prstýnkovými vlasy. Je ideální pro zvýraznění přirozené textury s moderním nádechem díky ostrým konturám a čistému fadu kolem uší. Sluší zejména oválným a hranatým obličejům.",
+      "faceShapes": [
+        "oval",
+        "square",
+        "rectangular",
+        "diamond"
+      ],
+      "hairTypes": [
+        "african",
+        "strongly_wavy",
+        "strongly_curly",
+        "curly",
+        "latin"
+      ],
+      "stylingDifficulty": null,
+      "popularity": null,
+      "tag": "AFRO",
+      "barbers": [],
+      "similar": [
+        {
+          "name": "Curly Top s High/Mid Fadem",
+          "webUrl": "/sluzby/kudrnaty-horejsek-se-stredne-vysokym-vytracenim-na-bocich/",
+          "slug": "kudrnaty-horejsek-se-stredne-vysokym-vytracenim-na-bocich"
+        },
+        {
+          "name": "Fluffy účes",
+          "webUrl": "/sluzby/fluffy-uces/",
+          "slug": "fluffy-uces"
+        },
+        {
+          "name": "Middle Fade",
+          "webUrl": "/sluzby/middle-fade/",
+          "slug": "middle-fade"
+        },
+        {
+          "name": "Mohawk na afro vlasech",
+          "webUrl": "/sluzby/mohawk-na-afro-vlasech/",
+          "slug": "mohawk-na-afro-vlasech"
+        }
+      ]
+    },
+    {
+      "id": "8b473993-da50-4423-8ba4-b14dabee52a9",
+      "slug": "blow-taper-fade",
+      "name": "Blow Taper Fade",
+      "webUrl": "/sluzby/blow-taper-fade/",
+      "description": "Blow taper fade je moderní účes, který kombinuje postupně zkracované boky a zadní část hlavy (taper fade) s objemnou a vyfoukanou vrchní partií vlasů. Horní vlasy jsou ponechané delší a upravené do výrazného objemu pomocí fénování (blow dry), což vytváří svěží a dynamický vzhled. Fade začíná v oblasti spánků a za ušima, přechod je jemný a plynulý, takže účes působí přirozeně, ale zároveň velmi čistě. Výrazný kontrast mezi objemným vrškem a kratšími boky zvýrazňuje moderní linie a celkový styl. Kontury kolem čela a spánků jsou upravené tak, aby účes vypadal precizně a upraveně v každé situaci.",
+      "intendedFor": "Účes je ideální pro mladé muže a kluky, kteří sledují trendy a chtějí objemný styl. Je perfektní pro husté, rovné až vlnité vlasy, které drží tvar. Nejlépe sedí k oválným, hranatým nebo diamantovým obličejům, protože nezužuje spánky tak radikálně jako vysoký fade.",
+      "faceShapes": [
+        "oval",
+        "square",
+        "triangle"
+      ],
+      "hairTypes": [
+        "slightly_wavy",
+        "wavy",
+        "european",
+        "latin"
+      ],
+      "stylingDifficulty": 3,
+      "popularity": 3,
+      "tag": "BLOWOUT",
+      "barbers": [
+        {
+          "name": "Barča",
+          "webUrl": "/tym/barca/"
+        },
+        {
+          "name": "Karel",
+          "webUrl": "/tym/karel/"
+        },
+        {
+          "name": "Zlatej",
+          "webUrl": "/tym/zlatej/"
+        }
+      ],
+      "similar": [
+        {
+          "name": "Wavy top s Taper fadem",
+          "webUrl": "/sluzby/wavy-top-s-taper-fadem/",
+          "slug": "wavy-top-s-taper-fadem"
+        },
+        {
+          "name": "Mullet",
+          "webUrl": "/sluzby/mullet/",
+          "slug": "mullet"
+        },
+        {
+          "name": "Curly Top",
+          "webUrl": "/sluzby/curly-top/",
+          "slug": "curly-top"
+        },
+        {
+          "name": "Low Taper Fade",
+          "webUrl": "/sluzby/low-taper-fade/",
+          "slug": "low-taper-fade"
+        },
+        {
+          "name": "Wavy Top s Clean Fadem (černé vlasy)",
+          "webUrl": "/sluzby/vlnity-horejsek-s-cistym-fadem-na-cernych-vlasech/",
+          "slug": "vlnity-horejsek-s-cistym-fadem-na-cernych-vlasech"
+        }
+      ]
+    },
+    {
+      "id": "720dd73a-cc6b-4bda-a342-d565ad940038",
+      "slug": "bowl-cut",
+      "name": "Bowl Cut",
+      "webUrl": "/sluzby/bowl-cut/",
+      "description": "Účes, kde jsou vlasy střiženy rovnoměrně po celé hlavě v jedné délce, často vypadají, jako by byly ostříhány podle hrnce. Vlasy obvykle končí těsně nad ušima, s rovnou linií kolem celé hlavy. Tento styl má charakteristický a výrazný vzhled.",
+      "intendedFor": "Moderní bowl cut je pro odvážné muže a kreativce, kteří chtějí geometrický a texturovaný styl. Je perfektní pro husté, rovné či lehce vlnité vlasy, které padají dopředu. Nejlépe sedí k oválným, užším či diamantovým obličejům, protože schová čelo a opticky rozšiřuje vršek hlavy.",
+      "faceShapes": [
+        "oval",
+        "triangle",
+        "rectangular",
+        "diamond"
+      ],
+      "hairTypes": [
+        "straight",
+        "slightly_wavy",
+        "wavy",
+        "european",
+        "asian"
+      ],
+      "stylingDifficulty": 2,
+      "popularity": 3,
+      "tag": "RETRO",
+      "barbers": [
+        {
+          "name": "Zlatej",
+          "webUrl": "/tym/zlatej/"
+        }
+      ],
+      "similar": [
+        {
+          "name": "Crew Cut",
+          "webUrl": "/sluzby/crew-cut/",
+          "slug": "crew-cut"
+        },
+        {
+          "name": "Caesar Cut",
+          "webUrl": "/sluzby/caesar-cut/",
+          "slug": "caesar-cut"
+        },
+        {
+          "name": "Fluffy účes",
+          "webUrl": "/sluzby/fluffy-uces/",
+          "slug": "fluffy-uces"
+        },
+        {
+          "name": "Burst Fade + Textured Fringe",
+          "webUrl": "/sluzby/burst-fade-textured-fringe/",
+          "slug": "burst-fade-textured-fringe"
+        }
+      ]
+    },
+    {
+      "id": "1737fc5a-1542-44d7-ac74-933ac9e7a3f3",
+      "slug": "bro-flow",
+      "name": "Bro Flow",
+      "webUrl": "/sluzby/bro-flow/",
+      "description": "V překladu ,,splývavý“ střih je považován za klasický, který udržuje středně dlouhé vlasy v moderním, volnějším stylu. Většina těchto jednotlivých střihů je obecně tvarována na delších vlasech, které elegantně splývají a nabízejí všestranný vzhled, který nikdy nevyjde z módy.",
+      "intendedFor": "Bro Flow je ideální pro muže preferující delší, přirozené vlasy bez ostrých přechodů. Je perfektní pro husté, poddajné a mírně vlnité vlasy, které drží směr dozadu. Sluší téměř všem tvarům obličeje, zejména hranatým a diamantovým, u kterých příjemně zjemní ostřejší rysy.",
+      "faceShapes": [
+        "oval",
+        "square",
+        "heart",
+        "rectangular",
+        "diamond"
+      ],
+      "hairTypes": [
+        "straight",
+        "slightly_wavy",
+        "wavy",
+        "european",
+        "latin"
+      ],
+      "stylingDifficulty": 4,
+      "popularity": 3,
+      "tag": "CLASSIC",
+      "barbers": [
+        {
+          "name": "Mia",
+          "webUrl": "/tym/mia/"
+        },
+        {
+          "name": "Ondra",
+          "webUrl": "/tym/ondra/"
+        },
+        {
+          "name": "Rejlis",
+          "webUrl": "/tym/rejlis/"
+        }
+      ],
+      "similar": [
+        {
+          "name": "Mohawk",
+          "webUrl": "/sluzby/mohawk/",
+          "slug": "mohawk"
+        },
+        {
+          "name": "Vpředu byznys vzadu párty",
+          "webUrl": "/sluzby/vpredu-byznys-vzadu-party/",
+          "slug": "vpredu-byznys-vzadu-party"
+        },
+        {
+          "name": "Mullet",
+          "webUrl": "/sluzby/mullet/",
+          "slug": "mullet"
+        },
+        {
+          "name": "Fluffy účes",
+          "webUrl": "/sluzby/fluffy-uces/",
+          "slug": "fluffy-uces"
+        },
+        {
+          "name": "Milionovey účes - Moderní Fluffy",
+          "webUrl": "/sluzby/milionovey-uces-%E2%9A%A1%EF%B8%8F-moderni-fluffy/",
+          "slug": "milionovey-uces-%E2%9A%A1%EF%B8%8F-moderni-fluffy"
+        },
+        {
+          "name": "Bowl Cut",
+          "webUrl": "/sluzby/bowl-cut/",
+          "slug": "bowl-cut"
+        }
+      ]
+    },
+    {
+      "id": "14194b5c-6e21-45e8-953a-68795fba4c34",
+      "slug": "brush-cut",
+      "name": "Brush Cut",
+      "webUrl": "/sluzby/brush-cut/",
+      "description": "Tento minimalistický a vysoce praktický pánský účes je založen na jednotné, velmi krátké délce vlasů na vrchu hlavy, která kopíruje tvar lebky a vytváří čistou texturu připomínající kartáč. Horní partie plynule přechází do vysokého vytracení (High Fade) na bocích a zátylku, které se stahuje až na kůži. Účes je navíc oživen jemným, čistým hair designem (vytlačenými linkami) v zadní spánkové části, což mu dodává moderní a dravý streetový vzhled.",
+      "intendedFor": "Brush cut je ideální pro muže, kteří hledají bezúdržbový účes a nechtějí ztrácet čas stylingem. Je skvělý pro sportovce a muže s hustými či tvrdými vlasy, které se špatně upravují. Nejlépe vynikne na lidech s dobře tvarovanou lebkou a souměrnými rysy (oválný, hranatý obličej).",
+      "faceShapes": [
+        "oval",
+        "square",
+        "rectangular",
+        "diamond"
+      ],
+      "hairTypes": [
+        "straight",
+        "slightly_wavy",
+        "wavy",
+        "european",
+        "asian",
+        "latin"
+      ],
+      "stylingDifficulty": 1,
+      "popularity": 4,
+      "tag": "BUZZ",
+      "barbers": [
+        {
+          "name": "Andrea",
+          "webUrl": "/tym/andrea/"
+        },
+        {
+          "name": "Mia",
+          "webUrl": "/tym/mia/"
+        },
+        {
+          "name": "Ondra",
+          "webUrl": "/tym/ondra/"
+        },
+        {
+          "name": "Rejlis",
+          "webUrl": "/tym/rejlis/"
+        }
+      ],
+      "similar": [
+        {
+          "name": "Buzz Cut",
+          "webUrl": "/sluzby/buzz-cut-2/",
+          "slug": "buzz-cut-2"
+        },
+        {
+          "name": "High Fade",
+          "webUrl": "/sluzby/high-fade/",
+          "slug": "high-fade"
+        },
+        {
+          "name": "Buzz cut + Vystínované vousy",
+          "webUrl": "/sluzby/buzz-cut-vystinovane-vousy/",
+          "slug": "buzz-cut-vystinovane-vousy"
+        },
+        {
+          "name": "Middle Fade",
+          "webUrl": "/sluzby/middle-fade/",
+          "slug": "middle-fade"
+        },
+        {
+          "name": "Krátký crop s high fade",
+          "webUrl": "/sluzby/kratky-crop-s-high-skin-fade/",
+          "slug": "kratky-crop-s-high-skin-fade"
+        },
+        {
+          "name": "Nízký výtrat u uší a na krku (DJ Khaled)",
+          "webUrl": "/sluzby/nizky-vytrat-u-usi-a-na-krku-dj-khaled/",
+          "slug": "nizky-vytrat-u-usi-a-na-krku-dj-khaled"
+        }
+      ]
+    },
+    {
+      "id": "7e982f97-0790-415b-9395-33c52e80032c",
+      "slug": "burst-fade",
+      "name": "Burst Fade",
+      "webUrl": "/sluzby/burst-fade/",
+      "description": "Tento moderní městský účes kombinuje čisté linie a dravou geometrii. Horní část je ostříhána do vrstvené, bohaté textury česané směrem dopředu, která na čele přechází v rovnou, tupě zakončenou ofinu (fringe) typickou pro styl Crop. Boky jsou definovány precizním Burst Fadem – polokruhovým vytracením do kůže soustředěným pouze kolem ucha. Přechod je navíc zvýrazněn ostrou vyholenou linkou, která kopíruje tvar fadu a dodává celkovému vzhledu silný designový prvek.",
+      "intendedFor": "Účes je ideální pro mladé muže a lidi ze streetové komunity, kteří chtějí čistý, geometrický střih. Je perfektní pro husté a rovné vlasy tvořící plnou ofinu. Skvěle sedí k oválným, hranatým nebo delším obličejům, protože rovná ofina opticky zkrátí vysoké čelo a vyváží proporce.",
+      "faceShapes": [
+        "oval",
+        "square",
+        "rectangular",
+        "diamond"
+      ],
+      "hairTypes": [
+        "straight",
+        "slightly_wavy",
+        "wavy",
+        "european",
+        "latin"
+      ],
+      "stylingDifficulty": 3,
+      "popularity": 4,
+      "tag": "TREND",
+      "barbers": [
+        {
+          "name": "Ondra",
+          "webUrl": "/tym/ondra/"
+        },
+        {
+          "name": "Anna",
+          "webUrl": "/tym/anna/"
+        }
+      ],
+      "similar": [
+        {
+          "name": "Krátký Crop",
+          "webUrl": "/sluzby/kratky-crop/",
+          "slug": "kratky-crop"
+        },
+        {
+          "name": "Účes Yzomandias (Crop)",
+          "webUrl": "/sluzby/uces-yzomandias-crop/",
+          "slug": "uces-yzomandias-crop"
+        },
+        {
+          "name": "Burst Fade + Textured Fringe",
+          "webUrl": "/sluzby/burst-fade-textured-fringe/",
+          "slug": "burst-fade-textured-fringe"
+        },
+        {
+          "name": "Mullet",
+          "webUrl": "/sluzby/mullet/",
+          "slug": "mullet"
+        },
+        {
+          "name": "Caesar Cut",
+          "webUrl": "/sluzby/caesar-cut/",
+          "slug": "caesar-cut"
+        },
+        {
+          "name": "French Crop",
+          "webUrl": "/sluzby/french-crop/",
+          "slug": "french-crop"
+        }
+      ]
+    },
+    {
+      "id": "81c5c03d-488c-4c81-8445-c8fde66f0e8b",
+      "slug": "burst-fade-messy-long-french-crop",
+      "name": "Burst Fade + Messy long French Crop",
+      "webUrl": "/sluzby/burst-fade-messy-long-french-crop/",
+      "description": "Messy long French Crop patří mezi středně dlouhé účesy a jeho popularita je čím dál tím oblíbenější primárně ale u mladších zákazníků. Delší hořejšek s vybranými strany, tak by mohl na první pohled tento účes vypadat, ale je vylepšen o takzvaný Burst Fade. Burst Fade Patří mezi momentálně nejoblíbenější typy fadu. Poznáme ho tak že nám připomíná obloukový tvar kolem partii u uší.",
+      "intendedFor": "Účes je stvořený pro teenagery a lidi, kteří milují streetový styl a chtějí vyčnívat. Je ideální pro kluky s hustými, rovnými či lehce vlnitými vlasy s objemem. Skvěle sedí k oválným, hranatým nebo užším obličejům, kde vynikne kontrast mezi vyholeným kruhem kolem uší a bohatým vrškem i zadní částí.",
+      "faceShapes": [
+        "oval",
+        "square",
+        "triangle",
+        "diamond"
+      ],
+      "hairTypes": [
+        "straight",
+        "slightly_wavy",
+        "european",
+        "latin"
+      ],
+      "stylingDifficulty": 4,
+      "popularity": 4,
+      "tag": "TEXTURE",
+      "barbers": [
+        {
+          "name": "Karel",
+          "webUrl": "/tym/karel/"
+        }
+      ],
+      "similar": [
+        {
+          "name": "Mohawk",
+          "webUrl": "/sluzby/mohawk/",
+          "slug": "mohawk"
+        },
+        {
+          "name": "Vpředu byznys vzadu párty",
+          "webUrl": "/sluzby/vpredu-byznys-vzadu-party/",
+          "slug": "vpredu-byznys-vzadu-party"
+        },
+        {
+          "name": "Milionovey účes - Moderní Fluffy",
+          "webUrl": "/sluzby/milionovey-uces-%E2%9A%A1%EF%B8%8F-moderni-fluffy/",
+          "slug": "milionovey-uces-%E2%9A%A1%EF%B8%8F-moderni-fluffy"
+        },
+        {
+          "name": "Mullet",
+          "webUrl": "/sluzby/mullet/",
+          "slug": "mullet"
+        },
+        {
+          "name": "Burst Fade + Textured Fringe",
+          "webUrl": "/sluzby/burst-fade-textured-fringe/",
+          "slug": "burst-fade-textured-fringe"
+        },
+        {
+          "name": "Burst Fade",
+          "webUrl": "/sluzby/burst-fade/",
+          "slug": "burst-fade"
+        }
+      ]
+    },
+    {
+      "id": "bd1e74a4-c0dd-4d2f-822b-53ccd52a5783",
+      "slug": "burst-fade-textured-fringe",
+      "name": "Burst Fade + Textured Fringe",
+      "webUrl": "/sluzby/burst-fade-textured-fringe/",
+      "description": "Hořejšek s texturou, který doplňují vybrané boky připomínající oválný tvar neboli Burst Fade. Na horní části hlavy mohou být vlasy stajlovány přirozeně nebo česané s produktem, například pro objem a strukturu. Tento účes půjde lépe tomu u koho jsou vlasy přirozeně vlnité nebo více poddajné. Na rovných a tvrdých vlasech je tento styl témeř nečesatelný, proto jej v takovém případě rozmlouváme.",
+      "intendedFor": "Účes je ideální pro mladé muže, teenagery a kreativce, kteří chtějí moderní a texturovaný vzhled. Je skvělou volbou pro husté, rovné až mírně vlnité vlasy, kterým dodá směr. Sluší zejména oválným, hranatým či protáhlejším obličejům, na kterých vynikne ostrý polokruhový přechod kolem uší.",
+      "faceShapes": [
+        "square",
+        "oval",
+        "triangle",
+        "diamond"
+      ],
+      "hairTypes": [
+        "straight",
+        "slightly_wavy",
+        "wavy",
+        "european",
+        "latin"
+      ],
+      "stylingDifficulty": 3,
+      "popularity": 4,
+      "tag": "BURST",
+      "barbers": [
+        {
+          "name": "Saša",
+          "webUrl": "/tym/sasa/"
+        }
+      ],
+      "similar": [
+        {
+          "name": "Burst Fade",
+          "webUrl": "/sluzby/burst-fade/",
+          "slug": "burst-fade"
+        },
+        {
+          "name": "Mullet",
+          "webUrl": "/sluzby/mullet/",
+          "slug": "mullet"
+        },
+        {
+          "name": "Taper Fade + Mullet",
+          "webUrl": "/sluzby/taper-fade-mullet/",
+          "slug": "taper-fade-mullet"
+        },
+        {
+          "name": "Temple Fade",
+          "webUrl": "/sluzby/temple-fade/",
+          "slug": "temple-fade"
+        },
+        {
+          "name": "Blow Taper Fade",
+          "webUrl": "/sluzby/blow-taper-fade/",
+          "slug": "blow-taper-fade"
+        },
+        {
+          "name": "Burst Fade + Messy long French Crop",
+          "webUrl": "/sluzby/burst-fade-messy-long-french-crop/",
+          "slug": "burst-fade-messy-long-french-crop"
+        }
+      ]
+    },
+    {
+      "id": "385a5415-f847-48b6-9235-355f299b9357",
+      "slug": "buzz-cut-2",
+      "name": "Buzz Cut",
+      "webUrl": "/sluzby/buzz-cut-2/",
+      "description": "Tento střih představuje absolutní špičku v oblasti krátkých, bezúdržbových pánských účesů. Horní část hlavy je srovnána mašinkou na velmi krátkou, jednotnou délku, která vytváří čistý stínový efekt. Hlavním prvkem je High Skin Fade – nekompromisně vysoké vytracení boků a zátylku, které začíná od úplné nuly a plynule přechází do vrchní délky. Účes doplňují ostře řezané kontury na spáncích a čele, které podtrhují celkový čistý a upravený vzhled.",
+      "intendedFor": "Buzz Cut s vysokým fadem je pro muže a sportovce, kteří nechtějí ztrácet čas stylingem a chtějí drsnější military/street vzhled. Sedí k hustým, tvrdým vlasům a souměrné lebce. Skvěle se doplňuje se strništěm či krátkým plnovousem, který vyváží proporce obličeje.",
+      "faceShapes": [
+        "oval",
+        "square",
+        "rectangular",
+        "diamond"
+      ],
+      "hairTypes": [
+        "straight",
+        "slightly_wavy",
+        "wavy",
+        "curly",
+        "european",
+        "latin",
+        "asian"
+      ],
+      "stylingDifficulty": 1,
+      "popularity": 4,
+      "tag": "SVĚŽÍ",
+      "barbers": [
+        {
+          "name": "Alex",
+          "webUrl": "/tym/alex/"
+        },
+        {
+          "name": "Lukáš",
+          "webUrl": "/tym/lukas/"
+        },
+        {
+          "name": "Maty",
+          "webUrl": "/tym/maty/"
+        },
+        {
+          "name": "Andrea",
+          "webUrl": "/tym/andrea/"
+        },
+        {
+          "name": "Mia",
+          "webUrl": "/tym/mia/"
+        },
+        {
+          "name": "Rejlis",
+          "webUrl": "/tym/rejlis/"
+        },
+        {
+          "name": "Anna",
+          "webUrl": "/tym/anna/"
+        }
+      ],
+      "similar": [
+        {
+          "name": "High Fade",
+          "webUrl": "/sluzby/high-fade/",
+          "slug": "high-fade"
+        },
+        {
+          "name": "Krátký Crop",
+          "webUrl": "/sluzby/kratky-crop/",
+          "slug": "kratky-crop"
+        },
+        {
+          "name": "French Crop",
+          "webUrl": "/sluzby/french-crop/",
+          "slug": "french-crop"
+        },
+        {
+          "name": "Crop",
+          "webUrl": "/sluzby/crop/",
+          "slug": "crop"
+        },
+        {
+          "name": "Krátký crop s high fade",
+          "webUrl": "/sluzby/kratky-crop-s-high-skin-fade/",
+          "slug": "kratky-crop-s-high-skin-fade"
+        },
+        {
+          "name": "Účes Michael B. Jordan (Buzz Cut)",
+          "webUrl": "/sluzby/uces-michael-b-jordan-buzz-cut/",
+          "slug": "uces-michael-b-jordan-buzz-cut"
+        }
+      ]
+    },
+    {
+      "id": "a6c2fd00-b725-4d70-a0d6-38a5f8849d41",
+      "slug": "buzz-cut-vystinovane-vousy",
+      "name": "Buzz cut + Vystínované vousy",
+      "webUrl": "/sluzby/buzz-cut-vystinovane-vousy/",
+      "description": "Je krátký účes u kterého jsou vlasy střiženy na stejnou délku po celém vršku hlavy. U tohoto účesu se používají primárně holicí strojky různých typů. Strany se daji přizpůsobit podle potřeby klienta. Převážně se k buzzcutu doporučuje midfade nebo highfade. Vousy jsou pak individuální volbou, konkrétně tyto jsou vystínované tak aby plynule navazovali na vlasy a to od 0,0 mm po 1.5 cm na bradě.",
+      "intendedFor": "Styl pro muže, kteří chtějí praktický, sportovní a ostrý vzhled. Je perfektní v kontrastu s plnovousem a skvěle maskuje drobné kouty. Vhodný pro všechny typy a tvrdosti vlasů. Vyžaduje však návštěvu barbera cca jednou za 2 týdny pro udržení ostrých přechodů.",
+      "faceShapes": [
+        "oval",
+        "square",
+        "round",
+        "rectangular",
+        "diamond"
+      ],
+      "hairTypes": [
+        "straight",
+        "slightly_wavy",
+        "wavy",
+        "curly",
+        "european",
+        "latin",
+        "asian"
+      ],
+      "stylingDifficulty": 1,
+      "popularity": 4,
+      "tag": "SVĚŽÍ",
+      "barbers": [
+        {
+          "name": "Alex",
+          "webUrl": "/tym/alex/"
+        },
+        {
+          "name": "Maty",
+          "webUrl": "/tym/maty/"
+        },
+        {
+          "name": "Karel",
+          "webUrl": "/tym/karel/"
+        },
+        {
+          "name": "Saša",
+          "webUrl": "/tym/sasa/"
+        },
+        {
+          "name": "Rejlis",
+          "webUrl": "/tym/rejlis/"
+        }
+      ],
+      "similar": [
+        {
+          "name": "Buzz Cut",
+          "webUrl": "/sluzby/buzz-cut-2/",
+          "slug": "buzz-cut-2"
+        },
+        {
+          "name": "High Fade",
+          "webUrl": "/sluzby/high-fade/",
+          "slug": "high-fade"
+        },
+        {
+          "name": "Crew Cut",
+          "webUrl": "/sluzby/crew-cut/",
+          "slug": "crew-cut"
+        },
+        {
+          "name": "Crop",
+          "webUrl": "/sluzby/crop/",
+          "slug": "crop"
+        },
+        {
+          "name": "Krátký crop s high fade",
+          "webUrl": "/sluzby/kratky-crop-s-high-skin-fade/",
+          "slug": "kratky-crop-s-high-skin-fade"
+        },
+        {
+          "name": "Účes Eminem (Buzz Cut)",
+          "webUrl": "/sluzby/uces-eminem-buzz-cut/",
+          "slug": "uces-eminem-buzz-cut"
+        }
+      ]
+    },
+    {
+      "id": "8caa3d81-d416-48c7-a410-ede2b1714ad2",
+      "slug": "caesar-cut",
+      "name": "Caesar Cut",
+      "webUrl": "/sluzby/caesar-cut/",
+      "description": "Tento klasický, historicky inspirovaný účes v moderním pojetí sází na silnou geometrii a výraznou strukturu. Horní část vlasů je ostříhána do vrstvené textury a stylována směrem dopředu, kde končí ikonickou, velmi krátkou a naprosto rovnou ofinou (horizontální linie na čele). Boky a zátylek jsou vytraceny precizním přechodem (Fade), který plynule odkrývá kůži kolem uší a dodává střihu moderní, ostrý barberský vzhled v kontrastu s plnějším vrškem.",
+      "intendedFor": "Caesar Cut je ideální pro muže a kluky, kteří mají rádi krátké, geometrické účesy. Skvěle kryje vysoké čelo nebo začínající kouty díky ofině směřující dopředu. Nejlépe funguje na hustých, rovných až lehce vlnitých vlasech. Sluší zejména oválným, delším a diamantovým tvarům obličeje.",
+      "faceShapes": [
+        "oval",
+        "square",
+        "rectangular",
+        "diamond"
+      ],
+      "hairTypes": [
+        "straight",
+        "slightly_wavy",
+        "wavy",
+        "latin",
+        "european"
+      ],
+      "stylingDifficulty": 2,
+      "popularity": 4,
+      "tag": "COOL",
+      "barbers": [
+        {
+          "name": "Saša",
+          "webUrl": "/tym/sasa/"
+        },
+        {
+          "name": "Andrej",
+          "webUrl": "/tym/andrej/"
+        }
+      ],
+      "similar": [
+        {
+          "name": "Krátký Crop",
+          "webUrl": "/sluzby/kratky-crop/",
+          "slug": "kratky-crop"
+        },
+        {
+          "name": "Buzz cut + Vystínované vousy",
+          "webUrl": "/sluzby/buzz-cut-vystinovane-vousy/",
+          "slug": "buzz-cut-vystinovane-vousy"
+        },
+        {
+          "name": "Buzz Cut",
+          "webUrl": "/sluzby/buzz-cut-2/",
+          "slug": "buzz-cut-2"
+        },
+        {
+          "name": "Burst Fade",
+          "webUrl": "/sluzby/burst-fade/",
+          "slug": "burst-fade"
+        },
+        {
+          "name": "Texturovaný Účes",
+          "webUrl": "/sluzby/texturovany-uces/",
+          "slug": "texturovany-uces"
+        }
+      ]
+    },
+    {
+      "id": "526a6bb6-6dcc-4f03-92e4-5e4f6221b8df",
+      "slug": "crew-cut",
+      "name": "Crew Cut",
+      "webUrl": "/sluzby/crew-cut/",
+      "description": "Je charakterizován krátkými vlasy na stranách a o něco delšími vlasy na temeni hlavy. Vlasy jsou postupně sestříhané, což vytváří jemný přechod mezi kratšími stranami s delší horní částí hlavy. Horní část může být upravena podle osobních preferencí.",
+      "intendedFor": "Crew Cut je ideální kompromis mezi bezúdržbovým Buzz Cutem a delším účesem. Hodí se pro sportovce, manažery i studenty, kteří ocení bleskovou ranní úpravu s kapkou pudru či hlíny. Je perfektní pro husté, rovné vlasy a nejlépe sedí k oválným či hranatým obličejům s výraznou čelistí.",
+      "faceShapes": [
+        "oval",
+        "square",
+        "rectangular",
+        "diamond"
+      ],
+      "hairTypes": [
+        "straight",
+        "slightly_wavy",
+        "wavy",
+        "european",
+        "asian",
+        "latin"
+      ],
+      "stylingDifficulty": 2,
+      "popularity": 4,
+      "tag": "PÁRTY",
+      "barbers": [],
+      "similar": [
+        {
+          "name": "Ivy League Cut",
+          "webUrl": "/sluzby/ivy-league-cut/",
+          "slug": "ivy-league-cut"
+        },
+        {
+          "name": "Brush Cut",
+          "webUrl": "/sluzby/brush-cut/",
+          "slug": "brush-cut"
+        },
+        {
+          "name": "Caesar Cut",
+          "webUrl": "/sluzby/caesar-cut/",
+          "slug": "caesar-cut"
+        },
+        {
+          "name": "French Crop",
+          "webUrl": "/sluzby/french-crop/",
+          "slug": "french-crop"
+        },
+        {
+          "name": "Curly Top s High/Mid Fadem",
+          "webUrl": "/sluzby/kudrnaty-horejsek-se-stredne-vysokym-vytracenim-na-bocich/",
+          "slug": "kudrnaty-horejsek-se-stredne-vysokym-vytracenim-na-bocich"
+        }
+      ]
+    },
+    {
+      "id": "ef649787-8b6a-400d-a630-18b77c154129",
+      "slug": "crop",
+      "name": "Crop",
+      "webUrl": "/sluzby/crop/",
+      "description": "Kratší účes, kde jsou vlasy na vrchu hlavy ponechány o něco delší a často se stylizují do texturovaného nebo rozcuchaného vzhledu. Boky a zadní část hlavy jsou obvykle kratší, což dodává účesu moderní a svěží vzhled. Tento styl je populární pro svůj ležérní, ale zároveň upravený vzhled.",
+      "intendedFor": "French Crop je pro mladé muže a příznivce street fashion. Je to perfektní řešení pro optické zkrácení vysokého čela nebo elegantní zakrytí začínajících koutů. Nejlépe vynikne na hustých, rovných až mírně poddajných vlasech, které padají dopředu a tvoří plnou linii ofiny.",
+      "faceShapes": [
+        "oval",
+        "square",
+        "rectangular",
+        "diamond"
+      ],
+      "hairTypes": [
+        "straight",
+        "slightly_wavy",
+        "wavy",
+        "european",
+        "latin",
+        "asian"
+      ],
+      "stylingDifficulty": 3,
+      "popularity": 3,
+      "tag": "IN",
+      "barbers": [
+        {
+          "name": "Alex",
+          "webUrl": "/tym/alex/"
+        },
+        {
+          "name": "Maty",
+          "webUrl": "/tym/maty/"
+        },
+        {
+          "name": "Andrea",
+          "webUrl": "/tym/andrea/"
+        }
+      ],
+      "similar": [
+        {
+          "name": "Krátký Crop",
+          "webUrl": "/sluzby/kratky-crop/",
+          "slug": "kratky-crop"
+        },
+        {
+          "name": "Krátký crop s high fade",
+          "webUrl": "/sluzby/kratky-crop-s-high-skin-fade/",
+          "slug": "kratky-crop-s-high-skin-fade"
+        },
+        {
+          "name": "Texturovaný Účes",
+          "webUrl": "/sluzby/texturovany-uces/",
+          "slug": "texturovany-uces"
+        },
+        {
+          "name": "Texturovaný crop + drop fade",
+          "webUrl": "/sluzby/texturovany-crop-drop-fade/",
+          "slug": "texturovany-crop-drop-fade"
+        },
+        {
+          "name": "Caesar Cut",
+          "webUrl": "/sluzby/caesar-cut/",
+          "slug": "caesar-cut"
+        }
+      ]
+    },
+    {
+      "id": "5cde8d21-bc77-41b5-b30d-f9594dfbc106",
+      "slug": "curly-fringe",
+      "name": "Curly Fringe",
+      "webUrl": "/sluzby/curly-fringe/",
+      "description": "Tento moderní, ležérní styl staví do popředí přirozenou strukturu vlnitých vlasů. Celý účes je střižen nůžkami s důrazem na bohatou texturu na vrchu hlavy, která plynule padá dopředu a vytváří na čele plnou, přirozeně zvlněnou ofinu (fringe). Boky a zátylek nejsou vyholeny vysoko, ale jsou upraveny jemným a čistým Low Taper Fadem pouze kolem kotlet a na spodní linii krku. Účes si tak zachovává plnost, organický tvar a mladistvý, uvolněný vzhled.",
+      "intendedFor": "Účes je ideální pro mladé muže a kluky s vlnitými či mírně kudrnatými vlasy, kteří chtějí nechat vyniknout jejich texturu. Je skvělou volbou, pokud preferujete organický vzhled před ostrými, vysoko vyholenými přechody. Perfektně maskuje vyšší čelo a nejlépe sedí k oválným, užším nebo diamantovým obličejům.",
+      "faceShapes": [
+        "oval",
+        "heart",
+        "triangle",
+        "rectangular",
+        "diamond"
+      ],
+      "hairTypes": [
+        "slightly_wavy",
+        "wavy",
+        "curly",
+        "european",
+        "latin"
+      ],
+      "stylingDifficulty": 3,
+      "popularity": 4,
+      "tag": "IKONA",
+      "barbers": [
+        {
+          "name": "Zlatej",
+          "webUrl": "/tym/zlatej/"
+        },
+        {
+          "name": "Mia",
+          "webUrl": "/tym/mia/"
+        },
+        {
+          "name": "Ondra",
+          "webUrl": "/tym/ondra/"
+        }
+      ],
+      "similar": [
+        {
+          "name": "Fluffy účes",
+          "webUrl": "/sluzby/fluffy-uces/",
+          "slug": "fluffy-uces"
+        },
+        {
+          "name": "Wavy top s Taper fadem",
+          "webUrl": "/sluzby/wavy-top-s-taper-fadem/",
+          "slug": "wavy-top-s-taper-fadem"
+        },
+        {
+          "name": "Texturovaný crop + drop fade",
+          "webUrl": "/sluzby/texturovany-crop-drop-fade/",
+          "slug": "texturovany-crop-drop-fade"
+        },
+        {
+          "name": "Texturovaný Účes",
+          "webUrl": "/sluzby/texturovany-uces/",
+          "slug": "texturovany-uces"
+        },
+        {
+          "name": "Bowl Cut",
+          "webUrl": "/sluzby/bowl-cut/",
+          "slug": "bowl-cut"
+        }
+      ]
+    },
+    {
+      "id": "f1eefeb4-5712-4ff4-8539-efb472f325db",
+      "slug": "curly-top",
+      "name": "Curly Top",
+      "webUrl": "/sluzby/curly-top/",
+      "description": "Vyznačuje se výraznou kudrnatou horní částí vlasů s kratšími nebo vyholenými strany. Kudrliny na horní části hlavy mohou být přirozeně volné nebo upravené stylingovým produktem, což dodá objem a strukturu.",
+      "intendedFor": "Účes je stvořený pro muže a kluky s přirozenými kudrnami, které chtějí nechat vyniknout. Je ideální pro ty, kteří vyžadují čistý, upravený krk, ale nechtějí přijít o hustotu na bocích a temeni. Sluší zejména oválným, hranatým a diamantovým obličejům.",
+      "faceShapes": [
+        "oval",
+        "square",
+        "rectangular",
+        "diamond"
+      ],
+      "hairTypes": [
+        "slightly_wavy",
+        "strongly_wavy",
+        "wavy",
+        "curly",
+        "strongly_curly",
+        "european",
+        "latin"
+      ],
+      "stylingDifficulty": 3,
+      "popularity": 3,
+      "tag": "MODEL",
+      "barbers": [
+        {
+          "name": "Alex",
+          "webUrl": "/tym/alex/"
+        }
+      ],
+      "similar": [
+        {
+          "name": "Curly Top s High/Mid Fadem",
+          "webUrl": "/sluzby/kudrnaty-horejsek-se-stredne-vysokym-vytracenim-na-bocich/",
+          "slug": "kudrnaty-horejsek-se-stredne-vysokym-vytracenim-na-bocich"
+        },
+        {
+          "name": "Curly Fringe",
+          "webUrl": "/sluzby/curly-fringe/",
+          "slug": "curly-fringe"
+        },
+        {
+          "name": "Fluffy účes",
+          "webUrl": "/sluzby/fluffy-uces/",
+          "slug": "fluffy-uces"
+        },
+        {
+          "name": "Wavy top s Taper fadem",
+          "webUrl": "/sluzby/wavy-top-s-taper-fadem/",
+          "slug": "wavy-top-s-taper-fadem"
+        }
+      ]
+    },
+    {
+      "id": "8b16f5fd-81c1-41ed-81ca-358409b589a5",
+      "slug": "kudrnaty-horejsek-se-stredne-vysokym-vytracenim-na-bocich",
+      "name": "Curly Top s High/Mid Fadem",
+      "webUrl": "/sluzby/kudrnaty-horejsek-se-stredne-vysokym-vytracenim-na-bocich/",
+      "description": "Dominancí jsou výrazné kudrnaté vlasy, které doplňují na krátko střižené boky. Kudrliny na horní části hlavy mohou být přirozeně volné nebo upravené stylingovým produktem, což dodá objem a strukturu. Tento účes půjde lépe tomu u koho jsou vlasy přirozeně vlnité nebo více poddajné. Na rovných a tvrdých vlasech je tento styl témeř nečesatelný, proto jej v takovém případě rozmlouváme.",
+      "intendedFor": "Účes je obrovským trendem pro teenagery s vlnitými či kudrnatými vlasy, kteří chtějí nechat vyniknout jejich organický pohyb. Nabízí moderní, vzdušný styl v kombinaci s čistými, vyholenými boky. Nejlépe sedí k oválným, hranatým, užším nebo diamantovým obličejům.",
+      "faceShapes": [
+        "oval",
+        "square",
+        "triangle",
+        "diamond",
+        "rectangular"
+      ],
+      "hairTypes": [
+        "slightly_wavy",
+        "wavy",
+        "european",
+        "latin"
+      ],
+      "stylingDifficulty": 3,
+      "popularity": 5,
+      "tag": "STYLE",
+      "barbers": [],
+      "similar": [
+        {
+          "name": "Fluffy účes",
+          "webUrl": "/sluzby/fluffy-uces/",
+          "slug": "fluffy-uces"
+        },
+        {
+          "name": "Curly Top",
+          "webUrl": "/sluzby/curly-top/",
+          "slug": "curly-top"
+        },
+        {
+          "name": "Taper Fade + Mullet",
+          "webUrl": "/sluzby/taper-fade-mullet/",
+          "slug": "taper-fade-mullet"
+        },
+        {
+          "name": "Burst Fade",
+          "webUrl": "/sluzby/burst-fade/",
+          "slug": "burst-fade"
+        }
+      ]
+    },
+    {
+      "id": "a9d1f799-1e03-43db-bec2-897184b274b2",
+      "slug": "cerne-vlasy-s-low-taperfade",
+      "name": "Černé vlasy s low Taper Fade",
+      "webUrl": "/sluzby/cerne-vlasy-s-low-taperfade/",
+      "description": "Low taper fade na černých vlasech je elegantní účes, který se vyznačuje postupným přechodem délky vlasů od kratších po delší, přičemž přechod začíná nízko nad ušima a krkem. Tento styl nabízí čistý, upravený vzhled, kde je kontrast mezi nejkratší a nejdelší částí vlasů jemný a plynulý. Na černých vlasech vypadá tento účes obzvláště výrazně díky přirozené textuře a objemu.  Vrchní část vlasů zůstává delší, což poskytuje prostor pro různé stylingové možnosti – můžete je upravit do textury, nechat přirozeně kudrnaté, nebo je uhladit. Stylingové produkty jako matující pasty, vosky pomáhají zdůraznit texturu a zajistit, že účes vydrží v požadovaném tvaru po celý den. Low taper fade je nenáročný na údržbu, ale pro zachování ostrých linií a přechodů je důležité pravidelné zastřihávání.",
+      "intendedFor": "Účes je ideální pro mladé muže a teenagery s hustými, tmavými vlasy, kteří chtějí moderní streetový styl s velkým objemem. Je dokonalou volbou pro ty, co odmítají vysoko vyholené boky a preferují přirozenější tvary s čistým krkem. Skvěle funguje na rovných i mírně poddajných vlasech.",
+      "faceShapes": [
+        "oval",
+        "square",
+        "heart",
+        "triangle",
+        "rectangular",
+        "diamond"
+      ],
+      "hairTypes": [
+        "straight",
+        "slightly_wavy",
+        "european",
+        "asian",
+        "latin"
+      ],
+      "stylingDifficulty": 3,
+      "popularity": 3,
+      "tag": "VOLUME",
+      "barbers": [
+        {
+          "name": "Andrej",
+          "webUrl": "/tym/andrej/"
+        },
+        {
+          "name": "Barča",
+          "webUrl": "/tym/barca/"
+        },
+        {
+          "name": "Anna",
+          "webUrl": "/tym/anna/"
+        },
+        {
+          "name": "Zlatej",
+          "webUrl": "/tym/zlatej/"
+        }
+      ],
+      "similar": [
+        {
+          "name": "Milionovey účes - Moderní Fluffy",
+          "webUrl": "/sluzby/milionovey-uces-%E2%9A%A1%EF%B8%8F-moderni-fluffy/",
+          "slug": "milionovey-uces-%E2%9A%A1%EF%B8%8F-moderni-fluffy"
+        },
+        {
+          "name": "Bro Flow",
+          "webUrl": "/sluzby/bro-flow/",
+          "slug": "bro-flow"
+        },
+        {
+          "name": "Pompadour",
+          "webUrl": "/sluzby/pompadour/",
+          "slug": "pompadour"
+        },
+        {
+          "name": "Slick Back",
+          "webUrl": "/sluzby/slick-back/",
+          "slug": "slick-back"
+        },
+        {
+          "name": "Blow Taper Fade",
+          "webUrl": "/sluzby/blow-taper-fade/",
+          "slug": "blow-taper-fade"
+        }
+      ]
+    },
+    {
+      "id": "8b7dca29-94da-4833-b11c-f3bc89b64816",
+      "slug": "drop-fade",
+      "name": "Drop Fade",
+      "webUrl": "/sluzby/drop-fade/",
+      "description": "Tento vysoce moderní účes je definován precizní technikou Drop Fade, kdy linie vytracení na bocích nesleduje rovnou přímku, ale kolem ucha se plynule svažuje (padá) směrem dolů k zátylku. Tím vzniká elegantní a čistý kontrast, který zachovává plnost v zadní horní části hlavy. Vrchní partie vlasů je ostříhána do bohaté, plastické textury a nastylována směrem dopředu a lehce nahoru, což účesu dodává vzdušný objem, pohyb a moderní, mladistvý šmrnc.",
+      "intendedFor": "Drop Fade s texturovaným vrškem je pro mladé muže, kteří chtějí čistě vytracené boky, ale zároveň plný účes s výrazným objemem. Je ideální pro husté, rovné či lehce vlnitái vlasy. Skvěle sedí k oválným, hranatým, užším či diamantovým obličejům, kde podtrhne přirozené rysy a dodá hlavě skvělý profil.",
+      "faceShapes": [
+        "oval",
+        "square",
+        "triangle",
+        "rectangular",
+        "diamond"
+      ],
+      "hairTypes": [
+        "straight",
+        "slightly_wavy",
+        "wavy",
+        "european",
+        "latin"
+      ],
+      "stylingDifficulty": 3,
+      "popularity": 4,
+      "tag": "VOLUME",
+      "barbers": [
+        {
+          "name": "Zlatej",
+          "webUrl": "/tym/zlatej/"
+        },
+        {
+          "name": "Andrej",
+          "webUrl": "/tym/andrej/"
+        }
+      ],
+      "similar": [
+        {
+          "name": "Fluffy účes",
+          "webUrl": "/sluzby/fluffy-uces/",
+          "slug": "fluffy-uces"
+        },
+        {
+          "name": "Curly Top",
+          "webUrl": "/sluzby/curly-top/",
+          "slug": "curly-top"
+        },
+        {
+          "name": "Taper Fade",
+          "webUrl": "/sluzby/taper-fade/",
+          "slug": "taper-fade"
+        },
+        {
+          "name": "Burst Fade + Messy long French Crop",
+          "webUrl": "/sluzby/burst-fade-messy-long-french-crop/",
+          "slug": "burst-fade-messy-long-french-crop"
+        },
+        {
+          "name": "Texturovaný crop + drop fade",
+          "webUrl": "/sluzby/texturovany-crop-drop-fade/",
+          "slug": "texturovany-crop-drop-fade"
+        }
+      ]
+    },
+    {
+      "id": "a6bc575b-3d22-4d09-9310-baf6b06e5796",
+      "slug": "elegantne-nacesane-vlasy-dozadu-s-vytratem-na-krku",
+      "name": "Elegantně načesané vlasy dozadu s výtratem na krku",
+      "webUrl": "/sluzby/elegantne-nacesane-vlasy-dozadu-s-vytratem-na-krku/",
+      "description": "Tento nadčasový, elegantní a vysoce reprezentativní styl staví na precizní práci nůžkami. Celý účes si zachovává delší, klasicky vrstvené partie, které jsou upraveny lehkým stylingem směrem dozadu a do stran, což dává vyniknout přirozenému objemu a textuře vlasů. Moderní a čistý prvek zde tvoří Low Taper Fade – velmi nízké, decentní vytracení na spodní linii krku a kolem kotlet. Účes si tak uchovává plný, gentlemanský charakter bez radikálního vyholování spánků.",
+      "intendedFor": "Účes je ideální pro zralé muže, byznysmeny a gentlemany, kteří hledají reprezentativní a seriózní styl. Je perfektní pro husté, poddajné a mírně prošedivělé vlasy. Skvěle doplňuje upravené vousy a nejlépe sedí k oválným, hranatým či obdélníkovým obličejům.",
+      "faceShapes": [
+        "oval",
+        "square",
+        "heart",
+        "rectangular",
+        "diamond"
+      ],
+      "hairTypes": [
+        "straight",
+        "slightly_wavy",
+        "wavy",
+        "european"
+      ],
+      "stylingDifficulty": 3,
+      "popularity": 3,
+      "tag": "ELEGANT",
+      "barbers": [
+        {
+          "name": "Lukáš",
+          "webUrl": "/tym/lukas/"
+        },
+        {
+          "name": "Alex",
+          "webUrl": "/tym/alex/"
+        }
+      ],
+      "similar": [
+        {
+          "name": "Old Money Haircut",
+          "webUrl": "/sluzby/old-money-haircut/",
+          "slug": "old-money-haircut"
+        },
+        {
+          "name": "Slick Back",
+          "webUrl": "/sluzby/slick-back/",
+          "slug": "slick-back"
+        }
+      ]
+    },
+    {
+      "id": "7ab7c4b7-fdc0-4096-a303-986ec956a34b",
+      "slug": "faux-hawk-2",
+      "name": "Faux Hawk",
+      "webUrl": "/sluzby/faux-hawk-2/",
+      "description": "Účes, kde vlasy na vršku hlavy zůstávají delší a jsou stylizovány nahoru to dodává jakousi lehkou nadýchanost. Boky a zadní část hlavy jsou většinou střiženy kratší, což vytváří kontrast a tím obličej protahuje. Tento účes konkrétně zahrnuje techniku Middle Fade na bocích. K tomu jsou také upraveny vousy, které mají spíše zaoblené linie a tím parádně ladí k celkovému dojmu z účesu. Tento styl je moderní a zároveň se hodí na různé příležitosti.",
+      "intendedFor": "Faux Hawk je ideální pro muže, kteří chtějí dravý, texturovaný účes s objemem, ale ne radikální číro. Je perfektní pro husté a pevné vlasy držící směr nahoru. Sluší téměř všem typům obličeje, obzvlášť kulatým a oválným, kterým dodá ostřejší rysy a optickou výšku.",
+      "faceShapes": [
+        "oval",
+        "square",
+        "round",
+        "rectangular",
+        "diamond"
+      ],
+      "hairTypes": [
+        "straight",
+        "slightly_wavy",
+        "wavy",
+        "european",
+        "latin"
+      ],
+      "stylingDifficulty": 2,
+      "popularity": 3,
+      "tag": "STŘIH",
+      "barbers": [
+        {
+          "name": "Rejlis",
+          "webUrl": "/tym/rejlis/"
+        }
+      ],
+      "similar": [
+        {
+          "name": "Mohawk",
+          "webUrl": "/sluzby/mohawk/",
+          "slug": "mohawk"
+        },
+        {
+          "name": "Mullet",
+          "webUrl": "/sluzby/mullet/",
+          "slug": "mullet"
+        },
+        {
+          "name": "Mohawk na afro vlasech",
+          "webUrl": "/sluzby/mohawk-na-afro-vlasech/",
+          "slug": "mohawk-na-afro-vlasech"
+        },
+        {
+          "name": "Faux Hawk",
+          "webUrl": "/sluzby/faux-hawk-2/",
+          "slug": "faux-hawk-2"
+        },
+        {
+          "name": "Burst Fade + Messy long French Crop",
+          "webUrl": "/sluzby/burst-fade-messy-long-french-crop/",
+          "slug": "burst-fade-messy-long-french-crop"
+        }
+      ]
+    },
+    {
+      "id": "7feeef92-9c9f-4e0f-9eb6-07a7ea90dcbc",
+      "slug": "faux-hawk",
+      "name": "Faux Hawk s pěšinkou",
+      "webUrl": "/sluzby/faux-hawk/",
+      "description": "Vlasy na stranách jsou krátce zastřižené a střední část vlasů je ponechána delší, aby vytvářela efekt falešného mohawku. Vlasy na horní části hlavy jsou obvykle zvednuty směrem nahoru, což vytváří dynamický a odvážný vzhled.",
+      "intendedFor": "Účes je stvořený pro mladé muže a kreativce, kteří chtějí originální, dravý vzhled a rádi vybočují z řady. Je ideální pro husté, rovné či mírně poddajné vlasy, které drží tvar. Nejlépe vynikne na lidech s výraznou čelistí a oválným či hranatým tvarem obličeje.",
+      "faceShapes": [
+        "oval",
+        "square",
+        "triangle",
+        "rectangular",
+        "diamond"
+      ],
+      "hairTypes": [
+        "straight",
+        "slightly_wavy",
+        "wavy",
+        "european",
+        "latin"
+      ],
+      "stylingDifficulty": 4,
+      "popularity": 4,
+      "tag": "MLAĎAS",
+      "barbers": [
+        {
+          "name": "Rejlis",
+          "webUrl": "/tym/rejlis/"
+        }
+      ],
+      "similar": [
+        {
+          "name": "Mohawk",
+          "webUrl": "/sluzby/mohawk/",
+          "slug": "mohawk"
+        },
+        {
+          "name": "Mullet",
+          "webUrl": "/sluzby/mullet/",
+          "slug": "mullet"
+        },
+        {
+          "name": "Mohawk na afro vlasech",
+          "webUrl": "/sluzby/mohawk-na-afro-vlasech/",
+          "slug": "mohawk-na-afro-vlasech"
+        },
+        {
+          "name": "Faux Hawk",
+          "webUrl": "/sluzby/faux-hawk-2/",
+          "slug": "faux-hawk-2"
+        },
+        {
+          "name": "Burst Fade + Messy long French Crop",
+          "webUrl": "/sluzby/burst-fade-messy-long-french-crop/",
+          "slug": "burst-fade-messy-long-french-crop"
+        }
+      ]
+    },
+    {
+      "id": "af9df3e5-e6ab-49a9-a232-a8e82c792816",
+      "slug": "fluffy-uces",
+      "name": "Fluffy účes",
+      "webUrl": "/sluzby/fluffy-uces/",
+      "description": "Tento styl se vyznačuje výrazným objemem a jemně rozvolněnými prameny, které působí lehce a přirozeně. Vlasy nejsou přísně uhlazené, nýbrž mají mírně rozevlátou texturu, jež dodává celkovému vzhledu dynamiku a svěžest. Fluffy účes lze vytvořit na vlasech různých délek. U kratších střihů dodává zajímavý rozměr, delším vlasům propůjčuje romantický nádech. Pro dosažení tohoto efektu se běžně používá fén v kombinaci s kulatým kartáčem, případně objemové přípravky aplikované u kořínků.",
+      "intendedFor": "Účes je hitem pro teenagery s vlnitými či kudrnatými vlasy, kteří chtějí ležérní vzhled s objemem. Je ideální pro kluky s hustou kšticí preferující měkčí, organické tvary bez vysokého vyholení. Skvěle sedí k oválným, hranatým nebo diamantovým obličejům a perfektně schová vyšší čelo.",
+      "faceShapes": [
+        "oval",
+        "square",
+        "heart",
+        "rectangular",
+        "diamond"
+      ],
+      "hairTypes": [
+        "wavy",
+        "curly",
+        "strongly_curly",
+        "european",
+        "latin"
+      ],
+      "stylingDifficulty": 3,
+      "popularity": 5,
+      "tag": "BROKOLICE",
+      "barbers": [
+        {
+          "name": "Rejlis",
+          "webUrl": "/tym/rejlis/"
+        },
+        {
+          "name": "Karel",
+          "webUrl": "/tym/karel/"
+        },
+        {
+          "name": "Mia",
+          "webUrl": "/tym/mia/"
+        }
+      ],
+      "similar": [
+        {
+          "name": "Wavy Top s Clean Fadem (černé vlasy)",
+          "webUrl": "/sluzby/vlnity-horejsek-s-cistym-fadem-na-cernych-vlasech/",
+          "slug": "vlnity-horejsek-s-cistym-fadem-na-cernych-vlasech"
+        },
+        {
+          "name": "Vlnitý hořejšek s vysokým výtratem",
+          "webUrl": "/sluzby/vlnity-horejsek-s-vysokym-vytratem/",
+          "slug": "vlnity-horejsek-s-vysokym-vytratem"
+        },
+        {
+          "name": "Burst Fade + Messy long French Crop",
+          "webUrl": "/sluzby/burst-fade-messy-long-french-crop/",
+          "slug": "burst-fade-messy-long-french-crop"
+        },
+        {
+          "name": "Drop Fade",
+          "webUrl": "/sluzby/drop-fade/",
+          "slug": "drop-fade"
+        },
+        {
+          "name": "Curly Top",
+          "webUrl": "/sluzby/curly-top/",
+          "slug": "curly-top"
+        }
+      ]
+    },
+    {
+      "id": "7be296d1-db2a-4b60-aa45-01f68483bef0",
+      "slug": "french-crop",
+      "name": "French Crop",
+      "webUrl": "/sluzby/french-crop/",
+      "description": "French crop je moderní pánský účes, který spojuje krátkou, texturovanou vrchní část s postupně zkracovanými boky a zadní částí hlavy (fade). Horní vlasy jsou střižené na kratší délku a upravené do rovné ofiny, což účesu dodává výrazný, ostře definovaný vzhled. Fade obvykle začíná vysoko nad ušima a vytváří plynulý přechod do krátkých boků a zátylku, čímž zvýrazňuje kontrast mezi vrškem a stranami. Celkový efekt působí upraveně, čistě a stylově. Kontury kolem čela a spánků jsou precizně upravené, což zajišťuje, že účes vypadá vždy svěže a moderně.",
+      "intendedFor": "French Crop je pro muže a kluky, kteří chtějí moderní, ostrý a snadno udržovatelný účes. Je to geniální řešení pro skrytí začínajících koutů nebo vysokého čela díky ofině směřující dopředu. Nejlépe funguje na hustých, rovných vlasoch a skvěle sedí k oválným, hranatým či delším obličejům.",
+      "faceShapes": [
+        "oval",
+        "square",
+        "rectangular",
+        "diamond"
+      ],
+      "hairTypes": [
+        "straight",
+        "slightly_wavy",
+        "european",
+        "asian",
+        "latin"
+      ],
+      "stylingDifficulty": 2,
+      "popularity": 4,
+      "tag": "STYLE",
+      "barbers": [
+        {
+          "name": "David",
+          "webUrl": "/tym/david/"
+        },
+        {
+          "name": "Karel",
+          "webUrl": "/tym/karel/"
+        },
+        {
+          "name": "Ondra",
+          "webUrl": "/tym/ondra/"
+        },
+        {
+          "name": "Mia",
+          "webUrl": "/tym/mia/"
+        },
+        {
+          "name": "Anna",
+          "webUrl": "/tym/anna/"
+        }
+      ],
+      "similar": [
+        {
+          "name": "Krátký Crop",
+          "webUrl": "/sluzby/kratky-crop/",
+          "slug": "kratky-crop"
+        },
+        {
+          "name": "Crew Cut",
+          "webUrl": "/sluzby/crew-cut/",
+          "slug": "crew-cut"
+        },
+        {
+          "name": "Krátký crop s high fade",
+          "webUrl": "/sluzby/kratky-crop-s-high-skin-fade/",
+          "slug": "kratky-crop-s-high-skin-fade"
+        },
+        {
+          "name": "Caesar Cut",
+          "webUrl": "/sluzby/caesar-cut/",
+          "slug": "caesar-cut"
+        },
+        {
+          "name": "Buzz Cut",
+          "webUrl": "/sluzby/buzz-cut-2/",
+          "slug": "buzz-cut-2"
+        }
+      ]
+    },
+    {
+      "id": "a9530baf-87b4-4766-9dcc-0a40c035123c",
+      "slug": "fringe-up-upravene-vousy",
+      "name": "Fringe Up + Upravené vousy",
+      "webUrl": "/sluzby/fringe-up-upravene-vousy/",
+      "description": "Účes, jehož vlasy na vrchu hlavy jsou delší a stylizovány nahoru (mohou být i lehce dozadu), vytváří mírně nadýchaný vzhled. Strany a zadní část hlavy jsou obvykle kratší, což přidává účesu zajímavý kontrast. Konkrétně k tomuto účesu jsou strany stříhány technikou Middle Fade. S tímto účesem máme také upravené vousy, jejich zarovnání je spíše rovné s malým zaoblením, zarovnání hezky navazuje na kontury u vlasů a tím se skvěle doplňují. Tento styl působí uvolněně, ale přitom je vhodný na všechny události.",
+      "intendedFor": "Styl je ideální pro muže, kteří hledají čistý, moderní vzhled do kanceláře i pro běžný den. Je skvělý v kontrastu s plnovousem a precizním fadem. Perfektně funguje na hustých, rovných až lehce vlnitých vlasech, které drží objem. Sluší zejména kulatým, oválným a hranatým obličejům.",
+      "faceShapes": [
+        "oval",
+        "square",
+        "round",
+        "rectangular",
+        "diamond"
+      ],
+      "hairTypes": [
+        "straight",
+        "slightly_wavy",
+        "wavy",
+        "european",
+        "latin"
+      ],
+      "stylingDifficulty": 2,
+      "popularity": 3,
+      "tag": "SVĚŽÍ",
+      "barbers": [
+        {
+          "name": "David",
+          "webUrl": "/tym/david/"
+        },
+        {
+          "name": "Alex",
+          "webUrl": "/tym/alex/"
+        }
+      ],
+      "similar": [
+        {
+          "name": "Quiff",
+          "webUrl": "/sluzby/quiff/",
+          "slug": "quiff"
+        },
+        {
+          "name": "Pompadour",
+          "webUrl": "/sluzby/pompadour/",
+          "slug": "pompadour"
+        },
+        {
+          "name": "Texturovaný Účes",
+          "webUrl": "/sluzby/texturovany-uces/",
+          "slug": "texturovany-uces"
+        },
+        {
+          "name": "Moderní účes na zrzavých vlasech",
+          "webUrl": "/sluzby/moderni-uces-na-zrzavych-vlasech/",
+          "slug": "moderni-uces-na-zrzavych-vlasech"
+        },
+        {
+          "name": "Middle Fade",
+          "webUrl": "/sluzby/middle-fade/",
+          "slug": "middle-fade"
+        }
+      ]
+    },
+    {
+      "id": "2cef7fc7-4fb8-4c6a-a12e-9c60e49dcf25",
+      "slug": "hard-part-s-fade",
+      "name": "Hard Part s Fade",
+      "webUrl": "/sluzby/hard-part-s-fade/",
+      "description": "Hard Part s Fade je moderní a precizní účes, který kombinuje čistý přechod (fade) po stranách s výrazně ohraničenou pěšinkou – takzvaným “hard partem”. Tato linie, vytvořená pomocí strojku nebo břitvy, odděluje delší vrchní část vlasů od kratších boků a dodává střihu ostrý, elegantní vzhled.Vrchní část vlasů bývá ponechaná delší, což umožňuje různé možnosti úpravy – od uhlazeného “side partu” až po lehce načesaný a texturovaný styl. Fade po stranách může být nízký, střední nebo vysoký podle preferencí, ale vždy vytváří plynulý přechod, který zvýrazňuje kontrast s horní částí účesu.",
+      "intendedFor": "Účes je ideální pro muže a byznysmeny, kteří vyžadují seriózní, upravený a elegantní vzhled. Je skvělou volbou pro husté, rovné až mírně poddajné vlasy. Vyholená cestička jasně určuje směr stylingu, což usnadňuje ranní úpravu. Sluší v podstatě všem typům obličeje.",
+      "faceShapes": [
+        "oval",
+        "square",
+        "heart",
+        "round",
+        "rectangular",
+        "diamond"
+      ],
+      "hairTypes": [
+        "straight",
+        "slightly_wavy",
+        "european",
+        "latin",
+        "asian"
+      ],
+      "stylingDifficulty": 3,
+      "popularity": 3,
+      "tag": "DIZAJN",
+      "barbers": [
+        {
+          "name": "Barča",
+          "webUrl": "/tym/barca/"
+        }
+      ],
+      "similar": [
+        {
+          "name": "French Crop",
+          "webUrl": "/sluzby/french-crop/",
+          "slug": "french-crop"
+        },
+        {
+          "name": "Fringe Up + Upravené vousy",
+          "webUrl": "/sluzby/fringe-up-upravene-vousy/",
+          "slug": "fringe-up-upravene-vousy"
+        },
+        {
+          "name": "Ivy League Cut",
+          "webUrl": "/sluzby/ivy-league-cut/",
+          "slug": "ivy-league-cut"
+        },
+        {
+          "name": "Skin Fade s melírem",
+          "webUrl": "/sluzby/skin-fade-s-melirem/",
+          "slug": "skin-fade-s-melirem"
+        },
+        {
+          "name": "Caesar Cut",
+          "webUrl": "/sluzby/caesar-cut/",
+          "slug": "caesar-cut"
+        }
+      ]
+    },
+    {
+      "id": "0eb8220c-7148-4124-aeba-5a147cd50373",
+      "slug": "high-fade",
+      "name": "High Fade",
+      "webUrl": "/sluzby/high-fade/",
+      "description": "Tento minimalistický, sportovní a vysoce funkční pánský střih sází na maximální ostrost a čistotu. Dominantním prvkem je High Skin Fade – nekompromisně vysoké vytracení mašinkou, které začíná od úplné nuly (skin) a stoupá vysoko nad spánkovou partii. Vlasy na vrchu hlavy jsou zkráceny do velmi krátké, kompaktní textury, která jemně padá směrem dopředu a kopíruje tvar lebky. Tento dravý look skvěle vyvažují začištěné linie strniště podél lícních kostí.",
+      "intendedFor": "Účes je stvořený pro muže a sportovce, kteří vyžadují bezúdržbový styl bez ranní úpravy. Je skvělou volbou pro husté a tvrdé vlasy. Nejlépe vynikne na lidech se souměrnou lebkou a oválným či hranatým obličejem. Kvůli vysokému fadu vyžaduje návštěvu barbera každé 2 týdny pro udržení ostrosti.",
+      "faceShapes": [
+        "oval",
+        "square",
+        "rectangular",
+        "diamond"
+      ],
+      "hairTypes": [
+        "straight",
+        "slightly_wavy",
+        "wavy",
+        "european",
+        "asian",
+        "latin"
+      ],
+      "stylingDifficulty": 1,
+      "popularity": 5,
+      "tag": "TOP",
+      "barbers": [
+        {
+          "name": "Mark",
+          "webUrl": "/tym/mark/"
+        },
+        {
+          "name": "Barča",
+          "webUrl": "/tym/barca/"
+        },
+        {
+          "name": "Maty",
+          "webUrl": "/tym/maty/"
+        },
+        {
+          "name": "Rejlis",
+          "webUrl": "/tym/rejlis/"
+        },
+        {
+          "name": "Zlatej",
+          "webUrl": "/tym/zlatej/"
+        }
+      ],
+      "similar": [
+        {
+          "name": "Krátký Crop",
+          "webUrl": "/sluzby/kratky-crop/",
+          "slug": "kratky-crop"
+        },
+        {
+          "name": "Buzz Cut",
+          "webUrl": "/sluzby/buzz-cut-2/",
+          "slug": "buzz-cut-2"
+        },
+        {
+          "name": "Buzz cut + Vystínované vousy",
+          "webUrl": "/sluzby/buzz-cut-vystinovane-vousy/",
+          "slug": "buzz-cut-vystinovane-vousy"
+        },
+        {
+          "name": "French Crop",
+          "webUrl": "/sluzby/french-crop/",
+          "slug": "french-crop"
+        },
+        {
+          "name": "Účes Eminem (Buzz Cut)",
+          "webUrl": "/sluzby/uces-eminem-buzz-cut/",
+          "slug": "uces-eminem-buzz-cut"
+        },
+        {
+          "name": "Účes Michael B. Jordan (Buzz Cut)",
+          "webUrl": "/sluzby/uces-michael-b-jordan-buzz-cut/",
+          "slug": "uces-michael-b-jordan-buzz-cut"
+        }
+      ]
+    },
+    {
+      "id": "6a6cf097-8145-4271-9717-67409ea119fe",
+      "slug": "ivy-league-cut",
+      "name": "Ivy League Cut",
+      "webUrl": "/sluzby/ivy-league-cut/",
+      "description": "Tento klasický a velmi elegantní styl, známý také jako „Princeton cut“, kombinuje čistou úpravu Crew Cutu s délkou, která umožňuje česání na stranu. Vlasy na vrchu hlavy jsou střiženy s mírným prodloužením směrem dopředu, což dává vyniknout přirozené vlnité textuře a dovoluje ofinu lehce přizvednout. Boky a zátylek jsou upraveny decentní, měkkou technikou Low Taper, která zachovává přirozenou plnost a hustotu vlasů kolem uší, přičemž spodní linie jsou čistě začištěné.",
+      "intendedFor": "Ivy League cut je ideální pro muže, kteří hledají upravený, gentlemanský styl bez vyholování boků na kůži. Je perfektní pro studenty, manažery i běžné nošení. Skvěle vynikne na vlnitých nebo poddajných rovných vlasech s objemem. Sluší všem tvarům obličeje, protože zachovává klasické proporce.",
+      "faceShapes": [
+        "oval",
+        "square",
+        "heart",
+        "round",
+        "rectangular",
+        "diamond"
+      ],
+      "hairTypes": [
+        "straight",
+        "slightly_wavy",
+        "wavy",
+        "european"
+      ],
+      "stylingDifficulty": 3,
+      "popularity": 3,
+      "tag": "COOL",
+      "barbers": [
+        {
+          "name": "Andrej",
+          "webUrl": "/tym/andrej/"
+        },
+        {
+          "name": "Rejlis",
+          "webUrl": "/tym/rejlis/"
+        },
+        {
+          "name": "Zlatej",
+          "webUrl": "/tym/zlatej/"
+        },
+        {
+          "name": "Anna",
+          "webUrl": "/tym/anna/"
+        }
+      ],
+      "similar": [
+        {
+          "name": "Crew Cut",
+          "webUrl": "/sluzby/crew-cut/",
+          "slug": "crew-cut"
+        },
+        {
+          "name": "Side Part",
+          "webUrl": "/sluzby/side-part/",
+          "slug": "side-part"
+        }
+      ]
+    },
+    {
+      "id": "a893dc22-269b-47a6-b326-c3821a9d36e1",
+      "slug": "kratky-crop",
+      "name": "Krátký Crop",
+      "webUrl": "/sluzby/kratky-crop/",
+      "description": "Tento kratší účes se vyznačuje kratšími vlasy na vrchu hlavy, které se často stylizují do texturovaného nebo rozcuchaného vzhledu. Boky a zadní část hlavy jsou obvykle krátké, v tomto případě jsme zvolili variantu High Fade, která dodává účesu moderní a svěží vzhled. Tento styl je oblíbený pro svůj pohodový, avšak upravený vzhled. Účes Crop může mít různé délky je tedy možné délku vlasů na hořejšku hlavy vždy přizpůsobit na žádost klienta.",
+      "intendedFor": "Krátký crop (French crop / textured crop) je vhodný hlavně pro muže s oválným, hranatým nebo diamantovým tvarem obličeje. Nejlépe sedí lidem s hustými, rovnými nebo lehce vlnitými vlasy. Hodí se pro ty, kteří chtějí moderní, jednoduchý účes s minimál",
+      "faceShapes": [
+        "oval",
+        "square",
+        "diamond"
+      ],
+      "hairTypes": [
+        "straight",
+        "curly",
+        "european",
+        "slightly_wavy",
+        "latin"
+      ],
+      "stylingDifficulty": 3,
+      "popularity": 4,
+      "tag": "ICE",
+      "barbers": [
+        {
+          "name": "Filip",
+          "webUrl": "/tym/filip/"
+        },
+        {
+          "name": "Lukáš",
+          "webUrl": "/tym/lukas/"
+        },
+        {
+          "name": "Maty",
+          "webUrl": "/tym/maty/"
+        }
+      ],
+      "similar": [
+        {
+          "name": "Účes Yzomandias (Crop)",
+          "webUrl": "/sluzby/uces-yzomandias-crop/",
+          "slug": "uces-yzomandias-crop"
+        },
+        {
+          "name": "Caesar Cut",
+          "webUrl": "/sluzby/caesar-cut/",
+          "slug": "caesar-cut"
+        },
+        {
+          "name": "French Crop",
+          "webUrl": "/sluzby/french-crop/",
+          "slug": "french-crop"
+        },
+        {
+          "name": "Crop",
+          "webUrl": "/sluzby/crop/",
+          "slug": "crop"
+        }
+      ]
+    },
+    {
+      "id": "7e73ad83-f00b-430d-b81b-e866837f0a74",
+      "slug": "kratky-crop-s-high-skin-fade",
+      "name": "Krátký crop s high fade",
+      "webUrl": "/sluzby/kratky-crop-s-high-skin-fade/",
+      "description": "Tento účes sází na velmi krátkou, rovnoměrně střiženou vrchní část, která působí upraveně a nenáročně. Boky i zadní část hlavy jsou vyholené do ztracena (high skin fade), přičemž přechod začíná vysoko nad úrovní uší a plynule splývá s krátkou horní partií. Výsledný kontrast mezi krátkým vrškem a dokonale oholenými stranami vytváří moderní, čistý a ostře definovaný vzhled. Kontury kolem čela a spánků jsou precizně upravené, což účesu dodává maximální čistotu a profesionální dojem.",
+      "intendedFor": "Střih je ideální pro muže a sportovce, kteří hledají kompromis mezi Buzz Cutem a delším účesem. Je skvělý pro husté a rovné vlasy a bleskový styling do půl minuty. Skvěle sedí k oválným, hranatým či kulatějším obličejům. Kvůli vysokému přechodu vyžaduje návštěvu barbera přibližně každé 2 týdny.",
+      "faceShapes": [
+        "oval",
+        "square",
+        "round",
+        "rectangular",
+        "diamond"
+      ],
+      "hairTypes": [
+        "straight",
+        "slightly_wavy",
+        "european",
+        "asian",
+        "latin"
+      ],
+      "stylingDifficulty": 2,
+      "popularity": 3,
+      "tag": "SIGMA",
+      "barbers": [
+        {
+          "name": "Mia",
+          "webUrl": "/tym/mia/"
+        }
+      ],
+      "similar": [
+        {
+          "name": "Krátký Crop",
+          "webUrl": "/sluzby/kratky-crop/",
+          "slug": "kratky-crop"
+        },
+        {
+          "name": "Buzz Cut",
+          "webUrl": "/sluzby/buzz-cut-2/",
+          "slug": "buzz-cut-2"
+        },
+        {
+          "name": "High Fade",
+          "webUrl": "/sluzby/high-fade/",
+          "slug": "high-fade"
+        },
+        {
+          "name": "Crew Cut",
+          "webUrl": "/sluzby/crew-cut/",
+          "slug": "crew-cut"
+        },
+        {
+          "name": "Účes Michael B. Jordan (Buzz Cut)",
+          "webUrl": "/sluzby/uces-michael-b-jordan-buzz-cut/",
+          "slug": "uces-michael-b-jordan-buzz-cut"
+        }
+      ]
+    },
+    {
+      "id": "36919dca-0421-4dbc-8c1e-8f3c8cdc5744",
+      "slug": "low-fade",
+      "name": "Low Fade",
+      "webUrl": "/sluzby/low-fade/",
+      "description": "Tento klasický a nadčasový byznys styl v moderním pojetí kombinuje uhlazenou eleganci s ostrými barberskými liniemi. Vlasy na vrchu hlavy jsou rozděleny přirozenou cestičkou a hladce začesány na stranu, přičemž ofina nad čelem je jemně přizvednutá do čisté vlny. Boky a zátylek definuje precizní Low Skin Fade – nízké vytracení, které začíná těsně nad uchem od úplné nuly (skin) a plynule přechází do tmavších, plnějších partií na spáncích. Střih skvěle doplňuje udržované krátké strniště, které perfektně rámuje obličej.",
+      "intendedFor": "Tento účes je ideální pro muže, manažery a gentlemany, kteří vyžadují seriózní, upravený a profesionální vzhled vhodný do kanceláře i do společnosti. Je to perfektní volba pro muže s hustými a poddajnými vlasy, které jdou snadno zkrotit hřebenem a dr",
+      "faceShapes": [
+        "oval",
+        "square",
+        "heart",
+        "round",
+        "rectangular",
+        "diamond"
+      ],
+      "hairTypes": [
+        "straight",
+        "slightly_wavy",
+        "european",
+        "asian",
+        "latin"
+      ],
+      "stylingDifficulty": 4,
+      "popularity": 3,
+      "tag": "CLASSIC",
+      "barbers": [
+        {
+          "name": "Filip",
+          "webUrl": "/tym/filip/"
+        },
+        {
+          "name": "Pavel",
+          "webUrl": "/tym/pavel/"
+        },
+        {
+          "name": "Maty",
+          "webUrl": "/tym/maty/"
+        },
+        {
+          "name": "Karel",
+          "webUrl": "/tym/karel/"
+        }
+      ],
+      "similar": [
+        {
+          "name": "Side Part",
+          "webUrl": "/sluzby/side-part/",
+          "slug": "side-part"
+        },
+        {
+          "name": "Hard Part s Fade",
+          "webUrl": "/sluzby/hard-part-s-fade/",
+          "slug": "hard-part-s-fade"
+        }
+      ]
+    },
+    {
+      "id": "ce0de817-992d-4a83-abf2-596b844ac0aa",
+      "slug": "low-taper-fade",
+      "name": "Low Taper Fade",
+      "webUrl": "/sluzby/low-taper-fade/",
+      "description": "Low Taper Fade je typ stínovací techniky, která se skládá z Low Fade (nízký fade) + Taper Fade (stínováni na uších a krku) + Fade (stínovací technika jako taková). Nejčastěji je stříhán strojkem, ale k jeho vyladění jsou častokrát použity i nůžky. Tento styl je oblíbený díky své jednoduchosti, snadné údržbě a také proto, že ne každý chce mít vyholené boky tak, že bude odhalena jeho kůže. Obvykle je stříhán od nejkratší možné velikosti směrem od kontur výše a končí napojením na delší vlasy kloboukové linie.",
+      "intendedFor": "Styl je ideální pro muže, kteří hledají seriózní, reprezentativní a mužný vzhled. Je dokonalou volbou pro ty, kteří nosí upravený plnovous a chtějí ho v plynulém kontrastu s účesem, aniž by vyholovali celé boky na kůži. Skvěle funguje na hustých, rovných vlasech a sluší všem typům obličeje.",
+      "faceShapes": [
+        "oval",
+        "square",
+        "heart",
+        "round",
+        "rectangular",
+        "diamond"
+      ],
+      "hairTypes": [
+        "straight",
+        "slightly_wavy",
+        "european",
+        "latin"
+      ],
+      "stylingDifficulty": 2,
+      "popularity": 5,
+      "tag": "STYLE",
+      "barbers": [
+        {
+          "name": "Pavel",
+          "webUrl": "/tym/pavel/"
+        },
+        {
+          "name": "Karel",
+          "webUrl": "/tym/karel/"
+        },
+        {
+          "name": "Anna",
+          "webUrl": "/tym/anna/"
+        }
+      ],
+      "similar": [
+        {
+          "name": "Crew Cut",
+          "webUrl": "/sluzby/crew-cut/",
+          "slug": "crew-cut"
+        },
+        {
+          "name": "Účes Leoš Mareš",
+          "webUrl": "/sluzby/uces-leos-mares/",
+          "slug": "uces-leos-mares"
+        },
+        {
+          "name": "Low Taper Fade + Vousy do ztracena",
+          "webUrl": "/sluzby/low-taper-fade-vousy-do-ztracena/",
+          "slug": "low-taper-fade-vousy-do-ztracena"
+        }
+      ]
+    },
+    {
+      "id": "53cf9b0b-0a6a-4a58-b115-f03f343b7ba9",
+      "slug": "low-taper-fade-vousy-do-ztracena",
+      "name": "Low Taper Fade + Vousy do ztracena",
+      "webUrl": "/sluzby/low-taper-fade-vousy-do-ztracena/",
+      "description": "Tento styl se vyznačuje kombinací precizního střihu vlasů a pečlivě upravených vousů. Low Taper Fade představuje pozvolné zkracování vlasů, které začíná nízko nad ušima a krkem a postupně přechází do delších vlasů na temeni hlavy. Vousy do ztracena jsou tvarovány tak, aby se jejich délka postupně zmenšovala od plnější části u brady směrem k lícním kostem, kde přirozeně „mizí“. Tento přechod vytváří sofistikovaný vzhled a zdůrazňuje kontury obličeje. Celková kombinace poskytuje moderní, upravený dojem, který je zároveň elegantní. Pro udržení tohoto stylu je důležitá pravidelná údržba jak vlasů, tak vousů.",
+      "intendedFor": "Styl je ideální pro muže s velmi hustými vlasy a plnovousem, kteří chtějí seriózní vzhled bez vyholování boků na kůži. Low Taper zachovává klasický byznys tvar, zatímco stínované vousy dodávají moderní šmrnc. Sluší téměř všem typům obličeje, protože plnovous skvěle zvýrazní čelist.",
+      "faceShapes": [
+        "oval",
+        "square",
+        "heart",
+        "round",
+        "rectangular",
+        "diamond"
+      ],
+      "hairTypes": [
+        "straight",
+        "slightly_wavy",
+        "european",
+        "latin"
+      ],
+      "stylingDifficulty": 3,
+      "popularity": 4,
+      "tag": "TAPER",
+      "barbers": [
+        {
+          "name": "Filip",
+          "webUrl": "/tym/filip/"
+        },
+        {
+          "name": "Pavel",
+          "webUrl": "/tym/pavel/"
+        },
+        {
+          "name": "Karel",
+          "webUrl": "/tym/karel/"
+        }
+      ],
+      "similar": [
+        {
+          "name": "Middle Fade",
+          "webUrl": "/sluzby/middle-fade/",
+          "slug": "middle-fade"
+        },
+        {
+          "name": "Low Taper Fade",
+          "webUrl": "/sluzby/low-taper-fade/",
+          "slug": "low-taper-fade"
+        },
+        {
+          "name": "Taper Fade",
+          "webUrl": "/sluzby/taper-fade/",
+          "slug": "taper-fade"
+        }
+      ]
+    },
+    {
+      "id": "472bf3fb-85ac-429d-a351-f47996d792fe",
+      "slug": "middle-fade",
+      "name": "Middle Fade",
+      "webUrl": "/sluzby/middle-fade/",
+      "description": "Tento klasický, vysoce maskulinní a sportovně laděný střih sází na absolutní čistotu a kontrast. Horní část vlasů je zkrácena do velmi krátké, kompaktní délky, přičemž ofina nad čelem je jemně sčesaná na stranu a lehce přizvednutá. Klíčovým prvkem je Mid Skin Fade – středně vysoké vytracení mašinkou, které začíná od úplné nuly (skin) zhruba v polovině spánků a nad ušima, odkud plynule a s dokonale čistým přechodem stoupá do vrchní partie.",
+      "intendedFor": "Účes je ideální pro muže a sportovce, kteří hledají praktický, bezúdržbový styl, ale chtějí možnost upravit si ofinu. Je skvělou volbou pro husté a tvrdší vlasy. Velmi dobře sedí k oválným, hranatým či obdélníkovým obličejům. Kvůli přechodu na kůži vyžaduje návštěvu barbera každé 2 až 3 týdny.",
+      "faceShapes": [
+        "oval",
+        "square",
+        "round",
+        "rectangular",
+        "diamond"
+      ],
+      "hairTypes": [
+        "straight",
+        "slightly_wavy",
+        "european",
+        "latin",
+        "asian"
+      ],
+      "stylingDifficulty": 3,
+      "popularity": 4,
+      "tag": "HYPNO",
+      "barbers": [
+        {
+          "name": "David",
+          "webUrl": "/tym/david/"
+        },
+        {
+          "name": "Lukáš",
+          "webUrl": "/tym/lukas/"
+        },
+        {
+          "name": "Maty",
+          "webUrl": "/tym/maty/"
+        },
+        {
+          "name": "Karel",
+          "webUrl": "/tym/karel/"
+        }
+      ],
+      "similar": [
+        {
+          "name": "Buzz Cut",
+          "webUrl": "/sluzby/buzz-cut-2/",
+          "slug": "buzz-cut-2"
+        },
+        {
+          "name": "Krátký Crop",
+          "webUrl": "/sluzby/kratky-crop/",
+          "slug": "kratky-crop"
+        },
+        {
+          "name": "High Fade",
+          "webUrl": "/sluzby/high-fade/",
+          "slug": "high-fade"
+        },
+        {
+          "name": "Hard Part s Fade",
+          "webUrl": "/sluzby/hard-part-s-fade/",
+          "slug": "hard-part-s-fade"
+        },
+        {
+          "name": "Faux Hawk s pěšinkou",
+          "webUrl": "/sluzby/faux-hawk/",
+          "slug": "faux-hawk"
+        },
+        {
+          "name": "Účes Michael B. Jordan (Buzz Cut)",
+          "webUrl": "/sluzby/uces-michael-b-jordan-buzz-cut/",
+          "slug": "uces-michael-b-jordan-buzz-cut"
+        }
+      ]
+    },
+    {
+      "id": "acc747c3-dd5a-4002-9cc8-522c83d88cda",
+      "slug": "milionovey-uces-%E2%9A%A1%EF%B8%8F-moderni-fluffy",
+      "name": "Milionovey účes - Moderní Fluffy",
+      "webUrl": "/sluzby/milionovey-uces-%E2%9A%A1%EF%B8%8F-moderni-fluffy/",
+      "description": "Střih představuje populární pánský účes, který se vyznačuje kontrastem mezi krátkými stranami a objemnějším vrškem.  Na fotce máme konkrétně middle fade, která vytváří elegantní přechod od velmi krátkých vlasů u uší a krku k delším na temeni. Výrazně delší vlasy na vrchní části hlavy, které jsou  upraveny tak, aby vytvářely „nadýchaný“ ale i mokrý efekt. BTW -Kombinace objemného a mokrého looku je čím dál tím populárnější. ⚡️ ⚡️ ⚡️  Pro styling se používá kombinace fénu, kulatého kartáče a vhodných produktů jako jsou tvarovací pěny, vosky nebo pudry pro vytvoření textury a objemu.",
+      "intendedFor": "Střih je fenoménem pro mladou generaci a rappery, kteří milují urban street fashion. Je ideální pro vlnité či kudrnaté vlasy, kterým dodá ležérní objem v kombinaci s fresh a ostrými detaily kolem uší. Skvěle vyvažuje delší, oválné či diamantové obličeje a perfektně kryje vyšší čelo.",
+      "faceShapes": [
+        "oval",
+        "square",
+        "heart",
+        "rectangular",
+        "diamond"
+      ],
+      "hairTypes": [
+        "slightly_wavy",
+        "wavy",
+        "curly",
+        "european",
+        "latin"
+      ],
+      "stylingDifficulty": 3,
+      "popularity": 5,
+      "tag": "ALFA",
+      "barbers": [
+        {
+          "name": "Karel",
+          "webUrl": "/tym/karel/"
+        }
+      ],
+      "similar": [
+        {
+          "name": "Fluffy účes",
+          "webUrl": "/sluzby/fluffy-uces/",
+          "slug": "fluffy-uces"
+        },
+        {
+          "name": "Texturovaný crop + drop fade",
+          "webUrl": "/sluzby/texturovany-crop-drop-fade/",
+          "slug": "texturovany-crop-drop-fade"
+        },
+        {
+          "name": "Texturovaný Účes",
+          "webUrl": "/sluzby/texturovany-uces/",
+          "slug": "texturovany-uces"
+        },
+        {
+          "name": "Blow Taper Fade",
+          "webUrl": "/sluzby/blow-taper-fade/",
+          "slug": "blow-taper-fade"
+        },
+        {
+          "name": "Drop Fade",
+          "webUrl": "/sluzby/drop-fade/",
+          "slug": "drop-fade"
+        }
+      ]
+    },
+    {
+      "id": "2f5eab16-b1f3-4e7f-a13c-0c06ed86f251",
+      "slug": "moderni-uces-na-zrzavych-vlasech",
+      "name": "Moderní účes na zrzavých vlasech",
+      "webUrl": "/sluzby/moderni-uces-na-zrzavych-vlasech/",
+      "description": "Tento styl vytváří moderní vzhled na zrzavých vlasech. Konkrétně tento účes je česán směrem nahoru za pomocí matné pasty a laku, vousy jsou upravené tak, aby ladili k celkové vizáži zákazníka. Vlasy po stranách jsou v tomto střiženy technikou middle fade.",
+      "intendedFor": "Styl je ideální pro muže, kteří chtějí elegantní účes s objemem bez kompletně vyholených boků na kůži. Je dokonalou volbou pro husté, pevné a poddajné vlasy držící tvar po vyfoukání. Skvěle sedí kulatým či oválným obličejům a perfektně ladí s brýlemi a pěstěnými vousy.",
+      "faceShapes": [
+        "oval",
+        "square",
+        "round",
+        "rectangular",
+        "diamond"
+      ],
+      "hairTypes": [
+        "straight",
+        "slightly_wavy",
+        "european"
+      ],
+      "stylingDifficulty": 4,
+      "popularity": 3,
+      "tag": "GINGER",
+      "barbers": [],
+      "similar": [
+        {
+          "name": "Pompadour",
+          "webUrl": "/sluzby/pompadour/",
+          "slug": "pompadour"
+        },
+        {
+          "name": "Low Taper Fade + Vousy do ztracena",
+          "webUrl": "/sluzby/low-taper-fade-vousy-do-ztracena/",
+          "slug": "low-taper-fade-vousy-do-ztracena"
+        },
+        {
+          "name": "Low Fade",
+          "webUrl": "/sluzby/low-fade/",
+          "slug": "low-fade"
+        }
+      ]
+    },
+    {
+      "id": "8183a595-c3b5-4543-b615-638ca466e069",
+      "slug": "mohawk",
+      "name": "Mohawk",
+      "webUrl": "/sluzby/mohawk/",
+      "description": "Účes, kde jsou vlasy na vrchu hlavy výrazně delší a jsou často stylizovány směrem nahoru, zatímco boky jsou oholené nebo velmi krátké a v moderní podobě je zadní část do špičky. Tento účes vytváří výrazný kontrast mezi dlouhými vlasy uprostřed a zcela holými  nebo výrazně kratšími stranami, což dává celkový odvážný a energický vzhled.",
+      "intendedFor": "Účes je hitem urban a undergroundové módy pro teenagery a hudebníky, kteří chtějí rebelsky nepřehlédnutelný vzhled. Skvěle funguje na hustých, rovných či poddajných vlasech držících texturu. Nejlépe sedí k oválným, hranatým a diamantovým obličejům s ostře řezanou čelistí.",
+      "faceShapes": [
+        "oval",
+        "square",
+        "triangle",
+        "rectangular",
+        "diamond"
+      ],
+      "hairTypes": [
+        "straight",
+        "slightly_wavy",
+        "wavy",
+        "european",
+        "latin"
+      ],
+      "stylingDifficulty": 3,
+      "popularity": 3,
+      "tag": "MOHAWK",
+      "barbers": [
+        {
+          "name": "Mark",
+          "webUrl": "/tym/mark/"
+        },
+        {
+          "name": "Andrej",
+          "webUrl": "/tym/andrej/"
+        },
+        {
+          "name": "Rejlis",
+          "webUrl": "/tym/rejlis/"
+        },
+        {
+          "name": "Mia",
+          "webUrl": "/tym/mia/"
+        },
+        {
+          "name": "Anna",
+          "webUrl": "/tym/anna/"
+        }
+      ],
+      "similar": [
+        {
+          "name": "Mullet",
+          "webUrl": "/sluzby/mullet/",
+          "slug": "mullet"
+        }
+      ]
+    },
+    {
+      "id": "b3d18750-5185-4e1e-8a7d-634a50d77e18",
+      "slug": "mohawk-na-afro-vlasech",
+      "name": "Mohawk na afro vlasech",
+      "webUrl": "/sluzby/mohawk-na-afro-vlasech/",
+      "description": "Mohawk na afro vlasech je odvážný a stylový účes, který spojuje delší, výrazně tvarovanou horní část s velmi krátce střiženými až vyholenými boky a zadní částí hlavy (skin fade). Vrchní část vlasů je ponechána delší a upravená do charakteristického pruhu, který vede od čela až po zátylek, což účesu dodává ikonický tvar a možnost kreativity ve stylingu. Fade po stranách začíná vysoko nad ušima a vytváří ostrý kontrast mezi plným objemem uprostřed a krátce střiženými partiemi po stranách. Typickým znakem tohoto střihu je čistě ohraničený a jasně definovaný mohawk pruh, který vyniká díky přirozené textuře afro vlasů. Kontury kolem čela a spánků jsou precizně upravené, takže účes působí vždy moderně, svěže a originálně.",
+      "intendedFor": "Střih je ideální pro afro či silně kudrnaté vlasy a muže, kteří hledají odvážný městský styl. Je oblíbený v r'n'b a hip-hopové kultuře (styl „South of France“ proslavil Usher). Skvěle sedí k oválným, hranatým či užším obličejům a perfektně vynikne v kombinaci s upraveným plnovousem.",
+      "faceShapes": [
+        "oval",
+        "square",
+        "triangle",
+        "rectangular"
+      ],
+      "hairTypes": [
+        "african",
+        "curly",
+        "strongly_curly",
+        "latin"
+      ],
+      "stylingDifficulty": 5,
+      "popularity": 2,
+      "tag": "AFRO",
+      "barbers": [],
+      "similar": [
+        {
+          "name": "Mullet",
+          "webUrl": "/sluzby/mullet/",
+          "slug": "mullet"
+        },
+        {
+          "name": "Afro",
+          "webUrl": "/sluzby/afro/",
+          "slug": "afro"
+        },
+        {
+          "name": "Mohawk",
+          "webUrl": "/sluzby/mohawk/",
+          "slug": "mohawk"
+        }
+      ]
+    },
+    {
+      "id": "d2732e8a-3297-438d-a7ed-69a6f77fc2b3",
+      "slug": "mullet",
+      "name": "Mullet",
+      "webUrl": "/sluzby/mullet/",
+      "description": "Jedná se o účes, kde jsou vlasy na vrchu a po stranách kratší, zatímco vlasy vzadu jsou dlouhé. Tento styl vytváří výrazný kontrast mezi kratšími vlasy vpředu a dlouhými vlasy vzadu na hlavě. Mullet je známý svou neobvyklou siluetou a retro vzhledem.",
+      "intendedFor": "Účes je králem nezávislé a urban fashion scény pro mladé muže, kteří chtějí uvolněný vzhled s texturou bez vyholování boků na kůži. Perfektně funguje na vlnitých nebo poddajných vlasech, které mají rády volnost. Skvěle vyvažuje užší, oválné nebo obdélníkové tvary obličeje.",
+      "faceShapes": [
+        "oval",
+        "square",
+        "heart",
+        "triangle",
+        "rectangular",
+        "diamond"
+      ],
+      "hairTypes": [
+        "slightly_wavy",
+        "wavy",
+        "european",
+        "latin"
+      ],
+      "stylingDifficulty": 3,
+      "popularity": 4,
+      "tag": "OLDSCHOOL",
+      "barbers": [
+        {
+          "name": "Andrej",
+          "webUrl": "/tym/andrej/"
+        },
+        {
+          "name": "Anna",
+          "webUrl": "/tym/anna/"
+        },
+        {
+          "name": "Lukáš",
+          "webUrl": "/tym/lukas/"
+        },
+        {
+          "name": "Zlatej",
+          "webUrl": "/tym/zlatej/"
+        },
+        {
+          "name": "Mia",
+          "webUrl": "/tym/mia/"
+        }
+      ],
+      "similar": [
+        {
+          "name": "Burst Fade",
+          "webUrl": "/sluzby/burst-fade/",
+          "slug": "burst-fade"
+        },
+        {
+          "name": "Vpředu byznys vzadu párty",
+          "webUrl": "/sluzby/vpredu-byznys-vzadu-party/",
+          "slug": "vpredu-byznys-vzadu-party"
+        },
+        {
+          "name": "Fluffy účes",
+          "webUrl": "/sluzby/fluffy-uces/",
+          "slug": "fluffy-uces"
+        },
+        {
+          "name": "Taper Fade + Mullet",
+          "webUrl": "/sluzby/taper-fade-mullet/",
+          "slug": "taper-fade-mullet"
+        },
+        {
+          "name": "Taper Fade",
+          "webUrl": "/sluzby/taper-fade/",
+          "slug": "taper-fade"
+        }
+      ]
+    },
+    {
+      "id": "99ec405f-7641-486d-9638-f13dabfb9801",
+      "slug": "nizky-vytrat-u-usi-a-na-krku-dj-khaled",
+      "name": "Nízký výtrat u uší a na krku (DJ Khaled)",
+      "webUrl": "/sluzby/nizky-vytrat-u-usi-a-na-krku-dj-khaled/",
+      "description": "Nízký výtrat u uší a na krku patří mezi kratší účesy a jeho popularita má stále své místo. V překladu se tento účes jmenuje: Low Taper Fade. Patří mezi momentálně nejoblíbenější typy fadu. Poznáme ho tak že je střižen od ,,kůže“ jako ostatní typy fejdů, ale tento je vybrán jen nízko nad uši a poté velmi rychle přechází do delších vlasů.",
+      "intendedFor": "Účes je ideální pro sebevědomé muže, kteří hledají upravený byznys/street styl s nulovou ranní úpravou. Je skvělý pro husté vlasy a plnovous, kterým dodá ostrý tvar. Vzhledem k dokonale rovným liniím čela a vousů vyžaduje začištění kontur strojkem každých 7 až 10 dní.",
+      "faceShapes": [
+        "oval",
+        "square",
+        "round",
+        "rectangular",
+        "diamond"
+      ],
+      "hairTypes": [
+        "straight",
+        "slightly_wavy",
+        "european",
+        "latin"
+      ],
+      "stylingDifficulty": 1,
+      "popularity": 4,
+      "tag": null,
+      "barbers": [],
+      "similar": [
+        {
+          "name": "Krátký Crop",
+          "webUrl": "/sluzby/kratky-crop/",
+          "slug": "kratky-crop"
+        },
+        {
+          "name": "Buzz cut + Vystínované vousy",
+          "webUrl": "/sluzby/buzz-cut-vystinovane-vousy/",
+          "slug": "buzz-cut-vystinovane-vousy"
+        },
+        {
+          "name": "Účes Eminem (Buzz Cut)",
+          "webUrl": "/sluzby/uces-eminem-buzz-cut/",
+          "slug": "uces-eminem-buzz-cut"
+        },
+        {
+          "name": "Buzz Cut",
+          "webUrl": "/sluzby/buzz-cut-2/",
+          "slug": "buzz-cut-2"
+        }
+      ]
+    },
+    {
+      "id": "fe071929-b7f5-4eaa-a411-2263342b5c6e",
+      "slug": "ofina-nahoru-stredni-fade",
+      "name": "Ofina nahoru + Mid Fade",
+      "webUrl": "/sluzby/ofina-nahoru-stredni-fade/",
+      "description": "Ofina, která je stylizována směrem nahoru a postupný přechod (fade) na bocích je jeden z aktuálně nejvíc trendy účesů posledních let. Střední fade představuje techniku, při níž se délka vlasů plynule zkracuje od středu hlavy směrem dolů, nejkratší délky stran jsou tedy u uší. Narozdíl od high fade, je u středního fadu mnoho více možných variant a kombinací pro výběr délek v partiích nahoře hlavy. Horní partie s ofinou je výrazně delší a poskytuje prostor pro styling – vlasy jsou většinou upraveny tak, aby směřovaly vzhůru, často s mírným nakloněním dozadu, což dodává účesu dynamický a moderní charakter. Pro dosažení tohoto efektu se běžně používají stylingové produkty jako matující pasta, vosk nebo clay, které poskytují dostatečnou fixaci, ale zachovávají přirozený vzhled.",
+      "intendedFor": "Střih je velkým trendem pro mladou generaci a sportovce, kteří hledají stylový vzhled s minimální údržbou. Je ideální pro husté, pevnější vlasy držící objem. Díky zvednuté ofině opticky prodlužuje a sedí k oválným, hranatým i kulatým obličejům. Úprava s pudrem či hlínou zabere pár vteřin.",
+      "faceShapes": [
+        "oval",
+        "square",
+        "round",
+        "rectangular",
+        "diamond"
+      ],
+      "hairTypes": [
+        "straight",
+        "slightly_wavy",
+        "european",
+        "latin",
+        "asian"
+      ],
+      "stylingDifficulty": 2,
+      "popularity": 4,
+      "tag": "BANGER",
+      "barbers": [
+        {
+          "name": "Mark",
+          "webUrl": "/tym/mark/"
+        }
+      ],
+      "similar": [
+        {
+          "name": "French Crop",
+          "webUrl": "/sluzby/french-crop/",
+          "slug": "french-crop"
+        },
+        {
+          "name": "High Fade",
+          "webUrl": "/sluzby/high-fade/",
+          "slug": "high-fade"
+        },
+        {
+          "name": "Faux Hawk",
+          "webUrl": "/sluzby/faux-hawk-2/",
+          "slug": "faux-hawk-2"
+        },
+        {
+          "name": "Krátký Crop",
+          "webUrl": "/sluzby/kratky-crop/",
+          "slug": "kratky-crop"
+        },
+        {
+          "name": "Krátký crop s high fade",
+          "webUrl": "/sluzby/kratky-crop-s-high-skin-fade/",
+          "slug": "kratky-crop-s-high-skin-fade"
+        },
+        {
+          "name": "Caesar Cut",
+          "webUrl": "/sluzby/caesar-cut/",
+          "slug": "caesar-cut"
+        }
+      ]
+    },
+    {
+      "id": "e72ce16c-ff87-47ed-a5d6-dc6706a3e029",
+      "slug": "old-money-haircut",
+      "name": "Old Money Haircut",
+      "webUrl": "/sluzby/old-money-haircut/",
+      "description": "Tento účes je ztělesněním luxusu, ležérní elegance a tzv. „Old Money“ estetiky. Celý střih staví na dlouhých, plynule vrstvených pramenech na vrchu a zadní části hlavy, které vytvářejí přirozený, dynamický pohyb a bohatý objem směřující dozadu (flow). Ofina volně a měkce padá na čelo v elegantní vlně. Moderní, čistý šmrnc celému klasickému tvaru dodává precizní Low Taper Fade – velmi nízké vytracení mašinkou soustředěné pouze na kotlety a spodní linii krku, což udržuje zbytek spánků plný a přirozený.",
+      "intendedFor": "Styl je hitem pro muže a modely, kteří milují luxusní klasiku a chtějí přirozený, rafinovaný vzhled. Je ideální pro husté, zdravé a vlnité vlasy, které mají vlastní váhu a objem. Skvěle vyvažuje užší, oválné či diamantové obličeje. Styling vyžaduje fén a lehkou fixaci dozadu.",
+      "faceShapes": [
+        "oval",
+        "square",
+        "heart",
+        "triangle",
+        "rectangular",
+        "diamond"
+      ],
+      "hairTypes": [
+        "slightly_wavy",
+        "wavy",
+        "european",
+        "latin"
+      ],
+      "stylingDifficulty": 2,
+      "popularity": 4,
+      "tag": "URBAN",
+      "barbers": [
+        {
+          "name": "Zlatej",
+          "webUrl": "/tym/zlatej/"
+        },
+        {
+          "name": "Anna",
+          "webUrl": "/tym/anna/"
+        }
+      ],
+      "similar": [
+        {
+          "name": "Bro Flow",
+          "webUrl": "/sluzby/bro-flow/",
+          "slug": "bro-flow"
+        },
+        {
+          "name": "Texturovaný crop + drop fade",
+          "webUrl": "/sluzby/texturovany-crop-drop-fade/",
+          "slug": "texturovany-crop-drop-fade"
+        },
+        {
+          "name": "Temple Fade",
+          "webUrl": "/sluzby/temple-fade/",
+          "slug": "temple-fade"
+        },
+        {
+          "name": "Blow Taper Fade",
+          "webUrl": "/sluzby/blow-taper-fade/",
+          "slug": "blow-taper-fade"
+        },
+        {
+          "name": "Drop Fade",
+          "webUrl": "/sluzby/drop-fade/",
+          "slug": "drop-fade"
+        }
+      ]
+    },
+    {
+      "id": "eef32279-0f44-4475-9f69-3e364c3355b2",
+      "slug": "patka-se-strednim-stinovanim-na-cernych-vlasech",
+      "name": "Patka se Mid Fade na černých vlasech",
+      "webUrl": "/sluzby/patka-se-strednim-stinovanim-na-cernych-vlasech/",
+      "description": "Je krátký účes u kterého jsou vlasy na vršku střiženy tak aby byli lehce česatelné na vybranou stranu ( vždy je nejlepší volit stranu česání dle růstu vlasů, naši holiči s Vámi toto jistě prokonzultují). Strany se daji přizpůsobit podle potřeby klienta, nejčastěji ale můžeme vidět midfade nebo highfade.",
+      "intendedFor": "Účes je ideální pro muže a sportovce, kteří hledají praktický, bezúdržbový styl do práce i na trénink. Je skvělou volbou pro husté, tvrdší tmavé vlasy, které v délce trčí. Velmi dobře sedí k oválným, hranatým či obdélníkovým obličejům. Kvůli skin fadu vyžaduje barbera každé 2 až 3 týdny.",
+      "faceShapes": [
+        "oval",
+        "square",
+        "round",
+        "rectangular",
+        "diamond"
+      ],
+      "hairTypes": [
+        "straight",
+        "slightly_wavy",
+        "european",
+        "asian",
+        "latin"
+      ],
+      "stylingDifficulty": null,
+      "popularity": null,
+      "tag": "SHOCK",
+      "barbers": [],
+      "similar": [
+        {
+          "name": "Krátký Crop",
+          "webUrl": "/sluzby/kratky-crop/",
+          "slug": "kratky-crop"
+        },
+        {
+          "name": "Buzz Cut",
+          "webUrl": "/sluzby/buzz-cut-2/",
+          "slug": "buzz-cut-2"
+        },
+        {
+          "name": "Side Part",
+          "webUrl": "/sluzby/side-part/",
+          "slug": "side-part"
+        },
+        {
+          "name": "Crew Cut",
+          "webUrl": "/sluzby/crew-cut/",
+          "slug": "crew-cut"
+        },
+        {
+          "name": "Ofina nahoru + Mid Fade",
+          "webUrl": "/sluzby/ofina-nahoru-stredni-fade/",
+          "slug": "ofina-nahoru-stredni-fade"
+        }
+      ]
+    },
+    {
+      "id": "0ecb0bce-acc5-4599-8406-4ee6130ef84c",
+      "slug": "pokemon-hair-tatto",
+      "name": "Pokemon Hair Tattoo",
+      "webUrl": "/sluzby/pokemon-hair-tatto/",
+      "description": "Tento originální styl posouvá hranice běžného barberingu a mění účes v umělecké dílo. Základem je precizní střih, který doplňuje detailní vlasové tetování (hair tattoo) s motivem Pokémona. Vyholený design vyžaduje maximální přesnost, pevnou ruku a smysl pro detail, aby postavička na hlavě dokonale vynikla. Tento kreativní účes je ideální volbou pro ty, kteří chtějí vyjádřit svou osobnost, milují popkulturu a nebojí se vystoupit z davu s něčím naprosto jedinečným.",
+      "intendedFor": "Styl je snem pro děti a školáky, kteří chtějí ve škole či na prázdninách zazářit jedinečným vlasovým designem. Skvěle vynikne na hustých vlasech díky kontrastu s kůží. Motiv kvůli růstu vlasů vydrží ostrý 1 až 2 týdny, pak přirozeně odroste, což umožní zvolit zase jiný vzor.",
+      "faceShapes": [
+        "oval",
+        "round",
+        "square",
+        "heart",
+        "triangle",
+        "diamond",
+        "rectangular"
+      ],
+      "hairTypes": [
+        "straight",
+        "slightly_wavy",
+        "european"
+      ],
+      "stylingDifficulty": 2,
+      "popularity": 5,
+      "tag": "POKEMON",
+      "barbers": [
+        {
+          "name": "Káťa",
+          "webUrl": "/tym/katerina/"
+        }
+      ],
+      "similar": [
+        {
+          "name": "Krátký Crop",
+          "webUrl": "/sluzby/kratky-crop/",
+          "slug": "kratky-crop"
+        },
+        {
+          "name": "Buzz Cut",
+          "webUrl": "/sluzby/buzz-cut-2/",
+          "slug": "buzz-cut-2"
+        },
+        {
+          "name": "Účes Yzomandias (Crop)",
+          "webUrl": "/sluzby/uces-yzomandias-crop/",
+          "slug": "uces-yzomandias-crop"
+        }
+      ]
+    },
+    {
+      "id": "8e9b3a3d-e2e9-43f2-b806-1839e7d3c9eb",
+      "slug": "pompadour",
+      "name": "Pompadour",
+      "webUrl": "/sluzby/pompadour/",
+      "description": "Účes se vyznačuje objemem na temeni hlavy, kde jsou vlasy vyčesány nahoru a dozadu. Boky a zadní část hlavy jsou obvykle kratší, což vytváří kontrast s výrazným objemem nahoře. Tento styl působí elegantně a seriózně. Tento účes se da kombinovat s taperfade, lowfade a midfade.",
+      "intendedFor": "Styl je ideální pro zralé muže a manažery, kteří vyžadují upravený, tradiční vzhled s retro šmrncem. Je perfektní pro husté, pevné vlasy držící směr dozadu po vyfoukání. Výborně ladí s udržovaným strništěm, košilemi a formálním stylem. Sluší většině typů obličeje.",
+      "faceShapes": [
+        "oval",
+        "square",
+        "heart",
+        "round",
+        "rectangular",
+        "diamond"
+      ],
+      "hairTypes": [
+        "straight",
+        "slightly_wavy",
+        "european",
+        "latin"
+      ],
+      "stylingDifficulty": 3,
+      "popularity": 4,
+      "tag": null,
+      "barbers": [
+        {
+          "name": "David",
+          "webUrl": "/tym/david/"
+        },
+        {
+          "name": "Lukáš",
+          "webUrl": "/tym/lukas/"
+        },
+        {
+          "name": "Zlatej",
+          "webUrl": "/tym/zlatej/"
+        }
+      ],
+      "similar": [
+        {
+          "name": "Ivy League Cut",
+          "webUrl": "/sluzby/ivy-league-cut/",
+          "slug": "ivy-league-cut"
+        },
+        {
+          "name": "Slick Back",
+          "webUrl": "/sluzby/slick-back/",
+          "slug": "slick-back"
+        },
+        {
+          "name": "Elegantně načesané vlasy dozadu s výtratem na krku",
+          "webUrl": "/sluzby/elegantne-nacesane-vlasy-dozadu-s-vytratem-na-krku/",
+          "slug": "elegantne-nacesane-vlasy-dozadu-s-vytratem-na-krku"
+        }
+      ]
+    },
+    {
+      "id": "a27704ad-7229-4c98-ad5d-d07f56fa2f50",
+      "slug": "pushed-back",
+      "name": "Pushed Back",
+      "webUrl": "/sluzby/pushed-back/",
+      "description": "Elegantní účes, při kterém jsou vlasy česány dozadu a pevně přiléhají k hlavě. K dosažení hladkého a lesklého vzhledu se obvykle používá clay nebo pomáda. Vlasy mají obvykle střední délku a jsou střiženy po stranách a vzadu tak aby po jejich učesání do sebe zapadávali tak jako zde na ukázce. Tento styl působí velmi uhlazeně a profesionálně.",
+      "intendedFor": "Styl je dokonalou volbou pro muže s hustými vlasy, kteří chtějí ležérní, elegantní vzhled s přirozeným pohybem. Je ideální pro ty, co odmítají vyholené boky na kůži a preferují klasický tvar s čistou, fresh spodní linií u krku. Působí velmi upraveně a profesionálně.",
+      "faceShapes": [
+        "oval",
+        "square",
+        "heart",
+        "triangle",
+        "rectangular",
+        "diamond"
+      ],
+      "hairTypes": [
+        "straight",
+        "slightly_wavy",
+        "european",
+        "asian",
+        "latin"
+      ],
+      "stylingDifficulty": 4,
+      "popularity": 3,
+      "tag": "LUXUS",
+      "barbers": [
+        {
+          "name": "Mark",
+          "webUrl": "/tym/mark/"
+        }
+      ],
+      "similar": [
+        {
+          "name": "Slick Back",
+          "webUrl": "/sluzby/slick-back/",
+          "slug": "slick-back"
+        },
+        {
+          "name": "Ivy League Cut",
+          "webUrl": "/sluzby/ivy-league-cut/",
+          "slug": "ivy-league-cut"
+        },
+        {
+          "name": "Wavy Top s Clean Fadem (černé vlasy)",
+          "webUrl": "/sluzby/vlnity-horejsek-s-cistym-fadem-na-cernych-vlasech/",
+          "slug": "vlnity-horejsek-s-cistym-fadem-na-cernych-vlasech"
+        },
+        {
+          "name": "Blow Taper Fade",
+          "webUrl": "/sluzby/blow-taper-fade/",
+          "slug": "blow-taper-fade"
+        },
+        {
+          "name": "Old Money Haircut",
+          "webUrl": "/sluzby/old-money-haircut/",
+          "slug": "old-money-haircut"
+        }
+      ]
+    },
+    {
+      "id": "95a2051b-e7ad-43ce-ae51-dabf0059fbd7",
+      "slug": "quiff",
+      "name": "Quiff",
+      "webUrl": "/sluzby/quiff/",
+      "description": "Účes kdy jsou vlasy na vrchu hlavy delší a vyčesány nahoru a dozadu, takže vypadají lehce nadýchané. Boky a zadní část hlavy jsou obvykle kratší, což dává účesu zajímavý kontrast. Tento styl působí uvolněně, ale zároveň upraveně.",
+      "intendedFor": "Střih je hitem pro teenagery a mladé muže, kteří chtějí moderní styl s rebelskou energií a snadnou úpravou. Je perfektní pro husté, poddajné vlasy držící objem na čele. Skvěle vyvažuje kulaté, oválné i hranaté obličeje. Styling s pudrem či matným jílem zabere chvilku.",
+      "faceShapes": [
+        "oval",
+        "square",
+        "round",
+        "rectangular",
+        "diamond"
+      ],
+      "hairTypes": [
+        "straight",
+        "slightly_wavy",
+        "european",
+        "latin"
+      ],
+      "stylingDifficulty": 2,
+      "popularity": 4,
+      "tag": "TREND",
+      "barbers": [],
+      "similar": [
+        {
+          "name": "Účes Yzomandias (Crop)",
+          "webUrl": "/sluzby/uces-yzomandias-crop/",
+          "slug": "uces-yzomandias-crop"
+        },
+        {
+          "name": "French Crop",
+          "webUrl": "/sluzby/french-crop/",
+          "slug": "french-crop"
+        },
+        {
+          "name": "Ofina nahoru + Mid Fade",
+          "webUrl": "/sluzby/ofina-nahoru-stredni-fade/",
+          "slug": "ofina-nahoru-stredni-fade"
+        },
+        {
+          "name": "Texturovaný Účes",
+          "webUrl": "/sluzby/texturovany-uces/",
+          "slug": "texturovany-uces"
+        },
+        {
+          "name": "Faux Hawk s pěšinkou",
+          "webUrl": "/sluzby/faux-hawk/",
+          "slug": "faux-hawk"
+        }
+      ]
+    },
+    {
+      "id": "e2060927-6d98-41a8-888f-57bbb1b8552a",
+      "slug": "rozcuchane-vlasy-dopredu",
+      "name": "Rozcuchané vlasy dopředu",
+      "webUrl": "/sluzby/rozcuchane-vlasy-dopredu/",
+      "description": "Konkrétně tento účes kombinuje moderně střižené strany (můžeme zvolit více typů technik jako jsou: middle fade, taper fade, low fade, high fade) a středně dlouhý hořejšek který za pomocí stylingu tvaruje vlasy směrem dopředu a tím z něj dělá účes který můžeme odborně nazývat jako Crop.",
+      "intendedFor": "Účes je fenoménem pro teenagery a sportovce, kteří vyznávají streetwear a chtějí ostrý, bezúdržbový střih. Je skvělou volbou pro husté vlasy a díky ofině dopředu přirozeně maskuje kouty či vyšší čelo. Úprava zabere pár sekund – stačí použít matný jíl či pudr a rozcuchat dopředu.",
+      "faceShapes": [
+        "oval",
+        "square",
+        "heart",
+        "round",
+        "rectangular",
+        "diamond"
+      ],
+      "hairTypes": [
+        "straight",
+        "slightly_wavy",
+        "european",
+        "asian",
+        "latin"
+      ],
+      "stylingDifficulty": 2,
+      "popularity": 4,
+      "tag": "BLESK",
+      "barbers": [
+        {
+          "name": "Káťa",
+          "webUrl": "/tym/katerina/"
+        }
+      ],
+      "similar": [
+        {
+          "name": "Účes Yzomandias (Crop)",
+          "webUrl": "/sluzby/uces-yzomandias-crop/",
+          "slug": "uces-yzomandias-crop"
+        },
+        {
+          "name": "French Crop",
+          "webUrl": "/sluzby/french-crop/",
+          "slug": "french-crop"
+        },
+        {
+          "name": "Middle Fade",
+          "webUrl": "/sluzby/middle-fade/",
+          "slug": "middle-fade"
+        },
+        {
+          "name": "Texturovaný crop + drop fade",
+          "webUrl": "/sluzby/texturovany-crop-drop-fade/",
+          "slug": "texturovany-crop-drop-fade"
+        },
+        {
+          "name": "Texturovaný Účes",
+          "webUrl": "/sluzby/texturovany-uces/",
+          "slug": "texturovany-uces"
+        },
+        {
+          "name": "Caesar Cut",
+          "webUrl": "/sluzby/caesar-cut/",
+          "slug": "caesar-cut"
+        }
+      ]
+    },
+    {
+      "id": "ede177af-b9bb-4356-aade-8137f0fd974f",
+      "slug": "side-part",
+      "name": "Side Part",
+      "webUrl": "/sluzby/side-part/",
+      "description": "Účes, kde jsou vrchní vlasy odděleny od bočních  nejčastěji vyholením pěšinky  . Vlasy na jedné straně jsou obvykle delší a česané do strany, zatímco druhá strana může být kratší. Tento účes vytváří klasický vzhled, který je snadno přizpůsobitelný různým stylům.",
+      "intendedFor": "Účes je ideální pro muže a manažery, kteří vyžadují seriózní, profesionální vzhled. Je to perfektní volba pro husté, poddajné vlasy s úpravou na stranu. Díky nízkému fadu neodhaluje příliš kůže, působí decentně, ale velmi čistě a moderně. Sluší téměř všem typům obličeje.",
+      "faceShapes": [
+        "oval",
+        "square",
+        "heart",
+        "round",
+        "rectangular",
+        "diamond"
+      ],
+      "hairTypes": [
+        "straight",
+        "slightly_wavy",
+        "european",
+        "asian",
+        "latin"
+      ],
+      "stylingDifficulty": 4,
+      "popularity": 4,
+      "tag": null,
+      "barbers": [
+        {
+          "name": "Pavel",
+          "webUrl": "/tym/pavel/"
+        },
+        {
+          "name": "Anna",
+          "webUrl": "/tym/anna/"
+        },
+        {
+          "name": "Mark",
+          "webUrl": "/tym/mark/"
+        },
+        {
+          "name": "Filip",
+          "webUrl": "/tym/filip/"
+        },
+        {
+          "name": "Mia",
+          "webUrl": "/tym/mia/"
+        }
+      ],
+      "similar": [
+        {
+          "name": "Hard Part s Fade",
+          "webUrl": "/sluzby/hard-part-s-fade/",
+          "slug": "hard-part-s-fade"
+        },
+        {
+          "name": "Faux Hawk s pěšinkou",
+          "webUrl": "/sluzby/faux-hawk/",
+          "slug": "faux-hawk"
+        },
+        {
+          "name": "Patka se Mid Fade na černých vlasech",
+          "webUrl": "/sluzby/patka-se-strednim-stinovanim-na-cernych-vlasech/",
+          "slug": "patka-se-strednim-stinovanim-na-cernych-vlasech"
+        },
+        {
+          "name": "Middle Fade",
+          "webUrl": "/sluzby/middle-fade/",
+          "slug": "middle-fade"
+        }
+      ]
+    },
+    {
+      "id": "cdf2c6d5-8d59-4499-9e1d-7af8f9ef2bf2",
+      "slug": "skin-fade-s-melirem",
+      "name": "Skin Fade s melírem",
+      "webUrl": "/sluzby/skin-fade-s-melirem/",
+      "description": "Účes je po bocích stříhán od 0.0 mm tedy od kůže, název Skin fade se skládá tedy z Skin- Kůže a Fade- Stínování. Skin fade je tedy typ stínování a patří k nejoblíbenějším jako jsou například Low fade, Middle fade, High fade, Drop fade a tak dále. Pokud Vás zajímá více o technice ,,fade“ klikněte ZDE. Konkrétně tento účes je obohacen opět moderními melíry. Tato kombinace tvoří jeden z nejmodernějších účesů současnosti.",
+      "intendedFor": "Styl je stvořený pro mladé muže a influencery, kteří chtějí odvážný a fresh účes. Je ideální pro husté, pevnější vlasy držící střapatý tvar. Barevný kontrast maskuje hustotu a dodává hloubku. Kvůli odbarveným konečkům vyžaduje péči a návštěvu barbera pro udržení fadu.",
+      "faceShapes": [
+        "oval",
+        "square",
+        "round",
+        "rectangular",
+        "diamond"
+      ],
+      "hairTypes": [
+        "straight",
+        "slightly_wavy",
+        "european",
+        "asian",
+        "latin"
+      ],
+      "stylingDifficulty": 2,
+      "popularity": 5,
+      "tag": null,
+      "barbers": [],
+      "similar": [
+        {
+          "name": "Účes Yzomandias (Crop)",
+          "webUrl": "/sluzby/uces-yzomandias-crop/",
+          "slug": "uces-yzomandias-crop"
+        },
+        {
+          "name": "Spiky Hair",
+          "webUrl": "/sluzby/spiky-hair/",
+          "slug": "spiky-hair"
+        },
+        {
+          "name": "Faux Hawk s pěšinkou",
+          "webUrl": "/sluzby/faux-hawk/",
+          "slug": "faux-hawk"
+        },
+        {
+          "name": "Texturovaný crop + drop fade",
+          "webUrl": "/sluzby/texturovany-crop-drop-fade/",
+          "slug": "texturovany-crop-drop-fade"
+        },
+        {
+          "name": "Texturovaný Účes",
+          "webUrl": "/sluzby/texturovany-uces/",
+          "slug": "texturovany-uces"
+        }
+      ]
+    },
+    {
+      "id": "34d6726f-5ce8-44ac-aa08-21a70d3cd233",
+      "slug": "slick-back",
+      "name": "Slick Back",
+      "webUrl": "/sluzby/slick-back/",
+      "description": "Elegantní účes, kde jsou vlasy česané dozadu a drženy blízko hlavy, často s použitím gelu nebo pomády, aby vypadaly hladce a leskle. Vlasy jsou obvykle střední délky s rovnoměrným střihem po stranách a vzadu na hlavě. Tento styl vytváří uhlazený a profesionální dojem.",
+      "intendedFor": "Účes je stvořený pro muže, kteří milují „old money“ či „bad boy“ estetiku a chtějí elegantní, mužný vzhled. Je ideální pro husté, rovné či poddajné vlasy držící směr dozadu. Skvěle ladí s vousy, koženou bundou i oblekem. Úprava vyžaduje fén, hřeben a kvalitní pomádu.",
+      "faceShapes": [
+        "oval",
+        "square",
+        "heart",
+        "round",
+        "rectangular",
+        "diamond"
+      ],
+      "hairTypes": [
+        "straight",
+        "slightly_wavy",
+        "european",
+        "latin"
+      ],
+      "stylingDifficulty": 3,
+      "popularity": 3,
+      "tag": "MAFIA",
+      "barbers": [
+        {
+          "name": "Anna",
+          "webUrl": "/tym/anna/"
+        }
+      ],
+      "similar": [
+        {
+          "name": "Vlasy dozadu",
+          "webUrl": "/sluzby/vlasy-dozadu/",
+          "slug": "vlasy-dozadu"
+        },
+        {
+          "name": "Pompadour",
+          "webUrl": "/sluzby/pompadour/",
+          "slug": "pompadour"
+        },
+        {
+          "name": "Wavy Top s Clean Fadem (černé vlasy)",
+          "webUrl": "/sluzby/vlnity-horejsek-s-cistym-fadem-na-cernych-vlasech/",
+          "slug": "vlnity-horejsek-s-cistym-fadem-na-cernych-vlasech"
+        },
+        {
+          "name": "Elegantně načesané vlasy dozadu s výtratem na krku",
+          "webUrl": "/sluzby/elegantne-nacesane-vlasy-dozadu-s-vytratem-na-krku/",
+          "slug": "elegantne-nacesane-vlasy-dozadu-s-vytratem-na-krku"
+        },
+        {
+          "name": "Old Money Haircut",
+          "webUrl": "/sluzby/old-money-haircut/",
+          "slug": "old-money-haircut"
+        }
+      ]
+    },
+    {
+      "id": "c5398470-73d2-43cd-b921-c648425eeb1e",
+      "slug": "spiky-hair",
+      "name": "Spiky Hair",
+      "webUrl": "/sluzby/spiky-hair/",
+      "description": "Tento účes je definicí rebelské moderní urban fashion. Celý střih si zachovává bohatou délku a objem v celé středové linii – od krátké, střapaté ofiny přes temeno až hluboko na zátylek, kde tvoří ležérní mulletový ocas. Celá tato horní a zadní partie je nastylována do ostrých, oddělených pramenů (spiky textura). Boky kolem uší jsou radikálně odlehčeny technikou Burst Fade – čistým vytracením do půlkruhu, které dává vyniknout tetování na krku. Agresivní vzhled podtrhuje kompletní odbarvení na zářivou platinovou blond.",
+      "intendedFor": "Styl je stvořen pro alternativní, punkovou a rockovou scénu pro lidi, kteří chtějí nepřehlédnutelný, excentrický vzhled. Je ideální pro husté, pevné vlasy, které zvládnou odbarvení a drží směr nahoru. Skvěle vynikne s tetováním a bradkou, která vyvažuje délku na zátylku.",
+      "faceShapes": [
+        "oval",
+        "square",
+        "triangle",
+        "rectangular",
+        "diamond"
+      ],
+      "hairTypes": [
+        "straight",
+        "slightly_wavy",
+        "european",
+        "latin"
+      ],
+      "stylingDifficulty": 3,
+      "popularity": 3,
+      "tag": null,
+      "barbers": [],
+      "similar": [
+        {
+          "name": "Faux Hawk",
+          "webUrl": "/sluzby/faux-hawk-2/",
+          "slug": "faux-hawk-2"
+        },
+        {
+          "name": "Skin Fade s melírem",
+          "webUrl": "/sluzby/skin-fade-s-melirem/",
+          "slug": "skin-fade-s-melirem"
+        },
+        {
+          "name": "Mullet",
+          "webUrl": "/sluzby/mullet/",
+          "slug": "mullet"
+        },
+        {
+          "name": "Mohawk",
+          "webUrl": "/sluzby/mohawk/",
+          "slug": "mohawk"
+        }
+      ]
+    },
+    {
+      "id": "a99415d1-2bf8-4307-a8bb-f807090442eb",
+      "slug": "taper-fade",
+      "name": "Taper Fade",
+      "webUrl": "/sluzby/taper-fade/",
+      "description": "Tento účes představuje jeden z nejuniverzálnějších a nejžádanějších typů stínování vůbec. Na rozdíl od klasického fadu se délka vlasů zkracuje na minimum (často až na kůži) pouze ve dvou specifických oblastech – kolem kotlet a na krku. Nad ušima a ve středu zadní části hlavy tak zůstává zachována delší, přirozená linie vlasů. Taper fade je ideální volbou pro ty, kteří chtějí čistý, precizní střih kolem kontur, ale zároveň si přejí zachovat plnost a délku vlasů po stranách. Skvěle se kombinuje s jakýmkoliv typem horní partie, od elegantního side partu až po uvolněný texturovaný crop.",
+      "intendedFor": "Styl je hitem pro teenagery a studenty, kteří hledají fresh vzhled bez kompletně vyholených boků na kůži. Je ideální pro husté, vlnité či poddajné vlasy, kterým dodá skvělý objem a texturu. Vytracení kotlet a krku dává účesu řád, takže vypadá skvěle ve škole i při sportu.",
+      "faceShapes": [
+        "oval",
+        "square",
+        "heart",
+        "triangle",
+        "rectangular",
+        "diamond"
+      ],
+      "hairTypes": [
+        "slightly_wavy",
+        "wavy",
+        "european",
+        "latin"
+      ],
+      "stylingDifficulty": 3,
+      "popularity": 5,
+      "tag": "TAPER",
+      "barbers": [
+        {
+          "name": "Pavel",
+          "webUrl": "/tym/pavel/"
+        },
+        {
+          "name": "David",
+          "webUrl": "/tym/david/"
+        },
+        {
+          "name": "Saša",
+          "webUrl": "/tym/sasa/"
+        },
+        {
+          "name": "Barča",
+          "webUrl": "/tym/barca/"
+        }
+      ],
+      "similar": [
+        {
+          "name": "Wavy top s Taper fadem",
+          "webUrl": "/sluzby/wavy-top-s-taper-fadem/",
+          "slug": "wavy-top-s-taper-fadem"
+        },
+        {
+          "name": "Low Fade",
+          "webUrl": "/sluzby/low-fade/",
+          "slug": "low-fade"
+        },
+        {
+          "name": "Burst Fade + Messy long French Crop",
+          "webUrl": "/sluzby/burst-fade-messy-long-french-crop/",
+          "slug": "burst-fade-messy-long-french-crop"
+        },
+        {
+          "name": "Taper Fade + Mullet",
+          "webUrl": "/sluzby/taper-fade-mullet/",
+          "slug": "taper-fade-mullet"
+        },
+        {
+          "name": "Fluffy účes",
+          "webUrl": "/sluzby/fluffy-uces/",
+          "slug": "fluffy-uces"
+        },
+        {
+          "name": "Blow Taper Fade",
+          "webUrl": "/sluzby/blow-taper-fade/",
+          "slug": "blow-taper-fade"
+        }
+      ]
+    },
+    {
+      "id": "c04129a8-66ab-41d9-8dd2-8123f41d2f90",
+      "slug": "taper-fade-mullet",
+      "name": "Taper Fade + Mullet",
+      "webUrl": "/sluzby/taper-fade-mullet/",
+      "description": "Tento styl se vyznačuje kontrastem mezi krátkými stranami a delšími vlasy v zadní části hlavy. Taper fade představuje postupné zkracování vlasů od  uším, kde se délka plynule napojuje až k zvolené délce na stranách. Mullet naopak zachovává delší vlasy v zadní části, které mohou sahat až na ramena či níže. Kombinace těchto dvou technik vytváří výrazný, odvážný vzhled, který spojuje moderní preciznost s rebelským nádechem. Vlasy na vrchní části hlavy bývají často ponechány delší, aby vytvářely kontrast s vystínovanými stranami a umožňovaly různé stylingové variace.",
+      "intendedFor": "Účes je favoritem street fashion a R&B scény pro mladé muže, kteří chtějí uvolněný styl s přirozenou texturou. Je perfektní volbou pro vlnité či poddajné vlasy, kterým dodá objem. Skvěle vyvažuje delší, oválné či diamantové obličeje a díky vyholeným kotletám působí velmi fresh.",
+      "faceShapes": [
+        "oval",
+        "square",
+        "rectangular",
+        "diamond",
+        "triangle",
+        "heart"
+      ],
+      "hairTypes": [
+        "slightly_wavy",
+        "wavy",
+        "european",
+        "latin"
+      ],
+      "stylingDifficulty": 2,
+      "popularity": 5,
+      "tag": "JAGR",
+      "barbers": [
+        {
+          "name": "Andrej",
+          "webUrl": "/tym/andrej/"
+        },
+        {
+          "name": "Anna",
+          "webUrl": "/tym/anna/"
+        }
+      ],
+      "similar": [
+        {
+          "name": "Mohawk",
+          "webUrl": "/sluzby/mohawk/",
+          "slug": "mohawk"
+        },
+        {
+          "name": "Mullet",
+          "webUrl": "/sluzby/mullet/",
+          "slug": "mullet"
+        },
+        {
+          "name": "Vpředu byznys vzadu párty",
+          "webUrl": "/sluzby/vpredu-byznys-vzadu-party/",
+          "slug": "vpredu-byznys-vzadu-party"
+        }
+      ]
+    },
+    {
+      "id": "fb067980-8962-43f5-8110-965d862524ae",
+      "slug": "taper-fade-na-afro-vlasech",
+      "name": "Taper Fade na Afro vlasech",
+      "webUrl": "/sluzby/taper-fade-na-afro-vlasech/",
+      "description": "Tento účes zachovává a zdůrazňuje unikátní texturu a objem afro vlasů na vrchní části hlavy, zatímco postupně se zkracující strany dodávají celému looku čistý a moderní vzhled. Vrchní část může být ponechána v různých délkách podle preference – od kratší verze až po výraznější provedení s delšími vlasy. Přechod začíná ve výšce ucha (konkrétně na tomto účesu od 0mm) a z ní se velmi rychle se napojuje do delších vlasů. Precizní linie kolem čela a spánků dodávají účesu ostrost a čistotu.",
+      "intendedFor": "Styl je ideální pro muže s afro vlasy, kteří chtějí čistý a udržovatelný městský účes. Taper fade je skvělou volbou, pokud nechcete vyholovat celé boky na kůži a preferujete plnější profil. Ostrý line-up na spáncích dodává fresh vzhled. Vyžaduje začištění kontur každé 2 týdny.",
+      "faceShapes": [
+        "oval",
+        "square",
+        "heart",
+        "rectangular"
+      ],
+      "hairTypes": [
+        "curly",
+        "strongly_curly",
+        "latin",
+        "african"
+      ],
+      "stylingDifficulty": 4,
+      "popularity": 3,
+      "tag": "AFRO SWAG",
+      "barbers": [
+        {
+          "name": "Mark",
+          "webUrl": "/tym/mark/"
+        }
+      ],
+      "similar": [
+        {
+          "name": "Účes Michael B. Jordan (Buzz Cut)",
+          "webUrl": "/sluzby/uces-michael-b-jordan-buzz-cut/",
+          "slug": "uces-michael-b-jordan-buzz-cut"
+        },
+        {
+          "name": "Afro",
+          "webUrl": "/sluzby/afro/",
+          "slug": "afro"
+        },
+        {
+          "name": "Mohawk na afro vlasech",
+          "webUrl": "/sluzby/mohawk-na-afro-vlasech/",
+          "slug": "mohawk-na-afro-vlasech"
+        }
+      ]
+    },
+    {
+      "id": "c15814c7-0b65-4636-94c1-bb206de912c8",
+      "slug": "temple-fade",
+      "name": "Temple Fade",
+      "webUrl": "/sluzby/temple-fade/",
+      "description": "Tento moderní střih představuje dokonalý balanc mezi přirozeným, bohatým objemem a čistými, ostrými detaily. Horní, spánkové i zadní partie hlavy si zachovávají plnou hustotu a výraznou, dynamicky vrstvenou texturu přirozených vln směřujících lehce dopředu. Klíčovým prvkem je Temple Fade (neboli Blowout Taper) – velmi nízké a precizní vytracení mašinkou soustředěné výhradně na oblast spánkových koutů (kotlet) a na spodní linii krku. Oblast kolem uší je začištěná, ale nad nimi zůstává přirozený tmavý základ, což dává účesu plný a organický profil.",
+      "intendedFor": "Styl je hitem v urban a streetwear módě pro mladé muže, sportovce a hudebníky. Je ideální pro husté, vlnité vlasy s vlastní texturou. Díky decentnímu vyholení spánků a krku působí přirozeně a plně s ostrými konturami. Perfektně vynikne s tetováním na krku a lehkým strništěm.",
+      "faceShapes": [
+        "oval",
+        "square",
+        "heart",
+        "triangle",
+        "rectangular",
+        "diamond"
+      ],
+      "hairTypes": [
+        "slightly_wavy",
+        "wavy",
+        "european",
+        "latin"
+      ],
+      "stylingDifficulty": 3,
+      "popularity": 5,
+      "tag": "TREND",
+      "barbers": [
+        {
+          "name": "Pavel",
+          "webUrl": "/tym/pavel/"
+        },
+        {
+          "name": "Mark",
+          "webUrl": "/tym/mark/"
+        }
+      ],
+      "similar": [
+        {
+          "name": "Taper Fade",
+          "webUrl": "/sluzby/taper-fade/",
+          "slug": "taper-fade"
+        },
+        {
+          "name": "Wavy top s Taper fadem",
+          "webUrl": "/sluzby/wavy-top-s-taper-fadem/",
+          "slug": "wavy-top-s-taper-fadem"
+        },
+        {
+          "name": "Low Taper Fade",
+          "webUrl": "/sluzby/low-taper-fade/",
+          "slug": "low-taper-fade"
+        },
+        {
+          "name": "Fluffy účes",
+          "webUrl": "/sluzby/fluffy-uces/",
+          "slug": "fluffy-uces"
+        },
+        {
+          "name": "Blow Taper Fade",
+          "webUrl": "/sluzby/blow-taper-fade/",
+          "slug": "blow-taper-fade"
+        }
+      ]
+    },
+    {
+      "id": "5d956a6a-128d-4251-a6d3-32a0125905ff",
+      "slug": "texturovany-crop-drop-fade",
+      "name": "Texturovaný crop + drop fade",
+      "webUrl": "/sluzby/texturovany-crop-drop-fade/",
+      "description": "Texturovaný crop s drop fade je moderní, precizně střižený účes, který spojuje krátkou, výrazně texturovanou vrchní část s plynulým přechodem po stranách a v zátylku. Vlasy na temeni jsou střiženy krátce a upraveny tak, aby vytvářely přirozený, lehce rozcuchaný vzhled s důrazem na texturu. Ofina bývá zkrácená a často střižená do roviny nebo lehce šikmo směrem k čelu. Drop fade po stranách se postupně „láme“ směrem dolů za uši, čímž dodává účesu měkčí tvar a zvýrazňuje kontury hlavy. Tento střih je oblíbený pro svou univerzálnost a snadnou údržbu – působí svěže, stylově a zároveň profesionálně. Precizní linie kolem čela a spánků zvýrazňují čistý, moderní charakter účesu.",
+      "intendedFor": "Účes je hitem pro děti a teenagery, kteří hledají dravý styl s minimální ranní údržbou. Je ideální pro husté, poddajné vlasy držící směr dopředu a nahoru. Díky drop fadu působí střih vyváženě a skvěle maskuje nerovnosti hlavy na zátylku. Úprava s pudrem či hlínou zabere pár vteřin.",
+      "faceShapes": [
+        "oval",
+        "square",
+        "round",
+        "rectangular",
+        "diamond"
+      ],
+      "hairTypes": [
+        "straight",
+        "slightly_wavy",
+        "european",
+        "asian",
+        "latin"
+      ],
+      "stylingDifficulty": 3,
+      "popularity": 5,
+      "tag": "COOL",
+      "barbers": [
+        {
+          "name": "Káťa",
+          "webUrl": "/tym/katerina/"
+        },
+        {
+          "name": "Anna",
+          "webUrl": "/tym/anna/"
+        }
+      ],
+      "similar": [
+        {
+          "name": "Účes Yzomandias (Crop)",
+          "webUrl": "/sluzby/uces-yzomandias-crop/",
+          "slug": "uces-yzomandias-crop"
+        },
+        {
+          "name": "French Crop",
+          "webUrl": "/sluzby/french-crop/",
+          "slug": "french-crop"
+        },
+        {
+          "name": "Wavy top s Taper fadem",
+          "webUrl": "/sluzby/wavy-top-s-taper-fadem/",
+          "slug": "wavy-top-s-taper-fadem"
+        },
+        {
+          "name": "Low Taper Fade",
+          "webUrl": "/sluzby/low-taper-fade/",
+          "slug": "low-taper-fade"
+        },
+        {
+          "name": "Temple Fade",
+          "webUrl": "/sluzby/temple-fade/",
+          "slug": "temple-fade"
+        },
+        {
+          "name": "Wavy Top s Clean Fadem (černé vlasy)",
+          "webUrl": "/sluzby/vlnity-horejsek-s-cistym-fadem-na-cernych-vlasech/",
+          "slug": "vlnity-horejsek-s-cistym-fadem-na-cernych-vlasech"
+        }
+      ]
+    },
+    {
+      "id": "69096622-a389-422f-a16e-43a8242932af",
+      "slug": "texturovany-uces",
+      "name": "Texturovaný Účes",
+      "webUrl": "/sluzby/texturovany-uces/",
+      "description": "Tento styl se vyznačuje kombinací precizního střihu vlasů a pečlivě upravených vousů. Low Taper Fade představuje pozvolné zkracování vlasů, které začíná nízko nad ušima a krkem a postupně přechází do delších vlasů na temeni hlavy. Vousy do ztracena jsou tvarovány tak, aby se jejich délka postupně zmenšovala od plnější části u brady směrem k lícním kostem, kde přirozeně „mizí“. Tento přechod vytváří sofistikovaný vzhled a zdůrazňuje kontury obličeje. Celková kombinace poskytuje moderní, upravený dojem, který je zároveň elegantní. Pro udržení tohoto stylu je důležitá pravidelná údržba jak vlasů, tak vousů.",
+      "intendedFor": "Účes je králem mezi teenagery a fotbalisty vyznávajícími streetwear. Je ideální pro husté a poddajné vlasy. French Crop dokonale maskuje vysoké čelo či kouty díky sčesání dopředu. Úprava zabere doslova 10 vteřin – stačí použít pudr, prohrábnout prsty a účes drží celý den.",
+      "faceShapes": [
+        "oval",
+        "square",
+        "round",
+        "rectangular",
+        "diamond"
+      ],
+      "hairTypes": [
+        "straight",
+        "slightly_wavy",
+        "european",
+        "asian",
+        "latin"
+      ],
+      "stylingDifficulty": 2,
+      "popularity": 5,
+      "tag": "NUMBER1",
+      "barbers": [
+        {
+          "name": "Mark",
+          "webUrl": "/tym/mark/"
+        },
+        {
+          "name": "Saša",
+          "webUrl": "/tym/sasa/"
+        },
+        {
+          "name": "David",
+          "webUrl": "/tym/david/"
+        }
+      ],
+      "similar": [
+        {
+          "name": "Účes Yzomandias (Crop)",
+          "webUrl": "/sluzby/uces-yzomandias-crop/",
+          "slug": "uces-yzomandias-crop"
+        },
+        {
+          "name": "French Crop",
+          "webUrl": "/sluzby/french-crop/",
+          "slug": "french-crop"
+        },
+        {
+          "name": "Burst Fade + Textured Fringe",
+          "webUrl": "/sluzby/burst-fade-textured-fringe/",
+          "slug": "burst-fade-textured-fringe"
+        },
+        {
+          "name": "Texturovaný crop + drop fade",
+          "webUrl": "/sluzby/texturovany-crop-drop-fade/",
+          "slug": "texturovany-crop-drop-fade"
+        }
+      ]
+    },
+    {
+      "id": "72345dcf-fece-456c-ae9c-d1de6fdd70fb",
+      "slug": "uces-conor-mcgregor",
+      "name": "Účes Conor McGregor",
+      "webUrl": "/sluzby/uces-conor-mcgregor/",
+      "description": "Účes je po bocích stříhán od 0.0 mm tedy od kůže a stínování je zde ve střední výšce neboli Middle Fade. Hořejšek je česán na stranu a dělí ho vyholená pěšinka. Vousy jsou čistě napojeny na vlasy a dohromady tvoří elegantní styl.  Tento účes je inspirován nejznámějším MMA zápasníkem Conorem Mcgregorem, který jej nosil před legendárním zápasem s Floydem Mayweathrem v letech 2016 – 2017.",
+      "intendedFor": "Účes je perfektní volbou pro muže, manažery a sportovce, kteří vyžadují reprezentativní vzhled do obleku i do ringu. Výborně funguje pro rovné, husté vlasy sčesané na stranu. Ranní úprava vyžaduje fén, hřeben a pomádu. Pro ostrost vyholených boků navštivte barbera každých 10 až 14 dní.",
+      "faceShapes": [
+        "oval",
+        "square",
+        "round",
+        "rectangular",
+        "diamond"
+      ],
+      "hairTypes": [
+        "straight",
+        "slightly_wavy",
+        "european",
+        "latin"
+      ],
+      "stylingDifficulty": 3,
+      "popularity": 3,
+      "tag": null,
+      "barbers": [],
+      "similar": [
+        {
+          "name": "French Crop",
+          "webUrl": "/sluzby/french-crop/",
+          "slug": "french-crop"
+        },
+        {
+          "name": "Side Part",
+          "webUrl": "/sluzby/side-part/",
+          "slug": "side-part"
+        },
+        {
+          "name": "Pompadour",
+          "webUrl": "/sluzby/pompadour/",
+          "slug": "pompadour"
+        },
+        {
+          "name": "Quiff",
+          "webUrl": "/sluzby/quiff/",
+          "slug": "quiff"
+        },
+        {
+          "name": "Skin Fade s melírem",
+          "webUrl": "/sluzby/skin-fade-s-melirem/",
+          "slug": "skin-fade-s-melirem"
+        },
+        {
+          "name": "Undercut se skin fade",
+          "webUrl": "/sluzby/undercut-se-skin-fade/",
+          "slug": "undercut-se-skin-fade"
+        }
+      ]
+    },
+    {
+      "id": "2e6fd72c-c6d1-427d-8cb6-77a224f09c1e",
+      "slug": "uces-cristiano-ronaldo",
+      "name": "Účes Cristiano Ronaldo",
+      "webUrl": "/sluzby/uces-cristiano-ronaldo/",
+      "description": "Kratší účes, kde jsou vlasy na vrchu hlavy česány směrem do strany a rozděleny vyholenou pěšinkou. Strany jsou u tohoto účesu ostříhány technikou Middle Fade, ale šel by dobře kombinovat i s Low Fadem a High Fadem.  Tento účes byl dlouhá léta tím nejpopulárnějším a i dnes má stále své místo ve výběru těch nejoblíbenějších účesů vůbec.",
+      "intendedFor": "Účes je populární mezi teenagery a sportovci, kteří chtějí fresh a dynamický vzhled. Je ideální pro husté, rovné vlasy držící pevně na stranu. Díky vyholené cestičce a lince působí ostře. Vyžaduje úpravu hřebenem s gelem a návštěvu barbera každých 10 až 14 dní kvůli detailům.",
+      "faceShapes": [
+        "oval",
+        "square",
+        "round",
+        "rectangular",
+        "diamond"
+      ],
+      "hairTypes": [
+        "straight",
+        "slightly_wavy",
+        "european",
+        "latin"
+      ],
+      "stylingDifficulty": 3,
+      "popularity": 3,
+      "tag": null,
+      "barbers": [],
+      "similar": [
+        {
+          "name": "Účes Yzomandias (Crop)",
+          "webUrl": "/sluzby/uces-yzomandias-crop/",
+          "slug": "uces-yzomandias-crop"
+        },
+        {
+          "name": "Účes Sergei Barracuda",
+          "webUrl": "/sluzby/uces-sergei-barracuda/",
+          "slug": "uces-sergei-barracuda"
+        },
+        {
+          "name": "French Crop",
+          "webUrl": "/sluzby/french-crop/",
+          "slug": "french-crop"
+        },
+        {
+          "name": "Účes Conor McGregor",
+          "webUrl": "/sluzby/uces-conor-mcgregor/",
+          "slug": "uces-conor-mcgregor"
+        },
+        {
+          "name": "Undercut Fade",
+          "webUrl": "/sluzby/undercut-fade/",
+          "slug": "undercut-fade"
+        },
+        {
+          "name": "Undercut se skin fade",
+          "webUrl": "/sluzby/undercut-se-skin-fade/",
+          "slug": "undercut-se-skin-fade"
+        }
+      ]
+    },
+    {
+      "id": "c0334fc7-ac3f-4eaf-8cfc-2ac5378d7fc4",
+      "slug": "uces-eminem-buzz-cut",
+      "name": "Účes Eminem (Buzz Cut)",
+      "webUrl": "/sluzby/uces-eminem-buzz-cut/",
+      "description": "Buzz cut je velmi krátký účes, při kterém jsou vlasy ostříhány na stejnou délku po vršku celé hlavy. Tento styl je oblíbený pro svou jednoduchost a snadnou údržbu. Vzhledem ke krátkému střihu není potřeba účes stajlovat. Další velkým + je rychlé schnutí a to ocení všichni sportovci. U tvorby Buzz cutu používáme po čas procesu primárně holicí strojky a to s noži nebo planžety, které umožňují dosáhnout rovnoměrné délky. Boky a zadní část hlavy nejčastěji vidíme ostříhané technikami jako je midfade nebo highfade, což přidává na stylu a moderním vzhledu. Tento účes je vhodný pro muže ale i ženy a může být přizpůsoben různým tvarům obličeje a osobním preferencím. O Buzz cutu je takovém si můžete přečíst ZDE.",
+      "intendedFor": "Účes je stvořený pro muže a lidi ze streetové scény, kteří chtějí dravý, rebelsky laděný look s nádechem 90. let. Výhodou je bezúdržbovost bez nutnosti ranního stylingu. Je ideální pro husté vlasy. Kvůli odbarvení a skin fadu vyžaduje barbera a péči každých 10 až 14 dní.",
+      "faceShapes": [
+        "oval",
+        "square",
+        "round",
+        "rectangular",
+        "diamond"
+      ],
+      "hairTypes": [
+        "straight",
+        "slightly_wavy",
+        "european",
+        "asian",
+        "latin"
+      ],
+      "stylingDifficulty": 1,
+      "popularity": 4,
+      "tag": null,
+      "barbers": [],
+      "similar": [
+        {
+          "name": "Účes Yzomandias (Crop)",
+          "webUrl": "/sluzby/uces-yzomandias-crop/",
+          "slug": "uces-yzomandias-crop"
+        },
+        {
+          "name": "Účes Michael B. Jordan (Buzz Cut)",
+          "webUrl": "/sluzby/uces-michael-b-jordan-buzz-cut/",
+          "slug": "uces-michael-b-jordan-buzz-cut"
+        },
+        {
+          "name": "Krátký crop s high fade",
+          "webUrl": "/sluzby/kratky-crop-s-high-skin-fade/",
+          "slug": "kratky-crop-s-high-skin-fade"
+        },
+        {
+          "name": "Spiky Hair",
+          "webUrl": "/sluzby/spiky-hair/",
+          "slug": "spiky-hair"
+        },
+        {
+          "name": "Buzz Cut",
+          "webUrl": "/sluzby/buzz-cut-2/",
+          "slug": "buzz-cut-2"
+        }
+      ]
+    },
+    {
+      "id": "6862d88a-e012-4afe-bf34-cccd3293fd77",
+      "slug": "uces-jon-marianek",
+      "name": "Účes Jon Mariánek",
+      "webUrl": "/sluzby/uces-jon-marianek/",
+      "description": "Tento účes, který je charakteristický pro styl Jona Marianka, je definován především výraznou texturou a ležérním, moderním vzhledem. Horní partie vlasů jsou ponechány v střední délce a jsou stylingem upraveny do „rozcuchaného“ efektu plného objemu, který působí dynamicky a nenuceně. Kratší, čistě zastřižené boky a zátylek vytvářejí potřebný kontrast a zvýrazňují divočejší strukturu na temeni. Celkový look je zaměřen na přirozený pohyb vlasů a matný finiš, aniž by působil přehnaně uhlazeným dojmem.",
+      "intendedFor": "Střih je hitem pro mladou generaci, influencery a teenagery, kteří milují americký streetový vzhled. Je ideální pro husté, rovné až lehce vlnité vlasy, kterým dodá texturu. Skvěle maskuje nedokonalosti čela a nejléпе sedí k oválným, hranatým či diamantovým obličejům. Styling s pudrem či jílem zabere minutu.",
+      "faceShapes": [
+        "oval",
+        "square",
+        "heart",
+        "triangle",
+        "rectangular",
+        "diamond"
+      ],
+      "hairTypes": [
+        "straight",
+        "slightly_wavy",
+        "wavy",
+        "european",
+        "latin"
+      ],
+      "stylingDifficulty": 3,
+      "popularity": 4,
+      "tag": "CHLEBA",
+      "barbers": [],
+      "similar": [
+        {
+          "name": "Texturovaný crop + drop fade",
+          "webUrl": "/sluzby/texturovany-crop-drop-fade/",
+          "slug": "texturovany-crop-drop-fade"
+        },
+        {
+          "name": "Texturovaný Účes",
+          "webUrl": "/sluzby/texturovany-uces/",
+          "slug": "texturovany-uces"
+        },
+        {
+          "name": "Fluffy účes",
+          "webUrl": "/sluzby/fluffy-uces/",
+          "slug": "fluffy-uces"
+        }
+      ]
+    },
+    {
+      "id": "134febd1-8047-4a0c-a940-399b4fb371a7",
+      "slug": "uces-leos-mares",
+      "name": "Účes Leoš Mareš",
+      "webUrl": "/sluzby/uces-leos-mares/",
+      "description": "Tento účes, který nosí Leoš Mareš, představuje dokonalou rovnováhu mezi elegancí a moderním uvolněným stylem. Horní část vlasů je ponechána v kratší délce s výraznou přirozenou texturou a jemným vlněním, které dodává účesu objem a hloubku. Boky jsou precizně vytraceny, což vytváří upravený kontrast k texturovanému vršku. Celý look je v tomto případě vkusně doplněn udržovaným strništěm, které plynule navazuje na linii vlasů a podtrhuje mužné rysy a kontury obličeje.",
+      "intendedFor": "Účes je ideální pro zralé muže a manažery, kteří hledají elegantní, seriózní a snadno udržovatelný styl. Je perfektní pro mírně vlnité či tvrdší vlasy a skvěle funguje v kombinaci se strništěm či plnovousem. Sluší v podstatě všem tvarům obličeje, obzvláště těm s výraznými rysy.",
+      "faceShapes": [
+        "oval",
+        "square",
+        "heart",
+        "round",
+        "rectangular",
+        "diamond"
+      ],
+      "hairTypes": [
+        "slightly_wavy",
+        "wavy",
+        "european"
+      ],
+      "stylingDifficulty": 2,
+      "popularity": 3,
+      "tag": "KRÁL",
+      "barbers": [],
+      "similar": [
+        {
+          "name": "Ivy League Cut",
+          "webUrl": "/sluzby/ivy-league-cut/",
+          "slug": "ivy-league-cut"
+        },
+        {
+          "name": "Crew Cut",
+          "webUrl": "/sluzby/crew-cut/",
+          "slug": "crew-cut"
+        },
+        {
+          "name": "Low Taper Fade",
+          "webUrl": "/sluzby/low-taper-fade/",
+          "slug": "low-taper-fade"
+        }
+      ]
+    },
+    {
+      "id": "f4009737-8de7-4508-9867-23c44392c447",
+      "slug": "uces-lionel-messi",
+      "name": "Účes Lionel Messi",
+      "webUrl": "/sluzby/uces-lionel-messi/",
+      "description": "Boky jsou vybrány od 0.1 mm a postupně přechází do hořejšku, stínování je ve střední výšce neboli Middle Fade. Hořejšek délce 7 – 15 cm je česán nahoru a na stranu vousy pak můžou být zarovnány v různých tvarech, konkrétně tyto jsou do obloučku.  Tento účes nosí jedna z největších fotbalových legend- Lionel Messi.",
+      "intendedFor": "Střih je hitem pro sportovce a muže, kteří hledají dravý, ale profesionální vzhled. Je ideální pro husté a poddajné vlasy držící směr dopředu a nahoru. Skvěle sedí k oválným, hranatým i kulatějším obličejům. Úprava fénem a matnou hlínou nebo pudrem zabere doslova minutu.",
+      "faceShapes": [
+        "oval",
+        "square",
+        "round",
+        "rectangular",
+        "diamond"
+      ],
+      "hairTypes": [
+        "straight",
+        "slightly_wavy",
+        "european",
+        "latin"
+      ],
+      "stylingDifficulty": 2,
+      "popularity": 4,
+      "tag": null,
+      "barbers": [],
+      "similar": [
+        {
+          "name": "Účes Sergei Barracuda",
+          "webUrl": "/sluzby/uces-sergei-barracuda/",
+          "slug": "uces-sergei-barracuda"
+        },
+        {
+          "name": "French Crop",
+          "webUrl": "/sluzby/french-crop/",
+          "slug": "french-crop"
+        },
+        {
+          "name": "Ofina nahoru + Mid Fade",
+          "webUrl": "/sluzby/ofina-nahoru-stredni-fade/",
+          "slug": "ofina-nahoru-stredni-fade"
+        },
+        {
+          "name": "Quiff",
+          "webUrl": "/sluzby/quiff/",
+          "slug": "quiff"
+        },
+        {
+          "name": "Účes Leoš Mareš",
+          "webUrl": "/sluzby/uces-leos-mares/",
+          "slug": "uces-leos-mares"
+        },
+        {
+          "name": "Rozcuchané vlasy dopředu",
+          "webUrl": "/sluzby/rozcuchane-vlasy-dopredu/",
+          "slug": "rozcuchane-vlasy-dopredu"
+        }
+      ]
+    },
+    {
+      "id": "dc9d0cfc-bd73-493d-9d1f-8d736a6f0776",
+      "slug": "uces-michael-b-jordan-buzz-cut",
+      "name": "Účes Michael B. Jordan (Buzz Cut)",
+      "webUrl": "/sluzby/uces-michael-b-jordan-buzz-cut/",
+      "description": "Buzz cut je velmi krátký účes, při kterém jsou vlasy ostříhány na stejnou délku po vršku celé hlavy. Tento styl je oblíbený pro svou jednoduchost a snadnou údržbu. Vzhledem ke krátkému střihu není potřeba účes stajlovat. Další velkým + je rychlé schnutí a to ocení všichni sportovci. U tvorby Buzz cutu používáme po čas procesu primárně holicí strojky a to s noži nebo planžety, které umožňují dosáhnout rovnoměrné délky. Boky a zadní část hlavy nejčastěji vidíme ostříhané technikami jako je midfade nebo highfade, což přidává na stylu a moderním vzhledu. Tento účes je vhodný pro muže ale i ženy a může být přizpůsoben různým tvarům obličeje a osobním preferencím.",
+      "intendedFor": "Účes je ideální pro muže a sportovce, kteří hledají reprezentativní a bezúdržbový střih bez nutnosti ranního stylingu. Skvěle sedí k oholené tváři i strništi. Protože vzhled stojí na precizním fadu a rovných liniích Line-Upu, vyžaduje návštěvu barbera každých 10 až 14 dní.",
+      "faceShapes": [
+        "square",
+        "oval",
+        "heart",
+        "round",
+        "rectangular",
+        "diamond"
+      ],
+      "hairTypes": [
+        "straight",
+        "slightly_wavy",
+        "curly",
+        "strongly_curly",
+        "european",
+        "asian",
+        "latin",
+        "african"
+      ],
+      "stylingDifficulty": null,
+      "popularity": null,
+      "tag": null,
+      "barbers": [],
+      "similar": [
+        {
+          "name": "Buzz cut + Vystínované vousy",
+          "webUrl": "/sluzby/buzz-cut-vystinovane-vousy/",
+          "slug": "buzz-cut-vystinovane-vousy"
+        },
+        {
+          "name": "Buzz Cut",
+          "webUrl": "/sluzby/buzz-cut-2/",
+          "slug": "buzz-cut-2"
+        },
+        {
+          "name": "High Fade",
+          "webUrl": "/sluzby/high-fade/",
+          "slug": "high-fade"
+        },
+        {
+          "name": "Krátký crop s high fade",
+          "webUrl": "/sluzby/kratky-crop-s-high-skin-fade/",
+          "slug": "kratky-crop-s-high-skin-fade"
+        },
+        {
+          "name": "Účes Eminem (Buzz Cut)",
+          "webUrl": "/sluzby/uces-eminem-buzz-cut/",
+          "slug": "uces-eminem-buzz-cut"
+        }
+      ]
+    },
+    {
+      "id": "56131c2f-4557-474c-a0d8-967fe707e40c",
+      "slug": "uces-sergei-barracuda",
+      "name": "Účes Sergei Barracuda",
+      "webUrl": "/sluzby/uces-sergei-barracuda/",
+      "description": "Na stranách máme Skin Fade neboli stínování od úplné nuly tedy od kůže, boky jsou vytáhlé téměř až k hořejšku tedy technikou High Fade.",
+      "intendedFor": "Účes je hitem v rapové a streetwear komunitě. Je ideální pro husté, vlnité či poddajné vlasy, kterým dává objem, zatímco skin fade udržuje fresh vzhled. Skvěle pasuje k tetování a strništi. Úprava zabere chvilku – stačí použít matnou hlínu či pudr a vytvarovat vlny dopředu.",
+      "faceShapes": [
+        "oval",
+        "square",
+        "round",
+        "rectangular",
+        "diamond"
+      ],
+      "hairTypes": [
+        "slightly_wavy",
+        "wavy",
+        "european",
+        "latin"
+      ],
+      "stylingDifficulty": 2,
+      "popularity": 4,
+      "tag": null,
+      "barbers": [],
+      "similar": [
+        {
+          "name": "Fluffy účes",
+          "webUrl": "/sluzby/fluffy-uces/",
+          "slug": "fluffy-uces"
+        },
+        {
+          "name": "Wavy top s Taper fadem",
+          "webUrl": "/sluzby/wavy-top-s-taper-fadem/",
+          "slug": "wavy-top-s-taper-fadem"
+        },
+        {
+          "name": "Low Taper Fade",
+          "webUrl": "/sluzby/low-taper-fade/",
+          "slug": "low-taper-fade"
+        },
+        {
+          "name": "Ofina nahoru + Mid Fade",
+          "webUrl": "/sluzby/ofina-nahoru-stredni-fade/",
+          "slug": "ofina-nahoru-stredni-fade"
+        },
+        {
+          "name": "Quiff",
+          "webUrl": "/sluzby/quiff/",
+          "slug": "quiff"
+        },
+        {
+          "name": "Rozcuchané vlasy dopředu",
+          "webUrl": "/sluzby/rozcuchane-vlasy-dopredu/",
+          "slug": "rozcuchane-vlasy-dopredu"
+        }
+      ]
+    },
+    {
+      "id": "8a050089-a9eb-4712-8dd4-17a88f4a4fcf",
+      "slug": "uces-strizeny-elektrickym-holicim-strojkem-s-vyholenou-pesinkou",
+      "name": "Účes střižený elektrickým holicím strojkem s vyholenou pěšinkou",
+      "webUrl": "/sluzby/uces-strizeny-elektrickym-holicim-strojkem-s-vyholenou-pesinkou/",
+      "description": "Krátký účes provedený převážně elektrickým holicím strojkem, při kterém jsou vlasy obvykle stříhány na stejnou délku po celé hlavě. Tento konkrétní účes je doplněn o oholení pěšinky, která je obvykle oholena pomocí konturovacího strojku a poté dolaďována žiletkou nebo shavettou.  Strany jsou stínované dle přání klienta, doporučujeme ale middlefade or highfade.",
+      "intendedFor": "Účes je stvořený pro muže a sportovce, kteří hledají bezúdržbový, praktický a armádní styl bez nutnosti ranního stylingu. Je perfektní pro husté, tvrdé vlasy a skvěle vynikne s plnovousem. Kvůli ostré vyholené cestičce a skin fadu vyžaduje návštěvu barbera každých 10 až 14 dní.",
+      "faceShapes": [
+        "oval",
+        "square",
+        "round",
+        "rectangular",
+        "diamond"
+      ],
+      "hairTypes": [
+        "straight",
+        "slightly_wavy",
+        "european"
+      ],
+      "stylingDifficulty": 1,
+      "popularity": 3,
+      "tag": null,
+      "barbers": [],
+      "similar": [
+        {
+          "name": "High Fade",
+          "webUrl": "/sluzby/high-fade/",
+          "slug": "high-fade"
+        },
+        {
+          "name": "Buzz Cut",
+          "webUrl": "/sluzby/buzz-cut-2/",
+          "slug": "buzz-cut-2"
+        },
+        {
+          "name": "Moderní účes na zrzavých vlasech",
+          "webUrl": "/sluzby/moderni-uces-na-zrzavych-vlasech/",
+          "slug": "moderni-uces-na-zrzavych-vlasech"
+        },
+        {
+          "name": "Buzz cut + Vystínované vousy",
+          "webUrl": "/sluzby/buzz-cut-vystinovane-vousy/",
+          "slug": "buzz-cut-vystinovane-vousy"
+        },
+        {
+          "name": "French Crop",
+          "webUrl": "/sluzby/french-crop/",
+          "slug": "french-crop"
+        },
+        {
+          "name": "Krátký Crop",
+          "webUrl": "/sluzby/kratky-crop/",
+          "slug": "kratky-crop"
+        }
+      ]
+    },
+    {
+      "id": "fd604963-2ef8-4ebc-801d-7d03186afcf5",
+      "slug": "uces-yzomandias-crop",
+      "name": "Účes Yzomandias (Crop)",
+      "webUrl": "/sluzby/uces-yzomandias-crop/",
+      "description": "Kratší účes, kde jsou vlasy na vrchu hlavy dominantní. Tyto vlasy se často tvarují do texturovaného či rozcuchaného stylu. Strany jsou u tohoto účesu ostříhány technikou Middle Fade což celému účesu dodává moderní a svěží dojem. Tento styl je oblíbený pro svou kombinaci volného a přitom upraveného vzhledu.",
+      "intendedFor": "Účes je hitem mezi teenagery a fanoušky rapu a street kultury. Je ideální pro husté vlasy držící směr dopředu. French Crop skvěle maskuje začínající kouty či vyšší čelo. Úprava zabere pár sekund – stačí použít texturizační pudr, prohrábnout prsty do čela a účes drží celý den.",
+      "faceShapes": [
+        "oval",
+        "square",
+        "round",
+        "rectangular",
+        "diamond"
+      ],
+      "hairTypes": [
+        "straight",
+        "slightly_wavy",
+        "european",
+        "latin"
+      ],
+      "stylingDifficulty": null,
+      "popularity": null,
+      "tag": "KSN",
+      "barbers": [],
+      "similar": [
+        {
+          "name": "Texturovaný Účes",
+          "webUrl": "/sluzby/texturovany-uces/",
+          "slug": "texturovany-uces"
+        },
+        {
+          "name": "Rozcuchané vlasy dopředu",
+          "webUrl": "/sluzby/rozcuchane-vlasy-dopredu/",
+          "slug": "rozcuchane-vlasy-dopredu"
+        },
+        {
+          "name": "Texturovaný crop + drop fade",
+          "webUrl": "/sluzby/texturovany-crop-drop-fade/",
+          "slug": "texturovany-crop-drop-fade"
+        }
+      ]
+    },
+    {
+      "id": "83591330-d8b7-41aa-acab-2bca6596a07e",
+      "slug": "undercut-fade",
+      "name": "Undercut Fade",
+      "webUrl": "/sluzby/undercut-fade/",
+      "description": "Typický pro svůj vzhled. Poznáte jej na první pohled, jeho pravidlem je totiž neúplné napojení vlasů v horní a boční části hlav. Vlasy v horní části přepadávají přes fade. U ostatních typů fadů se vlasy napojují do stran. U undercut je to naopak.",
+      "intendedFor": "Účes je ideální pro kluky a sportovce, kteří hledají fresh, moderní a univerzální střih. Je skvělou volbou pro husté, poddajné vlasy držící objem na čele. Ranní úprava je snadná – stačí vyfoukat ofinu nahoru a zafixovat matnou hlínou či pudrem. Skvěle sedí k hladce oholené tváři.",
+      "faceShapes": [
+        "oval",
+        "square",
+        "round",
+        "rectangular",
+        "diamond"
+      ],
+      "hairTypes": [
+        "straight",
+        "slightly_wavy",
+        "european",
+        "asian"
+      ],
+      "stylingDifficulty": 1,
+      "popularity": 3,
+      "tag": null,
+      "barbers": [],
+      "similar": [
+        {
+          "name": "Faux Hawk s pěšinkou",
+          "webUrl": "/sluzby/faux-hawk/",
+          "slug": "faux-hawk"
+        },
+        {
+          "name": "Undercut se skin fade",
+          "webUrl": "/sluzby/undercut-se-skin-fade/",
+          "slug": "undercut-se-skin-fade"
+        },
+        {
+          "name": "Faux Hawk",
+          "webUrl": "/sluzby/faux-hawk-2/",
+          "slug": "faux-hawk-2"
+        },
+        {
+          "name": "Side Part",
+          "webUrl": "/sluzby/side-part/",
+          "slug": "side-part"
+        }
+      ]
+    },
+    {
+      "id": "02367951-5e1e-407f-ae29-af1efe5dc3e5",
+      "slug": "undercut-se-skin-fade",
+      "name": "Undercut se skin fade",
+      "webUrl": "/sluzby/undercut-se-skin-fade/",
+      "description": "Undercut se skin fade je moderní a výrazný pánský účes, který spojuje delší, texturovanou horní část vlasů s ostře oddělenými, vyholenými boky a zadní částí hlavy (skin fade). Vrchní vlasy jsou ponechány delší, často upravené s texturou nebo dozadu, což účesu dodává dynamiku a možnost různých stylingů. Přechod (fade) začíná vysoko nad ušima a je velmi ostrý, čímž vytváří silný kontrast mezi dlouhými vlasy nahoře a krátce střiženými stranami a zátylkem. Typickým znakem tohoto střihu je jasně patrná linie oddělující horní a spodní část vlasů. Kontury kolem čela a spánků jsou precizně upravené, díky čemuž účes působí vždy upraveně, svěže a moderně.",
+      "intendedFor": "Střih je ideální pro sebevědomé muže všech věkových kategorií včetně zralých pánů s šedinami, kteří vyznávají drsnější streetový styl. Je perfektní pro husté vlasy a díky ofině dopředu přirozeně maskuje kouty či vyšší čelo. Styling s pudrem či hlínou zabere pár sekund.",
+      "faceShapes": [
+        "oval",
+        "square",
+        "round",
+        "rectangular",
+        "diamond"
+      ],
+      "hairTypes": [
+        "straight",
+        "slightly_wavy",
+        "european",
+        "latin",
+        "asian"
+      ],
+      "stylingDifficulty": 3,
+      "popularity": 3,
+      "tag": null,
+      "barbers": [
+        {
+          "name": "Saša",
+          "webUrl": "/tym/sasa/"
+        },
+        {
+          "name": "David",
+          "webUrl": "/tym/david/"
+        }
+      ],
+      "similar": [
+        {
+          "name": "French Crop",
+          "webUrl": "/sluzby/french-crop/",
+          "slug": "french-crop"
+        },
+        {
+          "name": "Účes Yzomandias (Crop)",
+          "webUrl": "/sluzby/uces-yzomandias-crop/",
+          "slug": "uces-yzomandias-crop"
+        },
+        {
+          "name": "Caesar Cut",
+          "webUrl": "/sluzby/caesar-cut/",
+          "slug": "caesar-cut"
+        },
+        {
+          "name": "Burst Fade + Textured Fringe",
+          "webUrl": "/sluzby/burst-fade-textured-fringe/",
+          "slug": "burst-fade-textured-fringe"
+        },
+        {
+          "name": "Texturovaný crop + drop fade",
+          "webUrl": "/sluzby/texturovany-crop-drop-fade/",
+          "slug": "texturovany-crop-drop-fade"
+        }
+      ]
+    },
+    {
+      "id": "91827a02-ce60-44bb-adc5-05e7cafef94d",
+      "slug": "vlasy-dozadu",
+      "name": "Vlasy dozadu",
+      "webUrl": "/sluzby/vlasy-dozadu/",
+      "description": "Vlasy jsou často uhlazené a upravené pomocí stylingových přípravků, které zajišťují, že drží na svém místě. Tento účes může být vytvořen na vlasech různých délek – od krátkých po dlouhé. U kratších vlasů dodává elegantní, uhlazenější vzhled, zatímco u delších vlasů může působit dramatičtěji a výrazněji. Stylingové produkty jako gely, vosky, pomády nebo laky na vlasy pomáhají udržet tento účes v požadovaném tvaru po celý den. V závislosti na použitém produktu může být výsledek lesklý a uhlazený nebo matnější a strukturovanější.",
+      "intendedFor": "Styl je stvořen pro muže a manažery, kteří chtějí výrazný, upravený vzhled a ostrou klasiku. Je ideální pro husté, rovné vlasy s délkou pro sčesání dozadu. Úprava vyžaduje fén, hřeben a lesklou pomádu. Kvůli ostrosti vyholených boků se doporučuje navštívit barber každé 2 týdny.",
+      "faceShapes": [
+        "oval",
+        "square",
+        "round",
+        "rectangular",
+        "diamond"
+      ],
+      "hairTypes": [
+        "straight",
+        "slightly_wavy",
+        "european",
+        "asian"
+      ],
+      "stylingDifficulty": 3,
+      "popularity": 3,
+      "tag": null,
+      "barbers": [],
+      "similar": [
+        {
+          "name": "Pushed Back",
+          "webUrl": "/sluzby/pushed-back/",
+          "slug": "pushed-back"
+        },
+        {
+          "name": "Slick Back",
+          "webUrl": "/sluzby/slick-back/",
+          "slug": "slick-back"
+        },
+        {
+          "name": "Elegantně načesané vlasy dozadu s výtratem na krku",
+          "webUrl": "/sluzby/elegantne-nacesane-vlasy-dozadu-s-vytratem-na-krku/",
+          "slug": "elegantne-nacesane-vlasy-dozadu-s-vytratem-na-krku"
+        },
+        {
+          "name": "Old Money Haircut",
+          "webUrl": "/sluzby/old-money-haircut/",
+          "slug": "old-money-haircut"
+        }
+      ]
+    },
+    {
+      "id": "4d5bdd1c-1c31-420a-9cae-f875af1cb418",
+      "slug": "vlnity-horejsek-s-vysokym-vytratem",
+      "name": "Vlnitý hořejšek s vysokým výtratem",
+      "webUrl": "/sluzby/vlnity-horejsek-s-vysokym-vytratem/",
+      "description": "Vlnité vlasy, které doplňují vyšší vybrané boky neboli High Fade. Kudrliny na horní části hlavy mohou být přirozeně volné nebo upravené stylingovým produktem, což dodá objem a strukturu. Tento účes půjde lépe tomu u koho jsou vlasy přirozeně vlnité nebo více poddajné. Na rovných a tvrdých vlasech je tento styl témeř nečesatelný, proto jej v takovém případě rozmlouváme.",
+      "intendedFor": "Účes je ideální pro muže a kluky s hustými, vlnitými či kudrnatými vlasy. Skvěle sedí k oválným, hranatým a protáhlým obličejům. Dodá texturu na vrchu hlavy a zajistí čisté, upravené boky, které obličej opticky nerozšiřují do stran.",
+      "faceShapes": [
+        "oval",
+        "square"
+      ],
+      "hairTypes": [
+        "slightly_wavy",
+        "wavy",
+        "latin",
+        "european"
+      ],
+      "stylingDifficulty": 3,
+      "popularity": null,
+      "tag": "TREND",
+      "barbers": [
+        {
+          "name": "Barča",
+          "webUrl": "/tym/barca/"
+        }
+      ],
+      "similar": [
+        {
+          "name": "Texturovaný Účes",
+          "webUrl": "/sluzby/texturovany-uces/",
+          "slug": "texturovany-uces"
+        },
+        {
+          "name": "Texturovaný crop + drop fade",
+          "webUrl": "/sluzby/texturovany-crop-drop-fade/",
+          "slug": "texturovany-crop-drop-fade"
+        },
+        {
+          "name": "Curly Top",
+          "webUrl": "/sluzby/curly-top/",
+          "slug": "curly-top"
+        },
+        {
+          "name": "Burst Fade + Messy long French Crop",
+          "webUrl": "/sluzby/burst-fade-messy-long-french-crop/",
+          "slug": "burst-fade-messy-long-french-crop"
+        },
+        {
+          "name": "Fluffy účes",
+          "webUrl": "/sluzby/fluffy-uces/",
+          "slug": "fluffy-uces"
+        }
+      ]
+    },
+    {
+      "id": "74347f56-890b-4290-98e2-816fb9eb33a7",
+      "slug": "vousy-do-ztracena",
+      "name": "Vousy do ztracena",
+      "webUrl": "/sluzby/vousy-do-ztracena/",
+      "description": "K tomuto výsledku je zapotřebí použít primárně holicí strojky různých typů,  jako jsou: klasický strojek pro stříhání vousů, konturovací strojek nebo shaver. Jak moc nízko do ztracena vousy vystříháme už je na každém z Vás. Z pravidla platí: čím níže vousy vytrácíte, tím déle Vám vytracené vydrží. Konkrétně na této fotce jsou vousy střižené od 0.0 mm- ve výšce ucha a postupují do větších velikostí až na 1.5 cm- na bradu. Je důležité respektovat tvar obličeje, proto vidíme zastřižení linií na tvářích a krku v takových tvarech aby zvýraznili požadovaný výsledek a zvýraznili chtěné rysy.",
+      "intendedFor": "Ideální volba pro muže bojující s padáním vlasů či kouty, kteří zvolili radikální oholení hlavy vyvážené masivním, precizně upraveným plnovousem. Účes vyžaduje geneticky husté a silné vousy, které dodají vzhledu správný kontrast, mužnost a styl.",
+      "faceShapes": [
+        "oval",
+        "square",
+        "rectangular",
+        "diamond",
+        "heart",
+        "triangle"
+      ],
+      "hairTypes": [
+        "european",
+        "straight"
+      ],
+      "stylingDifficulty": 1,
+      "popularity": 4,
+      "tag": "STYLE",
+      "barbers": [
+        {
+          "name": "David",
+          "webUrl": "/tym/david/"
+        }
+      ],
+      "similar": [
+        {
+          "name": "Buzz cut + Vystínované vousy",
+          "webUrl": "/sluzby/buzz-cut-vystinovane-vousy/",
+          "slug": "buzz-cut-vystinovane-vousy"
+        },
+        {
+          "name": "Buzz Cut",
+          "webUrl": "/sluzby/buzz-cut-2/",
+          "slug": "buzz-cut-2"
+        }
+      ]
+    },
+    {
+      "id": "23aef6e5-50a6-4ff1-9516-a0e56fb16ffb",
+      "slug": "vpredu-byznys-vzadu-party",
+      "name": "Vpředu byznys vzadu párty",
+      "webUrl": "/sluzby/vpredu-byznys-vzadu-party/",
+      "description": "Tento účes dokonale naplňuje legendární heslo „vpředu byznys, vzadu párty“, ale v extrémně vkusném, moderním pojetí. Horní část vlasů je zkrácena do elegantních, přirozeně zvlněných vrstev, které se vyčesávají jemně nahoru a dozadu. Účes si zachovává výraznou délku a bohatý objem v zadní partii, kde vlasy měkce kopírují krk. Klíčovým prvkem, který střih čistí a dává mu byznys řád, je Low Taper Fade – velmi decentní vytracení mašinkou soustředěné pouze na kotlety a spánky. Ucho je tak kompletně odhalené, což z profilu vytváří upravený a profesionální dojem.",
+      "intendedFor": "Styl je ideální pro muže a kreativce, kteří chtějí trend mulletu, ale musí si zachovat upravenou tvář pro schůzky či kancelář. Perfektně sedí klukům s hustými, poddajnými či vlnitými vlasy s vlastní texturou a objemem. Skvěle ladí s jemným, udržovaným strništěm.",
+      "faceShapes": [
+        "oval",
+        "square",
+        "heart",
+        "triangle",
+        "rectangular",
+        "diamond"
+      ],
+      "hairTypes": [
+        "slightly_wavy",
+        "wavy",
+        "european",
+        "latin"
+      ],
+      "stylingDifficulty": 2,
+      "popularity": 4,
+      "tag": null,
+      "barbers": [],
+      "similar": [
+        {
+          "name": "Mohawk",
+          "webUrl": "/sluzby/mohawk/",
+          "slug": "mohawk"
+        },
+        {
+          "name": "Taper Fade + Mullet",
+          "webUrl": "/sluzby/taper-fade-mullet/",
+          "slug": "taper-fade-mullet"
+        },
+        {
+          "name": "Mullet",
+          "webUrl": "/sluzby/mullet/",
+          "slug": "mullet"
+        },
+        {
+          "name": "Old Money Haircut",
+          "webUrl": "/sluzby/old-money-haircut/",
+          "slug": "old-money-haircut"
+        }
+      ]
+    },
+    {
+      "id": "8ee6f51f-94f8-42a0-a36b-23a3a107ffa1",
+      "slug": "vlnity-horejsek-s-cistym-fadem-na-cernych-vlasech",
+      "name": "Wavy Top s Clean Fadem (černé vlasy)",
+      "webUrl": "/sluzby/vlnity-horejsek-s-cistym-fadem-na-cernych-vlasech/",
+      "description": "Tento moderní styl sází na kontrast mezi bohatým, přirozeně vlnitým vrškem a precizně vytracenými boky. Horní část vlasů je ponechána v delší, strukturované formě, která dává vyniknout přirozenému objemu a vlnám (vzhled připomínající moderní textured crop nebo messy fringe). Kolem uší a na zátylku je proveden čistý přechod typu Low Drop Fade, který účes opticky odlehčuje, dává mu ostré kontury a zároveň zachovává plnost v horní partii spánků. Ideální volba pro mladistvý a dynamický look.",
+      "intendedFor": "Účes je ideální pro muže a kluky s hustými, vlnitými či kudrnatými vlasy. Skvěle sedí k oválným, hranatým a protáhlým obličejům. Dodá texturu na vrchu hlavy a zajistí čisté, upravené boky, které obličej opticky nerozšiřují do stran.",
+      "faceShapes": [
+        "oval",
+        "square",
+        "triangle",
+        "rectangular",
+        "diamond"
+      ],
+      "hairTypes": [
+        "slightly_wavy",
+        "wavy",
+        "curly",
+        "european",
+        "latin"
+      ],
+      "stylingDifficulty": 3,
+      "popularity": 5,
+      "tag": null,
+      "barbers": [],
+      "similar": [
+        {
+          "name": "Wavy top s Taper fadem",
+          "webUrl": "/sluzby/wavy-top-s-taper-fadem/",
+          "slug": "wavy-top-s-taper-fadem"
+        },
+        {
+          "name": "Černé vlasy s low Taper Fade",
+          "webUrl": "/sluzby/cerne-vlasy-s-low-taperfade/",
+          "slug": "cerne-vlasy-s-low-taperfade"
+        },
+        {
+          "name": "Low Fade",
+          "webUrl": "/sluzby/low-fade/",
+          "slug": "low-fade"
+        },
+        {
+          "name": "Fluffy účes",
+          "webUrl": "/sluzby/fluffy-uces/",
+          "slug": "fluffy-uces"
+        },
+        {
+          "name": "Burst Fade",
+          "webUrl": "/sluzby/burst-fade/",
+          "slug": "burst-fade"
+        }
+      ]
+    },
+    {
+      "id": "99fe01cf-b529-4d76-b7be-a7d4a81644af",
+      "slug": "wavy-top-s-taper-fadem",
+      "name": "Wavy top s Taper fadem",
+      "webUrl": "/sluzby/wavy-top-s-taper-fadem/",
+      "description": "Wavy top s Taper fadem je moderní a stylový účes, který kombinuje vlnité vlasy na vršku hlavy s postupným přechodem na stranách a v zadní části. Vrchní část vlasů je ponechána delší, což umožňuje vyniknout přirozeným vlnám nebo vytvořit texturu pomocí stylingových produktů.  Tento účes je skvělý pro ty, kteří chtějí vyniknout přirozenou texturu svých vlasů a zároveň mít upravený, moderní střih. Stylingové produkty jako mořská sůl, texturizační sprej nebo lehká pomáda pomáhají zvýraznit vlny a zajistit, že účes vydrží atraktivní po celý den. Flexibilita délky nahoře umožňuje různé stylingové variace – od více strukturovaného vzhledu po uvolněnější, ležérnější styl.",
+      "intendedFor": "Účes je hitem urban a streetwear módy pro mladé muže a sportovce, kteří chtějí styl s přirozenou texturou. Je perfektní pro husté, vlnité či poddajné vlasy s objemem. Díky nízkému vytracení kotlet dává vyniknout tetování. Styling s mořskou solí či pudrem zabere pár vteřin.",
+      "faceShapes": [
+        "oval",
+        "square",
+        "heart",
+        "triangle",
+        "diamond",
+        "rectangular"
+      ],
+      "hairTypes": [
+        "slightly_wavy",
+        "wavy",
+        "european",
+        "latin"
+      ],
+      "stylingDifficulty": 2,
+      "popularity": 5,
+      "tag": null,
+      "barbers": [
+        {
+          "name": "Barča",
+          "webUrl": "/tym/barca/"
+        }
+      ],
+      "similar": [
+        {
+          "name": "Low Taper Fade",
+          "webUrl": "/sluzby/low-taper-fade/",
+          "slug": "low-taper-fade"
+        },
+        {
+          "name": "Wavy Top s Clean Fadem (černé vlasy)",
+          "webUrl": "/sluzby/vlnity-horejsek-s-cistym-fadem-na-cernych-vlasech/",
+          "slug": "vlnity-horejsek-s-cistym-fadem-na-cernych-vlasech"
+        },
+        {
+          "name": "Fluffy účes",
+          "webUrl": "/sluzby/fluffy-uces/",
+          "slug": "fluffy-uces"
+        },
+        {
+          "name": "Mullet",
+          "webUrl": "/sluzby/mullet/",
+          "slug": "mullet"
+        }
+      ]
+    }
+  ]
+}

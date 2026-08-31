@@ -9,6 +9,25 @@ export const BRANCH_IMAGES: Record<string, number> = {
   Barrandov: require('@/assets/img/branches/Barrandov.jpg'),
 };
 
+const BRANCH_IMAGE_ALIASES: Record<string, keyof typeof BRANCH_IMAGES> = {
+  modrany: 'Modřany',
+  modřany: 'Modřany',
+  barrandov: 'Barrandov',
+  kacerov: 'Kačerov',
+  kačerov: 'Kačerov',
+  hagibor: 'Hagibor',
+};
+
+/** Lokální fotka pobočky z assets — podle id nebo názvu. */
+export function getLocalBranchImage(nameOrId?: string | null): number | undefined {
+  const key = nameOrId?.trim();
+  if (!key) return undefined;
+  if (BRANCH_IMAGES[key] != null) return BRANCH_IMAGES[key];
+  const alias = BRANCH_IMAGE_ALIASES[key.toLowerCase()];
+  if (alias) return BRANCH_IMAGES[alias];
+  return undefined;
+}
+
 /** Same image list as branch-detail: media, imageUrl, service images; fallback to local BRANCH_IMAGES. */
 export function branchImages(branch: Branch): (string | number)[] {
   const out: (string | number)[] = [];

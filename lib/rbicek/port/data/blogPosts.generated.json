@@ -1,0 +1,1555 @@
+{
+  "generatedAt": "2026-08-27T17:20:51.648Z",
+  "source": "seo-starter-2/src/data/blog-posts.json",
+  "count": 172,
+  "items": [
+    {
+      "slug": "rozhovor-s-sasou",
+      "title": "Rozhovor se Sašou",
+      "excerpt": "Přinášíme vám sérii rozhovorů s našimi kolegy. V rozhovoru se jich budeme ptát na různé ot…",
+      "date": "2026-05-23",
+      "dateLabel": "23.05.26",
+      "tag": "Barber shop Praha.",
+      "webUrl": "/blog/rozhovor-s-sasou/"
+    },
+    {
+      "slug": "rozhovor-s-pavelem",
+      "title": "Rozhovor s Pavlem",
+      "excerpt": "Přinášíme vám sérii rozhovorů s našimi kolegy. V rozhovoru se jich budeme ptát na různé ot…",
+      "date": "2026-05-22",
+      "dateLabel": "22.05.26",
+      "tag": "Barber shop Praha.",
+      "webUrl": "/blog/rozhovor-s-pavelem/"
+    },
+    {
+      "slug": "rozhovor-s-ondrou",
+      "title": "Rozhovor s Ondrou",
+      "excerpt": "Přinášíme vám sérii rozhovorů s našimi kolegy. V rozhovoru se jich budeme ptát na různé ot…",
+      "date": "2026-05-21",
+      "dateLabel": "21.05.26",
+      "tag": "Barber shop Praha.",
+      "webUrl": "/blog/rozhovor-s-ondrou/"
+    },
+    {
+      "slug": "rozhovor-s-miou",
+      "title": "Rozhovor s Míou",
+      "excerpt": "Přinášíme vám sérii rozhovorů s našimi kolegy. V rozhovoru se jich budeme ptát na různé ot…",
+      "date": "2026-05-20",
+      "dateLabel": "20.05.26",
+      "tag": "Barber shop Praha.",
+      "webUrl": "/blog/rozhovor-s-miou/"
+    },
+    {
+      "slug": "rozhovor-s-matym",
+      "title": "Rozhovor s Matym",
+      "excerpt": "Přinášíme vám sérii rozhovorů s našimi kolegy. V rozhovoru se jich budeme ptát na různé ot…",
+      "date": "2026-05-19",
+      "dateLabel": "19.05.26",
+      "tag": "Barber shop Praha.",
+      "webUrl": "/blog/rozhovor-s-matym/"
+    },
+    {
+      "slug": "rozhovor-s-markem",
+      "title": "Rozhovor s Markem",
+      "excerpt": "Přinášíme vám sérii rozhovorů s našimi kolegy. V rozhovoru se jich budeme ptát na různé ot…",
+      "date": "2026-05-18",
+      "dateLabel": "18.05.26",
+      "tag": "Barber shop Praha.",
+      "webUrl": "/blog/rozhovor-s-markem/"
+    },
+    {
+      "slug": "rozhovor-s-lukasem",
+      "title": "Rozhovor s Lukášem",
+      "excerpt": "Přinášíme vám sérii rozhovorů s našimi kolegy. V rozhovoru se jich budeme ptát na různé ot…",
+      "date": "2026-05-17",
+      "dateLabel": "17.05.26",
+      "tag": "Barber shop Praha.",
+      "webUrl": "/blog/rozhovor-s-lukasem/"
+    },
+    {
+      "slug": "rozhovor-s-katou",
+      "title": "Rozhovor s Káťou",
+      "excerpt": "Přinášíme vám sérii rozhovorů s našimi kolegy. V rozhovoru se jich budeme ptát na různé ot…",
+      "date": "2026-05-16",
+      "dateLabel": "16.05.26",
+      "tag": "Barber shop Praha.",
+      "webUrl": "/blog/rozhovor-s-katou/"
+    },
+    {
+      "slug": "vypadavani-vlasu-u-muzu",
+      "title": "Vypadávání vlasů u mužů",
+      "excerpt": "Každý měsíc se za mnou u křesla otočí pár zákazníků a ukáže na místa, kde vlasů ubývá. Ptají se co…",
+      "date": "2026-05-15",
+      "dateLabel": "15.05.26",
+      "tag": null,
+      "webUrl": "/blog/vypadavani-vlasu-u-muzu/"
+    },
+    {
+      "slug": "rozhovor-s-karlem",
+      "title": "Rozhovor s Karlem",
+      "excerpt": "Přinášíme vám sérii rozhovorů s našimi kolegy. V rozhovoru se jich budeme ptát na různé ot…",
+      "date": "2026-05-15",
+      "dateLabel": "15.05.26",
+      "tag": "Barber shop Praha.",
+      "webUrl": "/blog/rozhovor-s-karlem/"
+    },
+    {
+      "slug": "rozhovor-s-jessicou",
+      "title": "Rozhovor s Jessicou",
+      "excerpt": "Přinášíme vám sérii rozhovorů s našimi kolegy. V rozhovoru se jich budeme ptát na různé ot…",
+      "date": "2026-05-14",
+      "dateLabel": "14.05.26",
+      "tag": "Barber shop Praha.",
+      "webUrl": "/blog/rozhovor-s-jessicou/"
+    },
+    {
+      "slug": "rozhovor-s-filipem",
+      "title": "Rozhovor s Filipem",
+      "excerpt": "Přinášíme vám sérii rozhovorů s našimi kolegy. V rozhovoru se jich budeme ptát na různé ot…",
+      "date": "2026-05-13",
+      "dateLabel": "13.05.26",
+      "tag": "Barber shop Praha.",
+      "webUrl": "/blog/rozhovor-s-filipem/"
+    },
+    {
+      "slug": "rozhovor-s-barcou",
+      "title": "Rozhovor s Barčou",
+      "excerpt": "Přinášíme vám sérii rozhovorů s našimi kolegy. V rozhovoru se jich budeme ptát na různé ot…",
+      "date": "2026-05-12",
+      "dateLabel": "12.05.26",
+      "tag": "Barber shop Praha.",
+      "webUrl": "/blog/rozhovor-s-barcou/"
+    },
+    {
+      "slug": "rozhovor-s-andrejem",
+      "title": "Rozhovor s Andrejem",
+      "excerpt": "Přinášíme vám sérii rozhovorů s našimi kolegy. V rozhovoru se jich budeme ptát na různé ot…",
+      "date": "2026-05-11",
+      "dateLabel": "11.05.26",
+      "tag": "Barber shop Praha.",
+      "webUrl": "/blog/rozhovor-s-andrejem/"
+    },
+    {
+      "slug": "rozhovor-s-andreou",
+      "title": "Rozhovor s Andreou",
+      "excerpt": "Přinášíme vám sérii rozhovorů s našimi kolegy. V rozhovoru se jich budeme ptát na různé ot…",
+      "date": "2026-05-10",
+      "dateLabel": "10.05.26",
+      "tag": "Barber shop Praha.",
+      "webUrl": "/blog/rozhovor-s-andreou/"
+    },
+    {
+      "slug": "zarostle-chloupky-po-holeni",
+      "title": "Zarostlé chloupky po holení",
+      "excerpt": "Přišel jsi od barbera s čerstvým fadedem. Vypadáš skvěle. Druhý den ráno se podíváš do zrcadla a na krku máš…",
+      "date": "2026-04-24",
+      "dateLabel": "24.04.26",
+      "tag": null,
+      "webUrl": "/blog/zarostle-chloupky-po-holeni/"
+    },
+    {
+      "slug": "fade-vs-taper",
+      "title": "Fade vs Taper",
+      "excerpt": "Přijdeš k barberovi a řekneš: „Chci fade.“ Barber se zeptá: „Low, mid nebo high?“ A ty stojíš a nevíš. Nebo…",
+      "date": "2026-04-17",
+      "dateLabel": "17.04.26",
+      "tag": null,
+      "webUrl": "/blog/fade-vs-taper/"
+    },
+    {
+      "slug": "pomada-vs-vosk-vs-hlina",
+      "title": "Pomáda vs vosk vs hlína",
+      "excerpt": "Stojíš v drogerii, díváš se na regál plný kelímků a všechny vypadají stejně. Pomáda. Vosk. Hlína. Pasta. Krém. A ty…",
+      "date": "2026-04-15",
+      "dateLabel": "15.04.26",
+      "tag": null,
+      "webUrl": "/blog/pomada-vs-vosk-vs-hlina/"
+    },
+    {
+      "slug": "kudrnaty-vous-jak-ho-zkrotit-ne-znicit",
+      "title": "Kudrnatý vous: jak ho zkrotit, ne zničit",
+      "excerpt": "Kudrnatý vous si tě nevybral náhodou. Je to genetika — a bojovat s ní každé ráno hodinami před zrcadlem není…",
+      "date": "2026-04-13",
+      "dateLabel": "13.04.26",
+      "tag": null,
+      "webUrl": "/blog/kudrnaty-vous-jak-ho-zkrotit-ne-znicit/"
+    },
+    {
+      "slug": "panska-trvala-ondulace-v-praze-realbarber-spousti-nejvetsi-trend-roku",
+      "title": "Pánská trvalá ondulace v Praze: Realbarber spouští největší trend roku!",
+      "excerpt": "Slyšíme vás, borci! Vaše dotazy na trvalou se v poslední době v našich zprávách a křeslech množily. A protože v…",
+      "date": "2026-04-01",
+      "dateLabel": "1.04.26",
+      "tag": null,
+      "webUrl": "/blog/panska-trvala-ondulace-v-praze-realbarber-spousti-nejvetsi-trend-roku/"
+    },
+    {
+      "slug": "leonardo-dicaprio-v-praze",
+      "title": "Leonardo DiCaprio v Praze",
+      "excerpt": "Leonardo DiCaprio v Praze: Když se Hollywood zastaví u nás v křesle Dneska ráno se u nás ve dveřích zastavil…",
+      "date": "2026-04-01",
+      "dateLabel": "1.04.26",
+      "tag": null,
+      "webUrl": "/blog/leonardo-dicaprio-v-praze/"
+    },
+    {
+      "slug": "a-rod-seznamte-se-s-ikonou-lv3pro",
+      "title": "A-ROD: Seznamte se s ikonou LV3PRO",
+      "excerpt": "A-ROD: Chlap, co má na Instagramu přes 2 mega a v rukách neskutečnej talent. V barber světě narazíte na mraky…",
+      "date": "2026-03-27",
+      "dateLabel": "27.03.26",
+      "tag": null,
+      "webUrl": "/blog/a-rod-seznamte-se-s-ikonou-lv3pro/"
+    },
+    {
+      "slug": "vernost-neni-jen-o-sbirani-hvezdicek-posouvame-se-dal",
+      "title": "Věrnost není jen o sbírání hvězdiček. Posouváme se dál.",
+      "excerpt": "Když jsme v Real Barber začínali, systém hvězdiček na vaší virtuální kartě byl jasný a fér. Devět návštěv, desátá na…",
+      "date": "2026-02-26",
+      "dateLabel": "26.02.26",
+      "tag": null,
+      "webUrl": "/blog/vernost-neni-jen-o-sbirani-hvezdicek-posouvame-se-dal/"
+    },
+    {
+      "slug": "jaro-se-blizi-cas-na-fresh-cut",
+      "title": "Jaro se blíží: Čas na fresh cut.",
+      "excerpt": "Zima nám konečně pomalu dává sbohem. Dny se prodlužují, teploty jdou nahoru a těžké zimní bundy společně s kulichy brzy…",
+      "date": "2026-02-26",
+      "dateLabel": "26.02.26",
+      "tag": null,
+      "webUrl": "/blog/jaro-se-blizi-cas-na-fresh-cut/"
+    },
+    {
+      "slug": "proc-muzum-padaji-vlasy-pravda-kterou-vam-vetsinou-nikdo-nevysvetli",
+      "title": "Proč mužům padají vlasy: pravda, kterou vám většinou nikdo nevysvětlí",
+      "excerpt": "Padání vlasů je jedno z nejčastějších a zároveň nejcitlivějších témat, se kterým se barber setkává. U mužů je to velké…",
+      "date": "2026-02-17",
+      "dateLabel": "17.02.26",
+      "tag": null,
+      "webUrl": "/blog/proc-muzum-padaji-vlasy-pravda-kterou-vam-vetsinou-nikdo-nevysvetli/"
+    },
+    {
+      "slug": "zaslouzi-si-legenda-karlos-vemola-aby-se-z-buzz-cutu-stal-oficialne-oss-cut",
+      "title": "Zaslouží si legenda Karlos Vémola, aby se z Buzz Cutu stal oficiálně Oss Cut?",
+      "excerpt": "Buzz cut. Je to nejspíš nejčistší, nejtvrdší a taky nejupřímnější sestřih, jakej si chlap může nechat udělat. Je krátkej, jednoduchej,…",
+      "date": "2026-01-30",
+      "dateLabel": "30.01.26",
+      "tag": null,
+      "webUrl": "/blog/zaslouzi-si-legenda-karlos-vemola-aby-se-z-buzz-cutu-stal-oficialne-oss-cut/"
+    },
+    {
+      "slug": "jaky-sestrih-do-noveho-roku-vyberes-ty",
+      "title": "Jaký sestřih do nového roku vybereš ty?",
+      "excerpt": "Pojďme si říct na rovinu – každý chlap vstupuje do nového roku s nějakým plánem. Někdo chce začít víc makat…",
+      "date": "2026-01-26",
+      "dateLabel": "26.01.26",
+      "tag": null,
+      "webUrl": "/blog/jaky-sestrih-do-noveho-roku-vyberes-ty/"
+    },
+    {
+      "slug": "fresh-strih-pod-stromecek-boj-o-vanocni-terminy-v-praze-startuje-mate-ten-svuj",
+      "title": "Fresh střih pod stromeček: Boj o vánoční termíny v Praze startuje. Máte ten svůj?",
+      "excerpt": "Známe to všichni. Prosinec. Měsíc, kdy se čas zrychlí asi trojnásobně. Sháníte dárky, řešíte uzávěrky v práci, plánujete, kde seženete…",
+      "date": "2025-12-04",
+      "dateLabel": "4.12.25",
+      "tag": "Praha volné termíny na sřih",
+      "webUrl": "/blog/fresh-strih-pod-stromecek-boj-o-vanocni-terminy-v-praze-startuje-mate-ten-svuj/"
+    },
+    {
+      "slug": "sport-a-uces-jak-udrzet-strih-svezi-i-po-treninku",
+      "title": "Sport a účes: Jak udržet střih svěží i po tréninku",
+      "excerpt": "Sport a účes v Praze: Jak udržet střih svěží i po tréninku Sport je dnes nedílnou součástí života mnoha mužů…",
+      "date": "2025-11-24",
+      "dateLabel": "24.11.25",
+      "tag": "Sportovní účesy",
+      "webUrl": "/blog/sport-a-uces-jak-udrzet-strih-svezi-i-po-treninku/"
+    },
+    {
+      "slug": "jak-si-udrzet-fresh-strih-co-nejdele",
+      "title": "Jak si udržet fresh střih co nejdéle?",
+      "excerpt": "Přečti si blog aby jsi veděl jak nejdéle udržet fresh střih! Znáš ten pocit, když odejdeš od barbera a říkáš…",
+      "date": "2025-11-21",
+      "dateLabel": "21.11.25",
+      "tag": null,
+      "webUrl": "/blog/jak-si-udrzet-fresh-strih-co-nejdele/"
+    },
+    {
+      "slug": "co-je-low-taper-fade-uces-ktery-frci-ale-nikdy-nevyjde-z-mody",
+      "title": "Co je Low Taper Fade – účes, který frčí, ale nikdy nevyjde z módy",
+      "excerpt": "Low Taper Fade je moderní klasika, která si poslední roky drží neotřesitelnou pozici v barbershop žebříčku nejžádanějších účesů. A není…",
+      "date": "2025-11-16",
+      "dateLabel": "16.11.25",
+      "tag": "realbarber.cz",
+      "webUrl": "/blog/co-je-low-taper-fade-uces-ktery-frci-ale-nikdy-nevyjde-z-mody/"
+    },
+    {
+      "slug": "barbershop-etiketa-jak-se-chovat-u-barbera-a-co-urcite-nedelat",
+      "title": "Barbershop etiketa: Jak se chovat u barbera (a co určitě nedělat)",
+      "excerpt": "Jít do barbershopu je víc než jen o tom, nechat si zkrátit vlasy. Je to rituál, zážitek, vibe. Ale stejně…",
+      "date": "2025-11-12",
+      "dateLabel": "12.11.25",
+      "tag": "realbarber.cz",
+      "webUrl": "/blog/barbershop-etiketa-jak-se-chovat-u-barbera-a-co-urcite-nedelat/"
+    },
+    {
+      "slug": "rb-cukr",
+      "title": "Cukr ☕",
+      "excerpt": "Real Barber – náš cukr, náš styl V Real Barberu věříme, že rozdíl dělají detaily. Od precizního střihu, po kávu,…",
+      "date": "2025-11-03",
+      "dateLabel": "03.11.25",
+      "tag": null,
+      "webUrl": "/blog/rb-cukr/"
+    },
+    {
+      "slug": "jak-sladit-uces-s-outfitama-a-vypadat-vzdycky-fresh",
+      "title": "Jak sladit účes s outfitama a vypadat vždycky fresh",
+      "excerpt": "Možná to zní jako detail, ale ve skutečnosti je to game-changer. Účes a outfit jsou jako dvojka, která musí ladit.…",
+      "date": "2025-10-16",
+      "dateLabel": "16.10.25",
+      "tag": "realbarber.cz",
+      "webUrl": "/blog/jak-sladit-uces-s-outfitama-a-vypadat-vzdycky-fresh/"
+    },
+    {
+      "slug": "panska-pece-jak-vypadat-fresh-mezi-navstevami-barbershopu-domaci-pece-o-vlasy-a-vousy",
+      "title": "Pánská péče: Jak vypadat fresh mezi návštěvami barbershopu – domácí péče o vlasy a vousy",
+      "excerpt": "Máš čerstvej střih, cítíš se skvěle, ale po pár dnech to začne ztrácet tvar? To je běžný – ale nemusí…",
+      "date": "2025-10-15",
+      "dateLabel": "15.10.25",
+      "tag": null,
+      "webUrl": "/blog/panska-pece-jak-vypadat-fresh-mezi-navstevami-barbershopu-domaci-pece-o-vlasy-a-vousy/"
+    },
+    {
+      "slug": "jak-se-meni-uces-podle-veku-co-sedne-v-15-25-35-a-dal",
+      "title": "Jak se mění účes podle věku: Co sedne v 15, 25, 35 a dál",
+      "excerpt": "Účes je víc než jen styl – je to odraz fáze života, ve kterém zrovna jsi. To, co sedí v…",
+      "date": "2025-10-13",
+      "dateLabel": "13.10.25",
+      "tag": null,
+      "webUrl": "/blog/jak-se-meni-uces-podle-veku-co-sedne-v-15-25-35-a-dal/"
+    },
+    {
+      "slug": "jaky-je-rozdil-mezi-barbershopem-a-klasickym-kadernictvim",
+      "title": "Jaký je rozdíl mezi barbershopem a klasickým kadeřnictvím?",
+      "excerpt": "Často se nás lidi ptají: „A proč bych měl jít do barbershopu, když mě může ostříhat i v kadeřnictví?“ Odpověď…",
+      "date": "2025-10-07",
+      "dateLabel": "7.10.25",
+      "tag": "jaky je rozdil mezi barbershopem a kadernictvim",
+      "webUrl": "/blog/jaky-je-rozdil-mezi-barbershopem-a-klasickym-kadernictvim/"
+    },
+    {
+      "slug": "jaky-uces-mi-sedne-podle-typu-vlasu",
+      "title": "Jaký účes mi sedne podle typu vlasů?",
+      "excerpt": "Výběr účesu není jen o tom, co se ti líbí na Instagramu. Aby si svým střihem opravdu zazářil, měl by…",
+      "date": "2025-09-22",
+      "dateLabel": "22.09.25",
+      "tag": "realbarber.cz",
+      "webUrl": "/blog/jaky-uces-mi-sedne-podle-typu-vlasu/"
+    },
+    {
+      "slug": "jak-strih-ovlivnuje-dojem-proc-na-vlasech-zalezi-vic-nez-si-myslis",
+      "title": "Jak střih ovlivňuje dojem: Proč na vlasech záleží víc, než si myslíš",
+      "excerpt": "Možná sis toho ani nevšiml, ale vlasy hrají klíčovou roli v tom, jak tě ostatní vnímají. Ať už jdeš na…",
+      "date": "2025-09-20",
+      "dateLabel": "20.09.25",
+      "tag": null,
+      "webUrl": "/blog/jak-strih-ovlivnuje-dojem-proc-na-vlasech-zalezi-vic-nez-si-myslis/"
+    },
+    {
+      "slug": "jak-kombinovat-vousy-a-uces-aby-spolu-ladily",
+      "title": "Jak kombinovat vousy a účes, aby spolu ladily",
+      "excerpt": "Účes máš fresh, fade přesný, kontury ostrý… ale něco tomu pořád chybí? Možná to budou vousy, které s účesem neladí.…",
+      "date": "2025-09-10",
+      "dateLabel": "10.09.25",
+      "tag": "Barbershop v Praze",
+      "webUrl": "/blog/jak-kombinovat-vousy-a-uces-aby-spolu-ladily/"
+    },
+    {
+      "slug": "jak-si-vybrat-idealni-fade-strih-low-mid-nebo-high-fade",
+      "title": "Jak si vybrat ideální fade střih: Low, Mid nebo High Fade?",
+      "excerpt": "Fade účes patří mezi nejvyhledávanější pánské střihy současnosti – a není divu.Je moderní, čistý, nadčasový a přizpůsobitelný různým typům vlasů…",
+      "date": "2025-09-03",
+      "dateLabel": "3.09.25",
+      "tag": "realbarber.cz",
+      "webUrl": "/blog/jak-si-vybrat-idealni-fade-strih-low-mid-nebo-high-fade/"
+    },
+    {
+      "slug": "barber-slovnik-15-pojmu-ktere-by-mel-znat-kazdy-frajer-nez-sedne-do-kresla",
+      "title": "Barber slovník: 15 pojmů, které by měl znát každý frajer, než sedne do křesla.",
+      "excerpt": "Znáš ten pocit, kdy sedíš v barber křesle, barber se tě zeptá: „Fade? Mid nebo high?“ a ty přikyvuješ, i…",
+      "date": "2025-09-01",
+      "dateLabel": "1.09.25",
+      "tag": "realbarber.cz",
+      "webUrl": "/blog/barber-slovnik-15-pojmu-ktere-by-mel-znat-kazdy-frajer-nez-sedne-do-kresla/"
+    },
+    {
+      "slug": "jack-mckay-ibiza-final-boss-bowl-cut",
+      "title": "Jack McKay, Ibiza Final Boss návrat bowl cutu: Trend, který rozděluje, ale funguje",
+      "excerpt": "Jedni se smějí. Druzí kopírují. A třetí se ptají:",
+      "date": "2025-08-19",
+      "dateLabel": "19.08.25",
+      "tag": null,
+      "webUrl": "/blog/jack-mckay-ibiza-final-boss-bowl-cut/"
+    },
+    {
+      "slug": "face-joga-a-masaze-obliceje-prirozena-cesta-ke-krase-a-zdravi",
+      "title": "Face jóga a masáže obličeje – přirozená cesta ke kráse a zdraví",
+      "excerpt": "V posledních letech se stále více mluví o přirozené péči o pleť a alternativách ke kosmetickým zákrokům. Jedním z největších…",
+      "date": "2025-07-29",
+      "dateLabel": "29.07.25",
+      "tag": "masáže obličeje",
+      "webUrl": "/blog/face-joga-a-masaze-obliceje-prirozena-cesta-ke-krase-a-zdravi/"
+    },
+    {
+      "slug": "k-cemu-je-dobra-panska-kosmetika-2",
+      "title": "K čemu je dobrá pánská kosmetika?",
+      "excerpt": "Ještě před pár lety byla pánská kosmetika často považována za zbytečný luxus.. Dnes už je ale všechno jinak. Muži se…",
+      "date": "2025-07-21",
+      "dateLabel": "21.07.25",
+      "tag": null,
+      "webUrl": "/blog/k-cemu-je-dobra-panska-kosmetika-2/"
+    },
+    {
+      "slug": "fluffy-fade-crop-nebo-buzz-jak-poznat-ktery-uces-sedne-prave-tobe",
+      "title": "Fluffy, fade, crop nebo buzz? Jak poznat, který účes sedne právě tobě",
+      "excerpt": "Chceš změnu účesu, ale nevíš, co ti bude sedět? Ukládáš si fotky z Instagramu, ale realita v zrcadle je jiná?…",
+      "date": "2025-07-08",
+      "dateLabel": "8.07.25",
+      "tag": null,
+      "webUrl": "/blog/fluffy-fade-crop-nebo-buzz-jak-poznat-ktery-uces-sedne-prave-tobe/"
+    },
+    {
+      "slug": "top-styly-vousu-podle-celebrit-ktere-muzes-zkusit-i-ty",
+      "title": "TOP styly vousů podle celebrit, které můžeš zkusit i ty",
+      "excerpt": "Chceš vypadat jako borec z filmu, TikToku nebo Instagramu? Není třeba milionovej outfit nebo hollywoodskej úsměv – často stačí správný…",
+      "date": "2025-07-01",
+      "dateLabel": "1.07.25",
+      "tag": "realbarber.cz",
+      "webUrl": "/blog/top-styly-vousu-podle-celebrit-ktere-muzes-zkusit-i-ty/"
+    },
+    {
+      "slug": "nejvetsi-chyby-ktere-chlapi-delaji-pri-uprave-vlasu-doma-a-jak-se-jim-vyhnout",
+      "title": "Největší chyby, které chlapi dělají při úpravě vlasů doma (a jak se jim vyhnout)",
+      "excerpt": "Ne každý má čas nebo možnost skočit ke svému barberovi každý týden – to je jasný. Ale když už si…",
+      "date": "2025-06-25",
+      "dateLabel": "25.06.25",
+      "tag": "realbarber.cz",
+      "webUrl": "/blog/nejvetsi-chyby-ktere-chlapi-delaji-pri-uprave-vlasu-doma-a-jak-se-jim-vyhnout/"
+    },
+    {
+      "slug": "uces-pro-sigma-boye-styl-co-mluvi-za-tebe",
+      "title": "Účes pro sigma boye: Styl, co mluví za tebe",
+      "excerpt": "Sigma boy. Tichý vlk. Nehraje si na šéfa, ale když projde kolem, každej zpozorní. Neukazuje ego, ale ví, kdo je.…",
+      "date": "2025-05-30",
+      "dateLabel": "30.05.25",
+      "tag": null,
+      "webUrl": "/blog/uces-pro-sigma-boye-styl-co-mluvi-za-tebe/"
+    },
+    {
+      "slug": "jaky-uces-zvolit-podle-tvaru-obliceje",
+      "title": "Jaký účes zvolit podle tvaru obličeje?",
+      "excerpt": "Výběr správného účesu není jen otázkou osobního vkusu, ale také tvaru obličeje. Každý muž má jedinečné rysy, které lze vhodně…",
+      "date": "2025-05-28",
+      "dateLabel": "28.05.25",
+      "tag": null,
+      "webUrl": "/blog/jaky-uces-zvolit-podle-tvaru-obliceje/"
+    },
+    {
+      "slug": "trend-roku-2025-japonske-head-spa",
+      "title": "Trend roku 2025 – Japonské Head Spa",
+      "excerpt": "Představ si, že zavřeš oči, pohodlně se usadíš a necháš se unášet jemnou masáží hlavy, vůní esenciálních olejů a hřejivým…",
+      "date": "2025-05-22",
+      "dateLabel": "22.05.25",
+      "tag": "Real barber Praha",
+      "webUrl": "/blog/trend-roku-2025-japonske-head-spa/"
+    },
+    {
+      "slug": "jak-pecovat-o-telo-v-horkych-dnech-kompletni-pruvodce-letem-ve-zdravi-a-pohode",
+      "title": "Jak pečovat o tělo v horkých dnech – Kompletní průvodce létem ve zdraví a pohodě",
+      "excerpt": "Léto je pro mnohé z nás nejkrásnějším obdobím roku. Slunce, koupání, dovolené, festivaly… Ale horké dny mají i svou odvrácenou…",
+      "date": "2025-05-20",
+      "dateLabel": "20.05.25",
+      "tag": "Real barber Praha",
+      "webUrl": "/blog/jak-pecovat-o-telo-v-horkych-dnech-kompletni-pruvodce-letem-ve-zdravi-a-pohode/"
+    },
+    {
+      "slug": "masaz-jako-darek-originalni-zpusob-jak-potesit-telo-i-dusi",
+      "title": "Masáž jako dárek – Originální způsob, jak potěšit tělo i duši",
+      "excerpt": "Proč je masáž ideálním dárkem? V dnešní hektické době, kdy jsme neustále vystaveni stresu, časovému tlaku a fyzickému přetížení, hledáme…",
+      "date": "2025-05-18",
+      "dateLabel": "18.05.25",
+      "tag": "Real barber Praha",
+      "webUrl": "/blog/masaz-jako-darek-originalni-zpusob-jak-potesit-telo-i-dusi/"
+    },
+    {
+      "slug": "boli-te-svaly-po-treninku-jak-ucineji-a-rychleji-zregenerovat",
+      "title": "Bolí tě svaly po tréninku – jak účiněji a rychleji zregenerovat",
+      "excerpt": "Intenzivní sportovní výkony často vedou k přetížení svalů, což může způsobit svalové křeče, napětí nebo bolest. Rychlá a účinná regenerace…",
+      "date": "2025-05-16",
+      "dateLabel": "16.05.25",
+      "tag": "Real barber Praha",
+      "webUrl": "/blog/boli-te-svaly-po-treninku-jak-ucineji-a-rychleji-zregenerovat/"
+    },
+    {
+      "slug": "co-pomaha-na-bolest-hlavy-masazni-techniky",
+      "title": "Co pomáhá na bolest hlavy – masážní techniky",
+      "excerpt": "Typy bolestí hlavy: Než se pustíme do konkrétních masážních technik, je důležité pochopit, s jakým typem bolesti hlavy se potýkáš.…",
+      "date": "2025-05-14",
+      "dateLabel": "14.05.25",
+      "tag": "Real barber Praha",
+      "webUrl": "/blog/co-pomaha-na-bolest-hlavy-masazni-techniky/"
+    },
+    {
+      "slug": "buzz-cut-minimalisticky-uces-ktery-nikdy-nevyjde-z-mody",
+      "title": "Buzz Cut – minimalistický účes, který nikdy nevyjde z módy",
+      "excerpt": "Někdy je největší styl právě v jednoduchosti. A přesně to platí o buzz cutu – ultra krátkém účesu, který je…",
+      "date": "2025-05-13",
+      "dateLabel": "13.05.25",
+      "tag": null,
+      "webUrl": "/blog/buzz-cut-minimalisticky-uces-ktery-nikdy-nevyjde-z-mody/"
+    },
+    {
+      "slug": "masaz-hlavy-a-rust-vlasu",
+      "title": "Masáž hlavy a růst vlasů",
+      "excerpt": "Vlasy jako vizitka moderního muže Vlasy nejsou jen chlupy na hlavě. Jsou výrazem osobnosti, zdraví, stylu i sebevědomí. Ať už…",
+      "date": "2025-05-12",
+      "dateLabel": "12.05.25",
+      "tag": "Real barber Praha",
+      "webUrl": "/blog/masaz-hlavy-a-rust-vlasu/"
+    },
+    {
+      "slug": "co-je-rb-beauty-a-proc-jsme-ho-vytvorili",
+      "title": "Co je RB Beauty a proč jsme ho vytvořili?",
+      "excerpt": "RB Beauty je exkluzivní sekce salonu Real Barber v Praze, která se zaměřuje na poskytování špičkových relaxačních a kosmetických služeb…",
+      "date": "2025-05-09",
+      "dateLabel": "9.05.25",
+      "tag": "Co je RB beauty a proč jsme ho vytvořili?",
+      "webUrl": "/blog/co-je-rb-beauty-a-proc-jsme-ho-vytvorili/"
+    },
+    {
+      "slug": "nejsi-ty-nahodou-typ-na-mullet-navrat-retro-stylu-co-fakt-fungujou",
+      "title": "Nejsi ty náhodou typ na mullet? Návrat retro stylů, co fakt fungujou",
+      "excerpt": "Rok 2025 přináší do světa pánských účesů pořádnou dávku nostalgie. Retro střihy se vrací na scénu a mezi nimi září…",
+      "date": "2025-05-07",
+      "dateLabel": "7.05.25",
+      "tag": "realbarber.cz",
+      "webUrl": "/blog/nejsi-ty-nahodou-typ-na-mullet-navrat-retro-stylu-co-fakt-fungujou/"
+    },
+    {
+      "slug": "mullet-shag-taper-proc-se-retro-ucesy-vraci-zpatky-na-scenu",
+      "title": "Mullet, shag, taper… Proč se retro účesy vrací zpátky na scénu",
+      "excerpt": "Říká se, že móda se vrací. A u účesů to platí dvojnásob. Co ještě před pár lety působilo jako výstřelek…",
+      "date": "2025-05-05",
+      "dateLabel": "5.05.25",
+      "tag": null,
+      "webUrl": "/blog/mullet-shag-taper-proc-se-retro-ucesy-vraci-zpatky-na-scenu/"
+    },
+    {
+      "slug": "jak-casto-chodit-na-masaz",
+      "title": "Jak často chodit na masáž?",
+      "excerpt": "Masáž je dnes mnohem víc než jen luxusní záležitost nebo výjimečný zážitek. Stala se běžnou součástí zdravého životního stylu pro…",
+      "date": "2025-05-05",
+      "dateLabel": "5.05.25",
+      "tag": null,
+      "webUrl": "/blog/jak-casto-chodit-na-masaz/"
+    },
+    {
+      "slug": "jaka-barva-vlasu-mi-sedne-vyber-odstinu-podle-tonu-pleti-a-stylu",
+      "title": "Jaká barva vlasů mi sedne? Výběr odstínu podle tónu pleti a stylu",
+      "excerpt": "Chceš si změnit barvu vlasů, ale nevíš, která ti bude fakt slušet? Nechceš vypadat jako experiment z TikToku, ale zároveň…",
+      "date": "2025-05-04",
+      "dateLabel": "4.05.25",
+      "tag": "realbarber.cz",
+      "webUrl": "/blog/jaka-barva-vlasu-mi-sedne-vyber-odstinu-podle-tonu-pleti-a-stylu/"
+    },
+    {
+      "slug": "barveni-vlasu-pro-muze-v-praze-proc-uz-to-neni-jen-holcici-vec",
+      "title": "Barvení vlasů pro muže v Praze: Proč už to není jen „holčičí věc“",
+      "excerpt": "Ještě před pár lety se říkalo, že barvení vlasů je jen pro holky. Dneska? Omyl, kámo. Dnes si barví vlasy…",
+      "date": "2025-05-01",
+      "dateLabel": "1.05.25",
+      "tag": "realbarber.cz",
+      "webUrl": "/blog/barveni-vlasu-pro-muze-v-praze-proc-uz-to-neni-jen-holcici-vec/"
+    },
+    {
+      "slug": "trendove-barvy-vlasu-pro-muze-2025-co-ted-frci",
+      "title": "Trendové barvy vlasů pro muže 2025: Co teď frčí?",
+      "excerpt": "Barvení vlasů u mužů už dávno není tabu. Dneska je to stylový statement, forma sebevyjádření i způsob, jak vystoupit z…",
+      "date": "2025-05-01",
+      "dateLabel": "1.05.25",
+      "tag": "realbarber.cz",
+      "webUrl": "/blog/trendove-barvy-vlasu-pro-muze-2025-co-ted-frci/"
+    },
+    {
+      "slug": "bolest-predlokti-loktu-nebo-zapesti-karpalni-tunel-nebo-tenisovy-loket",
+      "title": "Bolest předloktí, loktů nebo zápěstí? Karpální tunel nebo tenisový loket…",
+      "excerpt": "Bolest rukou, zápěstí, předloktí nebo loktů je častým problémem dnešní doby. Sedavé zaměstnání, práce u počítače, mobilní telefony, sport nebo…",
+      "date": "2025-04-30",
+      "dateLabel": "30.04.25",
+      "tag": null,
+      "webUrl": "/blog/bolest-predlokti-loktu-nebo-zapesti-karpalni-tunel-nebo-tenisovy-loket/"
+    },
+    {
+      "slug": "zakryti-sedin-stylove-barveni-vlasu-i-vousu-bez-trapneho-efektu",
+      "title": "Zakrytí šedin stylově: Barvení vlasů i vousů bez trapného efektu",
+      "excerpt": "Šediny nejsou konec světa. Ale někdy se na ně ještě necítíš. Chceš působit mladší, svěžejší nebo prostě jen sjednotit barvu?…",
+      "date": "2025-04-28",
+      "dateLabel": "28.04.25",
+      "tag": null,
+      "webUrl": "/blog/zakryti-sedin-stylove-barveni-vlasu-i-vousu-bez-trapneho-efektu/"
+    },
+    {
+      "slug": "jak-pecovat-o-barvene-vlasy-nejcastejsi-chyby-a-jak-se-jim-vyhnout",
+      "title": "Jak pečovat o barvené vlasy: Nejčastější chyby a jak se jim vyhnout",
+      "excerpt": "Barva na vlasech = fresh look, nový vibe, stylová změna. Ale taky zodpovědnost. Barvené vlasy potřebují péči. Pokud ji nedáš,…",
+      "date": "2025-04-28",
+      "dateLabel": "28.04.25",
+      "tag": "Realbarber.cz",
+      "webUrl": "/blog/jak-pecovat-o-barvene-vlasy-nejcastejsi-chyby-a-jak-se-jim-vyhnout/"
+    },
+    {
+      "slug": "nejcastejsi-obavy-chlapu-z-barveni-vlasu-a-proc-jsou-uplne-zbytecne",
+      "title": "Nejčastější obavy chlapů z barvení vlasů – a proč jsou úplně zbytečné",
+      "excerpt": "Barvení vlasů je dneska běžná věc. Ale přesto kolem toho pořád lítá spousta obav, hlavně mezi chlapama. „Nebude to vypadat…",
+      "date": "2025-04-24",
+      "dateLabel": "24.04.25",
+      "tag": "Nejčastější obavy chlapů z barvení vlasů",
+      "webUrl": "/blog/nejcastejsi-obavy-chlapu-z-barveni-vlasu-a-proc-jsou-uplne-zbytecne/"
+    },
+    {
+      "slug": "5-ucesovych-detailu-kterych-si-holky-fakt-vsimaji-a-chlapi-na-to-casto-zapominaji",
+      "title": "5 účesových detailů, kterých si holky fakt všímají (a chlapi na to často zapomínají)",
+      "excerpt": "Říká se, že holky koukaj na oči. Někdy na boty. Ale víš, co si všimnou fakt rychle? ?‍♂️ Tvůj účes.…",
+      "date": "2025-04-23",
+      "dateLabel": "23.04.25",
+      "tag": "5 účesových detailů, kterých si holky fakt všímají (a chlapi na to často zapomínají)",
+      "webUrl": "/blog/5-ucesovych-detailu-kterych-si-holky-fakt-vsimaji-a-chlapi-na-to-casto-zapominaji/"
+    },
+    {
+      "slug": "psychologie-upraveneho-vzhledu-jak-ovlivnuje-sebevedomi-a-uspech",
+      "title": "Psychologie upraveného vzhledu: Jak ovlivňuje sebevědomí a úspěch?",
+      "excerpt": "Vzhled hraje v naší společnosti důležitou roli. Není to jen otázka estetiky, ale také sebevědomí, vnímání okolím a dokonce i…",
+      "date": "2025-04-23",
+      "dateLabel": "23.04.25",
+      "tag": null,
+      "webUrl": "/blog/psychologie-upraveneho-vzhledu-jak-ovlivnuje-sebevedomi-a-uspech/"
+    },
+    {
+      "slug": "mam-si-pred-kosmetikou-holit-vousy",
+      "title": "Mám si před kosmetikou holit vousy?",
+      "excerpt": "Před návštěvou pánské kosmetiky v salonu Real Barber v Praze se mnoho mužů ptá: „Mám se před ošetřením oholit, nebo…",
+      "date": "2025-04-22",
+      "dateLabel": "22.04.25",
+      "tag": "RB Beaty Praha",
+      "webUrl": "/blog/mam-si-pred-kosmetikou-holit-vousy/"
+    },
+    {
+      "slug": "barveni-vlasu-a-vousu-v-real-barber-v-praze-jasne",
+      "title": "Barvení vlasů a vousů v Real Barber v Praze? Jasně!",
+      "excerpt": "Barbershop není jen o fadech, střizích a břitvách. Styl jde dál – a my v Real Barber jdeme s tebou.…",
+      "date": "2025-04-18",
+      "dateLabel": "18.04.25",
+      "tag": "realbarber.cz",
+      "webUrl": "/blog/barveni-vlasu-a-vousu-v-real-barber-v-praze-jasne/"
+    },
+    {
+      "slug": "trendy-ze-socialnich-siti-ktere-ovladly-barbershopy",
+      "title": "Trendy ze sociálních sítí, které ovládly barbershopy",
+      "excerpt": "TikTok, Instagram, Reels, YouTube Shorts… sociální sítě jsou dnes hlavním zdrojem inspirace – a to platí i pro účesy.Díky tomu…",
+      "date": "2025-04-17",
+      "dateLabel": "17.04.25",
+      "tag": "Jak se stát holičem v RB",
+      "webUrl": "/blog/trendy-ze-socialnich-siti-ktere-ovladly-barbershopy/"
+    },
+    {
+      "slug": "barbershop-neni-jen-o-vlasech-jak-strih-ovlivnuje-sebevedomi-a-styl-mladych",
+      "title": "Barbershop není jen o vlasech: Jak střih ovlivňuje sebevědomí a styl mladých",
+      "excerpt": "Dnešní barbershopy nejsou jen místem, kde si necháš zkrátit vlasy. Jsou to prostory plné stylu, atmosféry a sebevyjádření. A právě…",
+      "date": "2025-04-17",
+      "dateLabel": "17.04.25",
+      "tag": "Typy zákazníků RB.",
+      "webUrl": "/blog/barbershop-neni-jen-o-vlasech-jak-strih-ovlivnuje-sebevedomi-a-styl-mladych/"
+    },
+    {
+      "slug": "perfektni-ranni-rutina-jako-ashton-hall",
+      "title": "Perfektní ranní rutina jako Ashton Hall",
+      "excerpt": "Kdy naposledy jsi vstal brzy ráno a udělal takovýhle top servis pro své tělo a mysl? Ranní rituál Astona HallaKaždý…",
+      "date": "2025-04-15",
+      "dateLabel": "15.04.25",
+      "tag": "realbarber.cz",
+      "webUrl": "/blog/perfektni-ranni-rutina-jako-ashton-hall/"
+    },
+    {
+      "slug": "ucesy-podle-stylu-jaky-sestrih-ladi-ke-streetwearu-klasice-nebo-business-outfitu",
+      "title": "Účesy podle stylu: Jaký sestřih ladí ke streetwearu, klasice nebo business outfitu?",
+      "excerpt": "Ne každej účes se hodí ke každému outfitu. A pokud chceš působit stylově od hlavy až k botám, musíš sladit…",
+      "date": "2025-04-14",
+      "dateLabel": "14.04.25",
+      "tag": "realbarber.cz",
+      "webUrl": "/blog/ucesy-podle-stylu-jaky-sestrih-ladi-ke-streetwearu-klasice-nebo-business-outfitu/"
+    },
+    {
+      "slug": "fade-low-fade-high-fade-skin-fade-jak-se-v-tom-vyznat-a-ktery-je-pro-tebe-ten-pravy",
+      "title": "Fade, low fade, high fade, skin fade… Jak se v tom vyznat a který je pro tebe ten pravý?",
+      "excerpt": "„Chtěl bych fade, ale… jaký vlastně?“ Přesně tuhle otázku slyšíme v barbershopu skoro denně. A není divu – existuje spousta…",
+      "date": "2025-04-08",
+      "dateLabel": "8.04.25",
+      "tag": "realbarber.cz",
+      "webUrl": "/blog/fade-low-fade-high-fade-skin-fade-jak-se-v-tom-vyznat-a-ktery-je-pro-tebe-ten-pravy/"
+    },
+    {
+      "slug": "chces-zacit-s-vousy-tohle-by-mel-vedet-kazdy-typek-co-do-toho-jde",
+      "title": "Chceš začít s vousy? Tohle by měl vědět každý týpek, co do toho jde",
+      "excerpt": "Nechat si narůst vousy není jen o tom „přestat se holit“. Je to styl. Změna. Závazek. A taky nová zodpovědnost.…",
+      "date": "2025-04-04",
+      "dateLabel": "4.04.25",
+      "tag": "realbarber.cz",
+      "webUrl": "/blog/chces-zacit-s-vousy-tohle-by-mel-vedet-kazdy-typek-co-do-toho-jde/"
+    },
+    {
+      "slug": "uces-styl-a-vibe-jak-najit-svuj-osobni-look-ktery-te-bude-vystihovat",
+      "title": "Účes, styl a vibe: Jak najít svůj osobní look, který tě bude vystihovat",
+      "excerpt": "Dnes je to víc než jen o tom, “jak vypadáš”. Styl, který nosíš – ať už jde o vlasy, oblečení…",
+      "date": "2025-04-04",
+      "dateLabel": "4.04.25",
+      "tag": null,
+      "webUrl": "/blog/uces-styl-a-vibe-jak-najit-svuj-osobni-look-ktery-te-bude-vystihovat/"
+    },
+    {
+      "slug": "ceho-si-holky-vsimaji-na-klucich-neni-to-jen-o-vysce-nebo-botech",
+      "title": "Čeho si holky všímají na klucích – není to jen o výšce nebo botech",
+      "excerpt": "Možná si myslíš, že musíš mít drahý outfit, fitko postavu a auto, aby sis získal pozornost. Ale realita je úplně…",
+      "date": "2025-03-31",
+      "dateLabel": "31.03.25",
+      "tag": "realbarber.cz",
+      "webUrl": "/blog/ceho-si-holky-vsimaji-na-klucich-neni-to-jen-o-vysce-nebo-botech/"
+    },
+    {
+      "slug": "real-barber-voda-dalsi-level-hry",
+      "title": "Real barber voda – Další level hry",
+      "excerpt": "Značku Real Barber už dneska v Praze zná každý, kdo má aspoň trochu stylu. Od našeho prvního holičství jsme urazili…",
+      "date": "2025-03-31",
+      "dateLabel": "31.03.25",
+      "tag": null,
+      "webUrl": "/blog/real-barber-voda-dalsi-level-hry/"
+    },
+    {
+      "slug": "proc-je-low-taper-fade-tak-oblibeny",
+      "title": "Proč je Low Taper Fade tak oblíbený?",
+      "excerpt": "Účes Low Taper Fade se v posledních letech stal jedním z nejvyhledávanějších a nejtrendovějších stylů mezi muži. Tento střih, charakteristický…",
+      "date": "2025-03-31",
+      "dateLabel": "31.03.25",
+      "tag": "realbarber.cz",
+      "webUrl": "/blog/proc-je-low-taper-fade-tak-oblibeny/"
+    },
+    {
+      "slug": "tetovani",
+      "title": "Tetování",
+      "excerpt": "Víte, že je tetování složeno výhradně z bílých krvinek? Aneb Jak funguje tetování. Když přijdete na střih do barbershopu, často…",
+      "date": "2025-03-24",
+      "dateLabel": "24.03.25",
+      "tag": "realbarber.cz",
+      "webUrl": "/blog/tetovani/"
+    },
+    {
+      "slug": "proc-navstevovat-barber-shop",
+      "title": "Proč navštěvovat barber shop?",
+      "excerpt": "Navštěva barber shopu: Proč se svěřit do rukou profesionálů? V dnešní době se muži stále více zajímají o svůj vzhled…",
+      "date": "2025-03-24",
+      "dateLabel": "24.03.25",
+      "tag": "realbarber.cz",
+      "webUrl": "/blog/proc-navstevovat-barber-shop/"
+    },
+    {
+      "slug": "fluffy-hair-style-trend-ktery-vladne-socialnim-sitim",
+      "title": "Fluffy Hair Style: Trend, Který Vládne Sociálním Sítím",
+      "excerpt": "Fluffy Hair Style je jedním z nejpopulárnějších účesů současnosti. Tento ležérní, ale zároveň stylový look si získal obrovskou popularitu mezi…",
+      "date": "2025-03-11",
+      "dateLabel": "11.03.25",
+      "tag": null,
+      "webUrl": "/blog/fluffy-hair-style-trend-ktery-vladne-socialnim-sitim/"
+    },
+    {
+      "slug": "trendy-ucesy-pro-rok-2025-co-bude-v-kurzu",
+      "title": "Trendy účesy pro rok 2025: Co bude v kurzu?",
+      "excerpt": "Každý rok přináší nové trendy v pánských účesech, a rok 2025 nebude výjimkou. Muži stále více dbají na svůj vzhled…",
+      "date": "2025-03-08",
+      "dateLabel": "8.03.25",
+      "tag": null,
+      "webUrl": "/blog/trendy-ucesy-pro-rok-2025-co-bude-v-kurzu/"
+    },
+    {
+      "slug": "jak-na-zdrave-vousy",
+      "title": "Jak na zdravé vousy?",
+      "excerpt": "Mít zdravé a upravené vousy vyžaduje pravidelnou péči a správné návyky. Mnoho mužů se však dopouští běžných chyb, které mohou…",
+      "date": "2025-03-07",
+      "dateLabel": "7.03.25",
+      "tag": null,
+      "webUrl": "/blog/jak-na-zdrave-vousy/"
+    },
+    {
+      "slug": "upraveni-barberi",
+      "title": "Upravení barbeři",
+      "excerpt": "Když si projdete sociální sítě a web podniků, ve většině případů na nich najdete fotografie provedených střihů a dokážete si…",
+      "date": "2025-03-07",
+      "dateLabel": "7.03.25",
+      "tag": null,
+      "webUrl": "/blog/upraveni-barberi/"
+    },
+    {
+      "slug": "skvele-recenze-a-dobra-povest",
+      "title": "Skvělé recenze a dobrá pověst",
+      "excerpt": "Zkontrolování hvězdiček na internetu dnes všichni máme na dosah dvou palců ruky. A zběžné přelétnutí toho, které barbershopy vyhledávač ve…",
+      "date": "2025-02-20",
+      "dateLabel": "20.02.25",
+      "tag": null,
+      "webUrl": "/blog/skvele-recenze-a-dobra-povest/"
+    },
+    {
+      "slug": "jak-si-spravne-ususit-vlasy",
+      "title": "Jak si správně usušit vlasy?",
+      "excerpt": "Většina z nás je odmalička zvyklá nejen na mytí vlasů levným šamponem proti lupům, který je plný sulfátů a silikonů…",
+      "date": "2025-02-11",
+      "dateLabel": "11.02.25",
+      "tag": "Správné opláchnutí šamponu v Blogu na stránkách Realbarber",
+      "webUrl": "/blog/jak-si-spravne-ususit-vlasy/"
+    },
+    {
+      "slug": "proc-je-dulezity-kvalitni-sampon",
+      "title": "Proč je důležitý kvalitní šampon",
+      "excerpt": "Naším úkolem při výběru šamponu je vybrat takový, který našim vlasům pomůže vzkvétat, a ne chřadnout. Měl by tak umět…",
+      "date": "2025-02-11",
+      "dateLabel": "11.02.25",
+      "tag": "Správné opláchnutí šamponu v Blogu na stránkách Realbarber",
+      "webUrl": "/blog/proc-je-dulezity-kvalitni-sampon/"
+    },
+    {
+      "slug": "lupy-mozna-je-to-neco-jineho-aneb-jak-spravne-vymyt-sampon",
+      "title": "Lupy a mytí vlasů",
+      "excerpt": "Ke špatnému smytí šamponu nejlépe přispějeme tím, že vlasy budeme oplachovat krátce a po hlavě jenom tak zběžně několikrát přejedeme rukama. Protože…",
+      "date": "2025-02-11",
+      "dateLabel": "11.02.25",
+      "tag": null,
+      "webUrl": "/blog/lupy-mozna-je-to-neco-jineho-aneb-jak-spravne-vymyt-sampon/"
+    },
+    {
+      "slug": "vite-co-je-mikrobiom",
+      "title": "Mikrobiom vlasové pokožky",
+      "excerpt": "Málokdo by to čekal, ale lidí, co si umí umýt vlasy, je na světě jako šafránu. Podobně jako těch, co si umí správně vyčistit zuby. (Jak by potvrdila…",
+      "date": "2025-02-11",
+      "dateLabel": "11.02.25",
+      "tag": null,
+      "webUrl": "/blog/vite-co-je-mikrobiom/"
+    },
+    {
+      "slug": "jak-a-proc-si-spravne-myt-vlasy-1-dil",
+      "title": "Jak a proč si správně mýt vlasy",
+      "excerpt": "Záleží nám na tom, abyste z našeho barber shopu odešli s co nejlépe vypadajícími vlasy. Proto věnujeme péči také závěrečnému…",
+      "date": "2025-02-10",
+      "dateLabel": "10.02.25",
+      "tag": "Inspirace účesů na stránkách Pražského barber shopu.",
+      "webUrl": "/blog/jak-a-proc-si-spravne-myt-vlasy-1-dil/"
+    },
+    {
+      "slug": "jak-na-bezudrzbovy-uces-jeho-hlavni-tajemstvi",
+      "title": "Jak na bezúdržbový účes – jeho hlavní tajemství",
+      "excerpt": "Záleží nám na tom, abyste z našeho barber shopu odešli s co nejlépe vypadajícími vlasy. Proto věnujeme péči také závěrečnému…",
+      "date": "2025-01-31",
+      "dateLabel": "31.01.25",
+      "tag": "Inspirace účesů na stránkách Pražského barber shopu.",
+      "webUrl": "/blog/jak-na-bezudrzbovy-uces-jeho-hlavni-tajemstvi/"
+    },
+    {
+      "slug": "jak-zkrotit-mastne-vlasy-nejcastejsi-otazky-pro-barbera",
+      "title": "Jak zkrotit mastné vlasy? Nejčastější otázky pro barbera",
+      "excerpt": "Tyto otázky jsme obdrželi od zákazníků před Vámi, takže je pravděpodobné, že tu najdete odpověď i na svůj dotaz. Položit…",
+      "date": "2025-01-29",
+      "dateLabel": "29.01.25",
+      "tag": "Top barber shop v Praze Modřany.",
+      "webUrl": "/blog/jak-zkrotit-mastne-vlasy-nejcastejsi-otazky-pro-barbera/"
+    },
+    {
+      "slug": "co-je-to-buzz-cut-nejcastejsi-otazky-pro-barbera",
+      "title": "Co je to Buzz Cut? Nejčastější otázky pro Barbera",
+      "excerpt": "Tyto otázky jsme obdrželi od zákazníků před Vámi, takže je pravděpodobné, že tu najdete odpověď i na svůj dotaz. Položit…",
+      "date": "2025-01-25",
+      "dateLabel": "25.01.25",
+      "tag": "Nejpropracovanější BuzzCut v Praze.",
+      "webUrl": "/blog/co-je-to-buzz-cut-nejcastejsi-otazky-pro-barbera/"
+    },
+    {
+      "slug": "vis-co-je-masivni-low-taper-fade",
+      "title": "Víš co je masivní? Low Taper Fade",
+      "excerpt": "Víš co je masivní? Low Taper Fade! Tento trend se šíří po celém internetu, a my opravdu nevíme jak tento…",
+      "date": "2025-01-25",
+      "dateLabel": "25.01.25",
+      "tag": "Masivní Low taper fade Babiš",
+      "webUrl": "/blog/vis-co-je-masivni-low-taper-fade/"
+    },
+    {
+      "slug": "dalsi-real-barbershop-v-praze",
+      "title": "Další Real Barbershop v Praze",
+      "excerpt": "A nyní pozor. Real Barber se opět rozrůstá o novou pobočku. Tentokrát to ale nebudeme my, kdo rozhodne o její…",
+      "date": "2025-01-24",
+      "dateLabel": "24.01.25",
+      "tag": "Map of Prague",
+      "webUrl": "/blog/dalsi-real-barbershop-v-praze/"
+    },
+    {
+      "slug": "masaz-a-imunitni-system",
+      "title": "Masáž a imunitní systém",
+      "excerpt": "Jak dotek posiluje obranyschopnost těla? V dnešní době, kdy je naše zdraví vystaveno různým vlivům, od stresu a nedostatku pohybu…",
+      "date": "2025-01-22",
+      "dateLabel": "22.01.25",
+      "tag": "Imunitní systém který vám dobijeme v RB Beauty v Praze.",
+      "webUrl": "/blog/masaz-a-imunitni-system/"
+    },
+    {
+      "slug": "zluty-barber-kacerov-a-jeho-vznik",
+      "title": "Barber Kačerov &#8211; Vznik našeho žlutého království na Praze 4",
+      "excerpt": "A naše hlavní požadavky byly od začátku jasné – hodně místa, hodně světla a pak ještě více světla. Takže když se nám podařilo najít prostorné místo s…",
+      "date": "2025-01-21",
+      "dateLabel": "21.01.25",
+      "tag": null,
+      "webUrl": "/blog/zluty-barber-kacerov-a-jeho-vznik/"
+    },
+    {
+      "slug": "panske-barber-ucesy-pro-rok-2025",
+      "title": "Pánské Barber účesy pro rok 2025",
+      "excerpt": "Rok 2025 je tu a s ním i nové trendy v pánských účesech, které budou dominovat po celém světě. Udržení…",
+      "date": "2025-01-08",
+      "dateLabel": "8.01.25",
+      "tag": "Moderní pánské účesy vytvořené v moderním barbershopu v Praze.",
+      "webUrl": "/blog/panske-barber-ucesy-pro-rok-2025/"
+    },
+    {
+      "slug": "zeny-jsou-u-nas-vitany",
+      "title": "Ženy jsou u nás vítány",
+      "excerpt": "V našem barber shopu věříme, že každé tělo si zaslouží péči a relax. I když je slovo „barber“ často spojováno…",
+      "date": "2024-12-02",
+      "dateLabel": "2.12.24",
+      "tag": "Ženy v RB jsou vítané",
+      "webUrl": "/blog/zeny-jsou-u-nas-vitany/"
+    },
+    {
+      "slug": "treti-rb-klepe-na-dvere",
+      "title": "Třetí RB, klepe na dveře",
+      "excerpt": "Nová Pobočka Barbershopu v Praze 10: Styl a Pohodlí v Modré Barvě! S radostí oznamujeme brzké otevření nové pobočky našeho…",
+      "date": "2024-11-29",
+      "dateLabel": "29.11.24",
+      "tag": "Nová pobočka RB Praha Strašnice Hagibor.",
+      "webUrl": "/blog/treti-rb-klepe-na-dvere/"
+    },
+    {
+      "slug": "jak-se-spravne-pripravit-na-prvni-navstevu-barbera-tipy-jak-si-vyzadat-vas-idealni-uces",
+      "title": "Jak se správně připravit na první návštěvu barbera. Tipy, jak si vyžádat Váš ideální účes",
+      "excerpt": "Barbershopy se staly nejen místy pro střihání vlasů ale i centry kultury a stylu. Aby váš výsledek z návštěvy byl…",
+      "date": "2024-11-28",
+      "dateLabel": "28.11.24",
+      "tag": "Stylové pánské účesy od nejlepších barberů v Praze.",
+      "webUrl": "/blog/jak-se-spravne-pripravit-na-prvni-navstevu-barbera-tipy-jak-si-vyzadat-vas-idealni-uces/"
+    },
+    {
+      "slug": "proc-se-lide-vraci-na-stejna-mista-nahoda",
+      "title": "Proč se lidé vrací na stejná místa? NÁHODA?",
+      "excerpt": "Vybrali jsme osm základních pilířů na kterých stojí naše zákaznická platforma. Důvěra a spolehlivost: Důvěra je základním prvkem v jakémkoli…",
+      "date": "2024-11-26",
+      "dateLabel": "26.11.24",
+      "tag": "Proč se lidé vrací do RB.",
+      "webUrl": "/blog/proc-se-lide-vraci-na-stejna-mista-nahoda/"
+    },
+    {
+      "slug": "objevte-pribehy-nas-novy-blog-s-rozhovory",
+      "title": "Objevte příběhy: Náš nový blog s rozhovory",
+      "excerpt": "V barbershopu se dějí věci, které přesahují pouhé stříhání. Každý klient přináší svůj příběh a holič je kolikrát jako psycholog…",
+      "date": "2024-11-25",
+      "dateLabel": "25.11.24",
+      "tag": "Rozhovory s holiči RB.",
+      "webUrl": "/blog/objevte-pribehy-nas-novy-blog-s-rozhovory/"
+    },
+    {
+      "slug": "typy-zakazniku-jak-je-poznat-a-vyhovet-jejich-potrebam",
+      "title": "Typy zákazníků: Jak je poznat a vyhovět jejich potřebám",
+      "excerpt": "Identifikujte V oblasti holičství a kadeřnictví je klíčové pochopit, že každý zákazník má své vlastní potřeby, preference a očekávání. Tím,…",
+      "date": "2024-11-22",
+      "dateLabel": "22.11.24",
+      "tag": "Typy zákazníků RB.",
+      "webUrl": "/blog/typy-zakazniku-jak-je-poznat-a-vyhovet-jejich-potrebam/"
+    },
+    {
+      "slug": "jak-se-muze-barber-zviditelnit-na-socialnich-sitich",
+      "title": "Jak se může Barber zviditelnit na sociálních sítích?",
+      "excerpt": "V digitálním světě jsou sociální sítě jedním z nejsilnějších nástrojů, jak zvýšit povědomí o své značce, přilákat nové zákazníky a…",
+      "date": "2024-11-22",
+      "dateLabel": "22.11.24",
+      "tag": "Jak se stát holičem v RB",
+      "webUrl": "/blog/jak-se-muze-barber-zviditelnit-na-socialnich-sitich/"
+    },
+    {
+      "slug": "strihani-deti-v-barbershopu-ucesy-radosti-zazitky",
+      "title": "Stříhání dětí v Barbershopu: účesy, radosti, zážitky",
+      "excerpt": "Video ukázka práceStříhání dětí může být pro rodiče a malé zákazníky často výzvou. Zatímco někteří chlapci se na návštěvu kadeřnického…",
+      "date": "2024-11-21",
+      "dateLabel": "21.11.24",
+      "tag": "Stylové účesy pro děti od profesionálních barberů v Praze.",
+      "webUrl": "/blog/strihani-deti-v-barbershopu-ucesy-radosti-zazitky/"
+    },
+    {
+      "slug": "vanoce-u-nas-v-barbershopu-plny-kalendar-a-oteviraci-doba",
+      "title": "Vánoce u nás v Barbershopu: Plný kalendář a Otevírací doba",
+      "excerpt": "Vánoční období je pro mnohé z nás jedním z nejkrásnějších a nejmagnetičtějších časů v roce, období, kdy se rodiny scházejí,…",
+      "date": "2024-11-18",
+      "dateLabel": "18.11.24",
+      "tag": "Vánoční akce Real barber Praha.",
+      "webUrl": "/blog/vanoce-u-nas-v-barbershopu-plny-kalendar-a-oteviraci-doba/"
+    },
+    {
+      "slug": "burst-fade-moderni-uces-pro-kazdeho",
+      "title": "Burst Fade: Moderní Účes Pro Každého",
+      "excerpt": "Burst Fade: Moderní Účes Pro Každého Úvod Burst fade je moderní a stylový typ účesu, který přitahuje pozornost svým unikátním…",
+      "date": "2024-11-15",
+      "dateLabel": "15.11.24",
+      "tag": "Profesionální účesy v moderním barbershopu v Praze. Burst fade",
+      "webUrl": "/blog/burst-fade-moderni-uces-pro-kazdeho/"
+    },
+    {
+      "slug": "nejvyhledavanejsi-uces-tohoto-roku-jedine-buzz-cut",
+      "title": "Nejvyhledávanější účes tohoto roku, jedině BUZZ CUT!",
+      "excerpt": "Moderní Pánský Účes: Buzz Cut – Klasika, která Nikdy Nevyjde z Módy Co je Buzz Cut a Proč si ho…",
+      "date": "2024-11-13",
+      "dateLabel": "13.11.24",
+      "tag": "Top Buzz cut v Praze.",
+      "webUrl": "/blog/nejvyhledavanejsi-uces-tohoto-roku-jedine-buzz-cut/"
+    },
+    {
+      "slug": "tvorime-obsah-pro-vas",
+      "title": "Tvoříme obsah pro Vás",
+      "excerpt": "Od poloviny roku 2024 pečlivě tvoříme obsah v kterém odpovídáme na Vaše nejčastější dotazy nebo představujeme jednotlivé trendy, techniky a účesy.…",
+      "date": "2024-11-13",
+      "dateLabel": "13.11.24",
+      "tag": "RB články. Tvorba obsahu pro Vás. Number ONE.",
+      "webUrl": "/blog/tvorime-obsah-pro-vas/"
+    },
+    {
+      "slug": "trapi-vas-sucha-kuze-mame-reseni",
+      "title": "Trápí Vás suchá kůže? Máme řešení…",
+      "excerpt": "Suchá pleť na tvářích a pokožce hlavy může být pro muže nepříjemným problémem, který často způsobuje svědění, loupání, nebo dokonce…",
+      "date": "2024-11-05",
+      "dateLabel": "5.11.24",
+      "tag": "Pomůžeme vám se suchou pokožkou. Real barber Praha.",
+      "webUrl": "/blog/trapi-vas-sucha-kuze-mame-reseni/"
+    },
+    {
+      "slug": "123-barbershopu-doma-ale-i-ve-svete",
+      "title": "123 Barbershopů doma ale i ve světě",
+      "excerpt": "Praha Barber Street(Praha 3) JaJ Barbershop (Praha 10) Super Hairo Barbershop (Praha 2) BarberLand David Joun (Praha 2) Golden Gate…",
+      "date": "2024-11-05",
+      "dateLabel": "5.11.24",
+      "tag": "RB Earth",
+      "webUrl": "/blog/123-barbershopu-doma-ale-i-ve-svete/"
+    },
+    {
+      "slug": "domaci-masazni-techniky-jak-ulevit-unavenym-svalum-doma",
+      "title": "Domácí masážní techniky. Jak ulevit unaveným svalům doma?",
+      "excerpt": "Domácí masážní techniky. Jak ulevit unaveným svalům doma? Po dlouhém dni v práci nebo náročném cvičení často cítíme napětí a…",
+      "date": "2024-10-28",
+      "dateLabel": "28.10.24",
+      "tag": null,
+      "webUrl": "/blog/domaci-masazni-techniky-jak-ulevit-unavenym-svalum-doma/"
+    },
+    {
+      "slug": "proc-spojit-strihani-vlasu-s-masazi",
+      "title": "Proč spojit stříhání vlasů s masáží?",
+      "excerpt": "Proč spojit stříhání vlasů s masáží? Když se vydáme do barbershopu, obvykle očekáváme, že si odneseme nejen nový účes či…",
+      "date": "2024-10-28",
+      "dateLabel": "28.10.24",
+      "tag": null,
+      "webUrl": "/blog/proc-spojit-strihani-vlasu-s-masazi/"
+    },
+    {
+      "slug": "myty-o-masazich-co-je-pravda-a-co-ne",
+      "title": "Mýty o masážích. Co je pravda a co ne?",
+      "excerpt": "Mýty o masážích. Co je pravda a co ne? 1\\. Masáže jsou jen pro relaxaci – Mýtus Mnoho lidí si…",
+      "date": "2024-10-28",
+      "dateLabel": "28.10.24",
+      "tag": null,
+      "webUrl": "/blog/myty-o-masazich-co-je-pravda-a-co-ne/"
+    },
+    {
+      "slug": "co-nejvice-zajima-cechy-na-tema-barbershop",
+      "title": "Co nejvíce zajímá Čechy na téma Barbershop?",
+      "excerpt": "V oblasti barbershopů zajímá Čechy několik klíčových témat a trendů. Patří mezi ně: Lokální dostupnost a hodnocení: Češi často vyhledávají…",
+      "date": "2024-10-25",
+      "dateLabel": "25.10.24",
+      "tag": "Czech flag",
+      "webUrl": "/blog/co-nejvice-zajima-cechy-na-tema-barbershop/"
+    },
+    {
+      "slug": "masaz-hlavy-pri-myti-vlasu-v-holicstvi-proc-byste-si-ji-nemeli-nechat-ujit",
+      "title": "Masáž hlavy při mytí vlasů v holičství: Proč byste si ji neměli nechat ujít",
+      "excerpt": "Když si jdete nechat zastřihnout vlasy, pravděpodobně se těšíte na svůj nový účes a dokonalý vzhled. Ale existuje jedna část…",
+      "date": "2024-10-25",
+      "dateLabel": "25.10.24",
+      "tag": "Mytí hlavy Real barber Praha.",
+      "webUrl": "/blog/masaz-hlavy-pri-myti-vlasu-v-holicstvi-proc-byste-si-ji-nemeli-nechat-ujit/"
+    },
+    {
+      "slug": "novinka-sbirejte-hvezdy-ve-vasem-mobilu",
+      "title": "Novinka! Sbírejte hvězdy ve Vašem mobilu",
+      "excerpt": "Add to Apple Wallet Add to Google Wallet Jak využít hvězdy z našeho věrnostního programu a ušetřit ve Vašem oblíbeném…",
+      "date": "2024-10-15",
+      "dateLabel": "15.10.24",
+      "tag": "Novinka věrnostní program sbírání hvězd.",
+      "webUrl": "/blog/novinka-sbirejte-hvezdy-ve-vasem-mobilu/"
+    },
+    {
+      "slug": "jak-si-spravne-umyt-vlasy",
+      "title": "Jak si správně umýt vlasy?",
+      "excerpt": "Správná péče o vlasy začíná už u základního kroku – mytí vlasů. Přestože to může znít jednoduše, špatná technika a…",
+      "date": "2024-10-15",
+      "dateLabel": "15.10.24",
+      "tag": "RB barvení vlasů a vousů a jak správně umývat vlasy.",
+      "webUrl": "/blog/jak-si-spravne-umyt-vlasy/"
+    },
+    {
+      "slug": "jak-chranit-vlasy-pred-teplem-jak-na-fen",
+      "title": "Jak chránit vlasy před teplem? Jak na fén",
+      "excerpt": "Teplo z žehliček a fénů může vlasy poškodit proto je důležité dodržovat správné postupy: Používej ochranné spreje: Před tepelnou úpravou…",
+      "date": "2024-10-15",
+      "dateLabel": "15.10.24",
+      "tag": "Jak správně chránit vlasy před fénem.",
+      "webUrl": "/blog/jak-chranit-vlasy-pred-teplem-jak-na-fen/"
+    },
+    {
+      "slug": "top-10-nejvetsich-chyb-kterych-se-dopoustime-pri-peci-o-vlasy",
+      "title": "Top 10 největších chyb, kterých se dopouštíme při péči o vlasy",
+      "excerpt": "Seznam chyb Příliš časté mytí: Časté mytí vlasů zbavuje přirozených olejů, což může vést k suchosti a lámání. Používání nevhodných…",
+      "date": "2024-10-11",
+      "dateLabel": "11.10.24",
+      "tag": "RB",
+      "webUrl": "/blog/top-10-nejvetsich-chyb-kterych-se-dopoustime-pri-peci-o-vlasy/"
+    },
+    {
+      "slug": "panske-trendy-ucesy-2024-a-pece-o-vlasy-a-vousy",
+      "title": "Pánské trendy účesy 2024 a péče o vlasy a vousy",
+      "excerpt": "Pánské trendy účesy 2024 a péče o vlasy a vousy Top trendy střihů pro muže v roce 2024 Trendy…",
+      "date": "2024-10-11",
+      "dateLabel": "11.10.24",
+      "tag": "Pánský trendy účes v Real barber v Praze.",
+      "webUrl": "/blog/panske-trendy-ucesy-2024-a-pece-o-vlasy-a-vousy/"
+    },
+    {
+      "slug": "barveni-vlasu-vyhody-a-nevyhody",
+      "title": "Barvení vlasů: Výhody a nevýhody",
+      "excerpt": "Barvení vlasů je oblíbenou metodou, jak změnit vzhled a vyjádřit svůj osobní styl. Ať už se rozhodnete pro dramatickou změnu,…",
+      "date": "2024-10-10",
+      "dateLabel": "10.10.24",
+      "tag": "Barvení vlasů a vousů v Real barberu.",
+      "webUrl": "/blog/barveni-vlasu-vyhody-a-nevyhody/"
+    },
+    {
+      "slug": "jak-se-starat-o-vlasy-v-zimnim-letnim-obdobi",
+      "title": "Jak se starat o vlasy v zimním/letním období",
+      "excerpt": "Různá roční období kladou na vlasy odlišné nároky. Zima a léto mohou vlasy výrazně zatěžovat, proto je důležité zvolit vhodnou…",
+      "date": "2024-10-09",
+      "dateLabel": "9.10.24",
+      "tag": "Péče o vlasy v zimně.",
+      "webUrl": "/blog/jak-se-starat-o-vlasy-v-zimnim-letnim-obdobi/"
+    },
+    {
+      "slug": "prirodni-versus-chemicke-produkty",
+      "title": "Přírodní versus chemické produkty",
+      "excerpt": "Péče o vlasy se dnes rozděluje na dvě hlavní kategorie – přírodní a chemické produkty. Každá z nich má své…",
+      "date": "2024-10-09",
+      "dateLabel": "9.10.24",
+      "tag": "Detailing Real barber",
+      "webUrl": "/blog/prirodni-versus-chemicke-produkty/"
+    },
+    {
+      "slug": "jak-pecovat-o-nehty-mezi-navstevami-salonu",
+      "title": "Jak pečovat o nehty mezi návštěvami salonu",
+      "excerpt": "Jak pečovat o nehty mezi návštěvami salonu Když se řekne péče o nehty, mnoho mužů si představí především návštěvy salonu…",
+      "date": "2024-10-01",
+      "dateLabel": "1.10.24",
+      "tag": "RB beauty manikúra.",
+      "webUrl": "/blog/jak-pecovat-o-nehty-mezi-navstevami-salonu/"
+    },
+    {
+      "slug": "aktualni-barber-ucesy-pro-zimu-2024-2025",
+      "title": "Aktuální barber účesy pro zimu 2024/2025:",
+      "excerpt": "Pojďme se podívat na nejžhavější barber trendy pro nadcházející sezónu zima 2024/25\\. 1\\. Klasický „Buzz Cut“ – Minimalistická elegance Buzz…",
+      "date": "2024-09-12",
+      "dateLabel": "12.09.24",
+      "tag": "Moderní účesy pro kluky v top barber shopu v Praze.",
+      "webUrl": "/blog/aktualni-barber-ucesy-pro-zimu-2024-2025/"
+    },
+    {
+      "slug": "proc-zatuhavaji-svaly",
+      "title": "Proč zatuhávají svaly",
+      "excerpt": "Proč zatuhávají svaly Svaly mohou zatuhávat z fyzického přetížení: nadměrné cvičení nebo fyzická námaha může způsobit mikrodramata svalových vláken, což…",
+      "date": "2024-09-09",
+      "dateLabel": "9.09.24",
+      "tag": "Luxusní masáž zad a těla v RB Beauty.",
+      "webUrl": "/blog/proc-zatuhavaji-svaly/"
+    },
+    {
+      "slug": "prinosy-pravidelne-profesionalni-pece-o-plet",
+      "title": "Přínosy pravidelné profesionální péče o pleť",
+      "excerpt": "Přínosy pravidelné profesionální péče o pleť Hloubkové čištění pleti: Jedním z hlavních přínosů profesionální péče o pleť je možnost hloubkového…",
+      "date": "2024-09-09",
+      "dateLabel": "9.09.24",
+      "tag": "Zklidňující masáž v RB Beauty.",
+      "webUrl": "/blog/prinosy-pravidelne-profesionalni-pece-o-plet/"
+    },
+    {
+      "slug": "jak-spravne-cistit-plet-doma",
+      "title": "Jak správně čistit pleť doma",
+      "excerpt": "Jak správně čistit pleť doma Docházet pravidelně na profesionální ošetření pleti je jedna věc, ale velmi klíčové k dosáhnutí požadovaného…",
+      "date": "2024-09-09",
+      "dateLabel": "9.09.24",
+      "tag": "RB Beauty: Dokonalá pánská kosmetika.",
+      "webUrl": "/blog/jak-spravne-cistit-plet-doma/"
+    },
+    {
+      "slug": "ultrazvukova-spachtle",
+      "title": "Ultrazvuková špachtle",
+      "excerpt": "Ultrazvuková špachtle Na čištění pleti s ultrazvukovou špachtlí se můžete objednat zde. Co je ultrazvuková špachtle: Ultrazvuková špachtle je malý,…",
+      "date": "2024-09-09",
+      "dateLabel": "9.09.24",
+      "tag": "Luxusní pánská kosmetika v RB Beauty.",
+      "webUrl": "/blog/ultrazvukova-spachtle/"
+    },
+    {
+      "slug": "dulezitost-spravneho-dychani-behem-masaze",
+      "title": "Důležitost správného dýchání během masáže",
+      "excerpt": "Důležitost správného dýchání během masáže Správné dýchání je základním prvkem relaxace. Když se soustředíte na svůj dech a dýcháte pomalu…",
+      "date": "2024-08-26",
+      "dateLabel": "26.08.24",
+      "tag": "RB Beauty: Masáž zad a těla pro maximální relaxaci.",
+      "webUrl": "/blog/dulezitost-spravneho-dychani-behem-masaze/"
+    },
+    {
+      "slug": "masaz-a-stres",
+      "title": "Masáž a stres",
+      "excerpt": "Masáž a stres Jak relaxační procedury pomáhají snižovat hladinu stresu: V dnešním hektickém světě je stres neodmyslitelnou součástí našich životů.…",
+      "date": "2024-08-26",
+      "dateLabel": "26.08.24",
+      "tag": "Profesionální masáž v RB Beauty.",
+      "webUrl": "/blog/masaz-a-stres/"
+    },
+    {
+      "slug": "jak-pripravit-telo-na-masaz",
+      "title": "Jak připravit tělo na masáž",
+      "excerpt": "Jak připravit tělo na masáž Co dělat před masáží: Hydratace je klíčová: Ujistěte se, že jste dobře hydratovaní. Voda pomáhá…",
+      "date": "2024-08-26",
+      "dateLabel": "26.08.24",
+      "tag": "Profesionální masáž celého těla a zad v RB Beauty.",
+      "webUrl": "/blog/jak-pripravit-telo-na-masaz/"
+    },
+    {
+      "slug": "kosmetika",
+      "title": "Kosmetika",
+      "excerpt": "Kosmetika V dnešní době už barbershop není jen místem, kde se muži zastaví pro střih vlasů nebo úpravu vousů. Stává…",
+      "date": "2024-08-26",
+      "dateLabel": "26.08.24",
+      "tag": "RB Beauty: Dokonalá pánská kosmetika.",
+      "webUrl": "/blog/kosmetika/"
+    },
+    {
+      "slug": "look-book",
+      "title": "Look book",
+      "excerpt": "Look book Kde jej najdete a co obsahuje? Look book knížku s účesy najdete na každé naší pobočce nebo i zde.…",
+      "date": "2024-08-26",
+      "dateLabel": "26.08.24",
+      "tag": "RB brožura.",
+      "webUrl": "/blog/look-book/"
+    },
+    {
+      "slug": "typy-masazi",
+      "title": "Typy masáží",
+      "excerpt": "Jakou si vybrat: Popis různých druhů masáží a pro koho jsou vhodné. ANTISTRESOVÁ MASÁŽ HLAVY A ŠÍJE: Ulevuje od napětí…",
+      "date": "2024-08-19",
+      "dateLabel": "19.08.24",
+      "tag": "Profesionální masáž celého těla a zad v RB Beauty.",
+      "webUrl": "/blog/typy-masazi/"
+    },
+    {
+      "slug": "vyhody-pravidelnych-masazi",
+      "title": "Výhody pravidelných masáží",
+      "excerpt": "Snížení stresu a úzkosti: Jedním z nejvýznamnějších přínosů pravidelných masáží je jejich schopnost výrazně snížit stres a úzkost. Masáže aktivují…",
+      "date": "2024-08-19",
+      "dateLabel": "19.08.24",
+      "tag": "Zklidňující masáž zad a celého těla v RB Beauty.",
+      "webUrl": "/blog/vyhody-pravidelnych-masazi/"
+    },
+    {
+      "slug": "nove-a-trendy-techniky-vysvetleni",
+      "title": "Nové a trendy techniky + vysvětlení",
+      "excerpt": "Chcete jej zkusit, ale nejste si jisti? Pro online nebo telefonické konzultace ohledně rad k volbě trendů, tu pro Vás…",
+      "date": "2024-08-11",
+      "dateLabel": "11.08.24",
+      "tag": "Chtěl bych se naučit holičské řemeslo ale nevím jak na to.",
+      "webUrl": "/blog/nove-a-trendy-techniky-vysvetleni/"
+    },
+    {
+      "slug": "ucesy-kratsich-strednich-a-delsich-delek",
+      "title": "Účesy kratších, středních a delších délek",
+      "excerpt": "Nevíte jaký zvolit? Účesy u mužů můžeme rozdělovat podle délky vlasů na tři kategorie: krátké, střední a delší. Toto…",
+      "date": "2024-08-11",
+      "dateLabel": "11.08.24",
+      "tag": "Chtěl bych se naučit holičské řemeslo ale nevím jak na to.",
+      "webUrl": "/blog/ucesy-kratsich-strednich-a-delsich-delek/"
+    },
+    {
+      "slug": "typy-ucesu",
+      "title": "Typy účesů",
+      "excerpt": "Prozkoumejte všechny a najděte inspiraci. Naši kvalifikovaní stylisté Vám ale vždy ochotně poradí při každé obměně účesu. Před změnou by…",
+      "date": "2024-08-11",
+      "dateLabel": "11.08.24",
+      "tag": "Chtěl bych se naučit holičské řemeslo ale nevím jak na to.",
+      "webUrl": "/blog/typy-ucesu/"
+    },
+    {
+      "slug": "vysvetleni-pojmu-fade-a-jeho-druhy",
+      "title": "Definice ,,Fade&#8220; a jeho druhy",
+      "excerpt": "Neboli stínování je postup kdy tratíme barvy vlasů od světlejších do tmavších. Postupně stínujeme od kůže do různých délek dle typu ,,fejdu‘‘ při…",
+      "date": "2024-08-11",
+      "dateLabel": "11.08.24",
+      "tag": null,
+      "webUrl": "/blog/vysvetleni-pojmu-fade-a-jeho-druhy/"
+    },
+    {
+      "slug": "pro-muze-zeny-a-skoly",
+      "title": "Pro muže, ženy a školy",
+      "excerpt": "Pánové Každý muž by měl dbát na své fyzické a psychické zdraví, stejně tak by měl ale v moderní společnosti…",
+      "date": "2024-08-09",
+      "dateLabel": "9.08.24",
+      "tag": "Chtěl bych se naučit holičské řemeslo ale nevím jak na to.",
+      "webUrl": "/blog/pro-muze-zeny-a-skoly/"
+    },
+    {
+      "slug": "meliry",
+      "title": "Melíry",
+      "excerpt": "je název pro druh barvení vlasů, která vytváří přirozený a slunečně zářící efekt. Tato metoda spočívá v aplikaci světlejších pramenů…",
+      "date": "2024-07-28",
+      "dateLabel": "28.07.24",
+      "tag": "Moderní pánské střihy pro stylový vzhled.",
+      "webUrl": "/blog/meliry/"
+    },
+    {
+      "slug": "dobarveni-kontur",
+      "title": "Dobarvení kontur",
+      "excerpt": "Perfektní dokončení Vašeho stylu Dobarvení kontur se stalo hitem mezi moderními muži, kteří si chtějí udržet ostrý a definovaný vzhled.…",
+      "date": "2024-07-23",
+      "dateLabel": "23.07.24",
+      "tag": "Stylový čerstvý střih v moderním barber shopu RB.",
+      "webUrl": "/blog/dobarveni-kontur/"
+    },
+    {
+      "slug": "pravidla-masazi",
+      "title": "Pravidla masáží",
+      "excerpt": "Úvod do relaxu: Masáže jsou skvělý způsob, jak uvolnit napětí v těle a zlepšit celkový pocit pohody. Můžou pomoci odstranit…",
+      "date": "2024-07-22",
+      "dateLabel": "22.07.24",
+      "tag": "Zklidňující masáž zad a celého těla v RB Beauty.",
+      "webUrl": "/blog/pravidla-masazi/"
+    },
+    {
+      "slug": "rozhovor-s-zlatym",
+      "title": "Rozhovor s ,,Zlatým“",
+      "excerpt": "Přinášíme vám sérii rozhovorů s našimi kolegy. V rozhovoru se jich budeme ptát na různé otázky, přičemž vám je blíže…",
+      "date": "2024-07-19",
+      "dateLabel": "19.07.24",
+      "tag": "Barber shop Praha.",
+      "webUrl": "/blog/rozhovor-s-zlatym/"
+    },
+    {
+      "slug": "rozhovor-s-marou",
+      "title": "Rozhovor s Márou",
+      "excerpt": "Přinášíme Vám sérii rozhovorů s našimi kolegy. V rozhovoru se jich budeme ptát na různé otázky, přičemž vám je blíže…",
+      "date": "2024-07-19",
+      "dateLabel": "19.07.24",
+      "tag": "Barber shop Praha.",
+      "webUrl": "/blog/rozhovor-s-marou/"
+    },
+    {
+      "slug": "rozhovor-s-svorcou",
+      "title": "Rozhovor s Švorčou",
+      "excerpt": "Přinášíme vám sérii rozhovorů s našimi kolegy. V rozhovoru se jich budeme ptát na různé otázky, přičemž vám je blíže…",
+      "date": "2024-07-19",
+      "dateLabel": "19.07.24",
+      "tag": "Barber shop Praha.",
+      "webUrl": "/blog/rozhovor-s-svorcou/"
+    },
+    {
+      "slug": "rozhovor-s-rejlisem",
+      "title": "Rozhovor s Rejlisem",
+      "excerpt": "Přinášíme vám sérii rozhovorů s našimi kolegy z týmu RB. V rozhovoru se jich budeme ptát na různé otázky, přičemž…",
+      "date": "2024-07-19",
+      "dateLabel": "19.07.24",
+      "tag": "Barber shop Praha.",
+      "webUrl": "/blog/rozhovor-s-rejlisem/"
+    },
+    {
+      "slug": "rozhovor-s-ell",
+      "title": "Rozhovor s Ell",
+      "excerpt": "Přinášíme vám sérii rozhovorů s našimi kolegy. V rozhovoru se jich budeme ptát na různé otázky, přičemž vám je blíže…",
+      "date": "2024-07-19",
+      "dateLabel": "19.07.24",
+      "tag": "Barber shop Praha.",
+      "webUrl": "/blog/rozhovor-s-ell/"
+    },
+    {
+      "slug": "rozhovor-s-annou",
+      "title": "Rozhovor s Annou",
+      "excerpt": "Přinášíme vám sérii rozhovorů s našimi kolegy. V rozhovoru se jich budeme ptát na různé otázky, přičemž vám je blíže…",
+      "date": "2024-07-19",
+      "dateLabel": "19.07.24",
+      "tag": "Barber shop Praha.",
+      "webUrl": "/blog/rozhovor-s-annou/"
+    },
+    {
+      "slug": "rozhovor-s-alexem",
+      "title": "Rozhovor s Alexem",
+      "excerpt": "Přinášíme vám sérii rozhovorů s našimi kolegy. V rozhovoru se jich budeme ptát na různé otázky, přičemž vám je blíže…",
+      "date": "2024-07-19",
+      "dateLabel": "19.07.24",
+      "tag": "Barber shop Praha.",
+      "webUrl": "/blog/rozhovor-s-alexem/"
+    },
+    {
+      "slug": "rozhovor-s-barou",
+      "title": "Rozhovor s Bárou",
+      "excerpt": "Přinášíme vám sérii rozhovorů s našimi kolegy. V rozhovoru se jich budeme ptát na různé otázky, přičemž vám je blíže…",
+      "date": "2024-07-19",
+      "dateLabel": "19.07.24",
+      "tag": "Barber shop Praha.",
+      "webUrl": "/blog/rozhovor-s-barou/"
+    },
+    {
+      "slug": "rozhovor-s-davidem",
+      "title": "Rozhovor s Davidem",
+      "excerpt": "Přinášíme vám sérii rozhovorů s našimi kolegy. V rozhovoru se jich budeme ptát na různé otázky, přičemž vám je blíže…",
+      "date": "2024-07-19",
+      "dateLabel": "19.07.24",
+      "tag": "Barber shop Praha.",
+      "webUrl": "/blog/rozhovor-s-davidem/"
+    },
+    {
+      "slug": "upravte-se-doma",
+      "title": "Jak si doma upravit vousy? + Postup",
+      "excerpt": "Úprava vousů zahrnuje několik kroků, vyčesávání, stříhání, tvarování a ošetření. Když chcete upravit své vousy, měli byste začít očištěním a vyčesáním…",
+      "date": "2024-07-03",
+      "dateLabel": "03.07.24",
+      "tag": null,
+      "webUrl": "/blog/upravte-se-doma/"
+    },
+    {
+      "slug": "historie-holicstvi-od-staroveku-po-moderni-barbershopy",
+      "title": "Prvopočátky úprav vlasů a vousů",
+      "excerpt": "sahá do starověkých civilizací, kde byli muži ošetřováni a stříháni pomocí ostrých kamenných nástrojů. Ve starověkém Egyptě byli holiči respektovanými…",
+      "date": "2024-06-27",
+      "dateLabel": "27.06.24",
+      "tag": null,
+      "webUrl": "/blog/historie-holicstvi-od-staroveku-po-moderni-barbershopy/"
+    },
+    {
+      "slug": "styl-pece-a-relaxace-pro-muze",
+      "title": "Definice moderního holičství",
+      "excerpt": "se stal nedílnou součástí každodenního života mužů, kteří si chtějí udržet svůj vzhled a styl. Dnešní holiči jsou vybaveni moderními technologiemi a…",
+      "date": "2024-06-26",
+      "dateLabel": "26.06.24",
+      "tag": null,
+      "webUrl": "/blog/styl-pece-a-relaxace-pro-muze/"
+    },
+    {
+      "slug": "proc-mit-sveho-holice-duvody-pro-pravidelne-navstevy",
+      "title": "Proč mít svého holiče?",
+      "excerpt": "Navštěvování jednoho holiče má několik výhod První a možná nejvýznamnější je, že si tak můžete vytvořit důvěrný vztah s odborníkem,…",
+      "date": "2024-06-24",
+      "dateLabel": "24.06.24",
+      "tag": "Stylový čerstvý střih v moderním barber shopu RB.",
+      "webUrl": "/blog/proc-mit-sveho-holice-duvody-pro-pravidelne-navstevy/"
+    },
+    {
+      "slug": "fast-haircut-vs-barbering-v-salonech-realbarber",
+      "title": "Rychlé stříhání vlasů",
+      "excerpt": "Realbarbernabízíme nejen klasický barber střih, ale i rychlejší cenově dostupnější variantu. Čas stříhání je ze 45 minut zkrácen na 25 minut , během…",
+      "date": "2024-06-10",
+      "dateLabel": "10.06.24",
+      "tag": null,
+      "webUrl": "/blog/fast-haircut-vs-barbering-v-salonech-realbarber/"
+    },
+    {
+      "slug": "jak-vybrat-spravny-barbershop-pruvodce-pro-moderniho-muze",
+      "title": "Jak si správně vybrat barbershop",
+      "excerpt": "Výběr správného barbershopu není jen o tom, kde si nechat ostříhat vlasy. Je to místo, kde můžete relaxovat, odpočinout si a zároveň dostat…",
+      "date": "2024-06-05",
+      "dateLabel": "05.06.24",
+      "tag": null,
+      "webUrl": "/blog/jak-vybrat-spravny-barbershop-pruvodce-pro-moderniho-muze/"
+    },
+    {
+      "slug": "profesionalni-nastroje-pro-holice-strojek-nuzky-fen-a-vice",
+      "title": "Vybavení a kosmetika holiče",
+      "excerpt": "Elektrický – síťoví nebo akumulátorový sloužící k zkrácení libovolných délek vlasů a vousů.",
+      "date": "2024-05-29",
+      "dateLabel": "29.05.24",
+      "tag": null,
+      "webUrl": "/blog/profesionalni-nastroje-pro-holice-strojek-nuzky-fen-a-vice/"
+    },
+    {
+      "slug": "jak-casto-by-se-muzi-meli-strihat-kratke-stredni-a-dlouhe-ucesy",
+      "title": "Jak často navštěvovat Vašeho Barbera?",
+      "excerpt": "s jakou by se muži měli stříhat, záleží na délce a stylu jejich účesu. Obecně platí, že kratší účesy budou vyžadovat pravidelnější stříhání než delší…",
+      "date": "2024-05-21",
+      "dateLabel": "21.05.24",
+      "tag": null,
+      "webUrl": "/blog/jak-casto-by-se-muzi-meli-strihat-kratke-stredni-a-dlouhe-ucesy/"
+    },
+    {
+      "slug": "funkce-fenu-ionizace-a-studeny-vzduch-pro-leskle-vlasy",
+      "title": "Fén- jeho funkce, příslušenství a čištění.",
+      "excerpt": "Kvalitní fén by měl disponovat minimálně dvěma dnes již základními funkcemi – funkcí ionizace a samostatným tlačítkem studeného vzduchu. Fény s…",
+      "date": "2024-05-20",
+      "dateLabel": "20.05.24",
+      "tag": null,
+      "webUrl": "/blog/funkce-fenu-ionizace-a-studeny-vzduch-pro-leskle-vlasy/"
+    },
+    {
+      "slug": "zacnete-karieru-jako-holic-krok-za-krokem",
+      "title": "Chtěl bych se naučit holičské řemeslo ale nevím jak na to.",
+      "excerpt": "jako holič může být vzrušující a naplňující. Zde je několik kroků, které ti mohou pomoci začít s prací holiče:",
+      "date": "2024-05-08",
+      "dateLabel": "08.05.24",
+      "tag": null,
+      "webUrl": "/blog/zacnete-karieru-jako-holic-krok-za-krokem/"
+    },
+    {
+      "slug": "dedicnost-a-vypadavani-vlasu-co-je-androgenni-alopecie",
+      "title": "Dědičné vypadávaní vlasů",
+      "excerpt": "Ztráta vlasů způsobená genetickými faktory.",
+      "date": "2024-04-29",
+      "dateLabel": "29.04.24",
+      "tag": null,
+      "webUrl": "/blog/dedicnost-a-vypadavani-vlasu-co-je-androgenni-alopecie/"
+    },
+    {
+      "slug": "tipy-pro-prvni-strihani-vlasu-deti-jak-vybrat-kadernika",
+      "title": "Stříhání vlasů u dětí",
+      "excerpt": "u dětí je běžnou praktikou a může být zásadní pro zvyklost návštěv u kadeřníků, lazebníku nebo holičů. Zde je ovšem několik tipů a doporučení ohledně…",
+      "date": "2024-04-24",
+      "dateLabel": "24.04.24",
+      "tag": null,
+      "webUrl": "/blog/tipy-pro-prvni-strihani-vlasu-deti-jak-vybrat-kadernika/"
+    },
+    {
+      "slug": "jak-zmirnit-bolesti-zad-a-nohou-pri-praci-ve-stoje",
+      "title": "Bolesti spodních končetin u práce na nohou a jak je řešit?",
+      "excerpt": "jsou běžnými problémy, které mohou postihnout lidi pracující v pozici vestoje, zejména pokud tráví dlouhé hodiny na nohou.",
+      "date": "2024-04-16",
+      "dateLabel": "16.04.24",
+      "tag": null,
+      "webUrl": "/blog/jak-zmirnit-bolesti-zad-a-nohou-pri-praci-ve-stoje/"
+    }
+  ]
+}
