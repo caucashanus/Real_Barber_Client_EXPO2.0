@@ -3,9 +3,9 @@
 <plist version="1.0">
   <dict>
     <key>CFBundleShortVersionString</key>
-    <string>2.0</string>
+    <string>2.0.1</string>
     <key>CFBundleVersion</key>
-    <string>74</string>
+    <string>75</string>
     <key>ExpoWidgetsAppGroupIdentifier</key>
     <string>group.com.realbarber.client</string>
     <key>NSExtension</key>
