@@ -8,7 +8,8 @@ import {
   getCachedGuidesList,
   getClientGuides,
   type ClientGuide,
-  type GuideMedia} from '@/api/guides';
+  type GuideMedia,
+} from '@/api/guides';
 import { useTranslation } from '@/hooks/useTranslation';
 import Favorite from '@/components/Favorite';
 import Header from '@/components/Header';
@@ -17,10 +18,16 @@ import ThemedScroller from '@/components/ThemeScroller';
 import ThemedText from '@/components/ThemedText';
 import SiteBreadcrumbs from '@/components/shared/SiteBreadcrumbs';
 import VideoPlayer from '@/components/VideoPlayer';
+import SiteLoadingState from '@/components/SiteLoadingState';
 import { blogBreadcrumbItems } from '@/utils/breadcrumbs';
-import SiteLoadingSpinner from '@/components/SiteLoadingSpinner';
 
 const screenWidth = Dimensions.get('window').width;
+
+function normalizeGuideId(raw: string | string[] | undefined): string | undefined {
+  const value = Array.isArray(raw) ? raw[0] : raw;
+  const trimmed = value?.trim();
+  return trimmed || undefined;
+}
 
 function formatAddedAt(iso: string): string {
   const d = new Date(iso);
@@ -71,7 +78,8 @@ function MediaItem({ item }: { item: GuideMedia }) {
         onPress={() =>
           router.push({
             pathname: '/screens/in-app-web',
-            params: { url: encodeURIComponent(file.url) }})
+            params: { url: encodeURIComponent(file.url) },
+          })
         }
         className="mr-3 flex-row items-center justify-center rounded-xl bg-light-surface p-4 dark:bg-dark-secondary"
         style={{ width: screenWidth * 0.6, minHeight: 80 }}>
@@ -89,20 +97,22 @@ function MediaItem({ item }: { item: GuideMedia }) {
 }
 
 export default function GuideDetailScreen() {
-  const { id } = useLocalSearchParams<{ id?: string }>();
+  const params = useLocalSearchParams<{ id?: string | string[] }>();
+  const guideId = normalizeGuideId(params.id);
   const { t } = useTranslation();
   const [guide, setGuide] = useState<ClientGuide | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!id) {
+    if (!guideId) {
+      setGuide(null);
       setLoading(false);
       setError('Missing guide');
       return;
     }
 
-    const cached = getCachedGuide(id);
+    const cached = getCachedGuide(guideId);
     if (cached) {
       setGuide(cached);
       setError(null);
@@ -116,7 +126,7 @@ export default function GuideDetailScreen() {
     getClientGuides()
       .then((guides) => {
         if (cancelled) return;
-        const found = guides.find((g) => g.id === id) ?? null;
+        const found = guides.find((g) => String(g.id) === guideId) ?? null;
         if (found) {
           setGuide(found);
           setError(null);
@@ -138,56 +148,55 @@ export default function GuideDetailScreen() {
     return () => {
       cancelled = true;
     };
-  }, [id]);
+  }, [guideId]);
+
+  const breadcrumbItems = useMemo(
+    () => blogBreadcrumbItems(guide?.title ?? '', t),
+    [guide?.title, t]
+  );
+
+  const list = getCachedGuidesList();
+  const currentIndex = guide ? list.findIndex((g) => String(g.id) === String(guide.id)) : -1;
+  const prevGuide = currentIndex > 0 ? list[currentIndex - 1] : null;
+  const nextGuide =
+    currentIndex >= 0 && currentIndex < list.length - 1 ? list[currentIndex + 1] : null;
+
+  const goToPrev = () => {
+    if (!prevGuide) return;
+    router.replace({ pathname: '/screens/guide-detail', params: { id: String(prevGuide.id) } });
+  };
+
+  const goToNext = () => {
+    if (!nextGuide) return;
+    router.replace({ pathname: '/screens/guide-detail', params: { id: String(nextGuide.id) } });
+  };
 
   if (loading) {
     return (
-      <>
+      <View className="flex-1 bg-light-primary dark:bg-dark-primary">
         <Header title="" showBackButton />
-        <View className="flex-1 items-center justify-center bg-light-primary dark:bg-dark-primary">
-          <SiteLoadingSpinner />
-          <ThemedText className="mt-2 text-light-subtext dark:text-dark-subtext">
-            Loading…
-          </ThemedText>
-        </View>
-      </>
+        <SiteLoadingState layout="section" />
+      </View>
     );
   }
 
   if (error || !guide) {
     return (
-      <>
+      <View className="flex-1 bg-light-primary dark:bg-dark-primary">
         <Header title="" showBackButton />
-        <View className="flex-1 items-center justify-center bg-light-primary p-6 dark:bg-dark-primary">
+        <View className="flex-1 items-center justify-center p-6">
           <ThemedText className="text-center text-red-500 dark:text-red-400">
             {error || 'Guide not found'}
           </ThemedText>
         </View>
-      </>
+      </View>
     );
   }
 
   const hasMedia = guide.media && guide.media.length > 0;
-  const list = getCachedGuidesList();
-  const currentIndex = list.findIndex((g) => g.id === guide.id);
-  const prevGuide = currentIndex > 0 ? list[currentIndex - 1] : null;
-  const nextGuide =
-    currentIndex >= 0 && currentIndex < list.length - 1 ? list[currentIndex + 1] : null;
-
-  const goToPrev = () =>
-    prevGuide &&
-    router.replace({ pathname: '/screens/guide-detail', params: { id: prevGuide.id } });
-  const goToNext = () =>
-    nextGuide &&
-    router.replace({ pathname: '/screens/guide-detail', params: { id: nextGuide.id } });
-
-  const breadcrumbItems = useMemo(
-    () => blogBreadcrumbItems(guide.title, t),
-    [guide.title, t]
-  );
 
   return (
-    <>
+    <View className="flex-1 bg-light-primary dark:bg-dark-primary">
       <Header
         title=""
         showBackButton
@@ -278,6 +287,6 @@ export default function GuideDetailScreen() {
           </View>
         </View>
       </ThemedScroller>
-    </>
+    </View>
   );
 }

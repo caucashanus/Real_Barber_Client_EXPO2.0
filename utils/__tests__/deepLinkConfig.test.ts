@@ -34,12 +34,21 @@ describe('deepLinkConfig', () => {
     expect(isKnownAppRoute('/pobocky/modrany')).toBe(false);
   });
 
-  it('falls back unknown web paths to home instead of passing them through', () => {
-    expect(resolveIncomingDeepLinkRoute('/pobocky/modrany')).toBe(APP_SMART_DOWNLOAD_HOME_ROUTE);
-    expect(resolveIncomingDeepLinkRoute('/en/pobocky/modrany')).toBe(APP_SMART_DOWNLOAD_HOME_ROUTE);
-    expect(resolveIncomingDeepLinkRoute('https://realbarber.cz/pobocky/modrany')).toBe(
-      APP_SMART_DOWNLOAD_HOME_ROUTE
+  it('opens unknown web paths in in-app-web instead of home', () => {
+    expect(resolveIncomingDeepLinkRoute('/pobocky/modrany')).toMatch(
+      /^\/screens\/in-app-web\?url=/
     );
+    expect(resolveIncomingDeepLinkRoute('/en/pobocky/modrany')).toMatch(
+      /^\/screens\/in-app-web\?url=/
+    );
+    expect(resolveIncomingDeepLinkRoute('https://realbarber.cz/pobocky/modrany')).toMatch(
+      /^\/screens\/in-app-web\?url=/
+    );
+  });
+
+  it('maps web hairstyle paths to native detail', () => {
+    expect(resolveIncomingDeepLinkRoute('/sluzby/afro/')).toBe('/hairstyle-detail?id=afro');
+    expect(resolveIncomingDeepLinkRoute('/tym/karel/')).toBe('/barber-detail?id=karel');
   });
 
   it('passes through known app routes', () => {
@@ -57,9 +66,9 @@ describe('deepLinkConfig', () => {
     ).toBe('/screens/booking-detail?id=res-1&openReview=1');
   });
 
-  it('drops query params for unknown web paths', () => {
-    expect(resolveIncomingDeepLinkRoute('/pobocky/modrany?foo=bar')).toBe(
-      APP_SMART_DOWNLOAD_HOME_ROUTE
+  it('wraps unknown web paths with query in in-app-web', () => {
+    expect(resolveIncomingDeepLinkRoute('/pobocky/modrany?foo=bar')).toMatch(
+      /^\/screens\/in-app-web\?url=/
     );
   });
 });

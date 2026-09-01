@@ -21,17 +21,11 @@ import ThemedText from '@/components/ThemedText';
 import Section from '@/components/layout/Section';
 import { getBookingEndDate, isBookingPast } from '@/utils/bookingHelpers';
 import { pickRepeatBookingCandidate } from '@/utils/repeatBooking';
-import { buildHomePromoCouponCarouselList, homePromoClientSeed } from '@/utils/homePromoCoupon';
-import {
-  mergePostersAndCouponsRoundRobin,
-  filterHomePosters,
-} from '@/utils/homePromoFeed';
+import { homePromoClientSeed } from '@/utils/homePromoCoupon';
+import { buildHomePromoFeed } from '@/utils/homePromoFeed';
 import { pickHomeSpotlight, formatHomeBookingSlotLabel } from '@/utils/homeSpotlight';
 import { getContentCarouselSize } from '@/utils/contentCarouselLayout';
 import { isReservationIntroCooldownActive } from '@/utils/reservation-intro-cooldown';
-
-/** Kupóny skryté v sekci Tipy a nabídky i když je API vrátí (filtrování podle `name`). */
-const HIDDEN_HOME_PROMO_COUPON_NAMES = new Set(['Gorila10', 'TVPRIMA10']);
 
 /** Ikony dlaždic rychlých akcí na home. */
 const HOME_ACTION_IMAGES = {
@@ -123,28 +117,18 @@ export default function RealBarberHomeTab() {
     [homeBookings]
   );
 
-  const homePromoCoupons = useMemo(
-    () => coupons.filter((c) => !HIDDEN_HOME_PROMO_COUPON_NAMES.has(c.name.trim())),
-    [coupons]
-  );
-
   const clientPromoSeed = useMemo(
     () => homePromoClientSeed(client?.id ?? apiToken ?? ''),
     [client?.id, apiToken]
   );
 
-  const homePromoCouponsForMerge = useMemo(
+  const homePromoFeed = useMemo(
     () =>
-      buildHomePromoCouponCarouselList(homePromoCoupons, {
+      buildHomePromoFeed(posters, coupons, {
         nowMs: now,
         clientSeed: clientPromoSeed,
       }),
-    [homePromoCoupons, now, clientPromoSeed]
-  );
-
-  const homePromoFeed = useMemo(
-    () => mergePostersAndCouponsRoundRobin(filterHomePosters(posters), homePromoCouponsForMerge),
-    [posters, homePromoCouponsForMerge]
+    [posters, coupons, now, clientPromoSeed]
   );
 
   const showPromoCarousel = loading || homePromoFeed.length > 0;

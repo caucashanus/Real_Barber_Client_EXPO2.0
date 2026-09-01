@@ -30,7 +30,6 @@ export const APP_KNOWN_ROUTE_PATHS = [
   '/inspirace',
   '/experience',
   '/branches',
-  '/experience',
   '/services',
   '/guides',
   '/barber-detail',
@@ -123,21 +122,12 @@ export function isKnownAppRoute(path: string): boolean {
   );
 }
 
-/**
- * Maps Universal / App Link / custom-scheme paths to a valid Expo Router route.
- * Unknown web-only paths (e.g. `/pobocky/...`) fall back to `/` instead of 404.
- */
-export function resolveIncomingDeepLinkRoute(path: string): string {
-  const suffix = extractIncomingDeepLinkSuffix(path);
-  const normalized = normalizeIncomingDeepLinkPath(path);
-  const smartDownloadRoute = resolveSmartDownloadRoute(normalized);
-  if (smartDownloadRoute) return smartDownloadRoute;
+export {
+  isLoginWebPath,
+  isReservationsWebPath,
+  normalizeWebPathname,
+  resolveWebPathToAppRoute,
+  resolveWebPathToRouteOrInAppWeb,
+} from '@/lib/linking/resolveWebPath';
 
-  const promoMatch = normalized.match(/^\/promo\/(poster|kupon)\/([^/?#]+)\/?$/);
-  if (promoMatch) {
-    return `/promo/${promoMatch[1]}/${promoMatch[2]}${suffix}`;
-  }
-
-  if (isKnownAppRoute(normalized)) return `${normalized}${suffix}`;
-  return APP_UNKNOWN_PATH_FALLBACK_ROUTE;
-}
+export { resolveIncomingDeepLinkRoute } from '@/lib/linking/resolveIncomingDeepLinkRoute';

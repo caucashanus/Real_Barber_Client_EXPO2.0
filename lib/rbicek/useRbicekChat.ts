@@ -181,7 +181,6 @@ export function useRbicekChat(params: UseRbicekChatParams) {
         resetIdleTimer();
 
         if (result.closeAndOpenReservations) {
-          bridge.closeChat();
           bridge.openMyReservations();
         }
       } finally {

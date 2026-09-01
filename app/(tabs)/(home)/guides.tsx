@@ -33,7 +33,7 @@ function getFirstImageUrl(guide: ClientGuide): string | null {
 function GuideCard({ guide }: { guide: ClientGuide }) {
   const imageUrl = getFirstImageUrl(guide);
   const onPress = () =>
-    router.push({ pathname: '/screens/guide-detail', params: { id: guide.id } });
+    router.push({ pathname: '/screens/guide-detail', params: { id: String(guide.id) } });
 
   return (
     <Pressable onPress={onPress} className="mb-8">

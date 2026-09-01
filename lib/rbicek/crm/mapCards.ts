@@ -1,4 +1,6 @@
 import { CRM_BASE } from '@/api/http';
+import { promoKuponHref, promoPosterHref } from '@/constants/promoDetailRoutes';
+import type { HomePromoFeedItem } from '@/utils/homePromoFeed';
 
 import {
   branchGoogleMapsUrl,
@@ -225,49 +227,43 @@ export function mapBranchCards(
   });
 }
 
-export function mapPromoCards(
-  posters: Record<string, unknown>[],
-  coupons: Record<string, unknown>[],
-  locale: RbicekLocale,
-  webBaseUrl: string
+export function mapHomePromoFeedToPromoCards(
+  feed: HomePromoFeedItem[],
+  locale: RbicekLocale
 ): PromoCardData[] {
-  const showCoupon = locale === 'en' ? 'Show coupon' : locale === 'uk' ? 'Показати купон' : 'Zobrazit kupón';
-  const showOffer = locale === 'en' ? 'Show offer' : locale === 'uk' ? 'Показати акцію' : 'Zobrazit akci';
+  const showCoupon =
+    locale === 'en' ? 'Show coupon' : locale === 'uk' ? 'Показати купон' : 'Zobrazit kupón';
+  const showOffer =
+    locale === 'en' ? 'Show offer' : locale === 'uk' ? 'Показати акцію' : 'Zobrazit akci';
 
-  const posterCards: PromoCardData[] = posters.slice(0, 6).map((p, i) => ({
-    id: String(p.id ?? `poster_${i}`),
-    key: String(p.key ?? p.id ?? `poster_${i}`),
-    title: String(p.title ?? p.name ?? 'Promo'),
-    subtitle: typeof p.subtitle === 'string' ? p.subtitle : undefined,
-    imageUrl: typeof p.imageUrl === 'string' ? p.imageUrl : '',
-    imageAlt: typeof p.imageAlt === 'string' ? p.imageAlt : String(p.title ?? 'Promo'),
-    actionLabel: typeof p.buttonText === 'string' ? p.buttonText : showOffer,
-    detailUrl:
-      typeof p.url === 'string'
-        ? p.url
-        : typeof p.detailUrl === 'string'
-          ? p.detailUrl
-          : webBaseUrl,
-  }));
+  return feed.map((item) => {
+    if (item.kind === 'poster') {
+      const poster = item.poster;
+      return {
+        id: poster.id,
+        key: poster.id,
+        title: poster.title?.trim() || 'Promo',
+        subtitle: poster.subtitle?.trim() || undefined,
+        imageUrl: poster.imageUrl?.trim() || '',
+        imageAlt: poster.title?.trim() || 'Promo',
+        actionLabel: poster.buttonText?.trim() || showOffer,
+        detailUrl: promoPosterHref(poster.id),
+      };
+    }
 
-  const couponCards: PromoCardData[] = coupons.slice(0, 6).map((c, i) => ({
-    id: String(c.id ?? `coupon_${i}`),
-    key: String(c.key ?? c.id ?? `coupon_${i}`),
-    title: String(c.title ?? c.name ?? 'Kupón'),
-    subtitle: typeof c.description === 'string' ? c.description : undefined,
-    imageUrl: typeof c.imageUrl === 'string' ? c.imageUrl : '',
-    imageAlt: String(c.title ?? c.name ?? 'Kupón'),
-    actionLabel: typeof c.buttonText === 'string' ? c.buttonText : showCoupon,
-    detailUrl:
-      typeof c.url === 'string'
-        ? c.url
-        : typeof c.detailUrl === 'string'
-          ? c.detailUrl
-          : webBaseUrl,
-    couponCode: typeof c.code === 'string' ? c.code : undefined,
-  }));
-
-  return [...posterCards, ...couponCards].slice(0, 8);
+    const coupon = item.coupon;
+    return {
+      id: coupon.id,
+      key: coupon.id,
+      title: coupon.name,
+      subtitle: coupon.description?.trim() || undefined,
+      imageUrl: coupon.imageUrl?.trim() || '',
+      imageAlt: coupon.name,
+      actionLabel: coupon.buttonText?.trim() || showCoupon,
+      detailUrl: promoKuponHref(coupon.id),
+      couponCode: coupon.code,
+    };
+  });
 }
 
 export const STATIC_BRANCHES: BranchCardData[] = [

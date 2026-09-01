@@ -1,8 +1,10 @@
 import { CRM_BASE } from '@/api/http';
 
+import { getHome } from '@/api/home';
+
 import {
   mapBranchCards,
-  mapPromoCards,
+  mapHomePromoFeedToPromoCards,
   mapSlotCards,
   mapTeamCards,
   STATIC_BRANCHES,
@@ -17,7 +19,9 @@ import type {
   SlotCardData,
   TeamMemberCardData,
 } from '@/lib/rbicek/types';
-import { pragueTodayIso } from '@/lib/rbicek/utils';
+import { homePromoClientSeed } from '@/utils/homePromoCoupon';
+import { buildHomePromoFeed, filterHomePromoFeedWithImages } from '@/utils/homePromoFeed';
+import { getPragueTodayDateString } from '@/utils/teamMemberPageHelpers';
 
 async function crmGet<T>(path: string, userToken?: string | null): Promise<T> {
   const res = await fetch(`${CRM_BASE}/api${path}`, {
@@ -33,7 +37,7 @@ async function crmGet<T>(path: string, userToken?: string | null): Promise<T> {
 }
 
 function availabilityQuery(limit: string): string {
-  const today = pragueTodayIso();
+  const today = getPragueTodayDateString();
   const params = new URLSearchParams({
     serviceId: '',
     branchId: '',
@@ -89,23 +93,20 @@ export async function fetchPromoCards(
   locale: RbicekLocale,
   userId?: string | null,
   userToken?: string | null,
-  webBaseUrl = RBICEK_WEB_BASE_URL
+  _webBaseUrl = RBICEK_WEB_BASE_URL
 ): Promise<PromoCardData[]> {
-  const seed = userId ?? userToken ?? 'guest';
   try {
-    const [posters, coupons] = await Promise.all([
-      crmGet<Record<string, unknown>[] | { items?: Record<string, unknown>[] }>(
-        `/offers/posters?seed=${encodeURIComponent(seed)}`,
-        userToken
-      ).catch(() => []),
-      crmGet<Record<string, unknown>[] | { items?: Record<string, unknown>[] }>(
-        `/offers/coupons?seed=${encodeURIComponent(seed)}`,
-        userToken
-      ).catch(() => []),
-    ]);
-    const posterList = Array.isArray(posters) ? posters : (posters.items ?? []);
-    const couponList = Array.isArray(coupons) ? coupons : (coupons.items ?? []);
-    return mapPromoCards(posterList, couponList, locale, webBaseUrl);
+    const home = await getHome({
+      date: getPragueTodayDateString(),
+      locale,
+      apiToken: userToken,
+    });
+    const clientSeed = homePromoClientSeed(userId ?? userToken ?? '');
+    const feed = buildHomePromoFeed(home.posters, home.coupons, {
+      nowMs: Date.now(),
+      clientSeed,
+    });
+    return mapHomePromoFeedToPromoCards(filterHomePromoFeedWithImages(feed), locale);
   } catch {
     return [];
   }

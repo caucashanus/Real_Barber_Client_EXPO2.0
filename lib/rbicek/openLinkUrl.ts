@@ -1,18 +1,18 @@
 import * as WebBrowser from 'expo-web-browser';
 import { Linking } from 'react-native';
 
-import { LOGIN_PATH } from '@/constants/authRoutes';
+import { APP_DEEP_LINK_HOST } from '@/constants/deepLinkConfig';
 import {
-  APP_DEEP_LINK_HOST,
-  APP_DEEP_LINK_ORIGIN,
-  extractIncomingDeepLinkSuffix,
-  isKnownAppRoute,
-  normalizeIncomingDeepLinkPath,
-} from '@/constants/deepLinkConfig';
+  isLoginWebPath,
+  isReservationsWebPath,
+  resolveWebPathToRouteOrInAppWeb,
+} from '@/lib/linking/resolveWebPath';
 import {
   openOperatorPhone,
   OPERATOR_SUPPORT_E164,
 } from '@/utils/operatorContact';
+
+export { isLoginWebPath, isReservationsWebPath } from '@/lib/linking/resolveWebPath';
 
 /** mailto / tel / sms — systémový compose; engine po chipu neposouvá konverzaci dál. */
 export function isSystemComposeUrl(url: string): boolean {
@@ -22,79 +22,48 @@ export function isSystemComposeUrl(url: string): boolean {
 /** @deprecated Use isSystemComposeUrl */
 export const isNativeContactUrl = isSystemComposeUrl;
 
-function normalizeWebPathname(url: string): string {
-  const trimmed = url.trim();
-  if (!trimmed) return '/';
-  try {
-    if (trimmed.startsWith('http://') || trimmed.startsWith('https://')) {
-      return normalizeIncomingDeepLinkPath(trimmed).replace(/\/+$/, '') || '/';
-    }
-    const path = normalizeIncomingDeepLinkPath(trimmed);
-    return path.replace(/\/+$/, '') || '/';
-  } catch {
-    return trimmed.replace(/\/+$/, '') || '/';
+/**
+ * True when URL navigates to another in-app screen (Expo Router).
+ * External compose (tel/mailto/sms), WhatsApp/Telegram, maps and Safari stay false — chat remains open.
+ */
+export function opensInAppScreen(raw: string): boolean {
+  const trimmed = raw.trim();
+  if (!trimmed) return false;
+
+  if (isSystemComposeUrl(trimmed)) return false;
+
+  const scheme = trimmed.split(':')[0]?.toLowerCase() ?? '';
+  if (scheme === 'tg') return false;
+
+  if (trimmed.startsWith('/') && !trimmed.startsWith('//')) {
+    return true;
   }
-}
 
-/** Parita s web widgetem — `/login` spouští loginRequest, ne openUrl. */
-export function isLoginWebPath(url: string): boolean {
-  return normalizeWebPathname(url) === '/login';
-}
+  if (scheme === 'http' || scheme === 'https') {
+    try {
+      const parsed = new URL(trimmed);
+      const host = parsed.hostname.replace(/^www\./, '').toLowerCase();
 
-/** Parita s web widgetem — `/u/rezervace` spouští openReservations. */
-export function isReservationsWebPath(url: string): boolean {
-  return normalizeWebPathname(url) === '/u/rezervace';
+      if (
+        host === 'wa.me' ||
+        host === 'api.whatsapp.com' ||
+        host === 't.me' ||
+        host === 'telegram.me'
+      ) {
+        return false;
+      }
+
+      return host === APP_DEEP_LINK_HOST || host.endsWith(`.${APP_DEEP_LINK_HOST}`);
+    } catch {
+      return false;
+    }
+  }
+
+  return false;
 }
 
 function normalizePhoneDigits(value: string): string {
   return value.replace(/[^\d+]/g, '');
-}
-
-/** Web cesty → nativní Expo Router screen (bez Safari). */
-const WEB_NATIVE_PATH_ROUTES: Record<string, string> = {
-  '/inspirace': '/inspirace',
-  '/tym': '/experience',
-  '/kontakty': '/branches',
-};
-
-function toInAppWebRoute(path: string): string {
-  const absolute =
-    path.startsWith('http://') || path.startsWith('https://')
-      ? path
-      : `${APP_DEEP_LINK_ORIGIN}${path.startsWith('/') ? path : `/${path}`}`;
-  return `/screens/in-app-web?url=${encodeURIComponent(absolute)}`;
-}
-
-function mapWebPathToAppRoute(path: string): string {
-  const normalized = normalizeWebPathname(path);
-  const suffix = extractIncomingDeepLinkSuffix(path);
-
-  if (normalized === '/login') {
-    return LOGIN_PATH;
-  }
-
-  if (normalized === '/u/rezervace') {
-    return '/bookings';
-  }
-
-  const nativeRoute = WEB_NATIVE_PATH_ROUTES[normalized];
-  if (nativeRoute) {
-    return `${nativeRoute}${suffix}`;
-  }
-
-  if (normalized === '/rezervace' || normalized.startsWith('/rezervace/')) {
-    return '/screens/reservation-create';
-  }
-
-  if (normalized === '/blog' || normalized.startsWith('/blog/')) {
-    return toInAppWebRoute(path);
-  }
-
-  if (isKnownAppRoute(normalized)) {
-    return `${normalized}${suffix}`;
-  }
-
-  return toInAppWebRoute(path);
 }
 
 async function openTelUrl(url: string): Promise<void> {
@@ -117,7 +86,7 @@ async function openHttpUrl(url: string): Promise<void> {
     if (isSameSite) {
       const path = `${parsed.pathname}${parsed.search}${parsed.hash}`;
       const { router } = await import('expo-router');
-      router.push(mapWebPathToAppRoute(path) as never);
+      router.push(resolveWebPathToRouteOrInAppWeb(path) as never);
       return;
     }
 
@@ -167,7 +136,7 @@ export async function openRbicekHostUrl(raw: string, _webBaseUrl?: string): Prom
 
   if (trimmed.startsWith('/') && !trimmed.startsWith('//')) {
     const { router } = await import('expo-router');
-    router.push(mapWebPathToAppRoute(trimmed) as never);
+    router.push(resolveWebPathToRouteOrInAppWeb(trimmed) as never);
     return;
   }
 

@@ -99,9 +99,13 @@ export interface StoredConversation {
 }
 
 export interface RbicekHostBridge {
+  /** loginRequest — musí zavřít chat před navigací na auth obrazovku. */
   requestLogin: () => void;
+  /** openReservations — musí zavřít chat před navigací na rezervace. */
   openMyReservations: () => void;
+  /** supportRequest — sheet nad chatem; chat zůstává otevřený. */
   openSupportChannels: () => void;
+  /** Booking flow — musí zavřít chat před navigací. */
   openBooking: (payload: {
     employeeId?: string;
     branchId?: string;
@@ -109,7 +113,10 @@ export interface RbicekHostBridge {
     date?: string;
     slotStart?: string;
   }) => void;
-  /** Snapshot `action: "openUrl"` — host routuje mailto/tel/sms/https/relative paths. */
+  /**
+   * Snapshot `action: "openUrl"`.
+   * In-app deep link → zavřít chat; tel/mailto/sms/WA/TG/maps/Safari → chat nechat otevřený.
+   */
   openUrl: (url: string) => void | Promise<void>;
   /** @deprecated Prefer `openUrl`. */
   openExternalUrl: (url: string) => void;

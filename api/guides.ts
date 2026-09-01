@@ -45,7 +45,8 @@ export function setGuidesCache(guides: ClientGuide[]): void {
 
 /** Get a guide by id from the last list response. Returns null if not in cache. */
 export function getCachedGuide(id: string): ClientGuide | null {
-  return guidesCache.find((g) => g.id === id) ?? null;
+  const normalized = id.trim();
+  return guidesCache.find((g) => String(g.id) === normalized) ?? null;
 }
 
 /** Get the full cached list (order preserved) for prev/next navigation. */

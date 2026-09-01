@@ -14,7 +14,7 @@ import ThemedText from '@/components/ThemedText';
 import { LOGIN_PATH } from '@/constants/authRoutes';
 import { RBICEK_WEB_BASE_URL } from '@/constants/rbicek';
 import { buildBookingEngineHref } from '@/lib/booking/engine/resolvePresetFromParams';
-import { openRbicekHostUrl, isLoginWebPath, isReservationsWebPath } from '@/lib/rbicek/openLinkUrl';
+import { openRbicekHostUrl, opensInAppScreen } from '@/lib/rbicek/openLinkUrl';
 import { tUi } from '@/lib/rbicek/port/i18n/ui';
 import type {
   BranchCardData,
@@ -52,16 +52,15 @@ export function RbicekChatScreen({ visible, onClose }: RbicekChatScreenProps) {
 
   const bridge: RbicekHostBridge = useMemo(
     () => {
+      /** Jakákoli navigace mimo chat → nejdřív zavřít fullscreen modal, pak teprve router. */
+      const leaveChatThen = (navigate: () => void) => {
+        onClose();
+        navigate();
+      };
+
       const openUrl = (url: string) => {
-        if (isLoginWebPath(url)) {
+        if (opensInAppScreen(url)) {
           onClose();
-          router.push(LOGIN_PATH);
-          return;
-        }
-        if (isReservationsWebPath(url)) {
-          onClose();
-          router.push('/(tabs)/bookings');
-          return;
         }
         void openRbicekHostUrl(url, RBICEK_WEB_BASE_URL);
       };
@@ -69,26 +68,26 @@ export function RbicekChatScreen({ visible, onClose }: RbicekChatScreenProps) {
       return {
       /** loginRequest */
       requestLogin: () => {
-        onClose();
-        router.push(LOGIN_PATH);
+        leaveChatThen(() => router.push(LOGIN_PATH));
       },
       /** openReservations */
       openMyReservations: () => {
-        router.push('/(tabs)/bookings');
+        leaveChatThen(() => router.push('/(tabs)/bookings'));
       },
-      /** supportRequest */
+      /** supportRequest — sheet nad chatem, chat zůstává otevřený */
       openSupportChannels: () => {
         supportSheetRef.current?.show();
       },
       openBooking: (payload) => {
-        onClose();
-        router.push(
-          buildBookingEngineHref({
-            recipe: payload.employeeId ? 'employee-profile' : 'branch-first',
-            branchId: payload.branchId,
-            employeeId: payload.employeeId,
-            itemId: payload.itemId,
-          })
+        leaveChatThen(() =>
+          router.push(
+            buildBookingEngineHref({
+              recipe: payload.employeeId ? 'employee-profile' : 'branch-first',
+              branchId: payload.branchId,
+              employeeId: payload.employeeId,
+              itemId: payload.itemId,
+            })
+          )
         );
       },
       openUrl,
