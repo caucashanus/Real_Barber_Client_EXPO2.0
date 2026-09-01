@@ -29,7 +29,6 @@ import {
   fetchTodayTeam,
 } from '@/lib/rbicek/crm/client';
 import { STATIC_BRANCHES } from '@/lib/rbicek/crm/mapCards';
-import { isSystemComposeUrl } from '@/lib/rbicek/openLinkUrl';
 import type { RbicekHostBridge, RbicekRuntimeConfig } from '@/lib/rbicek/types';
 import { randomId } from '@/lib/rbicek/utils';
 
@@ -205,6 +204,8 @@ export interface SelectOptionResult {
   currentNodeId: string;
   closeAndOpenReservations?: boolean;
   openSupportChannels?: boolean;
+  /** Open after chat UI updates (Mail / tel / SMS / browser). */
+  deferredOpenUrl?: string;
 }
 
 export async function processOptionSelection(params: {
@@ -238,16 +239,6 @@ export async function processOptionSelection(params: {
 
   const expiredMessages = expireLatestChips(messages);
   const newMessages = [...expiredMessages, userMessage(option.label)];
-
-  if (option.action === 'openUrl' && option.url) {
-    await bridge.openUrl(option.url);
-    if (isSystemComposeUrl(option.url)) {
-      return {
-        messages: newMessages,
-        currentNodeId,
-      };
-    }
-  }
 
   if (option.action === 'reset') {
     return {
@@ -329,6 +320,10 @@ export async function processOptionSelection(params: {
   if (option.action === 'openReservations' && !config.isLoggedIn) {
     bridge.requestLogin();
     return null;
+  }
+
+  if (option.action === 'openUrl' && option.url) {
+    result.deferredOpenUrl = option.url;
   }
 
   return result;

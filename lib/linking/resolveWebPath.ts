@@ -5,6 +5,7 @@ import {
   isKnownAppRoute,
   normalizeIncomingDeepLinkPath,
 } from '@/constants/deepLinkConfig';
+import { PROFILE_PRIVACY_APP_ROUTE } from '@/constants/profileContacts';
 import {
   barberDetailHref,
   branchDetailHref,
@@ -68,6 +69,14 @@ export function resolveWebPathToAppRoute(path: string): string | null {
 
   if (normalized === '/u/nastaveni/profil') {
     return `/screens/edit-profile${suffix}`;
+  }
+
+  if (
+    normalized === '/gdpr' ||
+    normalized === '/ochrana-osobnich-udaju' ||
+    normalized === '/ochrana-osobnich-udaj'
+  ) {
+    return PROFILE_PRIVACY_APP_ROUTE;
   }
 
   const exactRoute = WEB_PATH_EXACT_ROUTES[normalized];

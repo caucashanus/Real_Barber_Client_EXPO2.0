@@ -1,5 +1,5 @@
 import {
-  APP_SMART_DOWNLOAD_HOME_ROUTE,
+  APP_UNKNOWN_PATH_FALLBACK_ROUTE,
   extractIncomingDeepLinkSuffix,
   isKnownAppRoute,
   normalizeIncomingDeepLinkPath,
@@ -10,11 +10,19 @@ import {
   resolveWebPathToRouteOrInAppWeb,
 } from '@/lib/linking/resolveWebPath';
 
+export type ResolveIncomingDeepLinkOptions = {
+  /** Cold start / Metro reload — avoid in-app-web URLs that 404 on realbarber.cz. */
+  preferHomeOnUnknown?: boolean;
+};
+
 /**
  * Maps Universal / App Link / custom-scheme paths to a valid Expo Router route.
  * Web paths use shared `resolveWebPathToAppRoute`; unknown paths open in-app-web.
  */
-export function resolveIncomingDeepLinkRoute(path: string): string {
+export function resolveIncomingDeepLinkRoute(
+  path: string,
+  options: ResolveIncomingDeepLinkOptions = {}
+): string {
   const suffix = extractIncomingDeepLinkSuffix(path);
   const normalized = normalizeIncomingDeepLinkPath(path);
   const smartDownloadRoute = resolveSmartDownloadRoute(normalized);
@@ -26,9 +34,19 @@ export function resolveIncomingDeepLinkRoute(path: string): string {
   }
 
   const webMapped = resolveWebPathToAppRoute(path);
-  if (webMapped) return webMapped;
+  if (webMapped) {
+    if (options.preferHomeOnUnknown && webMapped.startsWith('/screens/in-app-web')) {
+      return APP_UNKNOWN_PATH_FALLBACK_ROUTE;
+    }
+    return webMapped;
+  }
 
   if (isKnownAppRoute(normalized)) return `${normalized}${suffix}`;
 
-  return resolveWebPathToRouteOrInAppWeb(path);
+  const fallbackRoute = resolveWebPathToRouteOrInAppWeb(path);
+  if (options.preferHomeOnUnknown && fallbackRoute.startsWith('/screens/in-app-web')) {
+    return APP_UNKNOWN_PATH_FALLBACK_ROUTE;
+  }
+
+  return fallbackRoute;
 }

@@ -200,6 +200,8 @@ PODS:
     - ExpoModulesCore
   - ExpoImage (56.0.12):
     - ExpoModulesCore
+  - ExpoImageManipulator (56.0.26):
+    - ExpoModulesCore
   - ExpoImagePicker (56.0.24):
     - ExpoModulesCore
   - ExpoKeepAwake (56.0.3):
@@ -2671,6 +2673,7 @@ DEPENDENCIES:
   - ExpoGlassEffect (from `../node_modules/expo-glass-effect/ios`)
   - ExpoHaptics (from `../node_modules/expo-haptics/ios`)
   - ExpoImage (from `../node_modules/expo-image/ios/ExpoImage.podspec`)
+  - ExpoImageManipulator (from `../node_modules/expo-image-manipulator/ios/ExpoImageManipulator.podspec`)
   - ExpoImagePicker (from `../node_modules/expo-image-picker/ios`)
   - ExpoKeepAwake (from `../node_modules/expo-keep-awake/ios`)
   - ExpoLinearGradient (from `../node_modules/expo-linear-gradient/ios`)
@@ -2830,6 +2833,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/expo-haptics/ios"
   ExpoImage:
     :podspec: "../node_modules/expo-image/ios/ExpoImage.podspec"
+  ExpoImageManipulator:
+    :podspec: "../node_modules/expo-image-manipulator/ios/ExpoImageManipulator.podspec"
   ExpoImagePicker:
     :path: "../node_modules/expo-image-picker/ios"
   ExpoKeepAwake:
@@ -3076,6 +3081,7 @@ SPEC CHECKSUMS:
   ExpoGlassEffect: 7d4233dc0727ee2b28dd757eda70e1b6abf662fd
   ExpoHaptics: 89364cf3c3ca2cfd54cafed42f3be3169bab6d42
   ExpoImage: b5a447eeeef49930231150fad2e2c4cc588a0d31
+  ExpoImageManipulator: 3cbc58609c6dc411151ee12220eb702355860f56
   ExpoImagePicker: e4737d7455dac6332e5bfc28b213183e8252743f
   ExpoKeepAwake: 359c47a1d9ccc3a3c519bca6e39562cce230c5bb
   ExpoLinearGradient: 16c2b9c6105444883d34958d573725de1293b8d0

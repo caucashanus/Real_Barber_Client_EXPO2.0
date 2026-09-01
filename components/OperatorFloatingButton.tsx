@@ -7,6 +7,7 @@ import { ActionSheetRef } from 'react-native-actions-sheet';
 import { RbicekChatModal } from '@/components/rbicek/RbicekChatModal';
 import { useTranslation } from '@/hooks/useTranslation';
 import { useOperatorSupportAvailable } from '@/hooks/useOperatorSupportAvailable';
+import LiveIndicator from '@/components/LiveIndicator';
 import { OperatorSupportSheet } from '@/components/OperatorSupportSheet';
 import { isRbicekEnabled } from '@/constants/rbicek';
 import { useOperatorButtonEnabled } from '@/utils/operatorButtonPreference';
@@ -68,11 +69,16 @@ export default function OperatorFloatingButton() {
             bottom: operatorBottomOffset(),
             ...shadowPresets.large,
           }}>
-          <Image
-            source={OPERATOR_ICON}
-            style={{ width: BUTTON_SIZE, height: BUTTON_SIZE, borderRadius: BUTTON_SIZE / 2 }}
-            contentFit="cover"
-          />
+          <View className="relative">
+            <Image
+              source={OPERATOR_ICON}
+              style={{ width: BUTTON_SIZE, height: BUTTON_SIZE, borderRadius: BUTTON_SIZE / 2 }}
+              contentFit="cover"
+            />
+            <View className="absolute bottom-1 right-1.5 rounded-full border-2 border-light-primary dark:border-dark-primary">
+              <LiveIndicator size="sm" />
+            </View>
+          </View>
         </Pressable>
       </View>
 

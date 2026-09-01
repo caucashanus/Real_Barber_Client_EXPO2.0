@@ -1,14 +1,14 @@
 import React, { useCallback, useRef } from 'react';
 import { Share, View } from 'react-native';
 import { ActionSheetRef } from 'react-native-actions-sheet';
-import * as WebBrowser from 'expo-web-browser';
+import { router } from 'expo-router';
 
 import ListLink from '@/components/ListLink';
 import Section from '@/components/layout/Section';
 import { ProfilePhoneContactSheet } from '@/components/profile/ProfilePhoneContactSheet';
 import {
   PROFILE_BRANCH_MAP_ROUTE,
-  PROFILE_GDPR_URL,
+  PROFILE_PRIVACY_APP_ROUTE,
   PROFILE_SHARE_URL,
 } from '@/constants/profileContacts';
 import { useCopyFeedback } from '@/contexts/CopyFeedbackContext';
@@ -19,8 +19,8 @@ export default function ProfileContactsSection() {
   const { copyToClipboard } = useCopyFeedback();
   const phoneSheetRef = useRef<ActionSheetRef>(null);
 
-  const openPrivacyPolicy = useCallback(async () => {
-    await WebBrowser.openBrowserAsync(PROFILE_GDPR_URL);
+  const openPrivacyPolicy = useCallback(() => {
+    router.push(PROFILE_PRIVACY_APP_ROUTE as never);
   }, []);
 
   const handleShareSite = useCallback(async () => {
@@ -55,7 +55,7 @@ export default function ProfileContactsSection() {
             title={t('profileContactsPrivacy')}
             icon="Shield"
             onPress={() => {
-              void openPrivacyPolicy();
+              openPrivacyPolicy();
             }}
           />
           <ListLink

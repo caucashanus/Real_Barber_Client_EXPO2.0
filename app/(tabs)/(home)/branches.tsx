@@ -13,7 +13,7 @@ import AnimatedView from '@/components/AnimatedView';
 import AppButton from '@/components/AppButton';
 import { BranchNavigateSheet } from '@/components/BranchNavigateSheet';
 import CustomCard from '@/components/CustomCard';
-import BranchOpenStatusRow from '@/components/branch/BranchOpenStatusRow';
+import SupportOpenStatusRow from '@/components/support/SupportOpenStatusRow';
 import Icon from '@/components/Icon';
 import ImageCarousel from '@/components/ImageCarousel';
 import { OperatorSupportSheet } from '@/components/OperatorSupportSheet';
@@ -105,7 +105,7 @@ export default function BranchesScreen() {
               </View>
 
               <View className="mt-5">
-                <BranchOpenStatusRow t={t} variant="operatorSupport" />
+                <SupportOpenStatusRow t={t} />
               </View>
 
               <View className="mt-5 flex-row gap-1.5">

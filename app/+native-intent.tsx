@@ -1,18 +1,28 @@
-import { resolveIncomingDeepLinkRoute } from '@/constants/deepLinkConfig';
+import {
+  APP_UNKNOWN_PATH_FALLBACK_ROUTE,
+  resolveIncomingDeepLinkRoute,
+} from '@/constants/deepLinkConfig';
 
 /**
  * Maps incoming Universal / App Link paths to Expo Router routes.
- * Known app paths pass through; web-only paths fall back to `/` (auth → home or login).
+ * Known app paths pass through; on dev reload unknown web paths fall back to `/`.
  */
 export function redirectSystemPath({
   path,
+  initial,
 }: {
   path: string;
   initial: boolean;
 }): string {
   try {
-    return resolveIncomingDeepLinkRoute(path);
+    const route = resolveIncomingDeepLinkRoute(path, {
+      preferHomeOnUnknown: __DEV__ && initial,
+    });
+    if (__DEV__ && initial && route === '/screens/in-app-web') {
+      return APP_UNKNOWN_PATH_FALLBACK_ROUTE;
+    }
+    return route;
   } catch {
-    return '/';
+    return APP_UNKNOWN_PATH_FALLBACK_ROUTE;
   }
 }

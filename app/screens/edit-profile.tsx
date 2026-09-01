@@ -25,6 +25,7 @@ import {
   buildEditProfileAvatarPatch,
   hasServerProfileAvatar} from '@/utils/editProfileAvatar';
 import { COUNTRY_OPTIONS } from '@/utils/phone';
+import { uploadInputFromPickerAsset } from '@/utils/normalizeUploadImage';
 import SiteLoadingSpinner from '@/components/SiteLoadingSpinner';
 
 type EditProfileFocus = 'email' | 'birthday' | 'avatar' | 'address';
@@ -156,12 +157,13 @@ export default function EditProfileScreen() {
     try {
       let uploadedAvatarUrl: string | undefined;
       if (avatarAsset?.uri) {
-        const uploaded = await uploadClientMedia(apiToken, {
-          uri: avatarAsset.uri,
-          name: avatarAsset.fileName ?? undefined,
-          mimeType: avatarAsset.mimeType ?? undefined,
-          title: `${firstName.trim()} ${lastName.trim()}`.trim() || undefined,
-          alt: `${firstName.trim()} ${lastName.trim()}`.trim() || undefined});
+        const uploaded = await uploadClientMedia(
+          apiToken,
+          uploadInputFromPickerAsset(avatarAsset, {
+            title: `${firstName.trim()} ${lastName.trim()}`.trim() || undefined,
+            alt: `${firstName.trim()} ${lastName.trim()}`.trim() || undefined,
+          })
+        );
         uploadedAvatarUrl = uploaded.url;
       }
 

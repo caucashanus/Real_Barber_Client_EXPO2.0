@@ -19,8 +19,8 @@ export const CONTACT_TELEGRAM_URL = `https://t.me/${CONTACT_PHONE_E164}`;
 export const CONTACT_SMS_URL = `sms:${CONTACT_PHONE_E164}`;
 export const CONTACT_TEL_URL = `tel:${CONTACT_PHONE_E164}`;
 
-/** Chip label that replaces „Spojit s operátorem“ while live chat is off. */
-export const CONTACT_OPERATOR_CHIP_LABEL = "Živý operátor";
+/** @deprecated Label comes from flow snapshot (`follow_operator`). */
+export const CONTACT_OPERATOR_CHIP_LABEL = "Kontaktovat podporu";
 
 /** Bot copy on the contact node (phone CTA). */
 export const CONTACT_OPERATOR_MESSAGE = `Napište nebo zavolejte na tel. ${CONTACT_PHONE_DISPLAY}`;

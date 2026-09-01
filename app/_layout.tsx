@@ -24,6 +24,7 @@ import useThemedNavigation from '@/hooks/useThemedNavigation';
 import { useListingCacheResume } from '@/hooks/useListingCacheResume';
 
 import AuthGuard from '@/components/AuthGuard';
+import ForceUpdateGate from '@/components/ForceUpdateGate';
 import { APP_OPENS_KEY } from '@/constants/appOpens';
 
 export { APP_OPENS_KEY };
@@ -76,7 +77,9 @@ export default function RootLayout() {
                           <PushNotificationsProvider>
                             <AuthGuard>
                               <PhoneCallFeedbackProvider>
-                                <ThemedLayout />
+                                <ForceUpdateGate>
+                                  <ThemedLayout />
+                                </ForceUpdateGate>
                               </PhoneCallFeedbackProvider>
                             </AuthGuard>
                           </PushNotificationsProvider>

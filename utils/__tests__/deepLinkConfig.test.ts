@@ -46,6 +46,20 @@ describe('deepLinkConfig', () => {
     );
   });
 
+  it('prefers home on unknown paths when requested (Metro reload / cold start)', () => {
+    expect(
+      resolveIncomingDeepLinkRoute('/pobocky/modrany', { preferHomeOnUnknown: true })
+    ).toBe('/');
+    expect(
+      resolveIncomingDeepLinkRoute('https://realbarber.cz/en/real-barber', {
+        preferHomeOnUnknown: true,
+      })
+    ).toBe('/');
+    expect(
+      resolveIncomingDeepLinkRoute('/real-barber', { preferHomeOnUnknown: true })
+    ).toBe('/real-barber');
+  });
+
   it('maps web hairstyle paths to native detail', () => {
     expect(resolveIncomingDeepLinkRoute('/sluzby/afro/')).toBe('/hairstyle-detail?id=afro');
     expect(resolveIncomingDeepLinkRoute('/tym/karel/')).toBe('/barber-detail?id=karel');

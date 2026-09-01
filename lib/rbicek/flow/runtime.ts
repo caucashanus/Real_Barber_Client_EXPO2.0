@@ -20,6 +20,14 @@ import { flowDefinition, getFlowSnapshotConstants } from './snapshot';
 
 const OPERATOR_OPTION_ID = 'follow_operator';
 
+function followOperatorOptionFromSnapshot(): FlowOption {
+  const fromSnapshot = flowDefinition.followUpOptions.find(
+    (option) => option.id === OPERATOR_OPTION_ID
+  );
+  if (fromSnapshot) return { ...fromSnapshot };
+  return operatorEntryOption();
+}
+
 const TO_SLOTS: FlowOption = {
   id: 'cross_slots',
   label: 'Nejbližší termíny',
@@ -40,7 +48,7 @@ const TO_BOOKINGS: FlowOption = {
   label: 'Moje rezervace',
   nextNodeId: 'bookings_menu',
 };
-const TO_OPERATOR: FlowOption = operatorEntryOption();
+const TO_OPERATOR: FlowOption = followOperatorOptionFromSnapshot();
 const TO_WAITLIST: FlowOption = {
   id: 'cross_waitlist',
   label: 'Čekací listina',

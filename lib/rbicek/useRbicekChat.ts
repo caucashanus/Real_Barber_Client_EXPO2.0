@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { InteractionManager } from 'react-native';
 
 import {
   RBICEK_IDLE_REMINDER_MS,
@@ -182,6 +183,13 @@ export function useRbicekChat(params: UseRbicekChatParams) {
 
         if (result.closeAndOpenReservations) {
           bridge.openMyReservations();
+        }
+
+        if (result.deferredOpenUrl) {
+          const url = result.deferredOpenUrl;
+          InteractionManager.runAfterInteractions(() => {
+            bridge.openUrl(url);
+          });
         }
       } finally {
         setIsLoading(false);

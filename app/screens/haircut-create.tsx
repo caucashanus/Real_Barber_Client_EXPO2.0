@@ -18,6 +18,7 @@ import TitleDescriptionStep from '@/components/haircut-create/TitleDescriptionSt
 import { MY_HAIRCUTS_ROUTE } from '@/components/haircut-create/constants';
 import type { PropertyData } from '@/components/haircut-create/types';
 import { buildHaircutNote } from '@/utils/haircut-note-build';
+import { uploadInputFromPickerAsset } from '@/utils/normalizeUploadImage';
 
 export default function HaircutCreateScreen() {
   const { t } = useTranslation();
@@ -69,13 +70,13 @@ export default function HaircutCreateScreen() {
       try {
         const photoIds: string[] = [];
         for (const asset of data.photoAssets) {
-          const uploaded = await uploadClientMedia(apiToken, {
-            uri: asset.uri,
-            name: asset.fileName ?? undefined,
-            mimeType: asset.mimeType ?? undefined,
-            title: trimmedTitle,
-            alt: trimmedTitle,
-          });
+          const uploaded = await uploadClientMedia(
+            apiToken,
+            uploadInputFromPickerAsset(asset, {
+              title: trimmedTitle,
+              alt: trimmedTitle,
+            })
+          );
           photoIds.push(uploaded.id);
         }
 

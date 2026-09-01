@@ -16,6 +16,7 @@ import { CLIENT_APP_V1_ENABLED } from '@/constants/clientAppApi';
 import { MOCK_SIGNUP } from '@/constants/mockSignup';
 import { formatBirthdayToIsoUtcMidnight } from '@/utils/date';
 import { getEmailDomainChipSuggestions } from '@/utils/emailSuggestions';
+import { uploadInputFromPickerAsset } from '@/utils/normalizeUploadImage';
 import { formatPhoneDisplay } from '@/utils/phone';
 import {
   avatarChoiceToStoredUrl,
@@ -244,7 +245,10 @@ export function useSignupFlow() {
       }
 
       if (avatarChoice.kind === 'custom' && avatarChoice.uri) {
-        await uploadClientAvatar(apiToken, { uri: avatarChoice.uri });
+        await uploadClientAvatar(
+          apiToken,
+          uploadInputFromPickerAsset(avatarChoice)
+        );
       }
 
       const patchBody: UpdateClientMeBody = {};

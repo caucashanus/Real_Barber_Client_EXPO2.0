@@ -113,9 +113,9 @@ const SYSTEM = {
     uk: "Показати акцію",
   },
   contactOperatorChip: {
-    cs: "Živý operátor",
-    en: "Live operator",
-    uk: "Живий оператор",
+    cs: "Kontaktovat podporu",
+    en: "Contact support",
+    uk: "Зв'язатися з підтримкою",
   },
   connectOperator: {
     cs: "Spojit s operátorem",

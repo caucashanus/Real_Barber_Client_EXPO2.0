@@ -113,7 +113,7 @@ export function resolveSmartDownloadRoute(path: string): string | null {
 }
 
 export function isKnownAppRoute(path: string): boolean {
-  const normalized = normalizeIncomingDeepLinkPath(path);
+  const normalized = normalizeIncomingDeepLinkPath(path).replace(/\/+$/, '') || '/';
   if ((APP_KNOWN_ROUTE_PATHS as readonly string[]).includes(normalized)) {
     return true;
   }

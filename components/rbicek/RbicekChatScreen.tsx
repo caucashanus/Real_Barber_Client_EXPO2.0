@@ -48,7 +48,23 @@ export function RbicekChatScreen({ visible, onClose }: RbicekChatScreenProps) {
   const listHeightRef = useRef(0);
   const contentHeightRef = useRef(0);
   const prevMessageCountRef = useRef(0);
+  const pendingScrollToEndRef = useRef(false);
+  const scrollToEndTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [contentOverflows, setContentOverflows] = useState(false);
+
+  const scheduleScrollToEnd = useCallback(() => {
+    if (scrollToEndTimerRef.current) clearTimeout(scrollToEndTimerRef.current);
+    scrollToEndTimerRef.current = setTimeout(() => {
+      scrollToEndTimerRef.current = null;
+      if (!pendingScrollToEndRef.current) return;
+      if (contentHeightRef.current <= listHeightRef.current + 8) {
+        pendingScrollToEndRef.current = false;
+        return;
+      }
+      pendingScrollToEndRef.current = false;
+      listRef.current?.scrollToEnd({ animated: true });
+    }, 48);
+  }, []);
 
   const bridge: RbicekHostBridge = useMemo(
     () => {
@@ -121,19 +137,26 @@ export function RbicekChatScreen({ visible, onClose }: RbicekChatScreenProps) {
       setContentOverflows(overflows);
 
       if (!overflows) {
+        pendingScrollToEndRef.current = false;
         listRef.current?.scrollToOffset({ offset: 0, animated: false });
         prevMessageCountRef.current = messageCount;
         return;
       }
 
       if (scrollOnGrowth && messageCount > prevMessageCountRef.current) {
-        listRef.current?.scrollToEnd({ animated: true });
+        pendingScrollToEndRef.current = true;
+        scheduleScrollToEnd();
       }
 
       prevMessageCountRef.current = messageCount;
     },
-    []
+    [scheduleScrollToEnd]
   );
+
+  const handleTrailingContentLayout = useCallback(() => {
+    if (!pendingScrollToEndRef.current) return;
+    scheduleScrollToEnd();
+  }, [scheduleScrollToEnd]);
 
   const contentContainerStyle = useMemo(
     () => ({
@@ -223,9 +246,13 @@ export function RbicekChatScreen({ visible, onClose }: RbicekChatScreenProps) {
       const isLastAssistant =
         item.role === 'assistant' &&
         !messages.slice(index + 1).some((m) => m.role === 'assistant' || m.role === 'user');
+      const isLastMessage = index === messages.length - 1;
+      const hasChips = Boolean(isLastAssistant && item.quickReplies?.length);
 
       return (
-        <View className="mb-3 w-full">
+        <View
+          className="mb-3 w-full"
+          onLayout={isLastMessage && !hasChips ? handleTrailingContentLayout : undefined}>
           <RbicekMessageBubble
             text={item.text}
             isSent={isSent}
@@ -253,7 +280,10 @@ export function RbicekChatScreen({ visible, onClose }: RbicekChatScreenProps) {
             </View>
           ) : null}
           {isLastAssistant && item.quickReplies?.length ? (
-            <View className="mt-3 w-full" style={{ marginTop: 12 }}>
+            <View
+              className="mt-3 w-full"
+              style={{ marginTop: 12 }}
+              onLayout={isLastMessage ? handleTrailingContentLayout : undefined}>
               <RbicekChipRow
                 replies={item.quickReplies}
                 disabled={item.chipsExpired || isLoading}
@@ -280,6 +310,7 @@ export function RbicekChatScreen({ visible, onClose }: RbicekChatScreenProps) {
       handlePromoPress,
       isLoading,
       selectOption,
+      handleTrailingContentLayout,
     ]
   );
 
@@ -341,7 +372,7 @@ export function RbicekChatScreen({ visible, onClose }: RbicekChatScreenProps) {
         ListFooterComponent={isLoading ? <RbicekTypingIndicator /> : null}
       />
 
-      <OperatorSupportSheet ref={supportSheetRef} nested />
+      <OperatorSupportSheet ref={supportSheetRef} />
     </View>
   );
 }

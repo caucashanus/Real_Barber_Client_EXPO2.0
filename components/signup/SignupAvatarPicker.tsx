@@ -12,7 +12,14 @@ import SiteLoadingSpinner from '@/components/SiteLoadingSpinner';
 export type AvatarChoice =
   | { kind: 'none' }
   | { kind: 'catalog'; id: string; url: string }
-  | { kind: 'custom'; uri: string };
+  | {
+      kind: 'custom';
+      uri: string;
+      fileName?: string;
+      mimeType?: string;
+      width?: number;
+      height?: number;
+    };
 
 /** Náhledy v karuselu (+ a avatary z API), +20 % oproti původním 72 / 12. */
 const THUMB = Math.round(72 * 1.2);
@@ -84,7 +91,15 @@ export default function SignupAvatarPicker({
       aspect: [1, 1],
       quality: 0.85});
     if (!result.canceled && result.assets[0]?.uri) {
-      onChange({ kind: 'custom', uri: result.assets[0].uri });
+      const asset = result.assets[0];
+      onChange({
+        kind: 'custom',
+        uri: asset.uri,
+        fileName: asset.fileName ?? undefined,
+        mimeType: asset.mimeType ?? undefined,
+        width: asset.width,
+        height: asset.height,
+      });
     }
   };
 

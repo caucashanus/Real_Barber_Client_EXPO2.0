@@ -1,37 +1,27 @@
 import { describe, expect, it } from 'vitest';
 
+import { getOperatorOpenStatus } from '@/utils/operatorOpenStatus';
 import { isOperatorSupportAvailable } from '@/utils/operatorSupportHours';
 
-function localDate(
-  year: number,
-  month: number,
-  day: number,
-  hours: number,
-  minutes: number
-): Date {
-  return new Date(year, month - 1, day, hours, minutes, 0, 0);
+/** 2026-07-02 (Thu) v Praze — léto CEST = UTC+2. */
+function pragueSummerAt(hours: number, minutes: number): Date {
+  return new Date(Date.UTC(2026, 6, 2, hours - 2, minutes, 0, 0));
 }
 
 describe('operatorSupportHours', () => {
-  it('is open on weekday during support hours', () => {
-    expect(isOperatorSupportAvailable(localDate(2026, 7, 2, 12, 0))).toBe(true);
-    expect(isOperatorSupportAvailable(localDate(2026, 7, 2, 8, 30))).toBe(true);
-    expect(isOperatorSupportAvailable(localDate(2026, 7, 2, 21, 30))).toBe(true);
+  it('is available when support is open or closing soon', () => {
+    expect(isOperatorSupportAvailable(pragueSummerAt(12, 0))).toBe(true);
+    expect(isOperatorSupportAvailable(pragueSummerAt(21, 15))).toBe(true);
   });
 
-  it('is closed on weekday outside support hours', () => {
-    expect(isOperatorSupportAvailable(localDate(2026, 7, 2, 8, 29))).toBe(false);
-    expect(isOperatorSupportAvailable(localDate(2026, 7, 2, 21, 31))).toBe(false);
+  it('is unavailable when support is closed or opening soon', () => {
+    expect(isOperatorSupportAvailable(pragueSummerAt(7, 0))).toBe(false);
+    expect(isOperatorSupportAvailable(pragueSummerAt(8, 15))).toBe(false);
   });
 
-  it('is open on weekend during support hours', () => {
-    expect(isOperatorSupportAvailable(localDate(2026, 7, 4, 10, 0))).toBe(true);
-    expect(isOperatorSupportAvailable(localDate(2026, 7, 5, 9, 30))).toBe(true);
-    expect(isOperatorSupportAvailable(localDate(2026, 7, 5, 18, 30))).toBe(true);
-  });
-
-  it('is closed on weekend outside support hours', () => {
-    expect(isOperatorSupportAvailable(localDate(2026, 7, 4, 9, 29))).toBe(false);
-    expect(isOperatorSupportAvailable(localDate(2026, 7, 4, 18, 31))).toBe(false);
+  it('delegates to getOperatorOpenStatus', () => {
+    const at = pragueSummerAt(12, 0);
+    const status = getOperatorOpenStatus(at);
+    expect(isOperatorSupportAvailable(at)).toBe(status === 'open' || status === 'closingSoon');
   });
 });

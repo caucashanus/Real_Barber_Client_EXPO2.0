@@ -1,6 +1,10 @@
 import { File } from 'expo-file-system';
 
 import { CLIENT_APP_V1_ENABLED } from '@/constants/clientAppApi';
+import {
+  normalizeImageForUpload,
+  type NormalizeUploadImageInput,
+} from '@/utils/normalizeUploadImage';
 
 import { CrmHttpError, fetchClientAppV1, fetchCrm } from './http';
 
@@ -53,10 +57,7 @@ export interface UpdateClientMeBody {
   country?: string;
 }
 
-export interface UploadClientMediaInput {
-  uri: string;
-  name?: string;
-  mimeType?: string;
+export interface UploadClientMediaInput extends NormalizeUploadImageInput {
   title?: string;
   alt?: string;
   flagId?: string;
@@ -84,8 +85,9 @@ export async function uploadClientMedia(
   apiToken: string,
   input: UploadClientMediaInput
 ): Promise<ClientMediaFile> {
+  const normalized = await normalizeImageForUpload(input);
   const form = new FormData();
-  appendUploadFile(form, 'file', input);
+  appendUploadFile(form, 'file', normalized);
   if (input.title?.trim()) form.append('title', input.title.trim());
   if (input.alt?.trim()) form.append('alt', input.alt.trim());
   if (input.flagId?.trim()) form.append('flagId', input.flagId.trim());
@@ -124,8 +126,9 @@ export async function uploadClientAvatar(
   apiToken: string,
   input: UploadClientMediaInput
 ): Promise<void> {
+  const normalized = await normalizeImageForUpload(input);
   const form = new FormData();
-  appendUploadFile(form, 'file', input);
+  appendUploadFile(form, 'file', normalized);
 
   try {
     await fetchCrm<void>('/api/client/avatar', { method: 'POST', apiToken, body: form });

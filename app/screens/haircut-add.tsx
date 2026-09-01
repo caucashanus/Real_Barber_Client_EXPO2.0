@@ -10,6 +10,7 @@ import { createClientCut } from '@/api/cuts';
 import { getEmployees, type Employee } from '@/api/employees';
 import { useAuth } from '@/contexts/AuthContext';
 import { useTranslation } from '@/hooks/useTranslation';
+import { uploadInputFromPickerAsset } from '@/utils/normalizeUploadImage';
 import BarberPicker from '@/components/BarberPicker';
 import { Button } from '@/components/Button';
 import Header from '@/components/Header';
@@ -90,13 +91,13 @@ export default function HaircutAddScreen() {
     try {
       const photoIds: string[] = [];
       for (const asset of photoAssets) {
-        const uploaded = await uploadClientMedia(apiToken, {
-          uri: asset.uri,
-          name: asset.fileName ?? undefined,
-          mimeType: asset.mimeType ?? undefined,
-          title: trimmedName,
-          alt: trimmedName,
-        });
+        const uploaded = await uploadClientMedia(
+          apiToken,
+          uploadInputFromPickerAsset(asset, {
+            title: trimmedName,
+            alt: trimmedName,
+          })
+        );
         photoIds.push(uploaded.id);
       }
 

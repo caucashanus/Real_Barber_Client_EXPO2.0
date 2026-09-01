@@ -34,6 +34,7 @@ import ThemedText from '@/components/ThemedText';
 import Input from '@/components/forms/Input';
 import Section from '@/components/layout/Section';
 import SiteLoadingSpinner from '@/components/SiteLoadingSpinner';
+import { uploadInputFromPickerAsset } from '@/utils/normalizeUploadImage';
 
 const PLACEHOLDER_IMAGE = require('@/assets/img/barbers.png');
 /** Stejný limit jako ve wizardu `haircut-create`. */
@@ -166,12 +167,13 @@ export default function HaircutDetailScreen() {
           .map((p) => p.media?.id)
           .filter(Boolean) as string[];
         for (const asset of slice) {
-          const uploaded = await uploadClientMedia(apiToken, {
-            uri: asset.uri,
-            name: asset.fileName ?? undefined,
-            mimeType: asset.mimeType ?? undefined,
-            title: label,
-            alt: label});
+          const uploaded = await uploadClientMedia(
+            apiToken,
+            uploadInputFromPickerAsset(asset, {
+              title: label,
+              alt: label,
+            })
+          );
           mediaIds.push(uploaded.id);
         }
         const updated = await patchClientCut(apiToken, id, {
