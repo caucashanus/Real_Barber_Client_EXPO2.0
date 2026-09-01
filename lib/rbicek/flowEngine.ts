@@ -8,7 +8,7 @@ import {
   jokeReplyOptions,
   resolveNodeMessage,
   resolveOption,
-} from '@/lib/rbicek/port/flow/definition';
+} from '@/lib/rbicek/flow/runtime';
 import {
   isJokeNodeId,
   isJokeRoundStart,
@@ -29,6 +29,7 @@ import {
   fetchTodayTeam,
 } from '@/lib/rbicek/crm/client';
 import { STATIC_BRANCHES } from '@/lib/rbicek/crm/mapCards';
+import { isSystemComposeUrl } from '@/lib/rbicek/openLinkUrl';
 import type { RbicekHostBridge, RbicekRuntimeConfig } from '@/lib/rbicek/types';
 import { randomId } from '@/lib/rbicek/utils';
 
@@ -173,7 +174,7 @@ export async function buildApiMessage(
 export function buildWelcomeMessage(config: RbicekRuntimeConfig): ChatMessage {
   const startNodeId = getStartNodeId(config.isLoggedIn);
   const locale = widgetLocale(config);
-  const options = buildActiveOptions(startNodeId, config.isLoggedIn, locale);
+  const options = buildActiveOptions(startNodeId, config.isLoggedIn, locale, config.platform);
   return botMessageWithChips(
     getWelcomeMessage(config.isLoggedIn, config.userDisplayName ?? undefined, locale),
     options,
@@ -188,7 +189,7 @@ export function buildNodeReply(
 ): ChatMessage {
   const node = flowDefinition.nodes[nodeId];
   const locale = widgetLocale(config);
-  const options = buildActiveOptions(nodeId, config.isLoggedIn, locale);
+  const options = buildActiveOptions(nodeId, config.isLoggedIn, locale, config.platform);
   return botMessageWithChips(
     resolveNodeMessage(node, config.isLoggedIn, locale),
     options,
@@ -215,7 +216,13 @@ export async function processOptionSelection(params: {
 }): Promise<SelectOptionResult | null> {
   const { optionId, currentNodeId, messages, config, bridge } = params;
   const locale = widgetLocale(config);
-  const option = resolveOption(currentNodeId, optionId, config.isLoggedIn, locale);
+  const option = resolveOption(
+    currentNodeId,
+    optionId,
+    config.isLoggedIn,
+    locale,
+    config.platform
+  );
   if (!option) return null;
 
   const lastAssistant = [...messages].reverse().find((m) => m.role === 'assistant');
@@ -233,7 +240,13 @@ export async function processOptionSelection(params: {
   const newMessages = [...expiredMessages, userMessage(option.label)];
 
   if (option.action === 'openUrl' && option.url) {
-    bridge.openExternalUrl(option.url);
+    await bridge.openUrl(option.url);
+    if (isSystemComposeUrl(option.url)) {
+      return {
+        messages: newMessages,
+        currentNodeId,
+      };
+    }
   }
 
   if (option.action === 'reset') {
@@ -250,7 +263,12 @@ export async function processOptionSelection(params: {
 
   if (isSupportChip && !LIVE_OPERATOR_ENABLED) {
     const hostNode = flowDefinition.nodes.operator_host_support!;
-    const options = buildActiveOptions('operator_host_support', config.isLoggedIn, locale);
+    const options = buildActiveOptions(
+      'operator_host_support',
+      config.isLoggedIn,
+      locale,
+      config.platform
+    );
     return {
       messages: [
         ...newMessages,
@@ -275,7 +293,8 @@ export async function processOptionSelection(params: {
       option.nextNodeId,
       apiContextFromMessage(apiReply),
       config.isLoggedIn,
-      locale
+      locale,
+      config.platform
     );
     botReply = {
       ...apiReply,
@@ -289,7 +308,12 @@ export async function processOptionSelection(params: {
     const { text, hasMore } = takeNextJoke();
     botReply = botMessageWithChips(text, jokeReplyOptions(hasMore, locale));
   } else {
-    const options = buildActiveOptions(option.nextNodeId, config.isLoggedIn, locale);
+    const options = buildActiveOptions(
+      option.nextNodeId,
+      config.isLoggedIn,
+      locale,
+      config.platform
+    );
     botReply = botMessageWithChips(
       resolveNodeMessage(nextNode, config.isLoggedIn, locale),
       options
@@ -322,7 +346,7 @@ export function processNavigateToNode(params: {
   if (!nextNode) return null;
 
   const expiredMessages = expireLatestChips(messages);
-  const options = buildActiveOptions(nodeId, config.isLoggedIn, locale);
+  const options = buildActiveOptions(nodeId, config.isLoggedIn, locale, config.platform);
 
   return {
     messages: [
@@ -337,7 +361,7 @@ export function processNavigateToNode(params: {
 export function buildIdleReminder(config: RbicekRuntimeConfig): ChatMessage {
   const locale = widgetLocale(config);
   const idleNode = flowDefinition.nodes.idle_reminder!;
-  const options = buildActiveOptions('idle_reminder', config.isLoggedIn, locale);
+  const options = buildActiveOptions('idle_reminder', config.isLoggedIn, locale, config.platform);
   return botMessageWithChips(
     resolveNodeMessage(idleNode, config.isLoggedIn, locale),
     options

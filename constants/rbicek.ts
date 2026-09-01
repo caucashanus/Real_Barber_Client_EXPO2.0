@@ -1,15 +1,18 @@
 import Constants from 'expo-constants';
 
 import { PRODUCTION_WEB_ORIGIN } from '@/constants/bookingMonitor';
+import { getFlowSnapshotConstants } from '@/lib/rbicek/flow/snapshot';
 
-/** Feature flags — parity with web `@rbicek/widget`. */
-export const RBICEK_LIVE_OPERATOR_ENABLED = false;
+const flowConstants = getFlowSnapshotConstants();
+
+/** Feature flags — parity with web `@rbicek/widget` (from flow-snapshot.json). */
+export const RBICEK_LIVE_OPERATOR_ENABLED = flowConstants.liveOperatorEnabled;
 export const RBICEK_HISTORY_UI_ENABLED = false;
 
 export const RBICEK_ACCENT_DEFAULT = '#ff4f31';
 export const RBICEK_CRM_BASE = 'https://crm.xrb.cz';
-export const RBICEK_MAX_CHIPS = 9;
-export const RBICEK_CONVERSATION_TTL_MS = 10 * 60 * 60 * 1000;
+export const RBICEK_MAX_CHIPS = flowConstants.maxResponseOptions;
+export const RBICEK_CONVERSATION_TTL_MS = flowConstants.conversationTtlMs;
 export const RBICEK_IDLE_REMINDER_MS = 3 * 60 * 1000;
 export const RBICEK_STORAGE_KEY = '@rb_rbicek_conversation_v1';
 export const RBICEK_SUPPORT_CONTACT_SECRET_KEY = '@rb_rbicek_support_contact_secret_v1';

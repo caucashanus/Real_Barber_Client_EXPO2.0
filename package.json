@@ -10,6 +10,7 @@
     "lint": "eslint \"**/*.{js,jsx,ts,tsx}\" && prettier -c \"**/*.{js,jsx,ts,tsx,json}\"",
     "typecheck": "tsc --noEmit",
     "sync:gallery": "node scripts/sync-branches-gallery.mjs",
+    "sync:rbicek-flow": "node scripts/sync-rbicek-flow.mjs",
     "sync:locales": "node scripts/sync-locales-from-csv.mjs",
     "test": "vitest run",
     "format": "eslint \"**/*.{js,jsx,ts,tsx}\" --fix && prettier \"**/*.{js,jsx,ts,tsx,json}\" --write",

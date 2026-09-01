@@ -1,4 +1,5 @@
 import { CONTACT_PHONE } from "@/lib/rbicek/port/data/branchesCatalog";
+import { getFlowSnapshotConstants } from "@/lib/rbicek/flow/snapshot";
 import { isOperatorOffHours, operatorHoursLabel } from "@/lib/rbicek/port/lib/operatorHours";
 import { tSystem } from "@/lib/rbicek/port/i18n/system";
 import type { FlowOption } from "@/lib/rbicek/port/types/chat";
@@ -8,7 +9,7 @@ import type { WidgetLocale } from "@/lib/rbicek/port/types/config";
  * Temporary kill-switch for live operator handoff / WS chat.
  * Set to `true` to restore „Spojit s operátorem“ without deleting handoff code.
  */
-export const LIVE_OPERATOR_ENABLED = false;
+export const LIVE_OPERATOR_ENABLED = getFlowSnapshotConstants().liveOperatorEnabled;
 
 export const CONTACT_PHONE_DISPLAY = CONTACT_PHONE;
 export const CONTACT_PHONE_E164 = CONTACT_PHONE.replace(/\s/g, "");

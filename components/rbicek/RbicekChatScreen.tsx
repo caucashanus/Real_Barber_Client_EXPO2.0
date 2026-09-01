@@ -1,7 +1,6 @@
 import { router } from 'expo-router';
-import * as WebBrowser from 'expo-web-browser';
 import { Image } from 'expo-image';
-import React, { useCallback, useMemo, useRef } from 'react';
+import React, { useCallback, useMemo, useRef, useState } from 'react';
 import { FlatList, Pressable, View } from 'react-native';
 import { ActionSheetRef } from 'react-native-actions-sheet';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -13,7 +12,9 @@ import { OperatorSupportSheet } from '@/components/OperatorSupportSheet';
 import Icon from '@/components/Icon';
 import ThemedText from '@/components/ThemedText';
 import { LOGIN_PATH } from '@/constants/authRoutes';
+import { RBICEK_WEB_BASE_URL } from '@/constants/rbicek';
 import { buildBookingEngineHref } from '@/lib/booking/engine/resolvePresetFromParams';
+import { openRbicekHostUrl, isLoginWebPath, isReservationsWebPath } from '@/lib/rbicek/openLinkUrl';
 import { tUi } from '@/lib/rbicek/port/i18n/ui';
 import type {
   BranchCardData,
@@ -44,16 +45,38 @@ export function RbicekChatScreen({ visible, onClose }: RbicekChatScreenProps) {
   const { apiToken, client } = useAuth();
   const supportSheetRef = useRef<ActionSheetRef>(null);
   const listRef = useRef<FlatList<ChatMessage>>(null);
+  const listHeightRef = useRef(0);
+  const contentHeightRef = useRef(0);
+  const prevMessageCountRef = useRef(0);
+  const [contentOverflows, setContentOverflows] = useState(false);
 
   const bridge: RbicekHostBridge = useMemo(
-    () => ({
+    () => {
+      const openUrl = (url: string) => {
+        if (isLoginWebPath(url)) {
+          onClose();
+          router.push(LOGIN_PATH);
+          return;
+        }
+        if (isReservationsWebPath(url)) {
+          onClose();
+          router.push('/(tabs)/bookings');
+          return;
+        }
+        void openRbicekHostUrl(url, RBICEK_WEB_BASE_URL);
+      };
+
+      return {
+      /** loginRequest */
       requestLogin: () => {
         onClose();
         router.push(LOGIN_PATH);
       },
+      /** openReservations */
       openMyReservations: () => {
         router.push('/(tabs)/bookings');
       },
+      /** supportRequest */
       openSupportChannels: () => {
         supportSheetRef.current?.show();
       },
@@ -68,17 +91,13 @@ export function RbicekChatScreen({ visible, onClose }: RbicekChatScreenProps) {
           })
         );
       },
-      openExternalUrl: (url) => {
-        void WebBrowser.openBrowserAsync(url);
-      },
-      openBarberProfile: (profileUrl) => {
-        void WebBrowser.openBrowserAsync(profileUrl);
-      },
-      openBranchDetail: (detailUrl) => {
-        void WebBrowser.openBrowserAsync(detailUrl);
-      },
+      openUrl,
+      openExternalUrl: openUrl,
+      openBarberProfile: openUrl,
+      openBranchDetail: openUrl,
       closeChat: onClose,
-    }),
+    };
+    },
     [onClose]
   );
 
@@ -96,6 +115,36 @@ export function RbicekChatScreen({ visible, onClose }: RbicekChatScreenProps) {
       userDisplayName: displayName,
       bridge,
     });
+
+  const applyScrollLayout = useCallback(
+    (messageCount: number, scrollOnGrowth: boolean) => {
+      const overflows = contentHeightRef.current > listHeightRef.current + 8;
+      setContentOverflows(overflows);
+
+      if (!overflows) {
+        listRef.current?.scrollToOffset({ offset: 0, animated: false });
+        prevMessageCountRef.current = messageCount;
+        return;
+      }
+
+      if (scrollOnGrowth && messageCount > prevMessageCountRef.current) {
+        listRef.current?.scrollToEnd({ animated: true });
+      }
+
+      prevMessageCountRef.current = messageCount;
+    },
+    []
+  );
+
+  const contentContainerStyle = useMemo(
+    () => ({
+      flexGrow: 1,
+      justifyContent: contentOverflows ? ('flex-end' as const) : ('flex-start' as const),
+      paddingTop: 12,
+      paddingBottom: 24,
+    }),
+    [contentOverflows]
+  );
 
   const handleSlotPress = useCallback(
     (slot: SlotCardData) => {
@@ -143,14 +192,14 @@ export function RbicekChatScreen({ visible, onClose }: RbicekChatScreenProps) {
   const handleBranchMapsPress = useCallback(
     (branch: BranchCardData) => {
       const url = branch.googleMapsUrl ?? branch.mapsUrl;
-      if (url) bridge.openExternalUrl(url);
+      if (url) bridge.openUrl(url);
     },
     [bridge]
   );
 
   const handleBranchWazePress = useCallback(
     (branch: BranchCardData) => {
-      if (branch.wazeUrl) bridge.openExternalUrl(branch.wazeUrl);
+      if (branch.wazeUrl) bridge.openUrl(branch.wazeUrl);
     },
     [bridge]
   );
@@ -164,7 +213,7 @@ export function RbicekChatScreen({ visible, onClose }: RbicekChatScreenProps) {
 
   const handlePromoPress = useCallback(
     (promo: PromoCardData) => {
-      if (promo.detailUrl) bridge.openExternalUrl(promo.detailUrl);
+      if (promo.detailUrl) bridge.openUrl(promo.detailUrl);
     },
     [bridge]
   );
@@ -281,14 +330,15 @@ export function RbicekChatScreen({ visible, onClose }: RbicekChatScreenProps) {
         data={messages}
         keyExtractor={(item) => item.id}
         renderItem={renderItem}
-        contentContainerStyle={{
-          flexGrow: 1,
-          justifyContent: 'flex-end',
-          paddingTop: 12,
-          paddingBottom: 24,
+        contentContainerStyle={contentContainerStyle}
+        onLayout={(event) => {
+          listHeightRef.current = event.nativeEvent.layout.height;
+          applyScrollLayout(messages.length, false);
         }}
-        onContentSizeChange={() => listRef.current?.scrollToEnd({ animated: true })}
-        onLayout={() => listRef.current?.scrollToEnd({ animated: false })}
+        onContentSizeChange={(_, height) => {
+          contentHeightRef.current = height;
+          applyScrollLayout(messages.length, true);
+        }}
         ListFooterComponent={isLoading ? <RbicekTypingIndicator /> : null}
       />
 

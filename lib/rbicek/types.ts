@@ -109,16 +109,23 @@ export interface RbicekHostBridge {
     date?: string;
     slotStart?: string;
   }) => void;
+  /** Snapshot `action: "openUrl"` — host routuje mailto/tel/sms/https/relative paths. */
+  openUrl: (url: string) => void | Promise<void>;
+  /** @deprecated Prefer `openUrl`. */
   openExternalUrl: (url: string) => void;
   openBarberProfile: (profileUrl: string) => void;
   openBranchDetail: (detailUrl: string) => void;
   closeChat: () => void;
 }
 
+export type RbicekPlatform = 'app';
+
 export interface RbicekRuntimeConfig {
   locale: RbicekLocale;
   theme: RbicekTheme;
   accentColor: string;
+  /** Parita s web widgetem — engine filtruje chipy podle platformy. */
+  platform: RbicekPlatform;
   isLoggedIn: boolean;
   userToken?: string | null;
   userId?: string | null;

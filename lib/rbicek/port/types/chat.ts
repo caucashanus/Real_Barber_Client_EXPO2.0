@@ -99,6 +99,8 @@ export type FlowActionType =
   | "reset"
   | "end";
 
+export type WidgetPlatform = "web" | "app";
+
 export interface FlowOption {
   id: string;
   label: string;
@@ -110,6 +112,8 @@ export interface FlowOption {
   requiresAuth?: boolean;
   /** Zobrazit jen nepřihlášeným */
   requiresGuest?: boolean;
+  /** Web-only chipy (App Store, Stáhnout appku, …) se v appce skryjí. */
+  requiresPlatform?: WidgetPlatform;
 }
 
 export interface FlowNode {

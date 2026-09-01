@@ -3,6 +3,7 @@ import React from 'react';
 import { ScrollView, View, type ImageSourcePropType } from 'react-native';
 
 import AppButton from '@/components/AppButton';
+import { RbicekLinkableText } from '@/components/rbicek/RbicekLinkableText';
 import SurfaceCard from '@/components/layout/SurfaceCard';
 import ThemedText from '@/components/ThemedText';
 import { tUi } from '@/lib/rbicek/port/i18n/ui';
@@ -244,11 +245,6 @@ export function RbicekCarousel({
             ) : null}
             <View className="p-3">
               <ThemedText className="font-semibold">{promo.title}</ThemedText>
-              {promo.subtitle ? (
-                <ThemedText className="mt-1 text-sm text-light-subtext dark:text-dark-subtext">
-                  {promo.subtitle}
-                </ThemedText>
-              ) : null}
               {promo.detailUrl ? (
                 <AppButton
                   variant="choice"
@@ -289,7 +285,7 @@ export function RbicekMessageBubble({
         <View
           style={isSent ? { backgroundColor: accentColor } : undefined}
           className={`rounded-2xl px-4 py-2 ${!isSent ? 'bg-light-secondary dark:bg-dark-secondary' : ''}`}>
-          <ThemedText className={isSent ? 'text-white' : ''}>{text}</ThemedText>
+          <RbicekLinkableText text={text} isSent={isSent} accentColor={accentColor} />
           <ThemedText
             className={`mt-1 text-xs ${isSent ? 'text-white/70' : 'text-light-subtext dark:text-dark-subtext'}`}>
             {time}

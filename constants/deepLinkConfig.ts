@@ -27,6 +27,8 @@ export const APP_KNOWN_ROUTE_PATHS = [
   '/real-barber',
   '/wallet',
   '/my-haircuts',
+  '/inspirace',
+  '/experience',
   '/branches',
   '/experience',
   '/services',

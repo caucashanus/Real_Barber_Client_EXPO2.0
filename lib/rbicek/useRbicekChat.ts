@@ -6,7 +6,8 @@ import {
   RBICEK_SUPPORT_BASE_URL,
   RBICEK_WEB_BASE_URL,
 } from '@/constants/rbicek';
-import { getStartNodeId } from '@/lib/rbicek/port/flow/definition';
+import { getStartNodeId } from '@/lib/rbicek/flow/runtime';
+import { flowSnapshotMeta } from '@/lib/rbicek/flow/snapshot';
 import {
   buildIdleReminder,
   buildWelcomeMessage,
@@ -50,6 +51,7 @@ export function useRbicekChat(params: UseRbicekChatParams) {
     locale,
     theme,
     accentColor,
+    platform: 'app',
     isLoggedIn,
     userToken,
     userId,
@@ -120,6 +122,11 @@ export function useRbicekChat(params: UseRbicekChatParams) {
 
   useEffect(() => {
     if (!visible || initializedRef.current) return;
+    if (__DEV__) {
+      console.info(
+        `[Rbicek] flow snapshot v${flowSnapshotMeta.version} (${flowSnapshotMeta.generatedAt})`
+      );
+    }
     initializedRef.current = true;
     void (async () => {
       const stored = await loadStoredConversation();
