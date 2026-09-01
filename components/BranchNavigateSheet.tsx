@@ -1,6 +1,5 @@
 import { Image } from 'expo-image';
 import React, { forwardRef, useCallback, useRef } from 'react';
-import { Linking } from 'react-native';
 import { ActionSheetRef } from 'react-native-actions-sheet';
 
 import { useTheme } from '@/contexts/ThemeContext';
@@ -12,50 +11,24 @@ import SheetContent from '@/components/sheets/SheetContent';
 import { SHEET_ICON_SIZE, SHEET_ICON_STROKE, SHEET_TITLE_CLASS } from '@/components/sheets/expoSheetTheme';
 import SheetNavRow from '@/components/shared/SheetNavRow';
 import ThemedText from '@/components/ThemedText';
+import {
+  BRANCH_NAVIGATE_OPEN_DELAY_MS,
+  openBranchGoogleMaps,
+  openBranchWaze,
+} from '@/utils/branchNavigationUrls';
+
+export { getBranchNavigateMapsQuery } from '@/utils/branchNavigationUrls';
 
 export interface BranchNavigateSheetProps {
   branchName?: string | null;
   address?: string | null;
   latitude?: number | null;
   longitude?: number | null;
+  nested?: boolean;
 }
 
 const BRAND_GOOGLE_MAPS = '#34A853';
 const BRAND_WAZE = '#33CCFF';
-const NAVIGATE_OPEN_DELAY_MS = 300;
-
-export function getBranchNavigateMapsQuery(
-  branchName?: string | null,
-  address?: string | null
-): string {
-  return (address?.trim() || branchName?.trim() || '').trim();
-}
-
-function buildGoogleMapsUrl(
-  branchName?: string | null,
-  address?: string | null,
-  latitude?: number | null,
-  longitude?: number | null
-): string {
-  if (latitude != null && longitude != null) {
-    return `https://www.google.com/maps/search/?api=1&query=${latitude},${longitude}`;
-  }
-  const q = encodeURIComponent(getBranchNavigateMapsQuery(branchName, address));
-  return `https://www.google.com/maps/search/?api=1&query=${q}`;
-}
-
-function buildWazeUrl(
-  branchName?: string | null,
-  address?: string | null,
-  latitude?: number | null,
-  longitude?: number | null
-): string {
-  if (latitude != null && longitude != null) {
-    return `https://waze.com/ul?ll=${latitude},${longitude}&navigate=yes`;
-  }
-  const q = encodeURIComponent(getBranchNavigateMapsQuery(branchName, address));
-  return `https://waze.com/ul?q=${q}&navigate=yes`;
-}
 
 export const BranchNavigateSheet = forwardRef<ActionSheetRef, BranchNavigateSheetProps>(
   function BranchNavigateSheet({ branchName, address, latitude, longitude, nested: _nested = false }, ref) {
@@ -79,13 +52,11 @@ export const BranchNavigateSheet = forwardRef<ActionSheetRef, BranchNavigateShee
 
     const openMaps = (app: 'google' | 'waze') => {
       innerRef.current?.hide();
-      const url =
-        app === 'google'
-          ? buildGoogleMapsUrl(branchName, address, latitude, longitude)
-          : buildWazeUrl(branchName, address, latitude, longitude);
-      setTimeout(() => {
-        void Linking.openURL(url).catch(() => {});
-      }, NAVIGATE_OPEN_DELAY_MS);
+      if (app === 'google') {
+        openBranchGoogleMaps(branchName, address, latitude, longitude, BRANCH_NAVIGATE_OPEN_DELAY_MS);
+        return;
+      }
+      openBranchWaze(branchName, address, latitude, longitude, BRANCH_NAVIGATE_OPEN_DELAY_MS);
     };
 
     return (

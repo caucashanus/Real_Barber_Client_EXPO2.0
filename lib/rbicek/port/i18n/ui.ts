@@ -104,6 +104,7 @@ const UI = {
   },
   maps: { cs: "Mapy", en: "Maps", uk: "Мапи" },
   waze: { cs: "Waze", en: "Waze", uk: "Waze" },
+  navigate: { cs: "Navigovat", en: "Navigate", uk: "Маршрут" },
   detail: { cs: "Detail", en: "Details", uk: "Деталі" },
   nextBranches: {
     cs: "Další pobočky",

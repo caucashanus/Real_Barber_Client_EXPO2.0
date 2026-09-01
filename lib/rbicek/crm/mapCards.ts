@@ -1,5 +1,7 @@
 import { CRM_BASE } from '@/api/http';
 import { promoKuponHref, promoPosterHref } from '@/constants/promoDetailRoutes';
+import { resolveCrmBranchId, type BranchInternalId } from '@/constants/crmBranchIds';
+import { branchDetailHref } from '@/constants/profileDetailRoutes';
 import type { HomePromoFeedItem } from '@/utils/homePromoFeed';
 
 import {
@@ -207,8 +209,6 @@ export function mapBranchCards(
 ): BranchCardData[] {
   return branches.map((branch) => {
     const name = localizedBranchName(branch, locale);
-    const detailUrl =
-      localizedWebUrl(branch, locale) || `${webBaseUrl.replace(/\/$/, '')}/kontakty/`;
     const contact = getBranchContact(name);
     const district = branchDistrict(name);
     const rawAddress = branch.address?.trim() || contact?.address;
@@ -218,7 +218,7 @@ export function mapBranchCards(
       name,
       district,
       imageUrl: resolveMediaUrl(branch.imageUrl),
-      detailUrl,
+      detailUrl: branchDetailHref(branch.id),
       address: displayAddress,
       note: contact?.note,
       googleMapsUrl: branchGoogleMapsUrl(name, rawAddress),
@@ -266,12 +266,16 @@ export function mapHomePromoFeedToPromoCards(
   });
 }
 
+function staticBranchDetailUrl(internalId: BranchInternalId): string {
+  return branchDetailHref(resolveCrmBranchId(internalId));
+}
+
 export const STATIC_BRANCHES: BranchCardData[] = [
   {
     id: 'modrany',
     name: 'Modřany',
     district: 'Praha 12',
-    detailUrl: 'https://realbarber.cz/branches/real-barber-modrany/',
+    detailUrl: staticBranchDetailUrl('modrany'),
     address: 'Čs. exilu 40, Praha 12',
     note: getBranchContact('Modřany')?.note,
     googleMapsUrl: branchGoogleMapsUrl('Modřany', getBranchContact('Modřany')?.address),
@@ -281,7 +285,7 @@ export const STATIC_BRANCHES: BranchCardData[] = [
     id: 'barrandov',
     name: 'Barrandov',
     district: 'Praha 5',
-    detailUrl: 'https://realbarber.cz/branches/barbershop-v-praze-real-barber-barrandov-mens-grooming/',
+    detailUrl: staticBranchDetailUrl('barrandov'),
     address: 'nám. O. Scheinpflugové 4, Praha 5',
     note: getBranchContact('Barrandov')?.note,
     googleMapsUrl: branchGoogleMapsUrl('Barrandov', getBranchContact('Barrandov')?.address),
@@ -291,7 +295,7 @@ export const STATIC_BRANCHES: BranchCardData[] = [
     id: 'kacerov',
     name: 'Kačerov',
     district: 'Praha 4',
-    detailUrl: 'https://realbarber.cz/branches/real-barber-kacerov-praha-4/',
+    detailUrl: staticBranchDetailUrl('kacerov'),
     address: 'Budějovická 615/47, Praha 4',
     note: getBranchContact('Kačerov')?.note,
     googleMapsUrl: branchGoogleMapsUrl('Kačerov', getBranchContact('Kačerov')?.address),
@@ -301,7 +305,7 @@ export const STATIC_BRANCHES: BranchCardData[] = [
     id: 'hagibor',
     name: 'Hagibor',
     district: 'Praha 10',
-    detailUrl: 'https://realbarber.cz/branches/real-barber-hagibor-strasnice/',
+    detailUrl: staticBranchDetailUrl('hagibor'),
     address: 'Počernická 3492/1a, Praha 10',
     note: getBranchContact('Hagibor')?.note,
     googleMapsUrl: branchGoogleMapsUrl('Hagibor', getBranchContact('Hagibor')?.address),

@@ -1,6 +1,6 @@
 {
   "version": "0.2.0",
-  "generatedAt": "2026-09-01T14:08:46.255Z",
+  "generatedAt": "2026-09-01T15:34:35.386Z",
   "startNodeId": "welcome",
   "followUpNodeId": "after_help",
   "constants": {
@@ -439,28 +439,6 @@
       ]
     },
     {
-      "id": "app_faq_change_answer",
-      "message": "V Moje rezervace uvidíte nadcházející i minulé návštěvy. U aktivní rezervace můžete přesunout termín: zvolíte nové datum a čas, pobočka, služba i holič zůstávají. Rezervaci lze zrušit (ideálně co nejdříve, bez storno poplatků). Zrušení obvykle nejde méně než 2 hodiny před termínem, přesun ne méně než 1 hodinu před termínem. Po rezervaci si termín můžete přidat do kalendáře v telefonu.",
-      "showFollowUp": true,
-      "options": [
-        {
-          "id": "cross_bookings_manage",
-          "label": "Spravovat rezervaci",
-          "nextNodeId": "bookings_manage_menu"
-        },
-        {
-          "id": "cross_bookings",
-          "label": "Moje rezervace",
-          "nextNodeId": "bookings_menu"
-        },
-        {
-          "id": "back_faq",
-          "label": "Zpět na dotazy o aplikaci",
-          "nextNodeId": "app_faq_menu"
-        }
-      ]
-    },
-    {
       "id": "app_faq_coins_answer",
       "message": "RB Coiny (RBC) jsou věrnostní kredity Real Barber. V peněžence vidíte zůstatek a historii. Coiny lze převádět mezi zákazníky a posílat holičům jako dýško. Použijete je u rezervace i nákupů RB STORE. Gift Card z pobočky personál převede obdarovanému na RB Coiny.",
       "showFollowUp": true,
@@ -479,7 +457,7 @@
     },
     {
       "id": "app_faq_coupons_answer",
-      "message": "Kupóny najdete nejčastěji v aplikaci, případně na Instagramu @realbarber.jh. U kupónu uvidíte kód, platnost a popis. Při rezervaci zadáte slevový kód a hned uvidíte přepočet ceny.\n\nFyzický dárkový poukaz (Gift Card) do formuláře nezadávejte, přineste ho na návštěvu.",
+      "message": "Kupóny najdete nejčastěji v aplikaci, případně na Instagramu @realbarber.jh. U kupónu uvidíte kód, platnost a popis.\n\nJak uplatnit slevový kód při rezervaci:\n1. Vyberte službu, holiče a termín.\n2. Na posledním kroku rezervace (souhrn / kontakt) otevřete „Slevový kód / Dárkový poukaz“.\n3. Zvolte „Slevový kód“, zadejte kód a klepněte na Ověřit.\n4. Uvidíte základní cenu, slevu a cenu po slevě. Pak rezervaci potvrďte.\n\nNáhled je informativní. Finální cenu potvrdí systém až při rezervaci.\n\nFyzický dárkový poukaz (Gift Card) sem nezadávejte. Pokračujte v rezervaci bez kódu a kartu přineste na pobočku. Uplatníme ji při návštěvě (typicky jako RB Coiny).",
       "showFollowUp": true,
       "options": [
         {
@@ -491,6 +469,11 @@
           "id": "cross_promo",
           "label": "Akce a kupóny",
           "nextNodeId": "api_promo"
+        },
+        {
+          "id": "pay_coupon_issue",
+          "label": "Nejde mi uplatnit kupón",
+          "nextNodeId": "pay_coupon_issue_answer"
         },
         {
           "id": "cross_slots",
@@ -561,6 +544,28 @@
           "id": "app_faq_free_register",
           "label": "Jak se zaregistrovat",
           "nextNodeId": "app_faq_register_answer"
+        },
+        {
+          "id": "back_faq",
+          "label": "Zpět na dotazy o aplikaci",
+          "nextNodeId": "app_faq_menu"
+        }
+      ]
+    },
+    {
+      "id": "app_faq_change_answer",
+      "message": "V Moje rezervace uvidíte nadcházející i minulé návštěvy. U aktivní rezervace můžete přesunout termín: zvolíte nové datum a čas, pobočka, služba i holič zůstávají. Rezervaci lze zrušit (ideálně co nejdříve, bez storno poplatků). Zrušení obvykle nejde méně než 2 hodiny před termínem, přesun ne méně než 1 hodinu před termínem. Po rezervaci si termín můžete přidat do kalendáře v telefonu.",
+      "showFollowUp": true,
+      "options": [
+        {
+          "id": "cross_bookings_manage",
+          "label": "Spravovat rezervaci",
+          "nextNodeId": "bookings_manage_menu"
+        },
+        {
+          "id": "cross_bookings",
+          "label": "Moje rezervace",
+          "nextNodeId": "bookings_menu"
         },
         {
           "id": "back_faq",
@@ -3103,30 +3108,6 @@
       ]
     },
     {
-      "id": "blog_post_chces_zacit_s_vousy_tohle_by_mel_vedet_kazdy_typek_co_do_toho_jde",
-      "message": "Chceš začít s vousy? Tohle by měl vědět každý týpek, co do toho jde (4.04.25)\n\nNechat si narůst vousy není jen o tom „přestat se holit“. Je to styl. Změna. Závazek. A taky nová zodpovědnost.…",
-      "showFollowUp": true,
-      "options": [
-        {
-          "id": "blog_post_chces_zacit_s_vousy_tohle_by_mel_vedet_kazdy_typek_co_do_toho_jde_web",
-          "label": "Číst celý článek",
-          "nextNodeId": "after_help",
-          "action": "openUrl",
-          "url": "/blog/chces-zacit-s-vousy-tohle-by-mel-vedet-kazdy-typek-co-do-toho-jde/"
-        },
-        {
-          "id": "cross_slots",
-          "label": "Nejbližší termíny",
-          "nextNodeId": "api_slots"
-        },
-        {
-          "id": "back_blog",
-          "label": "Zpět na blog",
-          "nextNodeId": "blog_menu"
-        }
-      ]
-    },
-    {
       "id": "blog_post_co_je_low_taper_fade_uces_ktery_frci_ale_nikdy_nevyjde_z_mody",
       "message": "Co je Low Taper Fade – účes, který frčí, ale nikdy nevyjde z módy (16.11.25)\n\nLow Taper Fade je moderní klasika, která si poslední roky drží neotřesitelnou pozici v barbershop žebříčku nejžádanějších účesů. A není…",
       "showFollowUp": true,
@@ -3569,6 +3550,30 @@
           "nextNodeId": "after_help",
           "action": "openUrl",
           "url": "/blog/historie-holicstvi-od-staroveku-po-moderni-barbershopy/"
+        },
+        {
+          "id": "cross_slots",
+          "label": "Nejbližší termíny",
+          "nextNodeId": "api_slots"
+        },
+        {
+          "id": "back_blog",
+          "label": "Zpět na blog",
+          "nextNodeId": "blog_menu"
+        }
+      ]
+    },
+    {
+      "id": "blog_post_chces_zacit_s_vousy_tohle_by_mel_vedet_kazdy_typek_co_do_toho_jde",
+      "message": "Chceš začít s vousy? Tohle by měl vědět každý týpek, co do toho jde (4.04.25)\n\nNechat si narůst vousy není jen o tom „přestat se holit“. Je to styl. Změna. Závazek. A taky nová zodpovědnost.…",
+      "showFollowUp": true,
+      "options": [
+        {
+          "id": "blog_post_chces_zacit_s_vousy_tohle_by_mel_vedet_kazdy_typek_co_do_toho_jde_web",
+          "label": "Číst celý článek",
+          "nextNodeId": "after_help",
+          "action": "openUrl",
+          "url": "/blog/chces-zacit-s-vousy-tohle-by-mel-vedet-kazdy-typek-co-do-toho-jde/"
         },
         {
           "id": "cross_slots",
@@ -7079,7 +7084,7 @@
           "label": "Google Mapy",
           "nextNodeId": "after_help",
           "action": "openUrl",
-          "url": "https://www.google.com/maps/search/?api=1&query=place_id:ChIJBZGxYziXC0cRL0mQgxS4CzM"
+          "url": "https://maps.app.goo.gl/QWjD5yRLAB3XzFuy6"
         },
         {
           "id": "branch_barrandov_waze",
@@ -7158,7 +7163,7 @@
           "label": "Google Mapy",
           "nextNodeId": "after_help",
           "action": "openUrl",
-          "url": "https://maps.app.goo.gl/oB16u2pG1CQWVB4P8"
+          "url": "https://maps.app.goo.gl/wAewZd4c6qZ5obn86"
         },
         {
           "id": "branch_hagibor_waze",
@@ -7196,7 +7201,7 @@
           "label": "Google Mapy",
           "nextNodeId": "after_help",
           "action": "openUrl",
-          "url": "https://www.google.com/maps/search/?api=1&query=place_id:ChIJIx7FF5CTC0cR0uT54costJI"
+          "url": "https://www.google.com/maps/dir/?api=1&origin=Current+Location&destination=Bud%C4%9Bjovick%C3%A1+615%2F47%2C+140+00+Praha+4"
         },
         {
           "id": "branch_kacerov_waze",
@@ -7234,7 +7239,7 @@
           "label": "Google Mapy",
           "nextNodeId": "after_help",
           "action": "openUrl",
-          "url": "https://maps.app.goo.gl/DKTJCpA6WgT7u68L6"
+          "url": "https://www.google.com/maps/dir/?api=1&origin=Current+Location&destination=%C4%8Cs.+exilu+40%2C+143+00+Praha+12"
         },
         {
           "id": "branch_modrany_waze",
@@ -7739,7 +7744,7 @@
           "label": "Celé znění GDPR",
           "nextNodeId": "after_help",
           "action": "openUrl",
-          "url": "/gdpr/"
+          "url": "/ochrana-osobnich-udaju/"
         },
         {
           "id": "gdpr_delete",
@@ -7770,7 +7775,7 @@
           "label": "Podrobnosti",
           "nextNodeId": "after_help",
           "action": "openUrl",
-          "url": "/gdpr/"
+          "url": "/ochrana-osobnich-udaju/"
         },
         {
           "id": "back_menu",
@@ -8681,7 +8686,7 @@
     },
     {
       "id": "pay_coupon_issue_answer",
-      "message": "Pokud nejde kupón uplatnit, je buď již neaktivní, vyčerpaný, nebo pro jeho využití nemáte nárok.\n\nDůležité: rezervaci, na kterou se objednáte s kupónem, v případě jejího zrušení bereme tak, jako byste kupón již využili.",
+      "message": "Pokud nejde kupón uplatnit, je buď již neaktivní, vyčerpaný, nebo pro jeho využití nemáte nárok.\n\nZkontrolujte, že jste kód zadali až na posledním kroku rezervace po výběru termínu u konkrétního holiče, a že máte vyplněný platný telefon (bez toho nejde kód ověřit).\n\nDůležité: rezervaci, na kterou se objednáte s kupónem, v případě jejího zrušení bereme tak, jako byste kupón již využili.",
       "showFollowUp": true,
       "options": [
         {

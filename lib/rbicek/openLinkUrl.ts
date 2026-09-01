@@ -2,6 +2,7 @@ import * as WebBrowser from 'expo-web-browser';
 import { Linking } from 'react-native';
 
 import { APP_DEEP_LINK_HOST } from '@/constants/deepLinkConfig';
+import { isNativeExternalAppLink } from '@/lib/linking/nativeExternalAppLinks';
 import {
   isLoginWebPath,
   isReservationsWebPath,
@@ -66,6 +67,17 @@ function normalizePhoneDigits(value: string): string {
   return value.replace(/[^\d+]/g, '');
 }
 
+async function openExternalNativeAppUrl(url: string): Promise<boolean> {
+  try {
+    const canOpen = await Linking.canOpenURL(url);
+    if (!canOpen) return false;
+    await Linking.openURL(url);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 async function openTelUrl(url: string): Promise<void> {
   const digits = normalizePhoneDigits(url.replace(/^tel:/i, ''));
   const operatorDigits = normalizePhoneDigits(OPERATOR_SUPPORT_E164);
@@ -96,6 +108,11 @@ async function openHttpUrl(url: string): Promise<void> {
         await WebBrowser.openBrowserAsync(url);
       }
       return;
+    }
+
+    if (isNativeExternalAppLink(url)) {
+      const opened = await openExternalNativeAppUrl(url);
+      if (opened) return;
     }
   } catch {
     // fall through — external browser
@@ -132,6 +149,11 @@ export async function openRbicekHostUrl(raw: string, _webBaseUrl?: string): Prom
   if (scheme === 'tg') {
     await Linking.openURL(trimmed).catch(() => {});
     return;
+  }
+
+  if (isNativeExternalAppLink(trimmed)) {
+    const opened = await openExternalNativeAppUrl(trimmed);
+    if (opened) return;
   }
 
   if (trimmed.startsWith('/') && !trimmed.startsWith('//')) {

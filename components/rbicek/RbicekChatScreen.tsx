@@ -8,6 +8,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { RbicekChipRow } from '@/components/rbicek/RbicekChipRow';
 import { RbicekCarousel, RbicekMessageBubble } from '@/components/rbicek/RbicekMessageParts';
 import { RbicekTypingIndicator } from '@/components/rbicek/RbicekTypingIndicator';
+import { BranchNavigateSheet } from '@/components/BranchNavigateSheet';
 import { OperatorSupportSheet } from '@/components/OperatorSupportSheet';
 import Icon from '@/components/Icon';
 import ThemedText from '@/components/ThemedText';
@@ -29,6 +30,10 @@ import { useAccentColor } from '@/contexts/AccentColorContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useTheme } from '@/contexts/ThemeContext';
+import {
+  resolveBranchNavigationMeta,
+  type BranchNavigationMeta,
+} from '@/utils/resolveBranchNavigationMeta';
 
 const OPERATOR_ICON = require('@/assets/img/operator.png');
 
@@ -44,6 +49,8 @@ export function RbicekChatScreen({ visible, onClose }: RbicekChatScreenProps) {
   const { accentColor } = useAccentColor();
   const { apiToken, client } = useAuth();
   const supportSheetRef = useRef<ActionSheetRef>(null);
+  const branchNavigateRef = useRef<ActionSheetRef>(null);
+  const [branchNavigateMeta, setBranchNavigateMeta] = useState<BranchNavigationMeta | null>(null);
   const listRef = useRef<FlatList<ChatMessage>>(null);
   const listHeightRef = useRef(0);
   const contentHeightRef = useRef(0);
@@ -211,20 +218,10 @@ export function RbicekChatScreen({ visible, onClose }: RbicekChatScreenProps) {
     [navigateToNode]
   );
 
-  const handleBranchMapsPress = useCallback(
-    (branch: BranchCardData) => {
-      const url = branch.googleMapsUrl ?? branch.mapsUrl;
-      if (url) bridge.openUrl(url);
-    },
-    [bridge]
-  );
-
-  const handleBranchWazePress = useCallback(
-    (branch: BranchCardData) => {
-      if (branch.wazeUrl) bridge.openUrl(branch.wazeUrl);
-    },
-    [bridge]
-  );
+  const handleBranchNavigatePress = useCallback((branch: BranchCardData) => {
+    setBranchNavigateMeta(resolveBranchNavigationMeta(branch));
+    branchNavigateRef.current?.show();
+  }, []);
 
   const handleBranchDetailPress = useCallback(
     (branch: BranchCardData) => {
@@ -272,8 +269,7 @@ export function RbicekChatScreen({ visible, onClose }: RbicekChatScreenProps) {
                 onTeamBookPress={handleTeamBookPress}
                 onTeamProfilePress={handleTeamProfilePress}
                 onTeamWaitlistPress={handleTeamWaitlistPress}
-                onBranchMapsPress={handleBranchMapsPress}
-                onBranchWazePress={handleBranchWazePress}
+                onBranchNavigatePress={handleBranchNavigatePress}
                 onBranchDetailPress={handleBranchDetailPress}
                 onPromoPress={handlePromoPress}
               />
@@ -304,8 +300,7 @@ export function RbicekChatScreen({ visible, onClose }: RbicekChatScreenProps) {
       handleTeamBookPress,
       handleTeamProfilePress,
       handleTeamWaitlistPress,
-      handleBranchMapsPress,
-      handleBranchWazePress,
+      handleBranchNavigatePress,
       handleBranchDetailPress,
       handlePromoPress,
       isLoading,
@@ -373,6 +368,13 @@ export function RbicekChatScreen({ visible, onClose }: RbicekChatScreenProps) {
       />
 
       <OperatorSupportSheet ref={supportSheetRef} />
+      <BranchNavigateSheet
+        ref={branchNavigateRef}
+        branchName={branchNavigateMeta?.branchName}
+        address={branchNavigateMeta?.address}
+        latitude={branchNavigateMeta?.latitude}
+        longitude={branchNavigateMeta?.longitude}
+      />
     </View>
   );
 }

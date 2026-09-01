@@ -74,8 +74,7 @@ interface RbicekCarouselProps {
   onTeamBookPress: (member: TeamMemberCardData) => void;
   onTeamProfilePress: (member: TeamMemberCardData) => void;
   onTeamWaitlistPress: (label: string) => void;
-  onBranchMapsPress: (branch: BranchCardData) => void;
-  onBranchWazePress: (branch: BranchCardData) => void;
+  onBranchNavigatePress: (branch: BranchCardData) => void;
   onBranchDetailPress: (branch: BranchCardData) => void;
   onPromoPress: (promo: PromoCardData) => void;
 }
@@ -90,8 +89,7 @@ export function RbicekCarousel({
   onTeamBookPress,
   onTeamProfilePress,
   onTeamWaitlistPress,
-  onBranchMapsPress,
-  onBranchWazePress,
+  onBranchNavigatePress,
   onBranchDetailPress,
   onPromoPress,
 }: RbicekCarouselProps) {
@@ -206,22 +204,12 @@ export function RbicekCarousel({
                 </ThemedText>
               ) : null}
               <View className="mt-3 flex-row flex-wrap gap-2">
-                {branch.googleMapsUrl ? (
-                  <AppButton
-                    variant="choice"
-                    size="sm"
-                    title={tUi('maps', locale)}
-                    onPress={() => onBranchMapsPress(branch)}
-                  />
-                ) : null}
-                {branch.wazeUrl ? (
-                  <AppButton
-                    variant="choice"
-                    size="sm"
-                    title={tUi('waze', locale)}
-                    onPress={() => onBranchWazePress(branch)}
-                  />
-                ) : null}
+                <AppButton
+                  variant="choice"
+                  size="sm"
+                  title={tUi('navigate', locale)}
+                  onPress={() => onBranchNavigatePress(branch)}
+                />
                 {branch.detailUrl ? (
                   <AppButton
                     variant="choice"
