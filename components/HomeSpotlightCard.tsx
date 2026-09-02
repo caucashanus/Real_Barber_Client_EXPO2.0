@@ -56,22 +56,21 @@ export function HomeSpotlightCard({
     state === 'review' && existingReviewRating != null
       ? 'homeSpotlightReviewRated'
       : HOME_SPOTLIGHT_TITLE_KEY[state];
-  const subtitle = state === 'today' ? formatHomeSpotlightCountdown(msUntilStart, locale) : null;
   const starFilledColor = isDark ? '#fbbf24' : '#f59e0b';
   const starEmptyColor = isDark ? '#525252' : '#d4d4d4';
 
   const slotBadgeLabel =
-    state === 'soon'
+    state === 'soon' || state === 'today'
       ? formatHomeSpotlightCountdown(msUntilStart, locale)
       : formatHomeBookingSlotLabel(booking);
 
   const showSlotBadge = state !== 'review' && state !== 'current';
   const showNavigateAction = state === 'soon';
   const showCalendarAction =
-    (state === 'upcoming' || state === 'today' || state === 'soon') &&
+    (state === 'upcoming' || state === 'today') &&
     (Platform.OS === 'ios' || Platform.OS === 'android');
   const showShareAction = state === 'current' && canShareClientBooking(booking);
-  const showBottomActions = showSlotBadge;
+  const showBottomActions = showSlotBadge || showShareAction;
 
   const openDetail = () => {
     if (state === 'review') {
@@ -96,13 +95,7 @@ export function HomeSpotlightCard({
         <Pressable onPress={openDetail} accessibilityRole="button" className="active:opacity-70">
           <SurfaceCard rounded="2xl" className="flex-row overflow-hidden">
             <View className="min-w-0 flex-1">
-              <View
-                className={`flex-row items-center gap-3 px-4 py-4 ${showShareAction ? 'pr-36' : ''}`}>
-                <Avatar
-                  size="md"
-                  src={booking.employee?.avatarUrl ?? undefined}
-                  name={booking.employee?.name ?? undefined}
-                />
+              <View className="flex-row items-center gap-3 px-4 py-4">
                 <View className="min-w-0 flex-1">
                   {state === 'review' ? (
                     <View>
@@ -152,13 +145,6 @@ export function HomeSpotlightCard({
                         numberOfLines={1}>
                         {booking.employee?.name ?? '—'} · {booking.branch?.name ?? ''}
                       </ThemedText>
-                      {subtitle ? (
-                        <View className="mt-1.5 flex-row items-center gap-1.5">
-                          <ThemedText className="text-xs text-light-subtext dark:text-dark-subtext">
-                            {subtitle}
-                          </ThemedText>
-                        </View>
-                      ) : null}
                     </>
                   )}
                   {state !== 'review' && (
@@ -170,62 +156,68 @@ export function HomeSpotlightCard({
                     />
                   )}
                 </View>
-                {state !== 'soon' && !showShareAction ? (
-                  <Icon
-                    name="ChevronRight"
-                    size={16}
-                    className="shrink-0 text-light-subtext dark:text-dark-subtext"
-                  />
-                ) : null}
+                <Avatar
+                  size="md"
+                  src={booking.employee?.avatarUrl ?? undefined}
+                  name={booking.employee?.name ?? undefined}
+                />
+                <Icon
+                  name="ChevronRight"
+                  size={16}
+                  className="shrink-0 text-light-subtext dark:text-dark-subtext"
+                />
               </View>
 
               {showBottomActions ? (
-                <View className="flex-row items-center justify-between gap-2 px-4 pb-4 pt-0">
-                  <ThemedText
-                    className="min-w-0 shrink text-xs font-semibold text-light-text dark:text-dark-text"
-                    numberOfLines={1}>
-                    {slotBadgeLabel}
-                  </ThemedText>
-                  <View className="min-w-0 shrink flex-row flex-wrap justify-end gap-2">
-                    {showNavigateAction ? (
-                      <AppButton
-                        {...SPOTLIGHT_OUTLINE_BUTTON}
-                        title={t('branchNavigateSectionTitle')}
-                        iconStart="Navigation"
-                        onPress={(event) => {
-                          event?.stopPropagation?.();
-                          navSheetRef.current?.show();
-                        }}
-                      />
-                    ) : null}
-                    {showCalendarAction ? (
-                      <AppButton
-                        {...SPOTLIGHT_OUTLINE_BUTTON}
-                        title={t('bookingAddToCalendar')}
-                        iconStart="CalendarPlus"
-                        onPress={(event) => {
-                          event?.stopPropagation?.();
-                          handleAddToCalendar();
-                        }}
-                      />
-                    ) : null}
+                showShareAction && !showSlotBadge ? (
+                  <View className="items-start px-4 pb-4 pt-0">
+                    <AppButton
+                      {...SPOTLIGHT_OUTLINE_BUTTON}
+                      title={t('bookingShareMyBookingButton')}
+                      iconStart="Share"
+                      onPress={(event) => {
+                        event?.stopPropagation?.();
+                        shareSheetRef.current?.show();
+                      }}
+                    />
                   </View>
-                </View>
+                ) : (
+                  <View className="flex-row items-center justify-between gap-2 px-4 pb-4 pt-0">
+                    <ThemedText
+                      className="min-w-0 shrink text-xs font-semibold text-light-text dark:text-dark-text"
+                      numberOfLines={1}>
+                      {slotBadgeLabel}
+                    </ThemedText>
+                    <View className="min-w-0 shrink flex-row flex-wrap justify-end gap-2">
+                      {showNavigateAction ? (
+                        <AppButton
+                          {...SPOTLIGHT_OUTLINE_BUTTON}
+                          title={t('branchNavigateSectionTitle')}
+                          iconStart="Navigation"
+                          onPress={(event) => {
+                            event?.stopPropagation?.();
+                            navSheetRef.current?.show();
+                          }}
+                        />
+                      ) : null}
+                      {showCalendarAction ? (
+                        <AppButton
+                          {...SPOTLIGHT_OUTLINE_BUTTON}
+                          title={t('bookingAddToCalendar')}
+                          iconStart="CalendarPlus"
+                          onPress={(event) => {
+                            event?.stopPropagation?.();
+                            handleAddToCalendar();
+                          }}
+                        />
+                      ) : null}
+                    </View>
+                  </View>
+                )
               ) : null}
             </View>
           </SurfaceCard>
         </Pressable>
-
-        {showShareAction ? (
-          <View className="absolute z-10" style={{ top: 12, right: 12 }}>
-            <AppButton
-              {...SPOTLIGHT_OUTLINE_BUTTON}
-              title={t('bookingShareMyBookingButton')}
-              iconStart="Share"
-              onPress={() => shareSheetRef.current?.show()}
-            />
-          </View>
-        ) : null}
       </View>
 
       {state === 'soon' && (

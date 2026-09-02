@@ -1,6 +1,7 @@
 import { Image } from 'expo-image';
+import { router } from 'expo-router';
 import React from 'react';
-import { View } from 'react-native';
+import { Pressable, View } from 'react-native';
 
 import useThemeColors from '@/contexts/ThemeColors';
 import { useTranslation } from '@/hooks/useTranslation';
@@ -10,6 +11,7 @@ import Icon from '@/components/Icon';
 import ThemedScroller from '@/components/ThemeScroller';
 import Switch from '@/components/forms/Switch';
 import Section from '@/components/layout/Section';
+import ThemedText from '@/components/ThemedText';
 import { useHapticFeedbackEnabled } from '@/utils/hapticFeedbackPreference';
 import { useOperatorButtonEnabled } from '@/utils/operatorButtonPreference';
 
@@ -101,6 +103,19 @@ export default function FeatureSettingsScreen() {
             disabled={isHapticsLoading}
           />
         </View>
+
+        {__DEV__ ? (
+          <View className="mt-8 px-4">
+            <Pressable
+              className="rounded-2xl bg-light-surface p-4 dark:bg-dark-secondary"
+              onPress={() => router.push('/screens/widgets-example')}>
+              <ThemedText className="font-semibold">Widgets example (expo/examples)</ThemedText>
+              <ThemedText className="mt-1 text-sm text-light-subtext dark:text-dark-subtext">
+                Counter widget + delivery Live Activity — 1:1 with with-widgets example.
+              </ThemedText>
+            </Pressable>
+          </View>
+        ) : null}
       </ThemedScroller>
     </AnimatedView>
   );

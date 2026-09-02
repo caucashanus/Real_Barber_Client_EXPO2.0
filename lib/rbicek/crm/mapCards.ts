@@ -167,7 +167,6 @@ export function mapTeamCards(
       const branch =
         r.branches?.find((b) => b.id === interval.branchId) ?? r.branches?.[0];
       const todaySlot = todaySlotFromResult(r, today);
-      const nextSlot = r.nextSlot ?? todaySlot;
       const fullyBookedToday = todaySlot == null;
       const profileUrl = localizedWebUrl(r, locale, webBaseUrl);
       return {
@@ -180,24 +179,12 @@ export function mapTeamCards(
         hours: `${interval.startTime}-${interval.endTime}`,
         profileUrl,
         fullyBookedToday,
-        nextSlotDateRaw: nextSlot?.date,
-        nextSlotTime: nextSlot?.time,
-        bookingUrl: nextSlot ? profileUrl : undefined,
       };
     })
     .sort((a, b) => {
       const rankA = a.fullyBookedToday ? 1 : 0;
       const rankB = b.fullyBookedToday ? 1 : 0;
       if (rankA !== rankB) return rankA - rankB;
-      if (a.nextSlotDateRaw && b.nextSlotDateRaw) {
-        const byDate = a.nextSlotDateRaw.localeCompare(b.nextSlotDateRaw);
-        if (byDate !== 0) return byDate;
-      }
-      if (a.nextSlotTime && b.nextSlotTime) {
-        return a.nextSlotTime.localeCompare(b.nextSlotTime);
-      }
-      if (a.nextSlotTime) return -1;
-      if (b.nextSlotTime) return 1;
       return a.name.localeCompare(b.name, locale === 'en' ? 'en' : 'cs');
     });
 }

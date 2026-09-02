@@ -14,7 +14,6 @@ import type {
   SlotCardData,
   TeamMemberCardData,
 } from '@/lib/rbicek/types';
-import { formatSlotDate } from '@/lib/rbicek/utils';
 import { getLocalBranchImage } from '@/utils/bookingDetailHelpers';
 
 const OPERATOR_ICON = require('@/assets/img/operator.png');
@@ -59,11 +58,6 @@ function formatShiftHours(hours: string): string {
   return hours.replace(/^(\d{1,2}:\d{2})-(\d{1,2}:\d{2})$/, '$1 - $2');
 }
 
-function formatTeamSlotLabel(member: TeamMemberCardData, locale: RbicekLocale): string | null {
-  if (!member.nextSlotTime || !member.nextSlotDateRaw) return null;
-  return `${formatSlotDate(member.nextSlotDateRaw, locale)} · ${member.nextSlotTime}`;
-}
-
 interface RbicekCarouselProps {
   locale: RbicekLocale;
   slots?: SlotCardData[];
@@ -71,9 +65,7 @@ interface RbicekCarouselProps {
   branches?: BranchCardData[];
   promos?: PromoCardData[];
   onSlotPress: (slot: SlotCardData) => void;
-  onTeamBookPress: (member: TeamMemberCardData) => void;
   onTeamProfilePress: (member: TeamMemberCardData) => void;
-  onTeamWaitlistPress: (label: string) => void;
   onBranchNavigatePress: (branch: BranchCardData) => void;
   onBranchDetailPress: (branch: BranchCardData) => void;
   onPromoPress: (promo: PromoCardData) => void;
@@ -86,9 +78,7 @@ export function RbicekCarousel({
   branches,
   promos,
   onSlotPress,
-  onTeamBookPress,
   onTeamProfilePress,
-  onTeamWaitlistPress,
   onBranchNavigatePress,
   onBranchDetailPress,
   onPromoPress,
@@ -128,68 +118,38 @@ export function RbicekCarousel({
             </View>
           </SurfaceCard>
         ))}
-        {team?.map((member) => {
-          const slotLabel = formatTeamSlotLabel(member, locale);
-          const hasNextSlot = Boolean(member.bookingUrl && slotLabel);
-          const waitlistLabel = tUi('waitlist', locale);
-          return (
-            <SurfaceCard key={member.id} rounded="2xl" className="w-44 overflow-hidden p-0">
-              <RbicekCardHeroImage
-                source={resolveCardImageSource(member.avatarUrl)}
-                name={member.name}
-              />
-              <View className="p-3">
-                <ThemedText className="font-semibold">{member.name}</ThemedText>
-                <ThemedText className="mt-1 text-sm text-light-subtext dark:text-dark-subtext">
-                  {member.branchName}
-                </ThemedText>
-                <ThemedText className="mt-2 text-sm">
-                  {tUi('shiftToday', locale)} {formatShiftHours(member.hours)}
-                </ThemedText>
-                {slotLabel ? (
-                  <ThemedText className="mt-1 text-xs text-light-subtext dark:text-dark-subtext">
-                    {slotLabel}
-                  </ThemedText>
-                ) : null}
-                {member.fullyBookedToday ? (
-                  <ThemedText className="mt-2 text-xs text-light-subtext dark:text-dark-subtext">
+        {team?.map((member) => (
+          <SurfaceCard key={member.id} rounded="2xl" className="w-44 overflow-hidden p-0">
+            <RbicekCardHeroImage
+              source={resolveCardImageSource(member.avatarUrl)}
+              name={member.name}
+            />
+            <View className="p-3">
+              <ThemedText className="font-semibold">{member.name}</ThemedText>
+              <ThemedText className="mt-2 text-sm">
+                {tUi('shiftToday', locale)} {formatShiftHours(member.hours)}
+              </ThemedText>
+              <ThemedText className="mt-1 text-sm text-light-subtext dark:text-dark-subtext">
+                {member.branchName}
+              </ThemedText>
+              {member.fullyBookedToday ? (
+                <View className="mt-2 self-start rounded-full bg-light-secondary px-2.5 py-1 dark:bg-dark-secondary">
+                  <ThemedText className="text-xs font-medium text-light-subtext dark:text-dark-subtext">
                     {tUi('fullyBooked', locale)}
                   </ThemedText>
-                ) : null}
-                <View className="mt-2 gap-2">
-                  {hasNextSlot ? (
-                    <AppButton
-                      variant="default"
-                      size="sm"
-                      rounded="lg"
-                      title={tUi('nearestSlot', locale)}
-                      className="self-start px-4"
-                      onPress={() => onTeamBookPress(member)}
-                    />
-                  ) : null}
-                  <AppButton
-                    variant="choice"
-                    size="sm"
-                    rounded="lg"
-                    title={tUi('profile', locale)}
-                    className="self-start"
-                    onPress={() => onTeamProfilePress(member)}
-                  />
-                  {!hasNextSlot ? (
-                    <AppButton
-                      variant="choice"
-                      size="sm"
-                      rounded="lg"
-                      title={waitlistLabel}
-                      className="self-start"
-                      onPress={() => onTeamWaitlistPress(waitlistLabel)}
-                    />
-                  ) : null}
                 </View>
-              </View>
-            </SurfaceCard>
-          );
-        })}
+              ) : null}
+              <AppButton
+                variant="choice"
+                size="sm"
+                rounded="lg"
+                title={tUi('profile', locale)}
+                className="mt-3 self-start"
+                onPress={() => onTeamProfilePress(member)}
+              />
+            </View>
+          </SurfaceCard>
+        ))}
         {branches?.map((branch) => (
           <SurfaceCard key={branch.id} rounded="2xl" className="w-52 overflow-hidden p-0">
             <RbicekCardHeroImage

@@ -13,6 +13,7 @@ import { getBookings, type Booking } from '@/api/bookings';
 import { useAuth } from '@/contexts/AuthContext';
 import { isBookingUpcoming } from '@/utils/bookingHelpers';
 import { shouldStaleRefresh } from '@/utils/staleRefresh';
+import { syncBookingLiveActivityFromBookings } from '@/utils/bookingLiveActivitySync';
 import { syncBookingWidgetFromBookings } from '@/utils/widgetBookingSync';
 
 const BOOKINGS_STALE_MS = 60_000;
@@ -45,6 +46,7 @@ export function BookingsBadgeProvider({ children }: { children: React.ReactNode 
       lastFetchedAtRef.current = 0;
       if (!authLoading) {
         syncBookingWidgetFromBookings([]);
+        syncBookingLiveActivityFromBookings([]);
       }
       return;
     }
@@ -85,6 +87,7 @@ export function BookingsBadgeProvider({ children }: { children: React.ReactNode 
   useEffect(() => {
     if (authLoading || !apiToken) return;
     syncBookingWidgetFromBookings(bookings);
+    syncBookingLiveActivityFromBookings(bookings);
   }, [authLoading, apiToken, bookings]);
 
   useEffect(() => {
@@ -93,6 +96,7 @@ export function BookingsBadgeProvider({ children }: { children: React.ReactNode 
     const sub = AppState.addEventListener('change', (nextState) => {
       if (nextState === 'active' && apiToken && !authLoading) {
         syncBookingWidgetFromBookings(bookings);
+        syncBookingLiveActivityFromBookings(bookings);
       }
     });
 

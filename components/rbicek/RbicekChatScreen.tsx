@@ -187,19 +187,6 @@ export function RbicekChatScreen({ visible, onClose }: RbicekChatScreenProps) {
     [bridge]
   );
 
-  const handleTeamBookPress = useCallback(
-    (member: TeamMemberCardData) => {
-      if (member.fullyBookedToday) return;
-      bridge.openBooking({
-        employeeId: member.employeeId,
-        branchId: member.branchId,
-        date: member.nextSlotDateRaw,
-        slotStart: member.nextSlotTime,
-      });
-    },
-    [bridge]
-  );
-
   const handleTeamProfilePress = useCallback(
     (member: TeamMemberCardData) => {
       if (member.profileUrl) {
@@ -209,13 +196,6 @@ export function RbicekChatScreen({ visible, onClose }: RbicekChatScreenProps) {
       bridge.openBooking({ employeeId: member.employeeId, branchId: member.branchId });
     },
     [bridge]
-  );
-
-  const handleTeamWaitlistPress = useCallback(
-    (label: string) => {
-      navigateToNode('waitlist_answer', label);
-    },
-    [navigateToNode]
   );
 
   const handleBranchNavigatePress = useCallback((branch: BranchCardData) => {
@@ -266,9 +246,7 @@ export function RbicekChatScreen({ visible, onClose }: RbicekChatScreenProps) {
                 branches={item.branches}
                 promos={item.promos}
                 onSlotPress={handleSlotPress}
-                onTeamBookPress={handleTeamBookPress}
                 onTeamProfilePress={handleTeamProfilePress}
-                onTeamWaitlistPress={handleTeamWaitlistPress}
                 onBranchNavigatePress={handleBranchNavigatePress}
                 onBranchDetailPress={handleBranchDetailPress}
                 onPromoPress={handlePromoPress}
@@ -297,9 +275,7 @@ export function RbicekChatScreen({ visible, onClose }: RbicekChatScreenProps) {
       locale,
       accentColor,
       handleSlotPress,
-      handleTeamBookPress,
       handleTeamProfilePress,
-      handleTeamWaitlistPress,
       handleBranchNavigatePress,
       handleBranchDetailPress,
       handlePromoPress,
