@@ -40,10 +40,25 @@ export interface HomeSpotlight {
 
 export function isHomeSpotlightReviewEligible(booking: Booking, nowMs: number): boolean {
   if (!isBookingNotCancelled(booking)) return false;
+  if (getBookingClientReviewRating(booking) != null) return false;
   const end = getBookingEndDate(booking).getTime();
   if (nowMs - end > HOME_SPOTLIGHT_REVIEW_MAX_AGE_MS) return false;
   if (isBookingMarkedCompleted(booking)) return true;
   return nowMs >= end + HOME_SPOTLIGHT_REVIEW_GRACE_AFTER_END_MS;
+}
+
+/** Poslední ukončená návštěva — jen u ní nabídneme recenzi na home (ne starší backlog). */
+export function pickHomeSpotlightReviewBooking(
+  bookings: Booking[],
+  nowMs: number
+): Booking | null {
+  const latestPast = bookings
+    .filter((b) => isBookingNotCancelled(b) && getBookingEndDate(b).getTime() <= nowMs)
+    .sort((a, b) => getBookingEndDate(b).getTime() - getBookingEndDate(a).getTime())[0];
+
+  if (!latestPast) return null;
+  if (!isHomeSpotlightReviewEligible(latestPast, nowMs)) return null;
+  return latestPast;
 }
 
 /**
@@ -75,22 +90,10 @@ export function pickHomeSpotlight(bookings: Booking[], nowMs: number): HomeSpotl
     return { booking: b, state, msUntilStart };
   }
 
-  const reviewCandidates = bookings
-    .filter((b) => isHomeSpotlightReviewEligible(b, nowMs))
-    .sort((a, b) => {
-      const done = (booking: Booking) => {
-        const r = getBookingClientReviewRating(booking);
-        return r != null && r >= 1;
-      };
-      const delta = Number(done(a)) - Number(done(b));
-      if (delta !== 0) return delta;
-      return getBookingEndDate(b).getTime() - getBookingEndDate(a).getTime();
-    });
-
-  if (reviewCandidates.length > 0) {
-    const booking = reviewCandidates[0];
-    const existingReviewRating = getBookingClientReviewRating(booking);
-    return { booking, state: 'review', msUntilStart: 0, existingReviewRating };
+  const reviewBooking = pickHomeSpotlightReviewBooking(bookings, nowMs);
+  if (reviewBooking) {
+    const existingReviewRating = getBookingClientReviewRating(reviewBooking);
+    return { booking: reviewBooking, state: 'review', msUntilStart: 0, existingReviewRating };
   }
 
   return null;

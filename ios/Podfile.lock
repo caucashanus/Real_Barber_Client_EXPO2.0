@@ -3,12 +3,12 @@ PODS:
     - ExpoModulesCore
   - EXApplication (56.0.3):
     - ExpoModulesCore
-  - EXConstants (56.0.24):
+  - EXConstants (56.0.25):
     - ExpoModulesCore
   - EXJSONUtils (56.0.0)
   - EXManifests (56.0.4):
     - ExpoModulesCore
-  - Expo (56.0.20):
+  - Expo (56.0.21):
     - ExpoModulesCore
     - ExpoModulesJSI
     - hermes-engine
@@ -182,7 +182,7 @@ PODS:
     - ReactCommon/turbomodule/core
     - ReactNativeDependencies
     - Yoga
-  - ExpoAsset (56.0.23):
+  - ExpoAsset (56.0.24):
     - ExpoModulesCore
   - ExpoBlur (56.0.4):
     - ExpoModulesCore
@@ -216,7 +216,7 @@ PODS:
     - ExpoModulesCore
   - ExpoLogBox (56.0.14):
     - React-Core
-  - ExpoModulesCore (56.0.24):
+  - ExpoModulesCore (56.0.25):
     - ExpoModulesJSI
     - hermes-engine
     - RCTRequired
@@ -240,23 +240,23 @@ PODS:
     - ReactCommon/turbomodule/core
     - ReactNativeDependencies
     - Yoga
-  - ExpoModulesJSI (56.0.12):
+  - ExpoModulesJSI (56.0.13):
     - React-Core
     - ReactCommon
-  - ExpoModulesWorklets (56.0.24):
+  - ExpoModulesWorklets (56.0.25):
     - ExpoModulesCore
     - ExpoModulesJSI
-  - ExpoModulesWorkletsAdapter (56.0.24):
+  - ExpoModulesWorkletsAdapter (56.0.25):
     - ExpoModulesCore
     - ExpoModulesJSI
     - ExpoModulesWorklets
     - RNWorklets
   - ExpoNotifications (56.0.24):
     - ExpoModulesCore
-  - ExpoRouter (56.2.19):
+  - ExpoRouter (56.2.20):
     - ExpoModulesCore
     - RNScreens
-  - ExpoSharing (56.0.25):
+  - ExpoSharing (56.0.26):
     - ExpoModulesCore
   - ExpoStoreReview (56.0.4):
     - ExpoModulesCore
@@ -2556,7 +2556,7 @@ PODS:
     - ReactCommon/turbomodule/core
     - ReactNativeDependencies
     - Yoga
-  - RNVexoAnalytics (1.9.0):
+  - RNVexoAnalytics (1.12.0):
     - hermes-engine
     - RCTRequired
     - RCTTypeSafety
@@ -2681,10 +2681,10 @@ DEPENDENCIES:
   - ExpoLocalization (from `../node_modules/expo-localization/ios`)
   - ExpoLocation (from `../node_modules/expo-location/ios/ExpoLocation.podspec`)
   - "ExpoLogBox (from `../node_modules/@expo/log-box`)"
-  - ExpoModulesCore (from `../node_modules/expo/node_modules/expo-modules-core/ExpoModulesCore.podspec`)
+  - ExpoModulesCore (from `../node_modules/expo-modules-core/ExpoModulesCore.podspec`)
   - ExpoModulesJSI (from `../node_modules/expo-modules-jsi/apple`)
-  - ExpoModulesWorklets (from `../node_modules/expo/node_modules/expo-modules-core/ExpoModulesWorklets.podspec`)
-  - ExpoModulesWorkletsAdapter (from `../node_modules/expo/node_modules/expo-modules-core`)
+  - ExpoModulesWorklets (from `../node_modules/expo-modules-core/ExpoModulesWorklets.podspec`)
+  - ExpoModulesWorkletsAdapter (from `../node_modules/expo-modules-core`)
   - ExpoNotifications (from `../node_modules/expo-notifications/ios`)
   - ExpoRouter (from `../node_modules/expo-router/ios`)
   - ExpoSharing (from `../node_modules/expo-sharing/ios`)
@@ -2850,13 +2850,13 @@ EXTERNAL SOURCES:
   ExpoLogBox:
     :path: "../node_modules/@expo/log-box"
   ExpoModulesCore:
-    :podspec: "../node_modules/expo/node_modules/expo-modules-core/ExpoModulesCore.podspec"
+    :podspec: "../node_modules/expo-modules-core/ExpoModulesCore.podspec"
   ExpoModulesJSI:
     :path: "../node_modules/expo-modules-jsi/apple"
   ExpoModulesWorklets:
-    :podspec: "../node_modules/expo/node_modules/expo-modules-core/ExpoModulesWorklets.podspec"
+    :podspec: "../node_modules/expo-modules-core/ExpoModulesWorklets.podspec"
   ExpoModulesWorkletsAdapter:
-    :path: "../node_modules/expo/node_modules/expo-modules-core"
+    :path: "../node_modules/expo-modules-core"
   ExpoNotifications:
     :path: "../node_modules/expo-notifications/ios"
   ExpoRouter:
@@ -3064,15 +3064,15 @@ EXTERNAL SOURCES:
 SPEC CHECKSUMS:
   EASClient: 2321f8d99fa86c710a6f68e017f3b54366baed9f
   EXApplication: e6040c92edc5522accd62852342e6b14742d42c0
-  EXConstants: dd9a5bd947ed55aff86318db9268e44b1d499089
+  EXConstants: a6fea3d870546e8aba088aa2ed05f3c23c1b9030
   EXJSONUtils: dba2755f4e24009eaf87a876b2d615ea06c16e42
   EXManifests: 7e19be8df665a338493060a419847dae76ffcd43
-  Expo: 7ab3edc255cc514edeeb6fbffc64db05b4aef571
+  Expo: 4f10997f47fd21fa56685c47ecd13582e728b860
   expo-dev-client: 9fed7f23cc532830451e7580fdc67db2614b4db1
   expo-dev-launcher: e29e9d08810a4b12fe47e36eb8042c65c85f9fc5
   expo-dev-menu: 91e1b682ea4c3e523fda0161f32df550513774e2
   expo-dev-menu-interface: 65402d4affb8b418aa6cec29b3abb0e313c8f443
-  ExpoAsset: 285f5cd377574a94ffbe60ec7d9e3d8eeeecb458
+  ExpoAsset: 3f825e3c30de2d3e8a280b97602a8a607ce864fe
   ExpoBlur: 234b3c1f42a35851428e10fa9d347701ae707c4d
   ExpoCalendar: a99ba7c34dcd3547bf988aa5fcb355828114db98
   ExpoDomWebView: 4e53b05879dc73ba374f76bff93dd64c8a0d91b3
@@ -3089,13 +3089,13 @@ SPEC CHECKSUMS:
   ExpoLocalization: cf50efc436b2ec313510131c1ee0e778366d64b0
   ExpoLocation: 909285c258fb59812be0fae5d0e29f71107cc98a
   ExpoLogBox: cdad5c9402a186574fb5924ea91df1f08ba9a98a
-  ExpoModulesCore: d6b869572431380cf8a6bc42aafcc9ec1b13e316
-  ExpoModulesJSI: e62656cfaffb5aeb3fdc1dd2bc49f77e87ed2261
-  ExpoModulesWorklets: 3a3bbf269f2a9b599f8f7f42c410b9b9851fe922
-  ExpoModulesWorkletsAdapter: 8ed612963423a06b1fa4d96c5e1d73325e56c3a4
+  ExpoModulesCore: a22b45d7bc588c3c921e2ddb238f3969250ae4e3
+  ExpoModulesJSI: abe8cd3e19c89b38c63426be235af5ef5ac9c1d1
+  ExpoModulesWorklets: 19afe32682aa1d17fd0f73b3db85ae0850ed6431
+  ExpoModulesWorkletsAdapter: 154150748ee90cc9521fdf39fb2d37ba8b93b703
   ExpoNotifications: 4508cdea082652d5e7e65289ffc63d1c961a10f5
-  ExpoRouter: 717af198faf167feed85b8439131ec3b70c06054
-  ExpoSharing: b16b03e6e404fb749fade366156f37d2410d2412
+  ExpoRouter: 58319874f097ad589b691813db905812b1b7d59b
+  ExpoSharing: 5e3ac486863cd9fd6d8a22b11295386609cc8d33
   ExpoStoreReview: 2d8efb8d67ef599e9f3b569bf373a2e91c32094e
   ExpoSymbols: 37e96a38eed3fb50af4b7c86b8a80ed3054a0a01
   ExpoSystemUI: 8f4fb641c6a6ebe2a01dda0fbd3fdd952ab5823a
@@ -3193,7 +3193,7 @@ SPEC CHECKSUMS:
   RNReanimated: f735b1747a7a93bda7ca102c6d37a3cf54b6d5e8
   RNScreens: c1a06fd73d0581a2a28a160577be393f579662b9
   RNSVG: 04044c3abcf177fd674a1a3d13097efa1adebcbe
-  RNVexoAnalytics: d2abb269a57fa5b874affe3e02c697d8a16b06d0
+  RNVexoAnalytics: 1485b8e0f18c764f998d388f2106a7d27f5b0016
   RNWorklets: 4931990f73bc8f347586918b2e13f11dfadf3b75
   VexoAnalytics: 3579bc9e7f2ad0aac4255a7001df0bb1bd15219c
   Yoga: 77dfa8673de2874e1855002ae59c68b8be9b007b

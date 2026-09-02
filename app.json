@@ -30,6 +30,7 @@
         {
           "groupIdentifier": "group.com.realbarber.client",
           "bundleIdentifier": "com.realbarber.client.widget",
+          "enablePushNotifications": true,
           "widgets": [
             {
               "name": "CounterWidget",
@@ -39,7 +40,8 @@
               "supportedFamilies": [
                 "systemSmall",
                 "systemMedium"
-              ]
+              ],
+              "android": null
             },
             {
               "name": "RealBarberBookingWidget",
@@ -50,7 +52,8 @@
                 "systemMedium",
                 "accessoryRectangular",
                 "accessoryInline"
-              ]
+              ],
+              "android": null
             }
           ]
         }
@@ -98,7 +101,7 @@
       "deploymentTarget": "16.4",
       "appleTeamId": "VK8YT9654D",
       "bundleIdentifier": "com.realbarber.client",
-      "buildNumber": "79",
+      "buildNumber": "80",
       "appStoreUrl": "https://apps.apple.com/app/id6760221388",
       "supportsTablet": false,
       "associatedDomains": [

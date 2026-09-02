@@ -13,6 +13,7 @@ interface BookingDetailAppointmentSectionProps {
   booking: Booking;
   canAddToCalendar: boolean;
   canShare: boolean;
+  isCurrent: boolean;
   onAddToCalendar: () => void;
   onShare: () => void;
   t: (key: TranslationKey) => string;
@@ -23,6 +24,7 @@ export default function BookingDetailAppointmentSection({
   booking,
   canAddToCalendar,
   canShare,
+  isCurrent,
   onAddToCalendar,
   onShare,
   t,
@@ -33,7 +35,7 @@ export default function BookingDetailAppointmentSection({
       titleSize="lg"
       titleTrailingAlign="end"
       titleTrailing={
-        canShare ? (
+        canShare && !isCurrent ? (
           <AppButton
             title={t('bookingShareDetailButton')}
             variant="outline"

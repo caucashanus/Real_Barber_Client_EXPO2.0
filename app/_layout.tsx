@@ -17,6 +17,7 @@ import { BookingsBadgeProvider } from '@/contexts/BookingsBadgeContext';
 import { BranchFilterProvider } from '@/contexts/BranchFilterContext';
 import { FavoritesSyncProvider } from '@/contexts/FavoritesSyncContext';
 import { LanguageProvider } from '@/contexts/LanguageContext';
+import LiveActivityPushProvider from '@/contexts/LiveActivityPushProvider';
 import PushNotificationsProvider from '@/contexts/PushNotificationsProvider';
 import { SelectedPurchaseProvider } from '@/contexts/SelectedPurchaseContext';
 import { ThemeProvider } from '@/contexts/ThemeContext';
@@ -78,13 +79,15 @@ export default function RootLayout() {
                       <BranchFilterProvider>
                         <FavoritesSyncProvider>
                           <PushNotificationsProvider>
-                            <AuthGuard>
-                              <PhoneCallFeedbackProvider>
-                                <ForceUpdateGate>
-                                  <ThemedLayout />
-                                </ForceUpdateGate>
-                              </PhoneCallFeedbackProvider>
-                            </AuthGuard>
+                            <LiveActivityPushProvider>
+                              <AuthGuard>
+                                <PhoneCallFeedbackProvider>
+                                  <ForceUpdateGate>
+                                    <ThemedLayout />
+                                  </ForceUpdateGate>
+                                </PhoneCallFeedbackProvider>
+                              </AuthGuard>
+                            </LiveActivityPushProvider>
                           </PushNotificationsProvider>
                         </FavoritesSyncProvider>
                       </BranchFilterProvider>
