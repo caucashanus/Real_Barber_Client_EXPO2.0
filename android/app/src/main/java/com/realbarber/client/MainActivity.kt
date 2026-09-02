@@ -1,4 +1,4 @@
-package com.realbarber
+package com.realbarber.client
 
 import android.os.Build
 import android.os.Bundle
