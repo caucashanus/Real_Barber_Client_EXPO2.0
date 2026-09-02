@@ -1,9 +1,7 @@
-import type { LiveActivity } from 'expo-widgets';
-
 export function setLiveActivityApiToken(_apiToken: string | null): void {}
 
 export function attachActivityPushTokenRegistration(
-  _activity: LiveActivity<unknown>,
+  _activity: unknown,
   _bookingId: string
 ): void {}
 
