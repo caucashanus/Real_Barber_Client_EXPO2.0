@@ -13,8 +13,8 @@ export const BOOKING_DONE_LINGER_MS = 3 * 1000;
 
 export const BOOKING_STAGE_LABELS = [
   'Rezervováno',
-  'Brzy termín',
-  'Právě teď',
+  'Brzy začínáme',
+  'Probíhá',
   'Hotovo',
 ] as const;
 

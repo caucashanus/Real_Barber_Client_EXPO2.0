@@ -27,7 +27,7 @@ const BookingActivity = (props: BookingActivityProps, _env: LiveActivityEnvironm
   const ACCENT = '#fbbf24';
   const IN_PROGRESS = '#34d399';
   const DIM = '#FFFFFF40';
-  const STEP_ICONS = ['calendar.badge.clock', 'clock.fill', 'scissors', 'checkmark.circle.fill'] as const;
+  const STEP_ICONS = ['calendar.badge.clock', 'clock.fill', 'chair.lounge.fill', 'checkmark.circle.fill'] as const;
 
   const nowDate = new Date(props.nowEpochMs);
   const appointmentDate = new Date(props.appointmentEpochMs);
@@ -97,7 +97,7 @@ const BookingActivity = (props: BookingActivityProps, _env: LiveActivityEnvironm
       )
     ) : stage === 2 ? (
       <Text modifiers={[font({ weight: 'medium', size }), foregroundStyle(IN_PROGRESS)]}>Teď</Text>
-    ) : (
+    ) : stage === 0 ? null : (
       <Text
         timerInterval={{ lower: nowDate, upper: appointmentDate }}
         countsDown
@@ -126,7 +126,7 @@ const BookingActivity = (props: BookingActivityProps, _env: LiveActivityEnvironm
     );
   };
 
-  const subtitle = [props.branchName, props.timeLabel].filter(Boolean).join(' · ');
+  const subtitle = [props.branchName, props.employeeName, props.timeLabel].filter(Boolean).join(' · ');
 
   return {
     banner: (
@@ -136,18 +136,19 @@ const BookingActivity = (props: BookingActivityProps, _env: LiveActivityEnvironm
           spacing={12}
           modifiers={[frame({ maxWidth: Infinity, alignment: 'leading' }), padding({ all: 16 })]}>
           <HStack spacing={8}>
-            <Logo uri={props.logoUri} />
             <Text modifiers={[font({ weight: 'medium', size: 13 }), foregroundStyle('#FFFFFF')]}>
               Real Barber
             </Text>
             <Spacer />
-            <Eta
-              stage={props.stage}
-              size={13}
-              color="#FFFFFFCC"
-              width={48}
-              deliveredIcon="checkmark.circle.fill"
-            />
+            {props.stage !== 0 ? (
+              <Eta
+                stage={props.stage}
+                size={13}
+                color="#FFFFFFCC"
+                width={48}
+                deliveredIcon="checkmark.circle.fill"
+              />
+            ) : null}
           </HStack>
           <Text modifiers={[font({ weight: 'bold', size: 18 }), foregroundStyle('#FFFFFF')]}>
             {props.status}
@@ -173,12 +174,15 @@ const BookingActivity = (props: BookingActivityProps, _env: LiveActivityEnvironm
     ),
     minimal: <Logo uri={props.logoUri} size={16} />,
     expandedLeading: (
-      <HStack spacing={6} modifiers={[padding({ leading: 8 })]}>
-        <Logo uri={props.logoUri} />
-        <Text modifiers={[font({ weight: 'semibold', size: 14 }), foregroundStyle('#FFFFFF'), lineLimit(1)]}>
-          Real Barber
-        </Text>
-      </HStack>
+      <Text
+        modifiers={[
+          font({ weight: 'semibold', size: 14 }),
+          foregroundStyle('#FFFFFF'),
+          lineLimit(1),
+          padding({ leading: 8 }),
+        ]}>
+        Real Barber
+      </Text>
     ),
     expandedTrailing: (
       <HStack modifiers={[padding({ trailing: 6 })]}>
