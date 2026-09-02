@@ -1,5 +1,3 @@
-import { Platform } from 'react-native';
-
 import type { Booking } from '@/api/bookings';
 import bookingWidget from '@/widgets/RealBarberBookingWidget';
 import {
@@ -19,8 +17,6 @@ function withWidgetLogo(
 
 /** Po načtení rezervací v appce uloží nejbližší termín do iOS widgetu. */
 export async function syncBookingWidgetFromBookings(bookings: Booking[]): Promise<void> {
-  if (Platform.OS !== 'ios') return;
-
   try {
     const logoUri = await ensureWidgetLogoUri();
     const next = pickNextWidgetBooking(bookings);
