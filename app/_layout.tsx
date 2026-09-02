@@ -1,10 +1,13 @@
 import '../global.css';
-import '@/widgets/RealBarberBookingWidget';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Stack } from 'expo-router';
 import { NativeWindStyleSheet } from 'nativewind';
 import React, { useEffect } from 'react';
 import { Platform } from 'react-native';
+
+if (Platform.OS === 'ios') {
+  require('@/utils/registerIosWidgets');
+}
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { vexo } from 'vexo-analytics';
 
