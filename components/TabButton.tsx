@@ -5,6 +5,7 @@ import { Pressable, View, Animated } from 'react-native';
 
 import Icon, { IconName } from '@/components/Icon';
 import TabBarProfileAvatar from '@/components/TabBarProfileAvatar';
+import ThemedText from '@/components/ThemedText';
 
 export type TabButtonProps = TabTriggerSlotProps & {
   icon?: IconName;

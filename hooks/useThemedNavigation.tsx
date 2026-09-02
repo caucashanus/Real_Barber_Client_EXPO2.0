@@ -16,19 +16,10 @@ export default function useThemedNavigation() {
 
   // Set up status/navigation bar styling based on theme
   useEffect(() => {
-    if (Platform.OS === 'android') {
-      // Set navigation bar color
-      NavigationBar.setBackgroundColorAsync(colors.bg);
-      NavigationBar.setButtonStyleAsync(isDark ? 'light' : 'dark');
-
-      // // Set status bar styling directly using the native StatusBar API
-      // RNStatusBar.setBackgroundColor(colors.bg, true);
-      // RNStatusBar.setBarStyle(isDark ? 'light-content' : 'dark-content', true);
-
-      // // Prevent translucency which can cause dimming
-      // RNStatusBar.setTranslucent(true);
-    }
-  }, [isDark, colors.bg]);
+    if (Platform.OS !== 'android') return;
+    // SDK 56+: setBackgroundColorAsync / setButtonStyleAsync removed — use setStyle.
+    NavigationBar.setStyle?.(isDark ? 'light' : 'dark');
+  }, [isDark]);
 
   // StatusBar component with appropriate theme styling
   const ThemedStatusBar = () => (

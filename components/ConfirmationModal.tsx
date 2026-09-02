@@ -43,16 +43,11 @@ const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
   const [selectedReasons, setSelectedReasons] = useState<string[]>([]);
 
   React.useEffect(() => {
-    if (Platform.OS === 'android') {
-      NavigationBar.setBackgroundColorAsync(colors.bg);
-      NavigationBar.setButtonStyleAsync(isDark ? 'light' : 'dark');
-
-      return () => {
-        NavigationBar.setBackgroundColorAsync(colors.bg);
-        NavigationBar.setButtonStyleAsync(isDark ? 'light' : 'dark');
-      };
-    }
-  }, [isDark, colors.bg]);
+    if (Platform.OS !== 'android') return;
+    const style = isDark ? 'light' : 'dark';
+    NavigationBar.setStyle?.(style);
+    return () => NavigationBar.setStyle?.('auto');
+  }, [isDark]);
 
   const handleConfirm = () => {
     actionSheetRef.current?.hide();
