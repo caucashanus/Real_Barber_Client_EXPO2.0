@@ -6,12 +6,14 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import HomeTabs from '@/components/HomeTabs';
 import SearchBar from '@/components/SearchBar';
+import useThemeColors from '@/contexts/ThemeColors';
 
 // Create a context to share the scrollY value
 export const ScrollContext = createContext<Animated.Value>(new Animated.Value(0));
 
 export default function HomeLayout() {
   const insets = useSafeAreaInsets();
+  const colors = useThemeColors();
   const scrollY = useRef(new Animated.Value(0)).current;
 
   return (
@@ -22,7 +24,14 @@ export default function HomeLayout() {
         <SearchBar />
         <HomeTabs scrollY={scrollY} />
         <View className="flex-1">
-          <Stack screenOptions={{ headerShown: false, animation: 'none' }} />
+          <Stack
+            screenOptions={{
+              headerShown: false,
+              animation: 'none',
+              backgroundColor: colors.bg,
+              contentStyle: { backgroundColor: colors.bg },
+            }}
+          />
         </View>
       </View>
     </ScrollContext.Provider>

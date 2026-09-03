@@ -1,12 +1,15 @@
 import { Image } from 'expo-image';
 import { router } from 'expo-router';
-import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { Pressable, RefreshControl, useWindowDimensions, View } from 'react-native';
+import React, { useContext, useEffect, useMemo, useRef, useState } from 'react';
+import { Animated, Pressable, RefreshControl, useWindowDimensions, View } from 'react-native';
+
+import { ScrollContext } from './_layout';
 
 import { useAccentColor } from '@/contexts/AccentColorContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { useHomePage } from '@/hooks/useHomePage';
 import { useTranslation } from '@/hooks/useTranslation';
+import AnimatedView from '@/components/AnimatedView';
 import Avatar from '@/components/Avatar';
 import { HomePromoCarousel } from '@/components/HomePromoCarousel';
 import { HomeRepeatBookingCard } from '@/components/HomeRepeatBookingCard';
@@ -16,6 +19,7 @@ import HomeTodayTeamSection from '@/components/home/HomeTodayTeamSection';
 import SurfaceCard from '@/components/layout/SurfaceCard';
 import Icon from '@/components/Icon';
 import NotificationPromptSheet from '@/components/NotificationPromptSheet';
+import SiteLoadingState from '@/components/SiteLoadingState';
 import ThemeScroller from '@/components/ThemeScroller';
 import ThemedText from '@/components/ThemedText';
 import Section from '@/components/layout/Section';
@@ -37,6 +41,7 @@ const HOME_ACTION_IMAGES = {
 } as const;
 
 export default function RealBarberHomeTab() {
+  const scrollY = useContext(ScrollContext);
   const { width: screenWidth } = useWindowDimensions();
   const homePromoCarouselSize = useMemo(
     () => getContentCarouselSize(screenWidth),
@@ -131,124 +136,138 @@ export default function RealBarberHomeTab() {
     [posters, coupons, now, clientPromoSeed]
   );
 
-  const showPromoCarousel = loading || homePromoFeed.length > 0;
+  const showPromoCarousel = homePromoFeed.length > 0;
 
   return (
     <>
       <ThemeScroller
         className="flex-1"
+        onScroll={Animated.event([{ nativeEvent: { contentOffset: { y: scrollY } } }], {
+          useNativeDriver: false,
+        })}
+        scrollEventThrottle={16}
         refreshControl={
           <RefreshControl refreshing={refreshing} onRefresh={refresh} tintColor={accentColor} />
         }>
         <NotificationPromptSheet />
-        {showPromoCarousel ? (
-          <View className="mt-4">
-            <HomePromoCarousel
-              feed={homePromoFeed}
-              width={homePromoCarouselSize.width}
-              height={homePromoCarouselSize.height}
-              loading={loading}
-              locale={locale}
-              t={t}
-            />
-          </View>
-        ) : null}
-        {!loading && repeatBooking ? (
-          <View className={showPromoCarousel ? 'mt-0' : 'mt-4'}>
-            <HomeRepeatBookingCard booking={repeatBooking} t={t} />
-          </View>
-        ) : null}
-
-        {!loading && spotlight ? (
-          <View className="mt-4">
-            <HomeSpotlightCard spotlight={spotlight} t={t} locale={locale} />
-          </View>
-        ) : null}
-
-        <View className="mb-4 mt-6 flex-row flex-wrap justify-between">
-          {actions.map((a) => (
-            <Pressable
-              key={a.id}
-              onPress={a.onPress}
-              className="mb-2 w-[48.7%] active:opacity-70">
-              <SurfaceCard rounded="2xl" className="w-full">
-                <View className="flex-row items-center gap-3 p-3.5">
-                  <Image
-                    source={HOME_ACTION_IMAGES[a.id]}
-                    style={{ width: 28, height: 28 }}
-                    contentFit="contain"
+        <AnimatedView animation="scaleIn" className="mt-4 flex-1">
+          {loading ? (
+            <SiteLoadingState layout="section" className="py-16" />
+          ) : (
+            <>
+              {showPromoCarousel ? (
+                <View>
+                  <HomePromoCarousel
+                    feed={homePromoFeed}
+                    width={homePromoCarouselSize.width}
+                    height={homePromoCarouselSize.height}
+                    loading={false}
+                    locale={locale}
+                    t={t}
                   />
-                  <ThemedText
-                    className="min-w-0 flex-1 text-sm font-semibold leading-tight"
-                    numberOfLines={2}>
-                    {a.title}
-                  </ThemedText>
                 </View>
-              </SurfaceCard>
-            </Pressable>
-          ))}
-          <HomeNearestBranch teamCards={todayTeamCards} locale={locale} t={t} />
-        </View>
+              ) : null}
+              {repeatBooking ? (
+                <View className={showPromoCarousel ? 'mt-0' : 'mt-0'}>
+                  <HomeRepeatBookingCard booking={repeatBooking} t={t} />
+                </View>
+              ) : null}
 
-        {!loading && recentBookings.length > 0 ? (
-          <Section title={t('homeRecentTitle')} titleSize="lg" className="mt-6">
-            <View className="mt-2">
-              {recentBookings.map((b, i) => (
-                <Pressable
-                  key={b.id}
-                  onPress={() =>
-                    router.push(`/screens/booking-detail?id=${encodeURIComponent(b.id)}` as any)
-                  }
-                  className="active:opacity-70">
-                  {i > 0 && <View className="h-px bg-neutral-200 dark:bg-neutral-700" />}
-                  <View className="flex-row items-center gap-3 py-3">
-                    <Avatar
-                      size="md"
-                      src={b.employee?.avatarUrl ?? undefined}
-                      name={b.employee?.name ?? undefined}
-                    />
-                    <View className="min-w-0 flex-1">
-                      <ThemedText className="text-sm font-semibold" numberOfLines={1}>
-                        {b.item?.name ?? t('homeRecentDefaultName')}
-                      </ThemedText>
-                      <ThemedText
-                        className="mt-0.5 text-xs text-light-subtext dark:text-dark-subtext"
-                        numberOfLines={1}>
-                        {b.employee?.name ?? '—'} · {b.branch?.name ?? ''}
-                      </ThemedText>
-                      <View className="mt-1 flex-row items-center gap-1">
-                        <Icon
-                          name="Calendar"
-                          size={11}
-                          className="text-light-subtext dark:text-dark-subtext"
+              {spotlight ? (
+                <View className="mt-4">
+                  <HomeSpotlightCard spotlight={spotlight} t={t} locale={locale} />
+                </View>
+              ) : null}
+
+              <View className="mb-4 mt-6 flex-row flex-wrap justify-between">
+                {actions.map((a) => (
+                  <Pressable
+                    key={a.id}
+                    onPress={a.onPress}
+                    className="mb-2 w-[48.7%] active:opacity-70">
+                    <SurfaceCard rounded="2xl" className="w-full">
+                      <View className="flex-row items-center gap-3 p-3.5">
+                        <Image
+                          source={HOME_ACTION_IMAGES[a.id]}
+                          style={{ width: 28, height: 28 }}
+                          contentFit="contain"
                         />
-                        <ThemedText className="text-xs text-light-subtext dark:text-dark-subtext">
-                          {formatHomeBookingSlotLabel(b)}
+                        <ThemedText
+                          className="min-w-0 flex-1 text-sm font-semibold leading-tight"
+                          numberOfLines={2}>
+                          {a.title}
                         </ThemedText>
                       </View>
-                    </View>
-                    <Icon
-                      name="ChevronRight"
-                      size={16}
-                      className="text-light-subtext dark:text-dark-subtext"
-                    />
-                  </View>
-                </Pressable>
-              ))}
-            </View>
-          </Section>
-        ) : null}
+                    </SurfaceCard>
+                  </Pressable>
+                ))}
+                <HomeNearestBranch teamCards={todayTeamCards} locale={locale} t={t} />
+              </View>
 
-        <HomeTodayTeamSection
-          cards={todayTeamCards}
-          loading={loading}
-          refreshingAvailability={refreshing}
-          error={todayTeamError}
-          locale={locale}
-          t={t}
-          className="mt-10"
-          titleAction={{ titleKey: 'homeTodayTeamOpenFullTeam', href: '/experience' }}
-        />
+              {recentBookings.length > 0 ? (
+                <Section title={t('homeRecentTitle')} titleSize="lg" className="mt-6">
+                  <View className="mt-2">
+                    {recentBookings.map((b, i) => (
+                      <Pressable
+                        key={b.id}
+                        onPress={() =>
+                          router.push(
+                            `/screens/booking-detail?id=${encodeURIComponent(b.id)}` as any
+                          )
+                        }
+                        className="active:opacity-70">
+                        {i > 0 && <View className="h-px bg-neutral-200 dark:bg-neutral-700" />}
+                        <View className="flex-row items-center gap-3 py-3">
+                          <Avatar
+                            size="md"
+                            src={b.employee?.avatarUrl ?? undefined}
+                            name={b.employee?.name ?? undefined}
+                          />
+                          <View className="min-w-0 flex-1">
+                            <ThemedText className="text-sm font-semibold" numberOfLines={1}>
+                              {b.item?.name ?? t('homeRecentDefaultName')}
+                            </ThemedText>
+                            <ThemedText
+                              className="mt-0.5 text-xs text-light-subtext dark:text-dark-subtext"
+                              numberOfLines={1}>
+                              {b.employee?.name ?? '—'} · {b.branch?.name ?? ''}
+                            </ThemedText>
+                            <View className="mt-1 flex-row items-center gap-1">
+                              <Icon
+                                name="Calendar"
+                                size={11}
+                                className="text-light-subtext dark:text-dark-subtext"
+                              />
+                              <ThemedText className="text-xs text-light-subtext dark:text-dark-subtext">
+                                {formatHomeBookingSlotLabel(b)}
+                              </ThemedText>
+                            </View>
+                          </View>
+                          <Icon
+                            name="ChevronRight"
+                            size={16}
+                            className="text-light-subtext dark:text-dark-subtext"
+                          />
+                        </View>
+                      </Pressable>
+                    ))}
+                  </View>
+                </Section>
+              ) : null}
+
+              <HomeTodayTeamSection
+                cards={todayTeamCards}
+                loading={false}
+                refreshingAvailability={refreshing}
+                error={todayTeamError}
+                locale={locale}
+                t={t}
+                className="mt-10"
+                titleAction={{ titleKey: 'homeTodayTeamOpenFullTeam', href: '/experience' }}
+              />
+            </>
+          )}
+        </AnimatedView>
       </ThemeScroller>
     </>
   );
