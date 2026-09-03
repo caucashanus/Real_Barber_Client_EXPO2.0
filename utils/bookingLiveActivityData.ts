@@ -36,7 +36,7 @@ export const BOOKING_STAGE_LABELS = [
   'Počítáme s vámi',
   'Brzy začínáme',
   'Kdo se o vás dnes postará?',
-  'Již brzy začínáme',
+  'Podívejte se na katalog účesů',
   'Za chvíli se vám budeme věnovat',
   'Právě začínáme',
   'Probíhá',
@@ -61,6 +61,8 @@ export type BookingActivityProps = {
   logoUri?: string;
   existingReviewRating?: number;
   subtitle?: string;
+  /** Delší copy pro expanded Dynamic Island — jinak se použije subtitle. */
+  expandedSubtitle?: string;
   ctaLabel?: string;
   ctaKind?: 'none' | 'countdown' | 'navigate' | 'inspire' | 'duration';
   progressPhase?: 0 | 1 | 2;
@@ -98,6 +100,14 @@ function buildBookingNavigateDeepLink(reservationId: string): string {
 export function formatBookingStage2Subtitle(employeeName?: string): string {
   const name = employeeName?.trim() || 'Váš barber';
   return `${name} se o vás dnes postará · klepněte pro detail.`;
+}
+
+export function formatBookingStage3Subtitle(): string {
+  return 'Klepněte pro zobrazení';
+}
+
+export function formatBookingStage3ExpandedSubtitle(): string {
+  return 'Klepněte pro zobrazení katalogu účesů';
 }
 
 function getBookingActivityStageKind(booking: Booking): BookingActivityStageKind {
@@ -256,7 +266,9 @@ export function buildBookingActivityProps(
     stageKind === 'normal'
       ? stage === 2
         ? formatBookingStage2Subtitle(employeeName)
-        : stage === 6 && durationMinutes
+        : stage === 3
+          ? formatBookingStage3Subtitle()
+          : stage === 6 && durationMinutes
           ? `cca ${durationMinutes} min · ${subtitleParts.join(' · ')}`
           : subtitleParts.join(' · ')
       : stageKind === 'cancelled'
@@ -285,6 +297,7 @@ export function buildBookingActivityProps(
     logoUri: logoUri ?? undefined,
     existingReviewRating,
     subtitle,
+    expandedSubtitle: stage === 3 ? formatBookingStage3ExpandedSubtitle() : undefined,
     ctaLabel: stageConfig.ctaLabel,
     ctaKind: stageConfig.ctaKind,
     progressPhase: stageConfig.progressPhase,

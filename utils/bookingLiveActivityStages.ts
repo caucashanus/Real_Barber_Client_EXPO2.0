@@ -52,7 +52,7 @@ export const BOOKING_STAGE_CONFIG: readonly BookingActivityStageConfig[] = [
     progressPhase: 0,
   },
   {
-    title: 'Již brzy začínáme',
+    title: 'Podívejte se na katalog účesů',
     ctaKind: 'inspire',
     ctaLabel: 'Inspirace',
     ctaIcon: 'sparkles',

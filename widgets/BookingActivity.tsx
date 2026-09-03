@@ -29,6 +29,7 @@ const BookingActivity = (props: BookingActivityProps, _env: LiveActivityEnvironm
   const REVIEW_STAGE = 7;
   const ACCENT = '#fbbf24';
   const NAVIGATE_ACCENT = '#60A5FA';
+  const INSPIRE_ACCENT = '#A78BFA';
   const STAR_FILLED = '#fbbf24';
   const STAR_EMPTY = '#525252';
   const DIM = '#FFFFFF40';
@@ -258,7 +259,12 @@ const BookingActivity = (props: BookingActivityProps, _env: LiveActivityEnvironm
     );
   };
 
-  const ctaPillColor = ctaKind === 'navigate' ? NAVIGATE_ACCENT : ACCENT;
+  const ctaPillColor =
+    ctaKind === 'navigate'
+      ? NAVIGATE_ACCENT
+      : ctaKind === 'inspire'
+        ? INSPIRE_ACCENT
+        : ACCENT;
 
   const progressAccent =
     props.stage === 0 ? ACCENT : props.stage === 1 ? NAVIGATE_ACCENT : undefined;
@@ -315,7 +321,7 @@ const BookingActivity = (props: BookingActivityProps, _env: LiveActivityEnvironm
         );
       case 'inspire':
         return (
-          <Image systemName="sparkles" size={14} color="#FFFFFF" modifiers={[padding({ trailing: 4 })]} />
+          <Image systemName="sparkles" size={14} color={INSPIRE_ACCENT} modifiers={[padding({ trailing: 4 })]} />
         );
       case 'duration':
         return (
@@ -432,7 +438,7 @@ const BookingActivity = (props: BookingActivityProps, _env: LiveActivityEnvironm
     </ZStack>
   );
 
-  const showBookingProgress = !isException && props.stage !== 2;
+  const showBookingProgress = !isException && props.stage !== 2 && props.stage !== 3;
 
   const standardBanner = (
     <ZStack
@@ -462,6 +468,18 @@ const BookingActivity = (props: BookingActivityProps, _env: LiveActivityEnvironm
             {props.subtitle}
           </Text>
         ) : null}
+        {props.stage === 3 ? (
+          <Text
+            modifiers={[
+              font({ weight: 'medium', size: 13 }),
+              foregroundStyle(INSPIRE_ACCENT),
+              lineLimit(2),
+              multilineTextAlignment('leading'),
+              frame({ maxWidth: Infinity, alignment: 'leading' }),
+            ]}>
+            Za chvíli se vám budeme věnovat...
+          </Text>
+        ) : null}
         {showBookingProgress ? <BookingProgress accent={bannerProgressAccent} /> : null}
       </VStack>
     </ZStack>
@@ -485,22 +503,48 @@ const BookingActivity = (props: BookingActivityProps, _env: LiveActivityEnvironm
     </Text>
   );
 
+  const IslandCatalogText = ({
+    size = 12,
+    leading = 4,
+  }: {
+    size?: number;
+    leading?: number;
+  }) => (
+    <Text
+      modifiers={[
+        font({ weight: 'semibold', size }),
+        foregroundStyle('#FFFFFF'),
+        lineLimit(1),
+        minimumScaleFactor(0.75),
+        padding({ leading }),
+      ]}>
+      RB · Katalog
+    </Text>
+  );
+
   const useIslandBrandText = props.stage === 0 || props.stage === 1 || props.stage === 2;
+  const useIslandExpandedBrandText = useIslandBrandText || props.stage === 3;
 
   return {
     banner: isReviewStage ? reviewBanner : standardBanner,
-    compactLeading: useIslandBrandText ? (
-      <IslandBrandText size={12} leading={4} />
-    ) : (
-      <Logo uri={props.logoUri} size={16} modifiers={[padding({ leading: 4 })]} />
-    ),
+    compactLeading:
+      props.stage === 3 ? (
+        <IslandCatalogText size={12} leading={4} />
+      ) : useIslandBrandText ? (
+        <IslandBrandText size={12} leading={4} />
+      ) : (
+        <Logo uri={props.logoUri} size={16} modifiers={[padding({ leading: 4 })]} />
+      ),
     compactTrailing: <CompactIslandCta />,
-    minimal: useIslandBrandText ? (
-      <IslandBrandText size={12} leading={4} />
-    ) : (
-      <Logo uri={props.logoUri} size={16} />
-    ),
-    expandedLeading: useIslandBrandText ? (
+    minimal:
+      props.stage === 3 ? (
+        <IslandCatalogText size={12} leading={4} />
+      ) : useIslandBrandText ? (
+        <IslandBrandText size={12} leading={4} />
+      ) : (
+        <Logo uri={props.logoUri} size={16} />
+      ),
+    expandedLeading: useIslandExpandedBrandText ? (
       <IslandBrandText size={14} leading={8} />
     ) : (
       <HStack spacing={6} modifiers={[padding({ leading: 8 })]}>
@@ -537,7 +581,7 @@ const BookingActivity = (props: BookingActivityProps, _env: LiveActivityEnvironm
     ) : (
       <VStack alignment="leading" spacing={10} modifiers={[padding({ top: 4, horizontal: 6 })]}>
         <Text modifiers={[font({ size: 13 }), foregroundStyle('#FFFFFFCC'), lineLimit(2)]}>
-          {props.subtitle ?? props.status}
+          {props.expandedSubtitle ?? props.subtitle ?? props.status}
         </Text>
         {showBookingProgress ? <BookingProgress accent={islandProgressAccent} /> : null}
       </VStack>

@@ -100,12 +100,15 @@ describe('buildBookingActivityProps', () => {
     expect(props.deepLinkUrl).toBe('realbarber://screens/booking-detail?id=res-2-stage');
   });
 
-  it('builds stage 3 with inspirace deep link', () => {
+  it('builds stage 3 with catalog copy and inspirace deep link', () => {
     const booking = makeBooking({ id: 'res-insp', date: '2026-06-16', slotStart: '10:00' });
     const now = previewNowMsForStage(booking, 3);
     const props = buildBookingActivityProps(booking, null, now);
 
     expect(props.stage).toBe(3);
+    expect(props.status).toBe('Podívejte se na katalog účesů');
+    expect(props.subtitle).toBe('Klepněte pro zobrazení');
+    expect(props.expandedSubtitle).toBe('Klepněte pro zobrazení katalogu účesů');
     expect(props.ctaKind).toBe('inspire');
     expect(props.deepLinkUrl).toBe('realbarber://inspirace');
   });
