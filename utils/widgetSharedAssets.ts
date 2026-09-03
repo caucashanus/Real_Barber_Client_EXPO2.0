@@ -25,8 +25,8 @@ async function copyWidgetAsset(
   const file = new File(widgetsDirectory, fileName);
   if (overwrite || !file.exists) {
     const asset = await Asset.fromModule(assetModule).downloadAsync();
-    if (!asset.localUri) return null;
-    await new File(asset.localUri).copy(file);
+    if (!asset.localUri) return file.exists ? file.uri : null;
+    await new File(asset.localUri).copy(file, { overwrite });
   }
   return file.uri;
 }
