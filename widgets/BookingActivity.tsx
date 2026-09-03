@@ -26,7 +26,7 @@ import type { BookingActivityProps } from '@/utils/bookingLiveActivityData';
 const BookingActivity = (props: BookingActivityProps, _env: LiveActivityEnvironment) => {
   'widget';
 
-  const REVIEW_STAGE = 7;
+  const REVIEW_STAGE = 6;
   const ACCENT = '#fbbf24';
   const NAVIGATE_ACCENT = '#60A5FA';
   const INSPIRE_ACCENT = '#A78BFA';
@@ -34,6 +34,8 @@ const BookingActivity = (props: BookingActivityProps, _env: LiveActivityEnvironm
   const STAR_FILLED = '#fbbf24';
   const STAR_EMPTY = '#525252';
   const DIM = '#FFFFFF40';
+  const LIVE_GREEN = '#10b981';
+  const LIVE_ORANGE = '#f59e0b';
 
   const isReviewStage = props.stage >= REVIEW_STAGE;
   const isException = props.stageKind === 'cancelled' || props.stageKind === 'rescheduled';
@@ -60,19 +62,44 @@ const BookingActivity = (props: BookingActivityProps, _env: LiveActivityEnvironm
       />
     ) : null;
 
-  const titleRow = (
-    <Text
-      modifiers={[
-        font({ weight: 'bold', size: 18 }),
-        foregroundStyle('#FFFFFF'),
-        lineLimit(2),
-        minimumScaleFactor(0.85),
-        multilineTextAlignment('leading'),
-        frame({ maxWidth: Infinity, alignment: 'leading' }),
-      ]}>
-      {props.status}
-    </Text>
+  const LiveDot = ({ size = 10, color = LIVE_GREEN }: { size?: number; color?: string }) => (
+    <Capsule modifiers={[foregroundStyle(color), frame({ width: size, height: size })]} />
   );
+
+  const titleWithLiveDot = (dotColor: string) => (
+    <HStack spacing={6} modifiers={[frame({ maxWidth: Infinity, alignment: 'leading' })]}>
+      <Text
+        modifiers={[
+          font({ weight: 'bold', size: 18 }),
+          foregroundStyle('#FFFFFF'),
+          lineLimit(2),
+          minimumScaleFactor(0.85),
+          multilineTextAlignment('leading'),
+        ]}>
+        {props.status}
+      </Text>
+      <LiveDot size={10} color={dotColor} />
+    </HStack>
+  );
+
+  const titleRow =
+    props.stage === 5 ? (
+      titleWithLiveDot(LIVE_GREEN)
+    ) : props.stage === 1 ? (
+      titleWithLiveDot(LIVE_ORANGE)
+    ) : (
+      <Text
+        modifiers={[
+          font({ weight: 'bold', size: 18 }),
+          foregroundStyle('#FFFFFF'),
+          lineLimit(2),
+          minimumScaleFactor(0.85),
+          multilineTextAlignment('leading'),
+          frame({ maxWidth: Infinity, alignment: 'leading' }),
+        ]}>
+        {props.status}
+      </Text>
+    );
   // Stepped progress — 1:1 s expo/examples DeliveryActivity StepProgress.
   // Každý connector je ProgressView s timerInterval pro svůj slice [start, end].
   const StepProgress = ({
@@ -121,8 +148,7 @@ const BookingActivity = (props: BookingActivityProps, _env: LiveActivityEnvironm
     );
   };
 
-  // Stage 0–4: 2 ikony (kalendář → hodiny/termín), progress T−90 → termín.
-  // Stage 5–6: 2 ikony (nůžky → křeslo), progress termín → konec slotu.
+  // Stage 0–4: kalendář → termín. Stage 5+: křeslo → fajfka.
   const BookingProgress = ({ accent = ACCENT }: { accent?: string }) => {
     if (props.stage <= 4) {
       return (
@@ -138,10 +164,10 @@ const BookingActivity = (props: BookingActivityProps, _env: LiveActivityEnvironm
 
     return (
       <StepProgress
-        stepIcons={['scissors', 'chair.lounge.fill']}
+        stepIcons={['chair.lounge.fill', 'checkmark']}
         startEpochMs={props.appointmentEpochMs}
         endEpochMs={props.endEpochMs}
-        stage={props.stage >= 7 ? 1 : 0}
+        stage={props.stage >= REVIEW_STAGE ? 1 : 0}
         accent={accent}
       />
     );
@@ -358,6 +384,13 @@ const BookingActivity = (props: BookingActivityProps, _env: LiveActivityEnvironm
           </Text>
         );
       default:
+        if (props.stage === 5) {
+          return (
+            <HStack modifiers={[padding({ trailing: 4 })]}>
+              <LiveDot size={8} />
+            </HStack>
+          );
+        }
         return null;
     }
   };
@@ -491,6 +524,18 @@ const BookingActivity = (props: BookingActivityProps, _env: LiveActivityEnvironm
               <Stage0MinutesLabel size={13} />
             ) : props.stage === 4 ? (
               <IconFrame icon="cup.and.saucer.fill" color={DRINKS_ACCENT} iconSize={24} />
+            ) : props.stage === 5 && props.bannerLabel ? (
+              <Text
+                modifiers={[
+                  font({ weight: 'medium', size: 12 }),
+                  foregroundStyle('#FFFFFF'),
+                  lineLimit(2),
+                  minimumScaleFactor(0.75),
+                  multilineTextAlignment('trailing'),
+                  frame({ maxWidth: 168, alignment: 'trailing' }),
+                ]}>
+                {props.bannerLabel}
+              </Text>
             ) : (
               <CtaPill size={13} color={ctaPillColor} />
             )
@@ -575,7 +620,8 @@ const BookingActivity = (props: BookingActivityProps, _env: LiveActivityEnvironm
     </Text>
   );
 
-  const useIslandBrandText = props.stage === 0 || props.stage === 1 || props.stage === 2;
+  const useIslandBrandText =
+    props.stage === 0 || props.stage === 1 || props.stage === 2 || props.stage === 5;
   const useIslandExpandedBrandText = useIslandBrandText || props.stage === 3 || props.stage === 4;
 
   return {
@@ -641,6 +687,14 @@ const BookingActivity = (props: BookingActivityProps, _env: LiveActivityEnvironm
       </VStack>
     ) : (
       <VStack alignment="leading" spacing={10} modifiers={[padding({ top: 4, horizontal: 6 })]}>
+        {props.stage === 5 ? (
+          <HStack spacing={6}>
+            <Text modifiers={[font({ weight: 'semibold', size: 14 }), foregroundStyle('#FFFFFF'), lineLimit(1)]}>
+              {props.status}
+            </Text>
+            <LiveDot size={8} />
+          </HStack>
+        ) : null}
         <Text modifiers={[font({ size: 13 }), foregroundStyle('#FFFFFFCC'), lineLimit(2)]}>
           {props.expandedSubtitle ?? props.subtitle ?? props.status}
         </Text>

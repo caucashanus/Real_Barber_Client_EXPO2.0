@@ -111,7 +111,7 @@ export default function BookingLiveActivityPreviewScreen() {
     <ScrollView contentContainerStyle={styles.container}>
       <Text style={styles.heading}>Booking Live Activity</Text>
       <Text style={styles.hint}>
-        Nový lifecycle (8 stavů, T−90 start). Klepněte na stage pro update na Lock Screen / Dynamic
+        Nový lifecycle (7 stavů, T−90 start). Klepněte na stage pro update na Lock Screen / Dynamic
         Island.
       </Text>
 

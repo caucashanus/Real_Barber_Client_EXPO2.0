@@ -126,6 +126,19 @@ describe('buildBookingActivityProps', () => {
     expect(props.deepLinkUrl).toBe('realbarber://screens/booking-detail?id=res-drinks');
   });
 
+  it('builds stage 5 with estimated duration subtitle and no duration CTA', () => {
+    const booking = makeBooking({ id: 'res-live', date: '2026-06-16', slotStart: '10:00' });
+    const now = previewNowMsForStage(booking, 5);
+    const props = buildBookingActivityProps(booking, null, now);
+
+    expect(props.stage).toBe(5);
+    expect(props.status).toBe('Právě probíhá');
+    expect(props.subtitle).toBe('Odhadovaná doba trvání · cca 60 min');
+    expect(props.bannerLabel).toBe('Stará se o Vás · Jan Novák');
+    expect(props.ctaKind).toBe('none');
+    expect(props.subtitle).not.toContain('10:00');
+  });
+
   it('builds review stage with review deep link', () => {
     const now = new Date('2026-06-16T11:30:00').getTime();
     const booking = makeBooking({ id: 'res-2', date: '2026-06-16', slotStart: '10:00', slotEnd: '11:00' });
@@ -149,8 +162,9 @@ describe('computeBookingActivityStage', () => {
     expect(computeBookingActivityStage(booking, new Date('2026-06-16T09:52:00').getTime())).toBe(3);
     expect(computeBookingActivityStage(booking, new Date('2026-06-16T09:57:00').getTime())).toBe(4);
     expect(computeBookingActivityStage(booking, new Date('2026-06-16T10:01:00').getTime())).toBe(5);
-    expect(computeBookingActivityStage(booking, new Date('2026-06-16T10:30:00').getTime())).toBe(6);
-    expect(computeBookingActivityStage(booking, new Date('2026-06-16T11:30:00').getTime())).toBe(7);
+    expect(computeBookingActivityStage(booking, new Date('2026-06-16T10:00:00').getTime())).toBe(5);
+    expect(computeBookingActivityStage(booking, new Date('2026-06-16T10:30:00').getTime())).toBe(5);
+    expect(computeBookingActivityStage(booking, new Date('2026-06-16T11:30:00').getTime())).toBe(6);
   });
 });
 

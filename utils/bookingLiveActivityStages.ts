@@ -6,14 +6,11 @@ export const BOOKING_LA_START_MS = 90 * 60 * 1000;
 /** @deprecated Alias pro BOOKING_LA_START_MS — CRM / starší kód. */
 export const BOOKING_SOON_MS = BOOKING_LA_START_MS;
 
-/** Krátké okno „Právě začínáme“ před přechodem do „Probíhá“. */
-export const BOOKING_STAGE_START_GRACE_MS = 2 * 60 * 1000;
-
-/** Stage 7 (hodnocení) — max doba zobrazení Live Activity po konci slotu. */
+/** Stage 6 (hodnocení) — max doba zobrazení Live Activity po konci slotu. */
 export const BOOKING_REVIEW_LINGER_MS = 2 * 60 * 60 * 1000;
 
-export const BOOKING_STAGE_COUNT = 8;
-export const BOOKING_REVIEW_STAGE = 7;
+export const BOOKING_STAGE_COUNT = 7;
+export const BOOKING_REVIEW_STAGE = 6;
 
 /** Minuty před termínem, kdy začíná daný stage (0–5). */
 export const BOOKING_STAGE_OFFSETS_MIN = [90, 60, 20, 10, 5, 0] as const;
@@ -66,13 +63,8 @@ export const BOOKING_STAGE_CONFIG: readonly BookingActivityStageConfig[] = [
     progressPhase: 0,
   },
   {
-    title: 'Právě začínáme',
+    title: 'Právě probíhá',
     ctaKind: 'none',
-    progressPhase: 1,
-  },
-  {
-    title: 'Probíhá',
-    ctaKind: 'duration',
     progressPhase: 1,
   },
   {
@@ -99,7 +91,7 @@ export const BOOKING_EXCEPTION_STAGE_CONFIG: Record<
 /** 3 vizuální fáze progress baru (Expo delivery styl). */
 export const BOOKING_PROGRESS_PHASE_ICONS = [
   'calendar.badge.clock',
-  'scissors',
+  'chair.lounge.fill',
   'star.fill',
 ] as const satisfies readonly SFSymbol[];
 

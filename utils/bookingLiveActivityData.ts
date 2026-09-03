@@ -13,7 +13,6 @@ import {
   BOOKING_REVIEW_STAGE,
   BOOKING_STAGE_COUNT,
   BOOKING_STAGE_OFFSETS_MIN,
-  BOOKING_STAGE_START_GRACE_MS,
   formatBookingStageTitle,
   getBookingStageConfig,
   getBookingStageOffsetMs,
@@ -38,8 +37,7 @@ export const BOOKING_STAGE_LABELS = [
   'Kdo se o vás dnes postará?',
   'Podívejte se na katalog účesů',
   'Je libo káva nebo limonáda?',
-  'Právě začínáme',
-  'Probíhá',
+  'Právě probíhá',
   'Ohodnoťte',
 ] as const;
 
@@ -71,6 +69,8 @@ export type BookingActivityProps = {
   countdownMinutes?: number;
   /** Tap target — lock screen banner uses widgetURL(props); Dynamic Island uses start(url). */
   deepLinkUrl?: string;
+  /** Krátký label vpravo nahoře na lock screen banneru (stage 5). */
+  bannerLabel?: string;
 };
 
 export function formatBookingCountdownHm(
@@ -114,6 +114,16 @@ export function formatBookingStage4Subtitle(): string {
   return 'Vyberte si z nabídky nápojů · personál vás rád obslouží';
 }
 
+export function formatBookingStage5Subtitle(durationMinutes?: number): string {
+  const minutes = durationMinutes != null && durationMinutes > 0 ? durationMinutes : 60;
+  return `Odhadovaná doba trvání · cca ${minutes} min`;
+}
+
+export function formatBookingStage5BannerLabel(employeeName?: string): string {
+  const name = employeeName?.trim() || 'váš barber';
+  return `Stará se o Vás · ${name}`;
+}
+
 function getBookingActivityStageKind(booking: Booking): BookingActivityStageKind {
   const status = (booking.status ?? '').toLowerCase();
   if (status === 'cancelled' || status === 'canceled') return 'cancelled';
@@ -137,7 +147,6 @@ export function computeBookingActivityStage(booking: Booking, nowMs: number = Da
   const endMs = getBookingEndDate(booking).getTime();
 
   if (nowMs >= endMs) return BOOKING_REVIEW_STAGE;
-  if (nowMs >= startMs + BOOKING_STAGE_START_GRACE_MS) return 6;
   if (nowMs >= startMs) return 5;
 
   for (let i = BOOKING_STAGE_OFFSETS_MIN.length - 2; i >= 0; i -= 1) {
@@ -200,7 +209,7 @@ export function getBookingActivityStageTimes(booking: Booking): number[] {
   const thresholds = BOOKING_STAGE_OFFSETS_MIN.map((minutes) => startMs - minutes * 60 * 1000);
   return [
     ...thresholds,
-    startMs + BOOKING_STAGE_START_GRACE_MS,
+    startMs,
     endMs,
     endMs + BOOKING_REVIEW_LINGER_MS,
   ];
@@ -221,8 +230,7 @@ export function previewNowMsForStage(booking: Booking, stage: number): number {
   const mid = (a: number, b: number) => a + Math.floor((b - a) / 2);
 
   if (stage >= BOOKING_REVIEW_STAGE) return endMs + 5 * 60 * 1000;
-  if (stage === 6) return mid(startMs + BOOKING_STAGE_START_GRACE_MS, endMs);
-  if (stage === 5) return mid(startMs, startMs + BOOKING_STAGE_START_GRACE_MS);
+  if (stage === 5) return mid(startMs, endMs);
 
   const nextThreshold =
     stage < BOOKING_STAGE_OFFSETS_MIN.length - 1
@@ -274,9 +282,9 @@ export function buildBookingActivityProps(
           ? formatBookingStage3Subtitle()
           : stage === 4
             ? formatBookingStage4Subtitle()
-            : stage === 6 && durationMinutes
-          ? `cca ${durationMinutes} min · ${subtitleParts.join(' · ')}`
-          : subtitleParts.join(' · ')
+            : stage === 5
+              ? formatBookingStage5Subtitle(durationMinutes)
+              : subtitleParts.join(' · ')
       : stageKind === 'cancelled'
         ? 'Termín byl zrušen'
         : 'Otevřete detail rezervace';
@@ -310,5 +318,6 @@ export function buildBookingActivityProps(
     countdownHours: countdown?.hours,
     countdownMinutes: countdown?.minutes,
     deepLinkUrl: buildBookingActivityDeepLinkForStage(booking, stage),
+    bannerLabel: stage === 5 ? formatBookingStage5BannerLabel(employeeName) : undefined,
   };
 }
