@@ -113,6 +113,19 @@ describe('buildBookingActivityProps', () => {
     expect(props.deepLinkUrl).toBe('realbarber://inspirace');
   });
 
+  it('builds stage 4 with drinks copy and booking detail deep link', () => {
+    const booking = makeBooking({ id: 'res-drinks', date: '2026-06-16', slotStart: '10:00' });
+    const now = previewNowMsForStage(booking, 4);
+    const props = buildBookingActivityProps(booking, null, now);
+
+    expect(props.stage).toBe(4);
+    expect(props.status).toBe('Je libo káva nebo limonáda?');
+    expect(props.subtitle).toBe('Vyberte si z nabídky nápojů · personál vás rád obslouží');
+    expect(props.ctaKind).toBe('drinks');
+    expect(props.ctaLabel).toBe('Nápoje');
+    expect(props.deepLinkUrl).toBe('realbarber://screens/booking-detail?id=res-drinks');
+  });
+
   it('builds review stage with review deep link', () => {
     const now = new Date('2026-06-16T11:30:00').getTime();
     const booking = makeBooking({ id: 'res-2', date: '2026-06-16', slotStart: '10:00', slotEnd: '11:00' });

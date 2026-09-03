@@ -30,6 +30,7 @@ const BookingActivity = (props: BookingActivityProps, _env: LiveActivityEnvironm
   const ACCENT = '#fbbf24';
   const NAVIGATE_ACCENT = '#60A5FA';
   const INSPIRE_ACCENT = '#A78BFA';
+  const DRINKS_ACCENT = '#D4A574';
   const STAR_FILLED = '#fbbf24';
   const STAR_EMPTY = '#525252';
   const DIM = '#FFFFFF40';
@@ -180,6 +181,16 @@ const BookingActivity = (props: BookingActivityProps, _env: LiveActivityEnvironm
     );
   };
 
+  const IconFrame = ({
+    icon,
+    color,
+    iconSize = 22,
+  }: {
+    icon: SFSymbol;
+    color: string;
+    iconSize?: number;
+  }) => <Image systemName={icon} size={iconSize} color={color} />;
+
   const usesStage0CountdownLabel = props.stage === 0 || props.stage === 2;
 
   const Stage0MinutesLabel = ({
@@ -264,7 +275,9 @@ const BookingActivity = (props: BookingActivityProps, _env: LiveActivityEnvironm
       ? NAVIGATE_ACCENT
       : ctaKind === 'inspire'
         ? INSPIRE_ACCENT
-        : ACCENT;
+        : ctaKind === 'drinks'
+          ? DRINKS_ACCENT
+          : ACCENT;
 
   const progressAccent =
     props.stage === 0 ? ACCENT : props.stage === 1 ? NAVIGATE_ACCENT : undefined;
@@ -323,6 +336,15 @@ const BookingActivity = (props: BookingActivityProps, _env: LiveActivityEnvironm
         return (
           <Image systemName="sparkles" size={14} color={INSPIRE_ACCENT} modifiers={[padding({ trailing: 4 })]} />
         );
+      case 'drinks':
+        return (
+          <Image
+            systemName="cup.and.saucer.fill"
+            size={14}
+            color={DRINKS_ACCENT}
+            modifiers={[padding({ trailing: 4 })]}
+          />
+        );
       case 'duration':
         return (
           <Text
@@ -360,6 +382,15 @@ const BookingActivity = (props: BookingActivityProps, _env: LiveActivityEnvironm
             color={color}
             icon="sparkles"
             label={props.ctaLabel ?? 'Inspirace'}
+          />
+        );
+      case 'drinks':
+        return (
+          <ActionPill
+            size={size}
+            color={color}
+            icon="cup.and.saucer.fill"
+            label={props.ctaLabel ?? 'Nápoje'}
           />
         );
       case 'countdown':
@@ -438,7 +469,8 @@ const BookingActivity = (props: BookingActivityProps, _env: LiveActivityEnvironm
     </ZStack>
   );
 
-  const showBookingProgress = !isException && props.stage !== 2 && props.stage !== 3;
+  const showBookingProgress =
+    !isException && props.stage !== 2 && props.stage !== 3 && props.stage !== 4;
 
   const standardBanner = (
     <ZStack
@@ -457,6 +489,8 @@ const BookingActivity = (props: BookingActivityProps, _env: LiveActivityEnvironm
           {!isReviewStage && !isException ? (
             props.stage === 2 ? (
               <Stage0MinutesLabel size={13} />
+            ) : props.stage === 4 ? (
+              <IconFrame icon="cup.and.saucer.fill" color={DRINKS_ACCENT} iconSize={24} />
             ) : (
               <CtaPill size={13} color={ctaPillColor} />
             )
@@ -522,13 +556,34 @@ const BookingActivity = (props: BookingActivityProps, _env: LiveActivityEnvironm
     </Text>
   );
 
+  const IslandDrinksText = ({
+    size = 12,
+    leading = 4,
+  }: {
+    size?: number;
+    leading?: number;
+  }) => (
+    <Text
+      modifiers={[
+        font({ weight: 'semibold', size }),
+        foregroundStyle('#FFFFFF'),
+        lineLimit(1),
+        minimumScaleFactor(0.75),
+        padding({ leading }),
+      ]}>
+      RB · Vyberte si
+    </Text>
+  );
+
   const useIslandBrandText = props.stage === 0 || props.stage === 1 || props.stage === 2;
-  const useIslandExpandedBrandText = useIslandBrandText || props.stage === 3;
+  const useIslandExpandedBrandText = useIslandBrandText || props.stage === 3 || props.stage === 4;
 
   return {
     banner: isReviewStage ? reviewBanner : standardBanner,
     compactLeading:
-      props.stage === 3 ? (
+      props.stage === 4 ? (
+        <IslandDrinksText size={12} leading={4} />
+      ) : props.stage === 3 ? (
         <IslandCatalogText size={12} leading={4} />
       ) : useIslandBrandText ? (
         <IslandBrandText size={12} leading={4} />
@@ -537,7 +592,9 @@ const BookingActivity = (props: BookingActivityProps, _env: LiveActivityEnvironm
       ),
     compactTrailing: <CompactIslandCta />,
     minimal:
-      props.stage === 3 ? (
+      props.stage === 4 ? (
+        <IslandDrinksText size={12} leading={4} />
+      ) : props.stage === 3 ? (
         <IslandCatalogText size={12} leading={4} />
       ) : useIslandBrandText ? (
         <IslandBrandText size={12} leading={4} />
@@ -565,7 +622,11 @@ const BookingActivity = (props: BookingActivityProps, _env: LiveActivityEnvironm
       </HStack>
     ) : (
       <HStack modifiers={[padding({ trailing: 6 })]}>
-        <CtaPill size={14} color={ctaPillColor} />
+        {props.stage === 4 ? (
+          <IconFrame icon="cup.and.saucer.fill" color={DRINKS_ACCENT} iconSize={24} />
+        ) : (
+          <CtaPill size={14} color={ctaPillColor} />
+        )}
       </HStack>
     ),
     expandedBottom: isReviewStage ? (

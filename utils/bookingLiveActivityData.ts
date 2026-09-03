@@ -37,7 +37,7 @@ export const BOOKING_STAGE_LABELS = [
   'Brzy začínáme',
   'Kdo se o vás dnes postará?',
   'Podívejte se na katalog účesů',
-  'Za chvíli se vám budeme věnovat',
+  'Je libo káva nebo limonáda?',
   'Právě začínáme',
   'Probíhá',
   'Ohodnoťte',
@@ -64,7 +64,7 @@ export type BookingActivityProps = {
   /** Delší copy pro expanded Dynamic Island — jinak se použije subtitle. */
   expandedSubtitle?: string;
   ctaLabel?: string;
-  ctaKind?: 'none' | 'countdown' | 'navigate' | 'inspire' | 'duration';
+  ctaKind?: 'none' | 'countdown' | 'navigate' | 'inspire' | 'drinks' | 'duration';
   progressPhase?: 0 | 1 | 2;
   /** Countdown zobrazení bez sekund — widget formát „1h 15m“. */
   countdownHours?: number;
@@ -108,6 +108,10 @@ export function formatBookingStage3Subtitle(): string {
 
 export function formatBookingStage3ExpandedSubtitle(): string {
   return 'Klepněte pro zobrazení katalogu účesů';
+}
+
+export function formatBookingStage4Subtitle(): string {
+  return 'Vyberte si z nabídky nápojů · personál vás rád obslouží';
 }
 
 function getBookingActivityStageKind(booking: Booking): BookingActivityStageKind {
@@ -268,7 +272,9 @@ export function buildBookingActivityProps(
         ? formatBookingStage2Subtitle(employeeName)
         : stage === 3
           ? formatBookingStage3Subtitle()
-          : stage === 6 && durationMinutes
+          : stage === 4
+            ? formatBookingStage4Subtitle()
+            : stage === 6 && durationMinutes
           ? `cca ${durationMinutes} min · ${subtitleParts.join(' · ')}`
           : subtitleParts.join(' · ')
       : stageKind === 'cancelled'

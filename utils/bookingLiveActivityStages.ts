@@ -20,7 +20,7 @@ export const BOOKING_STAGE_OFFSETS_MIN = [90, 60, 20, 10, 5, 0] as const;
 
 export type BookingActivityStageKind = 'normal' | 'cancelled' | 'rescheduled';
 
-export type BookingActivityCtaKind = 'none' | 'countdown' | 'navigate' | 'inspire' | 'duration';
+export type BookingActivityCtaKind = 'none' | 'countdown' | 'navigate' | 'inspire' | 'drinks' | 'duration';
 
 export type BookingActivityStageConfig = {
   title: string;
@@ -59,8 +59,10 @@ export const BOOKING_STAGE_CONFIG: readonly BookingActivityStageConfig[] = [
     progressPhase: 0,
   },
   {
-    title: 'Za chvíli se vám budeme věnovat',
-    ctaKind: 'countdown',
+    title: 'Je libo káva nebo limonáda?',
+    ctaKind: 'drinks',
+    ctaLabel: 'Nápoje',
+    ctaIcon: 'cup.and.saucer.fill',
     progressPhase: 0,
   },
   {
