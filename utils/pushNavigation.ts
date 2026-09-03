@@ -25,14 +25,16 @@ export function buildReservationDetailHref(reservationId: string): string {
 /**
  * Deep link pro widget tap (scheme `realbarber`):
  * `realbarber://screens/booking-detail?id=<reservationId>&openReview=1`
+ * `realbarber://screens/booking-detail?id=<reservationId>&openNavigate=1`
  */
 export function buildReservationDetailDeepLink(
   reservationId: string,
-  options?: { openReview?: boolean }
+  options?: { openReview?: boolean; openNavigate?: boolean }
 ): string {
   const id = encodeURIComponent(reservationId);
   const openReview = options?.openReview ? '&openReview=1' : '';
-  return `realbarber://screens/booking-detail?id=${id}${openReview}`;
+  const openNavigate = options?.openNavigate ? '&openNavigate=1' : '';
+  return `realbarber://screens/booking-detail?id=${id}${openReview}${openNavigate}`;
 }
 
 function asTrimmedString(value: unknown): string | null {

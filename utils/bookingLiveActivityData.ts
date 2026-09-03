@@ -1,6 +1,4 @@
 import type { Booking } from '@/api/bookings';
-import { getBranchContactMeta } from '@/constants/branchContacts';
-import { resolveInternalBranchIdFromCrmUuid } from '@/constants/crmBranchIds';
 import {
   getBookingClientReviewRating,
   getBookingEndDate,
@@ -22,7 +20,6 @@ import {
   type BookingActivityStageKind,
 } from '@/utils/bookingLiveActivityStages';
 import { getHomeSpotlightReviewQueryString } from '@/utils/homeSpotlight';
-import { buildBranchGoogleMapsUrl } from '@/utils/branchNavigationUrls';
 import { formatNextSlotDisplayTime } from '@/utils/reservationCreateHelpers';
 import { pickNextWidgetBooking } from '@/utils/widgetBookingData';
 
@@ -95,20 +92,15 @@ function buildInspiraceDeepLink(): string {
   return 'realbarber://inspirace';
 }
 
+function buildBookingNavigateDeepLink(reservationId: string): string {
+  return `realbarber://screens/booking-detail?id=${encodeURIComponent(reservationId)}&openNavigate=1`;
+}
+
 function getBookingActivityStageKind(booking: Booking): BookingActivityStageKind {
   const status = (booking.status ?? '').toLowerCase();
   if (status === 'cancelled' || status === 'canceled') return 'cancelled';
   if (status.includes('resched')) return 'rescheduled';
   return 'normal';
-}
-
-function resolveBranchNavigationUrl(booking: Booking): string | undefined {
-  const internalId = resolveInternalBranchIdFromCrmUuid(booking.branchId);
-  if (internalId) {
-    const meta = getBranchContactMeta(internalId);
-    return buildBranchGoogleMapsUrl(meta.shortLabel, meta.address, meta.latitude, meta.longitude);
-  }
-  return buildBranchGoogleMapsUrl(booking.branch?.name, booking.branch?.address);
 }
 
 export function isBookingLiveActivityReviewEligible(
@@ -178,7 +170,7 @@ export function buildBookingActivityReviewDeepLink(booking: Booking): string {
 export function buildBookingActivityDeepLinkForStage(booking: Booking, stage: number): string {
   if (stage >= BOOKING_REVIEW_STAGE) return buildBookingActivityReviewDeepLink(booking);
   if (stage === 1) {
-    return resolveBranchNavigationUrl(booking) ?? buildBookingActivityDeepLink(booking);
+    return buildBookingNavigateDeepLink(booking.id);
   }
   if (stage === 3) return buildInspiraceDeepLink();
   return buildBookingActivityDeepLink(booking);

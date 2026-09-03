@@ -78,6 +78,9 @@ describe('deepLinkConfig', () => {
     expect(
       resolveIncomingDeepLinkRoute('/screens/booking-detail?id=res-1&openReview=1')
     ).toBe('/screens/booking-detail?id=res-1&openReview=1');
+    expect(
+      resolveIncomingDeepLinkRoute('/screens/booking-detail?id=res-1&openNavigate=1')
+    ).toBe('/screens/booking-detail?id=res-1&openNavigate=1');
   });
 
   it('wraps unknown web paths with query in in-app-web', () => {

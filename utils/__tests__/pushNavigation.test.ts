@@ -29,6 +29,9 @@ describe('pushNavigation', () => {
     expect(buildReservationDetailDeepLink('x/y', { openReview: true })).toBe(
       'realbarber://screens/booking-detail?id=x%2Fy&openReview=1'
     );
+    expect(buildReservationDetailDeepLink('x/y', { openNavigate: true })).toBe(
+      'realbarber://screens/booking-detail?id=x%2Fy&openNavigate=1'
+    );
   });
 
   it('prefers notificationId over legacy reservation fallback', async () => {

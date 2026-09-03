@@ -259,6 +259,11 @@ const BookingActivity = (props: BookingActivityProps, _env: LiveActivityEnvironm
 
   const ctaPillColor = ctaKind === 'navigate' ? NAVIGATE_ACCENT : ACCENT;
 
+  const progressAccent =
+    props.stage === 0 ? ACCENT : props.stage === 1 ? NAVIGATE_ACCENT : undefined;
+  const bannerProgressAccent = progressAccent ?? '#FFFFFF';
+  const islandProgressAccent = progressAccent ?? ACCENT;
+
   // Dynamic Island compact trailing — úzký obsah s pevnou šířkou (jako expo Eta).
   // Široké ActionPill by vytlačilo logo z compactLeading.
   const CompactIslandCta = () => {
@@ -294,12 +299,18 @@ const BookingActivity = (props: BookingActivityProps, _env: LiveActivityEnvironm
         );
       case 'navigate':
         return (
-          <Image
-            systemName="location.north.fill"
-            size={14}
-            color={NAVIGATE_ACCENT}
-            modifiers={[padding({ trailing: 4 })]}
-          />
+          <HStack spacing={4} modifiers={[padding({ trailing: 4 })]}>
+            <Text
+              modifiers={[
+                font({ weight: 'medium', size: 13 }),
+                foregroundStyle(NAVIGATE_ACCENT),
+                lineLimit(1),
+                minimumScaleFactor(0.75),
+              ]}>
+              {props.ctaLabel ?? 'Navigovat'}
+            </Text>
+            <Image systemName="location.north.fill" size={14} color={NAVIGATE_ACCENT} />
+          </HStack>
         );
       case 'inspire':
         return (
@@ -474,7 +485,7 @@ const BookingActivity = (props: BookingActivityProps, _env: LiveActivityEnvironm
             {props.subtitle}
           </Text>
         ) : null}
-        {!isException ? <BookingProgress accent="#FFFFFF" /> : null}
+        {!isException ? <BookingProgress accent={bannerProgressAccent} /> : null}
       </VStack>
     </ZStack>
   );
@@ -497,37 +508,36 @@ const BookingActivity = (props: BookingActivityProps, _env: LiveActivityEnvironm
     </Text>
   );
 
+  const useIslandBrandText = props.stage === 0 || props.stage === 1;
+
   return {
     banner: isReviewStage ? reviewBanner : standardBanner,
-    compactLeading:
-      props.stage === 0 ? (
-        <IslandBrandText size={12} leading={4} />
-      ) : (
-        <Logo uri={props.logoUri} size={16} modifiers={[padding({ leading: 4 })]} />
-      ),
+    compactLeading: useIslandBrandText ? (
+      <IslandBrandText size={12} leading={4} />
+    ) : (
+      <Logo uri={props.logoUri} size={16} modifiers={[padding({ leading: 4 })]} />
+    ),
     compactTrailing: <CompactIslandCta />,
-    minimal:
-      props.stage === 0 ? (
-        <IslandBrandText size={12} leading={4} />
-      ) : (
+    minimal: useIslandBrandText ? (
+      <IslandBrandText size={12} leading={4} />
+    ) : (
+      <Logo uri={props.logoUri} size={16} />
+    ),
+    expandedLeading: useIslandBrandText ? (
+      <IslandBrandText size={14} leading={8} />
+    ) : (
+      <HStack spacing={6} modifiers={[padding({ leading: 8 })]}>
         <Logo uri={props.logoUri} size={16} />
-      ),
-    expandedLeading:
-      props.stage === 0 ? (
-        <IslandBrandText size={14} leading={8} />
-      ) : (
-        <HStack spacing={6} modifiers={[padding({ leading: 8 })]}>
-          <Logo uri={props.logoUri} size={16} />
-          <Text
-            modifiers={[
-              font({ weight: 'semibold', size: 14 }),
-              foregroundStyle('#FFFFFF'),
-              lineLimit(1),
-            ]}>
-            Real Barber
-          </Text>
-        </HStack>
-      ),
+        <Text
+          modifiers={[
+            font({ weight: 'semibold', size: 14 }),
+            foregroundStyle('#FFFFFF'),
+            lineLimit(1),
+          ]}>
+          Real Barber
+        </Text>
+      </HStack>
+    ),
     expandedTrailing: isReviewStage ? (
       <HStack modifiers={[padding({ trailing: 6 })]}>
         <ReviewStars size={14} />
@@ -552,7 +562,7 @@ const BookingActivity = (props: BookingActivityProps, _env: LiveActivityEnvironm
         <Text modifiers={[font({ size: 13 }), foregroundStyle('#FFFFFFCC'), lineLimit(2)]}>
           {props.subtitle ?? props.status}
         </Text>
-        {!isException ? <BookingProgress /> : null}
+        {!isException ? <BookingProgress accent={islandProgressAccent} /> : null}
       </VStack>
     ),
   };

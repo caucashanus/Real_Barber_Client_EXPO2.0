@@ -38,9 +38,12 @@ const BookingDetailScreen = () => {
   const local = useLocalSearchParams<{
     id: string | string[];
     openReview?: string;
+    openNavigate?: string;
     justBooked?: string | string[];
   }>();
   const id = (Array.isArray(local.id) ? local.id[0] : local.id) ?? '';
+  const openNavigateRaw = local.openNavigate;
+  const openNavigate = Array.isArray(openNavigateRaw) ? openNavigateRaw[0] : openNavigateRaw;
   const { locale } = useLanguage();
   const { t } = useTranslation();
   const colors = useThemeColors();
@@ -66,6 +69,7 @@ const BookingDetailScreen = () => {
   const shareSheetRef = useRef<ActionSheetRef>(null);
   const heroScrollY = useRef(new Animated.Value(0)).current;
   const isLeavingToBookingsRef = useRef(false);
+  const didAutoNavigateRef = useRef(false);
 
   const formatDetailMoney = useCallback(
     (value: unknown) => {
@@ -142,6 +146,34 @@ const BookingDetailScreen = () => {
     });
     return unsubscribe;
   }, [navigation, handleBackToBookings]);
+
+  useEffect(() => {
+    didAutoNavigateRef.current = false;
+  }, [id, openNavigate]);
+
+  useEffect(() => {
+    if (loading || !booking) return;
+    if (didAutoNavigateRef.current) return;
+    if (openNavigate !== '1') return;
+
+    const status = (booking.status ?? '').toLowerCase();
+    const isCancelledBooking = status === 'cancelled' || status === 'canceled';
+    if (isCancelledBooking) return;
+
+    const canNavigate =
+      getBranchNavigateMapsQuery(
+        booking.branch?.name ?? branch?.name,
+        booking.branch?.address ?? branch?.address
+      ) !== '';
+    if (!canNavigate) return;
+
+    const timer = setTimeout(() => {
+      if (didAutoNavigateRef.current) return;
+      didAutoNavigateRef.current = true;
+      branchNavigateRef.current?.show();
+    }, 400);
+    return () => clearTimeout(timer);
+  }, [booking, branch, loading, openNavigate]);
 
   if (!loading && (error || !booking)) {
     return (

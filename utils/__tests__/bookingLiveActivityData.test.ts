@@ -76,14 +76,16 @@ describe('buildBookingActivityProps', () => {
     expect(props.countdownMinutes).toBe(30);
   });
 
-  it('builds stage 1 with maps navigate deep link', () => {
+  it('builds stage 1 with booking detail deep link that opens navigate sheet', () => {
     const booking = makeBooking({ id: 'res-nav', date: '2026-06-16', slotStart: '10:00' });
     const now = previewNowMsForStage(booking, 1);
     const props = buildBookingActivityProps(booking, null, now);
 
     expect(props.stage).toBe(1);
     expect(props.ctaKind).toBe('navigate');
-    expect(props.deepLinkUrl).toContain('google.com/maps');
+    expect(props.deepLinkUrl).toBe(
+      'realbarber://screens/booking-detail?id=res-nav&openNavigate=1'
+    );
   });
 
   it('builds stage 3 with inspirace deep link', () => {
@@ -156,7 +158,9 @@ describe('buildBookingActivityDeepLinkForStage', () => {
   it('switches deep link per stage', () => {
     const booking = makeBooking({ id: 'res-3', date: '2026-06-16', slotStart: '10:00' });
     expect(buildBookingActivityDeepLinkForStage(booking, 0)).toContain('booking-detail');
-    expect(buildBookingActivityDeepLinkForStage(booking, 1)).toContain('google.com/maps');
+    expect(buildBookingActivityDeepLinkForStage(booking, 1)).toBe(
+      'realbarber://screens/booking-detail?id=res-3&openNavigate=1'
+    );
     expect(buildBookingActivityDeepLinkForStage(booking, 3)).toBe('realbarber://inspirace');
     expect(buildBookingActivityDeepLinkForStage(booking, BOOKING_REVIEW_STAGE)).toContain('/screens/review');
   });
