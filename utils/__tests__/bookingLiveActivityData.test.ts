@@ -151,6 +151,49 @@ describe('buildBookingActivityProps', () => {
     expect(props.deepLinkUrl).toContain('entityType=reservation');
     expect(props.deepLinkUrl).toContain('entityId=res-2');
   });
+
+  it('builds cancelled exception props with neutral copy and booking detail link', () => {
+    const booking = makeBooking({
+      id: 'res-cancel',
+      date: '2026-06-16',
+      slotStart: '10:00',
+      status: 'cancelled',
+    });
+    const now = previewNowMsForStage(booking, 0);
+    const props = buildBookingActivityProps(booking, null, now);
+
+    expect(props.stageKind).toBe('cancelled');
+    expect(props.lockScreenTitle).toBe('Termín byl právě zrušen');
+    expect(props.status).toBe('RB · Zrušeno');
+    expect(props.subtitle).toContain('10:00');
+    expect(props.subtitle).toContain('Modřany');
+    expect(props.expandedSubtitle).toBe('Klepněte pro detail rezervace');
+    expect(props.ctaKind).toBe('none');
+    expect(props.deepLinkUrl).toBe('realbarber://screens/booking-detail?id=res-cancel');
+  });
+
+  it('builds rescheduled exception props with new slot copy', () => {
+    const booking = makeBooking({
+      id: 'res-move',
+      date: '2026-06-17',
+      slotStart: '16:00',
+      status: 'rescheduled',
+    });
+    const now = previewNowMsForStage(
+      makeBooking({ id: 'res-move', date: '2026-06-16', slotStart: '10:00', status: 'rescheduled' }),
+      1
+    );
+    const props = buildBookingActivityProps(booking, null, now);
+
+    expect(props.stageKind).toBe('rescheduled');
+    expect(props.lockScreenTitle).toBe('Termín byl právě změněn');
+    expect(props.status).toBe('RB · Změněno');
+    expect(props.subtitle).toContain('Nový termín:');
+    expect(props.subtitle).toContain('16:00');
+    expect(props.subtitle).toContain('Modřany');
+    expect(props.ctaKind).toBe('none');
+    expect(props.deepLinkUrl).toBe('realbarber://screens/booking-detail?id=res-move');
+  });
 });
 
 describe('computeBookingActivityStage', () => {

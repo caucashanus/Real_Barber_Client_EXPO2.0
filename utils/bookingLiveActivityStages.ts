@@ -9,6 +9,9 @@ export const BOOKING_SOON_MS = BOOKING_LA_START_MS;
 /** Stage 6 (hodnocení) — max doba zobrazení Live Activity po konci slotu. */
 export const BOOKING_REVIEW_LINGER_MS = 2 * 60 * 60 * 1000;
 
+/** Zrušeno / přesunuto — doba zobrazení finálního stavu na lock screenu po end(). */
+export const BOOKING_EXCEPTION_LINGER_MS = 2 * 60 * 60 * 1000;
+
 export const BOOKING_STAGE_COUNT = 7;
 export const BOOKING_REVIEW_STAGE = 6;
 
@@ -74,17 +77,18 @@ export const BOOKING_STAGE_CONFIG: readonly BookingActivityStageConfig[] = [
   },
 ] as const;
 
+/** @deprecated Copy je v bookingLiveActivityData — zachováno pro CRM parity. */
 export const BOOKING_EXCEPTION_STAGE_CONFIG: Record<
   Exclude<BookingActivityStageKind, 'normal'>,
-  { title: string; subtitle: string }
+  { lockScreenTitle: string; footnote: string }
 > = {
   cancelled: {
-    title: 'Rezervace zrušena',
-    subtitle: 'Termín byl zrušen',
+    lockScreenTitle: 'Termín byl právě zrušen',
+    footnote: 'Klepněte pro detail rezervace',
   },
   rescheduled: {
-    title: 'Termín změněn',
-    subtitle: 'Otevřete detail rezervace',
+    lockScreenTitle: 'Termín byl právě změněn',
+    footnote: 'Klepněte pro detail rezervace',
   },
 };
 

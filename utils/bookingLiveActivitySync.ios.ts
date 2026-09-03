@@ -1,10 +1,13 @@
 import type { Booking } from '@/api/bookings';
+import { after } from 'expo-widgets';
 import BookingActivity from '@/widgets/BookingActivity';
 import {
+  BOOKING_EXCEPTION_LINGER_MS,
   BOOKING_REVIEW_STAGE,
   buildBookingActivityDeepLinkForStage,
   buildBookingActivityProps,
   getBookingActivityReviewDismissDelayMs,
+  getBookingActivityStageKind,
   getBookingActivityStageTimes,
   isBookingLiveActivityReviewEligible,
   pickBookingLiveActivityBooking,
@@ -27,6 +30,8 @@ let lastBookings: Booking[] = [];
 let endTimer: ReturnType<typeof setTimeout> | null = null;
 let stageTimers: ReturnType<typeof setTimeout>[] = [];
 let countdownMinuteTimer: ReturnType<typeof setInterval> | null = null;
+/** Po zrušení/přesunu neznovu nespouštět LA pro stejnou rezervaci (např. po přesunu). */
+const exceptionEndedUntilMs = new Map<string, number>();
 
 function clearCountdownMinuteTimer(): void {
   if (countdownMinuteTimer) {
@@ -48,16 +53,51 @@ function clearStageTimers(): void {
   clearCountdownMinuteTimer();
 }
 
-function endActivityImmediate(): void {
-  clearEndTimer();
-  clearStageTimers();
-  detachActivityPushTokenRegistration();
-  activityRef?.end('immediate');
+function resetActivityTracking(): void {
   activityRef = null;
   trackedBookingId = null;
   trackedStage = null;
   trackedDeepLinkUrl = null;
   trackedLogoUri = null;
+}
+
+function isBookingInExceptionLinger(bookingId: string, nowMs: number): boolean {
+  const until = exceptionEndedUntilMs.get(bookingId);
+  if (until == null) return false;
+  if (nowMs >= until) {
+    exceptionEndedUntilMs.delete(bookingId);
+    return false;
+  }
+  return true;
+}
+
+function filterBookingsForLiveActivity(bookings: Booking[], nowMs: number): Booking[] {
+  return bookings.filter((booking) => !isBookingInExceptionLinger(booking.id, nowMs));
+}
+
+function endActivityImmediate(): void {
+  clearEndTimer();
+  clearStageTimers();
+  detachActivityPushTokenRegistration();
+  activityRef?.end('immediate');
+  resetActivityTracking();
+}
+
+function endActivityWithException(
+  booking: Booking,
+  logoUri: string | null,
+  nowMs: number
+): void {
+  clearEndTimer();
+  clearStageTimers();
+  detachActivityPushTokenRegistration();
+
+  const props = buildBookingActivityProps(booking, logoUri, nowMs);
+  const dismissAt = new Date(nowMs + BOOKING_EXCEPTION_LINGER_MS);
+  exceptionEndedUntilMs.set(booking.id, dismissAt.getTime());
+
+  void activityRef?.end(after(dismissAt), props);
+  resetActivityTracking();
 }
 
 function adoptExistingActivityIfNeeded(booking: Booking): boolean {
@@ -114,11 +154,7 @@ function scheduleReviewDismiss(booking: Booking): void {
   endTimer = setTimeout(() => {
     detachActivityPushTokenRegistration();
     activityRef?.end('default');
-    activityRef = null;
-    trackedBookingId = null;
-    trackedStage = null;
-    trackedDeepLinkUrl = null;
-    trackedLogoUri = null;
+    resetActivityTracking();
     endTimer = null;
   }, delayMs);
 }
@@ -140,22 +176,50 @@ function startOrRestartActivity(
   attachActivityPushTokenRegistration(activityRef, booking.id);
 }
 
+function maybeEndRunningActivityForException(
+  bookings: Booking[],
+  logoUri: string | null,
+  nowMs: number
+): boolean {
+  if (!activityRef || !trackedBookingId) return false;
+
+  const tracked = bookings.find((booking) => booking.id === trackedBookingId);
+  if (!tracked) return false;
+
+  const stageKind = getBookingActivityStageKind(tracked);
+  if (stageKind !== 'cancelled' && stageKind !== 'rescheduled') return false;
+
+  endActivityWithException(tracked, logoUri, nowMs);
+  return true;
+}
+
 /** Sync nejbližší rezervace do iOS Live Activity (Lock Screen + Dynamic Island). */
 export async function syncBookingLiveActivityFromBookings(bookings: Booking[]): Promise<void> {
   lastBookings = bookings;
 
   try {
     const logoUri = await ensureLiveActivityLogoUri();
-    const next = pickBookingLiveActivityBooking(bookings);
     const nowMs = Date.now();
 
+    maybeEndRunningActivityForException(bookings, logoUri, nowMs);
+
+    const eligibleBookings = filterBookingsForLiveActivity(bookings, nowMs);
+    const next = pickBookingLiveActivityBooking(eligibleBookings, nowMs);
+
     if (!next) {
-      endActivityImmediate();
+      if (activityRef) endActivityImmediate();
       return;
     }
 
     const props = buildBookingActivityProps(next, logoUri, nowMs);
     const logoUriChanged = trackedLogoUri !== logoUri;
+
+    if (props.stageKind === 'cancelled' || props.stageKind === 'rescheduled') {
+      if (activityRef && trackedBookingId === next.id) {
+        endActivityWithException(next, logoUri, nowMs);
+      }
+      return;
+    }
 
     if (props.stage >= BOOKING_REVIEW_STAGE) {
       if (!isBookingLiveActivityReviewEligible(next, nowMs)) {

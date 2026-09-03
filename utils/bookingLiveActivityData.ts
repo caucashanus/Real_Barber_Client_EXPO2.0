@@ -8,6 +8,7 @@ import {
   isBookingNotCancelled,
 } from '@/utils/bookingHelpers';
 import {
+  BOOKING_EXCEPTION_LINGER_MS,
   BOOKING_LA_START_MS,
   BOOKING_REVIEW_LINGER_MS,
   BOOKING_REVIEW_STAGE,
@@ -18,11 +19,14 @@ import {
   getBookingStageOffsetMs,
   type BookingActivityStageKind,
 } from '@/utils/bookingLiveActivityStages';
+import { formatRelativeDayLabel } from '@/utils/formatRelativeDayLabel';
 import { getHomeSpotlightReviewQueryString } from '@/utils/homeSpotlight';
 import { formatNextSlotDisplayTime } from '@/utils/reservationCreateHelpers';
+import { getPragueTodayDateString } from '@/utils/teamMemberPageHelpers';
 import { pickNextWidgetBooking } from '@/utils/widgetBookingData';
 
 export {
+  BOOKING_EXCEPTION_LINGER_MS,
   BOOKING_LA_START_MS,
   BOOKING_REVIEW_LINGER_MS,
   BOOKING_REVIEW_STAGE,
@@ -130,11 +134,50 @@ export function formatBookingReviewLockScreenTitle(): string {
   return 'Ohodnoťte dnešní návštěvu';
 }
 
-function getBookingActivityStageKind(booking: Booking): BookingActivityStageKind {
+export function getBookingActivityStageKind(booking: Booking): BookingActivityStageKind {
   const status = (booking.status ?? '').toLowerCase();
   if (status === 'cancelled' || status === 'canceled') return 'cancelled';
   if (status.includes('resched')) return 'rescheduled';
   return 'normal';
+}
+
+export function formatBookingExceptionFootnote(): string {
+  return 'Klepněte pro detail rezervace';
+}
+
+export function formatBookingExceptionLockScreenTitle(stageKind: Exclude<BookingActivityStageKind, 'normal'>): string {
+  return stageKind === 'cancelled' ? 'Termín byl právě zrušen' : 'Termín byl právě změněn';
+}
+
+export function formatBookingExceptionCompactLabel(stageKind: Exclude<BookingActivityStageKind, 'normal'>): string {
+  return stageKind === 'cancelled' ? 'RB · Zrušeno' : 'RB · Změněno';
+}
+
+export function formatBookingExceptionContextSubtitle(booking: Booking): string {
+  const branchName = booking.branch?.name?.trim() ?? '';
+  const timeLabel = formatNextSlotDisplayTime(booking.slotStart);
+  const todayIso = getPragueTodayDateString();
+  const dateLabel = formatRelativeDayLabel({
+    dayIso: booking.date,
+    todayIso,
+    locale: 'cs',
+    variant: 'titleTab',
+  });
+  return [ `${dateLabel} ${timeLabel}`.trim(), branchName].filter(Boolean).join(' · ');
+}
+
+export function formatBookingExceptionRescheduledSubtitle(booking: Booking): string {
+  const branchName = booking.branch?.name?.trim() ?? '';
+  const timeLabel = formatNextSlotDisplayTime(booking.slotStart);
+  const todayIso = getPragueTodayDateString();
+  const dateLabel = formatRelativeDayLabel({
+    dayIso: booking.date,
+    todayIso,
+    locale: 'cs',
+    variant: 'titleTab',
+  });
+  const term = `${dateLabel} ${timeLabel}`.trim();
+  return [`Nový termín: ${term}`, branchName].filter(Boolean).join(' · ');
 }
 
 export function isBookingLiveActivityReviewEligible(
@@ -272,33 +315,52 @@ export function buildBookingActivityProps(
   const durationMinutes =
     typeof booking.duration === 'number' && booking.duration > 0 ? booking.duration : undefined;
 
-  const status =
-    stageKind === 'normal'
-      ? formatBookingStageTitle(stageConfig, employeeName, serviceName)
-      : stageKind === 'cancelled'
-        ? 'Rezervace zrušena'
-        : 'Termín změněn';
+  if (stageKind !== 'normal') {
+    const exceptionKind = stageKind;
+    return {
+      bookingId: booking.id,
+      status: formatBookingExceptionCompactLabel(exceptionKind),
+      stage,
+      stageKind,
+      nowEpochMs: nowMs,
+      soonEpochMs: soonMs,
+      appointmentEpochMs: appointmentMs,
+      endEpochMs: endMs,
+      branchName,
+      employeeName,
+      serviceName,
+      durationMinutes,
+      timeLabel,
+      logoUri: logoUri ?? undefined,
+      existingReviewRating,
+      subtitle:
+        exceptionKind === 'cancelled'
+          ? formatBookingExceptionContextSubtitle(booking)
+          : formatBookingExceptionRescheduledSubtitle(booking),
+      expandedSubtitle: formatBookingExceptionFootnote(),
+      ctaKind: 'none',
+      progressPhase: stageConfig.progressPhase,
+      deepLinkUrl: buildBookingActivityDeepLink(booking),
+      lockScreenTitle: formatBookingExceptionLockScreenTitle(exceptionKind),
+    };
+  }
+
+  const status = formatBookingStageTitle(stageConfig, employeeName, serviceName);
 
   const subtitleParts = [branchName, employeeName, timeLabel].filter(Boolean);
   const subtitle =
-    stageKind === 'normal'
-      ? stage === 2
-        ? formatBookingStage2Subtitle(employeeName)
-        : stage === 3
-          ? formatBookingStage3Subtitle()
-          : stage === 4
-            ? formatBookingStage4Subtitle()
-            : stage === 5
-              ? formatBookingStage5Subtitle(durationMinutes)
-              : subtitleParts.join(' · ')
-      : stageKind === 'cancelled'
-        ? 'Termín byl zrušen'
-        : 'Otevřete detail rezervace';
+    stage === 2
+      ? formatBookingStage2Subtitle(employeeName)
+      : stage === 3
+        ? formatBookingStage3Subtitle()
+        : stage === 4
+          ? formatBookingStage4Subtitle()
+          : stage === 5
+            ? formatBookingStage5Subtitle(durationMinutes)
+            : subtitleParts.join(' · ');
 
   const countdown =
-    stageKind === 'normal' && stageConfig.ctaKind === 'countdown'
-      ? formatBookingCountdownHm(appointmentMs, nowMs)
-      : undefined;
+    stageConfig.ctaKind === 'countdown' ? formatBookingCountdownHm(appointmentMs, nowMs) : undefined;
 
   return {
     bookingId: booking.id,

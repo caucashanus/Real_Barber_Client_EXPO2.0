@@ -36,9 +36,14 @@ const BookingActivity = (props: BookingActivityProps, _env: LiveActivityEnvironm
   const DIM = '#FFFFFF40';
   const LIVE_GREEN = '#10b981';
   const LIVE_ORANGE = '#f59e0b';
+  const CANCEL_ACCENT = '#F87171';
+  const RESCHEDULE_ACCENT = '#60A5FA';
 
-  const isReviewStage = props.stage >= REVIEW_STAGE;
+  const isReviewStage = props.stage >= REVIEW_STAGE && props.stageKind !== 'cancelled' && props.stageKind !== 'rescheduled';
   const isException = props.stageKind === 'cancelled' || props.stageKind === 'rescheduled';
+  const isCancelled = props.stageKind === 'cancelled';
+  const exceptionAccent = isCancelled ? CANCEL_ACCENT : RESCHEDULE_ACCENT;
+  const exceptionIcon = (isCancelled ? 'xmark.circle.fill' : 'calendar.badge.clock') as SFSymbol;
   const linkModifiers = props.deepLinkUrl?.trim()
     ? [widgetURL(props.deepLinkUrl.trim())]
     : [];
@@ -313,6 +318,16 @@ const BookingActivity = (props: BookingActivityProps, _env: LiveActivityEnvironm
   // Dynamic Island compact trailing — úzký obsah s pevnou šířkou (jako expo Eta).
   // Široké ActionPill by vytlačilo logo z compactLeading.
   const CompactIslandCta = () => {
+    if (isException) {
+      return (
+        <Image
+          systemName={exceptionIcon}
+          size={14}
+          color={exceptionAccent}
+          modifiers={[padding({ trailing: 4 })]}
+        />
+      );
+    }
     if (isReviewStage) {
       return (
         <Image
@@ -323,8 +338,6 @@ const BookingActivity = (props: BookingActivityProps, _env: LiveActivityEnvironm
         />
       );
     }
-    if (isException) return null;
-
     switch (ctaKind) {
       case 'countdown':
         if (usesStage0CountdownLabel) {
@@ -475,6 +488,25 @@ const BookingActivity = (props: BookingActivityProps, _env: LiveActivityEnvironm
     );
   };
 
+  const IslandExceptionText = ({
+    size = 12,
+    leading = 4,
+  }: {
+    size?: number;
+    leading?: number;
+  }) => (
+    <Text
+      modifiers={[
+        font({ weight: 'semibold', size }),
+        foregroundStyle('#FFFFFF'),
+        lineLimit(1),
+        minimumScaleFactor(0.75),
+        padding({ leading }),
+      ]}>
+      {props.status}
+    </Text>
+  );
+
   const reviewBanner = (
     <ZStack
       modifiers={[
@@ -498,6 +530,41 @@ const BookingActivity = (props: BookingActivityProps, _env: LiveActivityEnvironm
           {props.lockScreenTitle ?? props.status}
         </Text>
         <ReviewStars size={32} spacing={8} centered />
+      </VStack>
+    </ZStack>
+  );
+
+  const exceptionBanner = (
+    <ZStack
+      modifiers={[
+        containerBackground('#0F0F0F', 'widget'),
+        clipShape('containerRelativeShape'),
+        ...linkModifiers,
+      ]}>
+      <VStack
+        alignment="leading"
+        spacing={12}
+        modifiers={[frame({ maxWidth: Infinity, alignment: 'leading' }), padding({ all: 16 })]}>
+        <HStack spacing={8} modifiers={[frame({ maxWidth: Infinity }), padding({ vertical: 2 })]}>
+          <Text modifiers={[font({ weight: 'medium', size: 13 }), foregroundStyle('#FFFFFF')]}>
+            Real Barber
+          </Text>
+          <Spacer />
+          <IconFrame icon={exceptionIcon} color={exceptionAccent} iconSize={24} />
+        </HStack>
+        {props.subtitle ? (
+          <Text modifiers={[font({ size: 13 }), foregroundStyle('#A3A3A3'), lineLimit(2)]}>
+            {props.subtitle}
+          </Text>
+        ) : null}
+        <Text modifiers={[font({ weight: 'bold', size: 18 }), foregroundStyle('#FFFFFF'), lineLimit(2)]}>
+          {props.lockScreenTitle ?? props.status}
+        </Text>
+        {props.expandedSubtitle ? (
+          <Text modifiers={[font({ size: 13 }), foregroundStyle('#A3A3A3'), lineLimit(2)]}>
+            {props.expandedSubtitle}
+          </Text>
+        ) : null}
       </VStack>
     </ZStack>
   );
@@ -644,48 +711,51 @@ const BookingActivity = (props: BookingActivityProps, _env: LiveActivityEnvironm
   const useIslandExpandedBrandText = useIslandBrandText || props.stage === 3 || props.stage === 4;
 
   return {
-    banner: isReviewStage ? reviewBanner : standardBanner,
-    compactLeading:
-      isReviewStage ? (
-        <IslandReviewText size={12} leading={4} />
-      ) : props.stage === 4 ? (
-        <IslandDrinksText size={12} leading={4} />
-      ) : props.stage === 3 ? (
-        <IslandCatalogText size={12} leading={4} />
-      ) : useIslandBrandText ? (
-        <IslandBrandText size={12} leading={4} />
-      ) : (
-        <Logo uri={props.logoUri} size={16} modifiers={[padding({ leading: 4 })]} />
-      ),
-    compactTrailing: <CompactIslandCta />,
-    minimal:
-      isReviewStage ? (
-        <IslandReviewText size={12} leading={4} />
-      ) : props.stage === 4 ? (
-        <IslandDrinksText size={12} leading={4} />
-      ) : props.stage === 3 ? (
-        <IslandCatalogText size={12} leading={4} />
-      ) : useIslandBrandText ? (
-        <IslandBrandText size={12} leading={4} />
-      ) : (
-        <Logo uri={props.logoUri} size={16} />
-      ),
-    expandedLeading: isReviewStage ? null : useIslandExpandedBrandText ? (
-      <IslandBrandText size={14} leading={8} />
+    banner: isException ? exceptionBanner : isReviewStage ? reviewBanner : standardBanner,
+    compactLeading: isException ? (
+      <IslandExceptionText size={12} leading={4} />
+    ) : isReviewStage ? (
+      <IslandReviewText size={12} leading={4} />
+    ) : props.stage === 4 ? (
+      <IslandDrinksText size={12} leading={4} />
+    ) : props.stage === 3 ? (
+      <IslandCatalogText size={12} leading={4} />
+    ) : useIslandBrandText ? (
+      <IslandBrandText size={12} leading={4} />
     ) : (
-      <HStack spacing={6} modifiers={[padding({ leading: 8 })]}>
-        <Logo uri={props.logoUri} size={16} />
-        <Text
-          modifiers={[
-            font({ weight: 'semibold', size: 14 }),
-            foregroundStyle('#FFFFFF'),
-            lineLimit(1),
-          ]}>
-          Real Barber
-        </Text>
-      </HStack>
+      <Logo uri={props.logoUri} size={16} modifiers={[padding({ leading: 4 })]} />
     ),
-    expandedTrailing: isReviewStage ? null : (
+    compactTrailing: <CompactIslandCta />,
+    minimal: isException ? (
+      <IslandExceptionText size={12} leading={4} />
+    ) : isReviewStage ? (
+      <IslandReviewText size={12} leading={4} />
+    ) : props.stage === 4 ? (
+      <IslandDrinksText size={12} leading={4} />
+    ) : props.stage === 3 ? (
+      <IslandCatalogText size={12} leading={4} />
+    ) : useIslandBrandText ? (
+      <IslandBrandText size={12} leading={4} />
+    ) : (
+      <Logo uri={props.logoUri} size={16} />
+    ),
+    expandedLeading:
+      isException || isReviewStage ? null : useIslandExpandedBrandText ? (
+        <IslandBrandText size={14} leading={8} />
+      ) : (
+        <HStack spacing={6} modifiers={[padding({ leading: 8 })]}>
+          <Logo uri={props.logoUri} size={16} />
+          <Text
+            modifiers={[
+              font({ weight: 'semibold', size: 14 }),
+              foregroundStyle('#FFFFFF'),
+              lineLimit(1),
+            ]}>
+            Real Barber
+          </Text>
+        </HStack>
+      ),
+    expandedTrailing: isException || isReviewStage ? null : (
       <HStack modifiers={[padding({ trailing: 6 })]}>
         {props.stage === 4 ? (
           <IconFrame icon="cup.and.saucer.fill" color={DRINKS_ACCENT} iconSize={24} />
@@ -694,7 +764,26 @@ const BookingActivity = (props: BookingActivityProps, _env: LiveActivityEnvironm
         )}
       </HStack>
     ),
-    expandedBottom: isReviewStage ? (
+    expandedBottom: isException ? (
+      <VStack alignment="leading" spacing={8} modifiers={[padding({ top: 4, horizontal: 6 })]}>
+        {props.subtitle ? (
+          <Text modifiers={[font({ size: 12 }), foregroundStyle('#A3A3A3'), lineLimit(2)]}>{props.subtitle}</Text>
+        ) : null}
+        <Text modifiers={[font({ weight: 'semibold', size: 14 }), foregroundStyle('#FFFFFF'), lineLimit(2)]}>
+          {props.lockScreenTitle ?? props.status}
+        </Text>
+        {props.expandedSubtitle ? (
+          <Text modifiers={[font({ size: 12 }), foregroundStyle('#A3A3A3'), lineLimit(2)]}>
+            {props.expandedSubtitle}
+          </Text>
+        ) : null}
+        <HStack modifiers={[frame({ maxWidth: Infinity })]}>
+          <Spacer />
+          <IconFrame icon={exceptionIcon} color={exceptionAccent} iconSize={22} />
+          <Spacer />
+        </HStack>
+      </VStack>
+    ) : isReviewStage ? (
       <VStack alignment="leading" spacing={8} modifiers={[padding({ top: 4, horizontal: 6 })]}>
         {props.subtitle ? (
           <Text modifiers={[font({ size: 12 }), foregroundStyle('#A3A3A3'), lineLimit(2)]}>{props.subtitle}</Text>
