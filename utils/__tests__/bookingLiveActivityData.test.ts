@@ -146,6 +146,7 @@ describe('buildBookingActivityProps', () => {
 
     expect(props.stage).toBe(BOOKING_REVIEW_STAGE);
     expect(props.status).toBe('Ohodnoťte');
+    expect(props.lockScreenTitle).toBe('Ohodnoťte dnešní návštěvu');
     expect(props.deepLinkUrl).toContain('realbarber://screens/review?');
     expect(props.deepLinkUrl).toContain('entityType=reservation');
     expect(props.deepLinkUrl).toContain('entityId=res-2');

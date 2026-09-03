@@ -71,6 +71,8 @@ export type BookingActivityProps = {
   deepLinkUrl?: string;
   /** Krátký label vpravo nahoře na lock screen banneru (stage 5). */
   bannerLabel?: string;
+  /** Delší titulek lock screen banneru (stage 6). */
+  lockScreenTitle?: string;
 };
 
 export function formatBookingCountdownHm(
@@ -122,6 +124,10 @@ export function formatBookingStage5Subtitle(durationMinutes?: number): string {
 export function formatBookingStage5BannerLabel(employeeName?: string): string {
   const name = employeeName?.trim() || 'váš barber';
   return `Stará se o Vás · ${name}`;
+}
+
+export function formatBookingReviewLockScreenTitle(): string {
+  return 'Ohodnoťte dnešní návštěvu';
 }
 
 function getBookingActivityStageKind(booking: Booking): BookingActivityStageKind {
@@ -319,5 +325,7 @@ export function buildBookingActivityProps(
     countdownMinutes: countdown?.minutes,
     deepLinkUrl: buildBookingActivityDeepLinkForStage(booking, stage),
     bannerLabel: stage === 5 ? formatBookingStage5BannerLabel(employeeName) : undefined,
+    lockScreenTitle:
+      stage >= BOOKING_REVIEW_STAGE ? formatBookingReviewLockScreenTitle() : undefined,
   };
 }

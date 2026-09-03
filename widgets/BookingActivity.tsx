@@ -494,8 +494,8 @@ const BookingActivity = (props: BookingActivityProps, _env: LiveActivityEnvironm
             {props.subtitle}
           </Text>
         ) : null}
-        <Text modifiers={[font({ weight: 'bold', size: 18 }), foregroundStyle('#FFFFFF')]}>
-          {props.status}
+        <Text modifiers={[font({ weight: 'bold', size: 18 }), foregroundStyle('#FFFFFF'), lineLimit(2)]}>
+          {props.lockScreenTitle ?? props.status}
         </Text>
         <ReviewStars size={32} spacing={8} centered />
       </VStack>
@@ -620,6 +620,25 @@ const BookingActivity = (props: BookingActivityProps, _env: LiveActivityEnvironm
     </Text>
   );
 
+  const IslandReviewText = ({
+    size = 12,
+    leading = 4,
+  }: {
+    size?: number;
+    leading?: number;
+  }) => (
+    <Text
+      modifiers={[
+        font({ weight: 'semibold', size }),
+        foregroundStyle('#FFFFFF'),
+        lineLimit(1),
+        minimumScaleFactor(0.75),
+        padding({ leading }),
+      ]}>
+      RB · Ohodnoťte
+    </Text>
+  );
+
   const useIslandBrandText =
     props.stage === 0 || props.stage === 1 || props.stage === 2 || props.stage === 5;
   const useIslandExpandedBrandText = useIslandBrandText || props.stage === 3 || props.stage === 4;
@@ -627,7 +646,9 @@ const BookingActivity = (props: BookingActivityProps, _env: LiveActivityEnvironm
   return {
     banner: isReviewStage ? reviewBanner : standardBanner,
     compactLeading:
-      props.stage === 4 ? (
+      isReviewStage ? (
+        <IslandReviewText size={12} leading={4} />
+      ) : props.stage === 4 ? (
         <IslandDrinksText size={12} leading={4} />
       ) : props.stage === 3 ? (
         <IslandCatalogText size={12} leading={4} />
@@ -638,7 +659,9 @@ const BookingActivity = (props: BookingActivityProps, _env: LiveActivityEnvironm
       ),
     compactTrailing: <CompactIslandCta />,
     minimal:
-      props.stage === 4 ? (
+      isReviewStage ? (
+        <IslandReviewText size={12} leading={4} />
+      ) : props.stage === 4 ? (
         <IslandDrinksText size={12} leading={4} />
       ) : props.stage === 3 ? (
         <IslandCatalogText size={12} leading={4} />
@@ -647,7 +670,7 @@ const BookingActivity = (props: BookingActivityProps, _env: LiveActivityEnvironm
       ) : (
         <Logo uri={props.logoUri} size={16} />
       ),
-    expandedLeading: useIslandExpandedBrandText ? (
+    expandedLeading: isReviewStage ? null : useIslandExpandedBrandText ? (
       <IslandBrandText size={14} leading={8} />
     ) : (
       <HStack spacing={6} modifiers={[padding({ leading: 8 })]}>
@@ -662,11 +685,7 @@ const BookingActivity = (props: BookingActivityProps, _env: LiveActivityEnvironm
         </Text>
       </HStack>
     ),
-    expandedTrailing: isReviewStage ? (
-      <HStack modifiers={[padding({ trailing: 6 })]}>
-        <ReviewStars size={14} />
-      </HStack>
-    ) : (
+    expandedTrailing: isReviewStage ? null : (
       <HStack modifiers={[padding({ trailing: 6 })]}>
         {props.stage === 4 ? (
           <IconFrame icon="cup.and.saucer.fill" color={DRINKS_ACCENT} iconSize={24} />
