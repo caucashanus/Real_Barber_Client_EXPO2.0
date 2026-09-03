@@ -88,6 +88,18 @@ describe('buildBookingActivityProps', () => {
     );
   });
 
+  it('builds stage 2 with employee subtitle and countdown', () => {
+    const booking = makeBooking({ id: 'res-2-stage', date: '2026-06-16', slotStart: '10:00' });
+    const now = previewNowMsForStage(booking, 2);
+    const props = buildBookingActivityProps(booking, null, now);
+
+    expect(props.stage).toBe(2);
+    expect(props.status).toBe('Kdo se o vás dnes postará?');
+    expect(props.subtitle).toBe('Jan Novák se o vás dnes postará · klepněte pro detail.');
+    expect(props.ctaKind).toBe('countdown');
+    expect(props.deepLinkUrl).toBe('realbarber://screens/booking-detail?id=res-2-stage');
+  });
+
   it('builds stage 3 with inspirace deep link', () => {
     const booking = makeBooking({ id: 'res-insp', date: '2026-06-16', slotStart: '10:00' });
     const now = previewNowMsForStage(booking, 3);

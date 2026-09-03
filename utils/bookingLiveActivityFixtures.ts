@@ -37,7 +37,7 @@ export function createBookingLiveActivityPreviewBookingAt(
     updatedAt: new Date().toISOString(),
     employee: {
       id: 'preview-employee',
-      name: 'Jan Novák',
+      name: 'Josef',
       avatarUrl: null,
     },
     branch: {

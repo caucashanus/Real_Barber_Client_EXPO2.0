@@ -58,20 +58,19 @@ const BookingActivity = (props: BookingActivityProps, _env: LiveActivityEnvironm
       />
     ) : null;
 
-  const Avatar = ({ uri, size }: { uri?: string; size: number }) =>
-    uri ? (
-      <Image
-        uiImage={uri}
-        modifiers={[
-          resizable(),
-          frame({ width: size, height: size }),
-          clipShape('circle'),
-        ]}
-      />
-    ) : (
-      <Image systemName="person.crop.circle.fill" size={size} color="#737373" />
-    );
-
+  const titleRow = (
+    <Text
+      modifiers={[
+        font({ weight: 'bold', size: 18 }),
+        foregroundStyle('#FFFFFF'),
+        lineLimit(2),
+        minimumScaleFactor(0.85),
+        multilineTextAlignment('leading'),
+        frame({ maxWidth: Infinity, alignment: 'leading' }),
+      ]}>
+      {props.status}
+    </Text>
+  );
   // Stepped progress — 1:1 s expo/examples DeliveryActivity StepProgress.
   // Každý connector je ProgressView s timerInterval pro svůj slice [start, end].
   const StepProgress = ({
@@ -180,6 +179,8 @@ const BookingActivity = (props: BookingActivityProps, _env: LiveActivityEnvironm
     );
   };
 
+  const usesStage0CountdownLabel = props.stage === 0 || props.stage === 2;
+
   const Stage0MinutesLabel = ({
     size,
     compact = false,
@@ -281,7 +282,7 @@ const BookingActivity = (props: BookingActivityProps, _env: LiveActivityEnvironm
 
     switch (ctaKind) {
       case 'countdown':
-        if (props.stage === 0) {
+        if (usesStage0CountdownLabel) {
           return <Stage0MinutesLabel compact />;
         }
         return (
@@ -356,7 +357,7 @@ const BookingActivity = (props: BookingActivityProps, _env: LiveActivityEnvironm
           />
         );
       case 'countdown':
-        if (props.stage === 0) {
+        if (usesStage0CountdownLabel) {
           return <Stage0MinutesLabel size={size} />;
         }
         return <CountdownLabel size={size} color={ACCENT} width={size >= 14 ? 52 : 46} />;
@@ -404,36 +405,6 @@ const BookingActivity = (props: BookingActivityProps, _env: LiveActivityEnvironm
     );
   };
 
-  const titleRow =
-    props.stage === 2 && props.employeeAvatarUri ? (
-      <HStack spacing={8} modifiers={[frame({ maxWidth: Infinity, alignment: 'leading' })]}>
-        <Avatar uri={props.employeeAvatarUri} size={28} />
-        <Text
-          modifiers={[
-            font({ weight: 'bold', size: 18 }),
-            foregroundStyle('#FFFFFF'),
-            lineLimit(2),
-            minimumScaleFactor(0.85),
-            multilineTextAlignment('leading'),
-            frame({ maxWidth: Infinity, alignment: 'leading' }),
-          ]}>
-          {props.status}
-        </Text>
-      </HStack>
-    ) : (
-      <Text
-        modifiers={[
-          font({ weight: 'bold', size: 18 }),
-          foregroundStyle('#FFFFFF'),
-          lineLimit(2),
-          minimumScaleFactor(0.85),
-          multilineTextAlignment('leading'),
-          frame({ maxWidth: Infinity, alignment: 'leading' }),
-        ]}>
-        {props.status}
-      </Text>
-    );
-
   const reviewBanner = (
     <ZStack
       modifiers={[
@@ -461,6 +432,8 @@ const BookingActivity = (props: BookingActivityProps, _env: LiveActivityEnvironm
     </ZStack>
   );
 
+  const showBookingProgress = !isException && props.stage !== 2;
+
   const standardBanner = (
     <ZStack
       modifiers={[
@@ -476,7 +449,11 @@ const BookingActivity = (props: BookingActivityProps, _env: LiveActivityEnvironm
           <Logo uri={props.logoUri} size={40} />
           <Spacer />
           {!isReviewStage && !isException ? (
-            <CtaPill size={13} color={ctaPillColor} />
+            props.stage === 2 ? (
+              <Stage0MinutesLabel size={13} />
+            ) : (
+              <CtaPill size={13} color={ctaPillColor} />
+            )
           ) : null}
         </HStack>
         {titleRow}
@@ -485,7 +462,7 @@ const BookingActivity = (props: BookingActivityProps, _env: LiveActivityEnvironm
             {props.subtitle}
           </Text>
         ) : null}
-        {!isException ? <BookingProgress accent={bannerProgressAccent} /> : null}
+        {showBookingProgress ? <BookingProgress accent={bannerProgressAccent} /> : null}
       </VStack>
     </ZStack>
   );
@@ -508,7 +485,7 @@ const BookingActivity = (props: BookingActivityProps, _env: LiveActivityEnvironm
     </Text>
   );
 
-  const useIslandBrandText = props.stage === 0 || props.stage === 1;
+  const useIslandBrandText = props.stage === 0 || props.stage === 1 || props.stage === 2;
 
   return {
     banner: isReviewStage ? reviewBanner : standardBanner,
@@ -562,7 +539,7 @@ const BookingActivity = (props: BookingActivityProps, _env: LiveActivityEnvironm
         <Text modifiers={[font({ size: 13 }), foregroundStyle('#FFFFFFCC'), lineLimit(2)]}>
           {props.subtitle ?? props.status}
         </Text>
-        {!isException ? <BookingProgress accent={islandProgressAccent} /> : null}
+        {showBookingProgress ? <BookingProgress accent={islandProgressAccent} /> : null}
       </VStack>
     ),
   };

@@ -47,10 +47,8 @@ export const BOOKING_STAGE_CONFIG: readonly BookingActivityStageConfig[] = [
     progressPhase: 0,
   },
   {
-    titleTemplate: 'Dnes budete v péči {employeeName}',
-    title: 'Dnes budete v péči',
+    title: 'Kdo se o vás dnes postará?',
     ctaKind: 'countdown',
-    showEmployeeAvatar: true,
     progressPhase: 0,
   },
   {

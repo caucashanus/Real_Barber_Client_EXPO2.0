@@ -116,9 +116,9 @@ export default function BookingLiveActivityPreviewScreen() {
       </Text>
 
       <Text style={styles.warning}>
-        Stage 0 = „Počítáme s vámi ✂️“ + logo Real Barber. Pokud vidíte „Preparing“ a Expo logo, jde
-        o starou delivery aktivitu ze „Widgets example“ — ukončete ji (End LA / swipe na lock
-        screenu) a spusťte znovu odtud.
+        Stage 2 = „Kdo se o vás dnes postará?“ + subtitle s jménem barbera. Tap → detail
+        rezervace. Stage 0 = logo Real
+        Barber. Pokud vidíte starou delivery aktivitu, ukončete ji (End LA) a spusťte znovu.
       </Text>
 
       <Text style={styles.meta}>

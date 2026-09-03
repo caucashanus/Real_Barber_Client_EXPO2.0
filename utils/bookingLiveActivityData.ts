@@ -35,7 +35,7 @@ export {
 export const BOOKING_STAGE_LABELS = [
   'Počítáme s vámi',
   'Brzy začínáme',
-  'Dnes budete v péči',
+  'Kdo se o vás dnes postará?',
   'Již brzy začínáme',
   'Za chvíli se vám budeme věnovat',
   'Právě začínáme',
@@ -59,7 +59,6 @@ export type BookingActivityProps = {
   durationMinutes?: number;
   timeLabel?: string;
   logoUri?: string;
-  employeeAvatarUri?: string;
   existingReviewRating?: number;
   subtitle?: string;
   ctaLabel?: string;
@@ -94,6 +93,11 @@ function buildInspiraceDeepLink(): string {
 
 function buildBookingNavigateDeepLink(reservationId: string): string {
   return `realbarber://screens/booking-detail?id=${encodeURIComponent(reservationId)}&openNavigate=1`;
+}
+
+export function formatBookingStage2Subtitle(employeeName?: string): string {
+  const name = employeeName?.trim() || 'Váš barber';
+  return `${name} se o vás dnes postará · klepněte pro detail.`;
 }
 
 function getBookingActivityStageKind(booking: Booking): BookingActivityStageKind {
@@ -250,9 +254,11 @@ export function buildBookingActivityProps(
   const subtitleParts = [branchName, employeeName, timeLabel].filter(Boolean);
   const subtitle =
     stageKind === 'normal'
-      ? stage === 6 && durationMinutes
-        ? `cca ${durationMinutes} min · ${subtitleParts.join(' · ')}`
-        : subtitleParts.join(' · ')
+      ? stage === 2
+        ? formatBookingStage2Subtitle(employeeName)
+        : stage === 6 && durationMinutes
+          ? `cca ${durationMinutes} min · ${subtitleParts.join(' · ')}`
+          : subtitleParts.join(' · ')
       : stageKind === 'cancelled'
         ? 'Termín byl zrušen'
         : 'Otevřete detail rezervace';
@@ -277,7 +283,6 @@ export function buildBookingActivityProps(
     durationMinutes,
     timeLabel,
     logoUri: logoUri ?? undefined,
-    employeeAvatarUri: booking.employee?.avatarUrl?.trim() || undefined,
     existingReviewRating,
     subtitle,
     ctaLabel: stageConfig.ctaLabel,
