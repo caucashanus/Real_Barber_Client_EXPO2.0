@@ -7,18 +7,44 @@ vi.mock('@/utils/homeSpotlight', () => ({
     `entityType=reservation&entityId=${encodeURIComponent(booking.id)}&entityName=St%C5%99ih&entityDate=16.%206.&entityTime=10%3A00&entityBranch=Mod%C5%99any`,
 }));
 
+vi.mock('@/constants/branchContacts', () => ({
+  getBranchContactMeta: () => ({
+    shortLabel: 'Modřany',
+    address: 'Čs. exilu 40, Praha 12',
+    latitude: 50.004774,
+    longitude: 14.416534,
+  }),
+}));
+
+vi.mock('@/utils/branchNavigationUrls', () => ({
+  buildBranchGoogleMapsUrl: (
+    _name?: string | null,
+    _address?: string | null,
+    latitude?: number | null,
+    longitude?: number | null
+  ) =>
+    latitude != null && longitude != null
+      ? `https://www.google.com/maps/search/?api=1&query=${latitude},${longitude}`
+      : 'https://www.google.com/maps/search/?api=1&query=modrany',
+}));
+
 import {
+  BOOKING_LA_START_MS,
+  BOOKING_REVIEW_STAGE,
   BOOKING_STAGE_LABELS,
   buildBookingActivityDeepLinkForStage,
   buildBookingActivityProps,
   computeBookingActivityStage,
+  formatBookingCountdownHm,
+  previewNowMsForStage,
+  shouldTrackBookingLiveActivity,
 } from '@/utils/bookingLiveActivityData';
 
 function makeBooking(overrides: Partial<Booking> & Pick<Booking, 'id' | 'date' | 'slotStart'>): Booking {
   return {
     clientId: 'c1',
     employeeId: 'e1',
-    branchId: 'b1',
+    branchId: 'd15ee0b6-2e66-4edf-a4d1-5f87a89535a3',
     itemId: 'i1',
     slotEnd: '11:00',
     duration: 60,
@@ -34,56 +60,104 @@ function makeBooking(overrides: Partial<Booking> & Pick<Booking, 'id' | 'date' |
 }
 
 describe('buildBookingActivityProps', () => {
-  it('builds stage 0 props with booking-detail deep link', () => {
-    const now = new Date('2026-06-16T09:00:00').getTime();
-    const booking = makeBooking({ id: 'res-1', date: '2026-06-16', slotStart: '15:07' });
+  it('builds stage 0 props with T−90 soonEpochMs', () => {
+    const now = new Date('2026-06-16T08:30:00').getTime();
+    const booking = makeBooking({ id: 'res-1', date: '2026-06-16', slotStart: '10:00' });
     const props = buildBookingActivityProps(booking, null, now);
 
     expect(props.bookingId).toBe('res-1');
     expect(props.stage).toBe(0);
     expect(props.status).toBe(BOOKING_STAGE_LABELS[0]);
-    expect(props.timeLabel).toBe('15:15');
-    expect(props.soonEpochMs).toBe(props.appointmentEpochMs - 30 * 60 * 1000);
+    expect(props.soonEpochMs).toBe(props.appointmentEpochMs - BOOKING_LA_START_MS);
     expect(props.deepLinkUrl).toBe('realbarber://screens/booking-detail?id=res-1');
-    expect(props.branchName).toBe('Modřany');
-    expect(props.employeeName).toBe('Jan Novák');
+    expect(props.ctaKind).toBe('countdown');
+    expect(props.progressPhase).toBe(0);
+    expect(props.countdownHours).toBe(1);
+    expect(props.countdownMinutes).toBe(30);
   });
 
-  it('builds stage 3 review deep link with CS entityDate and raw entityTime', () => {
+  it('builds stage 1 with maps navigate deep link', () => {
+    const booking = makeBooking({ id: 'res-nav', date: '2026-06-16', slotStart: '10:00' });
+    const now = previewNowMsForStage(booking, 1);
+    const props = buildBookingActivityProps(booking, null, now);
+
+    expect(props.stage).toBe(1);
+    expect(props.ctaKind).toBe('navigate');
+    expect(props.deepLinkUrl).toContain('google.com/maps');
+  });
+
+  it('builds stage 3 with inspirace deep link', () => {
+    const booking = makeBooking({ id: 'res-insp', date: '2026-06-16', slotStart: '10:00' });
+    const now = previewNowMsForStage(booking, 3);
+    const props = buildBookingActivityProps(booking, null, now);
+
+    expect(props.stage).toBe(3);
+    expect(props.ctaKind).toBe('inspire');
+    expect(props.deepLinkUrl).toBe('realbarber://inspirace');
+  });
+
+  it('builds review stage with review deep link', () => {
     const now = new Date('2026-06-16T11:30:00').getTime();
     const booking = makeBooking({ id: 'res-2', date: '2026-06-16', slotStart: '10:00', slotEnd: '11:00' });
     const props = buildBookingActivityProps(booking, null, now);
 
-    expect(props.stage).toBe(3);
+    expect(props.stage).toBe(BOOKING_REVIEW_STAGE);
     expect(props.status).toBe('Ohodnoťte');
     expect(props.deepLinkUrl).toContain('realbarber://screens/review?');
     expect(props.deepLinkUrl).toContain('entityType=reservation');
     expect(props.deepLinkUrl).toContain('entityId=res-2');
-    expect(props.deepLinkUrl).toContain('entityTime=10%3A00');
-    expect(props.deepLinkUrl).toContain('entityDate=16.%206.');
-    expect(props.deepLinkUrl).toContain('entityBranch=Mod%C5%99any');
   });
 });
 
 describe('computeBookingActivityStage', () => {
-  it('maps timeline boundaries to stages', () => {
+  it('maps timeline boundaries to stages 0–7', () => {
     const booking = makeBooking({ id: 'x', date: '2026-06-16', slotStart: '10:00', slotEnd: '11:00' });
-    const start = new Date('2026-06-16T09:00:00').getTime();
-    const soon = new Date('2026-06-16T09:30:00').getTime();
-    const during = new Date('2026-06-16T10:30:00').getTime();
-    const review = new Date('2026-06-16T11:30:00').getTime();
 
-    expect(computeBookingActivityStage(booking, start)).toBe(0);
-    expect(computeBookingActivityStage(booking, soon)).toBe(1);
-    expect(computeBookingActivityStage(booking, during)).toBe(2);
-    expect(computeBookingActivityStage(booking, review)).toBe(3);
+    expect(computeBookingActivityStage(booking, new Date('2026-06-16T08:30:00').getTime())).toBe(0);
+    expect(computeBookingActivityStage(booking, new Date('2026-06-16T09:00:00').getTime())).toBe(1);
+    expect(computeBookingActivityStage(booking, new Date('2026-06-16T09:40:00').getTime())).toBe(2);
+    expect(computeBookingActivityStage(booking, new Date('2026-06-16T09:52:00').getTime())).toBe(3);
+    expect(computeBookingActivityStage(booking, new Date('2026-06-16T09:57:00').getTime())).toBe(4);
+    expect(computeBookingActivityStage(booking, new Date('2026-06-16T10:01:00').getTime())).toBe(5);
+    expect(computeBookingActivityStage(booking, new Date('2026-06-16T10:30:00').getTime())).toBe(6);
+    expect(computeBookingActivityStage(booking, new Date('2026-06-16T11:30:00').getTime())).toBe(7);
+  });
+});
+
+describe('shouldTrackBookingLiveActivity', () => {
+  it('does not track before T−90', () => {
+    const booking = makeBooking({ id: 'early', date: '2026-06-16', slotStart: '10:00' });
+    const now = new Date('2026-06-16T08:00:00').getTime();
+    expect(shouldTrackBookingLiveActivity(booking, now)).toBe(false);
+  });
+
+  it('tracks from T−90 until review window ends', () => {
+    const booking = makeBooking({ id: 'ok', date: '2026-06-16', slotStart: '10:00', slotEnd: '11:00' });
+    expect(shouldTrackBookingLiveActivity(booking, new Date('2026-06-16T08:30:00').getTime())).toBe(true);
+    expect(shouldTrackBookingLiveActivity(booking, new Date('2026-06-16T11:30:00').getTime())).toBe(true);
+  });
+});
+
+describe('formatBookingCountdownHm', () => {
+  it('formats remaining time without seconds', () => {
+    const appointment = new Date('2026-06-16T10:00:00').getTime();
+    expect(formatBookingCountdownHm(appointment, new Date('2026-06-16T08:30:00').getTime())).toEqual({
+      hours: 1,
+      minutes: 30,
+    });
+    expect(formatBookingCountdownHm(appointment, new Date('2026-06-16T09:50:00').getTime())).toEqual({
+      hours: 0,
+      minutes: 10,
+    });
   });
 });
 
 describe('buildBookingActivityDeepLinkForStage', () => {
-  it('switches deep link at stage 3', () => {
+  it('switches deep link per stage', () => {
     const booking = makeBooking({ id: 'res-3', date: '2026-06-16', slotStart: '10:00' });
-    expect(buildBookingActivityDeepLinkForStage(booking, 2)).toContain('booking-detail');
-    expect(buildBookingActivityDeepLinkForStage(booking, 3)).toContain('/screens/review');
+    expect(buildBookingActivityDeepLinkForStage(booking, 0)).toContain('booking-detail');
+    expect(buildBookingActivityDeepLinkForStage(booking, 1)).toContain('google.com/maps');
+    expect(buildBookingActivityDeepLinkForStage(booking, 3)).toBe('realbarber://inspirace');
+    expect(buildBookingActivityDeepLinkForStage(booking, BOOKING_REVIEW_STAGE)).toContain('/screens/review');
   });
 });

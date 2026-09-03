@@ -126,7 +126,7 @@
     },
     "android": {
       "package": "com.realbarber.client",
-      "versionCode": 72,
+      "versionCode": 73,
       "playStoreUrl": "https://play.google.com/store/apps/details?id=com.realbarber.client",
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",

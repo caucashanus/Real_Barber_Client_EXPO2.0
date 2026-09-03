@@ -26,22 +26,26 @@ import type { BookingActivityProps } from '@/utils/bookingLiveActivityData';
 const BookingActivity = (props: BookingActivityProps, _env: LiveActivityEnvironment) => {
   'widget';
 
-  const TOTAL_STAGES = 4;
-  const REVIEW_STAGE = TOTAL_STAGES - 1;
+  const REVIEW_STAGE = 7;
   const ACCENT = '#fbbf24';
-  const IN_PROGRESS = '#34d399';
+  const NAVIGATE_ACCENT = '#60A5FA';
   const STAR_FILLED = '#fbbf24';
   const STAR_EMPTY = '#525252';
   const DIM = '#FFFFFF40';
-  const STEP_ICONS = ['calendar.badge.clock', 'clock.fill', 'chair.lounge.fill', 'star.fill'] as const;
+
   const isReviewStage = props.stage >= REVIEW_STAGE;
+  const isException = props.stageKind === 'cancelled' || props.stageKind === 'rescheduled';
   const linkModifiers = props.deepLinkUrl?.trim()
     ? [widgetURL(props.deepLinkUrl.trim())]
     : [];
 
-  const nowDate = new Date(props.nowEpochMs);
+  const ctaKind = props.ctaKind ?? 'none';
+
+  // Pevné epoch ms z props — widget si z nich skládá Date (jako expo delivery example).
+  const windowStartDate = new Date(props.soonEpochMs);
   const appointmentDate = new Date(props.appointmentEpochMs);
 
+  // Banner — stejný poměr stran jako expo DeliveryActivity.
   const Logo = ({ uri, size, modifiers }: { uri?: string; size?: number; modifiers?: ModifierConfig[] }) =>
     uri ? (
       <Image
@@ -54,18 +58,47 @@ const BookingActivity = (props: BookingActivityProps, _env: LiveActivityEnvironm
       />
     ) : null;
 
-  const StepProgress = ({ stage, accent = ACCENT }: { stage: number; accent?: string }) => {
-    const segMs = (props.endEpochMs - props.soonEpochMs) / (TOTAL_STAGES - 1);
-    const cells = STEP_ICONS.flatMap((icon, i) => {
+  const Avatar = ({ uri, size }: { uri?: string; size: number }) =>
+    uri ? (
+      <Image
+        uiImage={uri}
+        modifiers={[
+          resizable(),
+          frame({ width: size, height: size }),
+          clipShape('circle'),
+        ]}
+      />
+    ) : (
+      <Image systemName="person.crop.circle.fill" size={size} color="#737373" />
+    );
+
+  // Stepped progress — 1:1 s expo/examples DeliveryActivity StepProgress.
+  // Každý connector je ProgressView s timerInterval pro svůj slice [start, end].
+  const StepProgress = ({
+    stepIcons,
+    startEpochMs,
+    endEpochMs,
+    stage,
+    accent = ACCENT,
+  }: {
+    stepIcons: readonly SFSymbol[];
+    startEpochMs: number;
+    endEpochMs: number;
+    stage: number;
+    accent?: string;
+  }) => {
+    const totalStages = stepIcons.length;
+    const segMs = (endEpochMs - startEpochMs) / (totalStages - 1);
+    const cells = stepIcons.flatMap((icon, i) => {
       const step = <Image key={`s${i}`} systemName={icon} size={16} color="#FFFFFF" />;
-      if (i === STEP_ICONS.length - 1) return [step];
+      if (i === stepIcons.length - 1) return [step];
       const connector = (
         <ZStack key={`l${i}`} modifiers={[frame({ maxWidth: Infinity })]}>
           <Capsule modifiers={[foregroundStyle(DIM), frame({ height: 4, maxWidth: Infinity })]} />
           <ProgressView
             timerInterval={{
-              lower: new Date(props.soonEpochMs + i * segMs),
-              upper: new Date(props.soonEpochMs + (i + 1) * segMs),
+              lower: new Date(startEpochMs + i * segMs),
+              upper: new Date(startEpochMs + (i + 1) * segMs),
             }}
             countsDown={false}
             modifiers={[
@@ -79,10 +112,37 @@ const BookingActivity = (props: BookingActivityProps, _env: LiveActivityEnvironm
       );
       return [step, connector];
     });
+
     return (
       <HStack spacing={8} modifiers={[frame({ maxWidth: Infinity })]}>
         {cells}
       </HStack>
+    );
+  };
+
+  // Stage 0–4: 2 ikony (kalendář → hodiny/termín), progress T−90 → termín.
+  // Stage 5–6: 2 ikony (nůžky → křeslo), progress termín → konec slotu.
+  const BookingProgress = ({ accent = ACCENT }: { accent?: string }) => {
+    if (props.stage <= 4) {
+      return (
+        <StepProgress
+          stepIcons={['calendar.badge.clock', 'clock.fill']}
+          startEpochMs={props.soonEpochMs}
+          endEpochMs={props.appointmentEpochMs}
+          stage={0}
+          accent={accent}
+        />
+      );
+    }
+
+    return (
+      <StepProgress
+        stepIcons={['scissors', 'chair.lounge.fill']}
+        startEpochMs={props.appointmentEpochMs}
+        endEpochMs={props.endEpochMs}
+        stage={props.stage >= 7 ? 1 : 0}
+        accent={accent}
+      />
     );
   };
 
@@ -120,74 +180,180 @@ const BookingActivity = (props: BookingActivityProps, _env: LiveActivityEnvironm
     );
   };
 
-  const NavigatePill = ({ size, color }: { size: number; color: string }) => (
-    <ActionPill size={size} color={color} icon="location.north.fill" label="Navigovat" />
-  );
+  const Stage0MinutesLabel = ({
+    size,
+    compact = false,
+  }: {
+    size: number;
+    compact?: boolean;
+  }) => {
+    const remainingMin = Math.max(
+      0,
+      Math.ceil((props.appointmentEpochMs - props.nowEpochMs) / 60_000)
+    );
+    const labelSize = compact ? 13 : 20;
 
-  const SharePill = ({ size, color }: { size: number; color: string }) => (
-    <ActionPill
-      size={size}
-      color={color}
-      icon="square.and.arrow.up"
-      label="Sdílet rezervaci"
-    />
-  );
+    return (
+      <Text
+        modifiers={[
+          font({ weight: compact ? 'medium' : 'semibold', size: labelSize }),
+          monospacedDigit(),
+          foregroundStyle(ACCENT),
+          lineLimit(1),
+          ...(compact ? [frame({ width: 68, alignment: 'trailing' }), padding({ trailing: 4 })] : []),
+        ]}>
+        {'za ' + remainingMin + ' min'}
+      </Text>
+    );
+  };
 
-  const CountdownLabel = ({ size, color }: { size: number; color: string }) => {
+  const CountdownLabel = ({
+    size,
+    color,
+    width,
+  }: {
+    size: number;
+    color: string;
+    width: number;
+  }) => {
     const labelSize = size >= 14 ? 12 : 11;
-    const textModifiers = [
-      font({ weight: 'semibold', size: labelSize }),
-      foregroundStyle(color),
-      lineLimit(1),
-      minimumScaleFactor(0.75),
-    ];
 
     return (
       <HStack spacing={3}>
-        <Text modifiers={textModifiers}>Za</Text>
         <Text
-          timerInterval={{ lower: nowDate, upper: appointmentDate }}
+          modifiers={[
+            font({ weight: 'semibold', size: labelSize }),
+            foregroundStyle(color),
+            lineLimit(1),
+          ]}>
+          Za
+        </Text>
+        <Text
+          timerInterval={{ lower: windowStartDate, upper: appointmentDate }}
           countsDown
-          modifiers={[...textModifiers, monospacedDigit()]}
+          modifiers={[
+            font({ weight: 'semibold', size: labelSize }),
+            monospacedDigit(),
+            foregroundStyle(color),
+            frame({ width, alignment: 'trailing' }),
+          ]}
         />
       </HStack>
     );
   };
 
-  const Eta = ({
-    stage,
-    size,
-    color,
-    width,
-    deliveredIcon,
-  }: {
-    stage: number;
-    size: number;
-    color: string;
-    width: number;
-    deliveredIcon?: SFSymbol;
-  }) =>
-    stage >= TOTAL_STAGES - 1 ? null : stage === 2 ? (
-      <SharePill size={size} color={color} />
-    ) : stage === 0 ? (
-      <NavigatePill size={size} color={color} />
-    ) : (
-      <CountdownLabel size={size} color={ACCENT} />
-    );
-
-  const statusLine = (p: BookingActivityProps) => {
-    const branch = p.branchName?.trim() ?? '';
-    const employee = p.employeeName?.trim() ?? '';
-    const time = p.timeLabel?.trim() ?? '';
-    const detail = [branch, employee].filter(Boolean).join(' · ');
+  const DurationLabel = ({ size, color }: { size: number; color: string }) => {
+    const labelSize = size >= 14 ? 12 : 11;
+    const minutes = props.durationMinutes ?? 60;
     return (
-      [
-        'Rezervace je potvrzená',
-        time ? `Za chvíli termín ${time}` : 'Brzy termín',
-        detail ? `Právě teď · ${detail}` : 'Právě teď',
-        'Návštěva dokončena',
-      ][p.stage] ?? p.status
+      <Text
+        modifiers={[
+          font({ weight: 'semibold', size: labelSize }),
+          foregroundStyle(color),
+          lineLimit(1),
+        ]}>
+        cca {minutes} min
+      </Text>
     );
+  };
+
+  const ctaPillColor = ctaKind === 'navigate' ? NAVIGATE_ACCENT : ACCENT;
+
+  // Dynamic Island compact trailing — úzký obsah s pevnou šířkou (jako expo Eta).
+  // Široké ActionPill by vytlačilo logo z compactLeading.
+  const CompactIslandCta = () => {
+    if (isReviewStage) {
+      return (
+        <Image
+          systemName="star.fill"
+          size={14}
+          color={STAR_FILLED}
+          modifiers={[padding({ trailing: 4 })]}
+        />
+      );
+    }
+    if (isException) return null;
+
+    switch (ctaKind) {
+      case 'countdown':
+        if (props.stage === 0) {
+          return <Stage0MinutesLabel compact />;
+        }
+        return (
+          <Text
+            timerInterval={{ lower: windowStartDate, upper: appointmentDate }}
+            countsDown
+            modifiers={[
+              font({ weight: 'medium', size: 13 }),
+              monospacedDigit(),
+              foregroundStyle(ACCENT),
+              frame({ width: 46, alignment: 'trailing' }),
+              padding({ trailing: 4 }),
+            ]}
+          />
+        );
+      case 'navigate':
+        return (
+          <Image
+            systemName="location.north.fill"
+            size={14}
+            color={NAVIGATE_ACCENT}
+            modifiers={[padding({ trailing: 4 })]}
+          />
+        );
+      case 'inspire':
+        return (
+          <Image systemName="sparkles" size={14} color="#FFFFFF" modifiers={[padding({ trailing: 4 })]} />
+        );
+      case 'duration':
+        return (
+          <Text
+            modifiers={[
+              font({ weight: 'medium', size: 13 }),
+              foregroundStyle(ACCENT),
+              lineLimit(1),
+              padding({ trailing: 4 }),
+            ]}>
+            cca {props.durationMinutes ?? 60}m
+          </Text>
+        );
+      default:
+        return null;
+    }
+  };
+
+  const CtaPill = ({ size, color }: { size: number; color: string }) => {
+    if (isException || isReviewStage) return null;
+
+    switch (ctaKind) {
+      case 'navigate':
+        return (
+          <ActionPill
+            size={size}
+            color={color}
+            icon="location.north.fill"
+            label={props.ctaLabel ?? 'Navigovat'}
+          />
+        );
+      case 'inspire':
+        return (
+          <ActionPill
+            size={size}
+            color={color}
+            icon="sparkles"
+            label={props.ctaLabel ?? 'Inspirace'}
+          />
+        );
+      case 'countdown':
+        if (props.stage === 0) {
+          return <Stage0MinutesLabel size={size} />;
+        }
+        return <CountdownLabel size={size} color={ACCENT} width={size >= 14 ? 52 : 46} />;
+      case 'duration':
+        return <DurationLabel size={size} color={ACCENT} />;
+      default:
+        return null;
+    }
   };
 
   const ReviewStars = ({
@@ -227,7 +393,35 @@ const BookingActivity = (props: BookingActivityProps, _env: LiveActivityEnvironm
     );
   };
 
-  const subtitle = [props.branchName, props.employeeName, props.timeLabel].filter(Boolean).join(' · ');
+  const titleRow =
+    props.stage === 2 && props.employeeAvatarUri ? (
+      <HStack spacing={8} modifiers={[frame({ maxWidth: Infinity, alignment: 'leading' })]}>
+        <Avatar uri={props.employeeAvatarUri} size={28} />
+        <Text
+          modifiers={[
+            font({ weight: 'bold', size: 18 }),
+            foregroundStyle('#FFFFFF'),
+            lineLimit(2),
+            minimumScaleFactor(0.85),
+            multilineTextAlignment('leading'),
+            frame({ maxWidth: Infinity, alignment: 'leading' }),
+          ]}>
+          {props.status}
+        </Text>
+      </HStack>
+    ) : (
+      <Text
+        modifiers={[
+          font({ weight: 'bold', size: 18 }),
+          foregroundStyle('#FFFFFF'),
+          lineLimit(2),
+          minimumScaleFactor(0.85),
+          multilineTextAlignment('leading'),
+          frame({ maxWidth: Infinity, alignment: 'leading' }),
+        ]}>
+        {props.status}
+      </Text>
+    );
 
   const reviewBanner = (
     <ZStack
@@ -243,9 +437,9 @@ const BookingActivity = (props: BookingActivityProps, _env: LiveActivityEnvironm
         <Text modifiers={[font({ weight: 'medium', size: 13 }), foregroundStyle('#FFFFFF')]}>
           Real Barber
         </Text>
-        {subtitle ? (
-          <Text modifiers={[font({ size: 13 }), foregroundStyle('#A3A3A3'), lineLimit(1)]}>
-            {subtitle}
+        {props.subtitle ? (
+          <Text modifiers={[font({ size: 13 }), foregroundStyle('#A3A3A3'), lineLimit(2)]}>
+            {props.subtitle}
           </Text>
         ) : null}
         <Text modifiers={[font({ weight: 'bold', size: 18 }), foregroundStyle('#FFFFFF')]}>
@@ -267,73 +461,86 @@ const BookingActivity = (props: BookingActivityProps, _env: LiveActivityEnvironm
         alignment="leading"
         spacing={12}
         modifiers={[frame({ maxWidth: Infinity, alignment: 'leading' }), padding({ all: 16 })]}>
-        <HStack spacing={8}>
-          <Text modifiers={[font({ weight: 'medium', size: 13 }), foregroundStyle('#FFFFFF')]}>
-            Real Barber
-          </Text>
+        <HStack spacing={8} modifiers={[frame({ maxWidth: Infinity }), padding({ vertical: 2 })]}>
+          <Logo uri={props.logoUri} size={40} />
           <Spacer />
-          {props.stage < REVIEW_STAGE ? (
-            <Eta
-              stage={props.stage}
-              size={13}
-              color="#FFFFFFCC"
-              width={48}
-              deliveredIcon="checkmark.circle.fill"
-            />
+          {!isReviewStage && !isException ? (
+            <CtaPill size={13} color={ctaPillColor} />
           ) : null}
         </HStack>
-        <Text modifiers={[font({ weight: 'bold', size: 18 }), foregroundStyle('#FFFFFF')]}>
-          {props.status}
-        </Text>
-        {subtitle ? (
-          <Text modifiers={[font({ size: 13 }), foregroundStyle('#A3A3A3'), lineLimit(1)]}>
-            {subtitle}
+        {titleRow}
+        {props.subtitle ? (
+          <Text modifiers={[font({ size: 13 }), foregroundStyle('#A3A3A3'), lineLimit(2)]}>
+            {props.subtitle}
           </Text>
         ) : null}
-        <StepProgress stage={props.stage} accent={props.stage >= 2 ? IN_PROGRESS : ACCENT} />
+        {!isException ? <BookingProgress accent="#FFFFFF" /> : null}
       </VStack>
     </ZStack>
   );
 
+  const IslandBrandText = ({
+    size = 14,
+    leading = 8,
+  }: {
+    size?: number;
+    leading?: number;
+  }) => (
+    <Text
+      modifiers={[
+        font({ weight: 'semibold', size }),
+        foregroundStyle('#FFFFFF'),
+        lineLimit(1),
+        padding({ leading }),
+      ]}>
+      Real Barber
+    </Text>
+  );
+
   return {
     banner: isReviewStage ? reviewBanner : standardBanner,
-    compactLeading: <Logo uri={props.logoUri} size={14} modifiers={[padding({ leading: 4 })]} />,
-    compactTrailing: isReviewStage ? (
-      <Image systemName="star.fill" size={14} color={STAR_FILLED} modifiers={[padding({ trailing: 4 })]} />
-    ) : (
-      <Eta
-        stage={props.stage}
-        size={13}
-        color="#FFFFFF"
-        width={46}
-        deliveredIcon="checkmark.circle.fill"
-      />
-    ),
-    minimal: <Logo uri={props.logoUri} size={16} />,
-    expandedLeading: (
-      <Text
-        modifiers={[
-          font({ weight: 'semibold', size: 14 }),
-          foregroundStyle('#FFFFFF'),
-          lineLimit(1),
-          padding({ leading: 8 }),
-        ]}>
-        Real Barber
-      </Text>
-    ),
+    compactLeading:
+      props.stage === 0 ? (
+        <IslandBrandText size={12} leading={4} />
+      ) : (
+        <Logo uri={props.logoUri} size={16} modifiers={[padding({ leading: 4 })]} />
+      ),
+    compactTrailing: <CompactIslandCta />,
+    minimal:
+      props.stage === 0 ? (
+        <IslandBrandText size={12} leading={4} />
+      ) : (
+        <Logo uri={props.logoUri} size={16} />
+      ),
+    expandedLeading:
+      props.stage === 0 ? (
+        <IslandBrandText size={14} leading={8} />
+      ) : (
+        <HStack spacing={6} modifiers={[padding({ leading: 8 })]}>
+          <Logo uri={props.logoUri} size={16} />
+          <Text
+            modifiers={[
+              font({ weight: 'semibold', size: 14 }),
+              foregroundStyle('#FFFFFF'),
+              lineLimit(1),
+            ]}>
+            Real Barber
+          </Text>
+        </HStack>
+      ),
     expandedTrailing: isReviewStage ? (
       <HStack modifiers={[padding({ trailing: 6 })]}>
         <ReviewStars size={14} />
       </HStack>
     ) : (
       <HStack modifiers={[padding({ trailing: 6 })]}>
-        <Eta stage={props.stage} size={14} color={ACCENT} width={52} deliveredIcon="checkmark.circle.fill" />
+        <CtaPill size={14} color={ctaPillColor} />
       </HStack>
     ),
     expandedBottom: isReviewStage ? (
       <VStack alignment="leading" spacing={8} modifiers={[padding({ top: 4, horizontal: 6 })]}>
-        {subtitle ? (
-          <Text modifiers={[font({ size: 12 }), foregroundStyle('#A3A3A3'), lineLimit(1)]}>{subtitle}</Text>
+        {props.subtitle ? (
+          <Text modifiers={[font({ size: 12 }), foregroundStyle('#A3A3A3'), lineLimit(2)]}>{props.subtitle}</Text>
         ) : null}
         <Text modifiers={[font({ weight: 'semibold', size: 14 }), foregroundStyle('#FFFFFF')]}>
           {props.status}
@@ -342,8 +549,10 @@ const BookingActivity = (props: BookingActivityProps, _env: LiveActivityEnvironm
       </VStack>
     ) : (
       <VStack alignment="leading" spacing={10} modifiers={[padding({ top: 4, horizontal: 6 })]}>
-        <Text modifiers={[font({ size: 13 }), foregroundStyle('#FFFFFFCC')]}>{statusLine(props)}</Text>
-        <StepProgress stage={props.stage} />
+        <Text modifiers={[font({ size: 13 }), foregroundStyle('#FFFFFFCC'), lineLimit(2)]}>
+          {props.subtitle ?? props.status}
+        </Text>
+        {!isException ? <BookingProgress /> : null}
       </VStack>
     ),
   };

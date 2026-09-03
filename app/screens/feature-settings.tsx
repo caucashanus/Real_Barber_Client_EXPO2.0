@@ -105,7 +105,15 @@ export default function FeatureSettingsScreen() {
         </View>
 
         {__DEV__ ? (
-          <View className="mt-8 px-4">
+          <View className="mt-8 gap-3 px-4">
+            <Pressable
+              className="rounded-2xl bg-light-surface p-4 dark:bg-dark-secondary"
+              onPress={() => router.push('/screens/booking-live-activity-preview')}>
+              <ThemedText className="font-semibold">Booking Live Activity preview</ThemedText>
+              <ThemedText className="mt-1 text-sm text-light-subtext dark:text-dark-subtext">
+                8 stage lifecycle (T−90) — ruční přepínání stavů na Lock Screen / Dynamic Island.
+              </ThemedText>
+            </Pressable>
             <Pressable
               className="rounded-2xl bg-light-surface p-4 dark:bg-dark-secondary"
               onPress={() => router.push('/screens/widgets-example')}>

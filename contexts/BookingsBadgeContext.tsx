@@ -15,6 +15,7 @@ import { isBookingUpcoming } from '@/utils/bookingHelpers';
 import { shouldStaleRefresh } from '@/utils/staleRefresh';
 import { syncBookingLiveActivityFromBookings } from '@/utils/bookingLiveActivitySync';
 import { syncBookingWidgetFromBookings } from '@/utils/widgetBookingSync';
+import { ensureLiveActivityLogoUri, ensureWidgetLogoUri } from '@/utils/widgetSharedAssets';
 
 const BOOKINGS_STALE_MS = 60_000;
 
@@ -79,6 +80,12 @@ export function BookingsBadgeProvider({ children }: { children: React.ReactNode 
   const refreshIfStale = useCallback(() => {
     void refresh();
   }, [refresh]);
+
+  useEffect(() => {
+    if (Platform.OS !== 'ios') return;
+    void ensureWidgetLogoUri();
+    void ensureLiveActivityLogoUri();
+  }, []);
 
   useEffect(() => {
     void refresh({ force: true });
