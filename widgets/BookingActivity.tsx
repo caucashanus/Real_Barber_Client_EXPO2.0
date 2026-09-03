@@ -709,6 +709,46 @@ const BookingActivity = (props: BookingActivityProps, _env: LiveActivityEnvironm
   const useIslandBrandText =
     props.stage === 0 || props.stage === 1 || props.stage === 2 || props.stage === 5;
   const useIslandExpandedBrandText = useIslandBrandText || props.stage === 3 || props.stage === 4;
+  const expandedIslandInset = 8;
+
+  const ExpandedIslandBrandHeader = () => (
+    <HStack spacing={8} modifiers={[frame({ maxWidth: Infinity })]}>
+      <Text
+        modifiers={[
+          font({ weight: 'semibold', size: 14 }),
+          foregroundStyle('#FFFFFF'),
+          lineLimit(1),
+        ]}>
+        Real Barber
+      </Text>
+      <Spacer />
+      {props.stage === 4 ? (
+        <IconFrame icon="cup.and.saucer.fill" color={DRINKS_ACCENT} iconSize={24} />
+      ) : props.stage === 5 ? (
+        <LiveDot size={8} />
+      ) : (
+        <CtaPill size={14} color={ctaPillColor} />
+      )}
+    </HStack>
+  );
+
+  const expandedBrandBottom = (
+    <VStack
+      alignment="leading"
+      spacing={10}
+      modifiers={[padding({ top: 4, horizontal: expandedIslandInset })]}>
+      <ExpandedIslandBrandHeader />
+      {props.stage === 5 ? (
+        <Text modifiers={[font({ weight: 'semibold', size: 14 }), foregroundStyle('#FFFFFF'), lineLimit(1)]}>
+          {props.status}
+        </Text>
+      ) : null}
+      <Text modifiers={[font({ size: 13 }), foregroundStyle('#FFFFFFCC'), lineLimit(2)]}>
+        {props.expandedSubtitle ?? props.subtitle ?? props.status}
+      </Text>
+      {showBookingProgress ? <BookingProgress accent={islandProgressAccent} /> : null}
+    </VStack>
+  );
 
   return {
     banner: isException ? exceptionBanner : isReviewStage ? reviewBanner : standardBanner,
@@ -740,10 +780,8 @@ const BookingActivity = (props: BookingActivityProps, _env: LiveActivityEnvironm
       <Logo uri={props.logoUri} size={16} />
     ),
     expandedLeading:
-      isException || isReviewStage ? null : useIslandExpandedBrandText ? (
-        <IslandBrandText size={14} leading={8} />
-      ) : (
-        <HStack spacing={6} modifiers={[padding({ leading: 8 })]}>
+      isException || isReviewStage || useIslandExpandedBrandText ? null : (
+        <HStack spacing={6} modifiers={[padding({ leading: expandedIslandInset })]}>
           <Logo uri={props.logoUri} size={16} />
           <Text
             modifiers={[
@@ -755,17 +793,13 @@ const BookingActivity = (props: BookingActivityProps, _env: LiveActivityEnvironm
           </Text>
         </HStack>
       ),
-    expandedTrailing: isException || isReviewStage ? null : (
+    expandedTrailing: isException || isReviewStage || useIslandExpandedBrandText ? null : (
       <HStack modifiers={[padding({ trailing: 6 })]}>
-        {props.stage === 4 ? (
-          <IconFrame icon="cup.and.saucer.fill" color={DRINKS_ACCENT} iconSize={24} />
-        ) : (
-          <CtaPill size={14} color={ctaPillColor} />
-        )}
+        <CtaPill size={14} color={ctaPillColor} />
       </HStack>
     ),
     expandedBottom: isException ? (
-      <VStack alignment="leading" spacing={8} modifiers={[padding({ top: 4, horizontal: 6 })]}>
+      <VStack alignment="leading" spacing={8} modifiers={[padding({ top: 4, horizontal: expandedIslandInset })]}>
         {props.subtitle ? (
           <Text modifiers={[font({ size: 12 }), foregroundStyle('#A3A3A3'), lineLimit(2)]}>{props.subtitle}</Text>
         ) : null}
@@ -784,7 +818,7 @@ const BookingActivity = (props: BookingActivityProps, _env: LiveActivityEnvironm
         </HStack>
       </VStack>
     ) : isReviewStage ? (
-      <VStack alignment="leading" spacing={8} modifiers={[padding({ top: 4, horizontal: 6 })]}>
+      <VStack alignment="leading" spacing={8} modifiers={[padding({ top: 4, horizontal: expandedIslandInset })]}>
         {props.subtitle ? (
           <Text modifiers={[font({ size: 12 }), foregroundStyle('#A3A3A3'), lineLimit(2)]}>{props.subtitle}</Text>
         ) : null}
@@ -793,8 +827,10 @@ const BookingActivity = (props: BookingActivityProps, _env: LiveActivityEnvironm
         </Text>
         <ReviewStars size={22} spacing={7} centered />
       </VStack>
+    ) : useIslandExpandedBrandText ? (
+      expandedBrandBottom
     ) : (
-      <VStack alignment="leading" spacing={10} modifiers={[padding({ top: 4, horizontal: 6 })]}>
+      <VStack alignment="leading" spacing={10} modifiers={[padding({ top: 4, horizontal: expandedIslandInset })]}>
         {props.stage === 5 ? (
           <HStack spacing={6}>
             <Text modifiers={[font({ weight: 'semibold', size: 14 }), foregroundStyle('#FFFFFF'), lineLimit(1)]}>
