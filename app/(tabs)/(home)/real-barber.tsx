@@ -15,6 +15,7 @@ import { HomePromoCarousel } from '@/components/HomePromoCarousel';
 import { HomeRepeatBookingCard } from '@/components/HomeRepeatBookingCard';
 import { HomeSpotlightCard } from '@/components/HomeSpotlightCard';
 import HomeNearestBranch from '@/components/home/HomeNearestBranch';
+import HomeHaircutCatalogSection from '@/components/home/HomeHaircutCatalogSection';
 import HomeTodayTeamSection from '@/components/home/HomeTodayTeamSection';
 import SurfaceCard from '@/components/layout/SurfaceCard';
 import Icon from '@/components/Icon';
@@ -263,8 +264,10 @@ export default function RealBarberHomeTab() {
                 locale={locale}
                 t={t}
                 className="mt-10"
-                titleAction={{ titleKey: 'homeTodayTeamOpenFullTeam', href: '/experience' }}
+                showDayChips
               />
+
+              <HomeHaircutCatalogSection locale={locale} t={t} className="mt-10" />
             </>
           )}
         </AnimatedView>

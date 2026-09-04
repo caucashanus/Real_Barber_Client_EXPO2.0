@@ -10,6 +10,7 @@ import {
 
 import { ScrollContext } from '@/app/(tabs)/(home)/_layout';
 import { useAccentColor } from '@/contexts/AccentColorContext';
+import { useDetailScrollContentClassName, useDetailTopHeader } from '@/contexts/DetailScreenLayoutContext';
 import { useServiceDetailScreen } from '@/hooks/useServiceDetailScreen';
 import { useTranslation } from '@/hooks/useTranslation';
 import BranchContactActions from '@/components/branch/BranchContactActions';
@@ -33,7 +34,8 @@ export default function ServiceDetailScreen() {
   const { accentColor } = useAccentColor();
   const scrollY = useContext(ScrollContext);
   const { width: winWidth } = useWindowDimensions();
-  const isMobileHeader = winWidth < 768;
+  const showTopHeader = useDetailTopHeader();
+  const scrollContentClassName = useDetailScrollContentClassName();
 
   const { detail, loading, refreshing, refresh, error, slotGroups, locale, todayIso } =
     useServiceDetailScreen(id ?? '');
@@ -80,7 +82,7 @@ export default function ServiceDetailScreen() {
   if (!detail || error) {
     return (
       <View className="flex-1 bg-light-primary dark:bg-dark-primary">
-        {!isMobileHeader ? <Header showBackButton /> : null}
+        {showTopHeader ? <Header showBackButton /> : null}
         <View className="flex-1 items-center justify-center p-6">
           <ThemedText className="text-center text-amber-700 dark:text-amber-300">
             {t('serviceDetailNotFound')}
@@ -93,7 +95,7 @@ export default function ServiceDetailScreen() {
   return (
     <>
       <View className="flex-1 bg-light-primary dark:bg-dark-primary">
-        {!isMobileHeader ? <Header showBackButton title="" /> : null}
+        {showTopHeader ? <Header showBackButton title="" /> : null}
 
         <ThemeScroller
           ref={scrollRef}
@@ -104,7 +106,7 @@ export default function ServiceDetailScreen() {
           onScroll={Animated.event([{ nativeEvent: { contentOffset: { y: scrollY } } }], {
             useNativeDriver: false})}
           scrollEventThrottle={16}>
-          <View className={isMobileHeader ? 'mt-4 px-global pb-8' : 'p-global pb-8'}>
+          <View className={scrollContentClassName}>
             <SiteBreadcrumbs
               items={breadcrumbItems}
               accessibilityLabel={t('breadcrumbNavLabel')}

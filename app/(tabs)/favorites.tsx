@@ -19,30 +19,12 @@ import {
   countClientFavoritesByFilter,
   filterClientFavorites,
   type ClientFavoriteFilter} from '@/utils/clientFavoritesFilter';
-import { barberDetailHref, branchDetailHref, serviceDetailHref } from '@/constants/profileDetailRoutes';
+import { favoriteDetailHref } from '@/utils/favoriteDetailHref';
 import { shouldStaleRefresh } from '@/utils/staleRefresh';
 import SiteLoadingSpinner from '@/components/SiteLoadingSpinner';
 
 const DESKTOP_BREAKPOINT = 768;
 const GRID_GAP = 16;
-
-function favoriteHref(fav: Favorite): string {
-  switch (fav.entityType) {
-    case 'branch':
-      return branchDetailHref(fav.entityId);
-    case 'employee':
-      return barberDetailHref(fav.entityId);
-    case 'service':
-    case 'item':
-      return serviceDetailHref(fav.entityId);
-    case 'product':
-      return `/screens/product-detail?id=${encodeURIComponent(fav.entityId)}`;
-    case 'guide':
-      return `/screens/guide-detail?id=${encodeURIComponent(fav.entityId)}`;
-    default:
-      return '/screens/favorite-list';
-  }
-}
 
 function getFavoriteImageUrl(fav: Favorite): string | undefined {
   const photoUrl = (fav as { photoUrl?: unknown }).photoUrl;
@@ -174,7 +156,7 @@ const FavoritesScreen = () => {
       {filteredFavorites.map((fav) => (
         <FavoriteMediaCard
           key={fav.id}
-          href={favoriteHref(fav)}
+          href={favoriteDetailHref(fav)}
           title={fav.title ?? '—'}
           image={getFavoriteImageUrl(fav) ?? require('@/assets/img/barbers.png')}
           entityType={fav.entityType}

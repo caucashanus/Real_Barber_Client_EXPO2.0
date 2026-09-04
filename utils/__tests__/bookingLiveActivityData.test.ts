@@ -36,6 +36,7 @@ import {
   buildBookingActivityProps,
   computeBookingActivityStage,
   formatBookingCountdownHm,
+  isBookingLiveActivityReviewEligible,
   previewNowMsForStage,
   shouldTrackBookingLiveActivity,
 } from '@/utils/bookingLiveActivityData';
@@ -209,6 +210,22 @@ describe('computeBookingActivityStage', () => {
     expect(computeBookingActivityStage(booking, new Date('2026-06-16T10:00:00').getTime())).toBe(5);
     expect(computeBookingActivityStage(booking, new Date('2026-06-16T10:30:00').getTime())).toBe(5);
     expect(computeBookingActivityStage(booking, new Date('2026-06-16T11:30:00').getTime())).toBe(6);
+  });
+
+  it('maps completed before slotEnd to review stage 6 (CRM parity)', () => {
+    const booking = makeBooking({
+      id: 'done-early',
+      date: '2026-06-16',
+      slotStart: '10:00',
+      slotEnd: '11:00',
+      status: 'completed',
+    });
+    const duringSlot = new Date('2026-06-16T10:20:00').getTime();
+
+    expect(isBookingLiveActivityReviewEligible(booking, duringSlot)).toBe(true);
+    expect(computeBookingActivityStage(booking, duringSlot)).toBe(BOOKING_REVIEW_STAGE);
+    expect(buildBookingActivityProps(booking, null, duringSlot).stage).toBe(BOOKING_REVIEW_STAGE);
+    expect(buildBookingActivityProps(booking, null, duringSlot).status).toBe('Ohodnoťte');
   });
 });
 

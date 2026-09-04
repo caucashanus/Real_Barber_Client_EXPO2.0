@@ -5,6 +5,7 @@ import {
   getBookingStartDate,
   isBookingDuringSlotAt,
   isBookingFutureStartAt,
+  isBookingMarkedCompleted,
   isBookingNotCancelled,
 } from '@/utils/bookingHelpers';
 import {
@@ -187,13 +188,17 @@ export function isBookingLiveActivityReviewEligible(
   if (!isBookingNotCancelled(booking)) return false;
   if (getBookingClientReviewRating(booking) != null) return false;
   const endMs = getBookingEndDate(booking).getTime();
-  if (nowMs < endMs) return false;
-  return nowMs <= endMs + BOOKING_REVIEW_LINGER_MS;
+  if (nowMs > endMs + BOOKING_REVIEW_LINGER_MS) return false;
+  // CRM parity: completed → review i před slotEnd (do slotEnd + 2h).
+  if (isBookingMarkedCompleted(booking)) return true;
+  return nowMs >= endMs;
 }
 
 export function computeBookingActivityStage(booking: Booking, nowMs: number = Date.now()): number {
   const startMs = getBookingStartDate(booking).getTime();
   const endMs = getBookingEndDate(booking).getTime();
+
+  if (isBookingLiveActivityReviewEligible(booking, nowMs)) return BOOKING_REVIEW_STAGE;
 
   if (nowMs >= endMs) return BOOKING_REVIEW_STAGE;
   if (nowMs >= startMs) return 5;

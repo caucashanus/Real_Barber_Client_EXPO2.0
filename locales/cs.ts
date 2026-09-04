@@ -325,6 +325,8 @@ export const cs: Record<TranslationKey, string> = {
   scheduleTermsWhen: 'Termíny {when}',
   homeTodayTeamMoreSlots: 'Další',
   homeTodayTeamOpenFullTeam: 'Otevřít celý tým',
+  homeScheduleMoreDays: 'Další dny',
+  homeHaircutCatalogSeeMore: 'Chci vidět více',
   homeSpotlightCurrent: 'Právě probíhá',
   homeSpotlightSoon: 'Brzy začíná rezervace',
   homeSpotlightToday: 'Dnes máte rezervaci',

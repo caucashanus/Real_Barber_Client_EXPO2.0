@@ -325,6 +325,8 @@ export const uk: Record<TranslationKey, string> = {
   scheduleTermsWhen: 'Терміни {when}',
   homeTodayTeamMoreSlots: 'Інше',
   homeTodayTeamOpenFullTeam: 'Відкрити всю команду',
+  homeScheduleMoreDays: 'Інші дні',
+  homeHaircutCatalogSeeMore: 'Хочу побачити більше',
   homeSpotlightCurrent: 'Зараз триває',
   homeSpotlightSoon: 'Скоро почнеться бронювання',
   homeSpotlightToday: 'Сьогодні у вас бронювання',

@@ -8,6 +8,7 @@ import { useBarbersRoster } from '@/hooks/useBarbersRoster';
 import { useTranslation } from '@/hooks/useTranslation';
 import AnimatedView from '@/components/AnimatedView';
 import HomeTodayTeamSection from '@/components/home/HomeTodayTeamSection';
+import SectionIntroCard from '@/components/layout/SectionIntroCard';
 import ThemeScroller from '@/components/ThemeScroller';
 
 const ExperienceScreen = () => {
@@ -32,6 +33,13 @@ const ExperienceScreen = () => {
       })}
       scrollEventThrottle={16}>
       <AnimatedView animation="scaleIn" className="mt-4 flex-1">
+        <SectionIntroCard
+          t={t}
+          titleKey="teamPageTitle"
+          bodyKey="teamPageIntro"
+          actionTitleKey="experienceSchedule"
+          actionHref="/screens/schedule"
+        />
         <HomeTodayTeamSection
           cards={teamCards}
           loading={teamLoading}
@@ -39,12 +47,10 @@ const ExperienceScreen = () => {
           error={teamError}
           locale={locale}
           t={t}
-          sectionTitleKey="teamPageTitle"
           loadingTextKey="teamPageLoading"
           errorTextKey="teamPageLoadError"
           emptyTextKey="teamPageEmpty"
-          introTextKey="teamPageIntro"
-          useCardLayout
+          contentOnly
         />
       </AnimatedView>
     </ThemeScroller>

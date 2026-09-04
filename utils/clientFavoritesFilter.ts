@@ -15,7 +15,8 @@ function isBranchFavorite(fav: Favorite): boolean {
 }
 
 function isServiceFavorite(fav: Favorite): boolean {
-  return normalizeEntityType(fav) === 'service';
+  const type = normalizeEntityType(fav);
+  return type === 'service' || type === 'item';
 }
 
 export function countClientFavoritesByFilter(favorites: Favorite[]): {

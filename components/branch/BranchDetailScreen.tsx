@@ -13,6 +13,7 @@ import { ActionSheetRef } from 'react-native-actions-sheet';
 import { ScrollContext } from '@/app/(tabs)/(home)/_layout';
 import { useAccentColor } from '@/contexts/AccentColorContext';
 import { useAuth } from '@/contexts/AuthContext';
+import { useDetailScrollContentClassName, useDetailTopHeader } from '@/contexts/DetailScreenLayoutContext';
 import { useBranchDetailScreen } from '@/hooks/useBranchDetailScreen';
 import { useTranslation } from '@/hooks/useTranslation';
 import { BranchNavigateSheet } from '@/components/BranchNavigateSheet';
@@ -65,7 +66,8 @@ export default function BranchDetailScreen() {
   const { accentColor } = useAccentColor();
   const scrollY = useContext(ScrollContext);
   const { width: winWidth } = useWindowDimensions();
-  const isMobileHeader = winWidth < 768;
+  const showTopHeader = useDetailTopHeader();
+  const scrollContentClassName = useDetailScrollContentClassName();
   const branchMapSize = useMemo(() => getBranchDetailMapSize(winWidth), [winWidth]);
 
   const {
@@ -204,7 +206,7 @@ export default function BranchDetailScreen() {
   if (!loading && (error || !branch)) {
     return (
       <View className="flex-1 bg-light-primary dark:bg-dark-primary">
-        {!isMobileHeader ? <Header showBackButton /> : null}
+        {showTopHeader ? <Header showBackButton /> : null}
         <View className="flex-1 items-center justify-center p-6">
           <ThemedText className="text-center text-red-500 dark:text-red-400">
             {error ?? 'Branch not found'}
@@ -217,7 +219,7 @@ export default function BranchDetailScreen() {
   if (!branch || !branchMeta) {
     return (
       <View className="flex-1 bg-light-primary dark:bg-dark-primary">
-        {!isMobileHeader ? <Header showBackButton /> : null}
+        {showTopHeader ? <Header showBackButton /> : null}
       </View>
     );
   }
@@ -240,7 +242,7 @@ export default function BranchDetailScreen() {
   return (
     <>
       <View className="flex-1 bg-light-primary dark:bg-dark-primary">
-        {!isMobileHeader ? <Header showBackButton title="" /> : null}
+        {showTopHeader ? <Header showBackButton title="" /> : null}
 
         <ThemeScroller
           ref={scrollRef}
@@ -254,7 +256,7 @@ export default function BranchDetailScreen() {
           scrollEventThrottle={16}>
           <View
             ref={scrollContentRef}
-            className={isMobileHeader ? 'mt-4 px-global pb-8' : 'p-global pb-8'}>
+            className={scrollContentClassName}>
             <SiteBreadcrumbs
               items={breadcrumbItems}
               accessibilityLabel={t('breadcrumbNavLabel')}

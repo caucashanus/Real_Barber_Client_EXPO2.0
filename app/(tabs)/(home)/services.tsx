@@ -1,21 +1,18 @@
 import React, { useContext, useEffect, useMemo, useState } from 'react';
 import { Animated, View } from 'react-native';
-import { router } from 'expo-router';
 
 import { ScrollContext } from './_layout';
 
 import { fetchPublicServicesPage, type PublicServicesPageResponse } from '@/api/publicServicesPage';
 import { useTranslation } from '@/hooks/useTranslation';
 import AnimatedView from '@/components/AnimatedView';
-import CustomCard from '@/components/CustomCard';
 import HaircutInspirationCarousel from '@/components/services/HaircutInspirationCarousel';
 import ServiceItemGrid from '@/components/services/ServiceItemGrid';
-import SlotTimePill from '@/components/SlotTimePill';
 import ThemeScroller from '@/components/ThemeScroller';
 import ThemedText from '@/components/ThemedText';
 import Section from '@/components/layout/Section';
+import SectionIntroCard from '@/components/layout/SectionIntroCard';
 import SiteLoadingState from '@/components/SiteLoadingState';
-import type { TranslationKey } from '@/locales';
 import {
   getHaircutCarouselItems,
   getSupplementaryServiceGridItems,
@@ -26,42 +23,6 @@ const EMPTY_PAGE: PublicServicesPageResponse = {
   mainServices: [],
   barveniServices: [],
   balickyServices: []};
-
-function ServicesSectionIntroCard({
-  t,
-  titleKey,
-  bodyKey,
-  actionTitleKey,
-  actionHref}: {
-  t: ReturnType<typeof useTranslation>['t'];
-  titleKey: TranslationKey;
-  bodyKey: TranslationKey;
-  actionTitleKey?: TranslationKey;
-  actionHref?: string;
-}) {
-  return (
-    <View className="mb-6">
-      <CustomCard
-        rounded="2xl"
-        padding="md"
-        border
-        background={false}>
-        <ThemedText className="text-lg font-semibold">{t(titleKey)}</ThemedText>
-        <ThemedText className="mt-3 text-sm leading-6 text-light-subtext dark:text-dark-subtext">
-          {t(bodyKey)}
-        </ThemedText>
-        {actionTitleKey && actionHref ? (
-          <View className="mt-4 flex-row justify-end">
-            <SlotTimePill
-              title={t(actionTitleKey)}
-              onPress={() => router.push(actionHref)}
-            />
-          </View>
-        ) : null}
-      </CustomCard>
-    </View>
-  );
-}
 
 const ServicesScreen = () => {
   const scrollY = useContext(ScrollContext);
@@ -115,7 +76,7 @@ const ServicesScreen = () => {
               </View>
             ) : null}
 
-            <ServicesSectionIntroCard
+            <SectionIntroCard
               t={t}
               titleKey="servicesPageTitle"
               bodyKey="servicesPageRBarberNote"
@@ -135,7 +96,7 @@ const ServicesScreen = () => {
 
             {packageGridItems.length > 0 ? (
               <View className="mt-6">
-                <ServicesSectionIntroCard
+                <SectionIntroCard
                   t={t}
                   titleKey="servicesPackages"
                   bodyKey="servicesPagePackagesIntro"
@@ -145,7 +106,7 @@ const ServicesScreen = () => {
             ) : null}
 
             <View className="mt-6">
-              <ServicesSectionIntroCard
+              <SectionIntroCard
                 t={t}
                 titleKey="servicesPageSupplementary"
                 bodyKey="servicesPageSupplementaryIntro"

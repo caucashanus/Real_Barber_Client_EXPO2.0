@@ -321,6 +321,8 @@ export const en = {
   scheduleTermsWhen: 'Slots {when}',
   homeTodayTeamMoreSlots: 'More',
   homeTodayTeamOpenFullTeam: 'Open full team',
+  homeScheduleMoreDays: 'More days',
+  homeHaircutCatalogSeeMore: 'See more',
   homeSpotlightCurrent: 'In progress',
   homeSpotlightSoon: 'Upcoming booking',
   homeSpotlightToday: 'You have a booking today',

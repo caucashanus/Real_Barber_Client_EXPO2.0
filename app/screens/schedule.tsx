@@ -1,10 +1,10 @@
-import React, { useMemo, useState } from 'react';
-import { RefreshControl } from 'react-native';
+import { useLocalSearchParams } from 'expo-router';
+import React, { useEffect, useMemo, useState } from 'react';
+import { RefreshControl, View } from 'react-native';
 
 import { useAccentColor } from '@/contexts/AccentColorContext';
 import { useBarbersRoster } from '@/hooks/useBarbersRoster';
 import { useTranslation } from '@/hooks/useTranslation';
-import { CardScroller } from '@/components/CardScroller';
 import HomeTodayTeamSection from '@/components/home/HomeTodayTeamSection';
 import Header from '@/components/Header';
 import SlotTimePill from '@/components/SlotTimePill';
@@ -24,7 +24,19 @@ export default function ScheduleScreen() {
     refresh,
   } = useBarbersRoster(7);
 
+  const { date } = useLocalSearchParams<{ date?: string | string[] }>();
+  const dateParam = useMemo(() => {
+    const raw = Array.isArray(date) ? date[0] : date;
+    if (!raw || typeof raw !== 'string') return null;
+    const trimmed = raw.trim().slice(0, 10);
+    return /^\d{4}-\d{2}-\d{2}$/.test(trimmed) ? trimmed : null;
+  }, [date]);
+
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (dateParam) setSelectedDate(dateParam);
+  }, [dateParam]);
 
   const activeDate = useMemo(() => {
     if (selectedDate) return selectedDate;
@@ -48,7 +60,7 @@ export default function ScheduleScreen() {
         />
 
         {!loading && !error && scheduleDayTabs.length > 0 ? (
-          <CardScroller className="mb-4">
+          <View className="mb-4 flex-row flex-wrap">
             {scheduleDayTabs.map((tab) => (
               <SlotTimePill
                 key={tab.date}
@@ -58,7 +70,7 @@ export default function ScheduleScreen() {
                 onPress={() => setSelectedDate(tab.date)}
               />
             ))}
-          </CardScroller>
+          </View>
         ) : null}
 
         <HomeTodayTeamSection
