@@ -41,9 +41,14 @@ export default function LiveActivityPushProvider({ children }: { children: React
       }
     });
 
+    const adoptInterval = setInterval(() => {
+      void adoptServerLiveActivitiesForBookings(null);
+    }, 5_000);
+
     return () => {
       subscription.remove();
       appStateSub.remove();
+      clearInterval(adoptInterval);
     };
   }, [apiToken]);
 

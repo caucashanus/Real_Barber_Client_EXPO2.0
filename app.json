@@ -2,8 +2,8 @@
   "expo": {
     "name": "Real Barber",
     "slug": "realbarber",
-    "version": "2.0.4",
-    "runtimeVersion": "2.0.4",
+    "version": "2.0.5",
+    "runtimeVersion": "2.0.5",
     "scheme": "realbarber",
     "experiments": {
       "tsconfigPaths": true
@@ -101,7 +101,7 @@
       "deploymentTarget": "16.4",
       "appleTeamId": "VK8YT9654D",
       "bundleIdentifier": "com.realbarber.client",
-      "buildNumber": "82",
+      "buildNumber": "83",
       "appStoreUrl": "https://apps.apple.com/app/id6760221388",
       "supportsTablet": false,
       "associatedDomains": [

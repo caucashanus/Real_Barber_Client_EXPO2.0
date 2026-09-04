@@ -14,7 +14,7 @@ const PUSH_DEVICE_ID_KEY = '@push_device_id';
 const PUSH_TO_START_TOKEN_KEY = '@live_activity_push_to_start_token';
 const ACTIVITY_KIT_TOKEN_KEY = '@live_activity_activitykit_token';
 
-const C1_REGISTER_RETRY_DELAYS_MS = [0, 1_000, 3_000, 6_000, 10_000] as const;
+const C1_REGISTER_RETRY_DELAYS_MS = [0, 1_000, 2_000, 4_000, 8_000, 15_000, 20_000] as const;
 const C1_POST_MAX_ATTEMPTS = 3;
 
 let currentApiToken: string | null = null;
@@ -30,6 +30,11 @@ type ActivityRegistration = {
 
 const activityRegistrations = new Map<LiveActivity<unknown>, ActivityRegistration>();
 
+type NativeLiveActivityRef = {
+  id?: string;
+  getPushToken: () => Promise<string | null>;
+};
+
 function sleep(ms: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
@@ -40,6 +45,16 @@ function logLiveActivity(message: string, detail?: unknown): void {
     return;
   }
   console.log(`[live-activity] ${message}`);
+}
+
+function getNativeLiveActivityRef(activity: LiveActivity<unknown>): NativeLiveActivityRef | null {
+  const native = (activity as unknown as { nativeLiveActivity?: NativeLiveActivityRef }).nativeLiveActivity;
+  return native ?? null;
+}
+
+function getNativeActivityId(activity: LiveActivity<unknown>): string | null {
+  const id = getNativeLiveActivityRef(activity)?.id?.trim();
+  return id || null;
 }
 
 async function getOrCreateDeviceId(): Promise<string> {
@@ -138,6 +153,27 @@ function rememberActivityId(activity: LiveActivity<unknown>, activityId: string)
   registration.activityId = activityId;
 }
 
+async function resolveActivityId(
+  activity: LiveActivity<unknown>,
+  bookingId: string
+): Promise<string | null> {
+  const registration = activityRegistrations.get(activity);
+  const fromNative = getNativeActivityId(activity);
+  if (fromNative) return fromNative;
+  if (registration?.activityId) return registration.activityId;
+  if (lastRegisteredActivityId) return lastRegisteredActivityId;
+
+  const raw = await AsyncStorage.getItem(ACTIVITY_KIT_TOKEN_KEY).catch(() => null);
+  if (!raw) return null;
+  try {
+    const parsed = JSON.parse(raw) as { activityId?: string; bookingId?: string };
+    if (parsed.bookingId === bookingId) return parsed.activityId?.trim() ?? null;
+  } catch {
+    return null;
+  }
+  return null;
+}
+
 async function pollActivityPushToken(
   activity: LiveActivity<unknown>,
   bookingId: string
@@ -145,44 +181,37 @@ async function pollActivityPushToken(
   for (const delayMs of C1_REGISTER_RETRY_DELAYS_MS) {
     if (delayMs > 0) await sleep(delayMs);
     if (!currentApiToken) return;
-
-    const registration = activityRegistrations.get(activity);
-    if (!registration) return;
+    if (!activityRegistrations.has(activity)) return;
 
     try {
       const pushToken = await activity.getPushToken();
       if (!pushToken?.trim()) continue;
 
-      const activityId =
-        registration.activityId ??
-        lastRegisteredActivityId ??
-        (await (async () => {
-          const raw = await AsyncStorage.getItem(ACTIVITY_KIT_TOKEN_KEY).catch(() => null);
-          if (!raw) return null;
-          try {
-            const parsed = JSON.parse(raw) as { activityId?: string; bookingId?: string };
-            return parsed.bookingId === bookingId ? parsed.activityId?.trim() ?? null : null;
-          } catch {
-            return null;
-          }
-        })());
+      const activityId = await resolveActivityId(activity, bookingId);
+      if (!activityId) {
+        logLiveActivity('C1 poll waiting for activityId', { bookingId });
+        continue;
+      }
 
-      if (!activityId) continue;
-
+      rememberActivityId(activity, activityId);
       await postActivityKitTokenWithRetry(bookingId, activityId, pushToken);
       return;
-    } catch {
-      // keep polling until delays exhausted
+    } catch (error) {
+      logLiveActivity('C1 poll error', { bookingId, error });
     }
   }
+
+  logLiveActivity('C1 poll exhausted', { bookingId });
 }
 
 function ensureActivityRegistration(activity: LiveActivity<unknown>, bookingId: string): void {
   const normalizedBookingId = bookingId.trim();
   if (!normalizedBookingId) return;
 
+  const nativeActivityId = getNativeActivityId(activity);
   const existing = activityRegistrations.get(activity);
   if (existing?.bookingId === normalizedBookingId) {
+    if (nativeActivityId) rememberActivityId(activity, nativeActivityId);
     void pollActivityPushToken(activity, normalizedBookingId);
     return;
   }
@@ -197,7 +226,12 @@ function ensureActivityRegistration(activity: LiveActivity<unknown>, bookingId: 
   activityRegistrations.set(activity, {
     subscription,
     bookingId: normalizedBookingId,
-    activityId: null,
+    activityId: nativeActivityId,
+  });
+
+  logLiveActivity('C1 adopt instance', {
+    bookingId: normalizedBookingId,
+    activityId: nativeActivityId,
   });
 
   void pollActivityPushToken(activity, normalizedBookingId);
@@ -218,11 +252,17 @@ export async function adoptServerLiveActivitiesForBookings(
 ): Promise<void> {
   if (!currentApiToken) return;
 
-  const bookingId = await resolveBookingIdForAdoption(preferredBookingId);
-  if (!bookingId) return;
-
   const instances = BookingActivity.getInstances();
-  if (instances.length === 0) return;
+  if (instances.length === 0) {
+    logLiveActivity('adopt skipped — no running LA instances');
+    return;
+  }
+
+  const bookingId = await resolveBookingIdForAdoption(preferredBookingId);
+  if (!bookingId) {
+    logLiveActivity('adopt skipped — no bookingId for running LA', { count: instances.length });
+    return;
+  }
 
   if (instances.length > 1) {
     logLiveActivity('multiple LA instances — adopting all with same bookingId', {
