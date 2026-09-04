@@ -10,7 +10,7 @@
 
 | Soubor | Role |
 |--------|------|
-| `utils/bookingLiveActivitySync.ios.ts` | Start / update / end LA, timery, exception flow |
+| `utils/bookingLiveActivitySync.ios.ts` | Start / update / end LA, exception + review flow |
 | `utils/bookingLiveActivityData.ts` | Stage výpočet, props pro widget, pick rezervace |
 | `utils/bookingLiveActivityStages.ts` | Stage 0–6, offsety T−90…0, copy |
 | `widgets/BookingActivity.tsx` | SwiftUI widget (banner + Dynamic Island) |
@@ -67,7 +67,21 @@ Logika: nejdřív **časová osa jedné návštěvy** (app-only, bez CRM push), 
 
 ---
 
-## Chování zrušení (reference)
+## Kdy se LA aktualizuje (architektura)
+
+**Spolehlivé zdroje:**
+
+| Zdroj | Co dělá |
+|-------|---------|
+| `syncBookingLiveActivityFromBookings` | Při změně seznamu rezervací v app |
+| Návrat app do popředí | `BookingsBadgeContext` → refresh API → sync |
+| **CRM ActivityKit push (C1)** | Update bez otevření app — **produkční cíl pro stage přechody** |
+| SwiftUI `timerInterval` ve widgetu | Countdown / progress na lock screenu **bez JS** |
+| ActivityKit `end(after(date))` | Zrušení / review linger 2 h **bez JS timerů** |
+
+**Odstraněno (nespolehlivé v pozadí):** JS `setTimeout` / `setInterval` pro stage přechody, countdown poll, review dismiss.
+
+---
 
 Při zrušení/přesunu s běžící LA:
 

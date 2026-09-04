@@ -228,6 +228,21 @@ describe('computeBookingActivityStage', () => {
     expect(buildBookingActivityProps(booking, null, duringSlot).stage).toBe(BOOKING_REVIEW_STAGE);
     expect(buildBookingActivityProps(booking, null, duringSlot).status).toBe('Ohodnoťte');
   });
+
+  it('maps slot end to review stage 6 without CRM completed status', () => {
+    const booking = makeBooking({
+      id: 'time-end',
+      date: '2026-06-16',
+      slotStart: '10:00',
+      slotEnd: '11:00',
+      status: 'scheduled',
+    });
+    const afterEnd = new Date('2026-06-16T11:01:00').getTime();
+
+    expect(isBookingLiveActivityReviewEligible(booking, afterEnd)).toBe(true);
+    expect(computeBookingActivityStage(booking, afterEnd)).toBe(BOOKING_REVIEW_STAGE);
+    expect(buildBookingActivityProps(booking, null, afterEnd).status).toBe('Ohodnoťte');
+  });
 });
 
 describe('pickBookingLiveActivityBooking', () => {

@@ -3,16 +3,15 @@ import { after } from 'expo-widgets';
 import BookingActivity from '@/widgets/BookingActivity';
 import {
   BOOKING_EXCEPTION_LINGER_MS,
+  BOOKING_REVIEW_LINGER_MS,
   BOOKING_REVIEW_STAGE,
   buildBookingActivityDeepLinkForStage,
   buildBookingActivityProps,
-  getBookingActivityReviewDismissDelayMs,
   getBookingActivityStageKind,
-  getBookingActivityStageTimes,
   isBookingLiveActivityReviewEligible,
   pickBookingLiveActivityBooking,
 } from '@/utils/bookingLiveActivityData';
-import { getBookingStartDate, isBookingMarkedCompleted } from '@/utils/bookingHelpers';
+import { getBookingEndDate } from '@/utils/bookingHelpers';
 import {
   attachActivityPushTokenRegistration,
   detachActivityPushTokenRegistration,
@@ -27,32 +26,8 @@ let trackedBookingId: string | null = null;
 let trackedStage: number | null = null;
 let trackedDeepLinkUrl: string | null = null;
 let trackedLogoUri: string | null = null;
-let lastBookings: Booking[] = [];
-let endTimer: ReturnType<typeof setTimeout> | null = null;
-let stageTimers: ReturnType<typeof setTimeout>[] = [];
-let countdownMinuteTimer: ReturnType<typeof setInterval> | null = null;
 /** Po zrušení/přesunu neznovu nespouštět LA pro stejnou rezervaci (např. po přesunu). */
 const exceptionEndedUntilMs = new Map<string, number>();
-
-function clearCountdownMinuteTimer(): void {
-  if (countdownMinuteTimer) {
-    clearInterval(countdownMinuteTimer);
-    countdownMinuteTimer = null;
-  }
-}
-
-function clearEndTimer(): void {
-  if (endTimer) {
-    clearTimeout(endTimer);
-    endTimer = null;
-  }
-}
-
-function clearStageTimers(): void {
-  stageTimers.forEach(clearTimeout);
-  stageTimers = [];
-  clearCountdownMinuteTimer();
-}
 
 function resetActivityTracking(): void {
   activityRef = null;
@@ -77,8 +52,6 @@ function filterBookingsForLiveActivity(bookings: Booking[], nowMs: number): Book
 }
 
 function endActivityImmediate(): void {
-  clearEndTimer();
-  clearStageTimers();
   detachActivityPushTokenRegistration();
   activityRef?.end('immediate');
   resetActivityTracking();
@@ -89,8 +62,6 @@ function endActivityWithException(
   logoUri: string | null,
   nowMs: number
 ): void {
-  clearEndTimer();
-  clearStageTimers();
   detachActivityPushTokenRegistration();
 
   const props = buildBookingActivityProps(booking, logoUri, nowMs);
@@ -98,6 +69,33 @@ function endActivityWithException(
   exceptionEndedUntilMs.set(booking.id, dismissAt.getTime());
 
   void activityRef?.end(after(dismissAt), props);
+  resetActivityTracking();
+}
+
+/** Review linger přes ActivityKit `after()` — bez JS timerů. */
+function finalizeReviewActivity(
+  booking: Booking,
+  props: ReturnType<typeof buildBookingActivityProps>,
+  nowMs: number
+): void {
+  const instance = resolveRunningActivityInstance();
+  if (!instance) return;
+
+  activityRef = instance;
+  trackedBookingId = booking.id;
+  trackedStage = props.stage;
+  trackedDeepLinkUrl =
+    props.deepLinkUrl ?? buildBookingActivityDeepLinkForStage(booking, props.stage);
+  trackedLogoUri = props.logoUri ?? trackedLogoUri;
+
+  const dismissAt = new Date(getBookingEndDate(booking).getTime() + BOOKING_REVIEW_LINGER_MS);
+  detachActivityPushTokenRegistration();
+
+  if (dismissAt.getTime() <= nowMs) {
+    void instance.end('immediate');
+  } else {
+    void instance.end(after(dismissAt), props);
+  }
   resetActivityTracking();
 }
 
@@ -117,52 +115,8 @@ function adoptExistingActivityIfNeeded(booking: Booking): boolean {
   return true;
 }
 
-/** Obnoví activityRef z iOS, když JS stav vypadl (restart app, hot reload). */
 function adoptExistingActivityEarly(booking: Booking): void {
   adoptExistingActivityIfNeeded(booking);
-}
-
-function scheduleStageUpdates(booking: Booking): void {
-  clearStageTimers();
-  const nowMs = Date.now();
-  for (const atMs of getBookingActivityStageTimes(booking)) {
-    if (atMs <= nowMs) continue;
-    stageTimers.push(
-      setTimeout(() => {
-        void syncBookingLiveActivityFromBookings(lastBookings);
-      }, atMs - nowMs)
-    );
-  }
-  scheduleCountdownMinuteRefresh(booking);
-}
-
-function scheduleCountdownMinuteRefresh(booking: Booking): void {
-  clearCountdownMinuteTimer();
-  const appointmentMs = getBookingStartDate(booking).getTime();
-  if (Date.now() >= appointmentMs) return;
-
-  countdownMinuteTimer = setInterval(() => {
-    if (Date.now() >= appointmentMs) {
-      clearCountdownMinuteTimer();
-      return;
-    }
-    void syncBookingLiveActivityFromBookings(lastBookings);
-  }, 60_000);
-}
-
-function scheduleReviewDismiss(booking: Booking): void {
-  clearEndTimer();
-  const delayMs = getBookingActivityReviewDismissDelayMs(booking);
-  if (delayMs <= 0) {
-    endActivityImmediate();
-    return;
-  }
-  endTimer = setTimeout(() => {
-    detachActivityPushTokenRegistration();
-    activityRef?.end('default');
-    resetActivityTracking();
-    endTimer = null;
-  }, delayMs);
 }
 
 function startOrRestartActivity(
@@ -209,33 +163,6 @@ function resolveRunningActivityInstance(): ActivityInstance | null {
   return activityRef;
 }
 
-/** Přímý update běžící LA na review — obchází ztracený JS tracking. */
-function pushReviewStageToRunningInstance(
-  booking: Booking,
-  logoUri: string | null,
-  nowMs: number
-): boolean {
-  if (!isBookingLiveActivityReviewEligible(booking, nowMs)) return false;
-
-  const instance = resolveRunningActivityInstance();
-  if (!instance) return false;
-
-  activityRef = instance;
-  trackedBookingId = booking.id;
-
-  const props = buildBookingActivityProps(booking, logoUri, nowMs);
-  if (props.stage < BOOKING_REVIEW_STAGE) return false;
-
-  const deepLink = props.deepLinkUrl ?? buildBookingActivityDeepLinkForStage(booking, props.stage);
-  instance.update(props);
-  trackedStage = props.stage;
-  trackedDeepLinkUrl = deepLink;
-  trackedLogoUri = logoUri;
-  clearStageTimers();
-  scheduleReviewDismiss(booking);
-  return true;
-}
-
 async function maybePushReviewForTrackedBooking(
   bookings: Booking[],
   logoUri: string | null,
@@ -245,15 +172,21 @@ async function maybePushReviewForTrackedBooking(
   if (!cachedBookingId) return false;
 
   const booking = bookings.find((row) => row.id === cachedBookingId);
-  if (!booking || !isBookingMarkedCompleted(booking)) return false;
+  if (!booking || !isBookingLiveActivityReviewEligible(booking, nowMs)) return false;
 
-  return pushReviewStageToRunningInstance(booking, logoUri, nowMs);
+  const props = buildBookingActivityProps(booking, logoUri, nowMs);
+  if (props.stage < BOOKING_REVIEW_STAGE) return false;
+  if (!resolveRunningActivityInstance()) return false;
+
+  finalizeReviewActivity(booking, props, nowMs);
+  return true;
 }
 
-/** Sync nejbližší rezervace do iOS Live Activity (Lock Screen + Dynamic Island). */
+/**
+ * Sync nejbližší rezervace do iOS Live Activity.
+ * Stage přechody spoléhají na: sync při změně dat, návrat app do popředí, CRM ActivityKit push.
+ */
 export async function syncBookingLiveActivityFromBookings(bookings: Booking[]): Promise<void> {
-  lastBookings = bookings;
-
   try {
     const logoUri = await ensureLiveActivityLogoUri();
     const nowMs = Date.now();
@@ -289,34 +222,10 @@ export async function syncBookingLiveActivityFromBookings(bookings: Booking[]): 
         endActivityImmediate();
         return;
       }
-      if (pushReviewStageToRunningInstance(next, logoUri, nowMs)) {
-        return;
-      }
-      const deepLink = props.deepLinkUrl ?? buildBookingActivityDeepLinkForStage(next, props.stage);
-      const enteringReviewStage = trackedStage !== BOOKING_REVIEW_STAGE;
-      const deepLinkChanged = trackedDeepLinkUrl !== deepLink;
-      const sameBookingActivity =
-        activityRef != null && trackedBookingId === next.id;
-
-      if (sameBookingActivity && (enteringReviewStage || deepLinkChanged || logoUriChanged)) {
-        activityRef.update(props);
-        trackedStage = props.stage;
-        trackedDeepLinkUrl = deepLink;
-        trackedLogoUri = logoUri;
-      } else if (
-        trackedBookingId !== next.id ||
-        !activityRef ||
-        enteringReviewStage ||
-        deepLinkChanged ||
-        logoUriChanged
-      ) {
+      if (!resolveRunningActivityInstance()) {
         startOrRestartActivity(next, props, logoUri ?? '');
-      } else {
-        activityRef.update(props);
-        trackedLogoUri = logoUri;
       }
-      clearStageTimers();
-      scheduleReviewDismiss(next);
+      finalizeReviewActivity(next, props, nowMs);
       return;
     }
 
@@ -328,27 +237,22 @@ export async function syncBookingLiveActivityFromBookings(bookings: Booking[]): 
     if (trackedBookingId !== next.id) {
       endActivityImmediate();
       startOrRestartActivity(next, props, logoUri ?? '');
-      scheduleStageUpdates(next);
       return;
     }
 
     if (!activityRef) {
       startOrRestartActivity(next, props, logoUri ?? '');
-      scheduleStageUpdates(next);
       return;
     }
 
     if (deepLinkChanged || logoUriChanged) {
       startOrRestartActivity(next, props, logoUri ?? '');
-      scheduleStageUpdates(next);
       return;
     }
 
-    activityRef?.update(props);
+    activityRef.update(props);
     trackedStage = props.stage;
     trackedLogoUri = logoUri;
-    clearEndTimer();
-    scheduleStageUpdates(next);
   } catch (error) {
     if (__DEV__) {
       console.warn('[live-activity] sync failed', error);

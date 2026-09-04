@@ -224,33 +224,6 @@ const BookingActivity = (props: BookingActivityProps, _env: LiveActivityEnvironm
 
   const usesStage0CountdownLabel = props.stage === 0 || props.stage === 2;
 
-  const Stage0MinutesLabel = ({
-    size,
-    compact = false,
-  }: {
-    size: number;
-    compact?: boolean;
-  }) => {
-    const remainingMin = Math.max(
-      0,
-      Math.ceil((props.appointmentEpochMs - props.nowEpochMs) / 60_000)
-    );
-    const labelSize = compact ? 13 : 20;
-
-    return (
-      <Text
-        modifiers={[
-          font({ weight: compact ? 'medium' : 'semibold', size: labelSize }),
-          monospacedDigit(),
-          foregroundStyle(ACCENT),
-          lineLimit(1),
-          ...(compact ? [frame({ width: 68, alignment: 'trailing' }), padding({ trailing: 4 })] : []),
-        ]}>
-        {'za ' + remainingMin + ' min'}
-      </Text>
-    );
-  };
-
   const CountdownLabel = ({
     size,
     color,
@@ -341,7 +314,7 @@ const BookingActivity = (props: BookingActivityProps, _env: LiveActivityEnvironm
     switch (ctaKind) {
       case 'countdown':
         if (usesStage0CountdownLabel) {
-          return <Stage0MinutesLabel compact />;
+          return <CountdownLabel size={13} color={ACCENT} width={68} />;
         }
         return (
           <Text
@@ -441,7 +414,7 @@ const BookingActivity = (props: BookingActivityProps, _env: LiveActivityEnvironm
         );
       case 'countdown':
         if (usesStage0CountdownLabel) {
-          return <Stage0MinutesLabel size={size} />;
+          return <CountdownLabel size={size} color={ACCENT} width={size >= 14 ? 52 : 46} />;
         }
         return <CountdownLabel size={size} color={ACCENT} width={size >= 14 ? 52 : 46} />;
       case 'duration':
@@ -588,7 +561,7 @@ const BookingActivity = (props: BookingActivityProps, _env: LiveActivityEnvironm
           <Spacer />
           {!isReviewStage && !isException ? (
             props.stage === 2 ? (
-              <Stage0MinutesLabel size={13} />
+              <CountdownLabel size={13} color={ACCENT} width={52} />
             ) : props.stage === 4 ? (
               <IconFrame icon="cup.and.saucer.fill" color={DRINKS_ACCENT} iconSize={24} />
             ) : props.stage === 5 && props.bannerLabel ? (
