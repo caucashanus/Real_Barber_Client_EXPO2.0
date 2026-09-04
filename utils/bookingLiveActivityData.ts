@@ -230,14 +230,16 @@ export function pickBookingLiveActivityBooking(
   bookings: Booking[],
   nowMs: number = Date.now()
 ): Booking | null {
-  const next = pickNextWidgetBooking(bookings, nowMs);
-  if (next && shouldTrackBookingLiveActivity(next, nowMs)) return next;
-
+  // Completed / review first — time-based pick would keep stage 5 "Probíhá" otherwise.
   const reviewCandidate = bookings
     .filter((booking) => isBookingLiveActivityReviewEligible(booking, nowMs))
     .sort((a, b) => getBookingEndDate(b).getTime() - getBookingEndDate(a).getTime())[0];
+  if (reviewCandidate) return reviewCandidate;
 
-  return reviewCandidate ?? null;
+  const next = pickNextWidgetBooking(bookings, nowMs);
+  if (next && shouldTrackBookingLiveActivity(next, nowMs)) return next;
+
+  return null;
 }
 
 export function buildBookingActivityDeepLink(booking: Booking): string {

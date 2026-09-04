@@ -7,4 +7,8 @@ export function attachActivityPushTokenRegistration(
 
 export function detachActivityPushTokenRegistration(): void {}
 
+export async function getCachedLiveActivityBookingId(): Promise<string | null> {
+  return null;
+}
+
 export async function unregisterAllLiveActivityTokens(_apiToken: string): Promise<void> {}

@@ -102,13 +102,12 @@ export function BookingsBadgeProvider({ children }: { children: React.ReactNode 
 
     const sub = AppState.addEventListener('change', (nextState) => {
       if (nextState === 'active' && apiToken && !authLoading) {
-        syncBookingWidgetFromBookings(bookings);
-        syncBookingLiveActivityFromBookings(bookings);
+        void refresh();
       }
     });
 
     return () => sub.remove();
-  }, [apiToken, authLoading, bookings]);
+  }, [apiToken, authLoading, refresh]);
 
   return (
     <BookingsContext.Provider

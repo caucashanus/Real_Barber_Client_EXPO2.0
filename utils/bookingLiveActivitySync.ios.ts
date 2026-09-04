@@ -12,10 +12,11 @@ import {
   isBookingLiveActivityReviewEligible,
   pickBookingLiveActivityBooking,
 } from '@/utils/bookingLiveActivityData';
-import { getBookingStartDate } from '@/utils/bookingHelpers';
+import { getBookingStartDate, isBookingMarkedCompleted } from '@/utils/bookingHelpers';
 import {
   attachActivityPushTokenRegistration,
   detachActivityPushTokenRegistration,
+  getCachedLiveActivityBookingId,
 } from '@/utils/liveActivityPushTokens';
 import { ensureLiveActivityLogoUri } from '@/utils/widgetSharedAssets';
 
@@ -116,6 +117,11 @@ function adoptExistingActivityIfNeeded(booking: Booking): boolean {
   return true;
 }
 
+/** Obnoví activityRef z iOS, když JS stav vypadl (restart app, hot reload). */
+function adoptExistingActivityEarly(booking: Booking): void {
+  adoptExistingActivityIfNeeded(booking);
+}
+
 function scheduleStageUpdates(booking: Booking): void {
   clearStageTimers();
   const nowMs = Date.now();
@@ -193,6 +199,57 @@ function maybeEndRunningActivityForException(
   return true;
 }
 
+function resolveRunningActivityInstance(): ActivityInstance | null {
+  const instances = BookingActivity.getInstances();
+  if (activityRef && instances.includes(activityRef)) return activityRef;
+  if (instances.length >= 1) {
+    activityRef = instances[0];
+    return activityRef;
+  }
+  return activityRef;
+}
+
+/** Přímý update běžící LA na review — obchází ztracený JS tracking. */
+function pushReviewStageToRunningInstance(
+  booking: Booking,
+  logoUri: string | null,
+  nowMs: number
+): boolean {
+  if (!isBookingLiveActivityReviewEligible(booking, nowMs)) return false;
+
+  const instance = resolveRunningActivityInstance();
+  if (!instance) return false;
+
+  activityRef = instance;
+  trackedBookingId = booking.id;
+
+  const props = buildBookingActivityProps(booking, logoUri, nowMs);
+  if (props.stage < BOOKING_REVIEW_STAGE) return false;
+
+  const deepLink = props.deepLinkUrl ?? buildBookingActivityDeepLinkForStage(booking, props.stage);
+  instance.update(props);
+  trackedStage = props.stage;
+  trackedDeepLinkUrl = deepLink;
+  trackedLogoUri = logoUri;
+  clearStageTimers();
+  scheduleReviewDismiss(booking);
+  return true;
+}
+
+async function maybePushReviewForTrackedBooking(
+  bookings: Booking[],
+  logoUri: string | null,
+  nowMs: number
+): Promise<boolean> {
+  const cachedBookingId = trackedBookingId ?? (await getCachedLiveActivityBookingId());
+  if (!cachedBookingId) return false;
+
+  const booking = bookings.find((row) => row.id === cachedBookingId);
+  if (!booking || !isBookingMarkedCompleted(booking)) return false;
+
+  return pushReviewStageToRunningInstance(booking, logoUri, nowMs);
+}
+
 /** Sync nejbližší rezervace do iOS Live Activity (Lock Screen + Dynamic Island). */
 export async function syncBookingLiveActivityFromBookings(bookings: Booking[]): Promise<void> {
   lastBookings = bookings;
@@ -204,12 +261,18 @@ export async function syncBookingLiveActivityFromBookings(bookings: Booking[]): 
     maybeEndRunningActivityForException(bookings, logoUri, nowMs);
 
     const eligibleBookings = filterBookingsForLiveActivity(bookings, nowMs);
+    if (await maybePushReviewForTrackedBooking(eligibleBookings, logoUri, nowMs)) {
+      return;
+    }
+
     const next = pickBookingLiveActivityBooking(eligibleBookings, nowMs);
 
     if (!next) {
       if (activityRef) endActivityImmediate();
       return;
     }
+
+    adoptExistingActivityEarly(next);
 
     const props = buildBookingActivityProps(next, logoUri, nowMs);
     const logoUriChanged = trackedLogoUri !== logoUri;
@@ -226,11 +289,21 @@ export async function syncBookingLiveActivityFromBookings(bookings: Booking[]): 
         endActivityImmediate();
         return;
       }
-      adoptExistingActivityIfNeeded(next);
+      if (pushReviewStageToRunningInstance(next, logoUri, nowMs)) {
+        return;
+      }
       const deepLink = props.deepLinkUrl ?? buildBookingActivityDeepLinkForStage(next, props.stage);
       const enteringReviewStage = trackedStage !== BOOKING_REVIEW_STAGE;
       const deepLinkChanged = trackedDeepLinkUrl !== deepLink;
-      if (
+      const sameBookingActivity =
+        activityRef != null && trackedBookingId === next.id;
+
+      if (sameBookingActivity && (enteringReviewStage || deepLinkChanged || logoUriChanged)) {
+        activityRef.update(props);
+        trackedStage = props.stage;
+        trackedDeepLinkUrl = deepLink;
+        trackedLogoUri = logoUri;
+      } else if (
         trackedBookingId !== next.id ||
         !activityRef ||
         enteringReviewStage ||

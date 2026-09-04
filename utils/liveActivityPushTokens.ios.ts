@@ -45,6 +45,19 @@ export function detachActivityPushTokenRegistration(): void {
   pushTokenSubscription = null;
 }
 
+/** Poslední bookingId registrovaný k běžící Live Activity (persist přes restart app). */
+export async function getCachedLiveActivityBookingId(): Promise<string | null> {
+  const raw = await AsyncStorage.getItem(ACTIVITY_KIT_TOKEN_KEY).catch(() => null);
+  if (!raw) return null;
+  try {
+    const parsed = JSON.parse(raw) as { bookingId?: string };
+    const id = parsed.bookingId?.trim();
+    return id || null;
+  } catch {
+    return null;
+  }
+}
+
 async function postActivityKitToken(bookingId: string, activityId: string, pushToken: string): Promise<void> {
   if (!currentApiToken || !pushToken.trim() || !activityId.trim() || !bookingId.trim()) return;
 

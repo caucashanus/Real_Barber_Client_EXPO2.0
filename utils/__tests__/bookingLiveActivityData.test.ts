@@ -37,6 +37,7 @@ import {
   computeBookingActivityStage,
   formatBookingCountdownHm,
   isBookingLiveActivityReviewEligible,
+  pickBookingLiveActivityBooking,
   previewNowMsForStage,
   shouldTrackBookingLiveActivity,
 } from '@/utils/bookingLiveActivityData';
@@ -226,6 +227,28 @@ describe('computeBookingActivityStage', () => {
     expect(computeBookingActivityStage(booking, duringSlot)).toBe(BOOKING_REVIEW_STAGE);
     expect(buildBookingActivityProps(booking, null, duringSlot).stage).toBe(BOOKING_REVIEW_STAGE);
     expect(buildBookingActivityProps(booking, null, duringSlot).status).toBe('Ohodnoťte');
+  });
+});
+
+describe('pickBookingLiveActivityBooking', () => {
+  it('prefers completed review over another upcoming booking', () => {
+    const now = new Date('2026-06-16T10:20:00').getTime();
+    const completed = makeBooking({
+      id: 'done-now',
+      date: '2026-06-16',
+      slotStart: '10:00',
+      slotEnd: '11:00',
+      status: 'completed',
+    });
+    const upcoming = makeBooking({
+      id: 'later',
+      date: '2026-06-16',
+      slotStart: '12:00',
+      slotEnd: '13:00',
+      status: 'scheduled',
+    });
+
+    expect(pickBookingLiveActivityBooking([upcoming, completed], now)?.id).toBe('done-now');
   });
 });
 
