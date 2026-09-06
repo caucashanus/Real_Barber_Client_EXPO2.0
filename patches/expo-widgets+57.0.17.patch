@@ -1,0 +1,108 @@
+diff --git a/node_modules/expo-widgets/build/Widgets.d.ts b/node_modules/expo-widgets/build/Widgets.d.ts
+index d4b5aac..fa860b6 100644
+--- a/node_modules/expo-widgets/build/Widgets.d.ts
++++ b/node_modules/expo-widgets/build/Widgets.d.ts
+@@ -56,6 +56,10 @@ export declare class LiveActivity<T extends object = object> {
+      * Returns `null` if push notifications are not enabled or the token is not yet available.
+      */
+     getPushToken(): Promise<string | null>;
++    /**
++     * Returns the serialized content props currently displayed by this Live Activity.
++     */
++    getContentProps(): Promise<string | null>;
+     /**
+      * Adds a listener for push token update events on this Live Activity instance.
+      * The token can be used to send content updates to this specific activity via APNs.
+diff --git a/node_modules/expo-widgets/build/Widgets.js b/node_modules/expo-widgets/build/Widgets.js
+index 9099a1b..88b868e 100644
+--- a/node_modules/expo-widgets/build/Widgets.js
++++ b/node_modules/expo-widgets/build/Widgets.js
+@@ -84,6 +84,12 @@ export class LiveActivity {
+     getPushToken() {
+         return this.nativeLiveActivity.getPushToken();
+     }
++    /**
++     * Returns the serialized content props currently displayed by this Live Activity.
++     */
++    getContentProps() {
++        return this.nativeLiveActivity.getContentProps();
++    }
+     /**
+      * Adds a listener for push token update events on this Live Activity instance.
+      * The token can be used to send content updates to this specific activity via APNs.
+diff --git a/node_modules/expo-widgets/build/Widgets.types.d.ts b/node_modules/expo-widgets/build/Widgets.types.d.ts
+index 15e0268..da82d02 100644
+--- a/node_modules/expo-widgets/build/Widgets.types.d.ts
++++ b/node_modules/expo-widgets/build/Widgets.types.d.ts
+@@ -269,5 +269,6 @@ export declare class NativeLiveActivity extends SharedObject<LiveActivityEvents>
+     update(props: string, staleDate?: number): Promise<void>;
+     end(dismissalPolicy?: string, afterDate?: number, state?: string, contentDate?: number): Promise<void>;
+     getPushToken(): Promise<string | null>;
++  getContentProps(): Promise<string | null>;
+ }
+ //# sourceMappingURL=Widgets.types.d.ts.map
+\ No newline at end of file
+diff --git a/node_modules/expo-widgets/ios/LiveActivity.swift b/node_modules/expo-widgets/ios/LiveActivity.swift
+index 5f34eb2..be4307e 100644
+--- a/node_modules/expo-widgets/ios/LiveActivity.swift
++++ b/node_modules/expo-widgets/ios/LiveActivity.swift
+@@ -56,6 +56,16 @@ final class LiveActivity: SharedObject {
+     return tokenData.reduce("") { $0 + String(format: "%02x", $1) }
+   }
+ 
++  func getContentProps() throws -> String? {
++    guard #available(iOS 16.1, *) else { throw LiveActivitiesNotSupportedException() }
++
++    guard let activity = Activity<LiveActivityAttributes>.activities.first(where: { $0.id == id }) else {
++      throw LiveActivityNotFoundException(id)
++    }
++
++    return activity.content.state.props
++  }
++
+   @available(iOS 16.1, *)
+   func observePushTokenUpdates(for activity: Activity<LiveActivityAttributes>, pushNotificationsEnabled: Bool) {
+     guard pushNotificationsEnabled else {
+diff --git a/node_modules/expo-widgets/ios/WidgetsModule.swift b/node_modules/expo-widgets/ios/WidgetsModule.swift
+index b1b4295..20a5830 100644
+--- a/node_modules/expo-widgets/ios/WidgetsModule.swift
++++ b/node_modules/expo-widgets/ios/WidgetsModule.swift
+@@ -111,6 +111,10 @@ public final class WidgetsModule: Module {
+       AsyncFunction("getPushToken") { (instance: LiveActivity) in
+         try instance.getPushToken()
+       }
++
++      AsyncFunction("getContentProps") { (instance: LiveActivity) in
++        try instance.getContentProps()
++      }
+     }
+   }
+ 
+diff --git a/node_modules/expo-widgets/src/Widgets.ts b/node_modules/expo-widgets/src/Widgets.ts
+index 51ea140..e595719 100644
+--- a/node_modules/expo-widgets/src/Widgets.ts
++++ b/node_modules/expo-widgets/src/Widgets.ts
+@@ -131,6 +131,13 @@ export class LiveActivity<T extends object = object> {
+     return this.nativeLiveActivity.getPushToken();
+   }
+ 
++  /**
++   * Returns the serialized content props currently displayed by this Live Activity.
++   */
++  getContentProps(): Promise<string | null> {
++    return this.nativeLiveActivity.getContentProps();
++  }
++
+   /**
+    * Adds a listener for push token update events on this Live Activity instance.
+    * The token can be used to send content updates to this specific activity via APNs.
+diff --git a/node_modules/expo-widgets/src/Widgets.types.ts b/node_modules/expo-widgets/src/Widgets.types.ts
+index fee5c74..23ae54a 100644
+--- a/node_modules/expo-widgets/src/Widgets.types.ts
++++ b/node_modules/expo-widgets/src/Widgets.types.ts
+@@ -304,4 +304,5 @@ export declare class NativeLiveActivity extends SharedObject<LiveActivityEvents>
+     contentDate?: number
+   ): Promise<void>;
+   getPushToken(): Promise<string | null>;
++  getContentProps(): Promise<string | null>;
+ }

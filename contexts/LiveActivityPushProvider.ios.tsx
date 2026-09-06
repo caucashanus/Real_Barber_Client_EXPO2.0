@@ -10,6 +10,8 @@ import {
   unregisterAllLiveActivityTokens,
 } from '@/utils/liveActivityPushTokens';
 
+const ADOPT_INTERVAL_MS = 15_000;
+
 export default function LiveActivityPushProvider({ children }: { children: React.ReactNode }) {
   const { apiToken } = useAuth();
   const prevApiTokenRef = useRef<string | null>(null);
@@ -27,10 +29,8 @@ export default function LiveActivityPushProvider({ children }: { children: React
   useEffect(() => {
     if (!apiToken) return;
 
-    void adoptServerLiveActivitiesForBookings(null);
-
     const subscription = addPushToStartTokenListener(({ activityPushToStartToken }) => {
-      void registerPushToStartTokenWithApi(activityPushToStartToken).catch((error) => {
+      void registerPushToStartTokenWithApi(activityPushToStartToken).catch((error: unknown) => {
         console.warn('[live-activity] C2 register failed', error);
       });
     });
@@ -43,7 +43,7 @@ export default function LiveActivityPushProvider({ children }: { children: React
 
     const adoptInterval = setInterval(() => {
       void adoptServerLiveActivitiesForBookings(null);
-    }, 5_000);
+    }, ADOPT_INTERVAL_MS);
 
     return () => {
       subscription.remove();

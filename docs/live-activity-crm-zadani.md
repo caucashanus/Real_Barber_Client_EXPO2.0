@@ -1,8 +1,9 @@
 # Live Activity (iOS) — zadání a dotazník pro CRM tým
 
-**Datum:** 2026-09-04  
+**Datum:** 2026-09-04 (aktualizace 2026-09-06)  
 **App:** Real Barber Client (Expo, iOS)  
-**Verze app (referenční):** build s 7 stage mapou, LA start **T−90 min**  
+**Verze app (referenční):** **2.1.0** — Expo SDK **57**, 7 stage mapa, LA start **T−90 min**, **server-only**  
+**E2E protokol + baseline:** [`live-activity-crm-e2e-testplan.md`](./live-activity-crm-e2e-testplan.md)  
 **Kontakt app tým:** [doplňte]
 
 ---
@@ -11,31 +12,27 @@
 
 V iOS appce běží **Live Activity** (Lock Screen + Dynamic Island) pro nejbližší rezervaci klienta.
 
-**App strana je hotová a otestovaná** pro lokální start/update LA, zrušení, přesun, přechod do „Ohodnoťte“ po otevření app nebo pull refresh.
+**Architektura (2.0.5+): server-only.** CRM vlastní start/update/end LA přes APNs. App **nestartuje LA lokálně** — pouze registruje C2/C1/C3 tokeny a renderuje widget.
 
-**Pro produkční UX bez otevírání app** potřebujeme, aby CRM posílalo **ActivityKit remote push** (APNs) na tokeny, které app registruje. Bez toho se stage na lock screenu mění jen když:
-- uživatel otevře app (sync z API), nebo
-- běží nativní countdown ve widgetu (vizuál uvnitř stejného stage, ne přechod mezi stage 0→1→2…).
+**E2E stav (2026-09-06):** CRM potvrdilo readiness (C1/C2/C3, cron, APNs production). **A+B ✅**, **C ⚠️** (1× OK / 1× fail na 2.0.5), **D ✅** (1× s C1). Go/no-go MVP: **NE** — blocker je stabilní C1. Detail: [`live-activity-crm-e2e-testplan.md`](./live-activity-crm-e2e-testplan.md).
 
-Prosíme CRM tým o **potvrzení aktuálního stavu na vaší straně** a případné **srovnání s tímto zadáním** (viz sekce 8).
+Bez registrovaného **C1** se stage na lock screenu **nemění** (jen nativní countdown uvnitř stejného stage).
 
 ---
 
-## 2. Co už má app hotové (nic nemusíte dělat na mobilech)
+## 2. Co má app hotové (server-only, 2.0.5)
 
-| Oblast | Stav |
-|--------|------|
-| Start LA lokálně | ✅ T−90 min před `slotStart` (nebo hned, pokud je rezervace blíž) |
-| Widget UI (7 stage + výjimky) | ✅ `BookingActivity` |
-| Registrace **C1** activity push tokenu | ✅ po startu LA |
-| Registrace **C2** push-to-start tokenu | ✅ při loginu / startu app |
-| **C3** unregister při logout | ✅ |
-| Sync LA při změně bookings v app | ✅ |
-| Sync při návratu app do popředí | ✅ |
-| Zrušení / přesun z CRM → správné LA po otevření app | ✅ otestováno |
-| `completed` → stage „Ohodnoťte“ po refresh v app | ✅ otestováno |
+| Oblast | Stav | E2E |
+|--------|------|-----|
+| **CRM C2 start** → LA na lock screenu | ✅ | A, B |
+| Widget UI (7 stage + výjimky) | ✅ | B, D |
+| Registrace **C2** push-to-start tokenu | ✅ spolehlivé | A |
+| Registrace **C1** activity push tokenu | ⚠️ nestabilní | C: 1× OK / 1× fail |
+| **C3** unregister při logout | ✅ kód ready | ⏸ netestováno |
+| Adopt LA + C1 poll (login, AppState, 5s interval) | ✅ | C |
+| Lokální start/update/end LA z app | ❌ vypnuto | — |
 
-**App nepotřebuje** vlastní handler pro příchozí LA push — iOS aktualizuje widget přímo z APNs, pokud je payload ve správném formátu.
+**App nepotřebuje** handler pro příchozí LA push — iOS aktualizuje widget přímo z APNs (Expo payload).
 
 ---
 
@@ -178,33 +175,33 @@ Cron musí běžet **spolehlivě** (ne jen ručně). App **už nepoužívá** JS
 
 ---
 
-## 6. Push-to-start (C2) — volitelné
+## 6. Push-to-start (C2) — produkční cesta
 
-Pokud CRM podporuje **push-to-start**, může LA spustit **bez otevření app** v T−90.
+CRM spouští LA **bez otevření app**:
 
+- **T−90 cron** nebo **okamžitě při create-in-window** (rezervace uvnitř T−90)
 - Token: C2 (`push-to-start-token`)
 - APNs: `apns-push-type: liveactivity`, `event: start`
 - `content-state` stejný formát, `props` pro stage **0**
+- CRM posílá **`input-push-token: 1`** (iOS 18+) — pomáhá generaci C1 na zařízení; token na server stejně posílá **app** (POST C1)
+- Start alert body (CRM default): **„Počítáme s vámi“**
 
-Pokud C2 není implementováno, LA startuje **jen app** (lokálně) — to je OK pro MVP, ale uživatel musí app aspoň jednou otevřít v okně T−90.
+Po C2 startu app musí zaregistrovat **C1** (ideálně user otevře app — viz TEST C1a v E2E protokolu).
 
 ---
 
-## 7. Co jsme měli z dřívější komunikace (potřebujeme potvrzení)
+## 7. CRM potvrzení (2026-09-06)
 
-Z předchozích vláken / handoffu vycházelo, že CRM **už má nebo mělo**:
+CRM potvrdilo:
 
-- soubory typu `apnsLiveActivity.js`, `liveActivityPushService.js`
-- endpoint **C1** `/activitykit-push-token`
-- přepis payloadu na **Expo formát** (`content-state.name` + stringified `props`)
-- timeline joby (dříve **T−30**, start, review, end+2h)
-- event push při cancel / complete / reschedule
+- C1 / C2 / C3 endpointy live, APNs **production**
+- Cron `POST /api/cron/live-activity/process-planned-starts` (každou minutu)
+- Expo payload formát, stage **T−90 / 0–6**
+- Cron joby: t90 (start) · t60→1 · t20→2 · t10→3 · t5→4 · t0→5 · review→6 · dismiss→end
+- Ruční push: `scripts/live-activity-e2e-staging.mjs`
+- Monitoring: `[LiveActivity]` + `apnsId`
 
-**Neověřeno z naší strany na produkci:**
-- zda cron/job queue **běží**
-- zda stage mapa je **T−90 / 7 stage**, ne staré T−30 / 4 stage
-- zda **C2** a **C3** existují a fungují
-- zda testovací push na reálný token projde a widget se vizuálně změní **bez otevření app**
+**Zbývá ověřit E2E:** stabilní C1, cron stage přechody (E), cancel/reschedule/completed (F–H).
 
 ---
 
@@ -224,16 +221,13 @@ Z předchozích vláken / handoffu vycházelo, že CRM **už má nebo mělo**:
 
 ---
 
-## 9. Společný E2E test (až potvrdíte readiness)
+## 9. Společný E2E test
 
-1. Klient s TestFlight buildem, přihlášený, rezervace za **> 90 min**.  
-2. V T−90 (nebo dříve po otevření app) se objeví LA — app zaregistruje **C1**.  
-3. CRM ověří v DB uložený token pro `bookingId`.  
-4. **Bez otevření app** CRM pošle update (např. stage 1 v T−60).  
-5. Lock screen / Dynamic Island se změní (titulek „Brzy začínáme“, CTA Navigovat).  
-6. Opakovat pro stage 2–6 a pro cancel z recepce.
+Kompletní protokol, baseline tabulka a CRM checklist: **[`live-activity-crm-e2e-testplan.md`](./live-activity-crm-e2e-testplan.md)**.
 
-**Kritérium úspěchu:** vizuální změna LA na lock screenu **do 1 min** od CRM push, app zavřená v pozadí.
+**Go/no-go minimum:** A (C2) → B (LA start) → C (C1) → D (stage push v pozadí).
+
+**Další kolo:** Po buildu se stabilním C1 — nová rezervace za 2+ h, B → C1a → D, případně F (cancel).
 
 ---
 
@@ -245,23 +239,22 @@ Z předchozích vláken / handoffu vycházelo, že CRM **už má nebo mělo**:
 | `utils/liveActivityPushTokens.ios.ts` | registrace tokenů |
 | `utils/bookingLiveActivityData.ts` | stage výpočet + `BookingActivityProps` |
 | `utils/bookingLiveActivityStages.ts` | offsety T−90…0, copy |
-| `utils/bookingLiveActivitySync.ios.ts` | lokální start/update/end |
+| `utils/bookingLiveActivitySync.ios.ts` | adopt server LA + C1 (server-only) |
 | `widgets/BookingActivity.tsx` | SwiftUI widget |
 | `docs/live-activity-handover.md` | QA stav app strany |
 
 ---
 
-## 11. Shrnutí priority pro CRM
+## 11. Shrnutí priority
 
-| Priorita | Úkol |
-|----------|------|
-| **P0** | Potvrdit stav + Expo payload formát + C1 live |
-| **P0** | Srovnat stage mapu na **T−90, stage 0–6** |
-| **P0** | Spolehlivý scheduler nebo event push pro stage přechody |
-| **P1** | Event push: cancel, reschedule, completed → review |
-| **P2** | C2 push-to-start (LA bez otevření app) |
-| **P2** | C3 cleanup, monitoring failed APNs |
+| Priorita | Úkol | Strana |
+|----------|------|--------|
+| **P0** | Stabilní **C1** registrace (C1a) | **App** |
+| **P0** | E2E A+B+C+D po fixu C1 | App + CRM |
+| **P1** | Cron stage přechody (TEST E) | CRM (ready) |
+| **P1** | Event push: cancel, reschedule, completed (F–H) | CRM (ready) |
+| **P2** | C3 logout, force-quit (J, K) | App + CRM |
 
 ---
 
-*Dokument připraven app týmem pro synchronizaci s CRM. Po vaší odpovědi na sekci 8 upřesníme společný test termín.*
+*CRM potvrzení a baseline: 2026-09-06. Další krok: app build 2.0.6+ se stabilním C1 → společný test den.*
