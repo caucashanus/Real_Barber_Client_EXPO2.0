@@ -1000,7 +1000,7 @@ export const uk: Record<TranslationKey, string> = {
   loginForgotPassword: 'Забули пароль?',
   loginNoAccount: 'Немає акаунта?',
   loginSignUp: 'Записатися',
-  loginPhoneStepSubtitle: 'Введіть телефон — надішлемо SMS-код для входу.',
+  loginPhoneStepSubtitle: 'Введіть телефон / надішлемо SMS-код для входу.',
   loginPasswordOtpHint:
     'Většina klientů se přihlašuje přes SMS kód. Heslo použijte jen pokud jste si ho nastavili.',
   loginPasswordBackToOtp: 'Увійти через SMS-код',

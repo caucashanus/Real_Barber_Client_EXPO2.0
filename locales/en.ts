@@ -995,7 +995,7 @@ export const en = {
   loginForgotPassword: 'Forgot Password?',
   loginNoAccount: "Don't have an account? ",
   loginSignUp: 'Sign up',
-  loginPhoneStepSubtitle: 'Enter your phone number — we will send you an SMS code to sign in.',
+  loginPhoneStepSubtitle: 'Enter your phone number / we will send you an SMS code to sign in.',
   loginPasswordOtpHint:
     'Most clients sign in with an SMS code. Use this screen only if you set a custom password.',
   loginPasswordBackToOtp: 'Sign in with SMS code',

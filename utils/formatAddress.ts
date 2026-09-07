@@ -9,6 +9,7 @@ export function stripCzechPostalCodeFromAddress(raw: string): string {
   s = s
     .replace(/,\s*\d{3}\s*\d{2}\s+/g, ', ')
     .replace(/,\s*\d{3}\s*\d{2}\s*$/g, '')
+    .replace(/\b\d{3}\s+\d{2}\b/g, '')
     .replace(/\s{2,}/g, ' ')
     .replace(/,\s*,/g, ', ')
     .replace(/^\s*,\s*/, '')

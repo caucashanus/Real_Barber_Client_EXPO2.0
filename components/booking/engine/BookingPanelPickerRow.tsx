@@ -58,17 +58,16 @@ export default function BookingPanelPickerRow({
   const avatarClass = avatarSize === 'xl' ? 'h-20 w-20' : 'h-12 w-12';
   const avatarRadius = imageShape === 'round' ? 'rounded-full' : 'rounded-xl';
 
-  const borderStyle = selected
-    ? { borderWidth: 2 as const, borderColor: colors.highlight }
-    : { borderWidth: 1 as const, borderColor: colors.border };
-
   return (
     <Pressable
       disabled={disabled}
       onPress={onPress}
       accessibilityRole="button"
-      style={[shadowPresets.card, borderStyle]}
-      className={`${BOOKING_FLOW_CARD_OUTER_CLASS} border-0 active:opacity-70 ${disabled ? 'opacity-60' : ''}`}>
+      accessibilityState={{ selected }}
+      style={shadowPresets.card}
+      className={`${BOOKING_FLOW_CARD_OUTER_CLASS} active:opacity-70 ${
+        selected ? 'border-2 border-light-text dark:border-dark-text' : ''
+      } ${disabled ? 'opacity-60' : ''}`}>
       <View className="flex-row items-start gap-3 p-4">
         <View className={`${avatarClass} shrink-0 items-center justify-center overflow-hidden`}>
           {imageSource ? (
@@ -112,8 +111,8 @@ export default function BookingPanelPickerRow({
           {meta ?? null}
         </View>
 
-        {showInfo ? (
-          <View className="shrink-0 flex-row items-start">
+        <View className="shrink-0 flex-row items-start gap-1">
+          {showInfo ? (
             <Pressable
               className="rounded-full p-2 active:opacity-70"
               onPress={(event) => {
@@ -125,8 +124,13 @@ export default function BookingPanelPickerRow({
               accessibilityLabel="Info">
               <Icon name="Info" size={18} className="text-light-subtext dark:text-dark-subtext" />
             </Pressable>
-          </View>
-        ) : null}
+          ) : null}
+          {selected ? (
+            <View className="p-2">
+              <Icon name="CheckCircle2" size={20} color={colors.highlight} />
+            </View>
+          ) : null}
+        </View>
       </View>
     </Pressable>
   );

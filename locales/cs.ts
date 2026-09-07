@@ -1000,7 +1000,7 @@ export const cs: Record<TranslationKey, string> = {
   loginForgotPassword: 'Zapomenuté heslo?',
   loginNoAccount: 'Nemáte účet? ',
   loginSignUp: 'Registrovat se',
-  loginPhoneStepSubtitle: 'Zadejte telefon — pošleme vám SMS kód pro přihlášení.',
+  loginPhoneStepSubtitle: 'Zadejte telefon / pošleme vám SMS kód pro přihlášení.',
   loginPasswordOtpHint:
     'Většina klientů se přihlašuje přes SMS kód. Heslo použijte jen pokud jste si ho nastavili.',
   loginPasswordBackToOtp: 'Přihlásit se přes SMS kód',

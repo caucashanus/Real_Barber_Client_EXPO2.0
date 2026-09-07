@@ -123,6 +123,12 @@ function trimSearchParam(value: string | string[] | undefined | null): string | 
   return trimmed ? trimmed : undefined;
 }
 
+function bookingIdsEqual(a?: string | null, b?: string | null): boolean {
+  const left = a?.trim().toLowerCase();
+  const right = b?.trim().toLowerCase();
+  return Boolean(left && right && left === right);
+}
+
 export function useBookingEngineFlow() {
   const params = useLocalSearchParams();
   const { apiToken, client } = useAuth();
@@ -525,10 +531,10 @@ export function useBookingEngineFlow() {
   // Preset branch from params / service-context (včetně doplnění priceFrom u stejného id)
   useEffect(() => {
     if (!preset.branchId || !branches.length) return;
-    const branch = branches.find((b) => b.id === preset.branchId);
+    const branch = branches.find((b) => bookingIdsEqual(b.id, preset.branchId));
     if (!branch) return;
 
-    if (selectedBranch?.id !== branch.id) {
+    if (!bookingIdsEqual(selectedBranch?.id, branch.id)) {
       setBranch(branch, { clearDownstream: false });
       return;
     }
@@ -539,11 +545,18 @@ export function useBookingEngineFlow() {
     }
   }, [preset.branchId, branches, selectedBranch, setBranch]);
 
-  // Branch catalog — only while user is picking branch/service (avoid re-fetch on employee step)
+  // Branch catalog — while picking branch/service, OR when service is preselected (repeat / deep link)
   useEffect(() => {
     if (recipeId === 'employee-profile' || recipeId === 'service-detail') return;
     if (!selectedBranch?.id) return;
-    if (step !== 'branch' && step !== 'service') return;
+
+    const needsCatalogForSkippedService =
+      Boolean(preset.serviceId) &&
+      shouldSkipStep('service', preset, flowBootstrap, recipe) &&
+      services.length === 0;
+
+    if (step !== 'branch' && step !== 'service' && !needsCatalogForSkippedService) return;
+
     let cancelled = false;
     setCatalogLoading(true);
     getBookingBranchCatalog(selectedBranch.id, locale, apiToken)
@@ -562,20 +575,46 @@ export function useBookingEngineFlow() {
     return () => {
       cancelled = true;
     };
-  }, [recipeId, selectedBranch?.id, locale, apiToken, step, t]);
+  }, [
+    recipeId,
+    selectedBranch?.id,
+    locale,
+    apiToken,
+    step,
+    t,
+    preset.serviceId,
+    preset,
+    flowBootstrap,
+    recipe,
+    services.length,
+  ]);
 
   // Hydrate preset service when the service step is skipped (repeat / deep link).
   useEffect(() => {
     if (recipeId === 'service-detail' || recipeId === 'employee-profile') return;
-    if (!preset.serviceId || selectedService?.id === preset.serviceId) return;
+    if (!preset.serviceId || bookingIdsEqual(selectedService?.id, preset.serviceId)) return;
     if (!shouldSkipStep('service', preset, flowBootstrap, recipe)) return;
-    if (preset.branchId && selectedBranch?.id && selectedBranch.id !== preset.branchId) return;
-    if (!services.length) return;
+    if (
+      preset.branchId &&
+      selectedBranch?.id &&
+      !bookingIdsEqual(selectedBranch.id, preset.branchId)
+    ) {
+      return;
+    }
 
-    const match = services.find((service) => service.id === preset.serviceId);
+    const match = services.find((service) => bookingIdsEqual(service.id, preset.serviceId));
     if (match) {
       setService(match, { clearDownstream: false });
+      return;
     }
+
+    // Catalog ještě nenačetl / služba v katalogu chybí — i tak nastav ID, ať může jet calendar.
+    if (!services.length) return;
+    const itemName = trimSearchParam(params.itemName);
+    setService(
+      { id: preset.serviceId, ...(itemName ? { name: itemName } : {}) },
+      { clearDownstream: false }
+    );
   }, [
     recipeId,
     preset,
@@ -584,6 +623,8 @@ export function useBookingEngineFlow() {
     selectedService?.id,
     selectedBranch?.id,
     services,
+    params.itemName,
+    setService,
   ]);
 
   // Hydrate preset employee when the employee step is skipped (repeat / deep link).
@@ -591,18 +632,26 @@ export function useBookingEngineFlow() {
     if (recipeId === 'employee-profile') return;
     if (!preset.employeeId) return;
     if (!shouldSkipStep('employee', preset, flowBootstrap, recipe)) return;
-    if (preset.branchId && selectedBranch?.id && selectedBranch.id !== preset.branchId) return;
+    if (
+      preset.branchId &&
+      selectedBranch?.id &&
+      !bookingIdsEqual(selectedBranch.id, preset.branchId)
+    ) {
+      return;
+    }
     if (!selectedService?.id) return;
 
-    const fromList = employees.find((employee) => employee.id === preset.employeeId);
+    const fromList = employees.find((employee) =>
+      bookingIdsEqual(employee.id, preset.employeeId)
+    );
     if (fromList) {
-      if (selectedEmployee?.id !== fromList.id) {
+      if (!bookingIdsEqual(selectedEmployee?.id, fromList.id)) {
         setEmployee(fromList, { clearDownstream: false });
       }
       return;
     }
 
-    if (selectedEmployee?.id === preset.employeeId) return;
+    if (bookingIdsEqual(selectedEmployee?.id, preset.employeeId)) return;
 
     setEmployee({ id: preset.employeeId }, { clearDownstream: false });
   }, [
@@ -614,6 +663,7 @@ export function useBookingEngineFlow() {
     selectedService?.id,
     employees,
     selectedEmployee?.id,
+    setEmployee,
   ]);
 
   // Employee picker (+ dopočet ceny holiče na kontaktu/shrnutí po next-slot handoffu)

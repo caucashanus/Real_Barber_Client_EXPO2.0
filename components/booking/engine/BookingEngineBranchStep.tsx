@@ -6,6 +6,7 @@ import AppButton from '@/components/AppButton';
 import BookingPanelPickerRow from '@/components/booking/engine/BookingPanelPickerRow';
 import { branchImageUrl } from '@/lib/booking/designShared';
 import SiteLoadingSpinner from '@/components/SiteLoadingSpinner';
+import { stripCzechPostalCodeFromAddress } from '@/utils/formatAddress';
 
 interface Props {
   flow: BookingEngineFlow;
@@ -40,7 +41,11 @@ export default function BookingEngineBranchStep({ flow }: Props) {
             imageFit="contain"
             fallbackName={branch.name ?? branch.id}
             title={branch.name ?? branch.id}
-            description={branch.address ?? ''}
+            description={
+              branch.address?.trim()
+                ? stripCzechPostalCodeFromAddress(branch.address)
+                : ''
+            }
             selected={flow.selectedBranch?.id === branch.id}
             onPress={() => flow.selectBranch(branch)}
           />
