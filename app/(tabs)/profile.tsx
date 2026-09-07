@@ -34,10 +34,10 @@ import { hasServerProfileAvatar } from '@/utils/editProfileAvatar';
 import { shouldStaleRefresh } from '@/utils/staleRefresh';
 import SiteLoadingSpinner from '@/components/SiteLoadingSpinner';
 
-/** Spodní badge s číslem verze (přizpůsobeno iOS/Android buildu). */
+/** Spodní badge s číslem verze (marketingová verze z app.json / Expo config). */
 function ProfileVersionBadge() {
   const { t } = useTranslation();
-  const version = Constants.nativeApplicationVersion ?? Constants.expoConfig?.version ?? '—';
+  const version = Constants.expoConfig?.version ?? Constants.nativeApplicationVersion ?? '—';
   return (
     <View className="mt-8 items-center px-4 pb-8">
       <View className="rounded-full bg-light-surface px-4 py-2 dark:bg-dark-secondary">

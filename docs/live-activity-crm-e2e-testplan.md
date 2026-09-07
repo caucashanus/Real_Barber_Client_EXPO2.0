@@ -2,7 +2,7 @@
 
 **Datum protokolu:** 2026-09-06  
 **CRM potvrzení:** 2026-09-06  
-**App verze (referenční):** **2.1.0** (Expo SDK 57, TestFlight)  
+**App verze (referenční):** **2.2.0** (Expo SDK 57, TestFlight)  
 **Architektura:** **Server-only** — CRM startuje/updatuje/ukončuje LA přes APNs. App **nestartuje LA lokálně**, pouze registruje tokeny C2/C1/C3.
 
 **Testovací účet:** +420774522114 · `clientId` `13100f49-27e3-4a72-b60f-1e6c2d12385a`

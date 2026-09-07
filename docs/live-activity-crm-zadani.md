@@ -2,7 +2,7 @@
 
 **Datum:** 2026-09-04 (aktualizace 2026-09-06)  
 **App:** Real Barber Client (Expo, iOS)  
-**Verze app (referenční):** **2.1.0** — Expo SDK **57**, 7 stage mapa, LA start **T−90 min**, **server-only**  
+**Verze app (referenční):** **2.2.0** — Expo SDK **57**, 7 stage mapa, LA start **T−90 min**, **server-only**  
 **E2E protokol + baseline:** [`live-activity-crm-e2e-testplan.md`](./live-activity-crm-e2e-testplan.md)  
 **Kontakt app tým:** [doplňte]
 
