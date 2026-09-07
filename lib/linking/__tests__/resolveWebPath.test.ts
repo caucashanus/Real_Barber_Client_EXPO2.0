@@ -21,6 +21,10 @@ describe('resolveWebPathToAppRoute', () => {
 
   it('maps team member profiles', () => {
     expect(resolveWebPathToAppRoute('/tym/barca/')).toBe('/barber-detail?id=barca');
+    expect(resolveWebPathToAppRoute('/tym/andrea/')).toBe('/barber-detail?id=andrea');
+    expect(resolveWebPathToAppRoute('https://realbarber.cz/tym/andrea/')).toBe(
+      '/barber-detail?id=andrea'
+    );
   });
 
   it('maps branch web slugs', () => {

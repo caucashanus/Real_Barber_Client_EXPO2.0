@@ -2,22 +2,24 @@
 
 Web spec: `seo-starter-2/docs/app-deep-links.md`
 
-## Co je nastaveno v appce (MVP)
+## Co je nastaveno v appce (MVP + `/tym`)
 
 | Položka | Hodnota |
 |---|---|
 | Produkční doména | `realbarber.cz` |
 | QR / smart URL | `https://realbarber.cz/aplikace/stahnout` |
+| Team member URLs | `https://realbarber.cz/tym/:slug/` → nativní `/barber-detail?id=:slug` |
 | Custom scheme (push, widget) | `realbarber://` — beze změny |
 | iOS Associated Domains | `applinks:realbarber.cz` |
-| Android App Links | `https://realbarber.cz/aplikace/*` (`autoVerify: true`) |
+| Android App Links | `/aplikace/*` + `/tym/*` (`autoVerify: true`) |
 | Expo Router origin | `https://realbarber.cz` |
-| Mapování v appce | `/aplikace/stahnout` → `/` (home / login dle auth) |
+| Mapování v appce | `/aplikace/stahnout` → `/` · `/tym/andrea/` → `/barber-detail?id=andrea` |
 
 Soubory:
 
 - `app.json` — associatedDomains, intentFilters, router origin
 - `app/+native-intent.tsx` — redirect incoming path
+- `lib/linking/resolveWebPath.ts` — web path → app route
 - `constants/deepLinkConfig.ts` — sdílené konstanty
 - `ios/RealBarber/RealBarber.entitlements` — associated domains (lokální iOS build)
 
@@ -93,7 +95,17 @@ Web to nastaví ve Vercel env → `assetlinks.json` se doplní automaticky.
 ### iOS AASA
 
 - `appID`: `VK8YT9654D.com.realbarber.client`
-- `paths`: `/aplikace/stahnout`, `/aplikace/stahnout/`
+- **Aktuálně live (MVP):** `/aplikace/stahnout`, `/aplikace/stahnout/`
+- **Potřeba pro team deep linky (web tým):** rozšířit `paths` o:
+
+```json
+"/tym",
+"/tym/*",
+"/aplikace/stahnout",
+"/aplikace/stahnout/"
+```
+
+Bez `/tym/*` v AASA Safari **neotevře** appku u `https://realbarber.cz/tym/andrea/` — i když appka umí URL mapovat. Bez instalované appky URL dál funguje jen jako web.
 
 ## Nasazení
 
@@ -116,15 +128,18 @@ adb shell pm get-app-links com.realbarber.client
 ## Test v appce (simulátor / zařízení)
 
 ```bash
-# iOS Simulator
+# iOS Simulator — team member (Andrea)
+xcrun simctl openurl booted "https://realbarber.cz/tym/andrea/"
+
+# iOS Simulator — QR download
 xcrun simctl openurl booted "https://realbarber.cz/aplikace/stahnout"
 
-# Android
-adb shell am start -W -a android.intent.action.VIEW -d "https://realbarber.cz/aplikace/stahnout"
+# Android — team member
+adb shell am start -W -a android.intent.action.VIEW -d "https://realbarber.cz/tym/andrea/"
 ```
 
-Funguje až po cutoveru na produkční doméně a novém buildu appky.
+**Poznámka:** `simctl openurl` / `adb` ověří **in-app routing**. Skutečné Universal Links ze Safari vyžadují live AASA s `/tym/*` + nový nativní build.
 
-## Mimo MVP
+## Další cesty
 
-Další cesty (booking detail, rezervace) až po stabilizaci MVP — QR path `/aplikace/stahnout` neměnit.
+Booking detail, rezervace atd. až po ověření `/tym/*`. QR path `/aplikace/stahnout` neměnit.

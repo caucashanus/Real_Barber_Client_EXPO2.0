@@ -10,6 +10,7 @@ import Header from '@/components/Header';
 import ThemedText from '@/components/ThemedText';
 import PhoneInput from '@/components/forms/PhoneInput';
 import AuthScreenLayout from '@/components/layout/AuthScreenLayout';
+import { beginLoginOtpMonitorSession } from '@/lib/auth/loginOtpMonitor';
 import { buildFullPhone, validatePhoneDigits } from '@/utils/phone';
 
 function ShimmerButton({ children }: { children: React.ReactNode }) {
@@ -95,6 +96,7 @@ export default function LoginScreen() {
         return;
       }
       const expiresIn = data.expiresInSeconds ?? 600;
+      const monitorSessionId = beginLoginOtpMonitorSession();
       router.push({
         pathname: '/screens/login-otp',
         params: {
@@ -102,6 +104,7 @@ export default function LoginScreen() {
           displayName: data.exists ? (data.displayName ?? '') : '',
           expiresIn: String(expiresIn),
           requiresRegistration: data.exists ? '0' : '1',
+          monitorSessionId,
         },
       });
     } catch (e) {

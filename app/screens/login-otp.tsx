@@ -10,6 +10,10 @@ import { Button } from '@/components/Button';
 import Header from '@/components/Header';
 import ThemedText from '@/components/ThemedText';
 import AuthScreenLayout from '@/components/layout/AuthScreenLayout';
+import {
+  resumeLoginOtpMonitorSession,
+  trackLoginOtpMonitor,
+} from '@/lib/auth/loginOtpMonitor';
 
 const OTP_LENGTH = 6;
 
@@ -143,10 +147,12 @@ export default function LoginOtpScreen() {
     displayName?: string | string[];
     expiresIn?: string | string[];
     requiresRegistration?: string | string[];
+    monitorSessionId?: string | string[];
   }>();
 
   const phone = paramString(params.phone);
   const displayNameFromParams = paramString(params.displayName).trim();
+  const monitorSessionId = paramString(params.monitorSessionId);
 
   const [welcomeName, setWelcomeName] = useState(displayNameFromParams);
 
@@ -177,6 +183,11 @@ export default function LoginOtpScreen() {
   }, [phone]);
 
   useEffect(() => {
+    if (!phone) return;
+    resumeLoginOtpMonitorSession(monitorSessionId || null);
+  }, [phone, monitorSessionId]);
+
+  useEffect(() => {
     setResendCooldownSec(30);
   }, [phone]);
 
@@ -200,6 +211,14 @@ export default function LoginOtpScreen() {
     return true;
   };
 
+  const trackCancelPhone = () => {
+    trackLoginOtpMonitor('cancel_phone', {
+      phone,
+      clientName: welcomeName || null,
+      otpIncompleteDetail: 'Uživatel změnil / zrušil telefon (krok OTP)',
+    });
+  };
+
   const handleVerify = async (otpValue?: string) => {
     const code = (otpValue ?? otp).replace(/\D/g, '');
     setApiError('');
@@ -217,6 +236,10 @@ export default function LoginOtpScreen() {
           setApiError(t('signupRegisterFailed'));
           return;
         }
+        trackLoginOtpMonitor('otp_success', {
+          phone,
+          clientName: welcomeName || null,
+        });
         router.replace({
           pathname: '/screens/signup',
           params: { phone, registrationToken: data.registrationToken },
@@ -224,9 +247,18 @@ export default function LoginOtpScreen() {
         return;
       }
       const auth = data as import('@/api/auth').LoginResponse;
+      trackLoginOtpMonitor('otp_success', {
+        phone,
+        clientName: auth.client?.name || welcomeName || null,
+        email: auth.client?.email || null,
+      });
       await setAuth(auth.token, auth.apiToken, auth.client);
       router.replace('/(tabs)/(home)');
     } catch (e) {
+      trackLoginOtpMonitor('invalid_otp', {
+        phone,
+        clientName: welcomeName || null,
+      });
       setApiError(e instanceof Error ? e.message : t('loginOtpFailed'));
     } finally {
       setLoading(false);
@@ -260,7 +292,13 @@ export default function LoginOtpScreen() {
 
   return (
     <>
-      <Header showBackButton />
+      <Header
+        showBackButton
+        onBackPress={() => {
+          trackCancelPhone();
+          router.back();
+        }}
+      />
       <AuthScreenLayout bottomImage={require('@/assets/img/smslogin.png')}>
         <View className="mt-8">
           <ThemedText className="mb-3 text-3xl font-bold text-light-text dark:text-dark-text">
@@ -317,7 +355,13 @@ export default function LoginOtpScreen() {
             className="mb-6"
           />
 
-          <Pressable onPress={() => router.replace('/screens/login')} className="self-center">
+          <Pressable
+            onPress={() => {
+              trackCancelPhone();
+              router.replace('/screens/login');
+            }}
+            className="self-center"
+          >
             <ThemedText className="text-center text-light-subtext underline dark:text-dark-subtext">
               {t('loginOtpChangePhone')}
             </ThemedText>

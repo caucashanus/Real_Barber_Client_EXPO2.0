@@ -101,7 +101,7 @@
       "deploymentTarget": "16.4",
       "appleTeamId": "VK8YT9654D",
       "bundleIdentifier": "com.realbarber.client",
-      "buildNumber": "86",
+      "buildNumber": "87",
       "appStoreUrl": "https://apps.apple.com/app/id6760221388",
       "supportsTablet": false,
       "associatedDomains": [
@@ -143,6 +143,11 @@
               "scheme": "https",
               "host": "realbarber.cz",
               "pathPrefix": "/aplikace"
+            },
+            {
+              "scheme": "https",
+              "host": "realbarber.cz",
+              "pathPrefix": "/tym"
             }
           ],
           "category": [
