@@ -37,7 +37,6 @@ export type BookingBootstrap = {
   branchCount?: number;
   employeeBranchCount?: number;
   employeeProfileMultiBranch?: boolean;
-  skipContact?: boolean;
   skipDatetime?: boolean;
   handoffPreset?: BookingHandoffPreset;
 };

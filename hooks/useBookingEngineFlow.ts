@@ -107,9 +107,9 @@ function stepTitleKey(kind: BookingStepKind): TranslationKey {
       return 'reservationStepEmployeeTitle';
     case 'datetime':
       return 'reservationStepDatetimeTitle';
-    case 'contact':
-      return 'reservationSummaryTitle';
     case 'summary':
+      return 'reservationSummaryTitle';
+    case 'contact':
       return 'reservationSummaryTitle';
     default:
       return 'reservationStepBranchTitle';
@@ -166,8 +166,7 @@ export function useBookingEngineFlow() {
   >([]);
   const [profileLoading, setProfileLoading] = useState(recipeId === 'employee-profile');
 
-  /** App users are always authenticated — never show Kontakt, always Shrnutí. */
-  const skipContact = true;
+  /** App booking always ends on Shrnutí (no guest Kontakt step). */
   const [slotHandoff, setSlotHandoff] = useState<StoredBookingSlotHandoff | null>(null);
   const [fromSlotHandoff, setFromSlotHandoff] = useState(false);
 
@@ -184,11 +183,10 @@ export function useBookingEngineFlow() {
   const flowBootstrap = useMemo(
     () => ({
       ...bootstrapState,
-      skipContact,
       skipDatetime: false,
       handoffPreset,
     }),
-    [bootstrapState, skipContact, handoffPreset]
+    [bootstrapState, handoffPreset]
   );
 
   const activeSteps = useMemo(
@@ -346,17 +344,6 @@ export function useBookingEngineFlow() {
     step,
     monitorFields,
   ]);
-
-  const contactEnteredRef = useRef(false);
-  useEffect(() => {
-    if (step !== 'contact') {
-      contactEnteredRef.current = false;
-      return;
-    }
-    if (contactEnteredRef.current) return;
-    contactEnteredRef.current = true;
-    trackBookingMonitor('entered_contact', monitorFields('contact'));
-  }, [step, monitorFields]);
 
   const summaryEnteredRef = useRef(false);
   useEffect(() => {
@@ -666,7 +653,7 @@ export function useBookingEngineFlow() {
     setEmployee,
   ]);
 
-  // Employee picker (+ dopočet ceny holiče na kontaktu/shrnutí po next-slot handoffu)
+  // Employee picker (+ dopočet ceny holiče na shrnutí po next-slot handoffu)
   useEffect(() => {
     const hasSelection =
       selectedBranch?.id && selectedService?.id && selectedEmployee?.id;
@@ -677,15 +664,10 @@ export function useBookingEngineFlow() {
     const shouldLoad =
       step === 'employee' ||
       (step === 'datetime' && Boolean(preset.employeeId)) ||
-      ((step === 'contact' || step === 'summary') && needsEmployeePrice);
+      (step === 'summary' && needsEmployeePrice);
 
     if (!shouldLoad || !selectedBranch?.id || !selectedService?.id) {
-      if (
-        step !== 'employee' &&
-        step !== 'datetime' &&
-        step !== 'contact' &&
-        step !== 'summary'
-      ) {
+      if (step !== 'employee' && step !== 'datetime' && step !== 'summary') {
         setEmployees([]);
         setEmployeeNearestSlot({});
       }
@@ -1174,7 +1156,7 @@ export function useBookingEngineFlow() {
   }, [monitorFields, step]);
 
   useEffect(() => {
-    if (step !== 'summary' && step !== 'contact') return;
+    if (step !== 'summary') return;
     if (selectedSlot?.start && selectedDate) return;
     let cancelled = false;
     void readBookingSlotContext().then((stored) => {
@@ -1724,7 +1706,6 @@ export function useBookingEngineFlow() {
       selectedService,
       selectedDate,
       selectedSlot,
-      skipContact,
       clearDraft,
       resolvedBookingPrice.amount,
       hold,
@@ -1836,21 +1817,14 @@ export function useBookingEngineFlow() {
           date: selectedDate,
           slot: selectedSlot,
         },
-        awaitingPhoneOtp: contact.awaitingPhoneOtp,
-        otpDigits: contact.otpDigits,
         submitting: contact.submitting,
         isCreatingHold: hold.isCreatingHold,
         onContinue: handleContinue,
         onSubmit: handleSubmit,
         labels: {
           continue: t('bookingContinue'),
-          submit:
-            step === 'contact' || step === 'summary'
-              ? t('bookingReserveTerm')
-              : t('commonReserve'),
+          submit: step === 'summary' ? t('bookingReserveTerm') : t('commonReserve'),
           submitting: t('bookingSubmitting'),
-          otpConfirm: t('bookingOtpConfirm'),
-          otpVerifying: t('bookingOtpVerifying'),
         },
       }),
     [
@@ -1872,10 +1846,10 @@ export function useBookingEngineFlow() {
   useEffect(() => {
     const prev = prevStepRef.current;
     if (step !== prev) {
-      if ((prev === 'contact' || prev === 'summary') && step !== 'contact' && step !== 'summary') {
+      if (prev === 'summary' && step !== 'summary') {
         void clearBookingSlotContext();
       }
-      if ((step === 'contact' || step === 'summary') && prev === 'datetime') {
+      if (step === 'summary' && prev === 'datetime') {
         saveCurrentSlotContext();
       }
       prevStepRef.current = step;
@@ -1883,7 +1857,7 @@ export function useBookingEngineFlow() {
   }, [step, saveCurrentSlotContext]);
 
   useEffect(() => {
-    if (step !== 'contact' && step !== 'summary') return;
+    if (step !== 'summary') return;
     if (resolvedBookingPrice.amount == null) return;
     saveCurrentSlotContext();
   }, [step, resolvedBookingPrice.amount, saveCurrentSlotContext]);
@@ -1902,7 +1876,6 @@ export function useBookingEngineFlow() {
       service: t('bookingProgressService'),
       employee: t('bookingProgressEmployee'),
       datetime: t('bookingProgressDatetime'),
-      contact: t('bookingProgressContact'),
       summary: t('bookingProgressSummary'),
     }),
     [t]
@@ -1955,7 +1928,6 @@ export function useBookingEngineFlow() {
     slotServicesError,
     showSlotHandoffSlotGoneBanner,
     selectSlotHandoffServiceItem,
-    skipContact,
     skipDatetime: false,
     monthOffset,
     setMonthOffset,

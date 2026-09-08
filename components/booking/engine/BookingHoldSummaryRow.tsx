@@ -12,15 +12,13 @@ import type { BookingEngineFlow } from '@/hooks/useBookingEngineFlow';
 
 interface Props {
   flow: BookingEngineFlow;
-  /** Stejný režim jako `BookingContactSummaryPanel` — card má ikonu vlevo jako ostatní řádky. */
+  /** Stejný plain režim jako summary řádky — card má ikonu vlevo. */
   plain?: boolean;
 }
 
 export function shouldShowBookingHoldSummaryRow(flow: BookingEngineFlow): boolean {
   return Boolean(
-    !flow.contact.submitSuccess &&
-      flow.hold.countdownLabel &&
-      (flow.step === 'contact' || flow.step === 'summary')
+    !flow.contact.submitSuccess && flow.hold.countdownLabel && flow.step === 'summary'
   );
 }
 

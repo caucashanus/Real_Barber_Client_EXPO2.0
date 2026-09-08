@@ -12,8 +12,6 @@ export function resolveBookingFlowFooterAction(params: {
   authPrefillReady?: boolean;
   selections: BookingSelections;
   isCreatingHold?: boolean;
-  awaitingPhoneOtp: boolean;
-  otpDigits: string;
   submitting: boolean;
   onContinue: () => void;
   onSubmit: () => void;
@@ -21,8 +19,6 @@ export function resolveBookingFlowFooterAction(params: {
     continue: string;
     submit: string;
     submitting: string;
-    otpConfirm: string;
-    otpVerifying: string;
   };
 }): {
   title: string;
@@ -37,8 +33,6 @@ export function resolveBookingFlowFooterAction(params: {
     isSlotHandoffFlow = false,
     authPrefillReady = true,
     selections,
-    awaitingPhoneOtp,
-    otpDigits,
     submitting,
     onContinue,
     onSubmit,
@@ -62,19 +56,8 @@ export function resolveBookingFlowFooterAction(params: {
     return null;
   }
 
-  const canSubmit = (step === 'contact' || step === 'summary') && authPrefillReady;
+  const canSubmit = step === 'summary' && authPrefillReady;
   if (!canSubmit) return null;
-
-  if (awaitingPhoneOtp) {
-    const code = otpDigits.replace(/\D/g, '');
-    return {
-      title: submitting ? labels.otpVerifying : labels.otpConfirm,
-      onPress: onSubmit,
-      loading: submitting,
-      disabled: submitting || code.length !== 6,
-      variant: 'outline',
-    };
-  }
 
   if (!selections.slot?.start) return null;
 
