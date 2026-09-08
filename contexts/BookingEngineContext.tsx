@@ -233,20 +233,11 @@ export function useBookingEngineNavigation(activeSteps: readonly BookingStepKind
   const step = activeSteps[ctx.stepIndex] ?? activeSteps[0] ?? 'branch';
 
   const goToStepIndex = useCallback(
-    (nextIndex: number, options?: { fromStep?: BookingStepKind; clearContactOtp?: () => void; awaitingOtp?: boolean }) => {
+    (nextIndex: number, options?: { fromStep?: BookingStepKind }) => {
       const clamped = Math.max(0, Math.min(nextIndex, activeSteps.length - 1));
       const fromStep = options?.fromStep ?? activeSteps[ctx.stepIndex] ?? step;
       const toStep = activeSteps[clamped] ?? step;
       if (clamped < ctx.stepIndex) {
-        if (
-          options?.awaitingOtp &&
-          (fromStep === 'contact' ||
-            fromStep === 'summary' ||
-            fromStep === 'datetime' ||
-            toStep === 'datetime')
-        ) {
-          options.clearContactOtp?.();
-        }
         ctx.dispatch({
           type: 'BACKWARD_CLEANUP',
           fromStep,
@@ -269,15 +260,15 @@ export function useBookingEngineNavigation(activeSteps: readonly BookingStepKind
   );
 
   const onStepIndexChange = useCallback(
-    (index: number, reason: 'next' | 'back' | 'skip', options?: { clearContactOtp?: () => void; awaitingOtp?: boolean }) => {
+    (index: number, reason: 'next' | 'back' | 'skip') => {
       if (reason === 'back') {
-        goToStepIndex(index, options);
+        goToStepIndex(index);
         return;
       }
       const maxAllowed = computeMaxAllowedStep(activeSteps, selections);
       const maxIdx = activeSteps.indexOf(maxAllowed);
       if (index > maxIdx) {
-        goToStepIndex(maxIdx, options);
+        goToStepIndex(maxIdx);
         return;
       }
       ctx.setStepIndex(index);

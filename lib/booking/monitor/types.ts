@@ -20,7 +20,6 @@ export const BOOKING_MONITOR_EVENTS = [
   'selected_employee',
   'selected_date',
   'selected_slot',
-  'entered_contact',
   'entered_summary',
   'opened_discount_code',
   'opened_gift_voucher',

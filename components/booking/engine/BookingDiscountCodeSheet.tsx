@@ -5,7 +5,7 @@ import { ActionSheetRef } from 'react-native-actions-sheet';
 import type { BookingEngineCoupon } from '@/hooks/useBookingEngineCoupon';
 import ActionSheetThemed from '@/components/ActionSheetThemed';
 import AppButton from '@/components/AppButton';
-import BookingContactSummaryPanel from '@/components/booking/engine/BookingContactSummaryPanel';
+import BookingMiniSummaryPanel from '@/components/booking/engine/BookingMiniSummaryPanel';
 import BookingCouponPriceBreakdown from '@/components/booking/engine/BookingCouponPriceBreakdown';
 import type { BookingEngineFlow } from '@/hooks/useBookingEngineFlow';
 import ThemedText from '@/components/ThemedText';
@@ -86,7 +86,7 @@ const BookingDiscountCodeSheet = forwardRef<BookingDiscountCodeSheetHandle, Prop
           {coupon.preview ? (
             <>
               <View className="mt-4">
-                <BookingContactSummaryPanel flow={flow} hideCatalogPrice />
+                <BookingMiniSummaryPanel flow={flow} hideCatalogPrice />
               </View>
               <BookingCouponPriceBreakdown preview={coupon.preview} t={t} />
               <AppButton

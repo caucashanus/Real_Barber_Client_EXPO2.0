@@ -109,8 +109,6 @@ function stepTitleKey(kind: BookingStepKind): TranslationKey {
       return 'reservationStepDatetimeTitle';
     case 'summary':
       return 'reservationSummaryTitle';
-    case 'contact':
-      return 'reservationSummaryTitle';
     default:
       return 'reservationStepBranchTitle';
   }
@@ -819,8 +817,8 @@ export function useBookingEngineFlow() {
     void clearBookingSlotContext();
     setCalendarRefreshKey((value) => value + 1);
     const datetimeIdx = activeSteps.indexOf('datetime');
-    if (datetimeIdx >= 0) goToStepIndexWithContact(datetimeIdx);
-  }, [activeSteps, goToStepIndexWithContact, setSlot]);
+    if (datetimeIdx >= 0) goToStepIndexSafe(datetimeIdx);
+  }, [activeSteps, goToStepIndexSafe, setSlot]);
 
   const createHoldBeforeContact = useCallback(
     async (override?: BookingHoldCreateBody): Promise<boolean> => {
@@ -1062,23 +1060,20 @@ export function useBookingEngineFlow() {
 
   const selections = useMemo(() => toBookingSelections(), [toBookingSelections]);
 
-  const navigationOptions = useMemo(() => ({}), []);
-
-  const goToStepIndexWithContact = useCallback(
+  const goToStepIndexSafe = useCallback(
     (nextIndex: number) => {
       goToStepIndex(nextIndex, {
         fromStep: activeSteps[stepIndex] ?? step,
-        ...navigationOptions,
       });
     },
-    [goToStepIndex, activeSteps, stepIndex, step, navigationOptions]
+    [goToStepIndex, activeSteps, stepIndex, step]
   );
 
   const onStepIndexChange = useCallback(
     (index: number, reason: 'next' | 'back' | 'skip') => {
-      onStepIndexChangeBase(index, reason, navigationOptions);
+      onStepIndexChangeBase(index, reason);
     },
-    [onStepIndexChangeBase, navigationOptions]
+    [onStepIndexChangeBase]
   );
 
   const leaveBookingFlow = useCallback(() => {
@@ -1088,11 +1083,11 @@ export function useBookingEngineFlow() {
 
   const handleBack = useCallback(() => {
     if (stepIndex > 0) {
-      goToStepIndexWithContact(stepIndex - 1);
+      goToStepIndexSafe(stepIndex - 1);
       return;
     }
     leaveBookingFlow();
-  }, [stepIndex, goToStepIndexWithContact, leaveBookingFlow]);
+  }, [stepIndex, goToStepIndexSafe, leaveBookingFlow]);
 
   const couponEmployeeId = useMemo(() => {
     const employee = profileEmployee ?? selectedEmployee;
@@ -1203,7 +1198,7 @@ export function useBookingEngineFlow() {
     handoffAppliedRef.current = true;
     const datetimeIdx = activeSteps.indexOf('datetime');
     if (datetimeIdx >= 0 && stepIndex !== datetimeIdx) {
-      goToStepIndexWithContact(datetimeIdx);
+      goToStepIndexSafe(datetimeIdx);
     }
   }, [
     recipeId,
@@ -1215,7 +1210,7 @@ export function useBookingEngineFlow() {
     selectedSlot?.start,
     activeSteps,
     stepIndex,
-    goToStepIndexWithContact,
+    goToStepIndexSafe,
   ]);
 
   const nextStepAfter = useCallback(
@@ -1231,9 +1226,9 @@ export function useBookingEngineFlow() {
       const next = nextStepAfter(kind);
       if (!next) return;
       const nextIdx = activeSteps.indexOf(next);
-      if (nextIdx >= 0) goToStepIndexWithContact(nextIdx);
+      if (nextIdx >= 0) goToStepIndexSafe(nextIdx);
     },
-    [nextStepAfter, activeSteps, goToStepIndexWithContact]
+    [nextStepAfter, activeSteps, goToStepIndexSafe]
   );
 
   const handleContinue = useCallback(() => {
@@ -1248,13 +1243,13 @@ export function useBookingEngineFlow() {
       }
 
       const nextIdx = activeSteps.indexOf(next);
-      if (nextIdx >= 0) goToStepIndexWithContact(nextIdx);
+      if (nextIdx >= 0) goToStepIndexSafe(nextIdx);
     })();
   }, [
     step,
     nextStepAfter,
     activeSteps,
-    goToStepIndexWithContact,
+    goToStepIndexSafe,
     selectedSlot?.start,
     createHoldBeforeContact,
     hold.isCreatingHold,

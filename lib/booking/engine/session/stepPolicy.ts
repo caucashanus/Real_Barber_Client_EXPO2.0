@@ -1,12 +1,12 @@
 import type { BookingSelectionsState } from '@/lib/booking/engine/bookingSelectionsReducer';
 import type { BookingStepKind } from '@/lib/booking/engine/types';
 
-/** Ze summary/contact zpět na datetime — slot a date zůstávají (revisit). */
+/** Ze summary zpět na datetime — slot a date zůstávají (revisit). */
 export function isRevisitDatetime(
   fromStep: BookingStepKind,
   toStep: BookingStepKind
 ): boolean {
-  return toStep === 'datetime' && (fromStep === 'summary' || fromStep === 'contact');
+  return toStep === 'datetime' && fromStep === 'summary';
 }
 
 function shouldClearStep(
@@ -34,8 +34,7 @@ export function applyBackwardSelectionCleanup(
 
   if (
     !revisitDatetime &&
-    (shouldClearStep('contact', fromIdx, toIdx, activeSteps) ||
-      shouldClearStep('summary', fromIdx, toIdx, activeSteps) ||
+    (shouldClearStep('summary', fromIdx, toIdx, activeSteps) ||
       shouldClearStep('datetime', fromIdx, toIdx, activeSteps))
   ) {
     next = { ...next, slot: null };

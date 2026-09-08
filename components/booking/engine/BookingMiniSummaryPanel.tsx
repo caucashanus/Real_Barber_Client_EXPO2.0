@@ -27,7 +27,7 @@ type SummaryRow = {
   label: string;
 };
 
-export default function BookingContactSummaryPanel({
+export default function BookingMiniSummaryPanel({
   flow,
   hideCatalogPrice = false,
   plain = false,

@@ -3,10 +3,9 @@ export type BookingStepKind =
   | 'service'
   | 'employee'
   | 'datetime'
-  | 'contact'
   | 'summary';
 
-/** App booking ends on summary only (everyone is logged in — no guest Kontakt step). */
+/** App booking ends on summary only (logged-in users — no guest Kontakt step). */
 export const BOOKING_TERMINAL_STEPS = [
   'datetime',
   'summary',

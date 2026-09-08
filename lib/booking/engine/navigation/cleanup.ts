@@ -214,8 +214,7 @@ export function applyBookingBackwardCleanup(
   fromStep: BookingStepKind,
   toStep: BookingStepKind,
   activeSteps: readonly BookingStepKind[],
-  setters: SelectionSetters,
-  options?: { clearContactOtp?: () => void; awaitingOtp?: boolean }
+  setters: SelectionSetters
 ): void {
   const fromIdx = activeSteps.indexOf(fromStep);
   const toIdx = activeSteps.indexOf(toStep);
@@ -226,15 +225,11 @@ export function applyBookingBackwardCleanup(
     return idx !== -1 && fromIdx >= idx && toIdx < idx;
   };
 
-  if (options?.awaitingOtp && (shouldClear('contact') || shouldClear('summary') || shouldClear('datetime'))) {
-    options.clearContactOtp?.();
-  }
-
   const revisitDatetime = isRevisitDatetime(fromStep, toStep);
 
   if (
     !revisitDatetime &&
-    (shouldClear('contact') || shouldClear('summary') || shouldClear('datetime'))
+    (shouldClear('summary') || shouldClear('datetime'))
   ) {
     setters.setSlot(null);
   }
@@ -266,7 +261,6 @@ function isStepSatisfied(kind: BookingStepKind, selections: BookingSelections): 
   if (kind === 'service') return Boolean(selections.service?.id);
   if (kind === 'employee') return Boolean(selections.employee?.id);
   if (kind === 'datetime') return Boolean(selections.slot?.start);
-  if (kind === 'contact') return true;
   if (kind === 'summary') return Boolean(selections.slot?.start);
   return true;
 }
