@@ -18,7 +18,7 @@ interface Props {
 
 export function shouldShowBookingHoldSummaryRow(flow: BookingEngineFlow): boolean {
   return Boolean(
-    !flow.contact.submitSuccess && flow.hold.countdownLabel && flow.step === 'summary'
+    !flow.submit.submitSuccess && flow.hold.countdownLabel && flow.step === 'summary'
   );
 }
 

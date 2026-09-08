@@ -128,10 +128,10 @@ function BookingEngineFlowShellBody({ flow, children }: BookingEngineFlowShellPr
           <View
             className="border-t border-light-secondary bg-light-secondary px-4 py-3 dark:border-dark-secondary dark:bg-dark-secondary"
             style={{ paddingBottom: Math.max(insets.bottom, 12) }}>
-            {flow.contact.submitError || flow.hold.createError ? (
+            {flow.submit.submitError || flow.hold.createError ? (
               <View className="mb-3 rounded-xl border border-amber-500/40 bg-amber-500/10 px-3 py-2">
                 <ThemedText className="text-sm text-amber-700 dark:text-amber-300">
-                  {flow.contact.submitError ??
+                  {flow.submit.submitError ??
                     flow.t('bookingHoldFailed')}
                 </ThemedText>
               </View>

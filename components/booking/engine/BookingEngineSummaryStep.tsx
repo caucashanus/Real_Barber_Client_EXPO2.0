@@ -95,9 +95,9 @@ export default function BookingEngineSummaryStep({ flow }: Props) {
         </View>
       </Section>
 
-      {flow.contact.submitError ? (
+      {flow.submit.submitError ? (
         <ThemedText className="text-sm text-red-500 dark:text-red-400">
-          {flow.contact.submitError}
+          {flow.submit.submitError}
         </ThemedText>
       ) : null}
     </View>

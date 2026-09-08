@@ -91,10 +91,10 @@ const BookingDiscountCodeSheet = forwardRef<BookingDiscountCodeSheetHandle, Prop
               <BookingCouponPriceBreakdown preview={coupon.preview} t={t} />
               <AppButton
                 title={
-                  flow.contact.submitting ? t('bookingSubmitting') : t('bookingReserveTerm')
+                  flow.submit.submitting ? t('bookingSubmitting') : t('bookingReserveTerm')
                 }
-                loading={flow.contact.submitting}
-                disabled={flow.contact.submitting}
+                loading={flow.submit.submitting}
+                disabled={flow.submit.submitting}
                 onPress={handleReserve}
                 className="mt-4"
               />

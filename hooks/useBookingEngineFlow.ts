@@ -22,8 +22,8 @@ import { useLanguage } from '@/contexts/LanguageContext';
 import useThemeColors from '@/contexts/ThemeColors';
 import {
   formatBookingSubmitError,
-  useBookingEngineContact,
-} from '@/hooks/useBookingEngineContact';
+  useBookingReservationSubmit,
+} from '@/hooks/useBookingReservationSubmit';
 import { useBookingEngineCoupon } from '@/hooks/useBookingEngineCoupon';
 import { useBookingHold } from '@/hooks/useBookingHold';
 import { useTranslation } from '@/hooks/useTranslation';
@@ -236,7 +236,7 @@ export function useBookingEngineFlow() {
   const tomorrowIso = useMemo(() => addDaysIso(todayIso, 1), [todayIso]);
 
   const multiBranchLegend = usesMultiBranchDatetimeLegend(preset, flowBootstrap);
-  const contact = useBookingEngineContact(client, apiToken);
+  const submit = useBookingReservationSubmit(client, apiToken);
   const hold = useBookingHold(apiToken);
 
   const abandonBookingFlow = useCallback(() => {
@@ -254,7 +254,6 @@ export function useBookingEngineFlow() {
     setStepIndex(0);
     setSlotHandoff(null);
     setFromSlotHandoff(false);
-    contact.cancelPhoneOtp();
     void clearDraft();
     void clearBookingSlotContext();
     void clearBookingSlotHandoff();
@@ -268,7 +267,6 @@ export function useBookingEngineFlow() {
     selectedService?.id,
     resetSelections,
     setStepIndex,
-    contact,
     clearDraft,
     hold,
   ]);
@@ -303,12 +301,12 @@ export function useBookingEngineFlow() {
   useEffect(() => {
     setBookingMonitorIdentity({
       client,
-      phone: contact.contactContext.phone,
-      clientName: contact.contactContext.firstName
-        ? `${contact.contactContext.firstName} ${contact.contactContext.lastName}`.trim()
+      phone: submit.contactContext.phone,
+      clientName: submit.contactContext.firstName
+        ? `${submit.contactContext.firstName} ${submit.contactContext.lastName}`.trim()
         : null,
     });
-  }, [client, contact.contactContext]);
+  }, [client, submit.contactContext]);
 
   useEffect(() => {
     if (monitorSessionInitRef.current) return;
@@ -358,7 +356,7 @@ export function useBookingEngineFlow() {
 
   const leaveMonitorRef = useRef({ submitSuccess: false, fields: monitorFields(step) });
   leaveMonitorRef.current = {
-    submitSuccess: contact.submitSuccess,
+    submitSuccess: submit.submitSuccess,
     fields: monitorFields(step),
   };
 
@@ -374,7 +372,7 @@ export function useBookingEngineFlow() {
     abandon: () => {},
   });
   flowAbandonRef.current = {
-    submitSuccess: contact.submitSuccess,
+    submitSuccess: submit.submitSuccess,
     abandon: abandonBookingFlow,
   };
 
@@ -392,7 +390,7 @@ export function useBookingEngineFlow() {
     abandon: () => {},
   });
   holdLeaveRef.current = {
-    submitSuccess: contact.submitSuccess,
+    submitSuccess: submit.submitSuccess,
     abandon: abandonBookingFlow,
   };
 
@@ -1064,13 +1062,7 @@ export function useBookingEngineFlow() {
 
   const selections = useMemo(() => toBookingSelections(), [toBookingSelections]);
 
-  const navigationOptions = useMemo(
-    () => ({
-      awaitingOtp: contact.awaitingPhoneOtp,
-      clearContactOtp: contact.cancelPhoneOtp,
-    }),
-    [contact.awaitingPhoneOtp, contact.cancelPhoneOtp]
-  );
+  const navigationOptions = useMemo(() => ({}), []);
 
   const goToStepIndexWithContact = useCallback(
     (nextIndex: number) => {
@@ -1113,8 +1105,8 @@ export function useBookingEngineFlow() {
       employeeId: couponEmployeeId,
       branchId: selectedBranch?.id ?? null,
       itemId: selectedService?.id ?? null,
-      phone: contact.contactContext.phone || null,
-      email: contact.contactContext.email || null,
+      phone: submit.contactContext.phone || null,
+      email: submit.contactContext.email || null,
       slotStart: selectedSlot?.start ?? null,
       date: selectedDate,
     }),
@@ -1122,8 +1114,8 @@ export function useBookingEngineFlow() {
       couponEmployeeId,
       selectedBranch?.id,
       selectedService?.id,
-      contact.contactContext.phone,
-      contact.contactContext.email,
+      submit.contactContext.phone,
+      submit.contactContext.email,
       selectedSlot?.start,
       selectedDate,
     ]
@@ -1739,8 +1731,7 @@ export function useBookingEngineFlow() {
         slotStart: selectedSlot.start,
         holdId,
         ...(selectedSlot.end ? { slotEnd: selectedSlot.end } : {}),
-        ...(contact.fields.notes.trim() ? { notes: contact.fields.notes.trim() } : {}),
-        marketingConsent: contact.fields.marketingConsent,
+        marketingConsent: false,
         ...(coupon.couponCodeForSubmit ? { couponCode: coupon.couponCodeForSubmit } : {}),
       };
     },
@@ -1752,15 +1743,13 @@ export function useBookingEngineFlow() {
       selectedDate,
       selectedSlot,
       hold.holdId,
-      contact.fields.notes,
-      contact.fields.marketingConsent,
       coupon.couponCodeForSubmit,
     ]
   );
 
   const handleSubmit = useCallback(() => {
     const hadCoupon = Boolean(coupon.couponCodeForSubmit);
-    void contact.submitReservation({
+    void submit.submitReservation({
       buildPayload: buildSubmitPayload,
       onSuccess: (data) => void handleSubmitSuccess(data, hadCoupon),
       onSlotConflict: () => {
@@ -1771,7 +1760,7 @@ export function useBookingEngineFlow() {
       formatError: (err) => formatBookingSubmitError(err, t),
     });
   }, [
-    contact,
+    submit,
     buildSubmitPayload,
     handleSubmitSuccess,
     coupon.couponCodeForSubmit,
@@ -1781,9 +1770,9 @@ export function useBookingEngineFlow() {
   ]);
 
   useEffect(() => {
-    if (step !== 'summary' || contact.submitSuccess) return;
+    if (step !== 'summary' || submit.submitSuccess) return;
     void hold.extendOnce();
-  }, [step, contact.submitSuccess, hold]);
+  }, [step, submit.submitSuccess, hold]);
 
   useEffect(() => {
     if (step !== 'datetime') return;
@@ -1807,9 +1796,9 @@ export function useBookingEngineFlow() {
     () =>
       resolveBookingFlowFooterAction({
         step,
-        submitSuccess: contact.submitSuccess,
+        submitSuccess: submit.submitSuccess,
         isSlotHandoffFlow: Boolean(slotHandoff) && step === 'service',
-        authPrefillReady: contact.authPrefillReady,
+        authPrefillReady: submit.authPrefillReady,
         selections: {
           branch: selectedBranch,
           service: selectedService,
@@ -1817,7 +1806,7 @@ export function useBookingEngineFlow() {
           date: selectedDate,
           slot: selectedSlot,
         },
-        submitting: contact.submitting,
+        submitting: submit.submitting,
         isCreatingHold: hold.isCreatingHold,
         onContinue: handleContinue,
         onSubmit: handleSubmit,
@@ -1830,7 +1819,7 @@ export function useBookingEngineFlow() {
     [
       step,
       slotHandoff,
-      contact,
+      submit,
       selectedBranch,
       selectedService,
       selectedEmployee,
@@ -1945,7 +1934,7 @@ export function useBookingEngineFlow() {
     jumpToNearestAvailableDate,
     showTodayChip: datesWithSlots.includes(todayIso),
     showTomorrowChip: datesWithSlots.includes(tomorrowIso),
-    contact,
+    submit,
     coupon,
     hold,
     handleHoldDialogConfirm,
@@ -1956,7 +1945,7 @@ export function useBookingEngineFlow() {
     isNextDisabled,
     onStepIndexChange,
     initialStepIndex: 0,
-    submitSuccess: contact.submitSuccess,
+    submitSuccess: submit.submitSuccess,
   };
 }
 
