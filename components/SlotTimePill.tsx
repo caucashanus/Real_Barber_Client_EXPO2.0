@@ -47,6 +47,8 @@ export default function SlotTimePill({
 }: SlotTimePillProps) {
   const displayTitle = time ? formatNextSlotDisplayTime(time) : (title ?? '');
 
+  const isMuted = muted && !selected;
+
   const button = (
     <AppButton
       variant="choice"
@@ -56,15 +58,17 @@ export default function SlotTimePill({
       onPress={onPress}
       disabled={disabled}
       disableHaptic
+      // Inline opacity — NativeWind nemá spolehlivě `opacity-45` (proto dny bez směny vypadaly stejně).
+      style={isMuted ? { opacity: 0.35 } : undefined}
       className={[
         compact ? NEXT_SLOT_BUTTON_COMPACT_CLASS : NEXT_SLOT_BUTTON_CLASS,
-        muted && !selected ? 'opacity-45' : '',
         className,
       ]
         .filter(Boolean)
         .join(' ')}
       textClassName={[
         compact ? NEXT_SLOT_BUTTON_COMPACT_TEXT_CLASS : NEXT_SLOT_BUTTON_TEXT_CLASS,
+        isMuted ? 'font-medium text-light-subtext dark:text-dark-subtext' : '',
         textClassName,
       ]
         .filter(Boolean)
