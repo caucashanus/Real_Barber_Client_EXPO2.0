@@ -142,6 +142,11 @@
             {
               "scheme": "https",
               "host": "realbarber.cz",
+              "path": "/"
+            },
+            {
+              "scheme": "https",
+              "host": "realbarber.cz",
               "pathPrefix": "/aplikace"
             },
             {

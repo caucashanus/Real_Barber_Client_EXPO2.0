@@ -3,6 +3,12 @@ import { describe, expect, it } from 'vitest';
 import { resolveWebPathToAppRoute } from '@/lib/linking/resolveWebPath';
 
 describe('resolveWebPathToAppRoute', () => {
+  it('maps homepage to app index', () => {
+    expect(resolveWebPathToAppRoute('/')).toBe('/');
+    expect(resolveWebPathToAppRoute('https://realbarber.cz/')).toBe('/');
+    expect(resolveWebPathToAppRoute('https://realbarber.cz')).toBe('/');
+  });
+
   it('maps inspirace and team list', () => {
     expect(resolveWebPathToAppRoute('/inspirace/')).toBe('/inspirace');
     expect(resolveWebPathToAppRoute('/tym/')).toBe('/experience');

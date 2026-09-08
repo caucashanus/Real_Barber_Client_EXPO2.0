@@ -41,6 +41,8 @@ function buildInAppWebRoute(path: string): string {
 }
 
 const WEB_PATH_EXACT_ROUTES: Record<string, string> = {
+  /** Homepage `https://realbarber.cz/` → app index (auth → home / login). */
+  '/': '/',
   '/inspirace': '/inspirace',
   '/tym': '/experience',
   '/kontakty': '/branches',
