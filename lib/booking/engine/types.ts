@@ -6,9 +6,9 @@ export type BookingStepKind =
   | 'contact'
   | 'summary';
 
+/** App booking ends on summary only (everyone is logged in — no guest Kontakt step). */
 export const BOOKING_TERMINAL_STEPS = [
   'datetime',
-  'contact',
   'summary',
 ] as const satisfies readonly BookingStepKind[];
 

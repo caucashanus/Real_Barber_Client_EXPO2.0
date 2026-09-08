@@ -6,12 +6,13 @@ export function shouldSkipStep(
   bootstrap: BookingBootstrap,
   _recipe: BookingRecipe
 ): boolean {
+  // App: always skip guest Kontakt; final step is always Shrnutí.
   if (step === 'contact') {
-    return bootstrap.skipContact === true;
+    return true;
   }
 
   if (step === 'summary') {
-    return bootstrap.skipContact !== true;
+    return false;
   }
 
   const handoff = bootstrap.handoffPreset;

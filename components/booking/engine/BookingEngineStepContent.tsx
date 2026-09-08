@@ -4,7 +4,6 @@ import { View } from 'react-native';
 import type { BookingEngineFlow } from '@/hooks/useBookingEngineFlow';
 import ThemedText from '@/components/ThemedText';
 import BookingEngineBranchStep from '@/components/booking/engine/BookingEngineBranchStep';
-import BookingEngineContactStep from '@/components/booking/engine/BookingEngineContactStep';
 import BookingEngineDatetimeStep from '@/components/booking/engine/BookingEngineDatetimeStep';
 import BookingEngineEmployeeStep from '@/components/booking/engine/BookingEngineEmployeeStep';
 import BookingEngineHandoffServiceStep from '@/components/booking/engine/BookingEngineHandoffServiceStep';
@@ -60,9 +59,5 @@ export default function BookingEngineStepContent({ flow, stepKind }: Props) {
     return <BookingEngineDatetimeStep flow={flow} />;
   }
 
-  if (stepKind === 'summary') {
-    return <BookingEngineSummaryStep flow={flow} />;
-  }
-
-  return <BookingEngineContactStep flow={flow} />;
+  return <BookingEngineSummaryStep flow={flow} />;
 }

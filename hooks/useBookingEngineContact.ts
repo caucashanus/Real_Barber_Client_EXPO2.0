@@ -8,7 +8,7 @@ import {
 import type { CrmClient } from '@/api/auth';
 import type { TranslationKey } from '@/locales';
 import { BookingApiError, isBookingRateLimited, isBookingSlotConflict } from '@/lib/booking/booking-api/errors';
-import { isAuthContactComplete, mapAuthClientToBookingContact } from '@/lib/booking/authContact';
+import { mapAuthClientToBookingContact } from '@/lib/booking/authContact';
 import {
   buildFullPhone,
   phoneCountrySelectValueFromIso2,
@@ -77,7 +77,7 @@ export function useBookingEngineContact(client: CrmClient | null | undefined, ap
   useEffect(() => {
     let cancelled = false;
     void (async () => {
-      if (client && isAuthContactComplete(client)) {
+      if (client) {
         const mapped = mapAuthClientToBookingContact(client);
         if (mapped && !cancelled) {
           setFields((prev) => ({
@@ -87,6 +87,26 @@ export function useBookingEngineContact(client: CrmClient | null | undefined, ap
             email: mapped.email,
             phoneCountryCode: phoneCountrySelectValueFromIso2(mapped.countryIso),
             phoneNationalDigits: mapped.nationalDigits,
+          }));
+          setAuthPrefillReady(true);
+          return;
+        }
+
+        // Incomplete CRM profile — still prefill what we can (app has no Kontakt step).
+        if (!cancelled) {
+          const nameParts = (client.name ?? '').trim().split(/\s+/).filter(Boolean);
+          const phoneDigits = (client.phone ?? '').replace(/\D/g, '');
+          const national =
+            phoneDigits.startsWith('420') && phoneDigits.length >= 12
+              ? phoneDigits.slice(3)
+              : phoneDigits.replace(/^0+/, '');
+          setFields((prev) => ({
+            ...prev,
+            firstName: nameParts[0] ?? prev.firstName,
+            lastName: nameParts.slice(1).join(' ') || nameParts[0] || prev.lastName,
+            email: client.email?.trim() || prev.email,
+            phoneNationalDigits: national || prev.phoneNationalDigits,
+            phoneCountryCode: phoneCountrySelectValueFromIso2('CZ'),
           }));
           setAuthPrefillReady(true);
           return;

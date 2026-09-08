@@ -50,7 +50,6 @@ import {
   minPricesFromCatalogItems,
 } from '@/lib/booking/booking-api/mappers';
 import type { BookingFlatAvailabilityMap, BookingSlotServiceItem } from '@/lib/booking/booking-api/types';
-import { isAuthContactComplete } from '@/lib/booking/authContact';
 import { resolveBranchName } from '@/lib/booking/designShared';
 import {
   branchPriceForServiceId,
@@ -167,7 +166,8 @@ export function useBookingEngineFlow() {
   >([]);
   const [profileLoading, setProfileLoading] = useState(recipeId === 'employee-profile');
 
-  const skipContact = Boolean(apiToken && isAuthContactComplete(client));
+  /** App users are always authenticated — never show Kontakt, always Shrnutí. */
+  const skipContact = true;
   const [slotHandoff, setSlotHandoff] = useState<StoredBookingSlotHandoff | null>(null);
   const [fromSlotHandoff, setFromSlotHandoff] = useState(false);
 
@@ -1638,7 +1638,7 @@ export function useBookingEngineFlow() {
 
   const handleSubmitSuccess = useCallback(
     async (data: unknown, hadCoupon: boolean) => {
-      const successFields = monitorFields(skipContact ? 'summary' : 'contact');
+      const successFields = monitorFields('summary');
       if (apiToken) {
         trackBookingMonitor('reservation_no_otp', {
           ...successFields,
@@ -1800,10 +1800,9 @@ export function useBookingEngineFlow() {
   ]);
 
   useEffect(() => {
-    const onHoldStep = step === 'contact' || (step === 'summary' && skipContact);
-    if (!onHoldStep || contact.submitSuccess) return;
+    if (step !== 'summary' || contact.submitSuccess) return;
     void hold.extendOnce();
-  }, [step, skipContact, contact.submitSuccess, hold]);
+  }, [step, contact.submitSuccess, hold]);
 
   useEffect(() => {
     if (step !== 'datetime') return;
