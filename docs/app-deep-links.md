@@ -16,7 +16,7 @@ Když má uživatel nainstalovanou appku a klikne na URL `realbarber.cz`, která
 | Team member URLs | `https://realbarber.cz/tym/:slug/` → `/barber-detail?id=:slug` |
 | Custom scheme (push, widget) | `realbarber://` — beze změny |
 | iOS Associated Domains | `applinks:realbarber.cz` |
-| Android App Links | exact `/` + `/aplikace/*` + `/tym/*` (`autoVerify: true`) |
+| Android App Links | exact `/` + fáze 1 prefixy/paths (`autoVerify: true`) — viz `app.json` |
 | Expo Router origin | `https://realbarber.cz` |
 
 Soubory:
@@ -27,19 +27,10 @@ Soubory:
 - `constants/deepLinkConfig.ts` — sdílené konstanty
 - `ios/RealBarber/RealBarber.entitlements` — associated domains (lokální iOS build)
 
-## Zadání pro web tým (AASA)
+## AASA — fáze 1 (live na produkci)
 
 Soubor: `https://realbarber.cz/.well-known/apple-app-site-association`  
-`appID`: `VK8YT9654D.com.realbarber.client` (beze změny)
-
-### Aktuálně live (málo)
-
-```json
-"/aplikace/stahnout",
-"/aplikace/stahnout/"
-```
-
-### Požadované `paths` (nahradit / rozšířit)
+`appID`: `VK8YT9654D.com.realbarber.client`
 
 ```json
 [
@@ -47,27 +38,36 @@ Soubor: `https://realbarber.cz/.well-known/apple-app-site-association`
   "/aplikace/stahnout",
   "/aplikace/stahnout/",
   "/tym",
-  "/tym/*"
+  "/tym/*",
+  "/sluzby",
+  "/sluzby/*",
+  "/inspirace",
+  "/cenik",
+  "/kontakty",
+  "/branches/*",
+  "/mapa",
+  "/rezervace",
+  "/rezervace/*",
+  "/promo/*",
+  "/gdpr",
+  "/ochrana-osobnich-udaju",
+  "/ochrana-osobnich-udaj",
+  "/login"
 ]
 ```
-
-| Path | Proč |
-|---|---|
-| `/` | Homepage `https://realbarber.cz/` otevře appku |
-| `/aplikace/stahnout` (+ `/`) | QR / smart open (už je) |
-| `/tym` | Seznam týmu |
-| `/tym/*` | Detail holiče, např. `/tym/andrea/` |
 
 ### Důležité
 
 - **Nedávejte** `"/*"` ani `"*"` — to by stáhlo celý web (blog, kariéra…) do appky.
 - Path `/` = **jen homepage**, ne celý web.
+- `/inspirace` ANO; `/inspirace/*` NE (legacy → web `/sluzby/*`).
+- EN/UK listing slugy (`/team`, `/services`…) zatím neclaimujeme.
 - Bez instalované appky URL dál fungují jako web.
-- Po změně AASA ověřit: `curl -s https://realbarber.cz/.well-known/apple-app-site-association`
+- Ověření: `curl -s https://realbarber.cz/.well-known/apple-app-site-association`
 
 ### Android `assetlinks.json`
 
-Už běží (package `com.realbarber.client` + SHA-256). Appka v novém buildu claimuje `/`, `/aplikace`, `/tym`. SHA musí zůstat platný (Play App Signing).
+Už běží (package `com.realbarber.client` + SHA-256). SHA musí zůstat platný (Play App Signing). Intent filters musí odpovídat AASA fázi 1 (nový **native** build, ne OTA).
 
 ## Co mapuje appka (až OS URL předá)
 
@@ -77,28 +77,41 @@ Už běží (package `com.realbarber.client` + SHA-256). Appka v novém buildu c
 | `/aplikace/stahnout` | `/` |
 | `/tym` | `/experience` |
 | `/tym/{slug}/` | `/barber-detail?id={slug}` |
-| `/inspirace`, `/sluzby`, `/kontakty`… | mapování v kódu je, ale Safari je **neotevře**, dokud nejsou v AASA + Android filters |
+| `/sluzby` | `/services` |
+| `/sluzby/{slug}/` | `/hairstyle-detail?id={slug}` |
+| `/inspirace` | `/inspirace` |
+| `/cenik` | `/services` |
+| `/kontakty` | `/branches` |
+| `/branches/{slug}/` | `/branch-detail?id={slug}` |
+| `/mapa` | `/screens/map` |
+| `/rezervace`, `/rezervace/*` | `/screens/reservation-create` |
+| `/promo/poster\|kupon/{id}` | `/promo/...` |
+| `/gdpr`, `/ochrana-osobnich-udaju(j)` | privacy screen |
+| `/login` | `/screens/login` |
 
-Další homepage sekce (služby, inspirace, kontakty) = **další iterace** AASA + intent filters.
+**WEB_ONLY** (ne v AASA): blog, novinky, FAQ, O nás, kariéra, SEO landings, `/r/*`, `/prehled`, `/menu`, `/inspirace/*`, …
+
+**Fáze 2** (až app doplní mapování + AASA): `/u/*/…`, `/rozvrh`, `/mapa/filtry`
 
 ## Nasazení
 
-1. **Web:** nasadit AASA paths výše
+1. **Web:** AASA fáze 1 — ✅ live
 2. **App:** EAS production build (nativní změna intent filters — **ne OTA**)
-3. TestFlight / Play → E2E ze Safari / Chrome
+3. TestFlight / Play → E2E ze Notes / Messages / Chrome (ne jen adresní řádek Safari)
 
 ## Ověření
 
 ```bash
-# AASA obsahuje "/" a "/tym/*"
 curl -s "https://realbarber.cz/.well-known/apple-app-site-association"
 
 # In-app routing (nepravý Universal Link)
 xcrun simctl openurl booted "https://realbarber.cz/"
 xcrun simctl openurl booted "https://realbarber.cz/tym/andrea/"
+xcrun simctl openurl booted "https://realbarber.cz/inspirace"
+xcrun simctl openurl booted "https://realbarber.cz/sluzby/"
 
 # Android
-adb shell am start -W -a android.intent.action.VIEW -d "https://realbarber.cz/"
+adb shell am start -W -a android.intent.action.VIEW -d "https://realbarber.cz/inspirace"
 adb shell pm get-app-links com.realbarber.client
 ```
 

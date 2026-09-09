@@ -36,7 +36,21 @@
       </intent-filter>
       <intent-filter android:autoVerify="true" data-generated="true">
         <action android:name="android.intent.action.VIEW"/>
+        <data android:scheme="https" android:host="realbarber.cz" android:path="/"/>
         <data android:scheme="https" android:host="realbarber.cz" android:pathPrefix="/aplikace"/>
+        <data android:scheme="https" android:host="realbarber.cz" android:pathPrefix="/tym"/>
+        <data android:scheme="https" android:host="realbarber.cz" android:pathPrefix="/sluzby"/>
+        <data android:scheme="https" android:host="realbarber.cz" android:path="/inspirace"/>
+        <data android:scheme="https" android:host="realbarber.cz" android:path="/cenik"/>
+        <data android:scheme="https" android:host="realbarber.cz" android:path="/kontakty"/>
+        <data android:scheme="https" android:host="realbarber.cz" android:pathPrefix="/branches"/>
+        <data android:scheme="https" android:host="realbarber.cz" android:path="/mapa"/>
+        <data android:scheme="https" android:host="realbarber.cz" android:pathPrefix="/rezervace"/>
+        <data android:scheme="https" android:host="realbarber.cz" android:pathPrefix="/promo"/>
+        <data android:scheme="https" android:host="realbarber.cz" android:path="/gdpr"/>
+        <data android:scheme="https" android:host="realbarber.cz" android:pathPrefix="/ochrana-osobnich-udaju"/>
+        <data android:scheme="https" android:host="realbarber.cz" android:pathPrefix="/ochrana-osobnich-udaj"/>
+        <data android:scheme="https" android:host="realbarber.cz" android:path="/login"/>
         <category android:name="android.intent.category.BROWSABLE"/>
         <category android:name="android.intent.category.DEFAULT"/>
       </intent-filter>

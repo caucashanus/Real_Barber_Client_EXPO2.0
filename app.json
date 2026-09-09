@@ -101,7 +101,7 @@
       "deploymentTarget": "16.4",
       "appleTeamId": "VK8YT9654D",
       "bundleIdentifier": "com.realbarber.client",
-      "buildNumber": "87",
+      "buildNumber": "88",
       "appStoreUrl": "https://apps.apple.com/app/id6760221388",
       "supportsTablet": false,
       "associatedDomains": [
@@ -126,7 +126,7 @@
     },
     "android": {
       "package": "com.realbarber.client",
-      "versionCode": 75,
+      "versionCode": 76,
       "playStoreUrl": "https://play.google.com/store/apps/details?id=com.realbarber.client",
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
@@ -153,6 +153,66 @@
               "scheme": "https",
               "host": "realbarber.cz",
               "pathPrefix": "/tym"
+            },
+            {
+              "scheme": "https",
+              "host": "realbarber.cz",
+              "pathPrefix": "/sluzby"
+            },
+            {
+              "scheme": "https",
+              "host": "realbarber.cz",
+              "path": "/inspirace"
+            },
+            {
+              "scheme": "https",
+              "host": "realbarber.cz",
+              "path": "/cenik"
+            },
+            {
+              "scheme": "https",
+              "host": "realbarber.cz",
+              "path": "/kontakty"
+            },
+            {
+              "scheme": "https",
+              "host": "realbarber.cz",
+              "pathPrefix": "/branches"
+            },
+            {
+              "scheme": "https",
+              "host": "realbarber.cz",
+              "path": "/mapa"
+            },
+            {
+              "scheme": "https",
+              "host": "realbarber.cz",
+              "pathPrefix": "/rezervace"
+            },
+            {
+              "scheme": "https",
+              "host": "realbarber.cz",
+              "pathPrefix": "/promo"
+            },
+            {
+              "scheme": "https",
+              "host": "realbarber.cz",
+              "path": "/gdpr"
+            },
+            {
+              "scheme": "https",
+              "host": "realbarber.cz",
+              "pathPrefix": "/ochrana-osobnich-udaju"
+            },
+            {
+              "scheme": "https",
+              "host": "realbarber.cz",
+              "pathPrefix": "/ochrana-osobnich-udaj"
+            },
+            {
+              "scheme": "https",
+              "host": "realbarber.cz",
+              "path": "/login"
             }
           ],
           "category": [
