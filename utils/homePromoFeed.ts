@@ -1,3 +1,4 @@
+import type { HomeReferralPromo } from '@/api/home';
 import type { ClientCoupon } from '@/api/client-coupons';
 import type { ClientPoster } from '@/api/client-posters';
 import { buildHomePromoCouponCarouselList } from '@/utils/homePromoCoupon';
@@ -7,7 +8,8 @@ export const HIDDEN_HOME_PROMO_COUPON_NAMES = new Set(['Gorila10', 'TVPRIMA10'])
 
 export type HomePromoFeedItem =
   | { kind: 'coupon'; coupon: ClientCoupon }
-  | { kind: 'poster'; poster: ClientPoster };
+  | { kind: 'poster'; poster: ClientPoster }
+  | { kind: 'referral'; referral: HomeReferralPromo };
 
 /** Položka vhodná k zobrazení (alespoň text, médium nebo odkaz). */
 export function posterRowUsableForHome(p: ClientPoster): boolean {
@@ -28,6 +30,7 @@ export function filterHiddenHomePromoCoupons(coupons: ClientCoupon[]): ClientCou
 export interface BuildHomePromoFeedOptions {
   nowMs: number;
   clientSeed: number;
+  referral?: HomeReferralPromo | null;
 }
 
 /** Stejný promo feed jako homepage: blacklist, denní „Poznejte“, round-robin merge. */
@@ -38,15 +41,28 @@ export function buildHomePromoFeed(
 ): HomePromoFeedItem[] {
   const visibleCoupons = filterHiddenHomePromoCoupons(coupons);
   const couponsForMerge = buildHomePromoCouponCarouselList(visibleCoupons, opts);
-  return mergePostersAndCouponsRoundRobin(filterHomePosters(posters), couponsForMerge);
+  const merged = mergePostersAndCouponsRoundRobin(filterHomePosters(posters), couponsForMerge);
+
+  if (opts.referral != null) {
+    return [{ kind: 'referral', referral: opts.referral }, ...merged];
+  }
+
+  return merged;
 }
 
 /** Položky vhodné do karuselu — stejná pravidla jako `HomePromoCarousel`. */
 export function filterHomePromoFeedWithImages(feed: HomePromoFeedItem[]): HomePromoFeedItem[] {
   return feed.filter((item) => {
+    if (item.kind === 'referral') return true;
     if (item.kind === 'coupon') return Boolean(item.coupon.imageUrl?.trim());
     return Boolean(item.poster.imageUrl?.trim());
   });
+}
+
+export function resolveHomeReferralPromoImage(referral: HomeReferralPromo): string | number {
+  const remote = referral.coverImageUrl?.trim();
+  if (remote) return remote;
+  return require('@/assets/img/referral-program-hero.webp') as number;
 }
 
 /**

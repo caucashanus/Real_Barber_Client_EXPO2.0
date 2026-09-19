@@ -1,10 +1,12 @@
 import { Image } from 'expo-image';
 import { router } from 'expo-router';
-import React, { useContext, useEffect, useMemo, useRef, useState } from 'react';
+import React, { useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { Animated, Pressable, RefreshControl, useWindowDimensions, View } from 'react-native';
 
 import { ScrollContext } from './_layout';
 
+import type { HomeReferralPromo } from '@/api/home';
+import { LOGIN_PATH } from '@/constants/authRoutes';
 import { useAccentColor } from '@/contexts/AccentColorContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { useHomePage } from '@/hooks/useHomePage';
@@ -28,6 +30,11 @@ import { getBookingEndDate, isBookingPast } from '@/utils/bookingHelpers';
 import { pickRepeatBookingCandidate } from '@/utils/repeatBooking';
 import { homePromoClientSeed } from '@/utils/homePromoCoupon';
 import { buildHomePromoFeed } from '@/utils/homePromoFeed';
+import { openPromoTargetUrl } from '@/utils/openPromoTargetUrl';
+import {
+  getClientReferralSlug,
+  referralDashboardHref,
+} from '@/utils/referralDashboardHelpers';
 import { pickHomeSpotlight, formatHomeBookingSlotLabel } from '@/utils/homeSpotlight';
 import { getContentCarouselSize } from '@/utils/contentCarouselLayout';
 import { isReservationIntroCooldownActive } from '@/utils/reservation-intro-cooldown';
@@ -92,6 +99,7 @@ export default function RealBarberHomeTab() {
     bookings: homeBookings,
     coupons,
     posters,
+    referral,
     loading,
     refreshing,
     error: todayTeamError,
@@ -133,8 +141,25 @@ export default function RealBarberHomeTab() {
       buildHomePromoFeed(posters, coupons, {
         nowMs: now,
         clientSeed: clientPromoSeed,
+        referral,
       }),
-    [posters, coupons, now, clientPromoSeed]
+    [posters, coupons, now, clientPromoSeed, referral]
+  );
+
+  const handleReferralPromoPress = useCallback(
+    (promo: HomeReferralPromo) => {
+      const link = promo.coverLinkUrl?.trim();
+      if (link) {
+        void openPromoTargetUrl(link);
+        return;
+      }
+      if (client?.id) {
+        router.push(referralDashboardHref(getClientReferralSlug(client.id)));
+        return;
+      }
+      router.push(LOGIN_PATH);
+    },
+    [client?.id]
   );
 
   const showPromoCarousel = homePromoFeed.length > 0;
@@ -165,6 +190,7 @@ export default function RealBarberHomeTab() {
                     loading={false}
                     locale={locale}
                     t={t}
+                    onReferralPress={handleReferralPromoPress}
                   />
                 </View>
               ) : null}

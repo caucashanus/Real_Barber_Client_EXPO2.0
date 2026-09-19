@@ -223,33 +223,63 @@ export function mapHomePromoFeedToPromoCards(
   const showOffer =
     locale === 'en' ? 'Show offer' : locale === 'uk' ? 'Показати акцію' : 'Zobrazit akci';
 
-  return feed.map((item) => {
+  const showReferral =
+    locale === 'en' ? 'Invite' : locale === 'uk' ? 'Запросити' : 'Pozvat';
+
+  return feed.flatMap((item) => {
+    if (item.kind === 'referral') {
+      const imageUrl = item.referral.coverImageUrl?.trim();
+      if (!imageUrl) return [];
+
+      return [
+        {
+          id: 'home-referral-promo',
+          key: 'home-referral-promo',
+          title:
+            locale === 'en'
+              ? 'Refer a friend'
+              : locale === 'uk'
+                ? 'Запроси друга'
+                : 'Doporuč kamaráda',
+          subtitle: undefined,
+          imageUrl,
+          imageAlt: 'Referral',
+          actionLabel: showReferral,
+          detailUrl: item.referral.coverLinkUrl?.trim() || '/screens/referral',
+        },
+      ];
+    }
+
     if (item.kind === 'poster') {
       const poster = item.poster;
-      return {
-        id: poster.id,
-        key: poster.id,
-        title: poster.title?.trim() || 'Promo',
-        subtitle: poster.subtitle?.trim() || undefined,
-        imageUrl: poster.imageUrl?.trim() || '',
-        imageAlt: poster.title?.trim() || 'Promo',
-        actionLabel: poster.buttonText?.trim() || showOffer,
-        detailUrl: promoPosterHref(poster.id),
-      };
+      return [
+        {
+          id: poster.id,
+          key: poster.id,
+          title: poster.title?.trim() || 'Promo',
+          subtitle: poster.subtitle?.trim() || undefined,
+          imageUrl: poster.imageUrl?.trim() || '',
+          imageAlt: poster.title?.trim() || 'Promo',
+          actionLabel: poster.buttonText?.trim() || showOffer,
+          detailUrl: promoPosterHref(poster.id),
+        },
+      ];
     }
 
     const coupon = item.coupon;
-    return {
-      id: coupon.id,
-      key: coupon.id,
-      title: coupon.name,
-      subtitle: coupon.description?.trim() || undefined,
-      imageUrl: coupon.imageUrl?.trim() || '',
-      imageAlt: coupon.name,
-      actionLabel: coupon.buttonText?.trim() || showCoupon,
-      detailUrl: promoKuponHref(coupon.id),
-      couponCode: coupon.code,
-    };
+    return [
+      {
+        id: coupon.id,
+        key: coupon.id,
+        title: coupon.name,
+        subtitle: coupon.description?.trim() || undefined,
+        imageUrl: coupon.imageUrl?.trim() || '',
+        imageAlt: coupon.name,
+        actionLabel: coupon.buttonText?.trim() || showCoupon,
+        detailUrl: promoKuponHref(coupon.id),
+        couponCode: coupon.code,
+      },
+    ];
   });
 }
 

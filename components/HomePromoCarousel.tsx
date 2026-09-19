@@ -1,7 +1,8 @@
 import { router } from 'expo-router';
 import React, { useCallback, useMemo } from 'react';
-import { View } from 'react-native';
+import { ImageSourcePropType, View } from 'react-native';
 
+import type { HomeReferralPromo } from '@/api/home';
 import type { ClientPoster } from '@/api/client-posters';
 import {
   getHomePromoSlideAccessibilityLabel,
@@ -12,11 +13,14 @@ import SurfaceCard from '@/components/layout/SurfaceCard';
 import ThemedText from '@/components/ThemedText';
 import { promoKuponHref, promoPosterHref } from '@/constants/promoDetailRoutes';
 import type { TranslationKey } from '@/locales';
-import type { HomePromoFeedItem } from '@/utils/homePromoFeed';
+import {
+  resolveHomeReferralPromoImage,
+  type HomePromoFeedItem,
+} from '@/utils/homePromoFeed';
 import SiteLoadingSpinner from '@/components/SiteLoadingSpinner';
 
 interface HomePromoSlide {
-  imageUrl: string;
+  image: string | ImageSourcePropType;
   overlay: HomePromoCarouselOverlaySlide;
   onPress: () => void;
 }
@@ -28,6 +32,7 @@ interface HomePromoCarouselProps {
   loading: boolean;
   locale: string;
   t: (key: TranslationKey) => string;
+  onReferralPress?: (referral: HomeReferralPromo) => void;
 }
 
 function resolveButtonText(value: string | null | undefined): string | null {
@@ -41,14 +46,34 @@ function posterAccessibilityFallback(poster: ClientPoster): string {
   return title || subtitle;
 }
 
-function buildHomePromoSlides(feed: HomePromoFeedItem[]): HomePromoSlide[] {
+function buildHomePromoSlides(
+  feed: HomePromoFeedItem[],
+  options: {
+    referralButtonText: string;
+    onReferralPress?: (referral: HomeReferralPromo) => void;
+  }
+): HomePromoSlide[] {
   const slides: HomePromoSlide[] = [];
   for (const item of feed) {
+    if (item.kind === 'referral') {
+      slides.push({
+        image: resolveHomeReferralPromoImage(item.referral),
+        overlay: {
+          buttonText: options.referralButtonText,
+          accessibilityFallback: options.referralButtonText,
+        },
+        onPress: () => {
+          options.onReferralPress?.(item.referral);
+        },
+      });
+      continue;
+    }
+
     if (item.kind === 'coupon') {
       const imageUrl = item.coupon.imageUrl?.trim();
       if (!imageUrl) continue;
       slides.push({
-        imageUrl,
+        image: imageUrl,
         overlay: {
           buttonText: resolveButtonText(item.coupon.buttonText),
           accessibilityFallback: item.coupon.name},
@@ -60,7 +85,7 @@ function buildHomePromoSlides(feed: HomePromoFeedItem[]): HomePromoSlide[] {
     const imageUrl = item.poster.imageUrl?.trim();
     if (!imageUrl) continue;
     slides.push({
-      imageUrl,
+      image: imageUrl,
       overlay: {
         buttonText: resolveButtonText(item.poster.buttonText),
         accessibilityFallback: posterAccessibilityFallback(item.poster)},
@@ -77,9 +102,18 @@ export function HomePromoCarousel({
   height,
   loading,
   locale: _locale,
-  t}: HomePromoCarouselProps) {
-  const slides = useMemo(() => buildHomePromoSlides(feed), [feed]);
-  const images = useMemo(() => slides.map((slide) => slide.imageUrl), [slides]);
+  t,
+  onReferralPress,
+}: HomePromoCarouselProps) {
+  const slides = useMemo(
+    () =>
+      buildHomePromoSlides(feed, {
+        referralButtonText: t('referralHomeInviteCta'),
+        onReferralPress,
+      }),
+    [feed, onReferralPress, t]
+  );
+  const images = useMemo(() => slides.map((slide) => slide.image), [slides]);
 
   const handlePress = useCallback(
     (index: number) => {

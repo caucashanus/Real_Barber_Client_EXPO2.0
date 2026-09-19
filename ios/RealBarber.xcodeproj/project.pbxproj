@@ -11,10 +11,10 @@
 		2F1137AE21C96E832CDB976B /* ExpoModulesProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD413238599D52C5EBEA07EB /* ExpoModulesProvider.swift */; };
 		3E461D99554A48A4959DE609 /* SplashScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = AA286B85B6C04FC6940260E9 /* SplashScreen.storyboard */; };
 		514171A4329A4074A2496AA6 /* RealBarberBookingWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = 12AECE77580B4CC084642116 /* RealBarberBookingWidget.swift */; };
-		A1B2C3D4E5F6478990ABCDEF /* CounterWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = FEDCBA0987654321ABCDEF01 /* CounterWidget.swift */; };
 		5906FA643C584CCABA42CCBD /* index.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2568B053B5F14138AAE1965C /* index.swift */; };
 		659AF40C1E66C48A80A59EFA /* ExpoModulesProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 68617B936D1E8B1B588176A0 /* ExpoModulesProvider.swift */; };
 		949709A7593E46428281AD54 /* ExpoWidgetsTarget.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 322C804C13D64AAD9FFFC750 /* ExpoWidgetsTarget.appex */; };
+		A1B2C3D4E5F6478990ABCDEF /* CounterWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = FEDCBA0987654321ABCDEF01 /* CounterWidget.swift */; };
 		BB2F792D24A3F905000567C9 /* Expo.plist in Resources */ = {isa = PBXBuildFile; fileRef = BB2F792C24A3F905000567C9 /* Expo.plist */; };
 		C858E207F164E6FDD689C8BA /* libPods-ExpoWidgetsTarget.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 30100928674FE4EC51D714CA /* libPods-ExpoWidgetsTarget.a */; };
 		CA750CAA810F39FA330C6C72 /* libPods-RealBarber.a in Frameworks */ = {isa = PBXBuildFile; fileRef = A73A93B6C9B2765E7FE5FDB2 /* libPods-RealBarber.a */; };
@@ -49,7 +49,6 @@
 
 /* Begin PBXFileReference section */
 		12AECE77580B4CC084642116 /* RealBarberBookingWidget.swift */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 4; includeInIndex = 0; lastKnownFileType = sourcecode.swift; name = RealBarberBookingWidget.swift; path = RealBarberBookingWidget.swift; sourceTree = "<group>"; };
-		FEDCBA0987654321ABCDEF01 /* CounterWidget.swift */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 4; includeInIndex = 0; lastKnownFileType = sourcecode.swift; name = CounterWidget.swift; path = CounterWidget.swift; sourceTree = "<group>"; };
 		13B07F961A680F5B00A75B9A /* RealBarber.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = RealBarber.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		13B07FB51A68108700A75B9A /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Images.xcassets; path = RealBarber/Images.xcassets; sourceTree = "<group>"; };
 		13B07FB61A68108700A75B9A /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = Info.plist; path = RealBarber/Info.plist; sourceTree = "<group>"; };
@@ -72,6 +71,7 @@
 		ED297162215061F000B7C4FE /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = System/Library/Frameworks/JavaScriptCore.framework; sourceTree = SDKROOT; };
 		F11748412D0307B40044C1D9 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = AppDelegate.swift; path = RealBarber/AppDelegate.swift; sourceTree = "<group>"; };
 		F11748442D0722820044C1D9 /* RealBarber-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = "RealBarber-Bridging-Header.h"; path = "RealBarber/RealBarber-Bridging-Header.h"; sourceTree = "<group>"; };
+		FEDCBA0987654321ABCDEF01 /* CounterWidget.swift */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 4; includeInIndex = 0; lastKnownFileType = sourcecode.swift; name = CounterWidget.swift; path = CounterWidget.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */

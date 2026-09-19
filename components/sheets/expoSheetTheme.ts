@@ -7,7 +7,7 @@ export const EXPO_SHEET_BACKGROUND = {
 export const EXPO_SHEET_TOP_RADIUS = 20;
 
 export const SHEET_SURFACE_CLASS =
-  'overflow-hidden rounded-t-[20px] bg-light-primary dark:bg-dark-primary';
+  'w-full self-stretch overflow-hidden rounded-t-[20px] bg-light-primary dark:bg-dark-primary';
 
 /** Kompaktní menu sheety (Navigovat, Další akce, Zavolat, …). */
 export const SHEET_TITLE_CLASS = 'mb-2 text-lg font-semibold leading-7';

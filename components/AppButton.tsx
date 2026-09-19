@@ -98,7 +98,13 @@ export default function AppButton({
           : 18);
 
   const iconColor =
-    typeof textStyle?.color === 'string' ? textStyle.color : undefined;
+    typeof textStyle?.color === 'string'
+      ? textStyle.color
+      : variant === 'default'
+        ? isDark
+          ? '#000000'
+          : '#FFFFFF'
+        : undefined;
 
   const triggerHaptic = () => {
     if (disableHaptic || isDisabled) return;

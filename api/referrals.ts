@@ -1,156 +1,114 @@
 import { fetchCrm } from './http';
 
-export interface ClientReferralsStats {
-  totalReferralsMade: number;
-  qualifiedReferrals: number;
-  rewardedReferrals: number;
-  totalRewardsEarned: number;
-  pendingRewards: number;
-  totalReferralsReceived: number;
-  pendingRequests: number;
+export type ReferralInviteStatus =
+  | 'PHONE_SUBMITTED'
+  | 'INELIGIBLE_EXISTING'
+  | 'REGISTERED'
+  | 'BOOKING_CREATED'
+  | 'QUALIFIED'
+  | 'REWARDED'
+  | 'EXPIRED';
+
+export interface ReferralRewards {
+  referrerRbc: number;
+  refereeRbc: number;
 }
 
-/** Aktivní doporučovací program z GET /api/client/referrals. */
-export interface ReferralActiveProgram {
+export interface ReferralCover {
+  imageUrl: string | null;
+  linkUrl: string | null;
+}
+
+export interface ClientReferralsConfig {
+  coverImageUrl: string | null;
+  coverLinkUrl: string | null;
+  shareBaseUrl: string;
+  referrerRewardRbc: number;
+  attributionTtlDays: number;
+}
+
+export interface ClientReferralsShareLink {
+  code: string;
+  url: string;
+}
+
+export interface ClientReferralsStats {
+  totalInvites: number;
+  qualified: number;
+  rewarded: number;
+  pendingRbc: number;
+  totalRbcEarned: number;
+}
+
+export interface ClientReferralInvite {
   id: string;
-  name: string;
-  description: string | null;
-  validFrom?: string | null;
-  validUntil?: string | null;
-  /** Banner / poster programu (pozadí karty v peněžence). */
-  coverImageUrl?: string | null;
-  rewardedCount?: number | null;
-  maxRewards?: number | null;
-  rewardProgressText?: string | null;
-  referrerRewardType: string;
-  referrerRewardAmount: number;
-  refereeRewardType: string;
-  refereeRewardAmount: number | null;
-  minPurchaseAmount: number;
+  status: ReferralInviteStatus;
+  statusLabel: string;
+  phone: string;
+  createdAt: string;
+  expiresAt: string | null;
+  qualifiedAt: string | null;
+  rewardedAt: string | null;
+  referrerRewardRbc: number | null;
+}
+
+type ClientReferralInviteRaw = Omit<ClientReferralInvite, 'phone'> & {
+  phone?: string;
+  phoneMasked?: string;
+};
+
+function normalizeReferralInvite(invite: ClientReferralInviteRaw): ClientReferralInvite {
+  const phone = invite.phone?.trim() || invite.phoneMasked?.trim() || '';
+  const { phoneMasked: _phoneMasked, ...rest } = invite;
+  return { ...rest, phone };
 }
 
 export interface ClientReferralsResponse {
-  client: { id: string; name: string; email: string };
-  stats: ClientReferralsStats;
-  referralsMade: ClientReferralItem[];
-  referralsReceived: ClientReferralItem[];
-  pendingAttributions?: PendingAttributionItem[];
-  requests: unknown[];
-  activePrograms: ReferralActiveProgram[];
-  progressEnabled: boolean;
-}
-
-export interface PendingAttributionItem {
-  id: string;
-  status: string; // PENDING
-  phone: string;
-  createdAt: string;
-  referralLink: { code: string; coverImageUrl?: string | null };
-  program: {
+  client: {
     id: string;
     name: string;
-    coverImageUrl?: string | null;
-    referrerRewardType?: string;
-    referrerRewardAmount?: number;
+    rbCoins: number;
+  };
+  enabled: boolean;
+  config: ClientReferralsConfig;
+  shareLink: ClientReferralsShareLink | null;
+  stats: ClientReferralsStats;
+  invites: ClientReferralInvite[];
+}
+
+export interface ReferralShareLinkResponse {
+  code: string;
+  shareUrl: string;
+  rewards: ReferralRewards;
+  cover: ReferralCover;
+}
+
+/** Striktní kontrola — jen `enabled === true`, ne truthy. */
+export function isReferralProgramEnabled(
+  dashboard: ClientReferralsResponse | null | undefined
+): boolean {
+  return dashboard?.enabled === true;
+}
+
+/** GET /api/client/referrals — referrer dashboard (stats + invites). */
+export async function getClientReferrals(apiToken: string): Promise<ClientReferralsResponse> {
+  const data = await fetchCrm<Omit<ClientReferralsResponse, 'invites'> & { invites: ClientReferralInviteRaw[] }>(
+    '/api/client/referrals',
+    { apiToken }
+  );
+
+  return {
+    ...data,
+    invites: data.invites.map(normalizeReferralInvite),
   };
 }
 
-export interface ReferralPerson {
-  id: string;
-  name: string;
-  email?: string | null;
-  phone?: string | null;
-  avatarUrl?: string | null;
-}
-
-export interface ReferralProgress {
-  completedSteps?: number;
-  totalSteps?: number;
-  percentage?: number;
-  nextStep?: string | null;
-  nextStepName?: string | null;
-  daysRemaining?: number | null;
-  canProgress?: boolean;
-  isComplete?: boolean;
-  error?: string | null;
-}
-
-export interface ClientReferralItem {
-  id: string;
-  programId: string;
-  referrerId: string;
-  refereeId: string | null;
-  status: string;
-  referralCode: string | null;
-  referralLinkId: string | null;
-  coverImageUrl: string | null;
-  qualifiedAt?: string | null;
-  rewardedAt?: string | null;
-  triggerAmount?: number | null;
-  referrerReward?: number | null;
-  refereeReward?: number | null;
-  referralLink?: { code?: string | null; coverImageUrl?: string | null } | null;
-  attribution?: { status: string; createdAt: string; consumedAt?: string | null } | null;
-  spendProgress?: {
-    spentCashCard: number;
-    requiredAmount: number;
-    remaining: number;
-    startAt?: string | null;
-  } | null;
-  createdAt: string;
-  updatedAt: string;
-  program?: {
-    id: string;
-    name: string;
-    coverImageUrl?: string | null;
-    referrerRewardType?: string;
-    referrerRewardAmount?: number;
-  } | null;
-  referee?: ReferralPerson | null;
-  progress?: ReferralProgress | null;
-}
-
-/** GET /api/client/referrals – client's referral data (made, received, stats, programs). */
-export async function getReferrals(
-  apiToken: string,
-  options?: { includeProgress?: boolean }
-): Promise<ClientReferralsResponse> {
-  const search = new URLSearchParams();
-  if (options?.includeProgress) search.set('includeProgress', 'true');
-  const qs = search.toString();
-
-  return fetchCrm<ClientReferralsResponse>(`/api/client/referrals${qs ? `?${qs}` : ''}`, {
-    apiToken,
-  });
-}
-
-export interface GenerateReferralBody {
-  programId: string;
-  coverImageUrl?: string | null;
-}
-
-export interface ReferralGenerated {
-  id: string;
-  code: string;
-  status?: string;
-  coverImageUrl?: string | null;
-  createdAt?: string;
-}
-
-export interface GenerateReferralResponse {
-  message?: string;
-  referral: ReferralGenerated;
-}
-
-/** POST /api/client/referrals/generate – generate referral code for given program. */
-export async function generateReferral(
-  apiToken: string,
-  body: GenerateReferralBody
-): Promise<GenerateReferralResponse> {
-  const token = apiToken.trim().replace(/^Bearer\s+/i, '');
-  return fetchCrm<GenerateReferralResponse>('/api/client/referrals/generate', {
+/** POST /api/client/referrals/share-link — idempotent share code + URL. */
+export async function postReferralShareLink(
+  apiToken: string
+): Promise<ReferralShareLinkResponse> {
+  return fetchCrm<ReferralShareLinkResponse>('/api/client/referrals/share-link', {
     method: 'POST',
-    apiToken: token,
-    body,
+    apiToken,
   });
 }

@@ -108,8 +108,28 @@ export function useBookingReservationSubmit(
         return;
       }
 
+      if (!contactContext.firstName) {
+        setSubmitError(formatErr(new Error('fillFirstName')));
+        return;
+      }
+      if (!contactContext.lastName) {
+        setSubmitError(formatErr(new Error('fillLastName')));
+        return;
+      }
+      if (!contactContext.email) {
+        setSubmitError(formatErr(new Error('fillEmail')));
+        return;
+      }
+      if (!contactContext.phone) {
+        setSubmitError(formatErr(new Error('fillPhone')));
+        return;
+      }
+
       const base = buildPayload(contactContext);
-      if (!base) return;
+      if (!base) {
+        setSubmitError(formatErr(new Error('reservationIncomplete')));
+        return;
+      }
 
       submitLockRef.current = true;
       setSubmitting(true);
@@ -156,6 +176,7 @@ export function formatBookingSubmitError(
     if (err.message === 'fillEmail') return t('reservationErrorEmail');
     if (err.message === 'invalidEmail') return t('reservationErrorEmailInvalid');
     if (err.message === 'fillPhone') return t('reservationErrorPhone');
+    if (err.message === 'reservationIncomplete') return t('reservationErrorGeneric');
     if (err.message === 'Unauthorized') return t('reservationErrorGeneric');
     return err.message;
   }

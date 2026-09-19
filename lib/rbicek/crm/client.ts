@@ -105,6 +105,7 @@ export async function fetchPromoCards(
     const feed = buildHomePromoFeed(home.posters, home.coupons, {
       nowMs: Date.now(),
       clientSeed,
+      referral: home.referral,
     });
     return mapHomePromoFeedToPromoCards(filterHomePromoFeedWithImages(feed), locale);
   } catch {

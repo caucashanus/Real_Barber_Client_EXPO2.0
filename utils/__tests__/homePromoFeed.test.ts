@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
+import type { HomeReferralPromo } from '@/api/home';
 import type { ClientCoupon } from '@/api/client-coupons';
 import type { ClientPoster } from '@/api/client-posters';
 import {
@@ -73,6 +74,25 @@ describe('homePromoFeed', () => {
     expect(feed[1]?.kind).toBe('coupon');
   });
 
+  it('prepends referral slide when home.referral is present', () => {
+    const referral: HomeReferralPromo = {
+      active: true,
+      coverImageUrl: 'https://example.com/referral.webp',
+      coverLinkUrl: 'https://realbarber.cz/referral',
+      rewards: { referrerRbc: 500, refereeRbc: 0 },
+      attributionTtlDays: 30,
+    };
+
+    const feed = buildHomePromoFeed(
+      [poster({ id: 'p1' })],
+      [coupon({ id: 'c1', name: 'Gift' })],
+      { nowMs: Date.now(), clientSeed: 1, referral }
+    );
+
+    expect(feed[0]).toEqual({ kind: 'referral', referral });
+    expect(feed[1]?.kind).toBe('poster');
+  });
+
   it('keeps only carousel items with image', () => {
     const feed = buildHomePromoFeed(
       [poster({ id: 'p1', imageUrl: '' }), poster({ id: 'p2' })],
@@ -83,5 +103,21 @@ describe('homePromoFeed', () => {
     expect(withImages).toHaveLength(1);
     expect(withImages[0]?.kind).toBe('poster');
     expect(withImages[0]?.kind === 'poster' && withImages[0].poster.id).toBe('p2');
+  });
+
+  it('keeps referral slide even without remote cover image', () => {
+    const feed = buildHomePromoFeed([], [], {
+      nowMs: Date.now(),
+      clientSeed: 1,
+      referral: {
+        active: true,
+        coverImageUrl: null,
+        coverLinkUrl: null,
+        rewards: { referrerRbc: 500, refereeRbc: 0 },
+        attributionTtlDays: 30,
+      },
+    });
+    expect(filterHomePromoFeedWithImages(feed)).toHaveLength(1);
+    expect(feed[0]?.kind).toBe('referral');
   });
 });

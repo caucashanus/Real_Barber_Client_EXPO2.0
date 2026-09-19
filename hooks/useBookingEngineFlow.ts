@@ -1701,43 +1701,46 @@ export function useBookingEngineFlow() {
 
   const buildSubmitPayload = useCallback(
     (ctx: { firstName: string; lastName: string; email: string; phone: string }) => {
-      const employee = profileEmployee ?? selectedEmployee;
-      const branch = selectedBranch;
+      const holdState = hold.hold;
       const holdId = hold.holdId;
-      if (
-        !employee?.id ||
-        !branch?.id ||
-        !selectedService?.id ||
-        !selectedDate ||
-        !selectedSlot?.start ||
-        !holdId
-      ) {
+      const employeeId =
+        holdState?.employeeId?.trim() ||
+        resolveHoldEmployeeId(selectedSlot, selectedEmployee, profileEmployee);
+      const branchId = holdState?.branchId ?? selectedBranch?.id;
+      const itemId = holdState?.itemId ?? selectedService?.id;
+      const date = holdState?.date ?? selectedDate;
+      const slotStart = holdState?.slotStart ?? selectedSlot?.start;
+      const slotEnd = holdState?.slotEnd ?? selectedSlot?.end;
+
+      if (!employeeId || !branchId || !itemId || !date || !slotStart || !holdId) {
         return null;
       }
+
       return {
         firstName: ctx.firstName,
         lastName: ctx.lastName,
         email: ctx.email,
         phone: ctx.phone,
-        employeeId: employee.id === ANY_EMPLOYEE_ID ? 'any' : employee.id,
-        branchId: branch.id,
-        itemId: selectedService.id,
-        date: selectedDate,
-        slotStart: selectedSlot.start,
+        employeeId,
+        branchId,
+        itemId,
+        date,
+        slotStart,
         holdId,
-        ...(selectedSlot.end ? { slotEnd: selectedSlot.end } : {}),
+        ...(slotEnd ? { slotEnd } : {}),
         marketingConsent: false,
         ...(coupon.couponCodeForSubmit ? { couponCode: coupon.couponCodeForSubmit } : {}),
       };
     },
     [
+      hold.hold,
+      hold.holdId,
       profileEmployee,
       selectedEmployee,
       selectedBranch,
       selectedService,
       selectedDate,
       selectedSlot,
-      hold.holdId,
       coupon.couponCodeForSubmit,
     ]
   );

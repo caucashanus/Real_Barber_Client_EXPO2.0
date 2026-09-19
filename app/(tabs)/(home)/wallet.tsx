@@ -2,22 +2,27 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useFocusEffect } from "expo-router/react-navigation";
 import { Link, useRouter } from 'expo-router';
 import React, { useCallback, useContext, useEffect, useRef, useState } from 'react';
-import {
-  View,
-  RefreshControl,
-  Animated,
-  Pressable,
-  ScrollView,
-  ImageBackground} from 'react-native';
+import { View, RefreshControl, Animated, Pressable, Alert } from 'react-native';
 
 import { ScrollContext } from './_layout';
 
 import { getRbCoinsBalance, getRbCoinsHistory, type RbCoinsHistoryItem } from '@/api/rb-coins';
-import { getReferrals, type ReferralActiveProgram } from '@/api/referrals';
+import {
+  getClientReferrals,
+  isReferralProgramEnabled,
+  type ClientReferralsResponse,
+} from '@/api/referrals';
 import { useAccentColor } from '@/contexts/AccentColorContext';
 import { useAuth } from '@/contexts/AuthContext';
 import useThemeColors from '@/contexts/ThemeColors';
 import { useTranslation } from '@/hooks/useTranslation';
+import WalletReferralPromoBanner from '@/components/wallet/WalletReferralPromoBanner';
+import {
+  clearWalletReferralPromoDismiss,
+  isWalletReferralPromoDismissed,
+  readWalletReferralPromoDismissedAt,
+  saveWalletReferralPromoDismissedAt,
+} from '@/utils/walletReferralPromoDismiss';
 import AnimatedView from '@/components/AnimatedView';
 import Avatar from '@/components/Avatar';
 import Icon from '@/components/Icon';
@@ -33,8 +38,6 @@ import {
   getRbCoinsTransactionListTitle,
   RB_COINS_TX_LIST_KEYS_WALLET} from '@/utils/rbcCoinsHistoryUi';
 import { shouldStaleRefresh } from '@/utils/staleRefresh';
-import { useTheme } from '@/contexts/ThemeContext';
-import { shadowPresets } from '@/utils/useShadow';
 import SiteLoadingSpinner from '@/components/SiteLoadingSpinner';
 
 /** In-memory fallback when AsyncStorage native module is unavailable (e.g. web, some dev builds). */
@@ -67,28 +70,12 @@ function formatTransactionTime(iso: string): string {
 }
 
 const ANIM_DURATION_MS = 500;
-/** Skrytí referral karty podle ID programu (24 h). */
-const WALLET_REFERRAL_PROMO_DISMISSED_KEY = 'wallet_referral_promo_dismissed';
-const WALLET_PROMO_HIDE_MS = 24 * 60 * 60 * 1000; // 24 h
-
-function normalizeActivePrograms(raw: unknown): ReferralActiveProgram[] {
-  if (!Array.isArray(raw)) return [];
-  return raw.filter(
-    (p): p is ReferralActiveProgram =>
-      typeof p === 'object' &&
-      p !== null &&
-      typeof (p as ReferralActiveProgram).id === 'string' &&
-      typeof (p as ReferralActiveProgram).name === 'string'
-  );
-}
-
-/** Peněženka: horizontálně posuvné promo karty pod akcemi. */
+const DEFAULT_REFERRAL_REWARD_CZK = 500;
 
 const WalletScreen = () => {
   const router = useRouter();
   const scrollY = useContext(ScrollContext);
   const colors = useThemeColors();
-  const { isDark } = useTheme();
   const { accentColor } = useAccentColor();
   const { apiToken } = useAuth();
   const { t } = useTranslation();
@@ -101,43 +88,25 @@ const WalletScreen = () => {
   const [displayAmount, setDisplayAmount] = useState(0);
   const countAnim = useRef(new Animated.Value(0)).current;
   const lastAnimatedBalanceRef = useRef<number | null>(null);
-  const [dismissedReferralPromoAt, setDismissedReferralPromoAt] = useState<Record<string, number>>(
-    {}
+  const [referralPromoDismissedAt, setReferralPromoDismissedAt] = useState<number | null>(null);
+  const [referralDashboard, setReferralDashboard] = useState<ClientReferralsResponse | null>(
+    null
   );
-  const [referralPrograms, setReferralPrograms] = useState<ReferralActiveProgram[]>([]);
-  const [referralsLoading, setReferralsLoading] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
   const lastWalletFetchRef = useRef(0);
   const walletInflightRef = useRef<Promise<void> | null>(null);
+  const referralPromoInflightRef = useRef<Promise<void> | null>(null);
 
   useEffect(() => {
-    AsyncStorage.getItem(WALLET_REFERRAL_PROMO_DISMISSED_KEY).then((raw) => {
-      if (!raw) return;
-      try {
-        const parsed: Record<string, number> = JSON.parse(raw);
-        const now = Date.now();
-        const next: Record<string, number> = {};
-        Object.entries(parsed).forEach(([programId, ts]) => {
-          if (typeof programId === 'string' && now - ts < WALLET_PROMO_HIDE_MS) {
-            next[programId] = ts;
-          }
-        });
-        setDismissedReferralPromoAt(next);
-      } catch {
-        /* ignore */
-      }
+    readWalletReferralPromoDismissedAt().then((ts) => {
+      setReferralPromoDismissedAt(ts);
     });
   }, []);
 
-  const handleDismissReferralPromo = (programId: string) => {
+  const handleDismissReferralPromo = () => {
     const now = Date.now();
-    setDismissedReferralPromoAt((prev) => {
-      const next = { ...prev, [programId]: now };
-      AsyncStorage.setItem(WALLET_REFERRAL_PROMO_DISMISSED_KEY, JSON.stringify(next)).catch(
-        () => {}
-      );
-      return next;
-    });
+    setReferralPromoDismissedAt(now);
+    void saveWalletReferralPromoDismissedAt(now);
   };
 
   useEffect(() => {
@@ -151,14 +120,30 @@ const WalletScreen = () => {
       setBalance(null);
       setDisplayAmount(0);
       setHistory([]);
-      setReferralPrograms([]);
+      setReferralDashboard(null);
       setBalanceLoading(false);
       setHistoryLoading(false);
-      setReferralsLoading(false);
       lastAnimatedBalanceRef.current = null;
       lastWalletFetchRef.current = 0;
       return;
     }
+  }, [apiToken]);
+
+  const fetchReferralPromo = useCallback(async () => {
+    if (!apiToken) {
+      setReferralDashboard(null);
+      return;
+    }
+    if (referralPromoInflightRef.current) return referralPromoInflightRef.current;
+
+    referralPromoInflightRef.current = getClientReferrals(apiToken)
+      .then((r) => setReferralDashboard(r))
+      .catch(() => setReferralDashboard(null))
+      .finally(() => {
+        referralPromoInflightRef.current = null;
+      });
+
+    return referralPromoInflightRef.current;
   }, [apiToken]);
 
   const fetchWalletData = useCallback(async (options?: { force?: boolean }) => {
@@ -170,7 +155,6 @@ const WalletScreen = () => {
     if (isInitial || options?.force) {
       setBalanceLoading(true);
       setHistoryLoading(true);
-      setReferralsLoading(true);
     }
     setBalanceError(null);
 
@@ -183,21 +167,18 @@ const WalletScreen = () => {
           getRbCoinsHistory(apiToken)
             .then((r) => setHistory(r.data.slice(0, 3)))
             .catch(() => setHistory([])),
-          getReferrals(apiToken)
-            .then((r) => setReferralPrograms(normalizeActivePrograms(r.activePrograms)))
-            .catch(() => setReferralPrograms([])),
+          fetchReferralPromo(),
         ]);
         lastWalletFetchRef.current = Date.now();
       } finally {
         setBalanceLoading(false);
         setHistoryLoading(false);
-        setReferralsLoading(false);
         walletInflightRef.current = null;
       }
     })();
 
     return walletInflightRef.current;
-  }, [apiToken]);
+  }, [apiToken, fetchReferralPromo]);
 
   useEffect(() => {
     void fetchWalletData({ force: true });
@@ -212,7 +193,8 @@ const WalletScreen = () => {
   useFocusEffect(
     useCallback(() => {
       void fetchWalletData();
-    }, [fetchWalletData])
+      void fetchReferralPromo();
+    }, [fetchWalletData, fetchReferralPromo])
   );
 
   useEffect(() => {
@@ -240,12 +222,35 @@ const WalletScreen = () => {
     });
   }, [balance]);
 
-  const visibleReferralPrograms = referralPrograms.filter(
-    (p) =>
-      !dismissedReferralPromoAt[p.id] ||
-      Date.now() - dismissedReferralPromoAt[p.id] >= WALLET_PROMO_HIDE_MS
-  );
-  const showReferralPromoStrip = referralsLoading || visibleReferralPrograms.length > 0;
+  const promoDismissed = isWalletReferralPromoDismissed(referralPromoDismissedAt);
+  const showReferralPromo =
+    !promoDismissed && isReferralProgramEnabled(referralDashboard);
+  const referralRewardCzk =
+    referralDashboard?.config?.referrerRewardRbc ?? DEFAULT_REFERRAL_REWARD_CZK;
+
+  const handleDevResetReferralPromo = useCallback(() => {
+    if (!__DEV__ || !apiToken) return;
+    void (async () => {
+      await clearWalletReferralPromoDismiss();
+      setReferralPromoDismissedAt(null);
+      try {
+        const dashboard = await getClientReferrals(apiToken);
+        setReferralDashboard(dashboard);
+        Alert.alert(
+          'Referral promo reset',
+          dashboard.enabled === true
+            ? 'Dismiss vymazán. Banner by se měl zobrazit.'
+            : 'Dismiss vymazán, ale API má enabled !== true — banner se neukáže, dokud CRM nezapne program.'
+        );
+      } catch {
+        setReferralDashboard(null);
+        Alert.alert(
+          'Referral promo reset',
+          'Dismiss vymazán, ale GET /api/client/referrals selhalo — banner skrytý.'
+        );
+      }
+    })();
+  }, [apiToken]);
 
   return (
     <ThemeScroller
@@ -256,8 +261,12 @@ const WalletScreen = () => {
       }
       scrollEventThrottle={16}>
       <AnimatedView animation="scaleIn" className="mt-4 flex-1">
-        {/* 1. Stav RBC */}
-        <View className="mb-0 items-center rounded-t-3xl bg-neutral-900 px-6 pb-6 pt-8">
+        {/* 1. Stav RBC — v __DEV__ dlouhý stisk = reset referral promo dismiss */}
+        <Pressable
+          className="mb-0 items-center rounded-t-3xl bg-neutral-900 px-6 pb-6 pt-8"
+          onLongPress={handleDevResetReferralPromo}
+          delayLongPress={800}
+          disabled={!__DEV__}>
           <ThemedText className="text-center text-sm text-white/80">
             {t('walletPersonalRbcCaption')}
           </ThemedText>
@@ -272,7 +281,7 @@ const WalletScreen = () => {
               {formatBalance(displayAmount)} {MOCK_CURRENCY}
             </ThemedText>
           )}
-        </View>
+        </Pressable>
 
         {/* 2. Akční tlačítka */}
         <SurfaceCard rounded="2xl" className="-mt-2 flex-row justify-around p-5">
@@ -298,83 +307,14 @@ const WalletScreen = () => {
           </Pressable>
         </SurfaceCard>
 
-        {/* 3. Karty aktivních referral programů z GET /api/client/referrals – X skryje na 24 h */}
-        {showReferralPromoStrip ? (
-          <ScrollView
-            horizontal
-            showsHorizontalScrollIndicator={false}
-            className="-mx-global mb-0 mt-4"
-            contentContainerStyle={{
-              paddingHorizontal: 16,
-              paddingRight: 24,
-              paddingVertical: 18}}>
-            {referralsLoading && visibleReferralPrograms.length === 0 ? (
-              <SurfaceCard
-                rounded="2xl"
-                style={{ width: 280, marginRight: 15 }}
-                className="min-h-[120px] flex-shrink-0 items-center justify-center p-5">
-                <SiteLoadingSpinner size="compact" />
-              </SurfaceCard>
-            ) : null}
-            {visibleReferralPrograms.map((program) => {
-              const coverUri = program.coverImageUrl?.trim();
-              const openProgramDetail = () => {
-                router.push(`/screens/referral-program/${encodeURIComponent(program.id)}`);
-              };
-              const cardInner = (
-                <View className="flex-row items-start justify-between">
-                  <Pressable className="flex-1 pr-2" onPress={openProgramDetail}>
-                    <ThemedText
-                      className={`text-lg font-bold ${coverUri ? 'text-white' : 'text-light-text dark:text-dark-text'}`}>
-                      {program.name}
-                    </ThemedText>
-                    <ThemedText
-                      className={`mt-1 text-sm ${coverUri ? 'text-white/90' : 'text-light-subtext dark:text-dark-subtext'}`}>
-                      {program.description?.trim() ? program.description : '—'}
-                    </ThemedText>
-                  </Pressable>
-                  <Pressable className="p-1" onPress={() => handleDismissReferralPromo(program.id)}>
-                    <Icon
-                      name="X"
-                      size={18}
-                      color={coverUri ? '#ffffff' : undefined}
-                      className={coverUri ? '' : 'text-light-subtext dark:text-dark-subtext'}
-                    />
-                  </Pressable>
-                </View>
-              );
-
-              if (coverUri) {
-                return (
-                  <ImageBackground
-                    key={program.id}
-                    source={{ uri: coverUri }}
-                    style={[
-                      isDark ? shadowPresets.large : undefined,
-                      { width: 280, marginRight: 15, minHeight: 140 },
-                    ]}
-                    className="flex-shrink-0 overflow-hidden rounded-2xl"
-                    imageStyle={{ borderRadius: 16 }}>
-                    <View
-                      className="flex-1 justify-center rounded-2xl p-5"
-                      style={{ backgroundColor: 'rgba(0,0,0,0.45)' }}>
-                      {cardInner}
-                    </View>
-                  </ImageBackground>
-                );
-              }
-
-              return (
-                <SurfaceCard
-                  key={program.id}
-                  rounded="2xl"
-                  style={{ width: 280, marginRight: 15 }}
-                  className="flex-shrink-0 p-5">
-                  {cardInner}
-                </SurfaceCard>
-              );
-            })}
-          </ScrollView>
+        {/* 3. Referral promo banner — enabled === true, dismiss 24 h (parita s webem) */}
+        {showReferralPromo ? (
+          <View className="mt-4">
+            <WalletReferralPromoBanner
+              rewardCzk={referralRewardCzk}
+              onDismiss={handleDismissReferralPromo}
+            />
+          </View>
         ) : null}
 
         {/* 4. Transakce – stejný blok se stínem jako na Branches */}

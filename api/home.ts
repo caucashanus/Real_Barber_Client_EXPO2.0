@@ -18,12 +18,27 @@ export interface HomeResponseMeta {
   authenticated: boolean;
 }
 
+export interface HomeReferralPromoRewards {
+  referrerRbc: number;
+  refereeRbc: number;
+}
+
+/** Top-level `referral` z GET /api/home — null = nezobrazovat (draft). */
+export interface HomeReferralPromo {
+  active: true;
+  coverImageUrl: string | null;
+  coverLinkUrl: string | null;
+  rewards: HomeReferralPromoRewards;
+  attributionTtlDays: number;
+}
+
 export interface HomeResponse {
   meta: HomeResponseMeta;
   todayTeam: HomepageTodayTeamMember[];
   availability: HomepageEmployeeAvailability[];
   posters: ClientPoster[];
   coupons: ClientCoupon[];
+  referral: HomeReferralPromo | null;
   bookings: Booking[];
 }
 
@@ -46,8 +61,40 @@ export const EMPTY_HOME_RESPONSE: HomeResponse = {
   availability: [],
   posters: [],
   coupons: [],
+  referral: null,
   bookings: [],
 };
+
+function normalizeHomeReferralPromo(raw: unknown): HomeReferralPromo | null {
+  if (raw == null || typeof raw !== 'object') return null;
+
+  const record = raw as Record<string, unknown>;
+  const rewardsRaw = record.rewards;
+  if (rewardsRaw == null || typeof rewardsRaw !== 'object') return null;
+
+  const rewards = rewardsRaw as Record<string, unknown>;
+  const referrerRbc = Number(rewards.referrerRbc);
+  const refereeRbc = Number(rewards.refereeRbc);
+
+  return {
+    active: true,
+    coverImageUrl:
+      typeof record.coverImageUrl === 'string' && record.coverImageUrl.trim()
+        ? record.coverImageUrl.trim()
+        : null,
+    coverLinkUrl:
+      typeof record.coverLinkUrl === 'string' && record.coverLinkUrl.trim()
+        ? record.coverLinkUrl.trim()
+        : null,
+    rewards: {
+      referrerRbc: Number.isFinite(referrerRbc) ? referrerRbc : 0,
+      refereeRbc: Number.isFinite(refereeRbc) ? refereeRbc : 0,
+    },
+    attributionTtlDays: Number.isFinite(Number(record.attributionTtlDays))
+      ? Number(record.attributionTtlDays)
+      : 30,
+  };
+}
 
 function normalizeHomeResponse(raw: HomeResponse | null | undefined): HomeResponse {
   if (!raw) return EMPTY_HOME_RESPONSE;
@@ -57,6 +104,7 @@ function normalizeHomeResponse(raw: HomeResponse | null | undefined): HomeRespon
     availability: Array.isArray(raw.availability) ? raw.availability : [],
     posters: Array.isArray(raw.posters) ? raw.posters : [],
     coupons: Array.isArray(raw.coupons) ? raw.coupons : [],
+    referral: normalizeHomeReferralPromo(raw.referral),
     bookings: Array.isArray(raw.bookings)
       ? raw.bookings.map((booking) => normalizeBookingCouponUsages(booking))
       : [],

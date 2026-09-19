@@ -1,7 +1,7 @@
 import { useFocusEffect } from "expo-router/react-navigation";
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
-import { getHome } from '@/api/home';
+import { getHome, type HomeReferralPromo } from '@/api/home';
 import type { Booking } from '@/api/bookings';
 import type { ClientCoupon } from '@/api/client-coupons';
 import type { ClientPoster } from '@/api/client-posters';
@@ -43,6 +43,7 @@ export function useHomePage() {
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [coupons, setCoupons] = useState<ClientCoupon[]>([]);
   const [posters, setPosters] = useState<ClientPoster[]>([]);
+  const [referral, setReferral] = useState<HomeReferralPromo | null>(null);
   const [members, setMembers] = useState<MergedTodayTeamMember[]>([]);
   const lastFetchedAtRef = useRef(0);
   const inflightRef = useRef<Promise<void> | null>(null);
@@ -54,6 +55,7 @@ export function useHomePage() {
       setBookings(data.bookings ?? []);
       setCoupons(data.coupons ?? []);
       setPosters(data.posters ?? []);
+      setReferral(data.referral ?? null);
       lastFetchedAtRef.current = Date.now();
       ackListingFetch(listingKey);
       if (apiToken) {
@@ -86,6 +88,7 @@ export function useHomePage() {
             setBookings([]);
             setCoupons([]);
             setPosters([]);
+            setReferral(null);
           }
           if (!options?.silent) {
             setError(e instanceof Error ? e.message : 'Failed to load');
@@ -132,6 +135,7 @@ export function useHomePage() {
     bookings,
     coupons,
     posters,
+    referral,
     loading,
     refreshing,
     error,
