@@ -69,6 +69,10 @@ export function resolveWebPathToAppRoute(path: string): string | null {
     return `/bookings${suffix}`;
   }
 
+  if (normalized === '/referral') {
+    return `/screens/referral${suffix}`;
+  }
+
   if (normalized === '/u/nastaveni/profil') {
     return `/screens/edit-profile${suffix}`;
   }

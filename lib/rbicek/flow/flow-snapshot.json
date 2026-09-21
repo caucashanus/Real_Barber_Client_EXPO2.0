@@ -1,6 +1,6 @@
 {
   "version": "0.2.0",
-  "generatedAt": "2026-09-01T15:34:35.386Z",
+  "generatedAt": "2026-09-21T10:44:03.657Z",
   "startNodeId": "welcome",
   "followUpNodeId": "after_help",
   "constants": {
@@ -371,7 +371,7 @@
         {
           "id": "app_faq_referral",
           "label": "Doporučení přátel",
-          "nextNodeId": "app_faq_referral_answer"
+          "nextNodeId": "app_faq_referral_menu"
         },
         {
           "id": "app_faq_why",
@@ -430,6 +430,28 @@
           "id": "cross_gift_voucher",
           "label": "Dárkový poukaz",
           "nextNodeId": "gift_voucher_answer"
+        },
+        {
+          "id": "back_faq",
+          "label": "Zpět na dotazy o aplikaci",
+          "nextNodeId": "app_faq_menu"
+        }
+      ]
+    },
+    {
+      "id": "app_faq_change_answer",
+      "message": "V Moje rezervace uvidíte nadcházející i minulé návštěvy. U aktivní rezervace můžete přesunout termín: zvolíte nové datum a čas, pobočka, služba i holič zůstávají. Rezervaci lze zrušit (ideálně co nejdříve, bez storno poplatků). Zrušení obvykle nejde méně než 2 hodiny před termínem, přesun ne méně než 1 hodinu před termínem. Po rezervaci si termín můžete přidat do kalendáře v telefonu.",
+      "showFollowUp": true,
+      "options": [
+        {
+          "id": "cross_bookings_manage",
+          "label": "Spravovat rezervaci",
+          "nextNodeId": "bookings_manage_menu"
+        },
+        {
+          "id": "cross_bookings",
+          "label": "Moje rezervace",
+          "nextNodeId": "bookings_menu"
         },
         {
           "id": "back_faq",
@@ -553,28 +575,6 @@
       ]
     },
     {
-      "id": "app_faq_change_answer",
-      "message": "V Moje rezervace uvidíte nadcházející i minulé návštěvy. U aktivní rezervace můžete přesunout termín: zvolíte nové datum a čas, pobočka, služba i holič zůstávají. Rezervaci lze zrušit (ideálně co nejdříve, bez storno poplatků). Zrušení obvykle nejde méně než 2 hodiny před termínem, přesun ne méně než 1 hodinu před termínem. Po rezervaci si termín můžete přidat do kalendáře v telefonu.",
-      "showFollowUp": true,
-      "options": [
-        {
-          "id": "cross_bookings_manage",
-          "label": "Spravovat rezervaci",
-          "nextNodeId": "bookings_manage_menu"
-        },
-        {
-          "id": "cross_bookings",
-          "label": "Moje rezervace",
-          "nextNodeId": "bookings_menu"
-        },
-        {
-          "id": "back_faq",
-          "label": "Zpět na dotazy o aplikaci",
-          "nextNodeId": "app_faq_menu"
-        }
-      ]
-    },
-    {
       "id": "app_faq_menu",
       "message": "Co vás o aplikaci zajímá? Vyberte téma z FAQ.",
       "options": [
@@ -675,19 +675,136 @@
       ]
     },
     {
-      "id": "app_faq_referral_answer",
-      "message": "V peněžence nebo v sekci doporučení uvidíte aktivní referral programy: kolik RBC získáte vy i váš přítel, podmínky a platnost. Appka vygeneruje váš kód a odkaz ke sdílení.",
+      "id": "app_faq_referral_how_answer",
+      "message": "Sdílíte osobní odkaz nebo QR kód ze sekce Doporučení. Kamarád otevře pozvánku a zadá telefon. Do 30 dní od přijetí musí dokončit první návštěvu. Pak vám připíšeme aktuální odměnu v RBC do peněženky. 1 RBC = 1 Kč. Odměnu dostanete jen vy, kamarád ne.",
       "showFollowUp": true,
       "options": [
         {
-          "id": "cross_app",
-          "label": "Aplikace Real Barber",
-          "nextNodeId": "app_promo"
+          "id": "app_faq_referral_rules",
+          "label": "Pravidla doporučení",
+          "nextNodeId": "after_help",
+          "action": "openUrl",
+          "url": "/referral"
         },
         {
-          "id": "back_faq",
-          "label": "Zpět na dotazy o aplikaci",
-          "nextNodeId": "app_faq_menu"
+          "id": "back_benefits",
+          "label": "Zpět na výhody",
+          "nextNodeId": "app_faq_benefits_menu"
+        }
+      ]
+    },
+    {
+      "id": "app_faq_referral_menu",
+      "message": "Vyberte, co vás k doporučení přátel zajímá.",
+      "options": [
+        {
+          "id": "app_faq_referral_how",
+          "label": "Jak doporučení funguje",
+          "nextNodeId": "app_faq_referral_how_answer"
+        },
+        {
+          "id": "app_faq_referral_reward",
+          "label": "Jakou získám odměnu",
+          "nextNodeId": "app_faq_referral_reward_answer"
+        },
+        {
+          "id": "app_faq_referral_who",
+          "label": "Koho můžu pozvat",
+          "nextNodeId": "app_faq_referral_who_answer"
+        },
+        {
+          "id": "app_faq_referral_visit",
+          "label": "Co se počítá jako návštěva",
+          "nextNodeId": "app_faq_referral_visit_answer"
+        },
+        {
+          "id": "app_faq_referral_where",
+          "label": "Kde pozvánku pošlu",
+          "nextNodeId": "app_faq_referral_where_answer"
+        },
+        {
+          "id": "app_faq_referral_off",
+          "label": "Program teď není aktivní",
+          "nextNodeId": "app_faq_referral_off_answer"
+        },
+        {
+          "id": "back_benefits",
+          "label": "Zpět na výhody",
+          "nextNodeId": "app_faq_benefits_menu"
+        }
+      ]
+    },
+    {
+      "id": "app_faq_referral_off_answer",
+      "message": "Referral se občas vypíná. Pravidla si můžete přečíst pořád na https://realbarber.cz/referral. Až akci znovu zapneme, půjde zase posílat pozvánky. Sledujte realbarber.cz nebo Instagram https://instagram.com/realbarber.cz.",
+      "showFollowUp": true,
+      "options": [
+        {
+          "id": "app_faq_referral_rules",
+          "label": "Pravidla doporučení",
+          "nextNodeId": "after_help",
+          "action": "openUrl",
+          "url": "/referral"
+        },
+        {
+          "id": "back_benefits",
+          "label": "Zpět na výhody",
+          "nextNodeId": "app_faq_benefits_menu"
+        }
+      ]
+    },
+    {
+      "id": "app_faq_referral_reward_answer",
+      "message": "Za splnění podmínek dostanete aktuální odměnu v RBC. 1 RBC = 1 Kč. Zůstatek uvidíte v peněžence a RBC můžete libovolně utrácet.",
+      "showFollowUp": true,
+      "options": [
+        {
+          "id": "back_benefits",
+          "label": "Zpět na výhody",
+          "nextNodeId": "app_faq_benefits_menu"
+        }
+      ]
+    },
+    {
+      "id": "app_faq_referral_visit_answer",
+      "message": "Jen dokončená návštěva. Zrušená rezervace odměnu nespustí. Když kamarád jednu rezervaci zruší a v lhůtě 30 dní od přijetí pozvánky dokončí jinou, odměnu vám připíšeme.",
+      "showFollowUp": true,
+      "options": [
+        {
+          "id": "back_benefits",
+          "label": "Zpět na výhody",
+          "nextNodeId": "app_faq_benefits_menu"
+        }
+      ]
+    },
+    {
+      "id": "app_faq_referral_where_answer",
+      "message": "Po přihlášení v sekci Doporučení. Odtud jde odkaz nebo QR kód. Když program zrovna není zapnutý, pozvánku poslat nejde. Pravidla jsou na https://realbarber.cz/referral.",
+      "showFollowUp": true,
+      "options": [
+        {
+          "id": "app_faq_referral_rules",
+          "label": "Pravidla doporučení",
+          "nextNodeId": "after_help",
+          "action": "openUrl",
+          "url": "/referral"
+        },
+        {
+          "id": "back_benefits",
+          "label": "Zpět na výhody",
+          "nextNodeId": "app_faq_benefits_menu"
+        }
+      ]
+    },
+    {
+      "id": "app_faq_referral_who_answer",
+      "message": "Jen někoho, kdo u nás ještě nemá účet. Když účet má, ale nikdy návštěvu nedokončil, akce pro něj neplatí. Vlastní pozvánku použít nejde. Pozvat můžete i vy, i když jste u nás ještě nebyli. Stačí si vytvořit účet.",
+      "showFollowUp": true,
+      "options": [
+        {
+          "id": "back_benefits",
+          "label": "Zpět na výhody",
+          "nextNodeId": "app_faq_benefits_menu"
         }
       ]
     },
@@ -763,6 +880,11 @@
           "id": "app_coins",
           "label": "Co jsou RB Coiny",
           "nextNodeId": "app_faq_coins_answer"
+        },
+        {
+          "id": "app_menu_referral",
+          "label": "Doporučení přátel",
+          "nextNodeId": "app_faq_referral_menu"
         },
         {
           "id": "app_topup",
@@ -3108,6 +3230,30 @@
       ]
     },
     {
+      "id": "blog_post_chces_zacit_s_vousy_tohle_by_mel_vedet_kazdy_typek_co_do_toho_jde",
+      "message": "Chceš začít s vousy? Tohle by měl vědět každý týpek, co do toho jde (4.04.25)\n\nNechat si narůst vousy není jen o tom „přestat se holit“. Je to styl. Změna. Závazek. A taky nová zodpovědnost.…",
+      "showFollowUp": true,
+      "options": [
+        {
+          "id": "blog_post_chces_zacit_s_vousy_tohle_by_mel_vedet_kazdy_typek_co_do_toho_jde_web",
+          "label": "Číst celý článek",
+          "nextNodeId": "after_help",
+          "action": "openUrl",
+          "url": "/blog/chces-zacit-s-vousy-tohle-by-mel-vedet-kazdy-typek-co-do-toho-jde/"
+        },
+        {
+          "id": "cross_slots",
+          "label": "Nejbližší termíny",
+          "nextNodeId": "api_slots"
+        },
+        {
+          "id": "back_blog",
+          "label": "Zpět na blog",
+          "nextNodeId": "blog_menu"
+        }
+      ]
+    },
+    {
       "id": "blog_post_co_je_low_taper_fade_uces_ktery_frci_ale_nikdy_nevyjde_z_mody",
       "message": "Co je Low Taper Fade – účes, který frčí, ale nikdy nevyjde z módy (16.11.25)\n\nLow Taper Fade je moderní klasika, která si poslední roky drží neotřesitelnou pozici v barbershop žebříčku nejžádanějších účesů. A není…",
       "showFollowUp": true,
@@ -3550,30 +3696,6 @@
           "nextNodeId": "after_help",
           "action": "openUrl",
           "url": "/blog/historie-holicstvi-od-staroveku-po-moderni-barbershopy/"
-        },
-        {
-          "id": "cross_slots",
-          "label": "Nejbližší termíny",
-          "nextNodeId": "api_slots"
-        },
-        {
-          "id": "back_blog",
-          "label": "Zpět na blog",
-          "nextNodeId": "blog_menu"
-        }
-      ]
-    },
-    {
-      "id": "blog_post_chces_zacit_s_vousy_tohle_by_mel_vedet_kazdy_typek_co_do_toho_jde",
-      "message": "Chceš začít s vousy? Tohle by měl vědět každý týpek, co do toho jde (4.04.25)\n\nNechat si narůst vousy není jen o tom „přestat se holit“. Je to styl. Změna. Závazek. A taky nová zodpovědnost.…",
-      "showFollowUp": true,
-      "options": [
-        {
-          "id": "blog_post_chces_zacit_s_vousy_tohle_by_mel_vedet_kazdy_typek_co_do_toho_jde_web",
-          "label": "Číst celý článek",
-          "nextNodeId": "after_help",
-          "action": "openUrl",
-          "url": "/blog/chces-zacit-s-vousy-tohle-by-mel-vedet-kazdy-typek-co-do-toho-jde/"
         },
         {
           "id": "cross_slots",

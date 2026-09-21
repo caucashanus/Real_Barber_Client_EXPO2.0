@@ -46,6 +46,11 @@ describe('resolveWebPathToAppRoute', () => {
     expect(resolveWebPathToAppRoute('/u/nastaveni/profil')).toBe('/screens/edit-profile');
   });
 
+  it('maps referral rules to in-app referral dashboard', () => {
+    expect(resolveWebPathToAppRoute('/referral')).toBe('/screens/referral');
+    expect(resolveWebPathToAppRoute('/referral/')).toBe('/screens/referral');
+  });
+
   it('maps booking entry', () => {
     expect(resolveWebPathToAppRoute('/rezervace')).toBe('/screens/reservation-create');
   });
