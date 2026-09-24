@@ -1543,6 +1543,14 @@ export const en = {
   bookingGiftVoucherContinue: 'Continue',
   bookingCouponNotMatchedHint: 'The code is valid but may not be linked to your account.',
   bookingSummaryMissingSlot: 'Please select a time slot with a specific barber first.',
+  bookingSummaryProfileSection: 'Booking for',
+  bookingSummaryProfileIncomplete:
+    'Add your name, email, and phone in your profile. You need them to complete the booking.',
+  bookingSummaryEditProfile: 'Edit profile',
+  bookingSummaryMissingBarber:
+    'This time slot has no barber assigned. Go back to Date & time and pick the slot again.',
+  bookingSummaryMissingHold:
+    'Your hold expired or is missing. Go back to Date & time and confirm the slot again.',
   bookingSummaryPrice: 'Price',
   bookingServiceSelect: 'Select this service',
   bookingSlotHandoffTodayAt: 'Today at {time}',

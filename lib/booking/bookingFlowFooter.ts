@@ -9,7 +9,8 @@ export function resolveBookingFlowFooterAction(params: {
   step: BookingStepKind;
   submitSuccess: boolean;
   isSlotHandoffFlow?: boolean;
-  authPrefillReady?: boolean;
+  bookingContactReady?: boolean;
+  bookingSubmitReady?: boolean;
   selections: BookingSelections;
   isCreatingHold?: boolean;
   submitting: boolean;
@@ -31,7 +32,8 @@ export function resolveBookingFlowFooterAction(params: {
     step,
     submitSuccess,
     isSlotHandoffFlow = false,
-    authPrefillReady = true,
+    bookingContactReady = true,
+    bookingSubmitReady = true,
     selections,
     submitting,
     onContinue,
@@ -56,7 +58,7 @@ export function resolveBookingFlowFooterAction(params: {
     return null;
   }
 
-  const canSubmit = step === 'summary' && authPrefillReady;
+  const canSubmit = step === 'summary' && bookingContactReady;
   if (!canSubmit) return null;
 
   if (!selections.slot?.start) return null;
@@ -65,7 +67,7 @@ export function resolveBookingFlowFooterAction(params: {
     title: submitting ? labels.submitting : labels.submit,
     onPress: onSubmit,
     loading: submitting,
-    disabled: submitting,
+    disabled: submitting || !bookingSubmitReady,
     variant: 'submit',
   };
 }

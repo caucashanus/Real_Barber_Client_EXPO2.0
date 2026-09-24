@@ -1548,6 +1548,14 @@ export const uk: Record<TranslationKey, string> = {
   bookingGiftVoucherContinue: 'Продовжити',
   bookingCouponNotMatchedHint: '"Код дійсний, але може бути не прив’язаний до вашого акаунта."',
   bookingSummaryMissingSlot: 'Спочатку виберіть час у конкретного барбера.',
+  bookingSummaryProfileSection: 'Бронювання на',
+  bookingSummaryProfileIncomplete:
+    'Додайте в профілі ім’я, e-mail і телефон. Без цього бронювання не завершити.',
+  bookingSummaryEditProfile: 'Редагувати профіль',
+  bookingSummaryMissingBarber:
+    'Для цього часу не обрано барбера. Поверніться до кроку «Час» і знову оберіть слот.',
+  bookingSummaryMissingHold:
+    'Бронювання часу закінчилось або відсутнє. Поверніться до «Час» і підтвердіть слот знову.',
   bookingSummaryPrice: 'Ціна',
   bookingServiceSelect: 'Обрати цю послугу',
   bookingSlotHandoffTodayAt: 'Сьогодні о {time}',

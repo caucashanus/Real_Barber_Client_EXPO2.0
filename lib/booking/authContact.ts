@@ -9,6 +9,13 @@ export type AuthBookingContact = {
   phone: string;
 };
 
+export type BookingReservationContact = {
+  firstName: string;
+  lastName: string;
+  email: string;
+  phone: string;
+};
+
 function sanitizeNameOneWord(value: string): string {
   return value.trim().split(/\s+/)[0] ?? '';
 }
@@ -38,6 +45,7 @@ function splitPhoneToNational(phone: string): { countryIso: string; nationalDigi
   return { countryIso: 'CZ', nationalDigits: digits };
 }
 
+/** Single CRM → booking contact mapping (same fields as web submit payload). */
 export function mapAuthClientToBookingContact(
   client: CrmClient
 ): AuthBookingContact | null {
@@ -64,9 +72,24 @@ export function mapAuthClientToBookingContact(
   };
 }
 
-export function isAuthContactComplete(client: CrmClient | null | undefined): boolean {
-  if (!client) return false;
+export function clientToBookingReservationContact(
+  client: CrmClient | null | undefined
+): BookingReservationContact | null {
+  if (!client) return null;
   const mapped = mapAuthClientToBookingContact(client);
-  if (!mapped) return false;
-  return Boolean(mapped.firstName && mapped.lastName && mapped.email && mapped.nationalDigits);
+  if (!mapped) return null;
+  return {
+    firstName: mapped.firstName,
+    lastName: mapped.lastName,
+    email: mapped.email,
+    phone: mapped.phone,
+  };
+}
+
+export function isAuthContactComplete(client: CrmClient | null | undefined): boolean {
+  return clientToBookingReservationContact(client) != null;
+}
+
+export function bookingContactDisplayName(contact: BookingReservationContact): string {
+  return `${contact.firstName} ${contact.lastName}`.trim();
 }

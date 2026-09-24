@@ -1,4 +1,5 @@
-import { ANY_EMPLOYEE_ID, type BookingEntity, type BookingSlot } from '@/lib/booking/constants';
+import type { BookingEntity, BookingSlot } from '@/lib/booking/constants';
+import { isAnyEmployeeId } from '@/lib/booking/domain/anyEmployee';
 
 export function resolveHoldEmployeeId(
   slot: Pick<BookingSlot, 'employeeId'>,
@@ -6,12 +7,12 @@ export function resolveHoldEmployeeId(
   profileEmployee: BookingEntity | null | undefined
 ): string | null {
   const fromSlot = slot.employeeId?.trim();
-  if (fromSlot && fromSlot !== ANY_EMPLOYEE_ID && fromSlot !== 'any') {
+  if (fromSlot && !isAnyEmployeeId(fromSlot)) {
     return fromSlot;
   }
 
   const resolved = profileEmployee ?? employee;
-  if (!resolved?.id || resolved.id === ANY_EMPLOYEE_ID || resolved.id === 'any') {
+  if (!resolved?.id || isAnyEmployeeId(resolved.id)) {
     return null;
   }
   return resolved.id;

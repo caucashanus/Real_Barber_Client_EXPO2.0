@@ -1,7 +1,6 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 import type { BookingEntity, BookingService, BookingSlot } from '@/lib/booking/constants';
-import { isRevisitDatetime } from '@/lib/booking/engine/session/stepPolicy';
 import type { BookingSelections, BookingStepKind } from '@/lib/booking/engine/types';
 
 export const BOOKING_SLOT_STORAGE_KEY = '@rezervace-selected-slot';
@@ -182,65 +181,6 @@ function enrichBranchDisplayName(
     next = { ...next, address };
   }
   return next;
-}
-
-export function storedSlotMatchesFlowIds(
-  stored: StoredBookingSlotContext,
-  flowIds: {
-    branchId?: string | null;
-    serviceId?: string | null;
-    employeeId?: string | null;
-  }
-): boolean {
-  const branchId = flowIds.branchId ?? stored.branchId;
-  const serviceId = flowIds.serviceId ?? stored.serviceId;
-  const employeeId = flowIds.employeeId ?? stored.employeeId;
-  return (
-    branchId === stored.branchId &&
-    serviceId === stored.serviceId &&
-    employeeId === stored.employeeId
-  );
-}
-
-type SelectionSetters = {
-  setSlot: (slot: BookingSelections['slot']) => void;
-  setDate: (date: string | null) => void;
-  setEmployee: (employee: BookingSelections['employee']) => void;
-  setService: (service: BookingSelections['service']) => void;
-  setBranch: (branch: BookingSelections['branch']) => void;
-};
-
-export function applyBookingBackwardCleanup(
-  fromStep: BookingStepKind,
-  toStep: BookingStepKind,
-  activeSteps: readonly BookingStepKind[],
-  setters: SelectionSetters
-): void {
-  const fromIdx = activeSteps.indexOf(fromStep);
-  const toIdx = activeSteps.indexOf(toStep);
-  if (fromIdx === -1 || toIdx === -1 || toIdx >= fromIdx) return;
-
-  const shouldClear = (kind: BookingStepKind) => {
-    const idx = activeSteps.indexOf(kind);
-    return idx !== -1 && fromIdx >= idx && toIdx < idx;
-  };
-
-  const revisitDatetime = isRevisitDatetime(fromStep, toStep);
-
-  if (
-    !revisitDatetime &&
-    (shouldClear('summary') || shouldClear('datetime'))
-  ) {
-    setters.setSlot(null);
-  }
-
-  if (!revisitDatetime && shouldClear('datetime')) {
-    setters.setDate(null);
-  }
-
-  if (shouldClear('employee')) setters.setEmployee(null);
-  if (shouldClear('service')) setters.setService(null);
-  if (shouldClear('branch')) setters.setBranch(null);
 }
 
 export function computeMaxAllowedStep(

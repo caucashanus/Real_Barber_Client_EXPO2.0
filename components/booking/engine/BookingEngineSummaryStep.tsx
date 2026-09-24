@@ -1,7 +1,12 @@
-import React from 'react';
-import { View } from 'react-native';
+import { router } from 'expo-router';
+import React, { useMemo } from 'react';
+import { Pressable, View } from 'react-native';
 
 import { formatResolvedBookingPriceLabel } from '@/lib/booking/designShared';
+import {
+  bookingContactDisplayName,
+  clientToBookingReservationContact,
+} from '@/lib/booking/authContact';
 import type { BookingEngineFlow } from '@/hooks/useBookingEngineFlow';
 import BookingCouponSection from '@/components/booking/engine/BookingCouponSection';
 import BookingHoldSummaryRow, {
@@ -9,16 +14,26 @@ import BookingHoldSummaryRow, {
 } from '@/components/booking/engine/BookingHoldSummaryRow';
 import BookingSummaryBranchSection from '@/components/booking/engine/BookingSummaryBranchSection';
 import Section from '@/components/layout/Section';
+import Icon from '@/components/Icon';
 import ThemedText from '@/components/ThemedText';
 import type { TranslationKey } from '@/locales';
+import { resolveSummaryEmployeeDisplayName } from '@/lib/booking/submitReadiness';
 import { formatBookingSummaryDatetimeLabel } from '@/utils/reservationCreateHelpers';
+import { useAuth } from '@/contexts/AuthContext';
 
 interface Props {
   flow: BookingEngineFlow;
 }
 
 export default function BookingEngineSummaryStep({ flow }: Props) {
+  const { client } = useAuth();
   const { t, coupon } = flow;
+
+  const reservationContact = useMemo(
+    () => clientToBookingReservationContact(client),
+    [client]
+  );
+  const profileIncomplete = !flow.submit.bookingContactReady;
 
   if (!flow.selectedSlot) {
     return (
@@ -28,8 +43,13 @@ export default function BookingEngineSummaryStep({ flow }: Props) {
     );
   }
 
-  const employee = flow.selectedEmployee ?? flow.profileEmployee ?? null;
-  const employeeName = employee?.displayName ?? employee?.name ?? '—';
+  const employeeName = resolveSummaryEmployeeDisplayName({
+    selectedEmployee: flow.selectedEmployee,
+    profileEmployee: flow.profileEmployee,
+    selectedSlot: flow.selectedSlot,
+    holdEmployeeId: flow.hold.hold?.employeeId,
+    employees: flow.employees,
+  });
   const dateLabel = formatBookingSummaryDatetimeLabel({
     dateIso: flow.selectedDate,
     slotStart: flow.selectedSlot?.start,
@@ -94,6 +114,57 @@ export default function BookingEngineSummaryStep({ flow }: Props) {
           <BookingCouponSection flow={flow} coupon={coupon} plain />
         </View>
       </Section>
+
+      <Section title={t('bookingSummaryProfileSection')} titleSize="md">
+        {profileIncomplete ? (
+          <View className="mt-2 gap-3">
+            <ThemedText className="text-sm text-amber-700 dark:text-amber-300">
+              {t('bookingSummaryProfileIncomplete')}
+            </ThemedText>
+            <Pressable
+              onPress={() => router.push('/screens/edit-profile')}
+              className="flex-row items-center gap-2 self-start rounded-full bg-light-surface px-4 py-2 active:opacity-80 dark:bg-dark-secondary">
+              <Icon name="UserRoundPen" size={18} className="text-light-text dark:text-dark-text" />
+              <ThemedText className="text-sm font-semibold">
+                {t('bookingSummaryEditProfile')}
+              </ThemedText>
+            </Pressable>
+          </View>
+        ) : reservationContact ? (
+          <View className="mt-2 gap-3">
+            <View>
+              <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext">
+                {t('editProfilePersonalInfo')}
+              </ThemedText>
+              <ThemedText className="mt-1 text-sm font-semibold">
+                {bookingContactDisplayName(reservationContact)}
+              </ThemedText>
+            </View>
+            <View>
+              <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext">
+                {t('editProfileEmail')}
+              </ThemedText>
+              <ThemedText className="mt-1 text-sm font-semibold">{reservationContact.email}</ThemedText>
+            </View>
+            <View>
+              <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext">
+                {t('editProfilePhone')}
+              </ThemedText>
+              <ThemedText className="mt-1 text-sm font-semibold">{reservationContact.phone}</ThemedText>
+            </View>
+          </View>
+        ) : null}
+      </Section>
+
+      {!flow.bookingSubmitReady && flow.bookingSubmitBlockReason !== 'contact' ? (
+        <ThemedText className="text-sm text-amber-700 dark:text-amber-300">
+          {flow.bookingSubmitBlockReason === 'employee'
+            ? t('bookingSummaryMissingBarber')
+            : flow.bookingSubmitBlockReason === 'hold'
+              ? t('bookingSummaryMissingHold')
+              : t('bookingSummaryMissingSlot')}
+        </ThemedText>
+      ) : null}
 
       {flow.submit.submitError ? (
         <ThemedText className="text-sm text-red-500 dark:text-red-400">

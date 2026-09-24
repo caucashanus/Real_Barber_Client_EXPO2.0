@@ -1547,6 +1547,14 @@ export const cs: Record<TranslationKey, string> = {
   bookingGiftVoucherContinue: 'Pokračovat',
   bookingCouponNotMatchedHint: 'Kód platí, ale nemusí být vázaný na váš účet.',
   bookingSummaryMissingSlot: 'Nejdřív vyberte termín u konkrétního holiče.',
+  bookingSummaryProfileSection: 'Rezervace na',
+  bookingSummaryProfileIncomplete:
+    'Doplňte v profilu jméno, e-mail a telefon. Bez toho rezervaci nedokončíte.',
+  bookingSummaryEditProfile: 'Upravit profil',
+  bookingSummaryMissingBarber:
+    'Chybí konkrétní holič pro tento termín. Vraťte se na krok Termín a vyberte slot znovu.',
+  bookingSummaryMissingHold:
+    'Rezervace termínu vypršela nebo chybí. Vraťte se na Termín a potvrďte slot znovu.',
   bookingSummaryPrice: 'Cena',
   bookingServiceSelect: 'Vybrat tuto službu',
   bookingSlotHandoffTodayAt: 'Dnes v {time}',

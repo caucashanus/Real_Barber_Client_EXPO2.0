@@ -41,7 +41,6 @@ type BookingEngineContextValue = {
   toBookingSelections: () => BookingSelections;
   stepIndex: number;
   setStepIndex: React.Dispatch<React.SetStateAction<number>>;
-  draftReady: boolean;
   clearDraft: () => Promise<void>;
 };
 
@@ -78,17 +77,9 @@ export function BookingEngineProvider({ children }: { children: React.ReactNode 
     EMPTY_BOOKING_SELECTIONS_STATE
   );
   const [stepIndex, setStepIndex] = useState(0);
-  const [draftReady, setDraftReady] = useState(false);
 
   useEffect(() => {
-    let cancelled = false;
-    void (async () => {
-      await clearBookingDraft();
-      if (!cancelled) setDraftReady(true);
-    })();
-    return () => {
-      cancelled = true;
-    };
+    void clearBookingDraft();
   }, [recipeId, preset.branchId, preset.serviceId, preset.employeeId]);
 
   const setBranch = useCallback(
@@ -167,7 +158,6 @@ export function BookingEngineProvider({ children }: { children: React.ReactNode 
       toBookingSelections,
       stepIndex,
       setStepIndex,
-      draftReady,
       clearDraft,
     }),
     [
@@ -183,7 +173,6 @@ export function BookingEngineProvider({ children }: { children: React.ReactNode 
       resetSelections,
       toBookingSelections,
       stepIndex,
-      draftReady,
       clearDraft,
     ]
   );

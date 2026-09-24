@@ -4,62 +4,28 @@ import { createBookingApiReservation } from '@/api/bookingEngine';
 import type { CrmClient } from '@/api/auth';
 import type { TranslationKey } from '@/locales';
 import { BookingApiError, isBookingRateLimited, isBookingSlotConflict } from '@/lib/booking/booking-api/errors';
-import { mapAuthClientToBookingContact } from '@/lib/booking/authContact';
-import { buildFullPhone, phoneCountrySelectValueFromIso2 } from '@/utils/phone';
+import {
+  clientToBookingReservationContact,
+  type BookingReservationContact,
+} from '@/lib/booking/authContact';
 
-export type BookingReservationSubmitContext = {
-  firstName: string;
-  lastName: string;
-  email: string;
-  phone: string;
-};
+export type BookingReservationSubmitContext = BookingReservationContact;
 
-type PrefillState = BookingReservationSubmitContext;
-
-const EMPTY_PREFILL: PrefillState = {
+const EMPTY_CONTACT: BookingReservationContact = {
   firstName: '',
   lastName: '',
   email: '',
   phone: '',
 };
 
-function prefillFromClient(client: CrmClient): PrefillState {
-  const mapped = mapAuthClientToBookingContact(client);
-  if (mapped) {
-    return {
-      firstName: mapped.firstName,
-      lastName: mapped.lastName,
-      email: mapped.email,
-      phone: mapped.phone,
-    };
-  }
-
-  const nameParts = (client.name ?? '').trim().split(/\s+/).filter(Boolean);
-  const phoneDigits = (client.phone ?? '').replace(/\D/g, '');
-  const national =
-    phoneDigits.startsWith('420') && phoneDigits.length >= 12
-      ? phoneDigits.slice(3)
-      : phoneDigits.replace(/^0+/, '');
-
-  return {
-    firstName: nameParts[0] ?? '',
-    lastName: nameParts.slice(1).join(' ') || nameParts[0] || '',
-    email: client.email?.trim() ?? '',
-    phone: national
-      ? buildFullPhone(phoneCountrySelectValueFromIso2('CZ'), national)
-      : client.phone?.trim() || '',
-  };
-}
-
 /**
- * Auth-only booking submit — app users are logged in; no guest Kontakt / OTP UI.
+ * Auth-only booking submit — contact always comes from logged-in CRM client (same API payload as web).
  */
 export function useBookingReservationSubmit(
   client: CrmClient | null | undefined,
   apiToken: string | null
 ) {
-  const [prefill, setPrefill] = useState<PrefillState>(EMPTY_PREFILL);
-  const [authPrefillReady, setAuthPrefillReady] = useState(false);
+  const [contact, setContact] = useState<BookingReservationContact>(EMPTY_CONTACT);
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [submitSuccess, setSubmitSuccess] = useState(false);
@@ -71,23 +37,22 @@ export function useBookingReservationSubmit(
   }, [submitSuccess]);
 
   useEffect(() => {
-    if (!client) {
-      setPrefill(EMPTY_PREFILL);
-      setAuthPrefillReady(true);
-      return;
-    }
-    setPrefill(prefillFromClient(client));
-    setAuthPrefillReady(true);
+    setContact(clientToBookingReservationContact(client) ?? EMPTY_CONTACT);
   }, [client]);
+
+  const bookingContactReady = useMemo(
+    () => clientToBookingReservationContact(client) != null,
+    [client]
+  );
 
   const contactContext = useMemo<BookingReservationSubmitContext>(
     () => ({
-      firstName: prefill.firstName.trim(),
-      lastName: prefill.lastName.trim(),
-      email: prefill.email.trim(),
-      phone: prefill.phone.trim(),
+      firstName: contact.firstName.trim(),
+      lastName: contact.lastName.trim(),
+      email: contact.email.trim(),
+      phone: contact.phone.trim(),
     }),
-    [prefill]
+    [contact]
   );
 
   const submitReservation = useCallback(
@@ -108,20 +73,8 @@ export function useBookingReservationSubmit(
         return;
       }
 
-      if (!contactContext.firstName) {
-        setSubmitError(formatErr(new Error('fillFirstName')));
-        return;
-      }
-      if (!contactContext.lastName) {
-        setSubmitError(formatErr(new Error('fillLastName')));
-        return;
-      }
-      if (!contactContext.email) {
-        setSubmitError(formatErr(new Error('fillEmail')));
-        return;
-      }
-      if (!contactContext.phone) {
-        setSubmitError(formatErr(new Error('fillPhone')));
+      if (!bookingContactReady) {
+        setSubmitError(formatErr(new Error('profileIncomplete')));
         return;
       }
 
@@ -149,18 +102,28 @@ export function useBookingReservationSubmit(
         setSubmitting(false);
       }
     },
-    [apiToken, contactContext]
+    [apiToken, bookingContactReady, contactContext]
   );
 
   return {
-    /** @deprecated Prefer contactContext — kept for monitor helpers naming. */
     contactContext,
-    authPrefillReady,
+    bookingContactReady,
     submitting,
     submitError,
     submitSuccess,
     submitReservation,
   };
+}
+
+function isOpaqueBackendValidationMessage(message: string): boolean {
+  const lower = message.toLowerCase();
+  return (
+    lower.includes('too small') ||
+    lower.includes('expected string') ||
+    lower.includes('invalid input') ||
+    lower.includes('required') ||
+    lower.includes('zod')
+  );
 }
 
 export function formatBookingSubmitError(
@@ -169,8 +132,14 @@ export function formatBookingSubmitError(
 ): string {
   if (isBookingSlotConflict(err)) return t('reservationErrorSlotTaken');
   if (isBookingRateLimited(err)) return t('reservationErrorRateLimit');
-  if (err instanceof BookingApiError) return err.message;
+  if (err instanceof BookingApiError) {
+    if (isOpaqueBackendValidationMessage(err.message)) {
+      return t('reservationErrorGeneric');
+    }
+    return err.message;
+  }
   if (err instanceof Error) {
+    if (err.message === 'profileIncomplete') return t('bookingSummaryProfileIncomplete');
     if (err.message === 'fillFirstName') return t('reservationErrorFirstName');
     if (err.message === 'fillLastName') return t('reservationErrorLastName');
     if (err.message === 'fillEmail') return t('reservationErrorEmail');
@@ -178,6 +147,9 @@ export function formatBookingSubmitError(
     if (err.message === 'fillPhone') return t('reservationErrorPhone');
     if (err.message === 'reservationIncomplete') return t('reservationErrorGeneric');
     if (err.message === 'Unauthorized') return t('reservationErrorGeneric');
+    if (isOpaqueBackendValidationMessage(err.message)) {
+      return t('reservationErrorGeneric');
+    }
     return err.message;
   }
   return t('reservationErrorGeneric');
