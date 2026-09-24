@@ -1550,7 +1550,7 @@ export const en = {
   bookingSummaryMissingBarber:
     'This time slot has no barber assigned. Go back to Date & time and pick the slot again.',
   bookingSummaryMissingHold:
-    'Your hold expired or is missing. Go back to Date & time and confirm the slot again.',
+    'We had to release this time slot. Go back to Date & time and tap Continue to confirm it again.',
   bookingSummaryPrice: 'Price',
   bookingServiceSelect: 'Select this service',
   bookingSlotHandoffTodayAt: 'Today at {time}',

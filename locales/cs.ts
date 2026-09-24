@@ -1554,7 +1554,7 @@ export const cs: Record<TranslationKey, string> = {
   bookingSummaryMissingBarber:
     'Chybí konkrétní holič pro tento termín. Vraťte se na krok Termín a vyberte slot znovu.',
   bookingSummaryMissingHold:
-    'Rezervace termínu vypršela nebo chybí. Vraťte se na Termín a potvrďte slot znovu.',
+    'Bohužel jsme termín mezitím uvolnili. Vraťte se na Termín a znovu ho potvrďte tlačítkem Pokračovat.',
   bookingSummaryPrice: 'Cena',
   bookingServiceSelect: 'Vybrat tuto službu',
   bookingSlotHandoffTodayAt: 'Dnes v {time}',

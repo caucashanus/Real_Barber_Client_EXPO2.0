@@ -1555,7 +1555,7 @@ export const uk: Record<TranslationKey, string> = {
   bookingSummaryMissingBarber:
     'Для цього часу не обрано барбера. Поверніться до кроку «Час» і знову оберіть слот.',
   bookingSummaryMissingHold:
-    'Бронювання часу закінчилось або відсутнє. Поверніться до «Час» і підтвердіть слот знову.',
+    'На жаль, ми вже звільнили цей час. Поверніться до «Час» і знову підтвердіть його кнопкою «Продовжити».',
   bookingSummaryPrice: 'Ціна',
   bookingServiceSelect: 'Обрати цю послугу',
   bookingSlotHandoffTodayAt: 'Сьогодні о {time}',
