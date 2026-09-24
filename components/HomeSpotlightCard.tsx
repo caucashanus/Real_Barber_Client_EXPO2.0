@@ -57,7 +57,7 @@ export function HomeSpotlightCard({
       ? 'homeSpotlightReviewRated'
       : HOME_SPOTLIGHT_TITLE_KEY[state];
   const starFilledColor = isDark ? '#fbbf24' : '#f59e0b';
-  const starEmptyColor = isDark ? '#525252' : '#d4d4d4';
+  const starEmptyColor = '#525252';
 
   const slotBadgeLabel =
     state === 'soon' || state === 'today'
