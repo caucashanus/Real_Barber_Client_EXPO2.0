@@ -22,6 +22,7 @@ import {
   useBookingEngineSlotHandoffEffects,
   useBookingEngineSlotHandoffState,
 } from '@/hooks/useBookingEngineSlotHandoff';
+import { useBookingAuthClientSync } from '@/hooks/useBookingAuthClientSync';
 import { useBookingHold } from '@/hooks/useBookingHold';
 import { useTranslation } from '@/hooks/useTranslation';
 import type { TranslationKey } from '@/locales';
@@ -93,7 +94,7 @@ function stepTitleKey(kind: BookingStepKind): TranslationKey {
 
 export function useBookingEngineFlow() {
   const params = useLocalSearchParams();
-  const { apiToken, client } = useAuth();
+  const { apiToken, token, client, setAuth } = useAuth();
   const { locale } = useLanguage();
   const { t } = useTranslation();
   const colors = useThemeColors();
@@ -234,6 +235,14 @@ export function useBookingEngineFlow() {
   } = slotHandoffEffects;
 
   const submit = useBookingReservationSubmit(client, apiToken);
+  useBookingAuthClientSync({
+    apiToken,
+    token,
+    client,
+    setAuth,
+    step,
+    bookingContactReady: submit.bookingContactReady,
+  });
   const hold = useBookingHold(apiToken);
 
   const holdFlowSelection = useMemo(
