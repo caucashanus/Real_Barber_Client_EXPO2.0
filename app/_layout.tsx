@@ -29,6 +29,7 @@ import { useListingCacheResume } from '@/hooks/useListingCacheResume';
 
 import AuthGuard from '@/components/AuthGuard';
 import ForceUpdateGate from '@/components/ForceUpdateGate';
+import PromoBannerGate from '@/components/PromoBannerGate';
 import { APP_OPENS_KEY } from '@/constants/appOpens';
 
 export { APP_OPENS_KEY };
@@ -83,7 +84,9 @@ export default function RootLayout() {
                               <AuthGuard>
                                 <PhoneCallFeedbackProvider>
                                   <ForceUpdateGate>
-                                    <ThemedLayout />
+                                    <PromoBannerGate>
+                                      <ThemedLayout />
+                                    </PromoBannerGate>
                                   </ForceUpdateGate>
                                 </PhoneCallFeedbackProvider>
                               </AuthGuard>

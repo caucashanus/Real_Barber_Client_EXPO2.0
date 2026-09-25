@@ -31,6 +31,8 @@ export const en = {
   forceUpdateMessage:
     'Your app version is no longer supported. We do our best to improve how the app runs and the features you use.',
   forceUpdateButton: 'Update now',
+  promoBannerCloseA11y: 'Close banner',
+  promoBannerImageA11y: 'Promotional banner',
   settingsAccent: 'Accent color',
   settingsAccentDesc: 'Highlight color used across the app',
   settingsCommunicationPrefs: 'Communication preferences',

@@ -33,6 +33,8 @@ export const uk: Record<TranslationKey, string> = {
   forceUpdateMessage:
     'Ваша версія застосунку більше не підтримується. Ми докладаємо максимум зусиль, щоб покращити роботу застосунку та користувацькі функції.',
   forceUpdateButton: 'Оновити зараз',
+  promoBannerCloseA11y: 'Закрити банер',
+  promoBannerImageA11y: 'Рекламний банер',
   settingsAccent: 'Кольори',
   settingsAccentDesc: 'Колір акценту в додатку',
   settingsCommunicationPrefs: 'Комунікаційні вподобання',

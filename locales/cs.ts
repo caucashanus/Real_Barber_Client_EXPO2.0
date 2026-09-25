@@ -33,6 +33,8 @@ export const cs: Record<TranslationKey, string> = {
   forceUpdateMessage:
     'Vaše verze aplikace už není podporována. Snažíme se dělat maximum pro zlepšení chodu aplikace a uživatelských funkcí.',
   forceUpdateButton: 'Teď aktualizovat',
+  promoBannerCloseA11y: 'Zavřít banner',
+  promoBannerImageA11y: 'Propagační banner',
   settingsAccent: 'Barevnost',
   settingsAccentDesc: 'Barva zvýraznění v aplikaci',
   settingsCommunicationPrefs: 'Komunikační preference',
