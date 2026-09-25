@@ -29,7 +29,7 @@ export const en = {
   settingsHelpDesc: 'Contact support',
   forceUpdateTitle: 'App update required',
   forceUpdateMessage:
-    'Your app version is no longer supported. Update the app to continue using Real Barber.',
+    'Your app version is no longer supported. We do our best to improve how the app runs and the features you use.',
   forceUpdateButton: 'Update now',
   settingsAccent: 'Accent color',
   settingsAccentDesc: 'Highlight color used across the app',

@@ -31,7 +31,7 @@ export const uk: Record<TranslationKey, string> = {
   settingsHelpDesc: 'Зв’язатися з підтримкою',
   forceUpdateTitle: 'Потрібно оновити застосунок',
   forceUpdateMessage:
-    'Ваша версія застосунку більше не підтримується. Оновіть його, щоб продовжити користуватися Real Barber.',
+    'Ваша версія застосунку більше не підтримується. Ми докладаємо максимум зусиль, щоб покращити роботу застосунку та користувацькі функції.',
   forceUpdateButton: 'Оновити зараз',
   settingsAccent: 'Кольори',
   settingsAccentDesc: 'Колір акценту в додатку',

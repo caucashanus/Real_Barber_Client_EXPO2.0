@@ -31,7 +31,7 @@ export const cs: Record<TranslationKey, string> = {
   settingsHelpDesc: 'Kontaktovat podporu',
   forceUpdateTitle: 'Je nutné aktualizovat aplikaci',
   forceUpdateMessage:
-    'Vaše verze aplikace už není podporována. Aktualizujte aplikaci, abyste mohli Real Barber dál používat.',
+    'Vaše verze aplikace už není podporována. Snažíme se dělat maximum pro zlepšení chodu aplikace a uživatelských funkcí.',
   forceUpdateButton: 'Teď aktualizovat',
   settingsAccent: 'Barevnost',
   settingsAccentDesc: 'Barva zvýraznění v aplikaci',
