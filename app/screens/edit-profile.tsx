@@ -26,6 +26,11 @@ import {
   hasServerProfileAvatar} from '@/utils/editProfileAvatar';
 import { COUNTRY_OPTIONS } from '@/utils/phone';
 import { uploadInputFromPickerAsset } from '@/utils/normalizeUploadImage';
+import { EditProfileSaveErrorSheet } from '@/components/profile/EditProfileSaveErrorSheet';
+import {
+  getEditProfileSaveErrorPresentation,
+  type EditProfileSaveErrorPresentation,
+} from '@/utils/editProfileSaveError';
 import SiteLoadingSpinner from '@/components/SiteLoadingSpinner';
 
 type EditProfileFocus = 'email' | 'birthday' | 'avatar' | 'address';
@@ -57,6 +62,9 @@ export default function EditProfileScreen() {
   const [country, setCountry] = useState('');
   const phoneInfoSheetRef = useRef<ActionSheetRef>(null);
   const photoSourceSheetRef = useRef<ActionSheetRef>(null);
+  const saveErrorSheetRef = useRef<ActionSheetRef>(null);
+  const [saveErrorPresentation, setSaveErrorPresentation] =
+    useState<EditProfileSaveErrorPresentation | null>(null);
 
   const registerSectionOffset = useCallback((key: EditProfileFocus, y: number) => {
     sectionOffsetsRef.current[key] = y;
@@ -90,6 +98,24 @@ export default function EditProfileScreen() {
     Linking.openURL(
       `https://wa.me/420608332881?text=${encodeURIComponent(phoneChangeRequestMessage)}`
     );
+
+  const dismissSaveErrorSheet = useCallback(() => {
+    saveErrorSheetRef.current?.hide();
+    const emailOffset = sectionOffsetsRef.current.email;
+    if (emailOffset != null) {
+      setTimeout(() => {
+        scrollRef.current?.scrollTo({
+          y: Math.max(0, emailOffset - 16),
+          animated: true,
+        });
+      }, 350);
+    }
+  }, []);
+
+  const presentSaveError = useCallback((err: unknown) => {
+    setSaveErrorPresentation(getEditProfileSaveErrorPresentation(err));
+    saveErrorSheetRef.current?.show();
+  }, []);
 
   useEffect(() => {
     if (!apiToken) {
@@ -203,7 +229,7 @@ export default function EditProfileScreen() {
       setAvatarRemoved(false);
       router.back();
     } catch (e) {
-      setError(e instanceof Error ? e.message : 'Failed to save');
+      presentSaveError(e);
     } finally {
       setSaving(false);
     }
@@ -441,7 +467,13 @@ export default function EditProfileScreen() {
         )}
       </ThemedScroller>
 
-      <ActionSheetThemed ref={phoneInfoSheetRef} gestureEnabled>
+      <EditProfileSaveErrorSheet
+        ref={saveErrorSheetRef}
+        presentation={saveErrorPresentation}
+        onDismiss={dismissSaveErrorSheet}
+      />
+
+      <ActionSheetThemed ref={phoneInfoSheetRef} gestureEnabled fitContent>
         <View className="p-4 pb-6">
           <ThemedText className="mb-3 text-lg font-semibold text-light-text dark:text-dark-text">
             {t('editProfilePhoneNumber')}

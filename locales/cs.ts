@@ -656,6 +656,14 @@ export const cs: Record<TranslationKey, string> = {
     'a ve zprávě uveďte svou žádost. Zpracujeme ji co nejdříve a číslo vám změníme.',
   editProfilePhoneChangeRequestBody:
     'Dobrý den, žádám o změnu telefonního čísla. Jméno: {{name}}. Současné číslo: {{current}}. Nové číslo: ',
+  editProfileSaveFailedTitle: 'Profil se nepodařilo uložit',
+  editProfileSaveConflictTitle: 'E-mail nelze použít',
+  editProfileSaveConflictBody:
+    'Tento e-mail už je registrovaný u jiného účtu. Zadejte jinou adresu nebo se přihlaste účtem, ke kterému patří.',
+  editProfileSaveInvalidBody: 'Zkontrolujte vyplněné údaje a zkuste to znovu.',
+  editProfileSaveGenericBody: 'Nepodařilo se uložit změny. Zkuste to prosím znovu.',
+  editProfileSaveErrorDismiss: 'Rozumím',
+  editProfileSaveErrorSupport: 'Technická podpora aplikace',
 
   // Currency
   currencyTitle: 'Měna',

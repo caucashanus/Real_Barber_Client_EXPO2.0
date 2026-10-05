@@ -51,10 +51,17 @@ export async function fetchMobileCompatibilityPolicy(params: {
   const timeoutId = setTimeout(() => controller.abort(), FETCH_TIMEOUT_MS);
 
   try {
-    const raw = await fetchClientAppV1<unknown>(`/mobile-compatibility?${search.toString()}`, {
-      checkAuth: false,
-      signal: controller.signal,
-    });
+    const raw = await fetchClientAppV1<unknown>(
+      `/mobile-compatibility?${search.toString()}&_=${Date.now()}`,
+      {
+        checkAuth: false,
+        signal: controller.signal,
+        headers: {
+          'Cache-Control': 'no-cache',
+          Pragma: 'no-cache',
+        },
+      }
+    );
     const policy = parseMobileCompatibilityPolicy(raw);
     if (!policy) {
       throw new Error('Invalid mobile compatibility policy');

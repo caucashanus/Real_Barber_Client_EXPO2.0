@@ -651,6 +651,14 @@ export const en = {
     'and include your request in the message. We will process it shortly and make the change for you.',
   editProfilePhoneChangeRequestBody:
     'Hello, I would like to request a change of my phone number. My name is {{name}}. My current phone number is {{current}}. The number I want to change to: ',
+  editProfileSaveFailedTitle: 'Could not save profile',
+  editProfileSaveConflictTitle: 'Email cannot be used',
+  editProfileSaveConflictBody:
+    'This email is already registered to another account. Use a different address or sign in with the account it belongs to.',
+  editProfileSaveInvalidBody: 'Check the details you entered and try again.',
+  editProfileSaveGenericBody: 'Your changes could not be saved. Please try again.',
+  editProfileSaveErrorDismiss: 'Got it',
+  editProfileSaveErrorSupport: 'App technical support',
 
   // Currency
   currencyTitle: 'Currency',

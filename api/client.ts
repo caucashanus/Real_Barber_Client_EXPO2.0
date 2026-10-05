@@ -165,7 +165,7 @@ export async function patchClientMe(apiToken: string, body: UpdateClientMeBody):
   } catch (e) {
     if (e instanceof CrmHttpError) {
       if (e.status === 400) throw new Error('Invalid input data');
-      if (e.status === 409) throw new Error('Phone number already exists');
+      if (e.status === 409) throw e;
       if (e.status === 500) throw new Error('Failed to update profile');
     }
     throw e;

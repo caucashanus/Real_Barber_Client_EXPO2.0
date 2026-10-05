@@ -656,6 +656,14 @@ export const uk: Record<TranslationKey, string> = {
     'a ve zprávě uveďte svou žádost. Zpracujeme ji co nejdříve a číslo vám změníme.',
   editProfilePhoneChangeRequestBody:
     'Dobrý den, žádám o změnu telefonního čísla. Jméno: {{name}}. Současné číslo: {{current}}. Nové číslo: ',
+  editProfileSaveFailedTitle: 'Не вдалося зберегти профіль',
+  editProfileSaveConflictTitle: 'E-mail уже зайнятий',
+  editProfileSaveConflictBody:
+    'Цей e-mail уже прив’язаний до іншого акаунта. Введіть іншу адресу або увійдіть у відповідний акаунт.',
+  editProfileSaveInvalidBody: 'Перевірте введені дані та спробуйте ще раз.',
+  editProfileSaveGenericBody: 'Не вдалося зберегти зміни. Спробуйте ще раз.',
+  editProfileSaveErrorDismiss: 'Зрозуміло',
+  editProfileSaveErrorSupport: 'Технічна підтримка застосунку',
 
   // Currency
   currencyTitle: 'Валюта',
