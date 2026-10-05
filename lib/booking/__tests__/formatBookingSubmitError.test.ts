@@ -11,9 +11,4 @@ describe('formatBookingSubmitError', () => {
     expect(formatBookingSubmitError(err, t)).toBe('reservationErrorGeneric');
   });
 
-  it('maps profileIncomplete to booking summary key', () => {
-    expect(formatBookingSubmitError(new Error('profileIncomplete'), t)).toBe(
-      'bookingSummaryProfileIncomplete'
-    );
-  });
 });

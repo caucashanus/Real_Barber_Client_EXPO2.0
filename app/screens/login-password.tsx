@@ -11,6 +11,7 @@ import ThemedText from '@/components/ThemedText';
 import Input from '@/components/forms/Input';
 import PhoneInput from '@/components/forms/PhoneInput';
 import AuthScreenLayout from '@/components/layout/AuthScreenLayout';
+import { resolvePostLoginHref } from '@/utils/postLoginNavigation';
 import { buildFullPhone, validatePhoneDigits } from '@/utils/phone';
 
 export default function LoginPasswordScreen() {
@@ -45,7 +46,7 @@ export default function LoginPasswordScreen() {
     try {
       const data = await loginWithPhone(buildFullPhone(countryCode, phone), password);
       await setAuth(data.token, data.apiToken, data.client);
-      router.replace('/(tabs)/(home)');
+      router.replace(resolvePostLoginHref(data.client));
     } catch (e) {
       setApiError(e instanceof Error ? e.message : t('loginOtpFailed'));
     } finally {

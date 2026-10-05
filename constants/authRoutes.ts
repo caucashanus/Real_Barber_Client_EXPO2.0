@@ -1,5 +1,8 @@
 export const LOGIN_PATH = '/screens/login' as const;
 
+/** Po přihlášení — doplnění povinného e-mailu (stejný krok jako registrace). */
+export const LOGIN_COMPLETE_EMAIL_PATH = '/screens/login-complete-email' as const;
+
 /** Routes reachable without a valid apiToken. */
 export const PUBLIC_ROUTE_PREFIXES = [
   '/screens/welcome',
@@ -28,4 +31,11 @@ export function isPublicRoute(pathname: string): boolean {
 
 export function isAuthFlowRoute(pathname: string): boolean {
   return AUTH_FLOW_ROUTE_PREFIXES.some((p) => pathname === p || pathname.startsWith(`${p}/`));
+}
+
+export function isLoginCompleteEmailRoute(pathname: string): boolean {
+  return (
+    pathname === LOGIN_COMPLETE_EMAIL_PATH ||
+    pathname.startsWith(`${LOGIN_COMPLETE_EMAIL_PATH}/`)
+  );
 }

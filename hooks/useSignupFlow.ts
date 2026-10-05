@@ -85,7 +85,8 @@ export function useSignupFlow() {
   const registerDoneRef = useRef(false);
   const sessionRef: MutableRefObject<{ token: string; apiToken: string } | null> = useRef(null);
 
-  const registerTriggerStepIndex = registrationTokenFromOtp ? 0 : phoneLockedFromLogin ? 2 : 3;
+  /** OTP registrace: účet až po vyplněném e-mailu (stejně povinný jako jméno). */
+  const registerTriggerStepIndex = registrationTokenFromOtp ? 1 : phoneLockedFromLogin ? 2 : 3;
 
   const maxBirthDate = useMemo(() => new Date(), []);
   const minBirthDate = useMemo(() => {
@@ -135,9 +136,10 @@ export function useSignupFlow() {
 
   const performRegisterAfterBirthday = useCallback(async (): Promise<boolean> => {
     setApiError('');
-    const phoneOk = validatePhone(phone);
-    const emailOk = registrationTokenFromOtp ? true : validateEmail(email);
-    if (!phoneOk || !emailOk) return false;
+    const nameOk = firstName.trim().length > 0 && lastName.trim().length > 0;
+    const phoneOk = phoneLockedFromLogin && fullPhoneFromOtp ? true : validatePhone(phone);
+    const emailOk = validateEmail(email);
+    if (!nameOk || !phoneOk || !emailOk) return false;
 
     const digitsOnly = phone.replace(/\D/g, '');
     const fullPhone = fullPhoneFromOtp || `${countryCode}${digitsOnly}`;
@@ -161,7 +163,7 @@ export function useSignupFlow() {
       }
 
       const registerOpts: RegisterOptions = {
-        email: registrationTokenFromOtp ? undefined : email.trim(),
+        email: email.trim(),
         firstName: firstName.trim(),
         lastName: lastName.trim(),
       };
@@ -198,6 +200,7 @@ export function useSignupFlow() {
     fullPhoneFromOtp,
     lastName,
     phone,
+    phoneLockedFromLogin,
     registrationTokenFromOtp,
     setAuth,
     t,

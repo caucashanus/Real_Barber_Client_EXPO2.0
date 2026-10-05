@@ -3,10 +3,9 @@ import { isStoredHoldConsistentWithFlow } from '@/lib/booking/hold/reconcileHold
 import { resolveHoldEmployeeId } from '@/lib/booking/hold/resolveEmployeeId';
 import type { BookingHoldState } from '@/lib/booking/hold/types';
 
-export type BookingSubmitBlockReason = 'contact' | 'hold' | 'employee' | 'slot' | null;
+export type BookingSubmitBlockReason = 'hold' | 'employee' | 'slot' | null;
 
 export function getBookingSubmitBlockReason(params: {
-  bookingContactReady: boolean;
   hold: BookingHoldState | null | undefined;
   branchId: string | null | undefined;
   itemId: string | null | undefined;
@@ -15,7 +14,6 @@ export function getBookingSubmitBlockReason(params: {
   selectedEmployee: BookingEntity | null;
   profileEmployee: BookingEntity | null;
 }): BookingSubmitBlockReason {
-  if (!params.bookingContactReady) return 'contact';
   if (!params.selectedSlot?.start?.trim()) return 'slot';
 
   const employeeId = resolveHoldEmployeeId(

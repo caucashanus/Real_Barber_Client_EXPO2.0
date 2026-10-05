@@ -1,6 +1,5 @@
-import { router } from 'expo-router';
 import React, { useMemo } from 'react';
-import { Pressable, View } from 'react-native';
+import { View } from 'react-native';
 
 import { formatResolvedBookingPriceLabel } from '@/lib/booking/designShared';
 import {
@@ -14,7 +13,6 @@ import BookingHoldSummaryRow, {
 } from '@/components/booking/engine/BookingHoldSummaryRow';
 import BookingSummaryBranchSection from '@/components/booking/engine/BookingSummaryBranchSection';
 import Section from '@/components/layout/Section';
-import Icon from '@/components/Icon';
 import ThemedText from '@/components/ThemedText';
 import type { TranslationKey } from '@/locales';
 import { resolveSummaryEmployeeDisplayName } from '@/lib/booking/submitReadiness';
@@ -33,7 +31,12 @@ export default function BookingEngineSummaryStep({ flow }: Props) {
     () => clientToBookingReservationContact(client),
     [client]
   );
-  const profileIncomplete = !flow.submit.bookingContactReady;
+  const displayName =
+    (reservationContact && bookingContactDisplayName(reservationContact)) ||
+    client?.name?.trim() ||
+    '—';
+  const displayEmail = reservationContact?.email ?? client?.email?.trim() ?? '—';
+  const displayPhone = reservationContact?.phone ?? client?.phone?.trim() ?? '—';
 
   if (!flow.selectedSlot) {
     return (
@@ -116,47 +119,29 @@ export default function BookingEngineSummaryStep({ flow }: Props) {
       </Section>
 
       <Section title={t('bookingSummaryProfileSection')} titleSize="md">
-        {profileIncomplete ? (
-          <View className="mt-2 gap-3">
-            <ThemedText className="text-sm text-amber-700 dark:text-amber-300">
-              {t('bookingSummaryProfileIncomplete')}
+        <View className="mt-2 gap-3">
+          <View>
+            <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext">
+              {t('editProfilePersonalInfo')}
             </ThemedText>
-            <Pressable
-              onPress={() => router.push('/screens/edit-profile')}
-              className="flex-row items-center gap-2 self-start rounded-full bg-light-surface px-4 py-2 active:opacity-80 dark:bg-dark-secondary">
-              <Icon name="UserRoundPen" size={18} className="text-light-text dark:text-dark-text" />
-              <ThemedText className="text-sm font-semibold">
-                {t('bookingSummaryEditProfile')}
-              </ThemedText>
-            </Pressable>
+            <ThemedText className="mt-1 text-sm font-semibold">{displayName}</ThemedText>
           </View>
-        ) : reservationContact ? (
-          <View className="mt-2 gap-3">
-            <View>
-              <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext">
-                {t('editProfilePersonalInfo')}
-              </ThemedText>
-              <ThemedText className="mt-1 text-sm font-semibold">
-                {bookingContactDisplayName(reservationContact)}
-              </ThemedText>
-            </View>
-            <View>
-              <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext">
-                {t('editProfileEmail')}
-              </ThemedText>
-              <ThemedText className="mt-1 text-sm font-semibold">{reservationContact.email}</ThemedText>
-            </View>
-            <View>
-              <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext">
-                {t('editProfilePhone')}
-              </ThemedText>
-              <ThemedText className="mt-1 text-sm font-semibold">{reservationContact.phone}</ThemedText>
-            </View>
+          <View>
+            <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext">
+              {t('editProfileEmail')}
+            </ThemedText>
+            <ThemedText className="mt-1 text-sm font-semibold">{displayEmail}</ThemedText>
           </View>
-        ) : null}
+          <View>
+            <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext">
+              {t('editProfilePhone')}
+            </ThemedText>
+            <ThemedText className="mt-1 text-sm font-semibold">{displayPhone}</ThemedText>
+          </View>
+        </View>
       </Section>
 
-      {!flow.bookingSubmitReady && flow.bookingSubmitBlockReason !== 'contact' ? (
+      {!flow.bookingSubmitReady ? (
         <ThemedText className="text-sm text-amber-700 dark:text-amber-300">
           {flow.bookingSubmitBlockReason === 'employee'
             ? t('bookingSummaryMissingBarber')

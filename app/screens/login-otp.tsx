@@ -10,6 +10,7 @@ import { Button } from '@/components/Button';
 import Header from '@/components/Header';
 import ThemedText from '@/components/ThemedText';
 import AuthScreenLayout from '@/components/layout/AuthScreenLayout';
+import { resolvePostLoginHref } from '@/utils/postLoginNavigation';
 import {
   resumeLoginOtpMonitorSession,
   trackLoginOtpMonitor,
@@ -253,7 +254,7 @@ export default function LoginOtpScreen() {
         email: auth.client?.email || null,
       });
       await setAuth(auth.token, auth.apiToken, auth.client);
-      router.replace('/(tabs)/(home)');
+      router.replace(resolvePostLoginHref(auth.client));
     } catch (e) {
       trackLoginOtpMonitor('invalid_otp', {
         phone,

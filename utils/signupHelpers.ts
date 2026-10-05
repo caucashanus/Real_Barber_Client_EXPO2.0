@@ -61,6 +61,12 @@ export function emailRequiredValid(emailValue: string): boolean {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmed);
 }
 
+/** Účet bez platného e-mailu — doplnění po OTP loginu / gate v appce. */
+export function isClientMissingRequiredEmail(client: CrmClient | null | undefined): boolean {
+  if (!client) return false;
+  return !emailRequiredValid(client.email ?? '');
+}
+
 export function phoneDigitsValid(phoneDisplay: string): boolean {
   const digits = phoneDisplay.replace(/\D/g, '');
   return digits.length >= 9;

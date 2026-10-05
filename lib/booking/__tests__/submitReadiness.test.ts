@@ -10,7 +10,6 @@ describe('submitReadiness', () => {
   it('blocks submit when barber cannot be resolved', () => {
     expect(
       getBookingSubmitBlockReason({
-        bookingContactReady: true,
         hold: {
           holdId: 'hold-1',
           expiresAt: new Date(Date.now() + 60_000).toISOString(),
@@ -34,7 +33,6 @@ describe('submitReadiness', () => {
   it('blocks submit when hold does not match current selection', () => {
     expect(
       getBookingSubmitBlockReason({
-        bookingContactReady: true,
         hold: {
           holdId: 'hold-1',
           expiresAt: new Date(Date.now() + 60_000).toISOString(),

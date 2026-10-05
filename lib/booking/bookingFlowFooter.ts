@@ -9,7 +9,6 @@ export function resolveBookingFlowFooterAction(params: {
   step: BookingStepKind;
   submitSuccess: boolean;
   isSlotHandoffFlow?: boolean;
-  bookingContactReady?: boolean;
   bookingSubmitReady?: boolean;
   selections: BookingSelections;
   isCreatingHold?: boolean;
@@ -32,7 +31,6 @@ export function resolveBookingFlowFooterAction(params: {
     step,
     submitSuccess,
     isSlotHandoffFlow = false,
-    bookingContactReady = true,
     bookingSubmitReady = true,
     selections,
     submitting,
@@ -58,8 +56,7 @@ export function resolveBookingFlowFooterAction(params: {
     return null;
   }
 
-  const canSubmit = step === 'summary' && bookingContactReady;
-  if (!canSubmit) return null;
+  if (step !== 'summary') return null;
 
   if (!selections.slot?.start) return null;
 

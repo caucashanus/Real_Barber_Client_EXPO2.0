@@ -3,7 +3,10 @@ import { router } from 'expo-router';
 import React, { createContext, useCallback, useContext, useEffect, useState } from 'react';
 
 import type { CrmClient } from '@/api/auth';
+import { getClientMe } from '@/api/client';
 import { setUnauthorizedHandler } from '@/api/session';
+import { resolveClientAfterStorageLoad } from '@/utils/resolveClientAfterStorageLoad';
+import { clientMeToCrm } from '@/utils/signupHelpers';
 import { LOGIN_PATH } from '@/constants/authRoutes';
 import { getVexoDeviceId } from '@/lib/analytics/vexoIdentity';
 import { clearBookingDraft } from '@/lib/booking/engine/bookingDraft';
@@ -58,18 +61,41 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     const load = async () => {
       try {
-        const [storedToken, storedApiToken, storedClient] = await Promise.all([
+        const [storedToken, storedApiToken, storedClientJson] = await Promise.all([
           AsyncStorage.getItem(TOKEN_KEY),
           AsyncStorage.getItem(API_TOKEN_KEY),
           AsyncStorage.getItem(CLIENT_KEY),
         ]);
         if (storedToken) setTokenState(storedToken);
         if (storedApiToken) setApiTokenState(storedApiToken);
-        if (storedClient) {
+
+        let resolvedClient: CrmClient | null = null;
+        if (storedClientJson) {
           try {
-            setClient(JSON.parse(storedClient));
+            resolvedClient = JSON.parse(storedClientJson) as CrmClient;
           } catch {
             /* ignore */
+          }
+        }
+
+        if (storedApiToken && storedToken && resolvedClient) {
+          resolvedClient = await resolveClientAfterStorageLoad({
+            storedClient: resolvedClient,
+            apiToken: storedApiToken,
+            fetchClientMe: getClientMe,
+            clientMeToCrm,
+          });
+        }
+
+        if (resolvedClient) {
+          setClient(resolvedClient);
+          const clientJson = JSON.stringify(resolvedClient);
+          if (clientJson !== storedClientJson) {
+            try {
+              await AsyncStorage.setItem(CLIENT_KEY, clientJson);
+            } catch {
+              /* ignore */
+            }
           }
         }
       } catch {

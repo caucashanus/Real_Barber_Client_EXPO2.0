@@ -86,6 +86,26 @@ export function clientToBookingReservationContact(
   };
 }
 
+/** Pro booking submit — bez validace, jen mapování z AuthContext. */
+export function clientToBookingReservationContactBestEffort(
+  client: CrmClient | null | undefined
+): BookingReservationContact {
+  if (!client) {
+    return { firstName: '', lastName: '', email: '', phone: '' };
+  }
+  const fromName = splitDisplayName(client.name ?? '');
+  const firstName = fromName.firstName;
+  const lastName = fromName.lastName || firstName;
+  const phoneRaw = client.phone?.trim() ?? '';
+  const mapped = mapAuthClientToBookingContact(client);
+  return {
+    firstName,
+    lastName,
+    email: (client.email ?? '').trim(),
+    phone: mapped?.phone ?? phoneRaw,
+  };
+}
+
 export function isAuthContactComplete(client: CrmClient | null | undefined): boolean {
   return clientToBookingReservationContact(client) != null;
 }

@@ -21,6 +21,7 @@ import Select from '@/components/forms/Select';
 import Section from '@/components/layout/Section';
 import { pickSquareAvatarFromLibrary, takeSquareAvatarPhoto } from '@/utils/avatar-picker';
 import { formatBirthdayToIsoUtcMidnight, formatToYYYYMMDD } from '@/utils/date';
+import { clientMeToCrm } from '@/utils/signupHelpers';
 import {
   buildEditProfileAvatarPatch,
   hasServerProfileAvatar} from '@/utils/editProfileAvatar';
@@ -209,18 +210,8 @@ export default function EditProfileScreen() {
         country: country.trim() || undefined});
 
       if (token && authClient) {
-        const displayName =
-          [updated.firstName, updated.lastName].filter(Boolean).join(' ').trim() ||
-          updated.name ||
-          authClient.name;
-        await setAuth(token, apiToken, {
-          ...authClient,
-          name: displayName,
-          email: updated.email ?? authClient.email,
-          phone: updated.phone ?? authClient.phone,
-          avatarUrl: updated.avatarUrl,
-          address: updated.address ?? authClient.address,
-          birthday: updated.birthday ?? authClient.birthday});
+        const me = await getClientMe(apiToken);
+        await setAuth(token, apiToken, clientMeToCrm(me));
       }
 
       setClient(updated);

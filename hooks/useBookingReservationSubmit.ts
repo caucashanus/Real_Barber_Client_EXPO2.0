@@ -5,7 +5,7 @@ import type { CrmClient } from '@/api/auth';
 import type { TranslationKey } from '@/locales';
 import { BookingApiError, isBookingRateLimited, isBookingSlotConflict } from '@/lib/booking/booking-api/errors';
 import {
-  clientToBookingReservationContact,
+  clientToBookingReservationContactBestEffort,
   type BookingReservationContact,
 } from '@/lib/booking/authContact';
 
@@ -19,7 +19,7 @@ const EMPTY_CONTACT: BookingReservationContact = {
 };
 
 /**
- * Auth-only booking submit — contact always comes from logged-in CRM client (same API payload as web).
+ * Auth-only booking submit — kontakt z přihlášeného klienta, bez kontroly úplnosti profilu.
  */
 export function useBookingReservationSubmit(
   client: CrmClient | null | undefined,
@@ -37,13 +37,8 @@ export function useBookingReservationSubmit(
   }, [submitSuccess]);
 
   useEffect(() => {
-    setContact(clientToBookingReservationContact(client) ?? EMPTY_CONTACT);
+    setContact(clientToBookingReservationContactBestEffort(client));
   }, [client]);
-
-  const bookingContactReady = useMemo(
-    () => clientToBookingReservationContact(client) != null,
-    [client]
-  );
 
   const contactContext = useMemo<BookingReservationSubmitContext>(
     () => ({
@@ -73,11 +68,6 @@ export function useBookingReservationSubmit(
         return;
       }
 
-      if (!bookingContactReady) {
-        setSubmitError(formatErr(new Error('profileIncomplete')));
-        return;
-      }
-
       const base = buildPayload(contactContext);
       if (!base) {
         setSubmitError(formatErr(new Error('reservationIncomplete')));
@@ -102,12 +92,11 @@ export function useBookingReservationSubmit(
         setSubmitting(false);
       }
     },
-    [apiToken, bookingContactReady, contactContext]
+    [apiToken, contactContext]
   );
 
   return {
     contactContext,
-    bookingContactReady,
     submitting,
     submitError,
     submitSuccess,
@@ -139,7 +128,6 @@ export function formatBookingSubmitError(
     return err.message;
   }
   if (err instanceof Error) {
-    if (err.message === 'profileIncomplete') return t('bookingSummaryProfileIncomplete');
     if (err.message === 'fillFirstName') return t('reservationErrorFirstName');
     if (err.message === 'fillLastName') return t('reservationErrorLastName');
     if (err.message === 'fillEmail') return t('reservationErrorEmail');
