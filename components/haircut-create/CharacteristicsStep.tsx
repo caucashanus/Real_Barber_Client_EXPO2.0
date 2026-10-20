@@ -49,7 +49,7 @@ export default function CharacteristicsStep({ data, updateData }: HaircutStepPro
           step={1}
         />
         <ThemedText className="mt-1 text-sm text-light-subtext dark:text-dark-subtext">
-          {stylingDifficultyLabel(data.stylingDifficulty)}
+          {stylingDifficultyLabel(data.stylingDifficulty, t)}
         </ThemedText>
       </Section>
 

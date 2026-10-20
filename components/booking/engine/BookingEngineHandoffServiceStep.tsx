@@ -104,7 +104,7 @@ export default function BookingEngineHandoffServiceStep({ flow }: Props) {
                 onPress={() => flow.selectSlotHandoffServiceItem(service)}
                 accessibilityRole="button"
                 style={shadowPresets.card}
-                className={`${BOOKING_FLOW_CARD_OUTER_CLASS} p-4 active:opacity-90 ${
+                className={`mt-4 ${BOOKING_FLOW_CARD_OUTER_CLASS} p-4 active:opacity-90 ${
                   isSelected ? 'border-2 border-light-text dark:border-dark-text' : ''
                 }`}>
                 <View className="flex-row items-start gap-3">

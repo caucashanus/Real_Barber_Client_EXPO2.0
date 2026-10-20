@@ -1,3 +1,8 @@
+/**
+ * Zákaznické Návody — dnes CRM (`GET /api/client/guides`).
+ * Plánované vypnutí CRM domény: docs/crm-zadani-clanky-odstraneni.md
+ * App cutover (bez dopadu na ostatní API): docs/app-navody-crm-offboarding.md
+ */
 import { CrmHttpError, fetchCrm } from './http';
 
 export interface GuideMediaFile {

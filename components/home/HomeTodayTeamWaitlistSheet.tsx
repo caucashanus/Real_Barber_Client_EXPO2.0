@@ -27,6 +27,7 @@ import {
 import { formatWaitlistDayWhen } from '@/utils/teamMemberWaitlist';
 import { getPragueTodayDateString } from '@/utils/teamMemberPageHelpers';
 import SiteLoadingSpinner from '@/components/SiteLoadingSpinner';
+import { actionSheetNestedStackStyles } from '@/components/shared/sheet/ActionSheetNestedDock';
 
 export interface HomeTodayTeamWaitlistTarget {
   employeeId: string;
@@ -61,6 +62,7 @@ const HomeTodayTeamWaitlistSheet = forwardRef<
   const colors = useThemeColors();
   const sheetRef = useRef<ActionSheetRef>(null);
   const pickerRef = useRef<WaitlistPreferredContactPickerHandle>(null);
+  const [contactPickerOpen, setContactPickerOpen] = useState(false);
   const [target, setTarget] = useState<HomeTodayTeamWaitlistTarget | null>(null);
   const [preferredContact, setPreferredContact] = useState<WaitlistPreferredContact>(
     WAITLIST_PREFERRED_CONTACT_DEFAULT
@@ -335,8 +337,16 @@ const HomeTodayTeamWaitlistSheet = forwardRef<
   ]);
 
   return (
-    <ActionSheetThemed ref={sheetRef} gestureEnabled onClose={() => setError(null)}>
-      <View className="p-4 pb-6">
+    <ActionSheetThemed
+      ref={sheetRef}
+      gestureEnabled={!contactPickerOpen}
+      closeOnTouchBackdrop={!contactPickerOpen}
+      closeOnPressBack={!contactPickerOpen}
+      onClose={() => setError(null)}>
+      <View style={actionSheetNestedStackStyles.stack} className="p-4 pb-6">
+        <View
+          style={actionSheetNestedStackStyles.baseLayer}
+          pointerEvents={contactPickerOpen ? 'none' : 'auto'}>
         <ThemedText className="text-lg font-bold">{t('homeTodayTeamWaitlistSheetTitle')}</ThemedText>
 
         {success ? (
@@ -479,16 +489,18 @@ const HomeTodayTeamWaitlistSheet = forwardRef<
             ) : null}
           </>
         )}
-      </View>
+        </View>
 
-      <WaitlistPreferredContactPickerSheet
-        nested
-        ref={pickerRef}
-        profilePhone={profilePhone}
-        profileEmail={profileEmail}
-        onSelect={handlePickerSelect}
-        t={t}
-      />
+        <WaitlistPreferredContactPickerSheet
+          nested
+          ref={pickerRef}
+          profilePhone={profilePhone}
+          profileEmail={profileEmail}
+          onSelect={handlePickerSelect}
+          onOpenChange={setContactPickerOpen}
+          t={t}
+        />
+      </View>
     </ActionSheetThemed>
   );
 });

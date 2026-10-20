@@ -1,7 +1,7 @@
 import type { IconName } from '@/components/Icon';
 import type { TranslationKey } from '@/locales';
 
-/** Krok 1 – typ účesu (stejné jako v `haircut-create`). */
+/** Krok 1 – Můj styl: malé `type-*.png` (ne bust z `visit-plan/`). */
 export const PROPERTY_TYPE_OPTIONS: readonly {
   labelKey: TranslationKey;
   iconImage: number;

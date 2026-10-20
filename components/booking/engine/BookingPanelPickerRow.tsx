@@ -10,7 +10,7 @@ import { shadowPresets } from '@/utils/useShadow';
 
 /** Stejná karta jako `BookingCard` v `bookings.tsx` — shadow + mt-4 na jednom View. */
 export const BOOKING_FLOW_CARD_OUTER_CLASS =
-  'mt-4 w-full overflow-hidden rounded-2xl border border-neutral-200 bg-light-primary dark:border-neutral-700 dark:bg-dark-primary';
+  'w-full overflow-hidden rounded-2xl border border-neutral-200 bg-light-primary dark:border-neutral-700 dark:bg-dark-primary';
 
 /** @deprecated */
 export const BOOKING_FLOW_CARD_WRAPPER_CLASS = 'mt-4 w-full';
@@ -36,6 +36,12 @@ interface BookingPanelPickerRowProps {
   disabled?: boolean;
   showInfo?: boolean;
   onInfo?: () => void;
+  /** Nad obsahem karty (např. stav + odpočet jako v Rezervace). */
+  header?: ReactNode;
+  /** Horní mezera karty (výchozí `mt-4`). */
+  leadingClassName?: string;
+  /** Padding bloku `header` (výchozí `pt-4`). */
+  headerInsetClassName?: string;
 }
 
 export default function BookingPanelPickerRow({
@@ -53,22 +59,26 @@ export default function BookingPanelPickerRow({
   disabled = false,
   showInfo = false,
   onInfo,
+  header,
+  leadingClassName = 'mt-4',
+  headerInsetClassName = 'pt-4',
 }: BookingPanelPickerRowProps) {
   const colors = useThemeColors();
   const avatarClass = avatarSize === 'xl' ? 'h-20 w-20' : 'h-12 w-12';
   const avatarRadius = imageShape === 'round' ? 'rounded-full' : 'rounded-xl';
 
   return (
-    <Pressable
-      disabled={disabled}
-      onPress={onPress}
-      accessibilityRole="button"
-      accessibilityState={{ selected }}
-      style={shadowPresets.card}
-      className={`${BOOKING_FLOW_CARD_OUTER_CLASS} active:opacity-70 ${
-        selected ? 'border-2 border-light-text dark:border-dark-text' : ''
-      } ${disabled ? 'opacity-60' : ''}`}>
-      <View className="flex-row items-start gap-3 p-4">
+    <View className={`w-full ${leadingClassName}`} style={shadowPresets.card}>
+      <Pressable
+        disabled={disabled}
+        onPress={onPress}
+        accessibilityRole="button"
+        accessibilityState={{ selected }}
+        className={`${BOOKING_FLOW_CARD_OUTER_CLASS} active:opacity-70 ${
+          selected ? 'border-2 border-light-text dark:border-dark-text' : ''
+        } ${disabled ? 'opacity-60' : ''}`}>
+      {header ? <View className={`px-4 pb-0 ${headerInsetClassName}`}>{header}</View> : null}
+      <View className={`flex-row items-start gap-3 p-4 ${header ? 'pt-3' : ''}`}>
         <View className={`${avatarClass} shrink-0 items-center justify-center overflow-hidden`}>
           {imageSource ? (
             <Image
@@ -132,6 +142,7 @@ export default function BookingPanelPickerRow({
           ) : null}
         </View>
       </View>
-    </Pressable>
+      </Pressable>
+    </View>
   );
 }

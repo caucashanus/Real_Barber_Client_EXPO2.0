@@ -11,7 +11,7 @@ import LiveIndicator from '@/components/LiveIndicator';
 import { OperatorSupportSheet } from '@/components/OperatorSupportSheet';
 import { isRbicekEnabled } from '@/constants/rbicek';
 import { useOperatorButtonEnabled } from '@/utils/operatorButtonPreference';
-import { shouldHideCustomerAiWidget } from '@/utils/customerAiVisibility';
+import { shouldHideOperatorFloatingButton } from '@/utils/customerAiVisibility';
 import { shadowPresets } from '@/utils/useShadow';
 
 const OPERATOR_ICON = require('@/assets/img/operator.png');
@@ -36,7 +36,7 @@ export default function OperatorFloatingButton() {
     !isSupportAvailable ||
     isOperatorPrefLoading ||
     !isOperatorEnabled ||
-    (rbicekEnabled && shouldHideCustomerAiWidget(pathname))
+    shouldHideOperatorFloatingButton(pathname)
   ) {
     return null;
   }

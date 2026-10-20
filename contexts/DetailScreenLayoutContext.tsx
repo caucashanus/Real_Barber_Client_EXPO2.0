@@ -28,7 +28,7 @@ export function useDetailScreenLayout() {
   return useContext(DetailScreenLayoutContext);
 }
 
-/** Header s back — na mobilu jen v standalone režimu (home tab má SearchBar). */
+/** Header s back — na mobilu jen v standalone režimu (globální search jinde, ne na home chrome). */
 export function useDetailTopHeader(): boolean {
   const { width } = useWindowDimensions();
   const { standalone } = useDetailScreenLayout();

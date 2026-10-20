@@ -1,5 +1,5 @@
 import type { Locale } from '@/contexts/LanguageContext';
-import { serviceDetailHref } from '@/constants/profileDetailRoutes';
+import { hairstyleDetailHref } from '@/constants/profileDetailRoutes';
 
 export interface HaircutCarouselItem {
   id: string;
@@ -66,6 +66,6 @@ export function getHomeCuratedHaircutsCarousel(locale: Locale): HaircutCarouselI
     id: item.id,
     title: locale === 'en' ? item.nameEn : item.nameCs,
     image: item.image,
-    href: serviceDetailHref(item.id),
+    href: hairstyleDetailHref(item.id),
   }));
 }

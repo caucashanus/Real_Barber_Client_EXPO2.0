@@ -19,7 +19,12 @@ export const EMPTY_BOOKING_SELECTIONS_STATE: BookingSelectionsState = {
 };
 
 export type BookingSelectionsAction =
-  | { type: 'SET_BRANCH'; branch: BookingEntity | null; clearDownstream?: boolean }
+  | {
+      type: 'SET_BRANCH';
+      branch: BookingEntity | null;
+      clearDownstream?: boolean;
+      preserveService?: boolean;
+    }
   | { type: 'SET_SERVICE'; service: BookingService | null; clearDownstream?: boolean }
   | { type: 'SET_EMPLOYEE'; employee: BookingEntity | null; clearDownstream?: boolean }
   | { type: 'SET_DATE'; date: string | null; clearSlot?: boolean }
@@ -46,14 +51,16 @@ export function bookingSelectionsReducer(
       if (action.clearDownstream === false) {
         return { ...state, branch: action.branch };
       }
-      return {
-        ...state,
+      const downstream = {
         branch: action.branch,
-        service: null,
         employee: null,
         date: null,
         slot: null,
       };
+      if (action.preserveService) {
+        return { ...state, ...downstream };
+      }
+      return { ...state, ...downstream, service: null };
     }
     case 'SET_SERVICE': {
       if (action.clearDownstream === false) {

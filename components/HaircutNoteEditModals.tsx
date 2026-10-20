@@ -390,7 +390,7 @@ export default function HaircutNoteEditModals({
                 step={1}
               />
               <ThemedText className="mt-1 text-sm text-light-subtext dark:text-dark-subtext">
-                {stylingDifficultyLabel(difficulty)}
+                {stylingDifficultyLabel(difficulty, t)}
               </ThemedText>
             </Section>
             <Button title={t('commonSave')} onPress={applyDifficulty} className="mt-6" />

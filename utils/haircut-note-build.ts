@@ -23,13 +23,20 @@ export interface HaircutWizardPropertyData {
   barber_id: string;
 }
 
-export function stylingDifficultyLabel(value: number): string {
-  if (value <= 16) return 'Very easy';
-  if (value <= 33) return 'Easy';
-  if (value <= 50) return 'Medium';
-  if (value <= 66) return 'Trickier';
-  if (value <= 83) return 'Demanding';
-  return 'Very demanding';
+export function stylingDifficultyTranslationKey(value: number): TranslationKey {
+  if (value <= 16) return 'haircutCreateDifficultyVeryEasy';
+  if (value <= 33) return 'haircutCreateDifficultyEasy';
+  if (value <= 50) return 'haircutCreateDifficultyMedium';
+  if (value <= 66) return 'haircutCreateDifficultyTrickier';
+  if (value <= 83) return 'haircutCreateDifficultyDemanding';
+  return 'haircutCreateDifficultyVeryDemanding';
+}
+
+export function stylingDifficultyLabel(
+  value: number,
+  t: (key: TranslationKey) => string
+): string {
+  return t(stylingDifficultyTranslationKey(value));
 }
 
 export function buildHaircutNote(

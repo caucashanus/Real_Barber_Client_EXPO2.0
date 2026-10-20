@@ -5,7 +5,6 @@ import { View, Animated } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import HomeTabs from '@/components/HomeTabs';
-import SearchBar from '@/components/SearchBar';
 import useThemeColors from '@/contexts/ThemeColors';
 
 // Create a context to share the scrollY value
@@ -21,7 +20,6 @@ export default function HomeLayout() {
       <View
         className="flex-1 bg-light-primary dark:bg-dark-primary"
         style={{ paddingTop: insets.top }}>
-        <SearchBar />
         <HomeTabs scrollY={scrollY} />
         <View className="flex-1">
           <Stack

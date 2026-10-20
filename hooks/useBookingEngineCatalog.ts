@@ -13,6 +13,7 @@ import {
   mapCatalogItemsFromEmployee,
   minPricesFromCatalogItems,
 } from '@/lib/booking/booking-api/mappers';
+import type { BranchSetOptions } from '@/lib/booking/engine/branchSelectOptions';
 import { bookingIdsEqual } from '@/lib/booking/engine/flowParamUtils';
 import { shouldSkipStep } from '@/lib/booking/engine/resolveActiveSteps';
 import type {
@@ -43,7 +44,7 @@ export function useBookingEngineCatalog(params: {
   selectedBranch: BookingEntity | null;
   selectedService: BookingService | null;
   selectedEmployee: BookingEntity | null;
-  setBranch: (branch: BookingEntity | null, options?: { clearDownstream?: boolean }) => void;
+  setBranch: (branch: BookingEntity | null, options?: BranchSetOptions) => void;
   setService: (service: BookingService | null, options?: { clearDownstream?: boolean }) => void;
   setEmployee: (employee: BookingEntity | null, options?: { clearDownstream?: boolean }) => void;
   bootstrapState: {
@@ -193,6 +194,19 @@ export function useBookingEngineCatalog(params: {
       cancelled = true;
     };
   }, [recipeId, preset.serviceId, locale, apiToken, t, setService]);
+
+  useEffect(() => {
+    if (recipeId !== 'service-detail' || !preset.serviceId) return;
+    if (selectedService?.id) return;
+    const match = services.find((service) => bookingIdsEqual(service.id, preset.serviceId));
+    if (match) {
+      setService(match, { clearDownstream: false });
+      return;
+    }
+    if (services.length === 1) {
+      setService(services[0]!, { clearDownstream: false });
+    }
+  }, [recipeId, preset.serviceId, selectedService?.id, services, setService]);
 
   useEffect(() => {
     if (recipeId !== 'service-detail' || !selectedBranch?.id || !branches.length) return;

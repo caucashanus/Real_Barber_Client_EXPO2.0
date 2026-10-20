@@ -12,7 +12,8 @@ import type { TranslationKey } from '@/locales';
 import { buildNearestBranchSlotsByInternalId } from '@/utils/nearestBranchHomeSlots';
 import type { HomeTodayTeamCardModel } from '@/utils/homeTodayTeamHelpers';
 
-const TILE_IMAGE = require('@/assets/img/branches.png');
+/** Stejná ikona jako HomeTabs Mapa (`search-modal-branches`). */
+const TILE_IMAGE = require('@/assets/img/search-modal-branches.png');
 
 interface HomeNearestBranchProps {
   teamCards: HomeTodayTeamCardModel[];

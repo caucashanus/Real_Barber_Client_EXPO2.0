@@ -33,10 +33,9 @@ export default function BranchContactActions({
     <View className="mb-global flex-row items-center">
       <ReserveButton
         title={t('commonReserve')}
-        size="sm"
         rounded="lg"
-        className="min-w-0 flex-1 px-4"
-        textClassName="text-sm font-semibold"
+        className="flex-1"
+        textClassName="font-semibold"
         href={bookingHref}
       />
       <View className="ml-2">

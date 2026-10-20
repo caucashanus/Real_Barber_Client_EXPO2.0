@@ -1,10 +1,19 @@
-import React, { forwardRef, useImperativeHandle, useRef } from 'react';
+import React, { forwardRef, useCallback, useImperativeHandle, useRef, useState } from 'react';
 import { View } from 'react-native';
 import { ActionSheetRef } from 'react-native-actions-sheet';
 
 import ActionSheetThemed from '@/components/ActionSheetThemed';
+import { homeFastBookWhenPanelBg } from '@/components/home/fast-book/homeFastBookSheetUi';
 import Icon from '@/components/Icon';
 import SheetNavRow from '@/components/shared/SheetNavRow';
+import {
+  ActionSheetNestedDock,
+  ActionSheetStackScrim,
+} from '@/components/shared/sheet/ActionSheetNestedDock';
+import {
+  preferredContactIcon,
+  preferredContactLabelKey,
+} from '@/components/shared/preferred-contact/preferredContactChannelUi';
 import ThemedText from '@/components/ThemedText';
 import useThemeColors from '@/contexts/ThemeColors';
 import type { TranslationKey } from '@/locales';
@@ -14,10 +23,7 @@ import {
   type WaitlistPreferredContact,
 } from '@/lib/waitlist/preferredContact';
 
-const NESTED_SHEET_Z_INDEX = 10000;
-const NESTED_SHEET_ELEVATION = 24;
-const BRAND_WHATSAPP = '#25D366';
-const BRAND_TELEGRAM = '#229ED9';
+export { preferredContactIcon, preferredContactLabelKey };
 
 export type WaitlistPreferredContactPickerHandle = {
   show: () => void;
@@ -26,54 +32,13 @@ export type WaitlistPreferredContactPickerHandle = {
 
 interface WaitlistPreferredContactPickerSheetProps {
   nested?: boolean;
+  /** Vnořený režim: poloprůhledný scrim nad rodičem (default). Kids watch: false. */
+  nestedStackScrim?: boolean;
   profilePhone: string;
   profileEmail: string;
   onSelect: (selection: WaitlistContactPickerSelection) => void;
+  onOpenChange?: (open: boolean) => void;
   t: (key: TranslationKey) => string;
-}
-
-export function preferredContactLabelKey(contact: WaitlistPreferredContact): TranslationKey {
-  switch (contact) {
-    case 'phone':
-      return 'homeTodayTeamWaitlistPreferredPhone';
-    case 'sms':
-      return 'homeTodayTeamWaitlistPreferredSms';
-    case 'whatsapp':
-      return 'homeTodayTeamWaitlistPreferredWhatsapp';
-    case 'telegram':
-      return 'homeTodayTeamWaitlistPreferredTelegram';
-    case 'email':
-      return 'homeTodayTeamWaitlistPreferredEmail';
-  }
-}
-
-export function preferredContactIcon(
-  contact: WaitlistPreferredContact,
-  colors: ReturnType<typeof useThemeColors>,
-  size = 20
-) {
-  switch (contact) {
-    case 'phone':
-      return <Icon name="Phone" size={size} strokeWidth={2} color={colors.text} />;
-    case 'sms':
-      return <Icon name="MessageSquare" size={size} strokeWidth={2} color={colors.text} />;
-    case 'whatsapp':
-      return (
-        <Icon
-          name="MessageCircle"
-          size={size}
-          strokeWidth={2}
-          color={BRAND_WHATSAPP}
-          fill={BRAND_WHATSAPP}
-        />
-      );
-    case 'telegram':
-      return (
-        <Icon name="Send" size={size} strokeWidth={2} color={BRAND_TELEGRAM} fill={BRAND_TELEGRAM} />
-      );
-    case 'email':
-      return <Icon name="Mail" size={size} strokeWidth={2} color={colors.text} />;
-  }
 }
 
 function pickerRowDetail(
@@ -95,54 +60,106 @@ function pickerRowDetail(
   return {};
 }
 
+function PreferredContactPickerPanel({
+  profilePhone,
+  profileEmail,
+  onSelect,
+  t,
+}: Pick<
+  WaitlistPreferredContactPickerSheetProps,
+  'profilePhone' | 'profileEmail' | 'onSelect' | 't'
+>) {
+  const colors = useThemeColors();
+
+  return (
+    <View className="gap-1 px-4 pb-8 pt-2">
+      <ThemedText className="mb-2 text-base font-semibold">
+        {t('homeTodayTeamWaitlistPreferredPickerTitle')}
+      </ThemedText>
+      {WAITLIST_PREFERRED_CONTACT_ORDER.map((contact) => {
+        const { detail, detailMuted } = pickerRowDetail(contact, profilePhone, profileEmail, t);
+        return (
+          <SheetNavRow
+            key={contact}
+            label={t(preferredContactLabelKey(contact))}
+            detail={detail}
+            detailMuted={detailMuted}
+            icon={preferredContactIcon(contact, colors)}
+            onPress={() => onSelect({ type: 'channel', contact })}
+          />
+        );
+      })}
+      <SheetNavRow
+        label={t('homeTodayTeamWaitlistUseOtherContact')}
+        icon={<Icon name="Contact" size={20} strokeWidth={2} color={colors.text} />}
+        onPress={() => onSelect({ type: 'alternate' })}
+      />
+    </View>
+  );
+}
+
 const WaitlistPreferredContactPickerSheet = forwardRef<
   WaitlistPreferredContactPickerHandle,
   WaitlistPreferredContactPickerSheetProps
->(({ nested = true, profilePhone, profileEmail, onSelect, t }, ref) => {
+>(({ nested = true, nestedStackScrim = true, profilePhone, profileEmail, onSelect, onOpenChange, t }, ref) => {
   const colors = useThemeColors();
   const sheetRef = useRef<ActionSheetRef>(null);
+  const [nestedOpen, setNestedOpen] = useState(false);
+
+  const setOpen = useCallback(
+    (open: boolean) => {
+      setNestedOpen(open);
+      onOpenChange?.(open);
+    },
+    [onOpenChange]
+  );
 
   useImperativeHandle(ref, () => ({
-    show: () => sheetRef.current?.show(),
-    hide: () => sheetRef.current?.hide(),
+    show: () => {
+      if (nested) setOpen(true);
+      else sheetRef.current?.show();
+    },
+    hide: () => {
+      if (nested) setOpen(false);
+      else sheetRef.current?.hide();
+    },
   }));
+
+  const dismissNested = useCallback(() => setOpen(false), [setOpen]);
 
   const selectAndClose = (selection: WaitlistContactPickerSelection) => {
     onSelect(selection);
-    sheetRef.current?.hide();
+    if (nested) dismissNested();
+    else sheetRef.current?.hide();
   };
 
+  if (nested) {
+    if (!nestedOpen) return null;
+    return (
+      <>
+        {nestedStackScrim ? <ActionSheetStackScrim onDismiss={dismissNested} /> : null}
+        <ActionSheetNestedDock
+          panelBackgroundColor={homeFastBookWhenPanelBg(colors.isDark)}
+          onDismiss={dismissNested}>
+          <PreferredContactPickerPanel
+            profilePhone={profilePhone}
+            profileEmail={profileEmail}
+            onSelect={selectAndClose}
+            t={t}
+          />
+        </ActionSheetNestedDock>
+      </>
+    );
+  }
+
   return (
-    <ActionSheetThemed
-      ref={sheetRef}
-      gestureEnabled
-      isModal={!nested}
-      zIndex={nested ? NESTED_SHEET_Z_INDEX : undefined}
-      elevation={nested ? NESTED_SHEET_ELEVATION : undefined}
-      defaultOverlayOpacity={nested ? 0.45 : undefined}>
-      <View className="gap-1 px-4 pb-8 pt-2">
-        <ThemedText className="mb-2 text-base font-semibold">
-          {t('homeTodayTeamWaitlistPreferredPickerTitle')}
-        </ThemedText>
-        {WAITLIST_PREFERRED_CONTACT_ORDER.map((contact) => {
-          const { detail, detailMuted } = pickerRowDetail(contact, profilePhone, profileEmail, t);
-          return (
-            <SheetNavRow
-              key={contact}
-              label={t(preferredContactLabelKey(contact))}
-              detail={detail}
-              detailMuted={detailMuted}
-              icon={preferredContactIcon(contact, colors)}
-              onPress={() => selectAndClose({ type: 'channel', contact })}
-            />
-          );
-        })}
-        <SheetNavRow
-          label={t('homeTodayTeamWaitlistUseOtherContact')}
-          icon={<Icon name="Contact" size={20} strokeWidth={2} color={colors.text} />}
-          onPress={() => selectAndClose({ type: 'alternate' })}
-        />
-      </View>
+    <ActionSheetThemed ref={sheetRef} gestureEnabled isModal>
+      <PreferredContactPickerPanel
+        profilePhone={profilePhone}
+        profileEmail={profileEmail}
+        onSelect={selectAndClose}
+        t={t}
+      />
     </ActionSheetThemed>
   );
 });

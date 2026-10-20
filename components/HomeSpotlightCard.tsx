@@ -150,6 +150,7 @@ export function HomeSpotlightCard({
                   {state !== 'review' && (
                     <BranchAddress
                       address={booking.branch?.address}
+                      stripPostalCode
                       className="mt-1"
                       textClassName="text-xs leading-5 text-light-subtext dark:text-dark-subtext"
                       numberOfLines={2}

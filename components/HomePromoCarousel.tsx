@@ -1,173 +1,139 @@
-import { router } from 'expo-router';
-import React, { useCallback, useMemo } from 'react';
-import { ImageSourcePropType, View } from 'react-native';
+import { Image } from 'expo-image';
+import React, { useCallback, useMemo, useRef } from 'react';
+import {
+  FlatList,
+  Platform,
+  Pressable,
+  View,
+  type ListRenderItem,
+  type NativeScrollEvent,
+  type NativeSyntheticEvent,
+} from 'react-native';
 
-import type { HomeReferralPromo } from '@/api/home';
-import type { ClientPoster } from '@/api/client-posters';
-import {
-  getHomePromoSlideAccessibilityLabel,
-  HomePromoCarouselOverlay,
-  type HomePromoCarouselOverlaySlide} from '@/components/HomePromoCarouselOverlay';
-import ImageCarousel from '@/components/ImageCarousel';
-import SurfaceCard from '@/components/layout/SurfaceCard';
-import ThemedText from '@/components/ThemedText';
-import { promoKuponHref, promoPosterHref } from '@/constants/promoDetailRoutes';
-import type { TranslationKey } from '@/locales';
-import {
-  resolveHomeReferralPromoImage,
-  type HomePromoFeedItem,
-} from '@/utils/homePromoFeed';
+import HomePromoSlideCaption from '@/components/home/HomePromoSlideCaption';
 import SiteLoadingSpinner from '@/components/SiteLoadingSpinner';
-
-interface HomePromoSlide {
-  image: string | ImageSourcePropType;
-  overlay: HomePromoCarouselOverlaySlide;
-  onPress: () => void;
-}
+import type { HomeReferralPromo } from '@/api/home';
+import type { TranslationKey } from '@/locales';
+import type { HomePromoFeedItem } from '@/utils/homePromoFeed';
+import type { HomePromoCarouselLayout } from '@/utils/homePromoLayout';
+import {
+  buildHomePromoCarouselSlides,
+  homePromoSlideAccessibilityLabel,
+  type HomePromoCarouselSlide,
+} from '@/utils/homePromoSlides';
 
 interface HomePromoCarouselProps {
   feed: HomePromoFeedItem[];
-  width: number;
-  height: number;
+  layout: HomePromoCarouselLayout;
   loading: boolean;
-  locale: string;
   t: (key: TranslationKey) => string;
   onReferralPress?: (referral: HomeReferralPromo) => void;
 }
 
-function resolveButtonText(value: string | null | undefined): string | null {
-  const trimmed = value?.trim();
-  return trimmed || null;
-}
-
-function posterAccessibilityFallback(poster: ClientPoster): string {
-  const title = poster.title?.trim() ?? '';
-  const subtitle = poster.subtitle?.trim() ?? '';
-  return title || subtitle;
-}
-
-function buildHomePromoSlides(
-  feed: HomePromoFeedItem[],
-  options: {
-    referralButtonText: string;
-    onReferralPress?: (referral: HomeReferralPromo) => void;
-  }
-): HomePromoSlide[] {
-  const slides: HomePromoSlide[] = [];
-  for (const item of feed) {
-    if (item.kind === 'referral') {
-      slides.push({
-        image: resolveHomeReferralPromoImage(item.referral),
-        overlay: {
-          buttonText: options.referralButtonText,
-          accessibilityFallback: options.referralButtonText,
-        },
-        onPress: () => {
-          options.onReferralPress?.(item.referral);
-        },
-      });
-      continue;
-    }
-
-    if (item.kind === 'coupon') {
-      const imageUrl = item.coupon.imageUrl?.trim();
-      if (!imageUrl) continue;
-      slides.push({
-        image: imageUrl,
-        overlay: {
-          buttonText: resolveButtonText(item.coupon.buttonText),
-          accessibilityFallback: item.coupon.name},
-        onPress: () => {
-          router.push(promoKuponHref(item.coupon.id) as never);
-        }});
-      continue;
-    }
-    const imageUrl = item.poster.imageUrl?.trim();
-    if (!imageUrl) continue;
-    slides.push({
-      image: imageUrl,
-      overlay: {
-        buttonText: resolveButtonText(item.poster.buttonText),
-        accessibilityFallback: posterAccessibilityFallback(item.poster)},
-      onPress: () => {
-        router.push(promoPosterHref(item.poster.id) as never);
-      }});
-  }
-  return slides;
-}
-
 export function HomePromoCarousel({
   feed,
-  width,
-  height,
+  layout,
   loading,
-  locale: _locale,
   t,
   onReferralPress,
 }: HomePromoCarouselProps) {
+  const { slideWidth, imageHeight, slideGap } = layout;
+  const snapInterval = slideWidth + slideGap;
+  const listRef = useRef<FlatList<HomePromoCarouselSlide>>(null);
+  const isDraggingRef = useRef(false);
+
   const slides = useMemo(
     () =>
-      buildHomePromoSlides(feed, {
+      buildHomePromoCarouselSlides(feed, {
         referralButtonText: t('referralHomeInviteCta'),
         onReferralPress,
       }),
     [feed, onReferralPress, t]
   );
-  const images = useMemo(() => slides.map((slide) => slide.image), [slides]);
 
-  const handlePress = useCallback(
-    (index: number) => {
-      slides[index]?.onPress();
-    },
-    [slides]
-  );
+  const renderSlide = useCallback(
+    (slide: HomePromoCarouselSlide, index: number) => {
+      const imageSource =
+        typeof slide.image === 'string' ? { uri: slide.image } : slide.image;
 
-  const renderOverlay = useCallback(
-    (index: number) => {
-      const slide = slides[index];
-      if (!slide) return null;
       return (
-        <HomePromoCarouselOverlay slide={slide.overlay} width={width} height={height} />
+        <Pressable
+          onPress={() => {
+            if (isDraggingRef.current) return;
+            slide.onPress();
+          }}
+          accessibilityRole="button"
+          accessibilityLabel={homePromoSlideAccessibilityLabel(slide)}
+          style={{ width: slideWidth, marginRight: index < slides.length - 1 ? slideGap : 0 }}
+          className="active:opacity-70">
+          <View
+            className="overflow-hidden rounded-xl bg-light-secondary dark:bg-dark-secondary"
+            style={{ width: slideWidth, height: imageHeight }}>
+            <Image
+              source={imageSource}
+              style={{ width: slideWidth, height: imageHeight }}
+              contentFit="cover"
+            />
+          </View>
+          <HomePromoSlideCaption
+            title={slide.displayTitle}
+            subtitle={slide.displaySubtitle}
+            className="mt-3 pr-1"
+          />
+        </Pressable>
       );
     },
-    [slides, width, height]
+    [imageHeight, slideGap, slideWidth, slides.length]
   );
 
-  const getAccessibilityLabel = useCallback(
-    (index: number) => {
-      const slide = slides[index];
-      if (!slide) return undefined;
-      return getHomePromoSlideAccessibilityLabel(slide.overlay);
-    },
-    [slides]
+  const renderItem: ListRenderItem<HomePromoCarouselSlide> = useCallback(
+    ({ item, index }) => renderSlide(item, index),
+    [renderSlide]
   );
+
+  const onScrollEnd = useCallback((e: NativeSyntheticEvent<NativeScrollEvent>) => {
+    isDraggingRef.current = false;
+  }, []);
 
   if (!loading && slides.length === 0) return null;
 
   if (loading) {
     return (
-      <SurfaceCard rounded="2xl" style={{ height }} className="w-full items-center justify-center">
+      <View
+        className="items-center justify-center rounded-xl bg-light-secondary dark:bg-dark-secondary"
+        style={{ width: slideWidth, height: imageHeight }}>
         <SiteLoadingSpinner size="compact" />
-      </SurfaceCard>
+      </View>
     );
   }
 
+  if (slides.length === 1) {
+    return <View className="w-full">{renderSlide(slides[0]!, 0)}</View>;
+  }
+
   return (
-    <ImageCarousel
-      width={width}
-      rounded="xl"
-      height={height}
+    <FlatList
+      ref={listRef}
+      data={slides}
+      horizontal
+      showsHorizontalScrollIndicator={false}
+      keyExtractor={(item) => item.key}
+      renderItem={renderItem}
+      onScrollBeginDrag={() => {
+        isDraggingRef.current = true;
+      }}
+      onScrollEndDrag={onScrollEnd}
+      onMomentumScrollEnd={onScrollEnd}
+      decelerationRate="fast"
+      snapToAlignment="start"
+      snapToInterval={snapInterval}
+      {...(Platform.OS === 'ios' ? { pagingEnabled: false } : {})}
+      getItemLayout={(_, index) => ({
+        length: snapInterval,
+        offset: snapInterval * index,
+        index,
+      })}
       className="w-full"
-      images={images}
-      paginationStyle="dots"
-      paginationPlacement="below"
-      paginationBelowClassName="h-7"
-      autoPlay
-      autoPlayInterval={3000}
-      loop
-      onImagePress={handlePress}
-      renderOverlay={renderOverlay}
-      getAccessibilityLabel={getAccessibilityLabel}
     />
   );
 }

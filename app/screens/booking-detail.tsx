@@ -1,6 +1,6 @@
 import { router, useLocalSearchParams, useNavigation } from 'expo-router';
 import { useFocusEffect } from 'expo-router/react-navigation';
-import React, { useCallback, useEffect, useRef } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef } from 'react';
 import { View, Animated, BackHandler, Platform, ImageSourcePropType } from 'react-native';
 import { ActionSheetRef } from 'react-native-actions-sheet';
 
@@ -18,6 +18,11 @@ import BookingDetailAppointmentSection from '@/components/booking/detail/Booking
 import BookingDetailCalendarPromoModal from '@/components/booking/detail/BookingDetailCalendarPromoModal';
 import BookingDetailEmployeeSection from '@/components/booking/detail/BookingDetailEmployeeSection';
 import BookingDetailFooterActions from '@/components/booking/detail/BookingDetailFooterActions';
+import HomeKidsWatchSheet from '@/components/home/kids/HomeKidsWatchSheet';
+import { HOME_FAST_BOOK_SERVICES } from '@/constants/homeFastBookServices';
+import { useKidsWatchSheetLauncher } from '@/hooks/useKidsWatchSheetLauncher';
+import { isKidsHaircutBooking } from '@/utils/isKidsHaircutBooking';
+import { navigateHomeFastBookLater } from '@/utils/homeFastBookBookingNav';
 import BookingDetailHeroSection from '@/components/booking/detail/BookingDetailHeroSection';
 import BookingDetailLocationSection from '@/components/booking/detail/BookingDetailLocationSection';
 import BookingDetailPriceSection from '@/components/booking/detail/BookingDetailPriceSection';
@@ -57,6 +62,8 @@ const BookingDetailScreen = () => {
     error,
     calendarPromoVisible,
     setCalendarPromoVisible,
+    kidsWatchPromoVisible,
+    setKidsWatchPromoVisible,
   } = useBookingDetailScreen({
     id,
     openReview: local.openReview,
@@ -70,6 +77,19 @@ const BookingDetailScreen = () => {
   const heroScrollY = useRef(new Animated.Value(0)).current;
   const isLeavingToBookingsRef = useRef(false);
   const didAutoNavigateRef = useRef(false);
+  const {
+    open: kidsWatchOpen,
+    setOpen: setKidsWatchOpen,
+    initialBookingId: kidsWatchBookingId,
+    initialBookingEntry: kidsWatchBookingEntry,
+    openKidsWatchFromBooking,
+    close: closeKidsWatch,
+  } = useKidsWatchSheetLauncher();
+
+  const kidsService = useMemo(
+    () => HOME_FAST_BOOK_SERVICES.find((s) => s.id === 'kids') ?? null,
+    []
+  );
 
   const formatDetailMoney = useCallback(
     (value: unknown) => {
@@ -120,20 +140,28 @@ const BookingDetailScreen = () => {
     shareSheetRef.current?.show();
   }, [booking?.id]);
 
-  const handleBackToBookings = useCallback(() => {
+  const goToBookingsFallback = useCallback(() => {
     if (isLeavingToBookingsRef.current) return;
     isLeavingToBookingsRef.current = true;
     router.replace(PROFILE_BOOKINGS_ROUTE);
   }, []);
 
+  const handleNavigateBack = useCallback(() => {
+    if (navigation.canGoBack()) {
+      router.back();
+      return;
+    }
+    goToBookingsFallback();
+  }, [navigation, goToBookingsFallback]);
+
   useFocusEffect(
     useCallback(() => {
       const subscription = BackHandler.addEventListener('hardwareBackPress', () => {
-        handleBackToBookings();
+        handleNavigateBack();
         return true;
       });
       return () => subscription.remove();
-    }, [handleBackToBookings])
+    }, [handleNavigateBack])
   );
 
   useEffect(() => {
@@ -141,15 +169,22 @@ const BookingDetailScreen = () => {
       if (isLeavingToBookingsRef.current) return;
       const actionType = event.data.action.type;
       if (actionType !== 'GO_BACK' && actionType !== 'POP') return;
+      if (navigation.canGoBack()) return;
       event.preventDefault();
-      handleBackToBookings();
+      goToBookingsFallback();
     });
     return unsubscribe;
-  }, [navigation, handleBackToBookings]);
+  }, [navigation, goToBookingsFallback]);
 
   useEffect(() => {
     didAutoNavigateRef.current = false;
   }, [id, openNavigate]);
+
+  useEffect(() => {
+    if (!kidsWatchPromoVisible || !booking?.id) return;
+    setKidsWatchPromoVisible(false);
+    openKidsWatchFromBooking(booking.id, 'promo');
+  }, [kidsWatchPromoVisible, booking?.id, setKidsWatchPromoVisible, openKidsWatchFromBooking]);
 
   useEffect(() => {
     if (loading || !booking) return;
@@ -178,7 +213,7 @@ const BookingDetailScreen = () => {
   if (!loading && (error || !booking)) {
     return (
       <>
-        <Header title={t('bookingDetailTitle')} showBackButton onBackPress={handleBackToBookings} />
+        <Header title={t('bookingDetailTitle')} showBackButton onBackPress={handleNavigateBack} />
         <View className="flex-1 items-center justify-center bg-light-primary p-6 dark:bg-dark-primary">
           <ThemedText className="text-center text-red-500 dark:text-red-400">
             {error ?? t('bookingNotFound')}
@@ -191,7 +226,7 @@ const BookingDetailScreen = () => {
   if (!booking) {
     return (
       <>
-        <Header title={t('bookingDetailTitle')} showBackButton onBackPress={handleBackToBookings} />
+        <Header title={t('bookingDetailTitle')} showBackButton onBackPress={handleNavigateBack} />
         <View className="flex-1 bg-light-primary dark:bg-dark-primary" />
       </>
     );
@@ -211,16 +246,21 @@ const BookingDetailScreen = () => {
       booking.branch?.name ?? branch?.name,
       booking.branch?.address ?? branch?.address
     ) !== '';
+  const isKidsBooking = isKidsHaircutBooking(booking);
   const canAddToCalendar =
-    (Platform.OS === 'ios' || Platform.OS === 'android') && !isCancelled && !isPast;
+    (Platform.OS === 'ios' || Platform.OS === 'android') &&
+    !isCancelled &&
+    !isPast &&
+    !isKidsBooking;
   const canShare = canShareClientBooking(booking);
+  const armKidsWatchSheet = kidsWatchOpen || kidsWatchPromoVisible;
   const cancelWhen = formatCancelSheetWhen(booking, locale);
   const cancelMessage = `${t('bookingDetailCancelConfirmIntro')} ${cancelWhen} ${t('bookingDetailCancelConfirmAtBranch')} ${booking.branch?.name ?? '—'}. ${t('bookingDetailCancelConfirmNote')}`;
   const carouselImages = resolveCarouselImages(branch, booking);
 
   return (
     <>
-      <Header title={t('bookingDetailTitle')} showBackButton onBackPress={handleBackToBookings} />
+      <Header title={t('bookingDetailTitle')} showBackButton onBackPress={handleNavigateBack} />
       <ThemedScroller
         className="flex-1 px-0"
         keyboardShouldPersistTaps="handled"
@@ -290,6 +330,23 @@ const BookingDetailScreen = () => {
         onAddToCalendar={handleCalendarPromoAdd}
         t={t}
       />
+
+      {armKidsWatchSheet ? (
+        <HomeKidsWatchSheet
+          open={kidsWatchOpen}
+          onOpenChange={(next) => {
+            if (!next) closeKidsWatch();
+            else setKidsWatchOpen(true);
+          }}
+          initialBookingId={kidsWatchBookingId}
+          initialBookingEntry={kidsWatchBookingEntry}
+          initialBookingFallback={booking}
+          onCreateKidsBooking={() => {
+            closeKidsWatch();
+            navigateHomeFastBookLater(kidsService);
+          }}
+        />
+      ) : null}
     </>
   );
 };

@@ -111,6 +111,14 @@ export function formatHomeSpotlightCountdown(ms: number, locale: string): string
   return `${prefix} ${hours} ${hourLabel} ${mins} ${minLabel}`;
 }
 
+/** Home „Nedávné“ meta — `12.6.` z ISO data (bez leading zero). */
+export function formatHomeBookingDateLabel(booking: Booking): string {
+  const dateStr = (booking.date || '').slice(0, 10);
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(dateStr)) return '';
+  const [, m, d] = dateStr.split('-');
+  return `${Number(d)}.${Number(m)}.`;
+}
+
 /** Kompaktní datum + čas začátku (stejné jako dřív v home listu). */
 export function formatHomeBookingSlotLabel(booking: Booking): string {
   const parts: string[] = [];

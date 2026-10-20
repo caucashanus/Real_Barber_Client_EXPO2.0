@@ -51,6 +51,7 @@ import {
   saveBookingSlotContext,
 } from '@/lib/booking/engine/navigation/cleanup';
 import { clearBookingSlotHandoff } from '@/lib/booking/engine/navigation/slotHandoff';
+import { optionsForUserBranchSelect } from '@/lib/booking/engine/branchSelectOptions';
 import { getRecipe } from '@/lib/booking/engine/recipes';
 import {
   resolveActiveSteps,
@@ -66,7 +67,9 @@ import {
 import { setFreshBookingSnapshot } from '@/utils/freshBookingSnapshot';
 import { invalidateListingAvailability } from '@/lib/availability/listingCache';
 import { buildOptimisticBooking } from '@/utils/optimisticBooking';
+import { isKidsHaircutBooking } from '@/utils/isKidsHaircutBooking';
 import { setPendingCalendarPromo } from '@/utils/pendingCalendarPromo';
+import { setPendingKidsWatchPromo } from '@/utils/pendingKidsWatchPromo';
 import { setPendingStoreReviewAfterBooking } from '@/utils/pendingStoreReview';
 import {
   calendarTargetFromNearestSlot,
@@ -666,14 +669,14 @@ export function useBookingEngineFlow() {
 
   const selectBranch = useCallback(
     (branch: BookingEntity) => {
-      setBranch(branch);
+      setBranch(branch, optionsForUserBranchSelect(recipeId));
       setBranchMinPrices({});
       trackBookingMonitor('selected_branch', {
         ...monitorFields('branch'),
         branchName: branch.name ?? branch.displayName ?? null,
       });
     },
-    [monitorFields, setBranch]
+    [monitorFields, recipeId, setBranch]
   );
 
   const selectSlotHandoffServiceItem = useCallback(
@@ -930,7 +933,11 @@ export function useBookingEngineFlow() {
             : null,
         });
         setFreshBookingSnapshot(fallback);
-        setPendingCalendarPromo(createdId);
+        if (isKidsHaircutBooking(fallback)) {
+          setPendingKidsWatchPromo(createdId);
+        } else {
+          setPendingCalendarPromo(createdId);
+        }
         setPendingStoreReviewAfterBooking();
         router.replace(`/screens/booking-detail?id=${encodeURIComponent(createdId)}`);
       } else {

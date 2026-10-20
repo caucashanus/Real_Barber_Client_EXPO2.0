@@ -19,6 +19,7 @@ import {
   type BookingSelectionsState,
 } from '@/lib/booking/engine/bookingSelectionsReducer';
 import type { BookingSelections, BookingStepKind } from '@/lib/booking/engine/types';
+import type { BranchSetOptions } from '@/lib/booking/engine/branchSelectOptions';
 import {
   computeMaxAllowedStep,
   isStepSatisfiedForKind,
@@ -29,7 +30,7 @@ type BookingEngineContextValue = {
   preset: ReturnType<typeof resolvePresetFromRouteParams>['preset'];
   selections: BookingSelectionsState;
   dispatch: React.Dispatch<BookingSelectionsAction>;
-  setBranch: (branch: BookingEntity | null, options?: { clearDownstream?: boolean }) => void;
+  setBranch: (branch: BookingEntity | null, options?: BranchSetOptions) => void;
   setService: (service: BookingService | null, options?: { clearDownstream?: boolean }) => void;
   setEmployee: (employee: BookingEntity | null, options?: { clearDownstream?: boolean }) => void;
   setDate: (date: string | null, options?: { clearSlot?: boolean }) => void;
@@ -82,12 +83,14 @@ export function BookingEngineProvider({ children }: { children: React.ReactNode 
     void clearBookingDraft();
   }, [recipeId, preset.branchId, preset.serviceId, preset.employeeId]);
 
-  const setBranch = useCallback(
-    (branch: BookingEntity | null, options?: { clearDownstream?: boolean }) => {
-      dispatch({ type: 'SET_BRANCH', branch, clearDownstream: options?.clearDownstream });
-    },
-    []
-  );
+  const setBranch = useCallback((branch: BookingEntity | null, options?: BranchSetOptions) => {
+    dispatch({
+      type: 'SET_BRANCH',
+      branch,
+      clearDownstream: options?.clearDownstream,
+      preserveService: options?.preserveService,
+    });
+  }, []);
 
   const setService = useCallback(
     (service: BookingService | null, options?: { clearDownstream?: boolean }) => {

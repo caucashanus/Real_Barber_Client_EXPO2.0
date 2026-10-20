@@ -12,22 +12,18 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useHomePage } from '@/hooks/useHomePage';
 import { useTranslation } from '@/hooks/useTranslation';
 import AnimatedView from '@/components/AnimatedView';
-import Avatar from '@/components/Avatar';
 import { HomePromoCarousel } from '@/components/HomePromoCarousel';
-import { HomeRepeatBookingCard } from '@/components/HomeRepeatBookingCard';
 import { HomeSpotlightCard } from '@/components/HomeSpotlightCard';
+import HomeMoreCirclesSection from '@/components/home/HomeMoreCirclesSection';
+import HomeFastBookStrip from '@/components/home/fast-book/HomeFastBookStrip';
 import HomeNearestBranch from '@/components/home/HomeNearestBranch';
 import HomeHaircutCatalogSection from '@/components/home/HomeHaircutCatalogSection';
 import HomeTodayTeamSection from '@/components/home/HomeTodayTeamSection';
 import SurfaceCard from '@/components/layout/SurfaceCard';
-import Icon from '@/components/Icon';
 import NotificationPromptSheet from '@/components/NotificationPromptSheet';
 import SiteLoadingState from '@/components/SiteLoadingState';
 import ThemeScroller from '@/components/ThemeScroller';
 import ThemedText from '@/components/ThemedText';
-import Section from '@/components/layout/Section';
-import { getBookingEndDate, isBookingPast } from '@/utils/bookingHelpers';
-import { pickRepeatBookingCandidate } from '@/utils/repeatBooking';
 import { homePromoClientSeed } from '@/utils/homePromoCoupon';
 import { buildHomePromoFeed } from '@/utils/homePromoFeed';
 import { openPromoTargetUrl } from '@/utils/openPromoTargetUrl';
@@ -35,24 +31,22 @@ import {
   getClientReferralSlug,
   referralDashboardHref,
 } from '@/utils/referralDashboardHelpers';
-import { pickHomeSpotlight, formatHomeBookingSlotLabel } from '@/utils/homeSpotlight';
-import { getContentCarouselSize } from '@/utils/contentCarouselLayout';
+import { pickHomeSpotlight } from '@/utils/homeSpotlight';
+import { getHomePromoCarouselLayout } from '@/utils/homePromoLayout';
 import { isReservationIntroCooldownActive } from '@/utils/reservation-intro-cooldown';
 
-/** Ikony dlaždic rychlých akcí na home. */
+/** Ikony dlaždic rychlých akcí — parita web mobil (§1.6). */
 const HOME_ACTION_IMAGES = {
   create: require('@/assets/img/plus-ikon.png'),
-  branches: require('@/assets/img/search-modal-branches.png'),
+  branches: require('@/assets/img/branches.png'),
   barbers: require('@/assets/img/barbers.png'),
-  bookings: require('@/assets/img/search-modal-bookings.png'),
-  haircuts: require('@/assets/img/my-haircuts.png'),
 } as const;
 
 export default function RealBarberHomeTab() {
   const scrollY = useContext(ScrollContext);
   const { width: screenWidth } = useWindowDimensions();
-  const homePromoCarouselSize = useMemo(
-    () => getContentCarouselSize(screenWidth),
+  const homePromoLayout = useMemo(
+    () => getHomePromoCarouselLayout(screenWidth),
     [screenWidth]
   );
   const { apiToken, client } = useAuth();
@@ -80,16 +74,6 @@ export default function RealBarberHomeTab() {
         title: t('homeBarbers'),
         onPress: () => router.push('/experience' as any),
       },
-      {
-        id: 'bookings' as const,
-        title: t('homeBookings'),
-        onPress: () => router.push('/bookings' as any),
-      },
-      {
-        id: 'haircuts' as const,
-        title: t('homeHaircuts'),
-        onPress: () => router.push('/inspirace' as any),
-      },
     ],
     [t]
   );
@@ -116,20 +100,6 @@ export default function RealBarberHomeTab() {
   }, []);
 
   const spotlight = useMemo(() => pickHomeSpotlight(homeBookings, now), [homeBookings, now]);
-
-  const repeatBooking = useMemo(
-    () => pickRepeatBookingCandidate(homeBookings, now),
-    [homeBookings, now]
-  );
-
-  const recentBookings = useMemo(
-    () =>
-      homeBookings
-        .filter(isBookingPast)
-        .sort((a, b) => getBookingEndDate(b).getTime() - getBookingEndDate(a).getTime())
-        .slice(0, 3),
-    [homeBookings]
-  );
 
   const clientPromoSeed = useMemo(
     () => homePromoClientSeed(client?.id ?? apiToken ?? ''),
@@ -176,27 +146,24 @@ export default function RealBarberHomeTab() {
           <RefreshControl refreshing={refreshing} onRefresh={refresh} tintColor={accentColor} />
         }>
         <NotificationPromptSheet />
-        <AnimatedView animation="scaleIn" className="mt-4 flex-1">
+        <AnimatedView animation="scaleIn" className="mt-2 flex-1">
           {loading ? (
             <SiteLoadingState layout="section" className="py-16" />
           ) : (
             <>
+              <View className="mb-4">
+                <HomeFastBookStrip bookings={homeBookings} bookingsLoading={loading} />
+              </View>
+              <HomeMoreCirclesSection className="mt-2" />
               {showPromoCarousel ? (
-                <View>
+                <View className="mt-6">
                   <HomePromoCarousel
                     feed={homePromoFeed}
-                    width={homePromoCarouselSize.width}
-                    height={homePromoCarouselSize.height}
+                    layout={homePromoLayout}
                     loading={false}
-                    locale={locale}
                     t={t}
                     onReferralPress={handleReferralPromoPress}
                   />
-                </View>
-              ) : null}
-              {repeatBooking ? (
-                <View className={showPromoCarousel ? 'mt-0' : 'mt-0'}>
-                  <HomeRepeatBookingCard booking={repeatBooking} t={t} />
                 </View>
               ) : null}
 
@@ -230,57 +197,6 @@ export default function RealBarberHomeTab() {
                 ))}
                 <HomeNearestBranch teamCards={todayTeamCards} locale={locale} t={t} />
               </View>
-
-              {recentBookings.length > 0 ? (
-                <Section title={t('homeRecentTitle')} titleSize="lg" className="mt-6">
-                  <View className="mt-2">
-                    {recentBookings.map((b, i) => (
-                      <Pressable
-                        key={b.id}
-                        onPress={() =>
-                          router.push(
-                            `/screens/booking-detail?id=${encodeURIComponent(b.id)}` as any
-                          )
-                        }
-                        className="active:opacity-70">
-                        {i > 0 && <View className="h-px bg-neutral-200 dark:bg-neutral-700" />}
-                        <View className="flex-row items-center gap-3 py-3">
-                          <Avatar
-                            size="md"
-                            src={b.employee?.avatarUrl ?? undefined}
-                            name={b.employee?.name ?? undefined}
-                          />
-                          <View className="min-w-0 flex-1">
-                            <ThemedText className="text-sm font-semibold" numberOfLines={1}>
-                              {b.item?.name ?? t('homeRecentDefaultName')}
-                            </ThemedText>
-                            <ThemedText
-                              className="mt-0.5 text-xs text-light-subtext dark:text-dark-subtext"
-                              numberOfLines={1}>
-                              {b.employee?.name ?? '—'} · {b.branch?.name ?? ''}
-                            </ThemedText>
-                            <View className="mt-1 flex-row items-center gap-1">
-                              <Icon
-                                name="Calendar"
-                                size={11}
-                                className="text-light-subtext dark:text-dark-subtext"
-                              />
-                              <ThemedText className="text-xs text-light-subtext dark:text-dark-subtext">
-                                {formatHomeBookingSlotLabel(b)}
-                              </ThemedText>
-                            </View>
-                          </View>
-                          <Icon
-                            name="ChevronRight"
-                            size={16}
-                            className="text-light-subtext dark:text-dark-subtext"
-                          />
-                        </View>
-                      </Pressable>
-                    ))}
-                  </View>
-                </Section>
-              ) : null}
 
               <HomeTodayTeamSection
                 cards={todayTeamCards}

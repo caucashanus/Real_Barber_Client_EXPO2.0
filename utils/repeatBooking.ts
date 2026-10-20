@@ -1,5 +1,4 @@
 import type { Booking } from '@/api/bookings';
-import { buildBookingEngineHref } from '@/lib/booking/engine/resolvePresetFromParams';
 import {
   getBookingEndDate,
   isBookingDuringSlotAt,
@@ -71,13 +70,15 @@ export function pickRepeatBookingCandidate(
 }
 
 export function buildRepeatReservationHref(booking: Booking): string {
-  return buildBookingEngineHref({
-    recipe: 'branch-first',
-    branchId: booking.branchId,
-    employeeId: booking.employeeId,
-    itemId: booking.itemId,
-    itemName: booking.item?.name?.trim(),
-  });
+  const q = new URLSearchParams();
+  q.set('recipe', 'branch-first');
+  q.set('from', 'repeat');
+  if (booking.branchId?.trim()) q.set('branchId', booking.branchId.trim());
+  if (booking.employeeId?.trim()) q.set('employeeId', booking.employeeId.trim());
+  if (booking.itemId?.trim()) q.set('itemId', booking.itemId.trim());
+  const itemName = booking.item?.name?.trim();
+  if (itemName) q.set('itemName', itemName);
+  return `/screens/reservation-create?${q.toString()}`;
 }
 
 export function formatRepeatBookingSubtitle(booking: Booking): string {

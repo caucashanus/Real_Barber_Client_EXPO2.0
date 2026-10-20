@@ -37,9 +37,6 @@ export default function TitleDescriptionStep({ data, updateData }: HaircutStepPr
         <ThemedText className="text-xs text-light-subtext dark:text-dark-subtext">
           {data.title.length}/50
         </ThemedText>
-        <ThemedText className="mb-2 mt-3 text-xs text-light-subtext dark:text-dark-subtext">
-          {t('haircutCreateTitleQuickIdeas')}
-        </ThemedText>
         <View
           className="mt-1"
           style={{
@@ -76,7 +73,7 @@ export default function TitleDescriptionStep({ data, updateData }: HaircutStepPr
         <Input
           variant="classic"
           containerClassName="mt-1 mb-0"
-          placeholder="Optional note about the haircut"
+          placeholder={t('haircutCreateDescriptionPlaceholder')}
           value={data.description}
           onChangeText={(text) => updateData({ description: text })}
           isMultiline

@@ -1,7 +1,8 @@
+import { router } from 'expo-router';
 import React from 'react';
 
-import AppButton from '@/components/AppButton';
 import { CardScroller } from '@/components/CardScroller';
+import SlotTimePill from '@/components/SlotTimePill';
 import type { HomeSectionChipItem } from '@/utils/homeScheduleDayChips';
 
 interface HomeSectionChipRowProps {
@@ -9,18 +10,17 @@ interface HomeSectionChipRowProps {
   className?: string;
 }
 
+/** Dny / CTA chipy — stejný pill jako Rozvrh (`SlotTimePill`), ne outline `sm`. */
 export default function HomeSectionChipRow({ chips, className = '' }: HomeSectionChipRowProps) {
   if (chips.length === 0) return null;
 
   return (
     <CardScroller className={`mb-3 mt-3 ${className}`} space={8}>
       {chips.map((chip) => (
-        <AppButton
+        <SlotTimePill
           key={chip.id}
-          variant="outline"
-          size="sm"
           title={chip.label}
-          href={chip.href}
+          onPress={() => router.push(chip.href as never)}
         />
       ))}
     </CardScroller>

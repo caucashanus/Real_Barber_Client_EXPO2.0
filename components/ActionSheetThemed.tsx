@@ -1,4 +1,4 @@
-import React, { forwardRef, useCallback, useState } from 'react';
+import React, { forwardRef, useCallback, useEffect, useState } from 'react';
 import { View } from 'react-native';
 import ActionSheet, { ActionSheetProps, ActionSheetRef } from 'react-native-actions-sheet';
 
@@ -13,12 +13,30 @@ const COMPACT_SHEET_FALLBACK_CONTENT_HEIGHT = 252;
 interface ActionSheetThemedProps extends ActionSheetProps {
   /** Sheet se přizpůsobí obsahu (navigace, menu, call-us). */
   fitContent?: boolean;
+  /** Reset měření výšky (např. při otevření jiné položky). */
+  fitContentMeasureKey?: string | number | null;
 }
 
 const ActionSheetThemed = forwardRef<ActionSheetRef, ActionSheetThemedProps>(
-  ({ containerStyle, indicatorStyle, fitContent = false, overdrawEnabled, children, ...props }, ref) => {
+  (
+    {
+      containerStyle,
+      indicatorStyle,
+      fitContent = false,
+      fitContentMeasureKey = null,
+      overdrawEnabled,
+      children,
+      ...props
+    },
+    ref
+  ) => {
     const colors = useThemeColors();
     const [contentHeight, setContentHeight] = useState<number | null>(null);
+
+    useEffect(() => {
+      if (!fitContent) return;
+      setContentHeight(null);
+    }, [fitContent, fitContentMeasureKey]);
 
     const onFitContentLayout = useCallback(
       (height: number) => {
@@ -29,7 +47,9 @@ const ActionSheetThemed = forwardRef<ActionSheetRef, ActionSheetThemedProps>(
     );
 
     const resolvedHeight = fitContent
-      ? (contentHeight ?? COMPACT_SHEET_FALLBACK_CONTENT_HEIGHT) + COMPACT_SHEET_HANDLE_HEIGHT
+      ? (contentHeight != null && contentHeight > 0
+          ? contentHeight
+          : COMPACT_SHEET_FALLBACK_CONTENT_HEIGHT) + COMPACT_SHEET_HANDLE_HEIGHT
       : undefined;
 
     return (
