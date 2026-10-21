@@ -4,8 +4,6 @@ import { clampVisitPlanIntervalDays } from '@/utils/visitPlanIntervalDisplay';
 import {
   clampVisitPlanIntervalWeeks,
   DEFAULT_VISIT_PLAN_PREFERENCES,
-  type VisitPlanContactMethod,
-  type VisitPlanContactRemind,
   type VisitPlanLeadTime,
   type VisitPlanPreferences,
 } from '@/utils/visitPlanTypes';
@@ -15,7 +13,7 @@ const STORAGE_KEY = '@rb_visit_plan_prefs_v1';
 let memoryCache: VisitPlanPreferences | null = null;
 
 function isLeadTime(v: unknown): v is VisitPlanLeadTime {
-  return v === '3_days_before' || v === '1_week_before' || v === '2_week_before';
+  return v === '3_days_before' || v === '1_week_before' || v === '2_weeks_before';
 }
 
 function normalizeLeadTime(v: unknown): VisitPlanLeadTime {
@@ -24,29 +22,27 @@ function normalizeLeadTime(v: unknown): VisitPlanLeadTime {
   return DEFAULT_VISIT_PLAN_PREFERENCES.leadTime;
 }
 
-function normalizeContactRemind(
+function normalizeRemindersEnabled(
   parsed: Partial<VisitPlanPreferences> & {
-    contactMethod?: VisitPlanContactMethod | 'phone_call';
+    contactRemind?: { sms?: boolean; phone?: boolean };
+    contactMethod?: string;
   }
-): VisitPlanContactRemind {
+): boolean {
+  if (typeof parsed.remindersEnabled === 'boolean') {
+    return parsed.remindersEnabled;
+  }
+
   const raw = parsed.contactRemind;
   if (raw && typeof raw === 'object') {
-    const sms = raw.sms === true;
-    const phone = raw.phone === true;
-    if (sms || phone) {
-      return { sms, phone };
-    }
+    return raw.sms === true || raw.phone === true;
   }
 
   const legacy = parsed.contactMethod;
-  if (legacy === 'phone' || legacy === 'phone_call') {
-    return { sms: false, phone: true };
-  }
-  if (legacy === 'sms') {
-    return { sms: true, phone: false };
+  if (legacy === 'phone' || legacy === 'phone_call' || legacy === 'sms') {
+    return true;
   }
 
-  return { ...DEFAULT_VISIT_PLAN_PREFERENCES.contactRemind };
+  return DEFAULT_VISIT_PLAN_PREFERENCES.remindersEnabled;
 }
 
 function readIntervalDays(
@@ -76,11 +72,12 @@ export async function readVisitPlanPreferencesAsync(): Promise<VisitPlanPreferen
     }
     const parsed = JSON.parse(raw) as Partial<VisitPlanPreferences> & {
       intervalWeeks?: number;
-      contactMethod?: VisitPlanContactMethod | 'phone_call';
+      contactRemind?: { sms?: boolean; phone?: boolean };
+      contactMethod?: string;
     };
     const prefs: VisitPlanPreferences = {
       intervalDays: readIntervalDays(parsed),
-      contactRemind: normalizeContactRemind(parsed),
+      remindersEnabled: normalizeRemindersEnabled(parsed),
       leadTime: normalizeLeadTime(parsed.leadTime),
     };
     memoryCache = prefs;

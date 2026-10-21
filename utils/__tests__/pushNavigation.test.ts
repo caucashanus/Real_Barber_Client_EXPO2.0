@@ -5,6 +5,7 @@ import {
   RESERVATION_DETAIL_ROUTE,
   buildReservationDetailDeepLink,
   buildReservationDetailHref,
+  normalizePushDeepLinkPath,
   resolveDirectPushNavigationHref,
   resolveReservationIdFromPushData,
 } from '@/utils/pushNavigation';
@@ -19,6 +20,9 @@ describe('pushNavigation', () => {
     expect(resolveReservationIdFromPushData({ entityType: 'reservation', entityId: '42' })).toBe(
       '42'
     );
+    expect(
+      resolveReservationIdFromPushData({ entity_type: 'Reservation', entity_id: '550e8400' })
+    ).toBe('550e8400');
     expect(resolveReservationIdFromPushData({ entityType: 'sale_log', entityId: '99' })).toBeNull();
   });
 
@@ -85,5 +89,43 @@ describe('pushNavigation', () => {
         entityId: 'res-9',
       })
     ).toBe('/screens/booking-detail?id=res-9&openReview=1');
+  });
+
+  it('routes visit plan T−7 push to calendar (not booking detail)', () => {
+    expect(
+      resolveDirectPushNavigationHref({
+        notificationId: 'uuid-logu',
+        eventKey: 'visit_plan_reminder_t7',
+        event_key: 'visit_plan_reminder_t7',
+        entityType: 'visit_plan',
+        entityId: '',
+        source: 'template',
+        phase: 't7',
+        nextTargetVisitDate: '2026-10-22',
+        deeplink: '/screens/visit-plan-calendar',
+      })
+    ).toBe('/screens/visit-plan-calendar?date=2026-10-22');
+  });
+
+  it('routes visit plan T−3 via snake_case aliases', () => {
+    expect(
+      resolveDirectPushNavigationHref({
+        event_key: 'visit_plan_reminder_t3',
+        entity_type: 'visit_plan',
+        next_target_visit_date: '2026-10-25',
+      })
+    ).toBe('/screens/visit-plan-calendar?date=2026-10-25');
+  });
+
+  it('normalizes CRM realbarber deeplink paths', () => {
+    expect(normalizePushDeepLinkPath('/screens/visit-plan-calendar')).toBe(
+      '/screens/visit-plan-calendar'
+    );
+    expect(normalizePushDeepLinkPath('realbarber://screens/visit-plan-calendar')).toBe(
+      '/screens/visit-plan-calendar'
+    );
+    expect(normalizePushDeepLinkPath('realbarber:///screens/visit-plan-calendar')).toBe(
+      '/screens/visit-plan-calendar'
+    );
   });
 });

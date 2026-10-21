@@ -1,18 +1,16 @@
-import React, { useContext } from 'react';
-import { Animated, RefreshControl } from 'react-native';
-
-import { ScrollContext } from './_layout';
+import React from 'react';
+import { RefreshControl, View } from 'react-native';
 
 import { useAccentColor } from '@/contexts/AccentColorContext';
 import { useBarbersRoster } from '@/hooks/useBarbersRoster';
+import { useHomeTabScrollSync } from '@/hooks/useHomeTabScrollSync';
 import { useTranslation } from '@/hooks/useTranslation';
-import AnimatedView from '@/components/AnimatedView';
 import HomeTodayTeamSection from '@/components/home/HomeTodayTeamSection';
 import SectionIntroCard from '@/components/layout/SectionIntroCard';
 import ThemeScroller from '@/components/ThemeScroller';
 
 const ExperienceScreen = () => {
-  const scrollY = useContext(ScrollContext);
+  const { scrollRef, onScroll, scrollEventThrottle, animatedScroll } = useHomeTabScrollSync();
   const { accentColor } = useAccentColor();
   const { t, locale } = useTranslation();
   const {
@@ -25,14 +23,14 @@ const ExperienceScreen = () => {
 
   return (
     <ThemeScroller
+      ref={scrollRef}
+      animatedScroll={animatedScroll}
       refreshControl={
         <RefreshControl refreshing={teamRefreshing} onRefresh={refresh} tintColor={accentColor} />
       }
-      onScroll={Animated.event([{ nativeEvent: { contentOffset: { y: scrollY } } }], {
-        useNativeDriver: false,
-      })}
-      scrollEventThrottle={16}>
-      <AnimatedView animation="scaleIn" className="mt-4 flex-1">
+      onScroll={onScroll}
+      scrollEventThrottle={scrollEventThrottle}>
+      <View className="mt-4 flex-1">
         <SectionIntroCard
           t={t}
           titleKey="teamPageTitle"
@@ -52,7 +50,7 @@ const ExperienceScreen = () => {
           emptyTextKey="teamPageEmpty"
           contentOnly
         />
-      </AnimatedView>
+      </View>
     </ThemeScroller>
   );
 };

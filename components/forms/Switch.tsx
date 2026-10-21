@@ -88,9 +88,11 @@ const Switch: React.FC<SwitchProps> = ({
     return (
       <View className={rowClassName} style={style} pointerEvents={disabled ? 'none' : 'auto'}>
         {leading}
-        <Host matchContents>
-          <Toggle isOn={switchValue} onIsOnChange={applyChange} />
-        </Host>
+        <View className="justify-center self-center">
+          <Host matchContents>
+            <Toggle isOn={switchValue} onIsOnChange={applyChange} />
+          </Host>
+        </View>
       </View>
     );
   }

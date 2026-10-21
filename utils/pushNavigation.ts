@@ -2,6 +2,7 @@ import { router } from 'expo-router';
 
 import {
   buildNotificationActionHref,
+  buildVisitPlanCalendarHref,
   resolveNotificationDetailAction,
   resolveNotificationUiCategory,
   type NotificationSemanticFields,
@@ -74,9 +75,10 @@ export function resolveReservationIdFromPushData(
   const fromReservationId = parseIdValue(data.reservationId);
   if (fromReservationId) return fromReservationId;
 
-  const entityType = normalizeEntityType(data.entityType);
+  const entityType =
+    normalizeEntityType(data.entityType) ?? normalizeEntityType(data.entity_type);
   if (entityType === 'reservation') {
-    const fromEntity = parseIdValue(data.entityId);
+    const fromEntity = parseIdValue(data.entityId) ?? parseIdValue(data.entity_id);
     if (fromEntity) return fromEntity;
   }
 
@@ -112,8 +114,19 @@ export function resolveDirectPushNavigationHref(
 
   if (category === 'marketing' || category === 'all') return null;
 
+  if (category === 'visit_plan') {
+    const date =
+      asTrimmedString(data.nextTargetVisitDate) ??
+      asTrimmedString(data.next_target_visit_date);
+    return buildVisitPlanCalendarHref(date);
+  }
+
   const action = resolveNotificationDetailAction(fields);
-  const hrefFromAction = buildNotificationActionHref(action, fields.entityId ?? '');
+  const nextTargetVisitDate =
+    asTrimmedString(data.nextTargetVisitDate) ?? asTrimmedString(data.next_target_visit_date);
+  const hrefFromAction = buildNotificationActionHref(action, fields.entityId ?? '', {
+    nextTargetVisitDate,
+  });
   if (hrefFromAction) return hrefFromAction;
 
   if (category === 'booking' || category === 'cancellation') {
@@ -129,10 +142,20 @@ export function resolveDirectPushNavigationHref(
   return null;
 }
 
+/** CRM: `/screens/...` nebo `realbarber://screens/...` */
+export function normalizePushDeepLinkPath(raw: string): string {
+  const trimmed = raw.trim();
+  const withoutScheme = trimmed.replace(/^realbarber:\/*/i, '');
+  if (withoutScheme !== trimmed) {
+    return withoutScheme.startsWith('/') ? withoutScheme : `/${withoutScheme}`;
+  }
+  return trimmed;
+}
+
 function legacyDeepLinkHref(data: Record<string, unknown>): string | null {
   const raw =
     asTrimmedString(data.deeplink) ?? asTrimmedString(data.deepLink) ?? asTrimmedString(data.route);
-  return raw;
+  return raw ? normalizePushDeepLinkPath(raw) : null;
 }
 
 /** Bezpečná navigace — bez pádu při prázdném href. */

@@ -59,7 +59,22 @@ function ThemedLayout() {
   return (
     <>
       <ThemedStatusBar />
-      <Stack screenOptions={screenOptions} />
+      <Stack screenOptions={screenOptions}>
+        <Stack.Screen
+          name="screens/in-app-web"
+          options={
+            Platform.OS === 'ios'
+              ? {
+                  presentation: 'formSheet',
+                  sheetAllowedDetents: [0.55, 0.92],
+                  sheetInitialDetentIndex: 0,
+                  sheetGrabberVisible: true,
+                  sheetExpandsWhenScrolledToEdge: true,
+                }
+              : { presentation: 'modal' }
+          }
+        />
+      </Stack>
     </>
   );
 }

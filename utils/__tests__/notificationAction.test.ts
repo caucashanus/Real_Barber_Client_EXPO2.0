@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 
 import {
   buildNotificationActionHref,
+  buildVisitPlanCalendarHref,
   getNotificationActionLabelKey,
   matchesNotificationListFilter,
   resolveNotificationDetailAction,
@@ -9,6 +10,23 @@ import {
 } from '@/utils/notificationAction';
 
 describe('notificationAction', () => {
+  it('maps visit plan reminder push to visit_plan category and calendar action', () => {
+    const fields = {
+      eventKey: 'visit_plan_reminder_t7',
+      entityType: 'visit_plan',
+      entityId: null,
+      source: 'template',
+    };
+    expect(resolveNotificationUiCategory(fields)).toBe('visit_plan');
+    expect(resolveNotificationDetailAction(fields)).toEqual({ kind: 'visit_plan_calendar' });
+    expect(
+      buildNotificationActionHref({ kind: 'visit_plan_calendar' }, '', {
+        nextTargetVisitDate: '2026-10-22',
+      })
+    ).toBe('/screens/visit-plan-calendar?date=2026-10-22');
+    expect(buildVisitPlanCalendarHref(null)).toBe('/screens/visit-plan-calendar');
+  });
+
   it('maps reservation events to booking category and action', () => {
     const fields = {
       eventKey: 'reservation_created',

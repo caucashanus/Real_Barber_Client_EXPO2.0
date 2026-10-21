@@ -44,10 +44,10 @@ export default function VisitPlanMainContent() {
   } = useVisitPlan();
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [settingsInitialField, setSettingsInitialField] = useState<
-    'interval' | 'contact' | null
+    'interval' | null
   >(null);
 
-  const openSettings = (field: 'interval' | 'contact' | null = null) => {
+  const openSettings = (field: 'interval' | null = null) => {
     setSettingsInitialField(field);
     setSettingsOpen(true);
   };

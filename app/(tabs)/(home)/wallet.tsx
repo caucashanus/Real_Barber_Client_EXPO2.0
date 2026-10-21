@@ -1,10 +1,8 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useFocusEffect } from "expo-router/react-navigation";
 import { Link, useRouter } from 'expo-router';
-import React, { useCallback, useContext, useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { View, RefreshControl, Animated, Pressable, Alert } from 'react-native';
-
-import { ScrollContext } from './_layout';
 
 import { getRbCoinsBalance, getRbCoinsHistory, type RbCoinsHistoryItem } from '@/api/rb-coins';
 import {
@@ -15,6 +13,7 @@ import {
 import { useAccentColor } from '@/contexts/AccentColorContext';
 import { useAuth } from '@/contexts/AuthContext';
 import useThemeColors from '@/contexts/ThemeColors';
+import { useHomeTabScrollSync } from '@/hooks/useHomeTabScrollSync';
 import { useTranslation } from '@/hooks/useTranslation';
 import WalletReferralPromoBanner from '@/components/wallet/WalletReferralPromoBanner';
 import {
@@ -23,7 +22,6 @@ import {
   readWalletReferralPromoDismissedAt,
   saveWalletReferralPromoDismissedAt,
 } from '@/utils/walletReferralPromoDismiss';
-import AnimatedView from '@/components/AnimatedView';
 import Avatar from '@/components/Avatar';
 import Icon from '@/components/Icon';
 import ThemeScroller from '@/components/ThemeScroller';
@@ -74,7 +72,7 @@ const DEFAULT_REFERRAL_REWARD_CZK = 500;
 
 const WalletScreen = () => {
   const router = useRouter();
-  const scrollY = useContext(ScrollContext);
+  const { scrollRef, onScroll, scrollEventThrottle, animatedScroll } = useHomeTabScrollSync();
   const colors = useThemeColors();
   const { accentColor } = useAccentColor();
   const { apiToken } = useAuth();
@@ -254,13 +252,14 @@ const WalletScreen = () => {
 
   return (
     <ThemeScroller
-      onScroll={Animated.event([{ nativeEvent: { contentOffset: { y: scrollY } } }], {
-        useNativeDriver: false})}
+      ref={scrollRef}
+      animatedScroll={animatedScroll}
+      onScroll={onScroll}
       refreshControl={
         <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor={accentColor} />
       }
-      scrollEventThrottle={16}>
-      <AnimatedView animation="scaleIn" className="mt-4 flex-1">
+      scrollEventThrottle={scrollEventThrottle}>
+      <View className="mt-4 flex-1">
         {/* 1. Stav RBC — v __DEV__ dlouhý stisk = reset referral promo dismiss */}
         <Pressable
           className="mb-0 items-center rounded-t-3xl bg-neutral-900 px-6 pb-6 pt-8"
@@ -373,7 +372,7 @@ const WalletScreen = () => {
           visible={!!selectedTransaction}
           onClose={() => setSelectedTransaction(null)}
         />
-      </AnimatedView>
+      </View>
     </ThemeScroller>
   );
 };

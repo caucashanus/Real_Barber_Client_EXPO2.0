@@ -9,7 +9,8 @@
 
 | Dnes | Po cutover |
 |------|------------|
-| `GET https://crm.xrb.cz/api/client/guides` | Web BFF nebo statický JSON z `EXPO_PUBLIC_WEB_ORIGIN` (smluvně TBD s web týmem) |
+| **`GET /api/public/articles?locale=…&category=guides`** (default) + fallback `docs/crm-guides-articles-export.json` | Web BFF nebo statický JSON z `EXPO_PUBLIC_WEB_ORIGIN` (smluvně TBD s web týmem) |
+| Legacy `GET /api/client/guides` jen při `EXPO_PUBLIC_GUIDES_SOURCE=crm_client` | — |
 | Detail `id` = CRM UUID | `id` = web slug nebo stabilní ID z repa |
 | Favorite `entityType: guide` + CRM UUID | Migrace na web ID / slug (jednorázově nebo best-effort) |
 

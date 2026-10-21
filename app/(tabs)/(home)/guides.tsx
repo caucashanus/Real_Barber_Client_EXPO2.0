@@ -1,14 +1,14 @@
 import { useFocusEffect } from "expo-router/react-navigation";
 import { Image } from 'expo-image';
 import { router } from 'expo-router';
-import React, { useCallback, useContext, useState } from 'react';
-import { View, Pressable, Animated } from 'react-native';
-
-import { ScrollContext } from './_layout';
+import React, { useCallback, useState } from 'react';
+import { View, Pressable } from 'react-native';
 
 import { getClientGuides, type ClientGuide } from '@/api/guides';
+import { useLanguage } from '@/contexts/LanguageContext';
+import { useHomeTabScrollSync } from '@/hooks/useHomeTabScrollSync';
 import { useTranslation } from '@/hooks/useTranslation';
-import AnimatedView from '@/components/AnimatedView';
+import { toGuideLocale } from '@/utils/guides/guideLocale';
 import Favorite from '@/components/Favorite';
 import ThemeScroller from '@/components/ThemeScroller';
 import ThemedText from '@/components/ThemedText';
@@ -24,6 +24,7 @@ function formatAddedAt(iso: string): string {
 }
 
 function getFirstImageUrl(guide: ClientGuide): string | null {
+  if (guide.heroImageUrl?.trim()) return guide.heroImageUrl.trim();
   const images = (guide.media || [])
     .filter((m) => m.mediaFile?.fileType === 'image' && m.mediaFile?.url)
     .sort((a, b) => a.order - b.order);
@@ -67,32 +68,46 @@ function GuideCard({ guide }: { guide: ClientGuide }) {
 
 const GuidesScreen = () => {
   const { t } = useTranslation();
-  const scrollY = useContext(ScrollContext);
+  const { locale } = useLanguage();
+  const guideLocale = toGuideLocale(locale);
+  const { scrollRef, onScroll, scrollEventThrottle, animatedScroll } = useHomeTabScrollSync();
   const [guides, setGuides] = useState<ClientGuide[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const load = useCallback(() => {
-    setLoading(true);
-    setError(null);
-    getClientGuides()
-      .then(setGuides)
-      .catch((e) => setError(e instanceof Error ? e.message : 'Failed to load'))
-      .finally(() => setLoading(false));
-  }, []);
+  const load = useCallback(
+    (options?: { silent?: boolean }) => {
+      if (!options?.silent) {
+        setLoading(true);
+        setError(null);
+      }
+      getClientGuides(guideLocale)
+        .then(setGuides)
+        .catch((e) => {
+          if (!options?.silent) {
+            setError(e instanceof Error ? e.message : 'Failed to load');
+          }
+        })
+        .finally(() => {
+          if (!options?.silent) setLoading(false);
+        });
+    },
+    [guideLocale]
+  );
 
   useFocusEffect(
     useCallback(() => {
-      load();
-    }, [load])
+      load({ silent: guides.length > 0 });
+    }, [load, guides.length])
   );
 
   return (
     <ThemeScroller
-      onScroll={Animated.event([{ nativeEvent: { contentOffset: { y: scrollY } } }], {
-        useNativeDriver: false})}
-      scrollEventThrottle={16}>
-      <AnimatedView animation="scaleIn" className="mt-4 flex-1">
+      ref={scrollRef}
+      animatedScroll={animatedScroll}
+      onScroll={onScroll}
+      scrollEventThrottle={scrollEventThrottle}>
+      <View className="mt-4 flex-1">
         {loading ? (
           <View className="items-center py-12">
             <SiteLoadingSpinner />
@@ -115,7 +130,7 @@ const GuidesScreen = () => {
         ) : (
           guides.map((guide) => <GuideCard key={guide.id} guide={guide} />)
         )}
-      </AnimatedView>
+      </View>
     </ThemeScroller>
   );
 };

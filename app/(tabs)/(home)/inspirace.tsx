@@ -1,13 +1,10 @@
-import React, { useContext, useEffect, useMemo, useState } from 'react';
-import { Animated, View } from 'react-native';
-
-import { ScrollContext } from './_layout';
+import React, { useEffect, useMemo, useState } from 'react';
+import { View } from 'react-native';
 
 import {
   fetchPublicInspiracePage,
   type PublicInspiracePageItem} from '@/api/publicInspiracePage';
 import AppButton from '@/components/AppButton';
-import AnimatedView from '@/components/AnimatedView';
 import InspiraceIntroCard from '@/components/inspirace/InspiraceIntroCard';
 import ServiceItemGrid from '@/components/services/ServiceItemGrid';
 import ThemeScroller from '@/components/ThemeScroller';
@@ -15,6 +12,7 @@ import ThemedText from '@/components/ThemedText';
 import {
   INSPIRACE_GRID_INITIAL,
   INSPIRACE_GRID_STEP} from '@/constants/inspiraceGrid';
+import { useHomeTabScrollSync } from '@/hooks/useHomeTabScrollSync';
 import { useTranslation } from '@/hooks/useTranslation';
 import SiteLoadingState from '@/components/SiteLoadingState';
 import {
@@ -23,7 +21,7 @@ import {
   sortInspiraceItems} from '@/utils/inspiracePageHelpers';
 
 const InspiraceScreen = () => {
-  const scrollY = useContext(ScrollContext);
+  const { scrollRef, onScroll, scrollEventThrottle, animatedScroll } = useHomeTabScrollSync();
   const { t, locale } = useTranslation();
   const [allItems, setAllItems] = useState<PublicInspiracePageItem[]>([]);
   const [visibleCount, setVisibleCount] = useState(INSPIRACE_GRID_INITIAL);
@@ -64,10 +62,11 @@ const InspiraceScreen = () => {
 
   return (
     <ThemeScroller
-      onScroll={Animated.event([{ nativeEvent: { contentOffset: { y: scrollY } } }], {
-        useNativeDriver: false})}
-      scrollEventThrottle={16}>
-      <AnimatedView animation="scaleIn" className="mt-4 flex-1">
+      ref={scrollRef}
+      animatedScroll={animatedScroll}
+      onScroll={onScroll}
+      scrollEventThrottle={scrollEventThrottle}>
+      <View className="mt-4 flex-1">
         {loading ? (
           <SiteLoadingState layout="section" className="py-16" />
         ) : (
@@ -99,7 +98,7 @@ const InspiraceScreen = () => {
             ) : null}
           </>
         )}
-      </AnimatedView>
+      </View>
     </ThemeScroller>
   );
 };

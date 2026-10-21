@@ -1,15 +1,13 @@
 import { Image } from 'expo-image';
 import { router } from 'expo-router';
-import React, { useCallback, useContext, useMemo, useRef } from 'react';
-import { Animated, Linking, Pressable, ScrollView, useWindowDimensions, View } from 'react-native';
+import React, { useCallback, useMemo, useRef } from 'react';
+import { Linking, Pressable, useWindowDimensions, View } from 'react-native';
 import { ActionSheetRef } from 'react-native-actions-sheet';
-
-import { ScrollContext } from './_layout';
 
 import { useCopyFeedback } from '@/contexts/CopyFeedbackContext';
 import { useThemeColors } from '@/contexts/ThemeColors';
+import { useHomeTabScrollSync } from '@/hooks/useHomeTabScrollSync';
 import { useTranslation } from '@/hooks/useTranslation';
-import AnimatedView from '@/components/AnimatedView';
 import AppButton from '@/components/AppButton';
 import { BranchNavigateSheet } from '@/components/BranchNavigateSheet';
 import CustomCard from '@/components/CustomCard';
@@ -49,7 +47,7 @@ function openUrl(url: string) {
 }
 
 export default function BranchesScreen() {
-  const scrollY = useContext(ScrollContext);
+  const { scrollRef, onScroll, scrollEventThrottle, animatedScroll } = useHomeTabScrollSync();
   const { width: screenWidth } = useWindowDimensions();
   const branchCarouselSize = useMemo(
     () => getContentCarouselSize(screenWidth),
@@ -57,7 +55,6 @@ export default function BranchesScreen() {
   );
   const callUsRef = useRef<ActionSheetRef>(null);
   const navigateRefs = useRef<Partial<Record<BranchInternalId, ActionSheetRef | null>>>({});
-  const scrollRef = useRef<ScrollView>(null);
   const { t } = useTranslation();
   const { copyToClipboard } = useCopyFeedback();
   const colors = useThemeColors();
@@ -71,12 +68,11 @@ export default function BranchesScreen() {
     <>
       <ThemeScroller
         ref={scrollRef}
-        onScroll={Animated.event([{ nativeEvent: { contentOffset: { y: scrollY } } }], {
-          useNativeDriver: false,
-        })}
-        scrollEventThrottle={16}>
+        animatedScroll={animatedScroll}
+        onScroll={onScroll}
+        scrollEventThrottle={scrollEventThrottle}>
         <View className="mt-4 w-full flex-1">
-          <AnimatedView animation="scaleIn" className="flex-1">
+          <View className="flex-1">
             <CustomCard
               rounded="2xl"
               padding="md"
@@ -305,7 +301,7 @@ export default function BranchesScreen() {
               </View>
             );
           })}
-          </AnimatedView>
+          </View>
         </View>
       </ThemeScroller>
 

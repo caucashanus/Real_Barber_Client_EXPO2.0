@@ -18,6 +18,7 @@ import BookingDetailAppointmentSection from '@/components/booking/detail/Booking
 import BookingDetailCalendarPromoModal from '@/components/booking/detail/BookingDetailCalendarPromoModal';
 import BookingDetailEmployeeSection from '@/components/booking/detail/BookingDetailEmployeeSection';
 import BookingDetailFooterActions from '@/components/booking/detail/BookingDetailFooterActions';
+import ListLink from '@/components/ListLink';
 import HomeKidsWatchSheet from '@/components/home/kids/HomeKidsWatchSheet';
 import { HOME_FAST_BOOK_SERVICES } from '@/constants/homeFastBookServices';
 import { useKidsWatchSheetLauncher } from '@/hooks/useKidsWatchSheetLauncher';
@@ -64,6 +65,8 @@ const BookingDetailScreen = () => {
     setCalendarPromoVisible,
     kidsWatchPromoVisible,
     setKidsWatchPromoVisible,
+    kidsWatchFirstVisitPromoActive,
+    clearKidsWatchFirstVisitPromo,
   } = useBookingDetailScreen({
     id,
     openReview: local.openReview,
@@ -164,6 +167,12 @@ const BookingDetailScreen = () => {
     }, [handleNavigateBack])
   );
 
+  useFocusEffect(
+    useCallback(() => {
+      return () => clearKidsWatchFirstVisitPromo();
+    }, [clearKidsWatchFirstVisitPromo])
+  );
+
   useEffect(() => {
     const unsubscribe = navigation.addListener('beforeRemove', (event) => {
       if (isLeavingToBookingsRef.current) return;
@@ -253,7 +262,14 @@ const BookingDetailScreen = () => {
     !isPast &&
     !isKidsBooking;
   const canShare = canShareClientBooking(booking);
-  const armKidsWatchSheet = kidsWatchOpen || kidsWatchPromoVisible;
+  const showKidsWatchFirstVisitBanner =
+    isKidsBooking &&
+    canShare &&
+    kidsWatchFirstVisitPromoActive &&
+    !kidsWatchOpen &&
+    !kidsWatchPromoVisible;
+  const armKidsWatchSheet =
+    kidsWatchOpen || kidsWatchPromoVisible || kidsWatchFirstVisitPromoActive;
   const cancelWhen = formatCancelSheetWhen(booking, locale);
   const cancelMessage = `${t('bookingDetailCancelConfirmIntro')} ${cancelWhen} ${t('bookingDetailCancelConfirmAtBranch')} ${booking.branch?.name ?? '—'}. ${t('bookingDetailCancelConfirmNote')}`;
   const carouselImages = resolveCarouselImages(branch, booking);
@@ -292,6 +308,17 @@ const BookingDetailScreen = () => {
             onShare={handleShare}
             t={t}
           />
+          {showKidsWatchFirstVisitBanner ? (
+            <View className="px-global pb-2 pt-1">
+              <ListLink
+                title={t('kidsWatchBookingDetailCta')}
+                description={t('kidsWatchBookingDetailPromoLead')}
+                showChevron
+                className="rounded-xl bg-light-surface px-4 py-2 dark:bg-dark-secondary"
+                onPress={() => openKidsWatchFromBooking(booking.id, 'promo')}
+              />
+            </View>
+          ) : null}
           <BookingDetailReservationInfoSection booking={booking} t={t} />
           <BookingDetailPriceSection
             booking={booking}

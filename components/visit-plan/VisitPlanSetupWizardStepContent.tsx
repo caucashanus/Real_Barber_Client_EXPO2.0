@@ -77,6 +77,7 @@ export default function VisitPlanSetupWizardStepContent({
     case 0:
       return (
         <VisitPlanChoiceCarousel
+          key="setup-hair"
           options={hairOptions}
           value={answers.hairLength}
           onChange={(v) => onSelectHair(v)}
@@ -85,6 +86,7 @@ export default function VisitPlanSetupWizardStepContent({
     case 1:
       return (
         <VisitPlanChoiceCarousel
+          key="setup-growth"
           options={growthOptions}
           value={answers.growthRate}
           onChange={(v) => onSelectGrowth(v)}
@@ -93,6 +95,7 @@ export default function VisitPlanSetupWizardStepContent({
     case 2:
       return (
         <VisitPlanChoiceCarousel
+          key="setup-freshness"
           options={freshOptions}
           value={answers.freshness}
           onChange={(v) => onSelectFreshness(v)}

@@ -1,9 +1,7 @@
 import { Image } from 'expo-image';
 import { router } from 'expo-router';
-import React, { useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
-import { Animated, Pressable, RefreshControl, useWindowDimensions, View } from 'react-native';
-
-import { ScrollContext } from './_layout';
+import React, { useCallback, useMemo } from 'react';
+import { Pressable, RefreshControl, useWindowDimensions, View } from 'react-native';
 
 import type { HomeReferralPromo } from '@/api/home';
 import { LOGIN_PATH } from '@/constants/authRoutes';
@@ -11,10 +9,9 @@ import { useAccentColor } from '@/contexts/AccentColorContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { useHomePage } from '@/hooks/useHomePage';
 import { useTranslation } from '@/hooks/useTranslation';
-import AnimatedView from '@/components/AnimatedView';
-import { HomePromoCarousel } from '@/components/HomePromoCarousel';
-import { HomeSpotlightCard } from '@/components/HomeSpotlightCard';
 import HomeMoreCirclesSection from '@/components/home/HomeMoreCirclesSection';
+import HomePromoFeedSection from '@/components/home/HomePromoFeedSection';
+import HomeSpotlightSection from '@/components/home/HomeSpotlightSection';
 import HomeFastBookStrip from '@/components/home/fast-book/HomeFastBookStrip';
 import HomeNearestBranch from '@/components/home/HomeNearestBranch';
 import HomeHaircutCatalogSection from '@/components/home/HomeHaircutCatalogSection';
@@ -24,14 +21,12 @@ import NotificationPromptSheet from '@/components/NotificationPromptSheet';
 import SiteLoadingState from '@/components/SiteLoadingState';
 import ThemeScroller from '@/components/ThemeScroller';
 import ThemedText from '@/components/ThemedText';
-import { homePromoClientSeed } from '@/utils/homePromoCoupon';
-import { buildHomePromoFeed } from '@/utils/homePromoFeed';
+import { useHomeTabScrollSync } from '@/hooks/useHomeTabScrollSync';
 import { openPromoTargetUrl } from '@/utils/openPromoTargetUrl';
 import {
   getClientReferralSlug,
   referralDashboardHref,
 } from '@/utils/referralDashboardHelpers';
-import { pickHomeSpotlight } from '@/utils/homeSpotlight';
 import { getHomePromoCarouselLayout } from '@/utils/homePromoLayout';
 import { isReservationIntroCooldownActive } from '@/utils/reservation-intro-cooldown';
 
@@ -43,7 +38,7 @@ const HOME_ACTION_IMAGES = {
 } as const;
 
 export default function RealBarberHomeTab() {
-  const scrollY = useContext(ScrollContext);
+  const { scrollRef, onScroll, scrollEventThrottle, animatedScroll } = useHomeTabScrollSync();
   const { width: screenWidth } = useWindowDimensions();
   const homePromoLayout = useMemo(
     () => getHomePromoCarouselLayout(screenWidth),
@@ -89,32 +84,8 @@ export default function RealBarberHomeTab() {
     error: todayTeamError,
     refresh,
   } = useHomePage();
-  const [now, setNow] = useState(() => Date.now());
-  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
-  useEffect(() => {
-    intervalRef.current = setInterval(() => setNow(Date.now()), 15000);
-    return () => {
-      if (intervalRef.current) clearInterval(intervalRef.current);
-    };
-  }, []);
-
-  const spotlight = useMemo(() => pickHomeSpotlight(homeBookings, now), [homeBookings, now]);
-
-  const clientPromoSeed = useMemo(
-    () => homePromoClientSeed(client?.id ?? apiToken ?? ''),
-    [client?.id, apiToken]
-  );
-
-  const homePromoFeed = useMemo(
-    () =>
-      buildHomePromoFeed(posters, coupons, {
-        nowMs: now,
-        clientSeed: clientPromoSeed,
-        referral,
-      }),
-    [posters, coupons, now, clientPromoSeed, referral]
-  );
+  const promoClientSeedKey = client?.id ?? apiToken ?? '';
 
   const handleReferralPromoPress = useCallback(
     (promo: HomeReferralPromo) => {
@@ -132,46 +103,42 @@ export default function RealBarberHomeTab() {
     [client?.id]
   );
 
-  const showPromoCarousel = homePromoFeed.length > 0;
+  const handleRefresh = useCallback(async () => {
+    await refresh();
+  }, [refresh]);
 
   return (
     <>
       <ThemeScroller
+        ref={scrollRef}
+        animatedScroll={animatedScroll}
         className="flex-1"
-        onScroll={Animated.event([{ nativeEvent: { contentOffset: { y: scrollY } } }], {
-          useNativeDriver: false,
-        })}
-        scrollEventThrottle={16}
+        onScroll={onScroll}
+        scrollEventThrottle={scrollEventThrottle}
         refreshControl={
-          <RefreshControl refreshing={refreshing} onRefresh={refresh} tintColor={accentColor} />
+          <RefreshControl refreshing={refreshing} onRefresh={handleRefresh} tintColor={accentColor} />
         }>
         <NotificationPromptSheet />
-        <AnimatedView animation="scaleIn" className="mt-2 flex-1">
+        <View className="flex-1 pt-4">
           {loading ? (
             <SiteLoadingState layout="section" className="py-16" />
           ) : (
             <>
-              <View className="mb-4">
+              <View className="mb-6">
                 <HomeFastBookStrip bookings={homeBookings} bookingsLoading={loading} />
               </View>
-              <HomeMoreCirclesSection className="mt-2" />
-              {showPromoCarousel ? (
-                <View className="mt-6">
-                  <HomePromoCarousel
-                    feed={homePromoFeed}
-                    layout={homePromoLayout}
-                    loading={false}
-                    t={t}
-                    onReferralPress={handleReferralPromoPress}
-                  />
-                </View>
-              ) : null}
+              <HomeMoreCirclesSection className="mt-0" />
+              <HomePromoFeedSection
+                posters={posters}
+                coupons={coupons}
+                referral={referral}
+                clientSeedKey={promoClientSeedKey}
+                layout={homePromoLayout}
+                t={t}
+                onReferralPress={handleReferralPromoPress}
+              />
 
-              {spotlight ? (
-                <View className="mt-4">
-                  <HomeSpotlightCard spotlight={spotlight} t={t} locale={locale} />
-                </View>
-              ) : null}
+              <HomeSpotlightSection bookings={homeBookings} t={t} locale={locale} />
 
               <View className="mb-4 mt-6 flex-row flex-wrap justify-between">
                 {actions.map((a) => (
@@ -212,7 +179,7 @@ export default function RealBarberHomeTab() {
               <HomeHaircutCatalogSection locale={locale} t={t} className="mt-10" />
             </>
           )}
-        </AnimatedView>
+        </View>
       </ThemeScroller>
     </>
   );

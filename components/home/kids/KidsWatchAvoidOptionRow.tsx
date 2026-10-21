@@ -25,9 +25,7 @@ export default function KidsWatchAvoidOptionRow({ option, selected, onToggle, t 
       onPress={onToggle}
       accessibilityRole="checkbox"
       accessibilityState={{ checked: selected }}
-      className={`flex-row items-center gap-3 rounded-xl px-3 py-3 active:opacity-70 ${
-        selected ? 'bg-light-secondary/50 dark:bg-dark-secondary/50' : ''
-      }`}>
+      className="flex-row items-center gap-3 rounded-xl px-3 py-3 active:opacity-70">
       <View className="h-12 w-12 shrink-0 items-center justify-center">
         {showImage ? (
           <Image

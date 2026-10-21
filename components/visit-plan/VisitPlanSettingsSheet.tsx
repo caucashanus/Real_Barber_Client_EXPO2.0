@@ -5,6 +5,7 @@ import ActionSheetThemed from '@/components/ActionSheetThemed';
 import { Button } from '@/components/Button';
 import Icon from '@/components/Icon';
 import { HOME_FAST_BOOK_OVERLAY, HOME_FAST_BOOK_SHEET_FOOTER, homeFastBookWhenPanelBg } from '@/components/home/fast-book/homeFastBookSheetUi';
+import Switch from '@/components/forms/Switch';
 import SurfaceCard from '@/components/layout/SurfaceCard';
 import {
   ActionSheetNestedDock,
@@ -12,24 +13,23 @@ import {
   actionSheetNestedStackStyles as stackStyles,
 } from '@/components/shared/sheet/ActionSheetNestedDock';
 import ThemedText from '@/components/ThemedText';
-import VisitPlanSettingsContactPanel from '@/components/visit-plan/VisitPlanSettingsContactSheet';
 import VisitPlanSettingsIntervalPanel from '@/components/visit-plan/VisitPlanSettingsFieldSheet';
 import { useAuth } from '@/contexts/AuthContext';
-import { useLanguage } from '@/contexts/LanguageContext';
+import { useVisitPlan } from '@/contexts/VisitPlanContext';
 import useThemeColors from '@/contexts/ThemeColors';
 import { useActionSheetVisible } from '@/hooks/useActionSheetVisible';
 import { useTranslation } from '@/hooks/useTranslation';
 import { formatVisitPlanIntervalEvery } from '@/utils/visitPlanIntervalDisplay';
-import { formatVisitPlanContactRemindSubtitle } from '@/utils/visitPlanSettingsDisplay';
+import type { VisitPlanSaveOptions } from '@/utils/visitPlanCrmMapping';
 import type { VisitPlanPreferences } from '@/utils/visitPlanTypes';
 
-export type VisitPlanSettingsField = 'interval' | 'contact';
+export type VisitPlanSettingsField = 'interval';
 
 type Props = {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   prefs: VisitPlanPreferences;
-  onSavePrefs: (next: VisitPlanPreferences) => Promise<boolean>;
+  onSavePrefs: (next: VisitPlanPreferences, options?: VisitPlanSaveOptions) => Promise<boolean>;
   saving?: boolean;
   initialField?: VisitPlanSettingsField | null;
   onNestedFieldClosed?: () => void;
@@ -66,18 +66,77 @@ function SettingsNavRow({
   );
 }
 
+function SettingsAlertsSection({
+  draft,
+  setDraft,
+  onRemindersEdited,
+  profilePhone,
+  t,
+}: {
+  draft: VisitPlanPreferences;
+  setDraft: (next: VisitPlanPreferences | ((current: VisitPlanPreferences) => VisitPlanPreferences)) => void;
+  onRemindersEdited: () => void;
+  profilePhone?: string | null;
+  t: ReturnType<typeof useTranslation>['t'];
+}) {
+  const hasPhone = Boolean(profilePhone?.trim());
+  const enabled = draft.remindersEnabled;
+  const statusLabel = enabled ? t('visitPlanRemindersOn') : t('visitPlanRemindersOff');
+
+  const onToggle = (next: boolean) => {
+    if (next && !hasPhone) return;
+    onRemindersEdited();
+    setDraft((current) => ({ ...current, remindersEnabled: next }));
+  };
+
+  return (
+    <>
+      <View className="h-px bg-light-secondary dark:bg-dark-secondary" />
+      <View className="px-4 pb-4 pt-3.5">
+        <ThemedText className="text-sm font-semibold">{t('visitPlanSettingsRowReminders')}</ThemedText>
+        <ThemedText className="mt-1 text-sm text-light-subtext dark:text-dark-subtext">
+          {t('visitPlanSettingsRowRemindersPrompt')}
+        </ThemedText>
+
+        <View style={styles.alertsToggleRow}>
+          <ThemedText className="text-base font-medium">{statusLabel}</ThemedText>
+          <Switch
+            value={enabled}
+            onChange={onToggle}
+            disabled={!hasPhone && !enabled}
+            className="py-0"
+            style={styles.alertsSwitch}
+          />
+        </View>
+
+        {!hasPhone ? (
+          <ThemedText className="mt-2 text-sm text-light-subtext dark:text-dark-subtext">
+            {t('visitPlanSavePhoneRequired')}
+          </ThemedText>
+        ) : null}
+      </View>
+    </>
+  );
+}
+
 function SettingsNavList({
   intervalTitle,
   intervalSubtitle,
-  contactTitle,
-  contactSubtitle,
-  onOpenField,
+  draft,
+  setDraft,
+  onRemindersEdited,
+  profilePhone,
+  onOpenInterval,
+  t,
 }: {
   intervalTitle: string;
   intervalSubtitle: string;
-  contactTitle: string;
-  contactSubtitle: string;
-  onOpenField: (field: VisitPlanSettingsField) => void;
+  draft: VisitPlanPreferences;
+  setDraft: (next: VisitPlanPreferences | ((current: VisitPlanPreferences) => VisitPlanPreferences)) => void;
+  onRemindersEdited: () => void;
+  profilePhone?: string | null;
+  onOpenInterval: () => void;
+  t: ReturnType<typeof useTranslation>['t'];
 }) {
   const colors = useThemeColors();
   const chevronColor = colors.placeholder;
@@ -90,14 +149,14 @@ function SettingsNavList({
         title={intervalTitle}
         subtitle={intervalSubtitle}
         chevronColor={chevronColor}
-        onPress={() => onOpenField('interval')}
+        onPress={onOpenInterval}
       />
-      <SettingsNavRow
-        title={contactTitle}
-        subtitle={contactSubtitle}
-        chevronColor={chevronColor}
-        showDivider
-        onPress={() => onOpenField('contact')}
+      <SettingsAlertsSection
+        draft={draft}
+        setDraft={setDraft}
+        onRemindersEdited={onRemindersEdited}
+        profilePhone={profilePhone}
+        t={t}
       />
     </SurfaceCard>
   );
@@ -105,24 +164,30 @@ function SettingsNavList({
 
 function SettingsMainPanel({
   draft,
+  setDraft,
   saving,
   onSavePrefs,
   onOpenChange,
-  onOpenField,
+  onOpenInterval,
+  onRemindersEdited,
   intervalSubtitle,
-  contactSubtitle,
+  profilePhone,
   t,
 }: {
   draft: VisitPlanPreferences;
+  setDraft: (next: VisitPlanPreferences | ((current: VisitPlanPreferences) => VisitPlanPreferences)) => void;
+  onRemindersEdited: () => void;
   saving: boolean;
-  onSavePrefs: (next: VisitPlanPreferences) => Promise<boolean>;
+  onSavePrefs: (next: VisitPlanPreferences, options?: VisitPlanSaveOptions) => Promise<boolean>;
   onOpenChange: (open: boolean) => void;
-  onOpenField: (field: VisitPlanSettingsField) => void;
+  onOpenInterval: () => void;
   intervalSubtitle: string;
-  contactSubtitle: string;
+  profilePhone?: string | null;
   t: ReturnType<typeof useTranslation>['t'];
 }) {
   const colors = useThemeColors();
+  const hasPhone = Boolean(profilePhone?.trim());
+  const saveDisabled = saving || (!hasPhone && draft.remindersEnabled);
 
   return (
     <View>
@@ -132,9 +197,12 @@ function SettingsMainPanel({
         <SettingsNavList
           intervalTitle={t('visitPlanSettingsRowInterval')}
           intervalSubtitle={intervalSubtitle}
-          contactTitle={t('visitPlanSettingsRowContact')}
-          contactSubtitle={contactSubtitle}
-          onOpenField={onOpenField}
+          draft={draft}
+          setDraft={setDraft}
+          onRemindersEdited={onRemindersEdited}
+          profilePhone={profilePhone}
+          onOpenInterval={onOpenInterval}
+          t={t}
         />
       </View>
 
@@ -144,7 +212,7 @@ function SettingsMainPanel({
           variant="primary"
           size="medium"
           className="w-full py-4"
-          disabled={saving}
+          disabled={saveDisabled}
           onPress={() => {
             void (async () => {
               const ok = await onSavePrefs(draft);
@@ -166,22 +234,22 @@ function SettingsStack({
   saving,
   onSavePrefs,
   onOpenChange,
-  onOpenField,
+  onOpenInterval,
+  onRemindersEdited,
   intervalSubtitle,
-  contactSubtitle,
   profilePhone,
   t,
 }: {
   nestedField: VisitPlanSettingsField | null;
   dismissNested: () => void;
   draft: VisitPlanPreferences;
-  setDraft: (next: VisitPlanPreferences) => void;
+  setDraft: (next: VisitPlanPreferences | ((current: VisitPlanPreferences) => VisitPlanPreferences)) => void;
+  onRemindersEdited: () => void;
   saving: boolean;
-  onSavePrefs: (next: VisitPlanPreferences) => Promise<boolean>;
+  onSavePrefs: (next: VisitPlanPreferences, options?: VisitPlanSaveOptions) => Promise<boolean>;
   onOpenChange: (open: boolean) => void;
-  onOpenField: (field: VisitPlanSettingsField) => void;
+  onOpenInterval: () => void;
   intervalSubtitle: string;
-  contactSubtitle: string;
   profilePhone?: string | null;
   t: ReturnType<typeof useTranslation>['t'];
 }) {
@@ -204,7 +272,7 @@ function SettingsStack({
     nestedDocked && baseHeightRef.current != null ? baseHeightRef.current : undefined;
 
   const saveDraftFromNested = useCallback(async () => {
-    const ok = await onSavePrefs(draft);
+    const ok = await onSavePrefs(draft, { scope: 'intervalOnly' });
     if (!ok) return;
     dismissNested();
   }, [dismissNested, draft, onSavePrefs]);
@@ -218,12 +286,14 @@ function SettingsStack({
       <View style={stackStyles.baseLayer} pointerEvents={nestedDocked ? 'none' : 'auto'}>
         <SettingsMainPanel
           draft={draft}
+          setDraft={setDraft}
           saving={saving}
           onSavePrefs={onSavePrefs}
           onOpenChange={onOpenChange}
-          onOpenField={onOpenField}
+          onOpenInterval={onOpenInterval}
+          onRemindersEdited={onRemindersEdited}
           intervalSubtitle={intervalSubtitle}
-          contactSubtitle={contactSubtitle}
+          profilePhone={profilePhone}
           t={t}
         />
       </View>
@@ -235,22 +305,12 @@ function SettingsStack({
             key={nestedField}
             panelBackgroundColor={nestedPanelBg}
             onDismiss={dismissNested}>
-            {nestedField === 'interval' ? (
-              <VisitPlanSettingsIntervalPanel
-                prefs={draft}
-                onChange={setDraft}
-                saving={saving}
-                onSave={() => void saveDraftFromNested()}
-              />
-            ) : (
-              <VisitPlanSettingsContactPanel
-                prefs={draft}
-                onChange={setDraft}
-                saving={saving}
-                profilePhone={profilePhone}
-                onSave={() => void saveDraftFromNested()}
-              />
-            )}
+            <VisitPlanSettingsIntervalPanel
+              prefs={draft}
+              onChange={setDraft}
+              saving={saving}
+              onSave={() => void saveDraftFromNested()}
+            />
           </ActionSheetNestedDock>
         </>
       ) : null}
@@ -269,23 +329,46 @@ export default function VisitPlanSettingsSheet({
 }: Props) {
   const mainRef = useActionSheetVisible(open);
   const { t } = useTranslation();
-  const { locale } = useLanguage();
   const { client } = useAuth();
+  const { reload } = useVisitPlan();
   const profilePhone = client?.phone?.trim() || null;
   const [draft, setDraft] = useState(prefs);
   const [nestedField, setNestedField] = useState<VisitPlanSettingsField | null>(null);
+  const remindersDraftBaselineRef = useRef<boolean | null>(null);
+  const sheetOpenInitializedRef = useRef(false);
+  const remindersUserEditedRef = useRef(false);
+
+  const markRemindersEdited = useCallback(() => {
+    remindersUserEditedRef.current = true;
+  }, []);
 
   useEffect(() => {
     if (!open) {
       setNestedField(null);
+      remindersDraftBaselineRef.current = null;
+      sheetOpenInitializedRef.current = false;
+      remindersUserEditedRef.current = false;
       return;
     }
+    if (sheetOpenInitializedRef.current) return;
+    sheetOpenInitializedRef.current = true;
     setDraft(prefs);
-  }, [open, prefs]);
+    remindersDraftBaselineRef.current = prefs.remindersEnabled;
+    reload({ silent: true });
+  }, [open, reload]);
+
+  useEffect(() => {
+    if (!open || remindersUserEditedRef.current) return;
+    setDraft((current) => {
+      if (current.remindersEnabled === prefs.remindersEnabled) return current;
+      remindersDraftBaselineRef.current = prefs.remindersEnabled;
+      return { ...current, remindersEnabled: prefs.remindersEnabled };
+    });
+  }, [open, prefs.remindersEnabled]);
 
   useEffect(() => {
     if (!open) return;
-    setNestedField(initialField ?? null);
+    setNestedField(initialField === 'interval' ? 'interval' : null);
   }, [open, initialField]);
 
   const dismissNested = useCallback(() => {
@@ -304,8 +387,6 @@ export default function VisitPlanSettingsSheet({
   }, [dismissNested, nestedField, onOpenChange]);
 
   const intervalSubtitle = formatVisitPlanIntervalEvery(draft.intervalDays, t);
-  const contactSubtitle = formatVisitPlanContactRemindSubtitle(draft.contactRemind, t);
-
   if (!open) return null;
 
   return (
@@ -329,9 +410,9 @@ export default function VisitPlanSettingsSheet({
         saving={saving}
         onSavePrefs={onSavePrefs}
         onOpenChange={onOpenChange}
-        onOpenField={setNestedField}
+        onOpenInterval={() => setNestedField('interval')}
+        onRemindersEdited={markRemindersEdited}
         intervalSubtitle={intervalSubtitle}
-        contactSubtitle={contactSubtitle}
         profilePhone={profilePhone}
         t={t}
       />
@@ -343,5 +424,16 @@ const styles = StyleSheet.create({
   settingsFooter: {
     borderTopWidth: 1,
     ...HOME_FAST_BOOK_SHEET_FOOTER,
+  },
+  alertsToggleRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginTop: 20,
+    minHeight: 44,
+  },
+  alertsSwitch: {
+    flexShrink: 0,
+    alignSelf: 'center',
   },
 });

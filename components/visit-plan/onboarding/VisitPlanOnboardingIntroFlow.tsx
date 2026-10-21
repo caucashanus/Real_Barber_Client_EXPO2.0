@@ -25,32 +25,59 @@ import { useTranslation } from '@/hooks/useTranslation';
 import { visitPlanOnboardingFooterReserveHeight } from '@/components/visit-plan/onboarding/visitPlanOnboardingLayout';
 import { fillTranslationParams } from '@/utils/fillTranslationParams';
 
-type Phase = 'hero' | 'benefits';
+type IntroSlide = {
+  id: string;
+  kind: 'hero' | 'benefit';
+  image?: number;
+  video?: number;
+  titleKey:
+    | 'visitPlanOnboardingHeroTitle'
+    | 'visitPlanOnboardingIntroStep1Title'
+    | 'visitPlanOnboardingIntroStep2Title'
+    | 'visitPlanOnboardingIntroStep3Title';
+  descKey:
+    | 'visitPlanOnboardingHeroLead'
+    | 'visitPlanOnboardingIntroStep1Desc'
+    | 'visitPlanOnboardingIntroStep2Desc'
+    | 'visitPlanOnboardingIntroStep3Desc';
+};
 
-const BENEFIT_SLIDES = [
+const INTRO_SLIDES: readonly IntroSlide[] = [
+  {
+    id: 'hero',
+    kind: 'hero',
+    video: VISIT_PLAN_ONBOARDING_HERO_VIDEO,
+    titleKey: 'visitPlanOnboardingHeroTitle',
+    descKey: 'visitPlanOnboardingHeroLead',
+  },
   {
     id: '1',
+    kind: 'benefit',
     image: VISIT_PLAN_ONBOARDING_BENEFIT_REMINDER,
-    video: undefined as number | undefined,
-    titleKey: 'visitPlanOnboardingIntroStep1Title' as const,
-    descKey: 'visitPlanOnboardingIntroStep1Desc' as const,
+    titleKey: 'visitPlanOnboardingIntroStep1Title',
+    descKey: 'visitPlanOnboardingIntroStep1Desc',
   },
   {
     id: '2',
+    kind: 'benefit',
     image: VISIT_PLAN_ONBOARDING_BENEFIT_IDEAL_DAYS,
-    video: undefined,
-    titleKey: 'visitPlanOnboardingIntroStep2Title' as const,
-    descKey: 'visitPlanOnboardingIntroStep2Desc' as const,
+    titleKey: 'visitPlanOnboardingIntroStep2Title',
+    descKey: 'visitPlanOnboardingIntroStep2Desc',
   },
   {
     id: '3',
+    kind: 'benefit',
     video: VISIT_PLAN_ONBOARDING_STRESS_FREE_VIDEO,
-    titleKey: 'visitPlanOnboardingIntroStep3Title' as const,
-    descKey: 'visitPlanOnboardingIntroStep3Desc' as const,
+    titleKey: 'visitPlanOnboardingIntroStep3Title',
+    descKey: 'visitPlanOnboardingIntroStep3Desc',
   },
 ] as const;
 
+const LAST_SLIDE_INDEX = INTRO_SLIDES.length - 1;
 const { width: SCREEN_W } = Dimensions.get('window');
+
+/** Swipe vlevo na posledním slidu → stejně jako Pokračovat do setupu. */
+const LAST_SLIDE_FORWARD_VELOCITY_X = -0.25;
 
 function OnboardingHeader({
   onBack,
@@ -91,14 +118,17 @@ function OnboardingHeader({
 export default function VisitPlanOnboardingIntroFlow() {
   const { t } = useTranslation();
   const insets = useSafeAreaInsets();
-  const [phase, setPhase] = useState<Phase>('hero');
   const [slideIndex, setSlideIndex] = useState(0);
-  const benefitsListRef = useRef<FlatList>(null);
+  const listRef = useRef<FlatList<IntroSlide>>(null);
+  const slideIndexRef = useRef(0);
 
   useEffect(() => {
-    if (phase !== 'benefits') return;
-    benefitsListRef.current?.scrollToOffset({ offset: slideIndex * SCREEN_W, animated: true });
-  }, [phase, slideIndex]);
+    slideIndexRef.current = slideIndex;
+  }, [slideIndex]);
+
+  useEffect(() => {
+    listRef.current?.scrollToOffset({ offset: slideIndex * SCREEN_W, animated: true });
+  }, [slideIndex]);
 
   const leaveOnboarding = useCallback(() => {
     if (router.canGoBack()) {
@@ -112,93 +142,91 @@ export default function VisitPlanOnboardingIntroFlow() {
     router.replace('/screens/visit-plan-setup');
   }, []);
 
-  const onHeaderBack = useCallback(() => {
-    if (phase === 'benefits') {
-      if (slideIndex > 0) {
-        setSlideIndex(slideIndex - 1);
-        return;
-      }
-      setPhase('hero');
-      setSlideIndex(0);
-      return;
-    }
-    leaveOnboarding();
-  }, [phase, slideIndex, leaveOnboarding]);
-
-  const onHeaderContinue = useCallback(() => {
-    if (phase === 'hero') {
-      setPhase('benefits');
-      return;
-    }
-    if (slideIndex >= BENEFIT_SLIDES.length - 1) {
+  const goForward = useCallback(() => {
+    if (slideIndexRef.current >= LAST_SLIDE_INDEX) {
       goToSetup();
       return;
     }
-    setSlideIndex(slideIndex + 1);
-  }, [phase, slideIndex, goToSetup]);
+    setSlideIndex((i) => Math.min(i + 1, LAST_SLIDE_INDEX));
+  }, [goToSetup]);
+
+  const onHeaderBack = useCallback(() => {
+    if (slideIndexRef.current <= 0) {
+      leaveOnboarding();
+      return;
+    }
+    setSlideIndex((i) => i - 1);
+  }, [leaveOnboarding]);
+
+  const onHeaderContinue = useCallback(() => {
+    goForward();
+  }, [goForward]);
+
+  const syncSlideIndexFromOffset = useCallback((x: number) => {
+    const idx = Math.round(x / SCREEN_W);
+    setSlideIndex(Math.max(0, Math.min(idx, LAST_SLIDE_INDEX)));
+  }, []);
+
+  const onScrollEnd = (e: NativeSyntheticEvent<NativeScrollEvent>) => {
+    syncSlideIndexFromOffset(e.nativeEvent.contentOffset.x);
+  };
+
+  const onScrollEndDrag = (e: NativeSyntheticEvent<NativeScrollEvent>) => {
+    const x = e.nativeEvent.contentOffset.x;
+    syncSlideIndexFromOffset(x);
+
+    if (slideIndexRef.current < LAST_SLIDE_INDEX) return;
+
+    const vx = e.nativeEvent.velocity?.x ?? 0;
+    if (vx <= LAST_SLIDE_FORWARD_VELOCITY_X) {
+      goToSetup();
+    }
+  };
 
   const safeBottomPad = Math.max(insets.bottom, 16);
   const footerReserveH = visitPlanOnboardingFooterReserveHeight();
 
-  const onBenefitsScroll = (e: NativeSyntheticEvent<NativeScrollEvent>) => {
-    const x = e.nativeEvent.contentOffset.x;
-    const idx = Math.round(x / SCREEN_W);
-    setSlideIndex(Math.max(0, Math.min(idx, BENEFIT_SLIDES.length - 1)));
-  };
-
-  if (phase === 'hero') {
-    return (
-      <View style={{ flex: 1 }}>
-      <VisitPlanPhotoOnboardingScreen
-        title={t('visitPlanOnboardingHeroTitle')}
-        description={t('visitPlanOnboardingHeroLead')}
-        videoSource={VISIT_PLAN_ONBOARDING_HERO_VIDEO}
-        mediaActive
-        header={
-          <OnboardingHeader onBack={leaveOnboarding} showContinue={false} onPhoto />
-        }
-        footer={
-          <AppButton
-            size="lg"
-            variant="default"
-            rounded="full"
-            fullWidth
-            textClassName="text-white"
-            title={t('visitPlanOnboardingHeroCta')}
-            onPress={() => setPhase('benefits')}
-          />
-        }
-      />
-      </View>
-    );
-  }
-
   return (
     <View style={{ flex: 1 }} className="bg-black">
       <FlatList
-        ref={benefitsListRef}
-        data={BENEFIT_SLIDES}
+        ref={listRef}
+        data={[...INTRO_SLIDES]}
         horizontal
         pagingEnabled
+        bounces={slideIndex === LAST_SLIDE_INDEX}
         showsHorizontalScrollIndicator={false}
-        onMomentumScrollEnd={onBenefitsScroll}
+        onMomentumScrollEnd={onScrollEnd}
+        onScrollEndDrag={onScrollEndDrag}
         keyExtractor={(item) => item.id}
         renderItem={({ item, index }) => (
           <View style={{ width: SCREEN_W }} className="flex-1">
             <VisitPlanPhotoOnboardingScreen
               title={t(item.titleKey)}
               description={t(item.descKey)}
-              imageSource={'image' in item ? item.image : undefined}
+              imageSource={item.image}
               videoSource={item.video}
               mediaActive={slideIndex === index}
-              reserveFooterSpace
+              reserveFooterSpace={item.kind === 'benefit'}
               header={
                 <OnboardingHeader
                   onBack={onHeaderBack}
                   onContinue={onHeaderContinue}
-                  showContinue
+                  showContinue={item.kind === 'benefit'}
                   onPhoto
                 />
+              }
+              footer={
+                item.kind === 'hero' ? (
+                  <AppButton
+                    size="lg"
+                    variant="default"
+                    rounded="full"
+                    fullWidth
+                    textClassName="text-white"
+                    title={t('visitPlanOnboardingHeroCta')}
+                    onPress={goForward}
+                  />
+                ) : undefined
               }
             />
           </View>
@@ -212,7 +240,7 @@ export default function VisitPlanOnboardingIntroFlow() {
         }}
         pointerEvents="box-none">
         <VisitPlanPagerDots
-          count={BENEFIT_SLIDES.length}
+          count={INTRO_SLIDES.length}
           activeIndex={slideIndex}
           variant="onPhoto"
           listAccessibilityLabel={t('visitPlanOnboardingBenefitsDotsAria')}

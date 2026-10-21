@@ -1,21 +1,19 @@
 import { useLocalSearchParams } from 'expo-router';
 import { useFocusEffect } from "expo-router/react-navigation";
-import React, { useCallback, useContext, useMemo, useRef } from 'react';
+import React, { useCallback, useMemo, useRef } from 'react';
 import {
-  Animated,
   RefreshControl,
   View,
-  ScrollView,
   useWindowDimensions,
   type LayoutChangeEvent,
 } from 'react-native';
 import { ActionSheetRef } from 'react-native-actions-sheet';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { ScrollContext } from '@/app/(tabs)/(home)/_layout';
 import type { TeamMemberMediaItem } from '@/api/publicTeamMember';
 import { useAccentColor } from '@/contexts/AccentColorContext';
 import { useDetailScrollContentClassName, useDetailTopHeader } from '@/contexts/DetailScreenLayoutContext';
+import { useHomeTabScrollSync } from '@/hooks/useHomeTabScrollSync';
 import { useBarberDetailScreen } from '@/hooks/useBarberDetailScreen';
 import { useTranslation } from '@/hooks/useTranslation';
 import Header from '@/components/Header';
@@ -43,7 +41,7 @@ export default function BarberDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const { t } = useTranslation();
   const { accentColor } = useAccentColor();
-  const scrollY = useContext(ScrollContext);
+  const { scrollRef, onScroll, scrollEventThrottle, animatedScroll } = useHomeTabScrollSync();
   const insets = useSafeAreaInsets();
   const { width: winWidth, height: winHeight } = useWindowDimensions();
   const showTopHeader = useDetailTopHeader();
@@ -79,7 +77,6 @@ export default function BarberDetailScreen() {
     setFullscreenMedia,
   } = useBarberDetailScreen(id ?? '');
 
-  const scrollRef = useRef<ScrollView>(null);
   const callUsSheetRef = useRef<ActionSheetRef>(null);
   const reviewsSectionYRef = useRef(0);
   const profileCardYRef = useRef(0);
@@ -168,14 +165,13 @@ export default function BarberDetailScreen() {
         {showTopHeader ? <Header showBackButton title="" /> : null}
         <ThemeScroller
           ref={scrollRef}
+          animatedScroll={animatedScroll}
           className="px-0"
           refreshControl={
             <RefreshControl refreshing={refreshing} onRefresh={refresh} tintColor={accentColor} />
           }
-          onScroll={Animated.event([{ nativeEvent: { contentOffset: { y: scrollY } } }], {
-            useNativeDriver: false,
-          })}
-          scrollEventThrottle={16}>
+          onScroll={onScroll}
+          scrollEventThrottle={scrollEventThrottle}>
           <View className={scrollContentClassName}>
           <SiteBreadcrumbs
             items={breadcrumbItems}

@@ -75,7 +75,6 @@ export const MOBILE_HOME_TABS: readonly MobileHomeTabDef[] = [
     labelKey: 'tabMyHaircuts',
     href: '/my-haircuts',
     icon: require('@/assets/img/muj-styl-ikonka-home.png'),
-    searchModalIcon: true,
     match: (p) => pathStarts(p, '/my-haircuts'),
   },
   {

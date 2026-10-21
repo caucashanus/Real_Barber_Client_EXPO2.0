@@ -1,6 +1,6 @@
 import { Image } from 'expo-image';
 import { router, usePathname } from 'expo-router';
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import React, { useEffect, useMemo, useRef } from 'react';
 import { Animated, ScrollView, TouchableOpacity, View } from 'react-native';
 
 import ThemedText from './ThemedText';
@@ -28,6 +28,31 @@ const HomeTabs = ({ scrollY }: HomeTabsProps) => {
   const tabs = useMemo(() => visibleMobileHomeTabs(), []);
   const activeId = resolveActiveMobileHomeTabId(pathname);
 
+  const iconExpand = useRef(new Animated.Value(1)).current;
+  const collapsedRef = useRef(false);
+
+  useEffect(() => {
+    const listenerId = scrollY.addListener(({ value }: { value: number }) => {
+      if (value > 20 && !collapsedRef.current) {
+        collapsedRef.current = true;
+        Animated.timing(iconExpand, {
+          toValue: 0,
+          duration: 200,
+          useNativeDriver: false,
+        }).start();
+      } else if (value <= 10 && collapsedRef.current) {
+        collapsedRef.current = false;
+        Animated.timing(iconExpand, {
+          toValue: 1,
+          duration: 200,
+          useNativeDriver: false,
+        }).start();
+      }
+    });
+
+    return () => scrollY.removeListener(listenerId);
+  }, [scrollY, iconExpand]);
+
   return (
     <View
       style={{
@@ -49,7 +74,7 @@ const HomeTabs = ({ scrollY }: HomeTabsProps) => {
             tab={tab}
             active={tab.id === activeId}
             label={t(tab.labelKey)}
-            scrollY={scrollY}
+            iconExpand={iconExpand}
           />
         ))}
       </ScrollView>
@@ -61,41 +86,22 @@ type TabItemProps = {
   tab: MobileHomeTabDef;
   active: boolean;
   label: string;
-  scrollY: Animated.Value;
+  iconExpand: Animated.Value;
 };
 
-const TabItem = ({ tab, active, label, scrollY }: TabItemProps) => {
+const TabItem = ({ tab, active, label, iconExpand }: TabItemProps) => {
   const { isDark } = useTheme();
-  const [isExpanded, setIsExpanded] = useState(true);
-  const animatedSize = useRef(new Animated.Value(TAB_ICON_SLOT)).current;
 
   const iconSource =
     tab.id === 'realBarber' && isDark && tab.iconDark ? tab.iconDark : tab.icon;
 
-  useEffect(() => {
-    const listenerId = scrollY.addListener(({ value }: { value: number }) => {
-      if (value > 20 && isExpanded) {
-        setIsExpanded(false);
-        Animated.timing(animatedSize, {
-          toValue: 0,
-          duration: 200,
-          useNativeDriver: false,
-        }).start();
-      } else if (value <= 10 && !isExpanded) {
-        setIsExpanded(true);
-        Animated.timing(animatedSize, {
-          toValue: TAB_ICON_SLOT,
-          duration: 200,
-          useNativeDriver: false,
-        }).start();
-      }
-    });
-
-    return () => scrollY.removeListener(listenerId);
-  }, [scrollY, animatedSize, isExpanded]);
+  const iconSlotSize = iconExpand.interpolate({
+    inputRange: [0, 1],
+    outputRange: [0, TAB_ICON_SLOT],
+  });
 
   const handlePress = () => {
-    triggerImpact(Haptics.ImpactFeedbackStyle.Heavy);
+    triggerImpact(Haptics.ImpactFeedbackStyle.Light);
     router.push(tab.href as never);
   };
 
@@ -108,8 +114,8 @@ const TabItem = ({ tab, active, label, scrollY }: TabItemProps) => {
       className={`min-w-[72px] items-center border-b-2 px-6 pb-2 ${active ? 'border-black dark:border-white' : 'border-transparent'}`}>
       <Animated.View
         style={{
-          width: animatedSize,
-          height: animatedSize,
+          width: iconSlotSize,
+          height: iconSlotSize,
           overflow: 'hidden',
           alignItems: 'center',
           justifyContent: 'center',

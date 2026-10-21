@@ -1,25 +1,25 @@
 import { Image } from 'expo-image';
 import { useLocalSearchParams, router } from 'expo-router';
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, ScrollView, Dimensions, Pressable } from 'react-native';
 
 import {
-  getCachedGuide,
   getCachedGuidesList,
-  getClientGuides,
+  getGuideById,
   type ClientGuide,
   type GuideMedia,
 } from '@/api/guides';
+import GuideArticleHtmlContent from '@/components/guides/GuideArticleHtmlContent';
+import { useLanguage } from '@/contexts/LanguageContext';
 import { useTranslation } from '@/hooks/useTranslation';
+import { toGuideLocale } from '@/utils/guides/guideLocale';
 import Favorite from '@/components/Favorite';
 import Header from '@/components/Header';
 import Icon from '@/components/Icon';
 import ThemedScroller from '@/components/ThemeScroller';
 import ThemedText from '@/components/ThemedText';
-import SiteBreadcrumbs from '@/components/shared/SiteBreadcrumbs';
 import VideoPlayer from '@/components/VideoPlayer';
 import SiteLoadingState from '@/components/SiteLoadingState';
-import { blogBreadcrumbItems } from '@/utils/breadcrumbs';
 
 const screenWidth = Dimensions.get('window').width;
 
@@ -100,6 +100,8 @@ export default function GuideDetailScreen() {
   const params = useLocalSearchParams<{ id?: string | string[] }>();
   const guideId = normalizeGuideId(params.id);
   const { t } = useTranslation();
+  const { locale } = useLanguage();
+  const guideLocale = toGuideLocale(locale);
   const [guide, setGuide] = useState<ClientGuide | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -112,21 +114,12 @@ export default function GuideDetailScreen() {
       return;
     }
 
-    const cached = getCachedGuide(guideId);
-    if (cached) {
-      setGuide(cached);
-      setError(null);
-      setLoading(false);
-      return;
-    }
-
     let cancelled = false;
     setLoading(true);
     setError(null);
-    getClientGuides()
-      .then((guides) => {
+    void getGuideById(guideId, guideLocale)
+      .then((found) => {
         if (cancelled) return;
-        const found = guides.find((g) => String(g.id) === guideId) ?? null;
         if (found) {
           setGuide(found);
           setError(null);
@@ -148,15 +141,12 @@ export default function GuideDetailScreen() {
     return () => {
       cancelled = true;
     };
-  }, [guideId]);
-
-  const breadcrumbItems = useMemo(
-    () => blogBreadcrumbItems(guide?.title ?? '', t),
-    [guide?.title, t]
-  );
+  }, [guideId, guideLocale]);
 
   const list = getCachedGuidesList();
-  const currentIndex = guide ? list.findIndex((g) => String(g.id) === String(guide.id)) : -1;
+  const currentIndex = guide
+    ? list.findIndex((g) => String(g.id) === String(guide.id))
+    : -1;
   const prevGuide = currentIndex > 0 ? list[currentIndex - 1] : null;
   const nextGuide =
     currentIndex >= 0 && currentIndex < list.length - 1 ? list[currentIndex + 1] : null;
@@ -212,28 +202,6 @@ export default function GuideDetailScreen() {
       />
       <ThemedScroller className="flex-1 px-0" keyboardShouldPersistTaps="handled">
         <View className="mb-6 mt-0 px-global">
-          <SiteBreadcrumbs
-            items={breadcrumbItems}
-            accessibilityLabel={t('breadcrumbNavLabel')}
-          />
-          <View className="mb-4 flex-row justify-end">
-            <Pressable
-              onPress={goToPrev}
-              className={`mr-2 h-10 w-10 items-center justify-center rounded-full border border-neutral-300 dark:border-neutral-600 ${
-                prevGuide ? 'opacity-100' : 'opacity-30'
-              }`}
-              disabled={!prevGuide}>
-              <Icon name="ChevronLeft" size={24} className="-translate-x-px" />
-            </Pressable>
-            <Pressable
-              onPress={goToNext}
-              className={`h-10 w-10 items-center justify-center rounded-full border border-neutral-300 dark:border-neutral-600 ${
-                nextGuide ? 'opacity-100' : 'opacity-30'
-              }`}
-              disabled={!nextGuide}>
-              <Icon name="ChevronRight" size={24} className="translate-x-px" />
-            </Pressable>
-          </View>
           <ThemedText className="text-4xl font-semibold" numberOfLines={5}>
             {guide.title}
           </ThemedText>
@@ -258,32 +226,34 @@ export default function GuideDetailScreen() {
         ) : null}
 
         <View className="border-t-8 border-light-secondary px-global pt-global dark:border-dark-secondary">
-          <ThemedText className="mb-4 text-2xl font-semibold">Popis</ThemedText>
-          <ThemedText className="text-base text-light-text dark:text-dark-text">
-            {guide.content || '—'}
-          </ThemedText>
+          <View className="mb-4 flex-row items-center justify-between gap-3">
+            <ThemedText className="min-w-0 flex-1 text-2xl font-semibold">
+              {t('guidesDescriptionHeading')}
+            </ThemedText>
+            <View className="shrink-0 flex-row">
+              <Pressable
+                onPress={goToPrev}
+                className={`mr-2 h-10 w-10 items-center justify-center rounded-full border border-neutral-300 dark:border-neutral-600 ${
+                  prevGuide ? 'opacity-100' : 'opacity-30'
+                }`}
+                disabled={!prevGuide}>
+                <Icon name="ChevronLeft" size={24} className="-translate-x-px" />
+              </Pressable>
+              <Pressable
+                onPress={goToNext}
+                className={`h-10 w-10 items-center justify-center rounded-full border border-neutral-300 dark:border-neutral-600 ${
+                  nextGuide ? 'opacity-100' : 'opacity-30'
+                }`}
+                disabled={!nextGuide}>
+                <Icon name="ChevronRight" size={24} className="translate-x-px" />
+              </Pressable>
+            </View>
+          </View>
+          <GuideArticleHtmlContent html={guide.content} />
 
           <View className="mt-6 flex-row items-center justify-between border-t border-light-secondary py-3 dark:border-dark-secondary">
             <ThemedText className="text-base opacity-50">Aktualizováno</ThemedText>
             <ThemedText className="text-lg">{formatUpdatedAt(guide.updatedAt)}</ThemedText>
-          </View>
-          <View className="flex-row items-center justify-center py-6">
-            <Pressable
-              onPress={goToPrev}
-              className={`mr-2 h-10 w-10 items-center justify-center rounded-full border border-neutral-300 dark:border-neutral-600 ${
-                prevGuide ? 'opacity-100' : 'opacity-30'
-              }`}
-              disabled={!prevGuide}>
-              <Icon name="ChevronLeft" size={24} className="-translate-x-px" />
-            </Pressable>
-            <Pressable
-              onPress={goToNext}
-              className={`h-10 w-10 items-center justify-center rounded-full border border-neutral-300 dark:border-neutral-600 ${
-                nextGuide ? 'opacity-100' : 'opacity-30'
-              }`}
-              disabled={!nextGuide}>
-              <Icon name="ChevronRight" size={24} className="translate-x-px" />
-            </Pressable>
           </View>
         </View>
       </ThemedScroller>

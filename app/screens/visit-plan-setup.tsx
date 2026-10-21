@@ -14,7 +14,10 @@ import { VISIT_PLAN_SETUP_WIZARD_STEPS } from '@/constants/visitPlanSetupWizardO
 import { useAuth } from '@/contexts/AuthContext';
 import { useVisitPlan } from '@/contexts/VisitPlanContext';
 import { useTranslation } from '@/hooks/useTranslation';
-import { validateVisitPlanPutBody } from '@/utils/visitPlanCrmMapping';
+import {
+  validateVisitPlanProfilePhone,
+  validateVisitPlanPutBody,
+} from '@/utils/visitPlanCrmMapping';
 import { clampVisitPlanIntervalDays } from '@/utils/visitPlanIntervalDisplay';
 import {
   recommendVisitPlanIntervalDays,
@@ -23,7 +26,6 @@ import {
 import { writeVisitPlanPreferencesAsync } from '@/utils/visitPlanStorage';
 import {
   DEFAULT_VISIT_PLAN_PREFERENCES,
-  VISIT_PLAN_ONBOARDING_CONTACT_REMIND,
 } from '@/utils/visitPlanTypes';
 
 const LAST_STEP_INDEX = VISIT_PLAN_SETUP_WIZARD_STEPS - 1;
@@ -37,7 +39,7 @@ const INITIAL_ANSWERS: VisitPlanSetupAnswers = {
 function SetupBody() {
   const insets = useSafeAreaInsets();
   const { t } = useTranslation();
-  const { apiToken } = useAuth();
+  const { apiToken, client } = useAuth();
   const { reload } = useVisitPlan();
 
   const [stepIndex, setStepIndex] = useState(0);
@@ -62,10 +64,14 @@ function SetupBody() {
   const savePlan = useCallback(async (): Promise<boolean> => {
     if (!apiToken) return false;
     const days = clampVisitPlanIntervalDays(intervalDays);
+    if (!validateVisitPlanProfilePhone(client?.phone)) {
+      setSubmitError(t('visitPlanSavePhoneRequired'));
+      return false;
+    }
+
     const body = {
       intervalDays: days,
-      remindBySms: true,
-      remindByPhone: true,
+      remindersEnabled: true,
     };
     if (validateVisitPlanPutBody(body)) {
       setSubmitError(t('visitPlanSetupSaveError'));
@@ -79,7 +85,7 @@ function SetupBody() {
       await writeVisitPlanPreferencesAsync({
         ...DEFAULT_VISIT_PLAN_PREFERENCES,
         intervalDays: days,
-        contactRemind: { ...VISIT_PLAN_ONBOARDING_CONTACT_REMIND },
+        remindersEnabled: true,
       });
       reload();
       return true;
@@ -89,7 +95,7 @@ function SetupBody() {
     } finally {
       setSubmitting(false);
     }
-  }, [apiToken, intervalDays, reload, t]);
+  }, [apiToken, client?.phone, intervalDays, reload, t]);
 
   const goNext = useCallback(async () => {
     if (nextDisabled || submitting) return;

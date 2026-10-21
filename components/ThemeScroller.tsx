@@ -17,10 +17,12 @@ interface ThemeScrollerProps extends ScrollViewProps {
   headerSpace?: boolean;
   /** Bottom spacer for tab bar clearance (default true). */
   footerSpacer?: boolean;
+  /** Animated ScrollView pro `Animated.event` (home tabs + menu). */
+  animatedScroll?: boolean;
 }
 
-// Use basic ScrollView instead of styled for better compatibility with Animated
 const StyledScrollView = styled(ScrollView);
+const StyledAnimatedScrollView = styled(Animated.createAnimatedComponent(ScrollView));
 
 const ThemedScroller = React.forwardRef<ScrollView, ThemeScrollerProps>(function ThemedScroller(
   {
@@ -31,32 +33,33 @@ const ThemedScroller = React.forwardRef<ScrollView, ThemeScrollerProps>(function
     scrollEventThrottle = 16,
     headerSpace = false,
     footerSpacer = true,
+    animatedScroll = false,
     ...props
   },
   ref
 ) {
+  const ScrollComponent = animatedScroll ? StyledAnimatedScrollView : StyledScrollView;
+
   return (
-    <StyledScrollView
-      ref={ref}
+    <ScrollComponent
+      ref={ref as never}
       showsVerticalScrollIndicator={false}
       style={{ width: '100%' }}
-      //bounces={false}
       overScrollMode="never"
       className={`flex-1 bg-light-primary px-global dark:bg-dark-primary ${className || ''}`}
       onScroll={onScroll}
       scrollEventThrottle={scrollEventThrottle}
       contentContainerStyle={[
-        headerSpace && { paddingTop: 70 }, // Add space for fixed header
+        headerSpace && { paddingTop: 70 },
         contentContainerStyle,
       ]}
       {...props}>
       {children}
       {footerSpacer ? <View className="h-20 w-full" /> : null}
-    </StyledScrollView>
+    </ScrollComponent>
   );
 });
 
 export default ThemedScroller;
 
-// Create an Animated version of ScrollView for use with Animated.event
 export const AnimatedScrollView = Animated.createAnimatedComponent(ScrollView);

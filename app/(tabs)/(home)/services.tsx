@@ -1,11 +1,9 @@
-import React, { useContext, useEffect, useMemo, useState } from 'react';
-import { Animated, View } from 'react-native';
-
-import { ScrollContext } from './_layout';
+import React, { useEffect, useMemo, useState } from 'react';
+import { View } from 'react-native';
 
 import { fetchPublicServicesPage, type PublicServicesPageResponse } from '@/api/publicServicesPage';
+import { useHomeTabScrollSync } from '@/hooks/useHomeTabScrollSync';
 import { useTranslation } from '@/hooks/useTranslation';
-import AnimatedView from '@/components/AnimatedView';
 import HaircutInspirationCarousel from '@/components/services/HaircutInspirationCarousel';
 import ServiceItemGrid from '@/components/services/ServiceItemGrid';
 import ThemeScroller from '@/components/ThemeScroller';
@@ -25,7 +23,7 @@ const EMPTY_PAGE: PublicServicesPageResponse = {
   balickyServices: []};
 
 const ServicesScreen = () => {
-  const scrollY = useContext(ScrollContext);
+  const { scrollRef, onScroll, scrollEventThrottle, animatedScroll } = useHomeTabScrollSync();
   const { t, locale } = useTranslation();
   const [pageData, setPageData] = useState<PublicServicesPageResponse>(EMPTY_PAGE);
   const [loading, setLoading] = useState(true);
@@ -62,10 +60,11 @@ const ServicesScreen = () => {
 
   return (
     <ThemeScroller
-      onScroll={Animated.event([{ nativeEvent: { contentOffset: { y: scrollY } } }], {
-        useNativeDriver: false})}
-      scrollEventThrottle={16}>
-      <AnimatedView animation="scaleIn" className="mt-4 flex-1">
+      ref={scrollRef}
+      animatedScroll={animatedScroll}
+      onScroll={onScroll}
+      scrollEventThrottle={scrollEventThrottle}>
+      <View className="mt-4 flex-1">
         {loading ? (
           <SiteLoadingState layout="section" className="py-16" />
         ) : (
@@ -125,7 +124,7 @@ const ServicesScreen = () => {
             </Section>
           </>
         )}
-      </AnimatedView>
+      </View>
     </ThemeScroller>
   );
 };

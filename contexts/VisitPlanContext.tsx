@@ -19,8 +19,11 @@ import { visitPlanNearestUpcomingBookingDate } from '@/utils/visitPlanBookingsHe
 import {
   visitPlanCrmReadOnlyFromPlan,
   visitPlanFromCrmToPreferences,
-  visitPlanPreferencesToPutBody,
+  mergeVisitPlanPrefsForSave,
+  visitPlanPutBodyForSave,
+  validateVisitPlanProfilePhone,
   validateVisitPlanPutBody,
+  type VisitPlanSaveOptions,
 } from '@/utils/visitPlanCrmMapping';
 import {
   visitPlanCalendarIdealCenterIso,
@@ -53,8 +56,8 @@ type VisitPlanContextValue = {
   homeBookings: readonly Booking[];
   firstVisitMode: boolean;
   updatePrefs: (next: VisitPlanPreferences) => void;
-  savePrefs: (next: VisitPlanPreferences) => Promise<boolean>;
-  reload: () => void;
+  savePrefs: (next: VisitPlanPreferences, options?: VisitPlanSaveOptions) => Promise<boolean>;
+  reload: (opts?: { silent?: boolean }) => void;
 };
 
 const VisitPlanContext = createContext<VisitPlanContextValue | null>(null);
@@ -65,7 +68,7 @@ async function mergeLeadTimeFromStorage(prefs: VisitPlanPreferences): Promise<Vi
 }
 
 export function VisitPlanProvider({ children }: { children: ReactNode }) {
-  const { apiToken, isLoading: authLoading } = useAuth();
+  const { apiToken, isLoading: authLoading, client } = useAuth();
   const { locale } = useLanguage();
   const [prefs, setPrefs] = useState<VisitPlanPreferences>(() => getCachedVisitPlanPreferences());
   const [crmPlan, setCrmPlan] = useState<ClientVisitPlan | null>(null);
@@ -76,7 +79,7 @@ export function VisitPlanProvider({ children }: { children: ReactNode }) {
   const [homeBookings, setHomeBookings] = useState<Booking[]>([]);
   const loadGen = useRef(0);
 
-  const load = useCallback(async () => {
+  const load = useCallback(async (opts?: { silent?: boolean }) => {
     const gen = ++loadGen.current;
     if (authLoading) return;
 
@@ -92,7 +95,9 @@ export function VisitPlanProvider({ children }: { children: ReactNode }) {
       return;
     }
 
-    setLoading(true);
+    if (!opts?.silent) {
+      setLoading(true);
+    }
     try {
       const [plan, home] = await Promise.all([
         getClientVisitPlan(apiToken),
@@ -120,6 +125,10 @@ export function VisitPlanProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     void load();
+  }, [load]);
+
+  const reload = useCallback((opts?: { silent?: boolean }) => {
+    void load(opts);
   }, [load]);
 
   const crmReadOnly = useMemo(
@@ -187,9 +196,12 @@ export function VisitPlanProvider({ children }: { children: ReactNode }) {
   );
 
   const savePrefs = useCallback(
-    async (next: VisitPlanPreferences): Promise<boolean> => {
+    async (next: VisitPlanPreferences, options?: VisitPlanSaveOptions): Promise<boolean> => {
       setSaveError(null);
-      const withLead = await mergeLeadTimeFromStorage(next);
+      const scope = options?.scope ?? 'full';
+      const draftWithLead = await mergeLeadTimeFromStorage(next);
+      const mergedForSave = mergeVisitPlanPrefsForSave(prefs, draftWithLead, scope);
+      const withLead = await mergeLeadTimeFromStorage(mergedForSave);
       setPrefs(withLead);
       await writeVisitPlanPreferencesAsync(withLead);
 
@@ -197,7 +209,13 @@ export function VisitPlanProvider({ children }: { children: ReactNode }) {
         return true;
       }
 
-      const body = visitPlanPreferencesToPutBody(withLead);
+      const profilePhone = client?.phone?.trim() || null;
+      if (!validateVisitPlanProfilePhone(profilePhone)) {
+        setSaveError('phone_required');
+        return false;
+      }
+
+      const body = visitPlanPutBodyForSave(withLead, crmPlan, scope);
       const validationError = validateVisitPlanPutBody(body);
       if (validationError) {
         setSaveError('validation');
@@ -220,7 +238,7 @@ export function VisitPlanProvider({ children }: { children: ReactNode }) {
         setSaving(false);
       }
     },
-    [apiToken]
+    [apiToken, client?.phone, crmPlan, prefs]
   );
 
   const value = useMemo(
@@ -245,7 +263,7 @@ export function VisitPlanProvider({ children }: { children: ReactNode }) {
         void mergeLeadTimeFromStorage(next).then(setPrefs);
       },
       savePrefs,
-      reload: () => void load(),
+      reload,
     }),
     [
       crmReadOnly.hasStoredPlan,
@@ -254,12 +272,12 @@ export function VisitPlanProvider({ children }: { children: ReactNode }) {
       idealVisitCenterIso,
       calendarIdealCenterIso,
       nextRecommendedAfterUpcomingIso,
-      load,
       loading,
       nextVisitTarget,
       planTodayIso,
       prefs,
       saveError,
+      reload,
       savePrefs,
       saving,
       upcomingBookingDate,

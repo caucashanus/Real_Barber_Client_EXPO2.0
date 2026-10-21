@@ -1,6 +1,6 @@
 import { useFocusEffect } from "expo-router/react-navigation";
-import React, { useCallback, useRef, useState } from 'react';
-import { View, useWindowDimensions } from 'react-native';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
+import { View, useWindowDimensions, type ImageSourcePropType } from 'react-native';
 
 import { getFavorites, type Favorite } from '@/api/favorites';
 import { useAuth } from '@/contexts/AuthContext';
@@ -50,6 +50,31 @@ function formatFavoriteFilterLabel(label: string, count: number): string {
   return `${label} ${count}`;
 }
 
+function getFavoriteCardImage(fav: Favorite): string | ImageSourcePropType {
+  const url = getFavoriteImageUrl(fav);
+  if (url) return url;
+  if ((fav.entityType ?? '').toLowerCase() === 'guide') {
+    return require('@/assets/img/home-tabs/guides.png');
+  }
+  return require('@/assets/img/barbers.png');
+}
+
+const FAVORITE_FILTER_CHIPS: {
+  filter: ClientFavoriteFilter;
+  labelKey:
+    | 'favoritesFilterAll'
+    | 'favoritesEmployees'
+    | 'favoritesBranches'
+    | 'favoritesServices'
+    | 'favoritesGuides';
+}[] = [
+  { filter: 'all', labelKey: 'favoritesFilterAll' },
+  { filter: 'employee', labelKey: 'favoritesEmployees' },
+  { filter: 'branch', labelKey: 'favoritesBranches' },
+  { filter: 'service', labelKey: 'favoritesServices' },
+  { filter: 'guide', labelKey: 'favoritesGuides' },
+];
+
 const FavoritesScreen = () => {
   const { t } = useTranslation();
   const { width: windowWidth } = useWindowDimensions();
@@ -65,6 +90,11 @@ const FavoritesScreen = () => {
 
   const counts = countClientFavoritesByFilter(favorites);
   const filteredFavorites = filterClientFavorites(favorites, selectedFilter);
+
+  useEffect(() => {
+    if (selectedFilter === 'all') return;
+    if (counts[selectedFilter] === 0) setSelectedFilter('all');
+  }, [counts, selectedFilter]);
 
   const loadFavorites = useCallback(
     async (options?: { force?: boolean; silent?: boolean }) => {
@@ -114,42 +144,26 @@ const FavoritesScreen = () => {
     setFavorites((prev) => prev.filter((f) => f.id !== favoriteId));
   }, []);
 
-  const renderFilters = () => (
-    <CardScroller className="mb-4" space={8}>
-      <AppButton
-        variant="choice"
-        size="sm"
-        rounded="full"
-        selected={selectedFilter === 'all'}
-        title={formatFavoriteFilterLabel(t('favoritesFilterAll'), counts.all)}
-        onPress={() => setSelectedFilter('all')}
-      />
-      <AppButton
-        variant="choice"
-        size="sm"
-        rounded="full"
-        selected={selectedFilter === 'employee'}
-        title={formatFavoriteFilterLabel(t('favoritesEmployees'), counts.employee)}
-        onPress={() => setSelectedFilter('employee')}
-      />
-      <AppButton
-        variant="choice"
-        size="sm"
-        rounded="full"
-        selected={selectedFilter === 'branch'}
-        title={formatFavoriteFilterLabel(t('favoritesBranches'), counts.branch)}
-        onPress={() => setSelectedFilter('branch')}
-      />
-      <AppButton
-        variant="choice"
-        size="sm"
-        rounded="full"
-        selected={selectedFilter === 'service'}
-        title={formatFavoriteFilterLabel(t('favoritesServices'), counts.service)}
-        onPress={() => setSelectedFilter('service')}
-      />
-    </CardScroller>
-  );
+  const renderFilters = () => {
+    const chips = FAVORITE_FILTER_CHIPS.filter(({ filter }) => counts[filter] > 0);
+    if (chips.length === 0) return null;
+
+    return (
+      <CardScroller className="mb-4" space={8}>
+        {chips.map(({ filter, labelKey }) => (
+          <AppButton
+            key={filter}
+            variant="choice"
+            size="sm"
+            rounded="full"
+            selected={selectedFilter === filter}
+            title={formatFavoriteFilterLabel(t(labelKey), counts[filter])}
+            onPress={() => setSelectedFilter(filter)}
+          />
+        ))}
+      </CardScroller>
+    );
+  };
 
   const renderGrid = () => (
     <Grid className="mt-2" columns={gridColumns} spacing={GRID_GAP}>
@@ -158,7 +172,7 @@ const FavoritesScreen = () => {
           key={fav.id}
           href={favoriteDetailHref(fav)}
           title={fav.title ?? '—'}
-          image={getFavoriteImageUrl(fav) ?? require('@/assets/img/barbers.png')}
+          image={getFavoriteCardImage(fav)}
           entityType={fav.entityType}
           entityId={fav.entityId}
           address={getFavoriteBranchAddress(fav)}

@@ -116,6 +116,7 @@ export function HomePromoCarousel({
       ref={listRef}
       data={slides}
       horizontal
+      nestedScrollEnabled
       showsHorizontalScrollIndicator={false}
       keyExtractor={(item) => item.key}
       renderItem={renderItem}

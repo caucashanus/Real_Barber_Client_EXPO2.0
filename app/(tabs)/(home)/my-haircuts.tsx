@@ -1,16 +1,14 @@
 import { useFocusEffect } from "expo-router/react-navigation";
 import { Image } from 'expo-image';
 import { router } from 'expo-router';
-import React, { useCallback, useContext, useMemo, useState } from 'react';
-import { View, Animated, Pressable } from 'react-native';
-
-import { ScrollContext } from './_layout';
+import React, { useCallback, useMemo, useState } from 'react';
+import { View, Pressable } from 'react-native';
 
 import { getClientCuts, type ClientCut } from '@/api/cuts';
 import { useAuth } from '@/contexts/AuthContext';
 import useThemeColors from '@/contexts/ThemeColors';
+import { useHomeTabScrollSync } from '@/hooks/useHomeTabScrollSync';
 import { useTranslation } from '@/hooks/useTranslation';
-import AnimatedView from '@/components/AnimatedView';
 import { Button } from '@/components/Button';
 import Card from '@/components/Card';
 import { CardScroller } from '@/components/CardScroller';
@@ -60,7 +58,7 @@ function getNewestAndOldestCutIds(cuts: ClientCut[]): {
 }
 
 const MyHaircutsScreen = () => {
-  const scrollY = useContext(ScrollContext);
+  const { scrollRef, onScroll, scrollEventThrottle, animatedScroll } = useHomeTabScrollSync();
   const { t } = useTranslation();
   const colors = useThemeColors();
   const { apiToken } = useAuth();
@@ -99,27 +97,30 @@ const MyHaircutsScreen = () => {
       }
 
       let cancelled = false;
-      setLoading(true);
-      setLoadError(null);
+      const silent = cuts.length > 0;
+      if (!silent) {
+        setLoading(true);
+        setLoadError(null);
+      }
 
       getClientCuts(apiToken, { orderBy: 'updatedAt', orderDirection: 'desc' })
         .then((res) => {
           if (!cancelled) setCuts(res.cuts ?? []);
         })
         .catch((e) => {
-          if (!cancelled) {
+          if (!cancelled && !silent) {
             setCuts([]);
             setLoadError(e instanceof Error ? e.message : t('myHaircutsLoadError'));
           }
         })
         .finally(() => {
-          if (!cancelled) setLoading(false);
+          if (!cancelled && !silent) setLoading(false);
         });
 
       return () => {
         cancelled = true;
       };
-    }, [apiToken, t])
+    }, [apiToken, t, cuts.length])
   );
 
   const showIntroBanner = useMemo(() => {
@@ -131,10 +132,11 @@ const MyHaircutsScreen = () => {
 
   return (
     <ThemeScroller
-      onScroll={Animated.event([{ nativeEvent: { contentOffset: { y: scrollY } } }], {
-        useNativeDriver: false})}
-      scrollEventThrottle={16}>
-      <AnimatedView animation="scaleIn" className="mt-4 flex-1">
+      ref={scrollRef}
+      animatedScroll={animatedScroll}
+      onScroll={onScroll}
+      scrollEventThrottle={scrollEventThrottle}>
+      <View className="mt-4 flex-1">
         {showIntroBanner ? (
           <SurfaceCard className="mb-6 items-center p-10">
             <View className="relative h-20 w-20">
@@ -247,7 +249,7 @@ const MyHaircutsScreen = () => {
             )}
           </CardScroller>
         </Section>
-      </AnimatedView>
+      </View>
     </ThemeScroller>
   );
 };

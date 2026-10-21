@@ -1,5 +1,5 @@
 import { router } from 'expo-router';
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { Platform } from 'react-native';
 
 import { getBookingById, normalizeBookingCouponUsages, type Booking } from '@/api/bookings';
@@ -46,6 +46,8 @@ export function useBookingDetailScreen(params: {
 
   const [calendarPromoVisible, setCalendarPromoVisible] = useState(false);
   const [kidsWatchPromoVisible, setKidsWatchPromoVisible] = useState(false);
+  /** Jednorázový vstup po nové dětské rezervaci — promo řádek na detailu (ne trvalá sekce). */
+  const [kidsWatchFirstVisitPromoActive, setKidsWatchFirstVisitPromoActive] = useState(false);
   const [booking, setBooking] = useState<Booking | null>(null);
   const [branch, setBranch] = useState<Branch | null>(null);
   const [hasReview, setHasReview] = useState(false);
@@ -158,6 +160,7 @@ export function useBookingDetailScreen(params: {
     didScheduleStoreReviewRef.current = false;
     setCalendarPromoVisible(false);
     setKidsWatchPromoVisible(false);
+    setKidsWatchFirstVisitPromoActive(false);
   }, [id]);
 
   useEffect(() => {
@@ -193,6 +196,8 @@ export function useBookingDetailScreen(params: {
     if (fromKidsMem) {
       if (peekPendingCalendarPromo(booking.id)) clearPendingCalendarPromo();
       if (didShowKidsWatchPromoRef.current) return;
+
+      setKidsWatchFirstVisitPromoActive(true);
 
       kidsPromoTimerRef.current = setTimeout(() => {
         kidsPromoTimerRef.current = null;
@@ -320,6 +325,10 @@ export function useBookingDetailScreen(params: {
     );
   }, [booking, openReview, hasReview]);
 
+  const clearKidsWatchFirstVisitPromo = useCallback(() => {
+    setKidsWatchFirstVisitPromoActive(false);
+  }, []);
+
   return {
     booking,
     branch,
@@ -330,5 +339,7 @@ export function useBookingDetailScreen(params: {
     setCalendarPromoVisible,
     kidsWatchPromoVisible,
     setKidsWatchPromoVisible,
+    kidsWatchFirstVisitPromoActive,
+    clearKidsWatchFirstVisitPromo,
   };
 }

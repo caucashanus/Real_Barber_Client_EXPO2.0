@@ -7,13 +7,36 @@ export type NotificationUiCategory =
   | 'cancellation'
   | 'payment'
   | 'review'
-  | 'marketing';
+  | 'marketing'
+  | 'visit_plan';
 
 export type NotificationDetailActionKind =
   | 'none'
   | 'booking'
   | 'booking_review'
-  | 'wallet_transaction';
+  | 'wallet_transaction'
+  | 'visit_plan_calendar';
+
+/** CRM push: visit_plan_reminder_t7 / visit_plan_reminder_t3 (plán návštěv). */
+export const VISIT_PLAN_REMINDER_EVENT_KEYS = new Set([
+  'visit_plan_reminder_t7',
+  'visit_plan_reminder_t3',
+]);
+
+export function isVisitPlanPushEvent(eventKey: string): boolean {
+  return (
+    VISIT_PLAN_REMINDER_EVENT_KEYS.has(eventKey) ||
+    eventKey.startsWith('visit_plan_reminder_')
+  );
+}
+
+export const VISIT_PLAN_CALENDAR_ROUTE = '/screens/visit-plan-calendar';
+
+export function buildVisitPlanCalendarHref(nextTargetVisitDate?: string | null): string {
+  const date = nextTargetVisitDate?.trim();
+  if (!date) return VISIT_PLAN_CALENDAR_ROUTE;
+  return `${VISIT_PLAN_CALENDAR_ROUTE}?date=${encodeURIComponent(date)}`;
+}
 
 export interface NotificationSemanticFields {
   eventKey?: string | null;
@@ -62,6 +85,9 @@ export function resolveNotificationUiCategory(
   if (eventKey === 'review_requested') {
     return 'review';
   }
+  if (isVisitPlanPushEvent(eventKey) || entityType === 'visit_plan') {
+    return 'visit_plan';
+  }
   if (eventKey === 'reservation_cancelled' || eventKey.includes('cancelled')) {
     return 'cancellation';
   }
@@ -90,6 +116,10 @@ export function resolveNotificationDetailAction(
   const entityType = normalizeEntityType(fields.entityType);
   const entityId = fields.entityId?.trim();
 
+  if (isVisitPlanPushEvent(eventKey) || entityType === 'visit_plan') {
+    return { kind: 'visit_plan_calendar' };
+  }
+
   if (!entityId) return { kind: 'none' };
 
   if (eventKey === 'review_requested') {
@@ -113,8 +143,13 @@ export function resolveNotificationDetailAction(
 
 export function buildNotificationActionHref(
   action: NotificationDetailAction,
-  entityId: string
+  entityId: string,
+  options?: { nextTargetVisitDate?: string | null }
 ): string | null {
+  if (action.kind === 'visit_plan_calendar') {
+    return buildVisitPlanCalendarHref(options?.nextTargetVisitDate);
+  }
+
   const id = entityId.trim();
   if (!id || action.kind === 'none') return null;
 
@@ -140,6 +175,8 @@ export function getNotificationActionLabelKey(
       return 'notificationsLeaveReview';
     case 'wallet_transaction':
       return 'notificationsViewTransaction';
+    case 'visit_plan_calendar':
+      return 'visitPlanMyIntervalTitle';
     default:
       return null;
   }
@@ -157,6 +194,8 @@ export function iconForNotificationCategory(category: NotificationUiCategory): I
       return 'Star';
     case 'marketing':
       return 'Bell';
+    case 'visit_plan':
+      return 'Calendar';
     default:
       return 'Bell';
   }
