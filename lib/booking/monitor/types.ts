@@ -4,6 +4,7 @@ import type { BookingRecipeId, BookingStepKind } from '@/lib/booking/engine/type
 export type BookingMonitorSource = 'web' | 'app';
 
 export type BookingMonitorEntry =
+  | 'home-fast-book'
   | 'nearest-slot'
   | 'repeat'
   | 'spotlight'
@@ -13,6 +14,13 @@ export type BookingMonitorEntry =
   | 'service-detail'
   | 'unknown';
 
+export type HomeFastBookMonitorMode = 'nearest' | 'later';
+
+export type HomeFastBookMonitorPath =
+  | 'lista-pill-pozdeji'
+  | 'sheet-cas'
+  | 'sheet-slot';
+
 export const BOOKING_MONITOR_EVENTS = [
   'session_started',
   'selected_branch',
@@ -20,6 +28,7 @@ export const BOOKING_MONITOR_EVENTS = [
   'selected_employee',
   'selected_date',
   'selected_slot',
+  'entered_contact',
   'entered_summary',
   'opened_discount_code',
   'opened_gift_voucher',
@@ -42,6 +51,8 @@ export type BookingMonitorPayload = {
   source: BookingMonitorSource;
   sessionId: string;
   entry: BookingMonitorEntry;
+  homeFastBookMode?: HomeFastBookMonitorMode | null;
+  homeFastBookPath?: HomeFastBookMonitorPath | null;
   recipeId?: string | null;
   step?: BookingStepKind | string | null;
   locale?: string | null;

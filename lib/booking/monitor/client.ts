@@ -11,8 +11,15 @@ import {
 import type {
   BookingMonitorEntry,
   BookingMonitorEvent,
+  HomeFastBookMonitorMode,
+  HomeFastBookMonitorPath,
   TrackBookingMonitorFields,
 } from '@/lib/booking/monitor/types';
+
+export type PrimeBookingMonitorHomeFastBookParams = {
+  mode: HomeFastBookMonitorMode;
+  path: HomeFastBookMonitorPath;
+};
 
 function authClientDisplayName(client: CrmClient | null | undefined): string | null {
   if (!client) return null;
@@ -35,6 +42,8 @@ function bookingMonitorUserAgent(): string {
 
 let sessionId: string | null = null;
 let storedEntry: BookingMonitorEntry | null = null;
+let homeFastBookMode: HomeFastBookMonitorMode | null = null;
+let homeFastBookPath: HomeFastBookMonitorPath | null = null;
 let sessionStarted = false;
 let leftSent = false;
 let flowActive = false;
@@ -73,9 +82,25 @@ function readIdentity(): { clientName: string | null; phone: string | null; user
   };
 }
 
+function readHomeFastBookContext(): {
+  mode: HomeFastBookMonitorMode;
+  path: HomeFastBookMonitorPath;
+} | null {
+  const entry = readStoredEntry();
+  if (entry !== 'home-fast-book' || !homeFastBookMode || !homeFastBookPath) return null;
+  return { mode: homeFastBookMode, path: homeFastBookPath };
+}
+
 function dispatch(event: BookingMonitorEvent, fields?: TrackBookingMonitorFields): void {
   const entry = readStoredEntry() ?? 'unknown';
-  const payload = buildBookingMonitorPayload(event, entry, readSessionId(), fields, readIdentity());
+  const payload = buildBookingMonitorPayload(
+    event,
+    entry,
+    readSessionId(),
+    fields,
+    readIdentity(),
+    readHomeFastBookContext()
+  );
   void postBookingMonitorPayload(payload, { background: fields?.background });
 }
 
@@ -104,12 +129,29 @@ export function ensureBookingMonitorSession(params: {
   if (!entry) {
     entry = resolveBookingMonitorEntry(params);
     storeEntry(entry);
-  } else if (params.nearestSlotHandoff && entry !== 'nearest-slot') {
+  } else if (
+    params.nearestSlotHandoff &&
+    entry !== 'nearest-slot' &&
+    entry !== 'home-fast-book'
+  ) {
     entry = 'nearest-slot';
     storeEntry(entry);
   }
 
   return entry;
+}
+
+/** Nová booking návštěva z homepage fast-book — před `router.push` do rezervace. */
+export function primeBookingMonitorHomeFastBookSession(
+  params: PrimeBookingMonitorHomeFastBookParams
+): void {
+  flowActive = true;
+  leftSent = false;
+  sessionStarted = false;
+  sessionId = randomSessionId();
+  storedEntry = 'home-fast-book';
+  homeFastBookMode = params.mode;
+  homeFastBookPath = params.path;
 }
 
 export function trackBookingMonitorSessionStarted(fields?: TrackBookingMonitorFields): void {
@@ -124,6 +166,8 @@ export function endBookingMonitorVisitQuietly(): void {
   sessionStarted = false;
   sessionId = null;
   storedEntry = null;
+  homeFastBookMode = null;
+  homeFastBookPath = null;
 }
 
 export function trackBookingMonitorLeftPage(fields?: TrackBookingMonitorFields): void {
@@ -135,6 +179,7 @@ export function trackBookingMonitorLeftPage(fields?: TrackBookingMonitorFields):
 }
 
 export function promoteBookingMonitorEntryNearestSlot(): void {
+  if (readStoredEntry() === 'home-fast-book') return;
   storeEntry('nearest-slot');
 }
 
@@ -145,10 +190,16 @@ export function isBookingMonitorFlowActive(): boolean {
 export function resetBookingMonitorForTests(): void {
   sessionId = null;
   storedEntry = null;
+  homeFastBookMode = null;
+  homeFastBookPath = null;
   sessionStarted = false;
   leftSent = false;
   flowActive = false;
   profileClient = null;
   fallbackPhone = null;
   fallbackName = null;
+}
+
+export function getBookingMonitorEntryForTests(): BookingMonitorEntry | null {
+  return storedEntry;
 }

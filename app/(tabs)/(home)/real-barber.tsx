@@ -15,6 +15,7 @@ import HomeSpotlightSection from '@/components/home/HomeSpotlightSection';
 import HomeFastBookStrip from '@/components/home/fast-book/HomeFastBookStrip';
 import HomeNearestBranch from '@/components/home/HomeNearestBranch';
 import HomeHaircutCatalogSection from '@/components/home/HomeHaircutCatalogSection';
+import VisitPlanHomeOnboardingRedirect from '@/components/home/VisitPlanHomeOnboardingRedirect';
 import HomeTodayTeamSection from '@/components/home/HomeTodayTeamSection';
 import SurfaceCard from '@/components/layout/SurfaceCard';
 import NotificationPromptSheet from '@/components/NotificationPromptSheet';
@@ -109,6 +110,7 @@ export default function RealBarberHomeTab() {
 
   return (
     <>
+      <VisitPlanHomeOnboardingRedirect />
       <ThemeScroller
         ref={scrollRef}
         animatedScroll={animatedScroll}

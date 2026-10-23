@@ -12,6 +12,7 @@ export function resolveBookingMonitorEntry(params: {
   if (params.nearestSlotHandoff) return 'nearest-slot';
 
   const from = params.from?.trim().toLowerCase();
+  if (from === 'home-fast-book') return 'home-fast-book';
   if (from === 'nearest-slot') return 'nearest-slot';
   if (from === 'repeat') return 'repeat';
   if (from === 'spotlight') return 'spotlight';

@@ -14,11 +14,11 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useBookings } from '@/contexts/BookingsBadgeContext';
 import { useCollapsibleTitle } from '@/hooks/useCollapsibleTitle';
 import { useTranslation } from '@/hooks/useTranslation';
-import AppButton from '@/components/AppButton';
 import AnimatedView from '@/components/AnimatedView';
 import Avatar from '@/components/Avatar';
 import { Button } from '@/components/Button';
 import { CardScroller } from '@/components/CardScroller';
+import SlotTimePill from '@/components/SlotTimePill';
 import Header, { HeaderOutlineIconButton } from '@/components/Header';
 import LiveIndicator from '@/components/LiveIndicator';
 import ShowRating from '@/components/ShowRating';
@@ -259,54 +259,40 @@ const TripsScreen = () => {
             }>
             <CardScroller className="mb-4" space={8}>
               {counts.current > 0 ? (
-                <AppButton
-                  variant="choice"
-                  size="sm"
+                <SlotTimePill
                   selected={activeFilter === 'current'}
                   title={`${t('tripsFilterCurrent')} (${counts.current})`}
                   onPress={() => setSelectedFilter('current')}
                 />
               ) : null}
-              <AppButton
-                variant="choice"
-                size="sm"
+              <SlotTimePill
                 selected={activeFilter === 'all'}
                 title={t('tripsFilterAll')}
                 onPress={() => setSelectedFilter('all')}
               />
               {counts.upcoming > 0 ? (
-                <AppButton
-                  variant="choice"
-                  size="sm"
+                <SlotTimePill
                   selected={activeFilter === 'upcoming'}
                   title={`${t('tripsFilterUpcoming')} (${counts.upcoming})`}
                   onPress={() => setSelectedFilter('upcoming')}
                 />
               ) : null}
-              <AppButton
-                variant="choice"
-                size="sm"
+              <SlotTimePill
                 selected={activeFilter === 'past'}
                 title={t('tripsFilterPast')}
                 onPress={() => setSelectedFilter('past')}
               />
-              <AppButton
-                variant="choice"
-                size="sm"
+              <SlotTimePill
                 selected={activeFilter === 'cancelled'}
                 title={`${t('tripsFilterCancelled')} (${counts.cancelled})`}
                 onPress={() => setSelectedFilter('cancelled')}
               />
-              <AppButton
-                variant="choice"
-                size="sm"
+              <SlotTimePill
                 selected={activeFilter === 'rated'}
                 title={`${t('tripsFilterRated')} (${counts.rated})`}
                 onPress={() => setSelectedFilter('rated')}
               />
-              <AppButton
-                variant="choice"
-                size="sm"
+              <SlotTimePill
                 selected={activeFilter === 'pending_review'}
                 title={`${t('tripsFilterPendingReview')} (${counts.pendingReview})`}
                 onPress={() => setSelectedFilter('pending_review')}

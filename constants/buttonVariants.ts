@@ -67,6 +67,19 @@ const SIZE_CONTAINER: Record<AppButtonSize, string> = {
   'icon-sm': 'h-8 w-8 p-0',
 };
 
+/** Parita `SlotTimePill` — choice filtry bez ručního className. */
+const CHOICE_SM_PILL_CONTAINER = 'h-8 px-2 py-1';
+const CHOICE_SM_PILL_TEXT = 'text-sm font-semibold';
+
+/** Outline chip / Upravit — pevná výška místo „plochého“ min-h-8. */
+const OUTLINE_SM_PILL_CONTAINER = 'h-8 px-3 py-1';
+
+function sizeContainerClasses(variant: AppButtonVariant, size: AppButtonSize): string {
+  if (size === 'sm' && variant === 'choice') return CHOICE_SM_PILL_CONTAINER;
+  if (size === 'sm' && variant === 'outline') return OUTLINE_SM_PILL_CONTAINER;
+  return SIZE_CONTAINER[size];
+}
+
 const SIZE_TEXT: Record<AppButtonSize, string> = {
   xs: 'text-xs leading-tight',
   sm: 'text-sm',
@@ -307,7 +320,7 @@ export function getAppButtonClasses(options: AppButtonVariantOptions): {
       : joinClasses(
           getLayoutClasses(variant, fullWidth),
           getDefaultRounded(variant, rounded),
-          SIZE_CONTAINER[size]
+          sizeContainerClasses(variant, size)
         ),
     getVariantContainerClasses(variant, { selected, surface, isDark, accentColor }),
     disabled && 'opacity-50',
@@ -316,6 +329,7 @@ export function getAppButtonClasses(options: AppButtonVariantOptions): {
 
   const text = joinClasses(
     variant === 'soft' ? SOFT_CHIP_LAYOUT.text : SIZE_TEXT[size],
+    size === 'sm' && variant === 'choice' ? CHOICE_SM_PILL_TEXT : null,
     getVariantTextClasses(variant, { selected, surface, isDark, accentColor }),
     textClassName
   );

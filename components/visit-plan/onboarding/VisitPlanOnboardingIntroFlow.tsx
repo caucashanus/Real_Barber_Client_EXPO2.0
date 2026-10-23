@@ -232,23 +232,25 @@ export default function VisitPlanOnboardingIntroFlow() {
           </View>
         )}
       />
-      <View
-        className="absolute left-0 right-0 items-center justify-center"
-        style={{
-          bottom: safeBottomPad + footerReserveH / 2 - 10,
-          height: 20,
-        }}
-        pointerEvents="box-none">
-        <VisitPlanPagerDots
-          count={INTRO_SLIDES.length}
-          activeIndex={slideIndex}
-          variant="onPhoto"
-          listAccessibilityLabel={t('visitPlanOnboardingBenefitsDotsAria')}
-          getDotAccessibilityLabel={(current, total) =>
-            fillTranslationParams(t('visitPlanOnboardingBenefitsDotAria'), { current, total })
-          }
-        />
-      </View>
+      {slideIndex > 0 ? (
+        <View
+          className="absolute left-0 right-0 items-center justify-center"
+          style={{
+            bottom: safeBottomPad + footerReserveH / 2 - 10,
+            height: 20,
+          }}
+          pointerEvents="box-none">
+          <VisitPlanPagerDots
+            count={INTRO_SLIDES.length}
+            activeIndex={slideIndex}
+            variant="onPhoto"
+            listAccessibilityLabel={t('visitPlanOnboardingBenefitsDotsAria')}
+            getDotAccessibilityLabel={(current, total) =>
+              fillTranslationParams(t('visitPlanOnboardingBenefitsDotAria'), { current, total })
+            }
+          />
+        </View>
+      ) : null}
     </View>
   );
 }

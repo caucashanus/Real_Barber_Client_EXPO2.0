@@ -16,6 +16,7 @@ import {
   saveHomeFastBookRestore,
   type HomeFastBookWhenChoice,
 } from '@/utils/homeFastBookRestore';
+import { primeHomeFastBookBookingMonitor } from '@/lib/booking/monitor/homeFastBook';
 import {
   nearestBranchHomeSlotSelectionKey,
   navigateHomeFastBookLater,
@@ -179,6 +180,7 @@ export function useHomeFastBookFlow() {
 
   const confirmSelectedSlot = useCallback(async () => {
     if (!selectedSlot || !loadedSlots || selectedServiceId == null) return;
+    primeHomeFastBookBookingMonitor({ mode: 'nearest', path: 'sheet-slot' });
     await saveHomeFastBookRestore({
       selectedServiceId,
       selectedSlotKey: nearestBranchHomeSlotSelectionKey(selectedSlot),
@@ -193,6 +195,10 @@ export function useHomeFastBookFlow() {
 
   const confirmWhen = useCallback(() => {
     if (whenChoice === 'later') {
+      primeHomeFastBookBookingMonitor({
+        mode: 'later',
+        path: whenFromHomeListRef.current ? 'lista-pill-pozdeji' : 'sheet-cas',
+      });
       navigateHomeFastBookLater(selectedService ?? null);
       closeAll();
       return;

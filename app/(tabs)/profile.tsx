@@ -245,11 +245,13 @@ const PersonalProfile = ({
                 {error}
               </ThemedText>
             )}
-            <View className="flex flex-row items-center">
-              <ThemedText className="ml-2 text-sm text-light-subtext dark:text-dark-subtext">
-                {addressLine ?? '—'}
-              </ThemedText>
-            </View>
+            {addressLine ? (
+              <View className="flex flex-row items-center">
+                <ThemedText className="ml-2 text-sm text-light-subtext dark:text-dark-subtext">
+                  {addressLine}
+                </ThemedText>
+              </View>
+            ) : null}
           </View>
         </View>
         <View className="w-1/2 flex-col items-start justify-center pl-12">
@@ -282,6 +284,12 @@ const PersonalProfile = ({
           title={t('profileFeatureSettings')}
           icon="SlidersHorizontal"
           href="/screens/feature-settings"
+        />
+        <ListLink
+          showChevron
+          title={t('profileNotificationHistory')}
+          icon="Bell"
+          href="/screens/notifications"
         />
         <ListLink
           showChevron

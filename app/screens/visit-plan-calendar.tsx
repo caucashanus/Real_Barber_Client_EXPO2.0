@@ -18,7 +18,8 @@ import type { VisitPlanPastBooking } from '@/utils/visitPlanPastBookingTypes';
 function CalendarBody() {
   const { t } = useTranslation();
   const { apiToken, isLoading: authLoading } = useAuth();
-  const { loading: planLoading, hasStoredPlan, homeBookings } = useVisitPlan();
+  const { loading: planLoading, hasStoredPlan, lastCompletedVisitDate, homeBookings } =
+    useVisitPlan();
   const pastSheetRef = useRef<ActionSheetRef>(null);
   const [pastSheetBooking, setPastSheetBooking] = useState<VisitPlanPastBooking | null>(null);
 
@@ -26,6 +27,7 @@ function CalendarBody() {
   const onboardingRedirect = useVisitPlanRequiresOnboardingRedirect({
     enabled: pageReady,
     hasStoredPlan,
+    lastCompletedVisitDate,
     loading: planLoading,
   });
 

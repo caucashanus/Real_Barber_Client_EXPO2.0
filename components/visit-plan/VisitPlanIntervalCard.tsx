@@ -34,7 +34,7 @@ export default function VisitPlanIntervalCard({ intervalDays, onEdit }: Props) {
             <ThemedText className="font-semibold">{everyLabel}</ThemedText>
           </View>
           <AppButton
-            className="shrink-0"
+            className="shrink-0 rounded-full px-4"
             size="sm"
             variant="outline"
             rounded="full"

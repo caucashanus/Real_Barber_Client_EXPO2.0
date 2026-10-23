@@ -2,7 +2,10 @@ import { WEB_BFF_ORIGIN } from '@/constants/bookingMonitor';
 
 import type {
   BookingMonitorEvent,
+  BookingMonitorEntry,
   BookingMonitorPayload,
+  HomeFastBookMonitorMode,
+  HomeFastBookMonitorPath,
   TrackBookingMonitorFields,
 } from './types';
 
@@ -46,16 +49,20 @@ export async function postBookingMonitorPayload(
 
 export function buildBookingMonitorPayload(
   event: BookingMonitorEvent,
-  entry: BookingMonitorPayload['entry'],
+  entry: BookingMonitorEntry,
   sessionId: string,
   fields: TrackBookingMonitorFields | undefined,
   identity: {
     clientName: string | null;
     phone: string | null;
     userAgent: string;
-  }
+  },
+  homeFastBook?: {
+    mode: HomeFastBookMonitorMode;
+    path: HomeFastBookMonitorPath;
+  } | null
 ): BookingMonitorPayload {
-  return {
+  const payload: BookingMonitorPayload = {
     event,
     source: 'app',
     sessionId,
@@ -75,4 +82,11 @@ export function buildBookingMonitorPayload(
     isNewClient: fields?.isNewClient ?? null,
     userAgent: identity.userAgent,
   };
+
+  if (entry === 'home-fast-book' && homeFastBook) {
+    payload.homeFastBookMode = homeFastBook.mode;
+    payload.homeFastBookPath = homeFastBook.path;
+  }
+
+  return payload;
 }
