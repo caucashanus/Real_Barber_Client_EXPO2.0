@@ -12,6 +12,7 @@ import {
 
 import ThemedText from '@/components/ThemedText';
 import VisitPlanPagerDots from '@/components/visit-plan/VisitPlanPagerDots';
+import { useAccentColor } from '@/contexts/AccentColorContext';
 import { useTranslation } from '@/hooks/useTranslation';
 import { fillTranslationParams } from '@/utils/fillTranslationParams';
 
@@ -51,6 +52,7 @@ function VisitPlanChoiceCarouselInner<T extends string>(
   ref: React.Ref<VisitPlanChoiceCarouselHandle>
 ) {
   const { t } = useTranslation();
+  const { accentColor } = useAccentColor();
   const listRef = useRef<FlatList>(null);
   const skipScrollCommitRef = useRef(false);
   const [pageIndex, setPageIndex] = useState(() => {
@@ -137,7 +139,11 @@ function VisitPlanChoiceCarouselInner<T extends string>(
                     contentFit="contain"
                   />
                 </View>
-                <ThemedText className="mt-3 w-full text-center text-xl font-semibold">{item.title}</ThemedText>
+                <ThemedText
+                  className="mt-3 w-full text-center text-2xl font-semibold"
+                  style={selected ? { color: accentColor } : undefined}>
+                  {item.title}
+                </ThemedText>
                 {item.description ? (
                   <ThemedText className="mt-2 w-full text-center text-sm leading-5 text-light-subtext dark:text-dark-subtext">
                     {item.description}

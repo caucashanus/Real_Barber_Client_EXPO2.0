@@ -18,6 +18,8 @@ module.exports = {
       colors: {
         // Light theme colors
         highlight: '#FF4F31',
+        /** Web token `text-accent` — top-level alias pro NativeWind. */
+        accent: '#FF4F31',
         brand: {
           primary: '#767676',
           'primary-foreground': '#FFFFFF',

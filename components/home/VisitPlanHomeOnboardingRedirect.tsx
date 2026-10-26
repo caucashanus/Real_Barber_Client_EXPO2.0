@@ -9,6 +9,7 @@ import {
   markHomeVisitPlanPromoShown,
   shouldShowHomeVisitPlanPromo,
 } from '@/utils/visitPlanHomePromoStorage';
+import { VISIT_PLAN_DEV_FORCE_ONBOARDING_PREVIEW } from '@/utils/visitPlanDevFlags';
 import { visitPlanShouldOfferOnboarding } from '@/utils/visitPlanOfferOnboarding';
 
 /** Režim A — home tab `real-barber`: offer + 30d cooldown → onboarding intro. */
@@ -26,6 +27,11 @@ export default function VisitPlanHomeOnboardingRedirect() {
         if (inflightRef.current) return;
         inflightRef.current = true;
         try {
+          if (VISIT_PLAN_DEV_FORCE_ONBOARDING_PREVIEW) {
+            router.replace('/screens/visit-plan-onboarding-intro');
+            return;
+          }
+
           const plan = await getClientVisitPlan(apiToken);
           if (cancelled) return;
 

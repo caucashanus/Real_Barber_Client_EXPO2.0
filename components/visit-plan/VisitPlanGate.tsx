@@ -5,6 +5,7 @@ import { ActivityIndicator, View } from 'react-native';
 import { useAuth } from '@/contexts/AuthContext';
 import { useVisitPlan } from '@/contexts/VisitPlanContext';
 import { LOGIN_PATH } from '@/constants/authRoutes';
+import { VISIT_PLAN_DEV_FORCE_ONBOARDING_PREVIEW } from '@/utils/visitPlanDevFlags';
 
 type Props = {
   children: React.ReactNode;
@@ -27,7 +28,11 @@ export default function VisitPlanGate({
       router.replace(LOGIN_PATH);
       return;
     }
-    if (redirectIfHasPlan && hasStoredPlan) {
+    if (
+      redirectIfHasPlan &&
+      hasStoredPlan &&
+      !VISIT_PLAN_DEV_FORCE_ONBOARDING_PREVIEW
+    ) {
       router.replace('/screens/visit-plan');
     }
   }, [apiToken, authLoading, hasStoredPlan, planLoading, redirectIfHasPlan]);
@@ -43,7 +48,9 @@ export default function VisitPlanGate({
   }
 
   if (!apiToken) return null;
-  if (redirectIfHasPlan && hasStoredPlan) return null;
+  if (redirectIfHasPlan && hasStoredPlan && !VISIT_PLAN_DEV_FORCE_ONBOARDING_PREVIEW) {
+    return null;
+  }
 
   return <>{children}</>;
 }

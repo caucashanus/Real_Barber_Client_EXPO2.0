@@ -29,9 +29,11 @@ import {
   getBookingClientReviewRating,
   getBookingStartDate,
   getBookingUiStatusTranslationKey,
+  isBookingCancelledLike,
   isBookingCurrent,
   isBookingPast,
-  isBookingUpcoming} from '@/utils/bookingHelpers';
+  isBookingUpcoming,
+} from '@/utils/bookingHelpers';
 import {
   countClientBookingsByFilter,
   filterClientBookings,
@@ -369,9 +371,7 @@ const BookingCard = (props: {
   const isCurrent = isBookingCurrent(booking);
   const isUpcoming = isBookingUpcoming(booking);
   const hasReview = reviewRating != null && reviewRating >= 1;
-  const isCancelled =
-    (booking.status ?? '').toLowerCase() === 'cancelled' ||
-    (booking.status ?? '').toLowerCase() === 'canceled';
+  const isCancelled = isBookingCancelledLike(booking);
 
   const statusLabel = t(getBookingUiStatusTranslationKey(booking));
 

@@ -872,6 +872,7 @@ export const cs: Record<TranslationKey, string> = {
   tripsAddReview: 'Napsat recenzi',
   tripsMessage: 'Zpráva',
   bookingStatusCancelled: 'Zrušené',
+  bookingStatusNoShow: 'Proměškané',
   bookingStatusInProgress: 'Probíhá',
   bookingStatusPast: 'Minulé',
   bookingStatusUpcoming: 'Nadcházející',
@@ -1444,6 +1445,8 @@ export const cs: Record<TranslationKey, string> = {
   bookingDetailCancelYes: 'Zrušit rezervaci',
   bookingDetailCancelSuccess: 'Rezervace byla zrušena',
   bookingDetailCancelError: 'Rezervaci se nepodařilo zrušit',
+  bookingDetailCancelledFooter: 'Zrušená rezervace',
+  bookingDetailNoShowFooter: 'Proměškaná rezervace',
   bookingShareTitle: 'Podívej se na mou rezervaci | Real Barber',
   bookingShareMessage:
     'Sdílel jsem s tebou svou rezervaci u Real Barber. Podívej se na detaily: {url}',

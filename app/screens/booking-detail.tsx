@@ -36,7 +36,13 @@ import {
   formatAppointment,
   formatCancelSheetWhen,
 } from '@/utils/bookingDetailHelpers';
-import { isBookingCurrent, isBookingMarkedCompleted, isBookingPast, canShareClientBooking } from '@/utils/bookingHelpers';
+import {
+  canShareClientBooking,
+  isBookingCancelledLike,
+  isBookingCurrent,
+  isBookingMarkedCompleted,
+  isBookingPast,
+} from '@/utils/bookingHelpers';
 import { PROFILE_BOOKINGS_ROUTE } from '@/constants/profileContacts';
 import { intlLocaleTag } from '@/utils/intlLocaleTag';
 
@@ -200,9 +206,7 @@ const BookingDetailScreen = () => {
     if (didAutoNavigateRef.current) return;
     if (openNavigate !== '1') return;
 
-    const status = (booking.status ?? '').toLowerCase();
-    const isCancelledBooking = status === 'cancelled' || status === 'canceled';
-    if (isCancelledBooking) return;
+    if (isBookingCancelledLike(booking)) return;
 
     const canNavigate =
       getBranchNavigateMapsQuery(
@@ -243,8 +247,7 @@ const BookingDetailScreen = () => {
 
   const appointment = formatAppointment(booking, dateLocaleTag);
   const location = booking.branch?.address ?? booking.branch?.name ?? '—';
-  const status = (booking.status ?? '').toLowerCase();
-  const isCancelled = status === 'cancelled' || status === 'canceled';
+  const isCancelled = isBookingCancelledLike(booking);
   const isCompleted = isBookingMarkedCompleted(booking);
   const isCurrent = !isCancelled && isBookingCurrent(booking);
   const isPast = !isCancelled && !isCurrent && (isCompleted || isBookingPast(booking));

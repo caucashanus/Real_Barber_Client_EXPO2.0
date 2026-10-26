@@ -872,6 +872,7 @@ export const uk: Record<TranslationKey, string> = {
   tripsAddReview: 'Написати відгук',
   tripsMessage: 'Повідомлення',
   bookingStatusCancelled: 'Скасовано',
+  bookingStatusNoShow: 'Пропущено',
   bookingStatusInProgress: 'Триває',
   bookingStatusPast: 'Минулі',
   bookingStatusUpcoming: 'Найближча',
@@ -1445,6 +1446,8 @@ export const uk: Record<TranslationKey, string> = {
   bookingDetailCancelYes: 'Скасувати бронювання',
   bookingDetailCancelSuccess: 'Бронювання скасовано',
   bookingDetailCancelError: 'Не вдалося скасувати бронювання',
+  bookingDetailCancelledFooter: 'Скасоване бронювання',
+  bookingDetailNoShowFooter: 'Пропущений візит',
   bookingShareTitle: 'Подивись на моє бронювання | Real Barber',
   bookingShareMessage:
     'Sdílel jsem s tebou svou rezervaci u Real Barber. Podívej se na detaily: {url}',

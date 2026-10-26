@@ -14,6 +14,7 @@ import ThemedFooter from '@/components/ThemeFooter';
 import ThemedText from '@/components/ThemedText';
 import type { TranslationKey } from '@/locales';
 import { buildReservationReviewContextQuery } from '@/utils/bookingDetailHelpers';
+import { isBookingNoShow } from '@/utils/bookingHelpers';
 import { invalidateListingAvailability } from '@/lib/availability/listingCache';
 
 interface BookingDetailFooterActionsProps {
@@ -49,7 +50,11 @@ export default function BookingDetailFooterActions({
           {isCancelled && (
             <View className="flex-1 flex-row items-center justify-center gap-2 py-3.5">
               <ThemedText className="text-sm font-semibold text-red-500 dark:text-red-400">
-                Zrušená rezervace
+                {t(
+                  isBookingNoShow(booking)
+                    ? 'bookingDetailNoShowFooter'
+                    : 'bookingDetailCancelledFooter'
+                )}
               </ThemedText>
             </View>
           )}

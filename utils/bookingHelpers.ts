@@ -1,8 +1,27 @@
 import type { Booking } from '@/api/bookings';
 
+export function normalizeBookingStatus(status: string | null | undefined): string {
+  return (status ?? '').trim().toLowerCase();
+}
+
+/** CRM: klient se nedostavil, nezrušil předem (`no_show`). */
+export function isBookingNoShow(booking: Booking): boolean {
+  const n = normalizeBookingStatus(booking.status);
+  return n === 'no_show' || n === 'no-show' || n === 'noshow';
+}
+
+export function isBookingCancelledStatus(booking: Booking): boolean {
+  const n = normalizeBookingStatus(booking.status);
+  return n === 'cancelled' || n === 'canceled';
+}
+
+/** Zrušené + no-show — stejné chování v UI (filtry, akce). */
+export function isBookingCancelledLike(booking: Booking): boolean {
+  return isBookingCancelledStatus(booking) || isBookingNoShow(booking);
+}
+
 function isNotCancelled(booking: Booking): boolean {
-  const status = (booking.status ?? '').toLowerCase();
-  return status !== 'cancelled' && status !== 'canceled';
+  return !isBookingCancelledLike(booking);
 }
 
 export function isBookingNotCancelled(booking: Booking): boolean {
@@ -147,6 +166,7 @@ export function canShareClientBooking(booking: Booking, atMs: number = Date.now(
 
 export type BookingUiStatusTranslationKey =
   | 'bookingStatusCancelled'
+  | 'bookingStatusNoShow'
   | 'bookingStatusInProgress'
   | 'bookingStatusPast'
   | 'bookingStatusUpcoming';
@@ -156,9 +176,8 @@ export type BookingUiStatusTranslationKey =
  * Nepoužívá surový `booking.status` z API — ten může být anglicky (scheduled, …).
  */
 export function getBookingUiStatusTranslationKey(booking: Booking): BookingUiStatusTranslationKey {
-  const status = (booking.status ?? '').toLowerCase();
-  const isCancelled = status === 'cancelled' || status === 'canceled';
-  if (isCancelled) return 'bookingStatusCancelled';
+  if (isBookingNoShow(booking)) return 'bookingStatusNoShow';
+  if (isBookingCancelledStatus(booking)) return 'bookingStatusCancelled';
   if (isBookingMarkedCompleted(booking)) return 'bookingStatusPast';
   if (isBookingCurrent(booking)) return 'bookingStatusInProgress';
   if (isBookingPast(booking)) return 'bookingStatusPast';

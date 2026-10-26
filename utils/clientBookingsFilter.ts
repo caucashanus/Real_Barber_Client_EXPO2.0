@@ -3,6 +3,7 @@ import {
   getBookingClientReviewRating,
   getBookingEndDate,
   getBookingStartDate,
+  isBookingCancelledLike,
   isBookingCurrent,
   isBookingMarkedCompleted,
   isBookingPast,
@@ -18,9 +19,8 @@ export type ClientBookingFilter =
   | 'rated'
   | 'pending_review';
 
-function isBookingCancelled(booking: Booking): boolean {
-  const status = (booking.status ?? '').toLowerCase();
-  return status === 'cancelled' || status === 'canceled';
+function isBookingCancelledFilterMatch(booking: Booking): boolean {
+  return isBookingCancelledLike(booking);
 }
 
 export function countClientBookingsByFilter(bookings: Booking[]): {
@@ -39,9 +39,8 @@ export function countClientBookingsByFilter(bookings: Booking[]): {
   let rated = 0;
   let pendingReview = 0;
   for (const b of bookings) {
-    const status = (b.status ?? '').toLowerCase();
     const hasReview = getBookingClientReviewRating(b) != null;
-    if (status === 'cancelled' || status === 'canceled') {
+    if (isBookingCancelledLike(b)) {
       cancelled += 1;
     } else if (isBookingMarkedCompleted(b)) {
       past += 1;
@@ -86,7 +85,7 @@ export function filterClientBookings(
   if (filter === 'upcoming') return bookings.filter((b) => isBookingUpcoming(b));
   if (filter === 'past') return bookings.filter((b) => isBookingPast(b));
   if (filter === 'cancelled') {
-    return bookings.filter(isBookingCancelled);
+    return bookings.filter(isBookingCancelledFilterMatch);
   }
   if (filter === 'rated') {
     return bookings.filter((b) => isBookingPast(b) && getBookingClientReviewRating(b) != null);

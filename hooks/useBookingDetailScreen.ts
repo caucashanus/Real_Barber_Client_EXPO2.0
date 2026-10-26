@@ -8,7 +8,12 @@ import { getClientOverview, type ClientOverviewReservation } from '@/api/reviews
 import { useAuth } from '@/contexts/AuthContext';
 import { useTranslation } from '@/hooks/useTranslation';
 import { buildReservationReviewContextQuery } from '@/utils/bookingDetailHelpers';
-import { isBookingCurrent, isBookingMarkedCompleted, isBookingPast } from '@/utils/bookingHelpers';
+import {
+  isBookingCancelledLike,
+  isBookingCurrent,
+  isBookingMarkedCompleted,
+  isBookingPast,
+} from '@/utils/bookingHelpers';
 import {
   clearFreshBookingSnapshotIfMatches,
   peekFreshBookingSnapshot,
@@ -173,8 +178,7 @@ export function useBookingDetailScreen(params: {
       return;
     }
 
-    const status = (booking.status ?? '').toLowerCase();
-    const isCancelled = status === 'cancelled' || status === 'canceled';
+    const isCancelled = isBookingCancelledLike(booking);
     const isCompleted = isBookingMarkedCompleted(booking);
     const isCurrent = !isCancelled && isBookingCurrent(booking);
     const isPast = !isCancelled && !isCurrent && (isCompleted || isBookingPast(booking));

@@ -871,6 +871,7 @@ export const en = {
   tripsAddReview: 'Add review',
   tripsMessage: 'Message',
   bookingStatusCancelled: 'Cancelled',
+  bookingStatusNoShow: 'Missed',
   bookingStatusInProgress: 'In progress',
   bookingStatusPast: 'Past',
   bookingStatusUpcoming: 'Upcoming',
@@ -1444,6 +1445,8 @@ export const en = {
   bookingDetailCancelYes: 'Cancel booking',
   bookingDetailCancelSuccess: 'Booking cancelled',
   bookingDetailCancelError: 'Failed to cancel booking',
+  bookingDetailCancelledFooter: 'Cancelled booking',
+  bookingDetailNoShowFooter: 'Missed appointment',
   bookingShareTitle: 'Check out my booking | Real Barber',
   bookingShareMessage:
     'I shared my Real Barber booking with you. Check the details: {url}',
