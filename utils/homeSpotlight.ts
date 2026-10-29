@@ -65,6 +65,37 @@ export function pickHomeSpotlightReviewBooking(
  * Vybere jednu rezervaci pro horní kartu na Real Barber.
  * Priorita: probíhající slot → nejbližší budoucí (soon / today / upcoming) → recenze.
  */
+/** Jedna rezervace — stejná větev jako homepage spotlight (detail / karty). */
+export function resolveBookingSpotlightKind(
+  booking: Booking,
+  nowMs: number
+): HomeSpotlightState | null {
+  if (!isBookingNotCancelled(booking)) return null;
+
+  if (isBookingDuringSlotAt(booking, nowMs)) return 'current';
+
+  if (isBookingFutureStartAt(booking, nowMs)) {
+    const msUntilStart = getBookingStartDate(booking).getTime() - nowMs;
+    const startDate = getBookingStartDate(booking);
+    const todayStart = new Date();
+    todayStart.setHours(0, 0, 0, 0);
+    const tomorrowStart = new Date(todayStart.getTime() + 86400000);
+    const isToday = startDate >= todayStart && startDate < tomorrowStart;
+    if (msUntilStart <= HOME_SPOTLIGHT_SOON_MS) return 'soon';
+    if (isToday) return 'today';
+    return 'upcoming';
+  }
+
+  const end = getBookingEndDate(booking).getTime();
+  if (nowMs > end) {
+    const rating = getBookingClientReviewRating(booking);
+    if (rating != null && nowMs - end <= HOME_SPOTLIGHT_REVIEW_MAX_AGE_MS) return 'review';
+    if (isHomeSpotlightReviewEligible(booking, nowMs)) return 'review';
+  }
+
+  return null;
+}
+
 export function pickHomeSpotlight(bookings: Booking[], nowMs: number): HomeSpotlight | null {
   const active = bookings.find((b) => isBookingDuringSlotAt(b, nowMs));
   if (active) {

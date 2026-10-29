@@ -109,6 +109,11 @@ export function resolveWebPathToAppRoute(path: string): string | null {
     return '/screens/reservation-create';
   }
 
+  const manageMatch = normalized.match(/^\/reservation-manage\/([^/]+)$/);
+  if (manageMatch?.[1]) {
+    return `/screens/reservation-manage?id=${encodeURIComponent(decodeURIComponent(manageMatch[1]))}${suffix}`;
+  }
+
   if (normalized === '/blog' || normalized.startsWith('/blog/')) {
     return buildInAppWebRoute(path);
   }

@@ -32,9 +32,15 @@ type Props = {
   target: Date;
   /** `sm` = pill v seznamu rezervací (výchozí). */
   textSize?: 'sm' | 'xs';
+  /** Pill — stejná typografie u „Za“, jednotek i čísel (parita web badge). */
+  variant?: 'default' | 'pill';
 };
 
-export default function BookingCountdownDisplay({ target, textSize = 'sm' }: Props) {
+export default function BookingCountdownDisplay({
+  target,
+  textSize = 'sm',
+  variant = 'default',
+}: Props) {
   const { t } = useTranslation();
   const [parts, setParts] = useState<BookingCountdownParts | null>(() =>
     getBookingCountdownParts(target)
@@ -50,9 +56,11 @@ export default function BookingCountdownDisplay({ target, textSize = 'sm' }: Pro
   if (!parts) return null;
 
   const textClass =
-    textSize === 'xs'
-      ? 'text-xs text-light-subtext dark:text-dark-subtext'
-      : 'text-sm text-light-subtext dark:text-dark-subtext';
+    variant === 'pill'
+      ? 'text-xs font-semibold tabular-nums text-neutral-800 dark:text-neutral-200'
+      : textSize === 'xs'
+        ? 'text-xs text-light-subtext dark:text-dark-subtext'
+        : 'text-sm text-light-subtext dark:text-dark-subtext';
 
   if (parts.type === 'days') {
     return (

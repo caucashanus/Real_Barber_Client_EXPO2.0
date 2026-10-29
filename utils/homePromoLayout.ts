@@ -1,4 +1,4 @@
-/** Web `8.5rem` @ 16px — užší slide + peek další karty vpravo. */
+/** Web `calc(100vw - 8.5rem)` @ 16px — užší slide + peek další karty vpravo. */
 export const HOME_PROMO_VIEWPORT_INSET_PX = 136;
 
 /** Mezera mezi promo slidy (`gap-3`). */

@@ -59,6 +59,24 @@ export interface BookingCouponUsage {
   coupon: BookingCouponUsageCouponMeta;
 }
 
+/** CRM `manage` — confirm / přesun / zrušení (parita web 2026). */
+export type BookingManageLifecycle =
+  | 'needs_confirmation'
+  | 'confirmed'
+  | 'cancelled'
+  | 'completed'
+  | 'no_show'
+  | 'expired';
+
+export interface BookingManage {
+  lifecycle: BookingManageLifecycle;
+  allowedActions: ('confirm' | 'reschedule' | 'cancel')[];
+  canManage: boolean;
+  message: string | null;
+  timezone?: string;
+  confirmAvailableFrom?: string | null;
+}
+
 export interface Booking {
   id: string;
   clientId: string;
@@ -92,6 +110,8 @@ export interface Booking {
   totalCash?: number | null;
   totalCard?: number | null;
   totalCoins?: number | null;
+  manage?: BookingManage | null;
+  canManage?: boolean;
 }
 
 export interface BookingsPagination {
@@ -140,6 +160,22 @@ function normalizeBookingsPayload(raw: unknown): BookingsResponse {
   return { bookings: normalized, pagination };
 }
 
+/** `{ booking }`, `{ data: { booking } }`, nebo přímo objekt rezervace. */
+function parseBookingFromApiPayload(raw: unknown): Booking | null {
+  if (!raw || typeof raw !== 'object') return null;
+  const obj = raw as Record<string, unknown>;
+  let inner: unknown = obj.booking;
+  if (!inner && typeof obj.data === 'object' && obj.data) {
+    const d = obj.data as Record<string, unknown>;
+    inner = d.booking ?? null;
+  }
+  if (!inner && typeof obj.id === 'string') {
+    inner = obj;
+  }
+  if (!inner || typeof inner !== 'object') return null;
+  return normalizeBookingCouponUsages(inner as Booking);
+}
+
 /**
  * GET /api/client/bookings/:id — detail rezervace (vč. couponUsages).
  * Tělo: `{ booking: { … } }` nebo `{ data: { booking: … } }`.
@@ -152,15 +188,7 @@ export async function getClientBookingById(
     const raw = await fetchCrm<unknown>(`/api/client/bookings/${encodeURIComponent(bookingId)}`, {
       apiToken,
     });
-    if (!raw || typeof raw !== 'object') return null;
-    const obj = raw as Record<string, unknown>;
-    let inner: unknown = obj.booking;
-    if (!inner && typeof obj.data === 'object' && obj.data) {
-      const d = obj.data as Record<string, unknown>;
-      inner = d.booking ?? null;
-    }
-    if (!inner || typeof inner !== 'object') return null;
-    return normalizeBookingCouponUsages(inner as Booking);
+    return parseBookingFromApiPayload(raw);
   } catch (e) {
     if (e instanceof CrmHttpError && e.status === 404) return null;
     throw e;
@@ -585,6 +613,41 @@ export async function getBookingSlotServices(
     apiToken,
   });
   return normalizeSlotServicesResponse(raw);
+}
+
+/** POST /api/client/bookings/{id}/confirm — potvrzení účasti (parita web). */
+export async function confirmBooking(
+  apiToken: string,
+  bookingId: string
+): Promise<{ booking: Booking; message?: string | null }> {
+  try {
+    const raw = await fetchCrm<unknown>(
+      `/api/client/bookings/${encodeURIComponent(bookingId)}/confirm`,
+      { method: 'POST', apiToken }
+    );
+    const booking = parseBookingFromApiPayload(raw);
+    if (!booking) {
+      throw new Error('Invalid confirm response');
+    }
+    const root =
+      raw && typeof raw === 'object' ? (raw as Record<string, unknown>) : {};
+    const message =
+      typeof root.message === 'string'
+        ? root.message
+        : typeof root.data === 'object' && root.data
+          ? (() => {
+              const d = root.data as Record<string, unknown>;
+              return typeof d.message === 'string' ? d.message : null;
+            })()
+          : null;
+    return { booking, message };
+  } catch (e) {
+    if (e instanceof CrmHttpError) {
+      if (e.status === 404) throw new Error('Booking not found');
+      throw new Error(e.message);
+    }
+    throw e;
+  }
 }
 
 /** DELETE /api/client/bookings/[id] – cancel a booking for the authenticated client. */

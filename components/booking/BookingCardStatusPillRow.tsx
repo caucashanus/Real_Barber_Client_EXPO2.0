@@ -2,7 +2,7 @@ import React from 'react';
 import { View } from 'react-native';
 
 import type { Booking } from '@/api/bookings';
-import BookingCountdownDisplay from '@/components/booking/BookingCountdownDisplay';
+import BookingCountdownPill from '@/components/booking/BookingCountdownPill';
 import LiveIndicator from '@/components/LiveIndicator';
 import ThemedText from '@/components/ThemedText';
 import { useTranslation } from '@/hooks/useTranslation';
@@ -50,11 +50,7 @@ export default function BookingCardStatusPillRow({ booking, className = '' }: Pr
           </View>
         ) : null}
       </View>
-      {isUpcoming ? (
-        <View className="shrink-0 rounded-full bg-light-secondary px-2.5 py-1 dark:bg-dark-secondary">
-          <BookingCountdownDisplay target={getBookingStartDate(booking)} textSize="xs" />
-        </View>
-      ) : null}
+      {isUpcoming ? <BookingCountdownPill target={getBookingStartDate(booking)} /> : null}
     </View>
   );
 }

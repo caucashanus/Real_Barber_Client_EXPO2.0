@@ -1,8 +1,15 @@
 import { router } from 'expo-router';
+import { useFocusEffect } from 'expo-router/react-navigation';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { Platform } from 'react-native';
 
-import { getBookingById, normalizeBookingCouponUsages, type Booking } from '@/api/bookings';
+import {
+  confirmBooking,
+  getBookingById,
+  normalizeBookingCouponUsages,
+  type Booking,
+} from '@/api/bookings';
+import { useBookings } from '@/contexts/BookingsBadgeContext';
 import { getBranches, type Branch } from '@/api/branches';
 import { getClientOverview, type ClientOverviewReservation } from '@/api/reviews';
 import { useAuth } from '@/contexts/AuthContext';
@@ -39,6 +46,7 @@ export function useBookingDetailScreen(params: {
 }) {
   const { id, openReview, justBooked } = params;
   const { apiToken } = useAuth();
+  const { refresh: refreshBookings } = useBookings();
   const { t } = useTranslation();
 
   const promoTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -58,26 +66,47 @@ export function useBookingDetailScreen(params: {
   const [hasReview, setHasReview] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [confirmingAttendance, setConfirmingAttendance] = useState(false);
+  const [confirmAttendanceError, setConfirmAttendanceError] = useState<string | null>(null);
+  const skipNextFocusRefreshRef = useRef(false);
 
-  useEffect(() => {
-    if (!id) {
-      setLoading(false);
+  const refreshHasReviewFromOverview = useCallback(async () => {
+    if (!apiToken || !id) {
+      setHasReview(false);
       return;
     }
-    if (!apiToken) {
-      setLoading(true);
-      setError(null);
-      return;
+    try {
+      const overview = await getClientOverview(apiToken);
+      const withReviews = overview?.data?.reservations?.withReviews as
+        | ClientOverviewReservation[]
+        | undefined;
+      const has = Array.isArray(withReviews) && withReviews.some((r) => r.id === id);
+      setHasReview(!!has);
+    } catch {
+      setHasReview(false);
     }
-    setLoading(true);
-    setError(null);
+  }, [apiToken, id]);
 
-    let cancelled = false;
+  const fetchBookingDetail = useCallback(
+    async (opts?: { silent?: boolean }) => {
+      if (!id) {
+        if (!opts?.silent) setLoading(false);
+        return;
+      }
+      if (!apiToken) {
+        if (!opts?.silent) {
+          setLoading(true);
+          setError(null);
+        }
+        return;
+      }
+      if (!opts?.silent) {
+        setLoading(true);
+        setError(null);
+      }
 
-    (async () => {
       try {
         const fromServer = await getBookingById(apiToken, id);
-        if (cancelled) return;
         const snapBeforeLoad = peekFreshBookingSnapshot(id);
         if (fromServer) {
           const merged = snapBeforeLoad
@@ -95,17 +124,18 @@ export function useBookingDetailScreen(params: {
           return;
         }
 
-        setBooking(null);
-        setError(t('bookingNotFound'));
+        if (!opts?.silent) {
+          setBooking(null);
+          setError(t('bookingNotFound'));
+        }
       } catch (e) {
-        if (cancelled) return;
         const snap = peekFreshBookingSnapshot(id);
         if (snap) {
           setBooking(normalizeBookingCouponUsages(snap));
           setError(null);
           try {
             const retry = await getBookingById(apiToken, id);
-            if (!cancelled && retry) {
+            if (retry) {
               const snapRetry = peekFreshBookingSnapshot(id);
               const merged = snapRetry
                 ? mergeApiBookingWithOptimistic(retry, snapRetry)
@@ -116,19 +146,33 @@ export function useBookingDetailScreen(params: {
           } catch {
             /* nechat snapshot */
           }
-        } else {
+        } else if (!opts?.silent) {
           setBooking(null);
           setError(e instanceof Error ? e.message : t('bookingLoadFailed'));
         }
       } finally {
-        if (!cancelled) setLoading(false);
+        if (!opts?.silent) setLoading(false);
       }
-    })();
+    },
+    [apiToken, id, t]
+  );
 
-    return () => {
-      cancelled = true;
-    };
-  }, [apiToken, id, t]);
+  useEffect(() => {
+    skipNextFocusRefreshRef.current = true;
+    void fetchBookingDetail();
+  }, [fetchBookingDetail]);
+
+  useFocusEffect(
+    useCallback(() => {
+      if (skipNextFocusRefreshRef.current) {
+        skipNextFocusRefreshRef.current = false;
+        return;
+      }
+      if (!apiToken || !id) return;
+      void fetchBookingDetail({ silent: true });
+      void refreshHasReviewFromOverview();
+    }, [apiToken, id, fetchBookingDetail, refreshHasReviewFromOverview])
+  );
 
   useEffect(() => {
     if (!apiToken || !booking?.branchId) {
@@ -144,20 +188,31 @@ export function useBookingDetailScreen(params: {
   }, [apiToken, booking?.branchId]);
 
   useEffect(() => {
-    if (!apiToken || !id) {
-      setHasReview(false);
-      return;
+    void refreshHasReviewFromOverview();
+  }, [refreshHasReviewFromOverview]);
+
+  useEffect(() => {
+    setConfirmAttendanceError(null);
+    setConfirmingAttendance(false);
+  }, [id]);
+
+  const onConfirmAttendance = useCallback(async () => {
+    if (!apiToken || !booking?.id || confirmingAttendance) return;
+    setConfirmingAttendance(true);
+    setConfirmAttendanceError(null);
+    try {
+      const res = await confirmBooking(apiToken, booking.id);
+      setBooking(normalizeBookingCouponUsages(res.booking));
+      setConfirmAttendanceError(null);
+      void refreshBookings({ force: true });
+    } catch (e) {
+      setConfirmAttendanceError(
+        e instanceof Error ? e.message : t('bookingDetailConfirmError')
+      );
+    } finally {
+      setConfirmingAttendance(false);
     }
-    getClientOverview(apiToken)
-      .then((overview) => {
-        const withReviews = overview?.data?.reservations?.withReviews as
-          | ClientOverviewReservation[]
-          | undefined;
-        const has = Array.isArray(withReviews) && withReviews.some((r) => r.id === id);
-        setHasReview(!!has);
-      })
-      .catch(() => setHasReview(false));
-  }, [apiToken, id]);
+  }, [apiToken, booking?.id, confirmingAttendance, refreshBookings, t]);
 
   useEffect(() => {
     didShowCalendarPromoRef.current = false;
@@ -345,5 +400,8 @@ export function useBookingDetailScreen(params: {
     setKidsWatchPromoVisible,
     kidsWatchFirstVisitPromoActive,
     clearKidsWatchFirstVisitPromo,
+    confirmingAttendance,
+    confirmAttendanceError,
+    onConfirmAttendance,
   };
 }

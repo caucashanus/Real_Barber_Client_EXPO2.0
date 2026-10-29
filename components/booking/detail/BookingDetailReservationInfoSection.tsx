@@ -7,6 +7,7 @@ import ThemedText from '@/components/ThemedText';
 import Section from '@/components/layout/Section';
 import type { TranslationKey } from '@/locales';
 import { getBookingUiStatusTranslationKey } from '@/utils/bookingHelpers';
+import { bookingDetailShowsStatusHeader } from '@/utils/bookingDetailStatusHeader';
 
 interface BookingDetailReservationInfoSectionProps {
   booking: Booking;
@@ -17,6 +18,8 @@ export default function BookingDetailReservationInfoSection({
   booking,
   t,
 }: BookingDetailReservationInfoSectionProps) {
+  const hideStatusRow = bookingDetailShowsStatusHeader(booking);
+
   return (
     <Section title={t('bookingReservationDetails')} titleSize="lg" className="mt-6 px-global pt-4">
       <View className="mt-4 space-y-3">
@@ -35,14 +38,16 @@ export default function BookingDetailReservationInfoSection({
           </ThemedText>
           <ThemedText className="font-medium">#{booking.id.slice(0, 8)}</ThemedText>
         </View>
-        <View className="flex-row justify-between">
-          <ThemedText className="text-light-subtext dark:text-dark-subtext">
-            {t('bookingStatus')}
-          </ThemedText>
-          <ThemedText className="font-medium">
-            {t(getBookingUiStatusTranslationKey(booking))}
-          </ThemedText>
-        </View>
+        {!hideStatusRow ? (
+          <View className="flex-row justify-between">
+            <ThemedText className="text-light-subtext dark:text-dark-subtext">
+              {t('bookingStatus')}
+            </ThemedText>
+            <ThemedText className="font-medium">
+              {t(getBookingUiStatusTranslationKey(booking))}
+            </ThemedText>
+          </View>
+        ) : null}
       </View>
     </Section>
   );

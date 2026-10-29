@@ -2,7 +2,6 @@ import { Image } from 'expo-image';
 import React, { useCallback, useMemo, useRef } from 'react';
 import {
   FlatList,
-  Platform,
   Pressable,
   View,
   type ListRenderItem,
@@ -12,6 +11,10 @@ import {
 
 import HomePromoSlideCaption from '@/components/home/HomePromoSlideCaption';
 import SiteLoadingSpinner from '@/components/SiteLoadingSpinner';
+import {
+  CAROUSEL_BLEED_OUTER_CLASSNAME,
+  SITE_CAROUSEL_PAGE_GUTTER_PX,
+} from '@/utils/carouselMobileBleed';
 import type { HomeReferralPromo } from '@/api/home';
 import type { TranslationKey } from '@/locales';
 import type { HomePromoFeedItem } from '@/utils/homePromoFeed';
@@ -38,7 +41,6 @@ export function HomePromoCarousel({
   onReferralPress,
 }: HomePromoCarouselProps) {
   const { slideWidth, imageHeight, slideGap } = layout;
-  const snapInterval = slideWidth + slideGap;
   const listRef = useRef<FlatList<HomePromoCarouselSlide>>(null);
   const isDraggingRef = useRef(false);
 
@@ -64,7 +66,7 @@ export function HomePromoCarousel({
           }}
           accessibilityRole="button"
           accessibilityLabel={homePromoSlideAccessibilityLabel(slide)}
-          style={{ width: slideWidth, marginRight: index < slides.length - 1 ? slideGap : 0 }}
+          style={{ width: slideWidth }}
           className="active:opacity-70">
           <View
             className="overflow-hidden rounded-xl bg-light-secondary dark:bg-dark-secondary"
@@ -83,7 +85,20 @@ export function HomePromoCarousel({
         </Pressable>
       );
     },
-    [imageHeight, slideGap, slideWidth, slides.length]
+    [imageHeight, slideWidth]
+  );
+
+  const bleedTrackPadding = useMemo(
+    () => ({
+      paddingLeft: SITE_CAROUSEL_PAGE_GUTTER_PX,
+      columnGap: slideGap,
+    }),
+    [slideGap]
+  );
+
+  const bleedEndSpacer = useMemo(
+    () => <View style={{ width: SITE_CAROUSEL_PAGE_GUTTER_PX }} accessibilityElementsHidden />,
+    []
   );
 
   const renderItem: ListRenderItem<HomePromoCarouselSlide> = useCallback(
@@ -99,42 +114,42 @@ export function HomePromoCarousel({
 
   if (loading) {
     return (
-      <View
-        className="items-center justify-center rounded-xl bg-light-secondary dark:bg-dark-secondary"
-        style={{ width: slideWidth, height: imageHeight }}>
-        <SiteLoadingSpinner size="compact" />
+      <View className={CAROUSEL_BLEED_OUTER_CLASSNAME}>
+        <View style={{ paddingLeft: SITE_CAROUSEL_PAGE_GUTTER_PX }}>
+          <View
+            className="items-center justify-center rounded-xl bg-light-secondary dark:bg-dark-secondary"
+            style={{ width: slideWidth, height: imageHeight }}>
+            <SiteLoadingSpinner size="compact" />
+          </View>
+        </View>
       </View>
     );
   }
 
   if (slides.length === 1) {
-    return <View className="w-full">{renderSlide(slides[0]!, 0)}</View>;
+    return <View style={{ width: slideWidth }}>{renderSlide(slides[0]!, 0)}</View>;
   }
 
   return (
-    <FlatList
-      ref={listRef}
-      data={slides}
-      horizontal
-      nestedScrollEnabled
-      showsHorizontalScrollIndicator={false}
-      keyExtractor={(item) => item.key}
-      renderItem={renderItem}
-      onScrollBeginDrag={() => {
-        isDraggingRef.current = true;
-      }}
-      onScrollEndDrag={onScrollEnd}
-      onMomentumScrollEnd={onScrollEnd}
-      decelerationRate="fast"
-      snapToAlignment="start"
-      snapToInterval={snapInterval}
-      {...(Platform.OS === 'ios' ? { pagingEnabled: false } : {})}
-      getItemLayout={(_, index) => ({
-        length: snapInterval,
-        offset: snapInterval * index,
-        index,
-      })}
-      className="w-full"
-    />
+    <View className={CAROUSEL_BLEED_OUTER_CLASSNAME}>
+      <FlatList
+        ref={listRef}
+        data={slides}
+        horizontal
+        nestedScrollEnabled
+        showsHorizontalScrollIndicator={false}
+        keyExtractor={(item) => item.key}
+        renderItem={renderItem}
+        onScrollBeginDrag={() => {
+          isDraggingRef.current = true;
+        }}
+        onScrollEndDrag={onScrollEnd}
+        onMomentumScrollEnd={onScrollEnd}
+        decelerationRate="normal"
+        contentContainerStyle={bleedTrackPadding}
+        ListFooterComponent={bleedEndSpacer}
+        className="w-full"
+      />
+    </View>
   );
 }

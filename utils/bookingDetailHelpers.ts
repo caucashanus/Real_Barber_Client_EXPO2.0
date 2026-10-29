@@ -111,3 +111,14 @@ export function formatCancelSheetWhen(b: Booking, locale: string): string {
   const monthShort = dt.toLocaleString('en-GB', { month: 'short' });
   return `${dt.getDate()} ${monthShort} ${dt.getFullYear()} at ${time}`;
 }
+
+/** Deep link do bookingu se stejným holičem / službou / pobočkou (parita web repeat). */
+export function buildBookingRepeatCreateHref(booking: Booking): string {
+  const q = new URLSearchParams();
+  q.set('branchId', booking.branchId);
+  q.set('employeeId', booking.employeeId);
+  q.set('itemId', booking.itemId);
+  const itemName = booking.item?.name?.trim();
+  if (itemName) q.set('itemName', itemName);
+  return `/screens/reservation-create?${q.toString()}`;
+}

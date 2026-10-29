@@ -93,6 +93,8 @@ Už běží (package `com.realbarber.client` + SHA-256). SHA musí zůstat platn
 
 **Fáze 2** (až app doplní mapování + AASA): `/u/*/…`, `/rozvrh`, `/mapa/filtry`
 
+**Magic link manage** (`/reservation-manage/*`): nativní handler od app 2.3.2 — viz `docs/reservation-manage-magic-link.md`. **AASA path zatím ne** (CRM SMS zůstává v prohlížeči, dokud web path nepřidá).
+
 ## Nasazení
 
 1. **Web:** AASA fáze 1 — ✅ live

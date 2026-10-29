@@ -51,6 +51,7 @@
         <data android:scheme="https" android:host="realbarber.cz" android:pathPrefix="/ochrana-osobnich-udaju"/>
         <data android:scheme="https" android:host="realbarber.cz" android:pathPrefix="/ochrana-osobnich-udaj"/>
         <data android:scheme="https" android:host="realbarber.cz" android:path="/login"/>
+        <data android:scheme="https" android:host="realbarber.cz" android:pathPrefix="/reservation-manage"/>
         <category android:name="android.intent.category.BROWSABLE"/>
         <category android:name="android.intent.category.DEFAULT"/>
       </intent-filter>

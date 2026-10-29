@@ -11,6 +11,7 @@ import useThemeColors from '@/contexts/ThemeColors';
 import { useBookingDetailScreen } from '@/hooks/useBookingDetailScreen';
 import { useTranslation } from '@/hooks/useTranslation';
 import { BranchNavigateSheet, getBranchNavigateMapsQuery } from '@/components/BranchNavigateSheet';
+import { OperatorCallUsSheet } from '@/components/OperatorSupportSheet';
 import Header from '@/components/Header';
 import ThemedScroller from '@/components/ThemeScroller';
 import ThemedText from '@/components/ThemedText';
@@ -73,6 +74,9 @@ const BookingDetailScreen = () => {
     setKidsWatchPromoVisible,
     kidsWatchFirstVisitPromoActive,
     clearKidsWatchFirstVisitPromo,
+    confirmingAttendance,
+    confirmAttendanceError,
+    onConfirmAttendance,
   } = useBookingDetailScreen({
     id,
     openReview: local.openReview,
@@ -82,6 +86,7 @@ const BookingDetailScreen = () => {
   const navigation = useNavigation();
   const cancelSheetRef = useRef<ActionSheetRef>(null);
   const branchNavigateRef = useRef<ActionSheetRef>(null);
+  const callUsSheetRef = useRef<ActionSheetRef>(null);
   const shareSheetRef = useRef<ActionSheetRef>(null);
   const heroScrollY = useRef(new Animated.Value(0)).current;
   const isLeavingToBookingsRef = useRef(false);
@@ -251,7 +256,6 @@ const BookingDetailScreen = () => {
   const isCompleted = isBookingMarkedCompleted(booking);
   const isCurrent = !isCancelled && isBookingCurrent(booking);
   const isPast = !isCancelled && !isCurrent && (isCompleted || isBookingPast(booking));
-  const isUpcoming = !isCancelled && !isCurrent && !isPast;
   const canOpenBranchNavigate =
     !isCancelled &&
     getBranchNavigateMapsQuery(
@@ -293,11 +297,11 @@ const BookingDetailScreen = () => {
             heroScrollY={heroScrollY}
             booking={booking}
             location={location}
-            canOpenBranchNavigate={canOpenBranchNavigate}
-            canShare={canShare}
-            isCurrent={isCurrent}
+            confirmingAttendance={confirmingAttendance}
+            confirmAttendanceError={confirmAttendanceError}
+            onConfirmAttendance={onConfirmAttendance}
             onOpenBranchNavigate={() => branchNavigateRef.current?.show()}
-            onShare={handleShare}
+            onCallBranch={() => callUsSheetRef.current?.show()}
             t={t}
           />
           <BookingDetailEmployeeSection booking={booking} t={t} />
@@ -339,17 +343,17 @@ const BookingDetailScreen = () => {
         address={booking.branch?.address ?? branch?.address}
       />
 
+      <OperatorCallUsSheet ref={callUsSheetRef} variant="callUs" showBranchOpenStatus />
+
       {canShare ? <ReservationShareSheet ref={shareSheetRef} bookingId={booking.id} /> : null}
 
       <BookingDetailFooterActions
         booking={booking}
         hasReview={hasReview}
-        isCancelled={isCancelled}
-        isCurrent={isCurrent}
-        isPast={isPast}
-        isUpcoming={isUpcoming}
+        confirmingAttendance={confirmingAttendance}
         cancelMessage={cancelMessage}
         cancelSheetRef={cancelSheetRef}
+        onShare={handleShare}
         t={t}
       />
 

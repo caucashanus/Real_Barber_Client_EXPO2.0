@@ -30,7 +30,7 @@ export default function HomeSpotlightSection({ bookings, t, locale }: Props) {
 
   return (
     <View className="mt-4">
-      <HomeSpotlightCard spotlight={spotlight} t={t} locale={locale} />
+      <HomeSpotlightCard spotlight={spotlight} nowMs={now} t={t} locale={locale} />
     </View>
   );
 }

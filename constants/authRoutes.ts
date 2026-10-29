@@ -12,6 +12,7 @@ export const PUBLIC_ROUTE_PREFIXES = [
   '/screens/forgot-password',
   '/screens/signup',
   '/screens/signup-summary',
+  '/screens/reservation-manage',
 ] as const;
 
 /** Login/signup flow – logged-in users are redirected away. */
