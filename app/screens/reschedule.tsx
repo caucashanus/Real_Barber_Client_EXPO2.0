@@ -23,6 +23,7 @@ import CurrentBookingCard from '@/components/booking/CurrentBookingCard';
 import Section from '@/components/layout/Section';
 import { dedupeAvailabilitySlots } from '@/utils/availabilitySlots';
 import { intlLocaleTag } from '@/utils/intlLocaleTag';
+import SiteLoadingState from '@/components/SiteLoadingState';
 import SiteLoadingSpinner from '@/components/SiteLoadingSpinner';
 
 function toIsoDate(d: Date): string {
@@ -249,11 +250,8 @@ export default function RescheduleScreen() {
     return (
       <>
         <Header title={t('rescheduleTitle')} showBackButton />
-        <View className="flex-1 items-center justify-center bg-light-primary dark:bg-dark-primary">
-          <SiteLoadingSpinner />
-          <ThemedText className="mt-2 text-light-subtext dark:text-dark-subtext">
-            {t('commonLoading')}
-          </ThemedText>
+        <View className="flex-1 bg-light-primary dark:bg-dark-primary">
+          <SiteLoadingState layout="page" />
         </View>
       </>
     );

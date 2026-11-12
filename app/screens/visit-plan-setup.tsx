@@ -219,8 +219,9 @@ function SetupBody() {
           rounded="full"
           fullWidth
           disabled={(!isCelebrationStep && nextDisabled) || submitting}
+          loading={submitting}
           textClassName="text-white"
-          title={submitting ? t('visitPlanLoading') : footerLabel}
+          title={footerLabel}
           onPress={() => void goNext()}
         />
       </View>

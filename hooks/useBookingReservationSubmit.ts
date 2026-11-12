@@ -56,8 +56,9 @@ export function useBookingReservationSubmit(
       onSuccess?: (data: unknown) => void;
       onSlotConflict?: () => void;
       formatError?: (err: unknown) => string;
+      contactOverride?: BookingReservationContact;
     }) => {
-      const { buildPayload, onSuccess, onSlotConflict, formatError } = params;
+      const { buildPayload, onSuccess, onSlotConflict, formatError, contactOverride } = params;
       const formatErr =
         formatError ?? ((err: unknown) => (err instanceof Error ? err.message : 'Submit failed'));
 
@@ -68,7 +69,8 @@ export function useBookingReservationSubmit(
         return;
       }
 
-      const base = buildPayload(contactContext);
+      const submitContact = contactOverride ?? contactContext;
+      const base = buildPayload(submitContact);
       if (!base) {
         setSubmitError(formatErr(new Error('reservationIncomplete')));
         return;
@@ -85,6 +87,7 @@ export function useBookingReservationSubmit(
         if (submitSuccessRef.current) return;
         if (isBookingSlotConflict(err)) {
           onSlotConflict?.();
+          return;
         }
         setSubmitError(formatErr(err));
       } finally {
@@ -95,12 +98,15 @@ export function useBookingReservationSubmit(
     [apiToken, contactContext]
   );
 
+  const clearSubmitError = useCallback(() => setSubmitError(null), []);
+
   return {
     contactContext,
     submitting,
     submitError,
     submitSuccess,
     submitReservation,
+    clearSubmitError,
   };
 }
 

@@ -1,5 +1,7 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { ActivityIndicator, View } from 'react-native';
+import { View } from 'react-native';
+
+import SiteLoadingState from '@/components/SiteLoadingState';
 import type { ActionSheetRef } from 'react-native-actions-sheet';
 
 import Header from '@/components/Header';
@@ -48,8 +50,8 @@ function CalendarBody() {
 
   if (!pageReady || planLoading || onboardingRedirect) {
     return (
-      <View className="flex-1 items-center justify-center bg-light-primary dark:bg-dark-primary">
-        <ActivityIndicator accessibilityLabel={t('visitPlanLoading')} />
+      <View className="flex-1 bg-light-primary dark:bg-dark-primary">
+        <SiteLoadingState layout="page" />
       </View>
     );
   }

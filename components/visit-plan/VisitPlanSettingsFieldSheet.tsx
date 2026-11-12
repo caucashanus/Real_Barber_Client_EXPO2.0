@@ -55,7 +55,8 @@ export default function VisitPlanSettingsIntervalPanel({
 
       <View style={[styles.footer, { borderTopColor: colors.border }]}>
         <Button
-          title={saving ? t('visitPlanLoading') : t('visitPlanIntervalSheetSave')}
+          title={t('visitPlanIntervalSheetSave')}
+          loading={saving}
           variant="primary"
           size="medium"
           className="w-full py-4"

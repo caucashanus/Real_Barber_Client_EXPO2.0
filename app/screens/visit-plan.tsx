@@ -1,8 +1,9 @@
 import { router } from 'expo-router';
 import React, { useEffect } from 'react';
-import { ActivityIndicator, View } from 'react-native';
+import { View } from 'react-native';
 
 import Header from '@/components/Header';
+import SiteLoadingState from '@/components/SiteLoadingState';
 import VisitPlanMainContent from '@/components/visit-plan/VisitPlanMainContent';
 import VisitPlanRoot from '@/components/visit-plan/VisitPlanRoot';
 import { useAuth } from '@/contexts/AuthContext';
@@ -33,8 +34,8 @@ function VisitPlanPageBody() {
 
   if (!pageReady || planLoading || onboardingRedirect) {
     return (
-      <View className="flex-1 items-center justify-center bg-light-primary dark:bg-dark-primary">
-        <ActivityIndicator accessibilityLabel={t('visitPlanLoading')} />
+      <View className="flex-1 bg-light-primary dark:bg-dark-primary">
+        <SiteLoadingState layout="page" />
       </View>
     );
   }

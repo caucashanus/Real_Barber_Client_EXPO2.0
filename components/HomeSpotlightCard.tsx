@@ -165,7 +165,7 @@ export function HomeSpotlightCard({
                             />
                           </View>
                         ) : null}
-                        {presentation.showHeaderCountdownPill ? (
+                        {presentation.showHeaderCountdownPill && phase !== 'upcoming' ? (
                           <>
                             <View className="min-h-0 min-w-0 flex-1" />
                             <BookingCountdownPill target={getBookingStartDate(booking)} />

@@ -16,7 +16,7 @@ import ThemedText from '@/components/ThemedText';
 import Switch from '@/components/forms/Switch';
 import Section from '@/components/layout/Section';
 import type { TranslationKey } from '@/locales';
-import SiteLoadingSpinner from '@/components/SiteLoadingSpinner';
+import SiteLoadingState from '@/components/SiteLoadingState';
 
 const CHANNEL_ROWS: { key: keyof CommunicationChannels; label: TranslationKey }[] = [
   { key: 'phoneCall', label: 'communicationChannel_phoneCall' },
@@ -161,12 +161,7 @@ export default function CommunicationSettingsScreen() {
             {t('communicationSettingsNeedLogin')}
           </ThemedText>
         ) : loading ? (
-          <View className="items-center py-12">
-            <SiteLoadingSpinner size="compact" />
-            <ThemedText className="mt-3 text-sm text-light-subtext dark:text-dark-subtext">
-              {t('commonLoading')}
-            </ThemedText>
-          </View>
+          <SiteLoadingState layout="section" />
         ) : error ? (
           <ThemedText className="text-light-subtext dark:text-dark-subtext">{error}</ThemedText>
         ) : channels && contentTypes ? (

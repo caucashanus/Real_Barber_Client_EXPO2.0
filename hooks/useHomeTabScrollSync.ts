@@ -34,6 +34,7 @@ export function useHomeTabScrollSync() {
 
   return {
     scrollRef,
+    scrollY,
     onScroll,
     scrollEventThrottle: 16 as const,
     animatedScroll: true as const,

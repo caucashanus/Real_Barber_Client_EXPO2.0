@@ -36,7 +36,7 @@ import {
   getRbCoinsTransactionListTitle,
   RB_COINS_TX_LIST_KEYS_WALLET} from '@/utils/rbcCoinsHistoryUi';
 import { shouldStaleRefresh } from '@/utils/staleRefresh';
-import SiteLoadingSpinner from '@/components/SiteLoadingSpinner';
+import SiteLoadingState from '@/components/SiteLoadingState';
 
 /** In-memory fallback when AsyncStorage native module is unavailable (e.g. web, some dev builds). */
 let memoryLastSeen: string | null = null;
@@ -270,7 +270,7 @@ const WalletScreen = () => {
             {t('walletPersonalRbcCaption')}
           </ThemedText>
           {balanceLoading ? (
-            <SiteLoadingSpinner />
+            <SiteLoadingState layout="inline" size="compact" className="mt-2" />
           ) : balanceError ? (
             <ThemedText className="mt-1 text-center text-lg text-white/90">
               {balanceError}
@@ -321,12 +321,7 @@ const WalletScreen = () => {
           <SurfaceCard rounded="2xl" className="mt-2 overflow-hidden p-global">
             <List variant="divided" spacing={12}>
               {historyLoading ? (
-                <View className="items-center py-6">
-                  <SiteLoadingSpinner size="compact" />
-                  <ThemedText className="mt-2 text-sm text-light-subtext dark:text-dark-subtext">
-                    {t('commonLoading')}
-                  </ThemedText>
-                </View>
+                <SiteLoadingState layout="inline" size="compact" className="py-6" />
               ) : history.length === 0 ? (
                 <View className="px-4 py-6">
                   <ThemedText className="text-center text-sm text-light-subtext dark:text-dark-subtext">

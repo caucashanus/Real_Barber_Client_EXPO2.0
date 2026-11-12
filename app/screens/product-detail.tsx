@@ -36,7 +36,7 @@ import ProductDetailReviewsSection, {
   productDetailHeaderReviewSummary} from '@/components/product/ProductDetailReviewsSection';
 import ProductPurchaseDetailsSection from '@/components/product/ProductPurchaseDetailsSection';
 import { buildProductShareMessage, computeReviewStats } from '@/utils/productDetailHelpers';
-import SiteLoadingSpinner from '@/components/SiteLoadingSpinner';
+import SiteLoadingState from '@/components/SiteLoadingState';
 
 const PLACEHOLDER_IMAGE = require('@/assets/img/barbers.png');
 
@@ -246,11 +246,8 @@ const PropertyDetail = () => {
     return (
       <View className="flex-1 bg-light-primary dark:bg-dark-primary">
         <Header showBackButton title="" />
-        <View className="flex-1 items-center justify-center px-global">
-          <SiteLoadingSpinner />
-          <ThemedText className="mt-3 text-light-subtext dark:text-dark-subtext">
-            {t('commonLoading')}
-          </ThemedText>
+        <View className="flex-1">
+          <SiteLoadingState layout="page" />
         </View>
       </View>
     );

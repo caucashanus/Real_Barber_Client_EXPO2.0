@@ -103,7 +103,7 @@ function renderActionRow({
 
   return (
     <View className={CARD_ACTION_ROW_CLASS}>
-      {card.footer.slots.map((slot) => {
+      {card.footer.slots.map((slot, index) => {
         const { branchName, branchAddress } = resolveHomeTodaySlotBranch(
           card.branches,
           slot.branchId,
@@ -111,7 +111,7 @@ function renderActionRow({
         );
         return (
           <SlotTimePill
-            key={`${slot.date}-${slot.time}-${slot.branchId}`}
+            key={`${slot.date}-${slot.time}-${slot.branchId}-${index}`}
             compact
             spaced
             time={slot.time}

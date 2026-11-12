@@ -5,6 +5,7 @@ import { Pressable, Text, View, type GestureResponderEvent, type StyleProp, type
 import { styled } from 'nativewind';
 
 import Icon, { type IconName } from '@/components/Icon';
+import SiteLoadingSpinner from '@/components/SiteLoadingSpinner';
 import { useAccentColor } from '@/contexts/AccentColorContext';
 import useThemeColors from '@/contexts/ThemeColors';
 import {
@@ -120,7 +121,12 @@ export default function AppButton({
     onPress?.(event);
   };
 
-  const content =
+  const spinnerSize =
+    size === 'xs' || size === 'sm' || size === 'icon-sm' ? ('compact' as const) : ('default' as const);
+
+  const content = loading ? (
+    <SiteLoadingSpinner size={spinnerSize} />
+  ) : (
     children ?? (
       <View
         className={`flex-row items-center ${
@@ -161,7 +167,8 @@ export default function AppButton({
           />
         ) : null}
       </View>
-    );
+    )
+  );
 
   return (
     <Pressable

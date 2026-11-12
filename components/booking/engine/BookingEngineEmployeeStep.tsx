@@ -15,6 +15,7 @@ import {
 } from '@/lib/booking/designShared';
 import { appLocaleFromIntlTag } from '@/utils/intlLocaleTag';
 import { formatNextSlotDisplayTime } from '@/utils/reservationCreateHelpers';
+import SiteLoadingState from '@/components/SiteLoadingState';
 
 interface Props {
   flow: BookingEngineFlow;
@@ -69,11 +70,7 @@ function EmployeeNearestMeta({
   const { t } = flow;
 
   if (loadingNearest) {
-    return (
-      <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext">
-        {t('reservationEmployeeNearestLoading')}
-      </ThemedText>
-    );
+    return <SiteLoadingState layout="inline" size="compact" className="py-1" />;
   }
 
   if (noSlots || !nearest) {
@@ -132,9 +129,7 @@ export default function BookingEngineEmployeeStep({ flow }: Props) {
   return (
     <View>
       {flow.employeesLoading && flow.employeesForPicker.length === 0 ? (
-        <ThemedText className="py-6 text-center text-sm text-light-subtext dark:text-dark-subtext">
-          {t('commonLoading')}
-        </ThemedText>
+        <SiteLoadingState layout="section" className="py-6" />
       ) : null}
 
       {flow.employeesForPicker.map((emp) => {

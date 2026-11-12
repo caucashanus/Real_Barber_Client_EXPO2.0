@@ -1,7 +1,8 @@
 import { router } from 'expo-router';
 import React, { useEffect } from 'react';
-import { ActivityIndicator, View } from 'react-native';
+import { View } from 'react-native';
 
+import SiteLoadingState from '@/components/SiteLoadingState';
 import { useAuth } from '@/contexts/AuthContext';
 import { useVisitPlan } from '@/contexts/VisitPlanContext';
 import { LOGIN_PATH } from '@/constants/authRoutes';
@@ -40,8 +41,8 @@ export default function VisitPlanGate({
   if (authLoading || planLoading) {
     return (
       loadingFallback ?? (
-        <View className="flex-1 items-center justify-center bg-light-primary dark:bg-dark-primary">
-          <ActivityIndicator />
+        <View className="flex-1 bg-light-primary dark:bg-dark-primary">
+          <SiteLoadingState layout="page" />
         </View>
       )
     );

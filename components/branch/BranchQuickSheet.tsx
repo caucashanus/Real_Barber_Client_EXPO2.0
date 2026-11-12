@@ -342,9 +342,9 @@ function BranchQuickSheetContent({
                       {group.dayLabel}
                     </ThemedText>
                     <View className="flex-row flex-wrap items-start">
-                      {group.slots.map((slot) => (
+                      {group.slots.map((slot, index) => (
                         <SlotTimePill
-                          key={`${slot.date}-${slot.time}-${slot.employeeId}`}
+                          key={`${slot.date}-${slot.time}-${slot.employeeId}-${index}`}
                           compact
                           spaced
                           title={`${formatNextSlotDisplayTime(slot.time)} · ${slot.employeeName}`}

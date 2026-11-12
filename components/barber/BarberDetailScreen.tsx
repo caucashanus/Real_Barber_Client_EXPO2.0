@@ -17,6 +17,7 @@ import { useHomeTabScrollSync } from '@/hooks/useHomeTabScrollSync';
 import { useBarberDetailScreen } from '@/hooks/useBarberDetailScreen';
 import { useTranslation } from '@/hooks/useTranslation';
 import Header from '@/components/Header';
+import SiteLoadingState from '@/components/SiteLoadingState';
 import { OperatorCallUsSheet } from '@/components/OperatorSupportSheet';
 import ThemeScroller from '@/components/ThemeScroller';
 import ThemedText from '@/components/ThemedText';
@@ -41,7 +42,8 @@ export default function BarberDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const { t } = useTranslation();
   const { accentColor } = useAccentColor();
-  const { scrollRef, onScroll, scrollEventThrottle, animatedScroll } = useHomeTabScrollSync();
+  const { scrollRef, scrollY, onScroll, scrollEventThrottle, animatedScroll } =
+    useHomeTabScrollSync();
   const insets = useSafeAreaInsets();
   const { width: winWidth, height: winHeight } = useWindowDimensions();
   const showTopHeader = useDetailTopHeader();
@@ -86,7 +88,7 @@ export default function BarberDetailScreen() {
     useCallback(() => {
       scrollY.setValue(0);
       scrollRef.current?.scrollTo({ y: 0, animated: false });
-    }, [scrollY])
+    }, [scrollRef, scrollY])
   );
 
   const handleProfileCardLayout = useCallback((event: LayoutChangeEvent) => {
@@ -155,6 +157,9 @@ export default function BarberDetailScreen() {
     return (
       <View className="flex-1 bg-light-primary dark:bg-dark-primary">
         {showTopHeader ? <Header showBackButton /> : null}
+        {loading ? (
+          <SiteLoadingState layout="page" className="flex-1" />
+        ) : null}
       </View>
     );
   }

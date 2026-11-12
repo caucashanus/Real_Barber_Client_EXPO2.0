@@ -64,6 +64,8 @@ function BookingEngineFlowShellBody({ flow, children }: BookingEngineFlowShellPr
   React.useEffect(() => {
     if (holdDialogCopy) {
       holdDialogRef.current?.show();
+    } else {
+      holdDialogRef.current?.hide();
     }
   }, [holdDialogCopy]);
 
@@ -128,11 +130,11 @@ function BookingEngineFlowShellBody({ flow, children }: BookingEngineFlowShellPr
           <View
             className="border-t border-light-secondary bg-light-secondary px-4 py-3 dark:border-dark-secondary dark:bg-dark-secondary"
             style={{ paddingBottom: Math.max(insets.bottom, 12) }}>
-            {flow.submit.submitError || flow.hold.createError ? (
+            {!flow.hold.dialogKind &&
+            (flow.submit.submitError || flow.hold.createError) ? (
               <View className="mb-3 rounded-xl border border-amber-500/40 bg-amber-500/10 px-3 py-2">
                 <ThemedText className="text-sm text-amber-700 dark:text-amber-300">
-                  {flow.submit.submitError ??
-                    flow.t('bookingHoldFailed')}
+                  {flow.submit.submitError ?? flow.t('bookingHoldFailed')}
                 </ThemedText>
               </View>
             ) : null}
@@ -182,7 +184,7 @@ function BookingEngineFlowShellBody({ flow, children }: BookingEngineFlowShellPr
           title={holdDialogCopy.title}
           message={holdDialogCopy.message}
           confirmText={holdDialogCopy.confirmText}
-          cancelText={flow.t('commonCancel')}
+          singlePrimaryAction
           onConfirm={() => flow.handleHoldDialogConfirm()}
           onCancel={() => flow.hold.dismissDialog()}
         />

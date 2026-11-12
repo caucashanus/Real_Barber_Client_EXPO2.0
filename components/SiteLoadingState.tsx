@@ -18,7 +18,7 @@ const LAYOUT_CLASS: Record<SiteLoadingLayout, string> = {
   inline: 'items-center justify-center',
 };
 
-/** Web parity: SiteLoadingState — accent ring spinner, no visible label (SR: Common.loading). */
+/** Jednotný loading v appce — accent ring, bez viditelného textu (SR: commonLoading). */
 export default function SiteLoadingState({
   size = 'default',
   layout = 'page',

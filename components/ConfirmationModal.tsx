@@ -24,6 +24,8 @@ interface ConfirmationModalProps {
   optionalReasonPlaceholder?: string;
   /** When set with optionalReasonPlaceholder, shows chips below the input for quick reason selection. */
   quickReasons?: string[];
+  /** Jen jedno potvrzovací tlačítko (bez Zrušit). */
+  singlePrimaryAction?: boolean;
 }
 
 const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
@@ -36,6 +38,7 @@ const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
   actionSheetRef,
   optionalReasonPlaceholder,
   quickReasons,
+  singlePrimaryAction = false,
 }) => {
   const { isDark } = useTheme();
   const colors = useThemeColors();
@@ -107,14 +110,28 @@ const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
             ) : null}
           </>
         ) : null}
-        <View className="w-full flex-row justify-center">
-          <Button title={cancelText} variant="outline" className="flex-1" onPress={handleCancel} />
-          <AppButton
-            title={confirmText}
-            variant="default"
-            className="ml-3 px-6"
-            onPress={handleConfirm}
-          />
+        <View className={singlePrimaryAction ? 'w-full' : 'w-full flex-row justify-center'}>
+          {singlePrimaryAction ? (
+            <AppButton
+              title={confirmText}
+              variant="default"
+              size="lg"
+              rounded="full"
+              fullWidth
+              className="w-full"
+              onPress={handleConfirm}
+            />
+          ) : (
+            <>
+              <Button title={cancelText} variant="outline" className="flex-1" onPress={handleCancel} />
+              <AppButton
+                title={confirmText}
+                variant="default"
+                className="ml-3 px-6"
+                onPress={handleConfirm}
+              />
+            </>
+          )}
         </View>
       </View>
     </ActionSheetThemed>

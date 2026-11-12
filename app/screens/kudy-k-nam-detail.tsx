@@ -17,7 +17,7 @@ import ThemedText from '@/components/ThemedText';
 import VideoPlayer from '@/components/VideoPlayer';
 import Section from '@/components/layout/Section';
 import { KUDY_K_NAM_VIDEOS } from '@/constants/kudy-k-nam-videos';
-import SiteLoadingSpinner from '@/components/SiteLoadingSpinner';
+import SiteLoadingState from '@/components/SiteLoadingState';
 
 function getKudyVideoUrl(branch: Branch): string | null {
   const media = branch.media;
@@ -72,11 +72,8 @@ const KudyKNamDetail = () => {
       <>
         <StatusBar style="dark" />
         <Header title={t('howToGetToUs')} showBackButton />
-        <View className="flex-1 items-center justify-center bg-light-primary p-global dark:bg-dark-primary">
-          <SiteLoadingSpinner />
-          <ThemedText className="mt-4 text-light-subtext dark:text-dark-subtext">
-            {t('commonLoading')}
-          </ThemedText>
+        <View className="flex-1 bg-light-primary dark:bg-dark-primary">
+          <SiteLoadingState layout="page" />
         </View>
       </>
     );

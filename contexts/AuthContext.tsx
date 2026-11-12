@@ -27,6 +27,8 @@ interface AuthContextValue extends AuthState {
   setAuth: (token: string, apiToken: string, client: CrmClient) => Promise<void>;
   clearAuth: () => Promise<void>;
   signOutToLogin: () => Promise<void>;
+  /** GET /me → AuthContext + AsyncStorage (best effort). */
+  refreshClientFromMe: () => Promise<CrmClient | null>;
 }
 
 const AuthContext = createContext<AuthContextValue | null>(null);
@@ -121,20 +123,40 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     return () => setUnauthorizedHandler(null);
   }, [signOutToLogin]);
 
+  const persistClient = useCallback(async (next: CrmClient) => {
+    setClient(next);
+    try {
+      await AsyncStorage.setItem(CLIENT_KEY, JSON.stringify(next));
+    } catch {
+      // AsyncStorage unavailable; in-memory state is still updated
+    }
+  }, []);
+
   const setAuth = async (newToken: string, newApiToken: string, newClient: CrmClient) => {
     setTokenState(newToken);
     setApiTokenState(newApiToken);
-    setClient(newClient);
+    await persistClient(newClient);
     try {
       await Promise.all([
         AsyncStorage.setItem(TOKEN_KEY, newToken),
         AsyncStorage.setItem(API_TOKEN_KEY, newApiToken),
-        AsyncStorage.setItem(CLIENT_KEY, JSON.stringify(newClient)),
       ]);
     } catch {
       // AsyncStorage unavailable; in-memory state is still updated
     }
   };
+
+  const refreshClientFromMe = useCallback(async (): Promise<CrmClient | null> => {
+    if (!apiToken) return null;
+    try {
+      const me = await getClientMe(apiToken);
+      const fromApi = clientMeToCrm(me);
+      await persistClient(fromApi);
+      return fromApi;
+    } catch {
+      return null;
+    }
+  }, [apiToken, persistClient]);
 
   const value: AuthContextValue = {
     token,
@@ -144,6 +166,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setAuth,
     clearAuth,
     signOutToLogin,
+    refreshClientFromMe,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

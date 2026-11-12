@@ -23,7 +23,7 @@ import ThemedText from '@/components/ThemedText';
 import { List } from '@/components/layout/List';
 import ListItem from '@/components/layout/ListItem';
 import Section from '@/components/layout/Section';
-import SiteLoadingSpinner from '@/components/SiteLoadingSpinner';
+import SiteLoadingState from '@/components/SiteLoadingState';
 import SurfaceCard from '@/components/layout/SurfaceCard';
 import {
   normalizePhoneDigitsForLookup,
@@ -288,12 +288,7 @@ export default function TransferSelectRecipientScreen() {
         <Section title={t('transferRecipient')} titleSize="lg" />
 
         {loading ? (
-          <View className="items-center py-8">
-            <SiteLoadingSpinner size="compact" />
-            <ThemedText className="mt-2 text-sm text-light-subtext dark:text-dark-subtext">
-              {t('commonLoading')}
-            </ThemedText>
-          </View>
+          <SiteLoadingState layout="section" className="py-8" />
         ) : filtered.length === 0 ? (
           <View className="px-4 py-8">
             <ThemedText className="text-center text-sm text-light-subtext dark:text-dark-subtext">

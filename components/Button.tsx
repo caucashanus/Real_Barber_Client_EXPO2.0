@@ -5,6 +5,7 @@ import React from 'react';
 import { Text, TouchableOpacity, View, type StyleProp, type ViewStyle } from 'react-native';
 
 import Icon, { IconName } from './Icon';
+import SiteLoadingSpinner from '@/components/SiteLoadingSpinner';
 
 import useThemeColors from '@/contexts/ThemeColors';
 import { triggerImpact } from '@/utils/appHaptics';
@@ -109,9 +110,11 @@ export const Button: React.FC<ButtonProps> = ({
     return undefined;
   };
 
-  const ButtonContent = (
+  const ButtonContent = loading ? (
+    <SiteLoadingSpinner size={size === 'small' ? 'compact' : 'default'} />
+  ) : (
     <View className="flex-row items-center justify-center">
-      {iconStart && !loading ? (
+      {iconStart ? (
         <Icon
           name={iconStart}
           size={getIconSize()}
@@ -122,7 +125,7 @@ export const Button: React.FC<ButtonProps> = ({
 
       <Text className={titleClassName}>{title}</Text>
 
-      {iconEnd && !loading ? (
+      {iconEnd ? (
         <Icon
           name={iconEnd}
           size={getIconSize()}

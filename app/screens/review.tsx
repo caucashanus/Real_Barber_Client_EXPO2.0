@@ -19,7 +19,7 @@ import Input from '@/components/forms/Input';
 import Switch from '@/components/forms/Switch';
 import { formatReservationReviewSubtitle } from '@/utils/bookingDetailHelpers';
 import { triggerImpact } from '@/utils/appHaptics';
-import SiteLoadingSpinner from '@/components/SiteLoadingSpinner';
+import SiteLoadingState from '@/components/SiteLoadingState';
 
 const StarRating = ({
   rating,
@@ -206,12 +206,7 @@ const ReviewScreen = () => {
       />
       <ThemedScroller className="flex-1 pt-8" keyboardShouldPersistTaps="handled">
         {loadingExisting ? (
-          <View className="items-center py-12">
-            <SiteLoadingSpinner />
-            <ThemedText className="mt-3 text-sm text-light-subtext dark:text-dark-subtext">
-              {t('commonLoading')}
-            </ThemedText>
-          </View>
+          <SiteLoadingState layout="section" />
         ) : (
           <>
             {/* Product + employee row */}

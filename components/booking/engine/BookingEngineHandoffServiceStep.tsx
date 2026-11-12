@@ -14,7 +14,7 @@ import {
 } from '@/utils/reservationCreateHelpers';
 import { formatBookingServicePriceLabel } from '@/lib/booking/designShared';
 import { shadowPresets } from '@/utils/useShadow';
-import SiteLoadingSpinner from '@/components/SiteLoadingSpinner';
+import SiteLoadingState from '@/components/SiteLoadingState';
 
 interface Props {
   flow: BookingEngineFlow;
@@ -48,14 +48,7 @@ export default function BookingEngineHandoffServiceStep({ flow }: Props) {
         {t('bookingSlotHandoffSubtitle')}
       </ThemedText>
 
-      {flow.loadingSlotServices ? (
-        <View className="items-center py-10">
-          <SiteLoadingSpinner size="compact" />
-          <ThemedText className="mt-3 text-sm text-light-subtext dark:text-dark-subtext">
-            {t('commonLoading')}
-          </ThemedText>
-        </View>
-      ) : null}
+      {flow.loadingSlotServices ? <SiteLoadingState layout="section" className="py-10" /> : null}
 
       {flow.slotServicesError ? (
         <ThemedText className="mt-5 text-sm text-red-500 dark:text-red-400">{flow.slotServicesError}</ThemedText>

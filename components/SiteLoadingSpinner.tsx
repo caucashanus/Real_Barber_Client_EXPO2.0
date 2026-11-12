@@ -11,7 +11,7 @@ const SPINNER_PX: Record<SiteLoadingSpinnerSize, number> = {
   compact: 24,
 };
 
-/** Web parity: CSS animate-spin accent ring (border-accent/25 + border-t-accent). */
+/** Vizuál spinneru — v UI preferuj SiteLoadingState. Web parity: accent ring. */
 export default function SiteLoadingSpinner({
   size = 'default',
   className,

@@ -208,7 +208,8 @@ function SettingsMainPanel({
 
       <View style={[styles.settingsFooter, { borderTopColor: colors.border }]}>
         <Button
-          title={saving ? t('visitPlanLoading') : t('visitPlanSavePreferences')}
+          title={t('visitPlanSavePreferences')}
+          loading={saving}
           variant="primary"
           size="medium"
           className="w-full py-4"

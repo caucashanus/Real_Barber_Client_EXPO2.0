@@ -31,7 +31,7 @@ import Icon from '@/components/Icon';
 import ThemedText from '@/components/ThemedText';
 import { barberDetailHref } from '@/constants/profileDetailRoutes';
 import type { TranslationKey } from '@/locales';
-import SiteLoadingSpinner from '@/components/SiteLoadingSpinner';
+import SiteLoadingState from '@/components/SiteLoadingState';
 
 function formatBalance(value: number): string {
   return value.toLocaleString('cs-CZ', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
@@ -207,12 +207,7 @@ export default function TransferChatScreen() {
           showsVerticalScrollIndicator={false}
           keyboardShouldPersistTaps="handled">
           {loading ? (
-            <View className="items-center py-12">
-              <SiteLoadingSpinner size="compact" />
-              <ThemedText className="mt-2 text-sm text-light-subtext dark:text-dark-subtext">
-                {t('commonLoading')}
-              </ThemedText>
-            </View>
+            <SiteLoadingState layout="section" />
           ) : transactions.length === 0 ? (
             <View className="px-4 py-8">
               <ThemedText className="text-center text-sm text-light-subtext dark:text-dark-subtext">

@@ -33,7 +33,7 @@ import ThemedScroller from '@/components/ThemeScroller';
 import ThemedText from '@/components/ThemedText';
 import Input from '@/components/forms/Input';
 import Section from '@/components/layout/Section';
-import SiteLoadingSpinner from '@/components/SiteLoadingSpinner';
+import SiteLoadingState from '@/components/SiteLoadingState';
 import { uploadInputFromPickerAsset } from '@/utils/normalizeUploadImage';
 
 const PLACEHOLDER_IMAGE = require('@/assets/img/barbers.png');
@@ -292,11 +292,8 @@ export default function HaircutDetailScreen() {
     return (
       <>
         <Header title={t('haircutTitle')} showBackButton />
-        <View className="flex-1 items-center justify-center bg-light-primary dark:bg-dark-primary">
-          <SiteLoadingSpinner />
-          <ThemedText className="mt-2 text-light-subtext dark:text-dark-subtext">
-            {t('commonLoading')}
-          </ThemedText>
+        <View className="flex-1 bg-light-primary dark:bg-dark-primary">
+          <SiteLoadingState layout="page" />
         </View>
       </>
     );

@@ -1,10 +1,9 @@
 import React from 'react';
-import { ActivityIndicator, View, StyleSheet } from 'react-native';
+import { View, StyleSheet } from 'react-native';
 
 import VisitPlanOnboardingIntroFlow from '@/components/visit-plan/onboarding/VisitPlanOnboardingIntroFlow';
 import VisitPlanGate from '@/components/visit-plan/VisitPlanGate';
 import VisitPlanRoot from '@/components/visit-plan/VisitPlanRoot';
-import { useTranslation } from '@/hooks/useTranslation';
 
 function IntroBody() {
   return (
@@ -19,11 +18,9 @@ const styles = StyleSheet.create({
 });
 
 export default function VisitPlanOnboardingIntroScreen() {
-  const { t } = useTranslation();
-
   return (
     <VisitPlanRoot>
-      <VisitPlanGate redirectIfHasPlan loadingFallback={<ActivityIndicator accessibilityLabel={t('visitPlanLoading')} />}>
+      <VisitPlanGate redirectIfHasPlan>
         <IntroBody />
       </VisitPlanGate>
     </VisitPlanRoot>
