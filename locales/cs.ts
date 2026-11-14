@@ -33,6 +33,10 @@ export const cs: Record<TranslationKey, string> = {
   forceUpdateMessage:
     'Vaše verze aplikace už není podporována. Snažíme se dělat maximum pro zlepšení chodu aplikace a uživatelských funkcí.',
   forceUpdateButton: 'Teď aktualizovat',
+  offlineTitle: 'Bez internetu to nepůjde',
+  offlineSubtitle: 'Zkontrolujte své připojení a zkuste to znovu.',
+  offlineRetryStillOffline: 'Pořád bez připojení..',
+  offlineRetry: 'Zkusit znovu',
   promoBannerCloseA11y: 'Zavřít banner',
   promoBannerImageA11y: 'Propagační banner',
   settingsAccent: 'Barevnost',

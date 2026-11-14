@@ -29,7 +29,7 @@ interface HomeTodayTeamSectionProps {
   showDayChips?: boolean;
 }
 
-export default function HomeTodayTeamSection({
+function HomeTodayTeamSection({
   cards,
   loading,
   refreshingAvailability,
@@ -82,3 +82,5 @@ export default function HomeTodayTeamSection({
     </Section>
   );
 }
+
+export default React.memo(HomeTodayTeamSection);

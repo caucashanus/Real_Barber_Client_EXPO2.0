@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useCallback } from 'react';
+import React, { createContext, useContext, useState, useCallback, useMemo } from 'react';
 
 import type { ClientCatalogProduct, ClientProductPurchase } from '@/api/products';
 
@@ -22,17 +22,17 @@ export function SelectedPurchaseProvider({ children }: { children: React.ReactNo
   const setCatalog = useCallback((p: ClientCatalogProduct | null) => {
     setSelectedCatalogProduct(p);
   }, []);
-  return (
-    <SelectedPurchaseContext.Provider
-      value={{
-        selectedPurchase,
-        setSelectedPurchase: setPurchase,
-        selectedCatalogProduct,
-        setSelectedCatalogProduct: setCatalog,
-      }}>
-      {children}
-    </SelectedPurchaseContext.Provider>
+  const value = useMemo(
+    () => ({
+      selectedPurchase,
+      setSelectedPurchase: setPurchase,
+      selectedCatalogProduct,
+      setSelectedCatalogProduct: setCatalog,
+    }),
+    [selectedPurchase, setPurchase, selectedCatalogProduct, setCatalog]
   );
+
+  return <SelectedPurchaseContext.Provider value={value}>{children}</SelectedPurchaseContext.Provider>;
 }
 
 export function useSelectedPurchase() {

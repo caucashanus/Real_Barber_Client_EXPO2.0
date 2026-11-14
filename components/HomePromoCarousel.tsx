@@ -88,12 +88,23 @@ export function HomePromoCarousel({
     [imageHeight, slideWidth]
   );
 
+  const slideStride = slideWidth + slideGap;
+
   const bleedTrackPadding = useMemo(
     () => ({
       paddingLeft: SITE_CAROUSEL_PAGE_GUTTER_PX,
       columnGap: slideGap,
     }),
     [slideGap]
+  );
+
+  const getItemLayout = useCallback(
+    (_data: ArrayLike<HomePromoCarouselSlide> | null | undefined, index: number) => ({
+      length: slideStride,
+      offset: SITE_CAROUSEL_PAGE_GUTTER_PX + index * slideStride,
+      index,
+    }),
+    [slideStride]
   );
 
   const bleedEndSpacer = useMemo(
@@ -146,6 +157,13 @@ export function HomePromoCarousel({
         onScrollEndDrag={onScrollEnd}
         onMomentumScrollEnd={onScrollEnd}
         decelerationRate="normal"
+        snapToInterval={slideStride}
+        snapToAlignment="start"
+        getItemLayout={getItemLayout}
+        removeClippedSubviews
+        windowSize={5}
+        initialNumToRender={3}
+        maxToRenderPerBatch={4}
         contentContainerStyle={bleedTrackPadding}
         ListFooterComponent={bleedEndSpacer}
         className="w-full"

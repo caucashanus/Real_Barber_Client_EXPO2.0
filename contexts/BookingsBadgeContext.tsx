@@ -109,12 +109,12 @@ export function BookingsBadgeProvider({ children }: { children: React.ReactNode 
     return () => sub.remove();
   }, [apiToken, authLoading, refresh]);
 
-  return (
-    <BookingsContext.Provider
-      value={{ bookings, loading, hasUpcomingBookings, refresh, refreshIfStale }}>
-      {children}
-    </BookingsContext.Provider>
+  const contextValue = useMemo(
+    () => ({ bookings, loading, hasUpcomingBookings, refresh, refreshIfStale }),
+    [bookings, loading, hasUpcomingBookings, refresh, refreshIfStale]
   );
+
+  return <BookingsContext.Provider value={contextValue}>{children}</BookingsContext.Provider>;
 }
 
 export function useBookings() {

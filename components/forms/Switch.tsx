@@ -64,25 +64,26 @@ const Switch: React.FC<SwitchProps> = ({
 
   const rowClassName = `flex-row items-center py-1 ${disabled ? 'opacity-50' : ''} ${className}`;
 
-  const leading = (
-    <>
-      {icon ? (
-        <View className="mr-3">
-          <Icon name={icon} size={20} color={colors.text} />
-        </View>
-      ) : null}
-      {(label || description) ? (
-        <View className="flex-1">
-          {label ? <ThemedText className="text-base font-medium">{label}</ThemedText> : null}
-          {description ? (
-            <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext">
-              {description}
-            </ThemedText>
-          ) : null}
-        </View>
-      ) : null}
-    </>
-  );
+  const leading =
+    icon || label || description ? (
+      <View className="min-w-0 flex-1 flex-row items-center">
+        {icon ? (
+          <View className="mr-3">
+            <Icon name={icon} size={20} color={colors.text} />
+          </View>
+        ) : null}
+        {label || description ? (
+          <View className="min-w-0 flex-1">
+            {label ? <ThemedText className="text-base font-medium">{label}</ThemedText> : null}
+            {description ? (
+              <ThemedText className="text-sm text-light-subtext dark:text-dark-subtext">
+                {description}
+              </ThemedText>
+            ) : null}
+          </View>
+        ) : null}
+      </View>
+    ) : null;
 
   if (Platform.OS === 'ios') {
     return (

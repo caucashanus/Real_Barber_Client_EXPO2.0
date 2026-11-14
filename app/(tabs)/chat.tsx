@@ -210,10 +210,10 @@ export default function ChatListScreen() {
   );
 
   return (
-    <>
+    <View className="flex-1 bg-light-primary dark:bg-dark-primary">
       <Header title={t('chatTitle')} variant="collapsibleTitle" scrollY={scrollY} />
-      <View className="flex-1 bg-light-primary dark:bg-dark-primary">
-        <AnimatedView animation="scaleIn" className="flex-1">
+      <View className="flex-1">
+        <AnimatedView animation="scaleIn" playOnlyOnce className="flex-1">
           <View className="px-4 py-0">
             <CardScroller className="mb-2" space={5}>
               <Chip
@@ -249,6 +249,6 @@ export default function ChatListScreen() {
           />
         </AnimatedView>
       </View>
-    </>
+    </View>
   );
 }

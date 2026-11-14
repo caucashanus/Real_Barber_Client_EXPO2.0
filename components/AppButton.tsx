@@ -113,7 +113,6 @@ export default function AppButton({
   };
 
   const handlePress = (event: GestureResponderEvent) => {
-    triggerHaptic();
     if (href) {
       router.push(href);
       return;
@@ -172,6 +171,7 @@ export default function AppButton({
 
   return (
     <Pressable
+      onPressIn={triggerHaptic}
       onPress={handlePress}
       disabled={isDisabled}
       accessibilityRole={variant === 'link' ? 'link' : 'button'}

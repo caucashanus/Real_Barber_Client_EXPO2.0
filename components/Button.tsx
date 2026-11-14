@@ -155,8 +155,8 @@ export const Button: React.FC<ButtonProps> = ({
         style={mergedStyle}
         className={`relative px-4 ${buttonStyles[variant]} ${buttonSize[size]} ${roundedStyles[rounded]} items-center justify-center ${disabledStyle} ${className}`}
         {...props}
+        onPressIn={triggerHaptic}
         onPress={() => {
-          triggerHaptic();
           router.push(href);
         }}>
         {ButtonContent}
@@ -166,8 +166,8 @@ export const Button: React.FC<ButtonProps> = ({
 
   return (
     <TouchableOpacity
+      onPressIn={triggerHaptic}
       onPress={() => {
-        triggerHaptic();
         onPress?.();
       }}
       disabled={loading || disabled}

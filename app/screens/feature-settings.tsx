@@ -98,7 +98,7 @@ export default function FeatureSettingsScreen() {
             leading={<Icon name="Vibrate" size={20} color={colors.text} />}
             label={t('profileFeatureHaptics')}
             description={t('profileFeatureHapticsDesc')}
-            value={isHapticsLoading ? true : hapticsEnabled}
+            value={hapticsEnabled}
             onChange={setHapticsEnabled}
             disabled={isHapticsLoading}
           />

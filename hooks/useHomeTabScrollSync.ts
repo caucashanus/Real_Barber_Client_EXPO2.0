@@ -24,7 +24,8 @@ export function useHomeTabScrollSync() {
   const onScroll = useMemo(
     () =>
       Animated.event([{ nativeEvent: { contentOffset: { y: scrollY } } }], {
-        useNativeDriver: true,
+        // false = layout (height ikon v HomeTabs); native driver neumí animovat height.
+        useNativeDriver: false,
         listener: (event: NativeSyntheticEvent<NativeScrollEvent>) => {
           lastOffsetYRef.current = event.nativeEvent.contentOffset.y;
         },

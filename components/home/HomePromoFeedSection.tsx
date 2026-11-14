@@ -23,7 +23,7 @@ type Props = {
 };
 
 /** Promo karusel — vlastní časovač pro feed závislý na `now`. */
-export default function HomePromoFeedSection({
+function HomePromoFeedSection({
   posters,
   coupons,
   referral,
@@ -70,3 +70,5 @@ export default function HomePromoFeedSection({
     </View>
   );
 }
+
+export default React.memo(HomePromoFeedSection);

@@ -1,6 +1,6 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useColorScheme } from 'nativewind';
-import React, { createContext, useContext, useEffect, useCallback, useState } from 'react';
+import React, { createContext, useContext, useEffect, useCallback, useMemo, useState } from 'react';
 
 import {
   parseThemePreference,
@@ -60,11 +60,12 @@ export const ThemeProvider = ({ children }: { children: React.ReactNode }) => {
     applyPreference(next);
   }, [applyPreference, isDark]);
 
-  return (
-    <ThemeContext.Provider value={{ isDark, preference, setThemePreference, toggleTheme }}>
-      {children}
-    </ThemeContext.Provider>
+  const value = useMemo(
+    () => ({ isDark, preference, setThemePreference, toggleTheme }),
+    [isDark, preference, setThemePreference, toggleTheme]
   );
+
+  return <ThemeContext.Provider value={value}>{children}</ThemeContext.Provider>;
 };
 
 export const useTheme = () => {

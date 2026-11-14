@@ -1,7 +1,7 @@
 import { Redirect, usePathname } from 'expo-router';
-import React from 'react';
+import * as SplashScreen from 'expo-splash-screen';
+import React, { useEffect } from 'react';
 import { View } from 'react-native';
-
 
 import { useAuth } from '@/contexts/AuthContext';
 import {
@@ -12,19 +12,40 @@ import {
   LOGIN_PATH,
 } from '@/constants/authRoutes';
 import { isClientMissingRequiredEmail } from '@/utils/signupHelpers';
+import AppColdStartSplash from '@/components/AppColdStartSplash';
 import OperatorFloatingButton from '@/components/OperatorFloatingButton';
-import SiteLoadingState from '@/components/SiteLoadingState';
+import { useAppBootstrapGate } from '@/hooks/useAppBootstrapGate';
+import { useColdStartHomePrefetchGate } from '@/hooks/useColdStartHomePrefetchGate';
+import { useNetworkConnectivity } from '@/hooks/useNetworkConnectivity';
+
+const ROOT_SHELL_CLASS = 'flex-1 bg-light-primary dark:bg-dark-primary';
 
 export default function AuthGuard({ children }: { children: React.ReactNode }) {
   const { apiToken, client, isLoading } = useAuth();
   const pathname = usePathname();
+  const showAuthBootstrap = useAppBootstrapGate(isLoading);
+  const homePrefetchReady = useColdStartHomePrefetchGate(apiToken);
+  const showColdStart = showAuthBootstrap || !homePrefetchReady;
+  const { offline: networkOffline } = useNetworkConnectivity();
 
-  if (!isLoading && !apiToken && !isPublicRoute(pathname)) {
+  useEffect(() => {
+    if (!showColdStart) return;
+    void SplashScreen.hideAsync();
+  }, [showColdStart]);
+
+  if (showColdStart) {
+    return (
+      <View className={ROOT_SHELL_CLASS}>
+        <AppColdStartSplash />
+      </View>
+    );
+  }
+
+  if (!apiToken && !isPublicRoute(pathname)) {
     return <Redirect href={LOGIN_PATH} />;
   }
 
   if (
-    !isLoading &&
     apiToken &&
     client &&
     isClientMissingRequiredEmail(client) &&
@@ -33,19 +54,14 @@ export default function AuthGuard({ children }: { children: React.ReactNode }) {
     return <Redirect href={LOGIN_COMPLETE_EMAIL_PATH} />;
   }
 
-  if (!isLoading && apiToken && isAuthFlowRoute(pathname)) {
+  if (apiToken && isAuthFlowRoute(pathname)) {
     return <Redirect href="/real-barber" />;
   }
 
   return (
-    <View className="flex-1">
+    <View className={ROOT_SHELL_CLASS}>
       {children}
-      {isLoading ? (
-        <View className="absolute inset-0 z-50 bg-light-primary dark:bg-dark-primary">
-          <SiteLoadingState layout="page" />
-        </View>
-      ) : null}
-      {!isLoading && apiToken ? <OperatorFloatingButton /> : null}
+      {apiToken && !networkOffline ? <OperatorFloatingButton /> : null}
     </View>
   );
 }

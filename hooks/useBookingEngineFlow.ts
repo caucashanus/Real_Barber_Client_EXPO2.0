@@ -23,7 +23,12 @@ import {
   useBookingEngineSlotHandoffEffects,
   useBookingEngineSlotHandoffState,
 } from '@/hooks/useBookingEngineSlotHandoff';
+import { useBookingEngineHoldStepEffects } from '@/hooks/useBookingEngineHoldStepEffects';
 import { useBookingHold } from '@/hooks/useBookingHold';
+import {
+  confirmHoldIssueDialog,
+  onReservationSlotConflict,
+} from '@/lib/booking/hold/holdIssueRecovery';
 import { useTranslation } from '@/hooks/useTranslation';
 import type { TranslationKey } from '@/locales';
 import { useBookings } from '@/contexts/BookingsBadgeContext';
@@ -471,17 +476,10 @@ export function useBookingEngineFlow() {
       if (result === 'ok') return true;
       return false;
     },
-    [buildHoldPayload, goToDatetimeAfterHoldIssue, hold]
+    [buildHoldPayload, hold]
   );
 
   const selections = useMemo(() => toBookingSelections(), [toBookingSelections]);
-
-  const onStepIndexChange = useCallback(
-    (index: number, reason: 'next' | 'back' | 'skip') => {
-      onStepIndexChangeBase(index, reason);
-    },
-    [onStepIndexChangeBase]
-  );
 
   const leaveBookingFlow = useCallback(() => {
     abandonBookingFlow();
@@ -1031,11 +1029,12 @@ export function useBookingEngineFlow() {
         buildPayload: buildSubmitPayload,
         contactOverride,
         onSuccess: (data) => void handleSubmitSuccess(data, hadCoupon),
-        onSlotConflict: () => {
-          void hold.releaseHoldBestEffort();
-          submit.clearSubmitError();
-          hold.showUnavailableDialog();
-        },
+        onSlotConflict: () =>
+          onReservationSlotConflict({
+            releaseHoldBestEffort: hold.releaseHoldBestEffort,
+            clearSubmitError: submit.clearSubmitError,
+            showUnavailableDialog: hold.showUnavailableDialog,
+          }),
         formatError: (err) => formatBookingSubmitError(err, t),
       });
     })();
@@ -1052,34 +1051,21 @@ export function useBookingEngineFlow() {
     client,
   ]);
 
-  useEffect(() => {
-    if (step !== 'summary' || submit.submitSuccess) return;
-    void hold.extendOnce();
-  }, [step, submit.submitSuccess, hold]);
-
-  useEffect(() => {
-    if (step !== 'summary') return;
-    void refreshClientFromMe();
-  }, [step, refreshClientFromMe]);
-
-  useEffect(() => {
-    if (step !== 'datetime') return;
-    submit.clearSubmitError();
-    hold.resetExtendOnce();
-    if (hold.holdId) {
-      void hold.releaseHoldBestEffort();
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- release once when entering datetime
-  }, [step]);
+  useBookingEngineHoldStepEffects({
+    step,
+    hold,
+    submit,
+    refreshClientFromMe,
+  });
 
   const handleHoldDialogConfirm = useCallback(() => {
-    const kind = hold.dialogKind;
-    hold.dismissDialog();
-    submit.clearSubmitError();
-    if (kind === 'expired' || kind === 'unavailable') {
-      void hold.releaseHoldBestEffort();
-      goToDatetimeAfterHoldIssue();
-    }
+    confirmHoldIssueDialog(hold.dialogKind, {
+      dismissDialog: hold.dismissDialog,
+      clearSubmitError: submit.clearSubmitError,
+      releaseHoldBestEffort: hold.releaseHoldBestEffort,
+      goToDatetimeAfterHoldIssue,
+      showUnavailableDialog: hold.showUnavailableDialog,
+    });
   }, [goToDatetimeAfterHoldIssue, hold, submit]);
 
   const bookingSubmitBlockReason = useMemo(
@@ -1255,7 +1241,7 @@ export function useBookingEngineFlow() {
     footerAction,
     handleSubmit,
     isNextDisabled,
-    onStepIndexChange,
+    onStepIndexChange: onStepIndexChangeBase,
     initialStepIndex: 0,
     submitSuccess: submit.submitSuccess,
   };

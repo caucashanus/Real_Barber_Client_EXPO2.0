@@ -186,7 +186,7 @@ const FavoritesScreen = () => {
 
   return (
     <View className="flex-1 bg-light-primary dark:bg-dark-primary">
-      <AnimatedView animation="scaleIn" className="flex-1">
+      <AnimatedView animation="scaleIn" playOnlyOnce className="flex-1">
         <Header title={t('favoritesTabTitle')} variant="collapsibleTitle" scrollY={scrollY} />
         <ThemeScroller
           onScroll={scrollHandler}

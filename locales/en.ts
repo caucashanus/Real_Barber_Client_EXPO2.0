@@ -31,6 +31,10 @@ export const en = {
   forceUpdateMessage:
     'Your app version is no longer supported. We do our best to improve how the app runs and the features you use.',
   forceUpdateButton: 'Update now',
+  offlineTitle: 'This won’t work without internet',
+  offlineSubtitle: 'Check your connection and try again.',
+  offlineRetryStillOffline: 'Still offline..',
+  offlineRetry: 'Try again',
   promoBannerCloseA11y: 'Close banner',
   promoBannerImageA11y: 'Promotional banner',
   settingsAccent: 'Accent color',

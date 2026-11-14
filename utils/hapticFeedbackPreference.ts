@@ -19,8 +19,15 @@ export async function getHapticFeedbackEnabled(): Promise<boolean> {
   if (cachedEnabled !== null) return cachedEnabled;
 
   const raw = await AsyncStorage.getItem(STORAGE_KEY).catch(() => null);
+  // Ne přepisovat cache, pokud uživatel mezitím přepnul přepínač (race s AsyncStorage).
+  if (cachedEnabled !== null) return cachedEnabled;
   cachedEnabled = raw !== 'false';
   return cachedEnabled;
+}
+
+/** Na startu app — aby getHapticFeedbackEnabledSync odpovídal uložené volbě ještě před prvním tapnutím. */
+export function preloadHapticFeedbackPreference(): Promise<boolean> {
+  return getHapticFeedbackEnabled();
 }
 
 export async function setHapticFeedbackEnabled(enabled: boolean): Promise<void> {

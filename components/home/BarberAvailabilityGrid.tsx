@@ -201,7 +201,7 @@ interface BarberAvailabilityGridProps {
   className?: string;
 }
 
-export default function BarberAvailabilityGrid({
+function BarberAvailabilityGrid({
   cards,
   locale,
   t,
@@ -234,7 +234,7 @@ export default function BarberAvailabilityGrid({
   }, []);
 
   return (
-    <>
+    <View>
       <View className={`relative ${GRID_BLEED_CLASS} ${className}`}>
         {refreshing ? (
           <View className="absolute right-0 top-1 z-10">
@@ -259,6 +259,9 @@ export default function BarberAvailabilityGrid({
         onJoined={handleWaitlistJoined}
         t={t}
       />
-    </>
+    </View>
   );
 }
+
+const MemoBarberAvailabilityGrid = React.memo(BarberAvailabilityGrid);
+export default MemoBarberAvailabilityGrid;

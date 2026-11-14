@@ -1,9 +1,12 @@
 import '../global.css';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Stack } from 'expo-router';
+import * as SplashScreen from 'expo-splash-screen';
 import { NativeWindStyleSheet } from 'nativewind';
 import React, { useEffect } from 'react';
 import { Platform } from 'react-native';
+
+SplashScreen.preventAutoHideAsync().catch(() => {});
 
 if (Platform.OS === 'ios') {
   require('@/utils/registerIosWidgets');
@@ -23,14 +26,17 @@ import { SelectedPurchaseProvider } from '@/contexts/SelectedPurchaseContext';
 import { ThemeProvider } from '@/contexts/ThemeContext';
 import { CopyFeedbackProvider } from '@/contexts/CopyFeedbackContext';
 import { PhoneCallFeedbackProvider } from '@/contexts/PhoneCallFeedbackContext';
+import { NetworkConnectivityProvider } from '@/contexts/NetworkConnectivityContext';
 import { TransferRecipientProvider } from '@/contexts/TransferRecipientContext';
 import useThemedNavigation from '@/hooks/useThemedNavigation';
 import { useListingCacheResume } from '@/hooks/useListingCacheResume';
 
 import AuthGuard from '@/components/AuthGuard';
 import ForceUpdateGate from '@/components/ForceUpdateGate';
+import OfflineGate from '@/components/OfflineGate';
 import PromoBannerGate from '@/components/PromoBannerGate';
 import { APP_OPENS_KEY } from '@/constants/appOpens';
+import { preloadHapticFeedbackPreference } from '@/utils/hapticFeedbackPreference';
 
 export { APP_OPENS_KEY };
 
@@ -80,6 +86,10 @@ function ThemedLayout() {
 }
 
 export default function RootLayout() {
+  useEffect(() => {
+    void preloadHapticFeedbackPreference();
+  }, []);
+
   return (
     <GestureHandlerRootView
       className={`bg-light-primary dark:bg-dark-primary ${Platform.OS === 'ios' ? 'pb-0 ' : ''}`}
@@ -96,15 +106,19 @@ export default function RootLayout() {
                         <FavoritesSyncProvider>
                           <PushNotificationsProvider>
                             <LiveActivityPushProvider>
+                              <NetworkConnectivityProvider>
                               <AuthGuard>
                                 <PhoneCallFeedbackProvider>
                                   <ForceUpdateGate>
-                                    <PromoBannerGate>
-                                      <ThemedLayout />
-                                    </PromoBannerGate>
+                                    <OfflineGate>
+                                      <PromoBannerGate>
+                                        <ThemedLayout />
+                                      </PromoBannerGate>
+                                    </OfflineGate>
                                   </ForceUpdateGate>
                                 </PhoneCallFeedbackProvider>
                               </AuthGuard>
+                              </NetworkConnectivityProvider>
                             </LiveActivityPushProvider>
                           </PushNotificationsProvider>
                         </FavoritesSyncProvider>

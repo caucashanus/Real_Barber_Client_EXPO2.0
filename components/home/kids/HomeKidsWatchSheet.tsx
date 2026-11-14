@@ -19,19 +19,15 @@ import { Button } from '@/components/Button';
 import Icon from '@/components/Icon';
 import ReserveButton from '@/components/ReserveButton';
 import SurfaceCard from '@/components/layout/SurfaceCard';
-import Input from '@/components/forms/Input';
 import WaitlistPreferredContactPickerSheet, {
-  preferredContactIcon,
-  preferredContactLabelKey,
   type WaitlistPreferredContactPickerHandle,
 } from '@/components/home/WaitlistPreferredContactPickerSheet';
-import KidsWatchAvoidOptionRow from '@/components/home/kids/KidsWatchAvoidOptionRow';
-import KidsWatchPhotoGrid from '@/components/home/kids/KidsWatchPhotoGrid';
 import KidsWatchPickBookingRow from '@/components/home/kids/KidsWatchPickBookingRow';
 import KidsWatchPickEmptyState from '@/components/home/kids/KidsWatchPickEmptyState';
+import { KidsWatchPromoBenefits } from '@/components/home/kids/KidsWatchSheetParts';
+import KidsWatchWizardStepContent from '@/components/home/kids/KidsWatchWizardStepContent';
 import CopyIconButton from '@/components/shared/CopyIconButton';
 import ThemedText from '@/components/ThemedText';
-import { KIDS_WATCH_AVOID_OPTIONS } from '@/constants/kidsWatchAvoidOptions';
 import {
   KIDS_WATCH_PROMO_HERO,
   KIDS_WATCH_PROMO_HERO_ASPECT,
@@ -58,26 +54,17 @@ import { filterKidsWatchEligibleBookings } from '@/utils/kidsWatchEligibleBookin
 import { isKidsHaircutBooking } from '@/utils/isKidsHaircutBooking';
 import { buildKidsWatchSubmitBody } from '@/utils/buildKidsWatchSubmitBody';
 import { uploadKidsWatchHaircutPhotoUrls } from '@/utils/uploadKidsWatchHaircutPhotos';
-import { formatKidsWatchBookingDateBranch } from '@/utils/kidsWatchBookingDisplay';
 import {
   createInitialKidsWatchForm,
-  generateKidsWatchPin,
   isKidsWatchPhoneValid,
   KIDS_WATCH_WIZARD_STEPS,
   type KidsWatchFlowStep,
   type KidsWatchFormState,
 } from '@/utils/kidsWatchHelpers';
 import type { KidsWatchBookingEntry } from '@/hooks/useKidsWatchSheetLauncher';
-import type { TranslationKey } from '@/locales';
 import { registerKidsWatchOpener } from '@/utils/openKidsWatchFromBooking';
 
 const MAX_PHOTOS = 3;
-const BENEFIT_KEYS = [
-  'kidsWatchBenefitPin',
-  'kidsWatchBenefitArrivalDeparture',
-  'kidsWatchBenefitTreats',
-  'kidsWatchBenefitHaircutPhoto',
-] as const;
 
 type Props = {
   open: boolean;
@@ -796,180 +783,31 @@ export default function HomeKidsWatchSheet({
                   <ThemedText className="mt-2 text-sm text-light-subtext dark:text-dark-subtext">
                     {t('kidsWatchPromoLead')}
                   </ThemedText>
-                  <View className="mt-5 py-3">
-                    {BENEFIT_KEYS.map((key) => (
-                      <View key={key} className="flex-row gap-3 py-2.5">
-                        <View className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-light-text dark:bg-dark-text" />
-                        <ThemedText className="flex-1 text-sm leading-snug">{t(key)}</ThemedText>
-                      </View>
-                    ))}
-                  </View>
+                  <KidsWatchPromoBenefits t={t} />
                 </View>
               </View>
             ) : null}
 
-            {step === 'pin' && selectedBooking ? (
-              <View className="px-global pt-2">
-                <BookingMeta booking={selectedBooking} locale={locale} t={t} />
-                <SurfaceCard rounded="2xl" className="mt-4 p-5">
-                  <View className="flex-row items-center justify-between">
-                    <ThemedText className="text-4xl font-bold tracking-[0.25em]">{form.pin}</ThemedText>
-                    <Pressable
-                      onPress={() => setForm((f) => ({ ...f, pin: generateKidsWatchPin() }))}
-                      hitSlop={10}
-                      accessibilityRole="button"
-                      accessibilityLabel={t('kidsWatchStepPinRegenerate')}
-                      className="h-11 w-11 shrink-0 items-center justify-center rounded-full bg-light-secondary active:opacity-70 dark:bg-dark-secondary">
-                      <Icon name="RotateCcw" size={20} className="text-light-text dark:text-dark-text" />
-                    </Pressable>
-                  </View>
-                  <ThemedText className="mt-4 text-sm text-light-subtext dark:text-dark-subtext">
-                    {t('kidsWatchStepPinHint')}
-                  </ThemedText>
-                </SurfaceCard>
-                <ThemedText className="mt-3 text-sm text-light-subtext dark:text-dark-subtext">
-                  {t('kidsWatchStepPinOptionalHint')}
-                </ThemedText>
-              </View>
-            ) : null}
-
-            {step === 'notify' ? (
-              <View className="px-global pt-2">
-                <ThemedText className="mb-3 text-sm text-light-subtext dark:text-dark-subtext">
-                  {t('kidsWatchStepNotifyLead')}
-                </ThemedText>
-                <NotifyToggleRow
-                  label={t('kidsWatchNotifyArrival')}
-                  checked={form.notifyArrival}
-                  onToggle={() => setForm((f) => ({ ...f, notifyArrival: !f.notifyArrival }))}
-                />
-                <NotifyToggleRow
-                  label={t('kidsWatchNotifyDeparture')}
-                  checked={form.notifyDeparture}
-                  onToggle={() => setForm((f) => ({ ...f, notifyDeparture: !f.notifyDeparture }))}
-                />
-              </View>
-            ) : null}
-
-            {step === 'treats' ? (
-              <View className="px-global pt-2">
-                <ThemedText className="mb-3 text-sm text-light-subtext dark:text-dark-subtext">
-                  {t('kidsWatchStepTreatsHint')}
-                </ThemedText>
-                {KIDS_WATCH_AVOID_OPTIONS.map((option) => (
-                  <KidsWatchAvoidOptionRow
-                    key={option.id}
-                    option={option}
-                    selected={form.avoidIds.includes(option.id)}
-                    onToggle={() =>
-                      setForm((f) => ({
-                        ...f,
-                        avoidIds: f.avoidIds.includes(option.id)
-                          ? f.avoidIds.filter((id) => id !== option.id)
-                          : [...f.avoidIds, option.id],
-                      }))
-                    }
-                    t={t}
-                  />
-                ))}
-              </View>
-            ) : null}
-
-            {step === 'photo' ? (
-              <View className="px-global pt-2">
-                <ThemedText className="mb-3 text-sm text-light-subtext dark:text-dark-subtext">
-                  {t('kidsWatchStepPhotoHint')}
-                </ThemedText>
-                <KidsWatchPhotoGrid
-                  uris={form.photoUris}
-                  maxPhotos={MAX_PHOTOS}
-                  onAddGallery={() => void addPhoto()}
-                  onAddCamera={() => void takePhoto()}
-                  onRemove={(uri) =>
-                    setForm((f) => ({ ...f, photoUris: f.photoUris.filter((u) => u !== uri) }))
-                  }
-                  galleryLabel={t('kidsWatchStepPhotoGallery')}
-                  cameraLabel={t('kidsWatchStepPhotoCamera')}
-                  maxLabel={t('kidsWatchStepPhotoMax')}
-                />
-              </View>
-            ) : null}
-
-            {step === 'phone' ? (
-              <View className="px-global pt-2">
-                <ThemedText className="mb-5 text-sm font-medium">
-                  {t('homeTodayTeamWaitlistPreferredSection')}
-                </ThemedText>
-                <Pressable
-                  onPress={() => pickerRef.current?.show()}
-                  className="mb-4 flex-row items-center gap-3 rounded-xl border border-light-subtext/25 px-3 py-3 dark:border-dark-subtext/30">
-                  {preferredContactIcon(form.preferredContact, colors)}
-                  <View className="min-w-0 flex-1">
-                    <ThemedText className="text-sm font-medium">
-                      {useAlternateContact
-                        ? t('homeTodayTeamWaitlistUseOtherContact')
-                        : t(preferredContactLabelKey(form.preferredContact))}
-                    </ThemedText>
-                    {contactPickerSubtitle ? (
-                      <ThemedText
-                        className={`mt-0.5 text-xs text-light-subtext dark:text-dark-subtext ${
-                          useAlternateContact &&
-                          !alternatePhoneDraft.trim() &&
-                          !alternateEmailDraft.trim()
-                            ? 'italic'
-                            : ''
-                        }`}>
-                        {contactPickerSubtitle}
-                      </ThemedText>
-                    ) : null}
-                  </View>
-                  <Icon name="ChevronRight" size={18} className="text-light-subtext dark:text-dark-subtext" />
-                </Pressable>
-                {useAlternateContact ? (
-                  <View className="gap-3">
-                    <Input
-                      label={t('homeTodayTeamWaitlistAlternatePhoneLabel')}
-                      value={alternatePhoneDraft}
-                      onChangeText={setAlternatePhoneDraft}
-                      keyboardType="phone-pad"
-                      variant="classic"
-                    />
-                    <Input
-                      label={t('homeTodayTeamWaitlistAlternateEmailLabel')}
-                      value={alternateEmailDraft}
-                      onChangeText={setAlternateEmailDraft}
-                      keyboardType="email-address"
-                      autoCapitalize="none"
-                      variant="classic"
-                    />
-                  </View>
-                ) : null}
-                {!useAlternateContact && needsContactEmail ? (
-                  <Input
-                    label={t('homeTodayTeamWaitlistPreferredEmail')}
-                    value={form.contactEmail}
-                    onChangeText={(contactEmail) => setForm((f) => ({ ...f, contactEmail }))}
-                    keyboardType="email-address"
-                    autoCapitalize="none"
-                    variant="classic"
-                    containerClassName="mt-3"
-                  />
-                ) : null}
-              </View>
-            ) : null}
-
-            {step === 'note' ? (
-              <View className="px-global pt-2">
-                <Input
-                  label={t('kidsWatchStepNoteLabel')}
-                  accessibilityLabel={t('kidsWatchStepNoteTitle')}
-                  value={form.note}
-                  onChangeText={(note) => setForm((f) => ({ ...f, note }))}
-                  isMultiline
-                  variant="classic"
-                />
-              </View>
-            ) : null}
+            <KidsWatchWizardStepContent
+              step={step}
+              selectedBooking={selectedBooking}
+              locale={locale}
+              t={t}
+              form={form}
+              setForm={setForm}
+              colors={colors}
+              maxPhotos={MAX_PHOTOS}
+              onAddPhotoGallery={() => void addPhoto()}
+              onAddPhotoCamera={() => void takePhoto()}
+              onOpenContactPicker={() => pickerRef.current?.show()}
+              contactPickerSubtitle={contactPickerSubtitle}
+              useAlternateContact={useAlternateContact}
+              alternatePhoneDraft={alternatePhoneDraft}
+              alternateEmailDraft={alternateEmailDraft}
+              setAlternatePhoneDraft={setAlternatePhoneDraft}
+              setAlternateEmailDraft={setAlternateEmailDraft}
+              needsContactEmail={needsContactEmail}
+            />
 
             </ScrollView>
 
@@ -989,54 +827,6 @@ export default function HomeKidsWatchSheet({
         </View>
       )}
     </ActionSheetThemed>
-  );
-}
-
-function BookingMeta({
-  booking,
-  locale,
-  t,
-}: {
-  booking: Booking;
-  locale: string;
-  t: (key: TranslationKey) => string;
-}) {
-  return (
-    <SurfaceCard rounded="2xl" className="p-3">
-      <ThemedText className="text-base font-medium" numberOfLines={2}>
-        {booking.item?.name?.trim() || t('homeRecentDefaultName')}
-      </ThemedText>
-      <ThemedText className="mt-1 text-sm text-light-subtext dark:text-dark-subtext" numberOfLines={2}>
-        {formatKidsWatchBookingDateBranch(booking, locale)}
-      </ThemedText>
-    </SurfaceCard>
-  );
-}
-
-function NotifyToggleRow({
-  label,
-  checked,
-  onToggle,
-}: {
-  label: string;
-  checked: boolean;
-  onToggle: () => void;
-}) {
-  const colors = useThemeColors();
-  return (
-    <Pressable
-      onPress={onToggle}
-      accessibilityRole="checkbox"
-      accessibilityState={{ checked }}
-      className="mb-2 flex-row items-center gap-3 rounded-xl px-2 py-3 active:opacity-70">
-      <View
-        className={`h-6 w-6 items-center justify-center rounded-md border ${
-          checked ? 'border-transparent bg-light-text dark:bg-dark-text' : 'border-light-subtext/40 dark:border-dark-subtext/40'
-        }`}>
-        {checked ? <Icon name="Check" size={16} color={colors.bg} strokeWidth={3} /> : null}
-      </View>
-      <ThemedText className="flex-1 text-sm">{label}</ThemedText>
-    </Pressable>
   );
 }
 

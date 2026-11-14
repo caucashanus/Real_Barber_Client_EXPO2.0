@@ -1,6 +1,6 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { router } from 'expo-router';
-import React, { createContext, useCallback, useContext, useEffect, useState } from 'react';
+import React, { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 
 import type { CrmClient } from '@/api/auth';
 import { getClientMe } from '@/api/client';
@@ -132,19 +132,22 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   }, []);
 
-  const setAuth = async (newToken: string, newApiToken: string, newClient: CrmClient) => {
-    setTokenState(newToken);
-    setApiTokenState(newApiToken);
-    await persistClient(newClient);
-    try {
-      await Promise.all([
-        AsyncStorage.setItem(TOKEN_KEY, newToken),
-        AsyncStorage.setItem(API_TOKEN_KEY, newApiToken),
-      ]);
-    } catch {
-      // AsyncStorage unavailable; in-memory state is still updated
-    }
-  };
+  const setAuth = useCallback(
+    async (newToken: string, newApiToken: string, newClient: CrmClient) => {
+      setTokenState(newToken);
+      setApiTokenState(newApiToken);
+      await persistClient(newClient);
+      try {
+        await Promise.all([
+          AsyncStorage.setItem(TOKEN_KEY, newToken),
+          AsyncStorage.setItem(API_TOKEN_KEY, newApiToken),
+        ]);
+      } catch {
+        // AsyncStorage unavailable; in-memory state is still updated
+      }
+    },
+    [persistClient]
+  );
 
   const refreshClientFromMe = useCallback(async (): Promise<CrmClient | null> => {
     if (!apiToken) return null;
@@ -158,16 +161,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   }, [apiToken, persistClient]);
 
-  const value: AuthContextValue = {
-    token,
-    apiToken,
-    client,
-    isLoading,
-    setAuth,
-    clearAuth,
-    signOutToLogin,
-    refreshClientFromMe,
-  };
+  const value = useMemo<AuthContextValue>(
+    () => ({
+      token,
+      apiToken,
+      client,
+      isLoading,
+      setAuth,
+      clearAuth,
+      signOutToLogin,
+      refreshClientFromMe,
+    }),
+    [token, apiToken, client, isLoading, setAuth, clearAuth, signOutToLogin, refreshClientFromMe]
+  );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }

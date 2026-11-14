@@ -21,8 +21,9 @@ interface ThemeScrollerProps extends ScrollViewProps {
   animatedScroll?: boolean;
 }
 
+const AnimatedScrollView = Animated.createAnimatedComponent(ScrollView);
 const StyledScrollView = styled(ScrollView);
-const StyledAnimatedScrollView = styled(Animated.createAnimatedComponent(ScrollView));
+const StyledAnimatedScrollView = styled(AnimatedScrollView);
 
 const ThemedScroller = React.forwardRef<ScrollView, ThemeScrollerProps>(function ThemedScroller(
   {
@@ -62,4 +63,4 @@ const ThemedScroller = React.forwardRef<ScrollView, ThemeScrollerProps>(function
 
 export default ThemedScroller;
 
-export const AnimatedScrollView = Animated.createAnimatedComponent(ScrollView);
+export { AnimatedScrollView };

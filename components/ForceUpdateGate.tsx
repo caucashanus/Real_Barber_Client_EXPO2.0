@@ -1,24 +1,15 @@
 import React from 'react';
-import { View } from 'react-native';
 
 import ForceUpdateScreen from '@/components/ForceUpdateScreen';
-import SiteLoadingState from '@/components/SiteLoadingState';
 import { useMobileCompatibilityGate } from '@/hooks/useMobileCompatibilityGate';
 
 interface ForceUpdateGateProps {
   children: React.ReactNode;
 }
 
+/** Blokuje zastaralou nativní verzi; kontrola běží na pozadí (bez fullscreen spinneru po cold startu). */
 export default function ForceUpdateGate({ children }: ForceUpdateGateProps) {
-  const { phase, blocked, storeUrl } = useMobileCompatibilityGate();
-
-  if (phase === 'checking') {
-    return (
-      <View className="flex-1 bg-light-primary dark:bg-dark-primary">
-        <SiteLoadingState layout="page" />
-      </View>
-    );
-  }
+  const { blocked, storeUrl } = useMobileCompatibilityGate();
 
   if (blocked) {
     return <ForceUpdateScreen storeUrl={storeUrl} />;

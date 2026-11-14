@@ -7,7 +7,6 @@ import useThemeColors from '@/contexts/ThemeColors';
 import { useTheme } from '@/contexts/ThemeContext';
 import ActionSheetThemed from '@/components/ActionSheetThemed';
 import AppButton from '@/components/AppButton';
-import { Button } from '@/components/Button';
 import { Chip } from '@/components/Chip';
 import ThemedText from '@/components/ThemedText';
 
@@ -79,7 +78,7 @@ const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
           {message}
         </ThemedText>
         {optionalReasonPlaceholder ? (
-          <>
+          <View>
             <TextInput
               placeholder={optionalReasonPlaceholder}
               placeholderTextColor="#888"
@@ -108,9 +107,9 @@ const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
                 })}
               </View>
             ) : null}
-          </>
+          </View>
         ) : null}
-        <View className={singlePrimaryAction ? 'w-full' : 'w-full flex-row justify-center'}>
+        <View className="w-full">
           {singlePrimaryAction ? (
             <AppButton
               title={confirmText}
@@ -122,15 +121,15 @@ const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
               onPress={handleConfirm}
             />
           ) : (
-            <>
-              <Button title={cancelText} variant="outline" className="flex-1" onPress={handleCancel} />
+            <View className="w-full flex-row justify-center gap-3">
               <AppButton
-                title={confirmText}
-                variant="default"
-                className="ml-3 px-6"
-                onPress={handleConfirm}
+                title={cancelText}
+                variant="outline"
+                className="flex-1"
+                onPress={handleCancel}
               />
-            </>
+              <AppButton title={confirmText} variant="default" className="flex-1 px-6" onPress={handleConfirm} />
+            </View>
           )}
         </View>
       </View>

@@ -15,6 +15,7 @@ export default function HaircutInspirationCarousel({ items }: HaircutInspiration
   return (
     <ScrollView
       horizontal
+      nestedScrollEnabled
       showsHorizontalScrollIndicator={false}
       className="-mx-global mt-1.5 px-global"
       contentContainerStyle={{ columnGap: CARD_GAP, paddingRight: 24 }}>

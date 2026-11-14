@@ -112,7 +112,7 @@ export const Section: React.FC<SectionProps> = ({
           )}
           <View className={titleAlign === 'right' && icon ? 'flex-1 items-end' : undefined}>
             {header || (
-              <>
+              <View className="min-w-0 flex-1">
                 {title && (
                   <View
                     className={`w-full flex-row items-center ${
@@ -146,7 +146,7 @@ export const Section: React.FC<SectionProps> = ({
                     {subtitle}
                   </ThemedText>
                 )}
-              </>
+              </View>
             )}
           </View>
         </View>

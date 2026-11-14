@@ -33,6 +33,10 @@ export const uk: Record<TranslationKey, string> = {
   forceUpdateMessage:
     'Ваша версія застосунку більше не підтримується. Ми докладаємо максимум зусиль, щоб покращити роботу застосунку та користувацькі функції.',
   forceUpdateButton: 'Оновити зараз',
+  offlineTitle: 'Без інтернету це не спрацює',
+  offlineSubtitle: 'Перевірте з’єднання та спробуйте знову.',
+  offlineRetryStillOffline: 'Досі без з’єднання..',
+  offlineRetry: 'Спробувати знову',
   promoBannerCloseA11y: 'Закрити банер',
   promoBannerImageA11y: 'Рекламний банер',
   settingsAccent: 'Кольори',

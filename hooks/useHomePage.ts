@@ -19,6 +19,10 @@ import {
   type HomeTodayTeamCardModel,
 } from '@/utils/homeTodayTeamHelpers';
 import { warmBranchHomeSlotsCatalogFromHomeResponse } from '@/utils/fetchBranchHomeSlotsCatalog';
+import {
+  consumeColdStartHomePrefetch,
+  hasColdStartHomePrefetch,
+} from '@/lib/coldStartHomePrefetch';
 import { getPragueTodayDateString } from '@/utils/teamMemberPageHelpers';
 
 type MergedTodayTeamMember = HomepageTodayTeamMember & { nextSlots: HomepageNextSlot[] };
@@ -37,7 +41,7 @@ export function useHomePage() {
     [today, locale, apiToken]
   );
 
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(() => !hasColdStartHomePrefetch());
   const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [bookings, setBookings] = useState<Booking[]>([]);
@@ -113,11 +117,18 @@ export function useHomePage() {
   }, [loadHome]);
 
   useEffect(() => {
+    const prefetched = consumeColdStartHomePrefetch();
+    if (prefetched) {
+      applyHomeData(prefetched);
+      setLoading(false);
+      return;
+    }
+
     setLoading(true);
     loadHome({ force: true })
       .catch(() => {})
       .finally(() => setLoading(false));
-  }, [loadHome]);
+  }, [applyHomeData, loadHome]);
 
   useFocusEffect(
     useCallback(() => {

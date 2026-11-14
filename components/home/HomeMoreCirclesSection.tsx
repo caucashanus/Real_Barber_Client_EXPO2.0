@@ -60,7 +60,7 @@ export default function HomeMoreCirclesSection({ className }: Props) {
   if (!client && !apiToken) return null;
 
   return (
-    <>
+    <View>
       <Section
         title={t('homeMoreTitle')}
         titleSize="lg"
@@ -111,6 +111,6 @@ export default function HomeMoreCirclesSection({ className }: Props) {
           navigateHomeFastBookLater(kidsService ?? null);
         }}
       />
-    </>
+    </View>
   );
 }

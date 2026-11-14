@@ -51,8 +51,8 @@ export default function HomeNearestBranch({ teamCards, locale, t }: HomeNearestB
           : null;
 
   return (
-    <>
-      <Pressable onPress={openSheet} className="mb-2 w-[48.7%] active:opacity-70">
+    <View className="mb-2 w-[48.7%]">
+      <Pressable onPress={openSheet} className="w-full active:opacity-70">
         <SurfaceCard rounded="2xl" className="w-full">
           <View className="flex-row items-center gap-3 p-3.5">
             <Image source={TILE_IMAGE} style={{ width: 28, height: 28 }} contentFit="contain" />
@@ -76,6 +76,6 @@ export default function HomeNearestBranch({ teamCards, locale, t }: HomeNearestB
         errorMessage={errorMessage}
         onClose={handleSheetClose}
       />
-    </>
+    </View>
   );
 }

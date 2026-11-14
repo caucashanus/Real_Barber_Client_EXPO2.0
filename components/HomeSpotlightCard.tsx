@@ -151,7 +151,7 @@ export function HomeSpotlightCard({
                       </View>
                     </View>
                   ) : (
-                    <>
+                    <View>
                       <View className="flex-row items-center gap-2">
                         <ThemedText className="min-w-0 shrink text-sm font-semibold" numberOfLines={1}>
                           {t(titleKey)}
@@ -166,10 +166,9 @@ export function HomeSpotlightCard({
                           </View>
                         ) : null}
                         {presentation.showHeaderCountdownPill && phase !== 'upcoming' ? (
-                          <>
-                            <View className="min-h-0 min-w-0 flex-1" />
+                          <View className="min-h-0 min-w-0 flex-1 flex-row items-center justify-end">
                             <BookingCountdownPill target={getBookingStartDate(booking)} />
-                          </>
+                          </View>
                         ) : null}
                       </View>
                       {showEmployeeSubtitle ? (
@@ -179,7 +178,7 @@ export function HomeSpotlightCard({
                           {booking.employee?.name ?? '—'} · {booking.branch?.name ?? ''}
                         </ThemedText>
                       ) : null}
-                    </>
+                    </View>
                   )}
                   {showAddress ? (
                     <BranchAddress

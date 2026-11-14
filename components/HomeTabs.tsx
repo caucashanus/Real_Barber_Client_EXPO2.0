@@ -1,6 +1,6 @@
 import { Image } from 'expo-image';
 import { router, usePathname } from 'expo-router';
-import React, { useEffect, useMemo, useRef } from 'react';
+import React, { memo, useMemo } from 'react';
 import { Animated, ScrollView, TouchableOpacity, View } from 'react-native';
 
 import ThemedText from './ThemedText';
@@ -12,11 +12,15 @@ import {
   visibleMobileHomeTabs,
   type MobileHomeTabDef,
 } from '@/utils/mobileHomeChrome';
-import { triggerImpact } from '@/utils/appHaptics';
 import * as Haptics from 'expo-haptics';
+
+import { triggerImpact } from '@/utils/appHaptics';
 
 const TAB_ICON_SLOT = 45;
 const SEARCH_MODAL_ICON = 36;
+/** Scroll home tabů — zúžení slotu ikon (layout height) při scrollu dolů. */
+const TAB_ICON_COLLAPSE_START = 15;
+const TAB_ICON_COLLAPSE_END = 25;
 
 type HomeTabsProps = {
   scrollY: Animated.Value;
@@ -27,31 +31,6 @@ const HomeTabs = ({ scrollY }: HomeTabsProps) => {
   const { t } = useTranslation();
   const tabs = useMemo(() => visibleMobileHomeTabs(), []);
   const activeId = resolveActiveMobileHomeTabId(pathname);
-
-  const iconExpand = useRef(new Animated.Value(1)).current;
-  const collapsedRef = useRef(false);
-
-  useEffect(() => {
-    const listenerId = scrollY.addListener(({ value }: { value: number }) => {
-      if (value > 20 && !collapsedRef.current) {
-        collapsedRef.current = true;
-        Animated.timing(iconExpand, {
-          toValue: 0,
-          duration: 200,
-          useNativeDriver: false,
-        }).start();
-      } else if (value <= 10 && collapsedRef.current) {
-        collapsedRef.current = false;
-        Animated.timing(iconExpand, {
-          toValue: 1,
-          duration: 200,
-          useNativeDriver: false,
-        }).start();
-      }
-    });
-
-    return () => scrollY.removeListener(listenerId);
-  }, [scrollY, iconExpand]);
 
   return (
     <View
@@ -74,7 +53,7 @@ const HomeTabs = ({ scrollY }: HomeTabsProps) => {
             tab={tab}
             active={tab.id === activeId}
             label={t(tab.labelKey)}
-            iconExpand={iconExpand}
+            scrollY={scrollY}
           />
         ))}
       </ScrollView>
@@ -86,18 +65,19 @@ type TabItemProps = {
   tab: MobileHomeTabDef;
   active: boolean;
   label: string;
-  iconExpand: Animated.Value;
+  scrollY: Animated.Value;
 };
 
-const TabItem = ({ tab, active, label, iconExpand }: TabItemProps) => {
+const TabItem = memo(function TabItem({ tab, active, label, scrollY }: TabItemProps) {
   const { isDark } = useTheme();
 
   const iconSource =
     tab.id === 'realBarber' && isDark && tab.iconDark ? tab.iconDark : tab.icon;
 
-  const iconSlotSize = iconExpand.interpolate({
-    inputRange: [0, 1],
-    outputRange: [0, TAB_ICON_SLOT],
+  const iconSlotSize = scrollY.interpolate({
+    inputRange: [0, TAB_ICON_COLLAPSE_START, TAB_ICON_COLLAPSE_END],
+    outputRange: [TAB_ICON_SLOT, TAB_ICON_SLOT, 0],
+    extrapolate: 'clamp',
   });
 
   const handlePress = () => {
@@ -136,6 +116,6 @@ const TabItem = ({ tab, active, label, iconExpand }: TabItemProps) => {
       </ThemedText>
     </TouchableOpacity>
   );
-};
+});
 
 export default HomeTabs;
