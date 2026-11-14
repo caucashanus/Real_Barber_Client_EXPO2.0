@@ -49,12 +49,14 @@ export function useHomePage() {
   const [posters, setPosters] = useState<ClientPoster[]>([]);
   const [referral, setReferral] = useState<HomeReferralPromo | null>(null);
   const [members, setMembers] = useState<MergedTodayTeamMember[]>([]);
+  const [homeReferenceDate, setHomeReferenceDate] = useState(today);
   const lastFetchedAtRef = useRef(0);
   const inflightRef = useRef<Promise<void> | null>(null);
 
   const applyHomeData = useCallback(
     (data: Awaited<ReturnType<typeof getHome>>) => {
       const team = data.todayTeam ?? [];
+      setHomeReferenceDate(data.meta?.date?.trim() || today);
       setMembers(mergeTodayTeamWithAvailability(team, data.availability));
       setBookings(data.bookings ?? []);
       setCoupons(data.coupons ?? []);
@@ -68,6 +70,8 @@ export function useHomePage() {
     },
     [apiToken, listingKey, locale, t, today]
   );
+
+  const homeContextDate = homeReferenceDate || today;
 
   const loadHome = useCallback(
     async (options?: { force?: boolean; silent?: boolean }) => {
@@ -137,8 +141,15 @@ export function useHomePage() {
   );
 
   const cards: HomeTodayTeamCardModel[] = useMemo(
-    () => buildHomeTodayTeamCards({ members, locale, t }),
-    [locale, members, t]
+    () =>
+      buildHomeTodayTeamCards({
+        members,
+        locale,
+        t,
+        today: homeContextDate,
+        referenceDayIso: homeContextDate,
+      }),
+    [homeContextDate, locale, members, t]
   );
 
   return {

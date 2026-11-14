@@ -207,6 +207,8 @@ export const en = {
   homeMoreKids: 'Kids',
   homeMoreGuides: 'Guides',
   homeMoreInterval: 'My interval',
+  homeMoreBored: 'Bored?',
+  rbGamesScreenTitle: 'RB Games',
   kidsWatchDrawerTitle: 'Kids watch',
   kidsWatchPromoTitle: 'We help keep your child’s visit safe and clear',
   kidsWatchPromoLead:
@@ -540,7 +542,8 @@ export const en = {
   homeTodayTeamTitle: 'Available today',
   homeTodayTeamLoading: 'Loading…',
   homeTodayTeamEmpty: 'No barbers on shift today.',
-  homeTodayTeamLoadError: 'Could not load availability.',
+  homeTodayTeamLoadError:
+    "This data isn't available right now. Pull down to refresh.",
   teamPageTitle: 'Team',
   teamPageLoading: 'Loading…',
   teamPageEmpty: 'No barbers yet.',
@@ -557,6 +560,9 @@ export const en = {
   homeTodayTeamNotAvailableToday: 'Not available today',
   teamMemberCardNoShiftHint: 'No free slots at the moment',
   teamMemberCardViewProfile: 'View profile',
+  birthdayPopoverWithAge: '{name} is celebrating their {age}th birthday on this day',
+  birthdayPopoverWithoutAge: '{name} is celebrating their birthday on this day',
+  birthdayPopoverClose: 'Close',
   homeTodayTeamWaitlistHint: "If a spot opens, we'll reach out.",
   homeTodayTeamWaitlistJoin: 'Sign up',
   homeTodayTeamWaitlistJoined: "You're on the waitlist",

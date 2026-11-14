@@ -211,6 +211,8 @@ export const cs: Record<TranslationKey, string> = {
   homeMoreKids: 'Děti',
   homeMoreGuides: 'Návody',
   homeMoreInterval: 'Můj interval',
+  homeMoreBored: 'Nuda?',
+  rbGamesScreenTitle: 'RB Games',
   kidsWatchDrawerTitle: 'Hlídání pro děti',
   kidsWatchPromoTitle: 'Pomůžeme vám s bezpečným průběhem pro vaše dítě',
   kidsWatchPromoLead:
@@ -540,7 +542,8 @@ export const cs: Record<TranslationKey, string> = {
   homeTodayTeamTitle: 'Dnes k dispozici',
   homeTodayTeamLoading: 'Načítám…',
   homeTodayTeamEmpty: 'Dnes nemá nikdo směnu.',
-  homeTodayTeamLoadError: 'Nepodařilo se načíst dostupnost.',
+  homeTodayTeamLoadError:
+    'Data teď nemáme k dispozici. Obnovte stránku potažením dolů.',
   teamPageTitle: 'Tým',
   teamPageLoading: 'Načítám…',
   teamPageEmpty: 'Zatím nemáme žádné holiče.',
@@ -557,6 +560,9 @@ export const cs: Record<TranslationKey, string> = {
   homeTodayTeamNotAvailableToday: 'Dnes už není dostupný',
   teamMemberCardNoShiftHint: 'Aktuálně žádné volné termíny',
   teamMemberCardViewProfile: 'Zobrazit profil',
+  birthdayPopoverWithAge: '{name} v tento den slaví své {age}. narozeniny',
+  birthdayPopoverWithoutAge: '{name} v tento den slaví narozeniny',
+  birthdayPopoverClose: 'Zavřít',
   homeTodayTeamWaitlistHint: 'Pokud se něco uvolní, ozveme se.',
   homeTodayTeamWaitlistJoin: 'Zapsat se',
   homeTodayTeamWaitlistJoined: 'Jste na čekací listině',

@@ -80,6 +80,14 @@ function ThemedLayout() {
               : { presentation: 'modal' }
           }
         />
+        <Stack.Screen
+          name="screens/rb-games"
+          options={{
+            headerShown: false,
+            presentation: 'fullScreenModal',
+            gestureEnabled: true,
+          }}
+        />
       </Stack>
     </>
   );

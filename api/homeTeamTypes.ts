@@ -22,6 +22,8 @@ export interface HomepageTodayTeamMember {
   branches?: HomepageTodayTeamBranch[];
   workIntervals?: HomepageWorkInterval[];
   isNew?: boolean;
+  hasBirthday?: boolean;
+  birthdayAge?: number | null;
 }
 
 export interface HomepageNextSlot {

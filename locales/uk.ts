@@ -211,6 +211,8 @@ export const uk: Record<TranslationKey, string> = {
   homeMoreKids: 'Діти',
   homeMoreGuides: 'Гайди',
   homeMoreInterval: 'Мій інтервал',
+  homeMoreBored: 'Нудно?',
+  rbGamesScreenTitle: 'RB Games',
   kidsWatchDrawerTitle: 'Догляд за дітьми',
   kidsWatchPromoTitle: 'Допоможемо безпечно провести візит вашої дитини',
   kidsWatchPromoLead:
@@ -540,7 +542,8 @@ export const uk: Record<TranslationKey, string> = {
   homeTodayTeamTitle: 'Сьогодні доступні',
   homeTodayTeamLoading: 'Завантажую…',
   homeTodayTeamEmpty: 'Сьогодні ніхто не на зміні.',
-  homeTodayTeamLoadError: 'Не вдалося завантажити доступність.',
+  homeTodayTeamLoadError:
+    'Зараз дані недоступні. Потягніть униз для оновлення.',
   teamPageTitle: 'Команда',
   teamPageLoading: 'Завантажую…',
   teamPageEmpty: 'Поки немає барберів.',
@@ -557,6 +560,9 @@ export const uk: Record<TranslationKey, string> = {
   homeTodayTeamNotAvailableToday: 'Сьогодні вже недоступний',
   teamMemberCardNoShiftHint: 'Наразі немає вільних термінів',
   teamMemberCardViewProfile: 'Показати профіль',
+  birthdayPopoverWithAge: '{name} у цей день святкує {age}-й день народження',
+  birthdayPopoverWithoutAge: '{name} у цей день святкує день народження',
+  birthdayPopoverClose: 'Закрити',
   homeTodayTeamWaitlistHint: 'Якщо звільниться місце, ми зв’яжемося.',
   homeTodayTeamWaitlistJoin: 'Записатися',
   homeTodayTeamWaitlistJoined: 'Ви в черзі',

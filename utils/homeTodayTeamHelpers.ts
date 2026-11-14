@@ -16,6 +16,10 @@ import { localeCompareTag } from '@/utils/intlLocaleTag';
 import { formatWaitlistDayWhen } from '@/utils/formatRelativeDayLabel';
 import { showIsNew } from '@/utils/crmIsNew';
 import { shouldShowTeamMemberWaitlistCta } from '@/utils/teamMemberWaitlist';
+import {
+  resolveEmployeeBirthdayBadgeForCard,
+  type EmployeeBirthdayBadgeModel,
+} from '@/utils/employeeBirthday';
 
 export type HomeTodayShiftPhase = 'upcoming' | 'active' | 'ended' | 'none';
 export type HomeTodayLiveDotVariant = 'green' | 'orange' | 'red';
@@ -46,6 +50,7 @@ export interface HomeTodayTeamCardModel {
   waitlistRequireActiveNow: boolean;
   footer: HomeTodayTeamCardFooter;
   isNew?: boolean;
+  birthdayBadge?: EmployeeBirthdayBadgeModel;
 }
 
 interface ParsedInterval {
@@ -325,10 +330,14 @@ export function buildHomeTodayTeamCards(params: {
   locale: Locale;
   t: (key: TranslationKey) => string;
   now?: Date;
+  /** Kontextový den (GET /api/home meta.date nebo Praha dnes). */
   today?: string;
+  /** Referenční den API — u home stejné jako today. */
+  referenceDayIso?: string;
 }): HomeTodayTeamCardModel[] {
   const now = params.now ?? new Date();
   const today = params.today ?? getPragueTodayDateString(now);
+  const referenceDayIso = params.referenceDayIso ?? today;
   const nowMinutes = getPragueMinutesFromDate(now);
 
   const cards = params.members.map((member) => {
@@ -362,10 +371,18 @@ export function buildHomeTodayTeamCards(params: {
     const displaySlots =
       footer.kind === 'slots' ? footer.slots : allTodaySlots.slice(0, HOMEPAGE_TODAY_TEAM_MAX_SLOTS);
     const sortSlotKey = displaySlots[0] ? slotSortKey(displaySlots[0]) : null;
+    const displayName = getHomepageMemberName(member, params.locale);
+    const birthdayBadge = resolveEmployeeBirthdayBadgeForCard(
+      member,
+      displayName,
+      today,
+      referenceDayIso,
+      params.t
+    );
 
     return {
       id: member.id,
-      name: getHomepageMemberName(member, params.locale),
+      name: displayName,
       avatarUrl: member.avatarUrl?.trim() || null,
       branches: member.branches ?? [],
       shiftStatusLabel,
@@ -378,6 +395,7 @@ export function buildHomeTodayTeamCards(params: {
       waitlistRequireActiveNow: true,
       footer,
       isNew: showIsNew(member),
+      ...(birthdayBadge ? { birthdayBadge } : {}),
     };
   });
 

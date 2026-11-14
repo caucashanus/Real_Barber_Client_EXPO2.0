@@ -7,7 +7,9 @@ import IsNewBadge from '@/components/shared/IsNewBadge';
 import Avatar from '@/components/Avatar';
 import BarberProfileHeaderActions from '@/components/barber/BarberProfileHeaderActions';
 import ThemedText from '@/components/ThemedText';
+import EmployeeBirthdayBadge from '@/components/shared/EmployeeBirthdayBadge';
 import { getShiftLiveIndicatorVariant, type TodayShiftStatus } from '@/utils/teamMemberPageHelpers';
+import type { EmployeeBirthdayBadgeModel } from '@/utils/employeeBirthday';
 import { getLanguageFlagEmoji } from '@/utils/phone';
 import type { TranslationKey } from '@/locales';
 
@@ -25,6 +27,7 @@ interface BarberIdentitySectionProps {
   shareEmailBody: string;
   onScrollToReviews: () => void;
   isNew?: boolean;
+  birthdayBadge?: EmployeeBirthdayBadgeModel | null;
   t: (key: TranslationKey) => string;
 }
 
@@ -42,6 +45,7 @@ export default function BarberIdentitySection({
   shareEmailBody,
   onScrollToReviews,
   isNew = false,
+  birthdayBadge,
   t,
 }: BarberIdentitySectionProps) {
   const languageList = (languages ?? []).filter(Boolean);
@@ -61,6 +65,11 @@ export default function BarberIdentitySection({
                 {liveVariant ? (
                   <View className="ml-3 justify-center">
                     <LiveIndicator variant={liveVariant} size="default" />
+                  </View>
+                ) : null}
+                {birthdayBadge ? (
+                  <View className={liveVariant ? 'ml-2' : 'ml-3'}>
+                    <EmployeeBirthdayBadge popoverText={birthdayBadge.popoverText} />
                   </View>
                 ) : null}
               </View>

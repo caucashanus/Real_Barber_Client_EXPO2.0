@@ -25,6 +25,7 @@ import {
 } from '@/utils/teamMemberPageHelpers';
 import { shouldShowTeamMemberWaitlistCta } from '@/utils/teamMemberWaitlist';
 import { showIsNew } from '@/utils/crmIsNew';
+import { resolveEmployeeBirthdayBadgeForCard } from '@/utils/employeeBirthday';
 
 interface ParsedInterval {
   startTime: string;
@@ -332,10 +333,18 @@ export function mapBarberRosterCard(params: {
 
   const displaySlots = footer.kind === 'slots' ? footer.slots : slotsOnDay;
   const sortSlotKeyValue = displaySlots[0] ? slotSortKey(displaySlots[0]) : null;
+  const displayName = getEmployeeName(params.employee, params.locale);
+  const birthdayBadge = resolveEmployeeBirthdayBadgeForCard(
+    params.employee,
+    displayName,
+    params.dayIso,
+    params.todayIso,
+    params.t
+  );
 
   return {
     id: params.employee.id,
-    name: getEmployeeName(params.employee, params.locale),
+    name: displayName,
     avatarUrl: params.employee.avatarUrl?.trim() || null,
     branches,
     shiftStatusLabel,
@@ -348,6 +357,7 @@ export function mapBarberRosterCard(params: {
     waitlistRequireActiveNow: isLiveDay,
     footer,
     isNew: showIsNew(params.employee),
+    ...(birthdayBadge ? { birthdayBadge } : {}),
   };
 }
 

@@ -52,7 +52,7 @@ function HomeTodayTeamSection({
     <SiteLoadingState layout="section" size="compact" className="mt-2 py-6" />
   ) : error ? (
     <View className="mt-2 py-4">
-      <ThemedText className="text-sm text-red-500 dark:text-red-400">
+      <ThemedText className="text-center text-sm leading-snug text-light-subtext dark:text-dark-subtext">
         {t(errorTextKey)}
       </ThemedText>
     </View>

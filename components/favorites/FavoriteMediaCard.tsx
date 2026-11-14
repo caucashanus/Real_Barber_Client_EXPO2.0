@@ -81,9 +81,11 @@ export default function FavoriteMediaCard({
       </View>
       <View className={`w-full ${MEDIA_CARD_IMAGE_TITLE_GAP_CLASS}`}>
         {titleTrailing ? (
-          <View className="flex-row flex-wrap items-center gap-1.5">
-            <MediaCardTitle>{title}</MediaCardTitle>
-            <View className="shrink-0">{titleTrailing}</View>
+          <View className="max-w-full flex-row items-center">
+            <MediaCardTitle className="shrink" numberOfLines={1}>
+              {title}
+            </MediaCardTitle>
+            {titleTrailing}
           </View>
         ) : (
           <MediaCardTitle>{title}</MediaCardTitle>

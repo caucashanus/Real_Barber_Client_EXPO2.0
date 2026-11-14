@@ -46,6 +46,8 @@ export interface BarberRosterEmployee {
   nextSlots: BarberRosterSlot[];
   byDate: Record<string, BarberRosterDayEntry>;
   isNew?: boolean;
+  hasBirthday?: boolean;
+  birthdayAge?: number | null;
 }
 
 export interface BarberRosterResponse {

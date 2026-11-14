@@ -1,13 +1,16 @@
 import type { ImageSourcePropType } from 'react-native';
 
+import type { IconName } from '@/components/Icon';
 import type { TranslationKey } from '@/locales';
 
-export type HomeMoreCircleId = 'style' | 'kids' | 'guides' | 'interval';
+export type HomeMoreCircleId = 'style' | 'kids' | 'guides' | 'interval' | 'bored';
 
 export type HomeMoreCircleDef = {
   id: HomeMoreCircleId;
   labelKey: TranslationKey;
-  icon: ImageSourcePropType;
+  icon?: ImageSourcePropType;
+  /** Dočasná ikona, dokud nedodáš asset (nahradí `icon`). */
+  lucideIcon?: IconName;
   /** Menší ikona uvnitř kruhu (search-modal scale). */
   imageInset?: boolean;
 };
@@ -35,6 +38,12 @@ export const HOME_MORE_CIRCLES: readonly HomeMoreCircleDef[] = [
     id: 'interval',
     labelKey: 'homeMoreInterval',
     icon: require('@/assets/img/home/visit-plan/muj-plan-navstev-ikonka.png'),
+    imageInset: true,
+  },
+  {
+    id: 'bored',
+    labelKey: 'homeMoreBored',
+    icon: require('@/assets/img/home/rbgames-ikonka-home.png'),
     imageInset: true,
   },
 ] as const;

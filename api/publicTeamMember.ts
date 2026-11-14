@@ -100,6 +100,8 @@ export interface TeamMemberPageEmployee {
   shiftCalendar?: TeamMemberShiftDay[];
   nearestSlots?: EmployeeTodaySlot[];
   isNew?: boolean;
+  hasBirthday?: boolean;
+  birthdayAge?: number | null;
 }
 
 export interface TeamMemberPageResponse {

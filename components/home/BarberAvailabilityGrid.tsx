@@ -7,6 +7,7 @@ import FavoriteMediaCard from '@/components/favorites/FavoriteMediaCard';
 import HomeTodayTeamWaitlistSheet, {
   type HomeTodayTeamWaitlistSheetHandle} from '@/components/home/HomeTodayTeamWaitlistSheet';
 import LiveIndicator from '@/components/LiveIndicator';
+import EmployeeBirthdayBadge from '@/components/shared/EmployeeBirthdayBadge';
 import Grid from '@/components/layout/Grid';
 import IsNewBadge from '@/components/shared/IsNewBadge';
 import SlotTimePill from '@/components/SlotTimePill';
@@ -182,8 +183,19 @@ function BarberAvailabilityGridCard({
       entityType="employee"
       entityId={card.id}
       titleTrailing={
-        card.liveDotVariant ? (
-          <LiveIndicator variant={card.liveDotVariant} size="sm" animated={false} />
+        card.liveDotVariant || card.birthdayBadge ? (
+          <View className="shrink-0 flex-row items-center">
+            {card.liveDotVariant ? (
+              <View className="ml-3 justify-center">
+                <LiveIndicator variant={card.liveDotVariant} size="sm" animated={false} />
+              </View>
+            ) : null}
+            {card.birthdayBadge ? (
+              <View className={card.liveDotVariant ? 'ml-2' : 'ml-3'}>
+                <EmployeeBirthdayBadge popoverText={card.birthdayBadge.popoverText} />
+              </View>
+            ) : null}
+          </View>
         ) : null
       }
       belowTitle={belowTitle}

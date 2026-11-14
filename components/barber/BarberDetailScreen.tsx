@@ -37,6 +37,7 @@ import {
 import { BARBER_DETAIL_SECTION_SPACING } from '@/constants/barberDetailLayout';
 import { teamMemberBreadcrumbItems } from '@/utils/breadcrumbs';
 import { showIsNew } from '@/utils/crmIsNew';
+import { resolveEmployeeBirthdayBadgeForProfile } from '@/utils/employeeBirthday';
 
 export default function BarberDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -140,6 +141,11 @@ export default function BarberDetailScreen() {
     [displayName, t]
   );
 
+  const birthdayBadge = useMemo(() => {
+    if (!employee) return null;
+    return resolveEmployeeBirthdayBadgeForProfile(employee, displayName, t);
+  }, [displayName, employee, t]);
+
   if (!loading && (error || !employee)) {
     return (
       <View className="flex-1 bg-light-primary dark:bg-dark-primary">
@@ -197,6 +203,7 @@ export default function BarberDetailScreen() {
               shareEmailBody={employeeShareCopy.emailBody}
               onScrollToReviews={scrollToReviews}
               isNew={showIsNew(employee)}
+              birthdayBadge={birthdayBadge}
               t={t}
             />
           </View>
